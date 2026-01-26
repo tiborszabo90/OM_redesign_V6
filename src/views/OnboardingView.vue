@@ -1,14 +1,16 @@
 <template>
   <!-- Dashboard Layout for final step -->
-  <DashboardLayout v-if="isDashboardStep">
+  <DashboardLayout v-if="isDashboardStep" @logo-click="handleLogoClick">
     <template #content>
       <component
         :is="currentStepComponent"
+        ref="dashboardComponentRef"
         v-model="formData[currentStepKey]"
         :data="formData"
         :registration-data="props.registrationData"
         @auto-next="handleAutoNext"
         @skip-to-dashboard="handleSkipToDashboard"
+        @task-created="(task) => emit('task-created', task)"
       />
     </template>
   </DashboardLayout>
@@ -28,6 +30,7 @@
                 :registration-data="props.registrationData"
                 @auto-next="handleAutoNext"
                 @skip-to-dashboard="handleSkipToDashboard"
+                @task-created="(task) => emit('task-created', task)"
               />
             </div>
 
@@ -99,9 +102,12 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['task-created', 'dashboard-mounted'])
+
 const transitionName = ref('slide-up')
 const isScrolling = ref(false)
 const scrollDebounceTimeout = ref(null)
+const dashboardComponentRef = ref(null)
 
 const baseSteps = [
   { component: StepWelcome, key: 'welcome', showButtons: true },
@@ -148,6 +154,13 @@ const steps = computed(() => {
 watch([() => formData.value.relationship?.relationship, () => formData.value.contactType?.contactType], () => {
   setTotalSteps(steps.value.length)
 }, { immediate: true })
+
+// Emit dashboard ref when it mounts
+watch(() => dashboardComponentRef.value, (newRef) => {
+  if (newRef) {
+    emit('dashboard-mounted', newRef)
+  }
+})
 
 // Display step number (always max 5 for progress bar)
 const displayStep = computed(() => Math.min(currentStep.value, 5))
@@ -201,6 +214,13 @@ const handleSkipToDashboard = () => {
   // For now, just log and complete the onboarding
 }
 
+const handleLogoClick = () => {
+  // Reset dashboard to initial state
+  if (dashboardComponentRef.value && dashboardComponentRef.value.resetToInitial) {
+    dashboardComponentRef.value.resetToInitial()
+  }
+}
+
 // Expose for DevNavBar
 const totalStepsCount = computed(() => steps.value.length)
 
@@ -216,7 +236,8 @@ const devGoToStep = (step) => {
     maxReachedStep.value = step
   }
   setTotalSteps(Math.max(steps.value.length, step))
-  goToStep(step)
+  // Directly set currentStep for dev navigation (bypassing validation)
+  currentStep.value = step
 }
 
 defineExpose({

@@ -30,22 +30,22 @@ textarea:focus {
   color: #B9BEC6;
 }
 
-/* Button hover effects (not for disabled, not for text-only buttons) */
-button:not(:disabled):not(.btn-text):hover {
+/* Button hover effects disabled for dashboard and task flow */
+/* button:not(:disabled):not(.btn-text):hover {
   box-shadow: 0 4px 14px rgba(237, 90, 41, 0.35);
-}
+} */
 
 /* Primary button (orange) hover - lighter shade */
-button.bg-\[\#ED5A29\]:not(:disabled):hover {
+/* button.bg-\[\#ED5A29\]:not(:disabled):hover {
   background-color: #F47B54 !important;
-}
+} */
 
 /* Secondary/outline button hover - light orange background */
-button.border-\[\#E3E5E8\]:not(:disabled):hover,
+/* button.border-\[\#E3E5E8\]:not(:disabled):hover,
 button.bg-transparent:not(:disabled):hover {
   background-color: #FFF4E9 !important;
   border-color: #ED5A29 !important;
-}
+} */
 
 /* Disabled button - no hover effects */
 button:disabled {

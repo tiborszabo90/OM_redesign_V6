@@ -3,9 +3,9 @@
     <!-- Left Sidebar -->
     <aside class="w-16 bg-[#ED5A29] flex flex-col items-center py-4">
       <!-- Logo -->
-      <div class="w-8 h-8 mb-3 flex items-center justify-center">
+      <button @click="$emit('logo-click')" class="w-8 h-8 mb-3 flex items-center justify-center hover:opacity-80 transition-opacity">
         <img src="/omlogo.svg" alt="OptiMonk" class="w-full h-full" />
-      </div>
+      </button>
 
       <!-- Navigation Menu -->
       <nav class="flex-1 flex flex-col w-full">
@@ -14,7 +14,7 @@
           :key="item.id"
           @click="activeItem = item.id"
           :class="[
-            'w-full py-3 flex flex-col items-center gap-1 transition-colors',
+            'w-full py-3 flex flex-col items-center gap-1 transition-colors cursor-pointer',
             activeItem === item.id
               ? 'bg-[#D14212]'
               : 'hover:bg-white/10'
@@ -28,14 +28,14 @@
       <!-- Bottom section -->
       <div class="flex flex-col items-center gap-3 mt-auto pb-14">
         <!-- Notifications - uil-bell -->
-        <button class="w-10 h-10 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors">
+        <button class="w-10 h-10 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
             <path d="M18,13.18V10a6,6,0,0,0-5-5.91V3a1,1,0,0,0-2,0V4.09A6,6,0,0,0,6,10v3.18A3,3,0,0,0,4,16v2a1,1,0,0,0,1,1H8.14a4,4,0,0,0,7.72,0H19a1,1,0,0,0,1-1V16A3,3,0,0,0,18,13.18ZM8,10a4,4,0,0,1,8,0v3H8Zm4,10a2,2,0,0,1-1.72-1h3.44A2,2,0,0,1,12,20Zm6-3H6V16a1,1,0,0,1,1-1H17a1,1,0,0,1,1,1Z"/>
           </svg>
         </button>
 
         <!-- Profile Avatar -->
-        <button class="w-10 h-10 rounded-full bg-[#8F97A4] flex items-center justify-center text-white text-sm font-medium overflow-hidden hover:ring-2 hover:ring-white/30 transition-all">
+        <button class="w-10 h-10 rounded-full bg-[#8F97A4] flex items-center justify-center text-white text-sm font-medium overflow-hidden hover:ring-2 hover:ring-white/30 transition-all cursor-pointer">
           <!-- Placeholder for profile image -->
           <span>TS</span>
         </button>
@@ -44,7 +44,7 @@
 
     <!-- Main Content Area -->
     <main class="flex-1 flex items-center justify-center overflow-hidden">
-      <div class="w-full max-w-5xl px-8">
+      <div class="w-full max-w-5xl px-8 -mt-25">
         <slot name="content"></slot>
       </div>
     </main>
@@ -53,6 +53,8 @@
 
 <script setup>
 import { ref } from 'vue'
+
+defineEmits(['logo-click'])
 
 const activeItem = ref('new-task')
 
