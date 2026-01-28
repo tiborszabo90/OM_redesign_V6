@@ -655,6 +655,10 @@ const props = defineProps({
   modelValue: {
     type: Object,
     default: () => ({})
+  },
+  initialMessage: {
+    type: String,
+    default: ''
   }
 })
 
@@ -1079,13 +1083,6 @@ const eraseText = (text, index) => {
   }
 }
 
-onMounted(() => {
-  typeText(placeholderSuggestions[0] + '...')
-
-  // Close dropdown when clicking outside
-  document.addEventListener('click', handleClickOutside)
-})
-
 onUnmounted(() => {
   if (typingTimeout) {
     clearTimeout(typingTimeout)
@@ -1190,10 +1187,35 @@ const resetToInitial = () => {
   currentPhase.value = 'analysis'
 }
 
+// Start analysis with a pre-filled message (used when coming from wizard)
+const startWithMessage = (message) => {
+  if (message?.trim()) {
+    localData.message = message.trim()
+    handleSubmit()
+  }
+}
+
+// Auto-start if initialMessage is provided
+onMounted(() => {
+  typeText(placeholderSuggestions[0] + '...')
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', handleClickOutside)
+
+  // If initial message is provided, start the analysis
+  if (props.initialMessage) {
+    // Small delay to ensure component is fully mounted
+    setTimeout(() => {
+      startWithMessage(props.initialMessage)
+    }, 100)
+  }
+})
+
 defineExpose({
   resetToInitial,
   resetToPhase,
-  currentPhase
+  currentPhase,
+  startWithMessage
 })
 </script>
 

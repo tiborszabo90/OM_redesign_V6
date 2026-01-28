@@ -101,6 +101,30 @@
             Use Cases
           </button>
 
+          <button
+            @click="$emit('navigate', 'wizard-analysis')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              currentView === 'wizard-analysis'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Wizard Analysis
+          </button>
+
+          <button
+            @click="$emit('navigate', 'wizard-style')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              currentView === 'wizard-style'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Wizard Style
+          </button>
+
           <span class="text-[#505763] mx-1">|</span>
         </template>
 

@@ -6,6 +6,7 @@
         v-model="formData"
         :data="formData"
         :registration-data="props.registrationData"
+        :initial-message="props.initialMessage"
         @task-created="(task) => emit('task-created', task)"
       />
     </template>
@@ -21,6 +22,10 @@ const props = defineProps({
   registrationData: {
     type: Object,
     default: null
+  },
+  initialMessage: {
+    type: String,
+    default: ''
   }
 })
 

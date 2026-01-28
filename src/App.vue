@@ -4,6 +4,7 @@ import DevStartView from './views/DevStartView.vue'
 import RegistrationView from './views/RegistrationView.vue'
 import OnboardingView from './views/OnboardingView.vue'
 import TaskCreationView from './views/TaskCreationView.vue'
+import WizardAnalysisView from './views/WizardAnalysisView.vue'
 import DesignGuideView from './views/DesignGuideView.vue'
 import WizardView from './views/WizardView.vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
@@ -12,11 +13,13 @@ const currentView = ref('dev-start')
 const registrationData = ref(null)
 const onboardingRef = ref(null)
 const taskCreationRef = ref(null)
+const wizardAnalysisRef = ref(null)
 const createdTasks = ref([])
 const flowSelected = ref(false)
 const registrationType = ref('email')
 const sessionKey = ref(0)
 const devNavOpen = ref(true)
+const wizardMessage = ref('')
 
 const handleRegistrationComplete = (data) => {
   registrationData.value = data
@@ -46,6 +49,7 @@ const handleDevNavigate = (view) => {
     registrationType.value = 'email'
     registrationData.value = null
     createdTasks.value = []
+    wizardMessage.value = '' // Clear wizard message
     // Then mount dev-start after a brief delay
     setTimeout(() => {
       currentView.value = 'dev-start'
@@ -54,6 +58,7 @@ const handleDevNavigate = (view) => {
     // Going to Home - always reset for fresh state
     sessionKey.value++
     flowSelected.value = true
+    wizardMessage.value = '' // Clear wizard message when navigating to home
     // Force unmount current component first
     currentView.value = null
     setTimeout(() => {
@@ -62,6 +67,25 @@ const handleDevNavigate = (view) => {
   } else if (view === 'design-guide') {
     // Design guide is a standalone view
     currentView.value = 'design-guide'
+  } else if (view === 'wizard-analysis') {
+    // Wizard analysis - set default message to auto-start
+    flowSelected.value = true
+    sessionKey.value++
+    if (!wizardMessage.value) {
+      wizardMessage.value = 'Demo website analysis'
+    }
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = view
+    }, 50)
+  } else if (view === 'wizard-style') {
+    // Wizard style - go directly to style selection
+    flowSelected.value = true
+    sessionKey.value++
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = view
+    }, 50)
   } else if (view === 'registration' || view === 'onboarding' || view === 'wizard') {
     // Navigating to flow views - ensure flow is selected
     flowSelected.value = true
@@ -97,9 +121,13 @@ const handleDevStartSelect = (type) => {
 }
 
 const handleWizardSubmit = (message) => {
-  // Store the wizard message and proceed to next step (for now, go to task creation)
-  console.log('Wizard submitted:', message)
-  currentView.value = 'task-creation'
+  // Store the wizard message and start the wizard analysis flow
+  wizardMessage.value = message
+  sessionKey.value++ // Force fresh component
+  currentView.value = null
+  setTimeout(() => {
+    currentView.value = 'wizard-analysis'
+  }, 50)
 }
 
 const handleDevGoToStep = async (step) => {
@@ -155,6 +183,7 @@ const handleTaskPhaseNavigate = async (phase) => {
 const handleGoHome = () => {
   sessionKey.value++
   flowSelected.value = true
+  wizardMessage.value = '' // Clear wizard message
   currentView.value = 'task-creation'
 }
 
@@ -200,6 +229,21 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :key="'task-' + sessionKey"
         ref="taskCreationRef"
         :registration-data="registrationData"
+        @task-created="handleTaskCreated"
+      />
+      <WizardAnalysisView
+        v-else-if="currentView === 'wizard-analysis'"
+        :key="'wizard-analysis-' + sessionKey"
+        ref="wizardAnalysisRef"
+        :registration-data="registrationData"
+        :initial-message="wizardMessage"
+        @task-created="handleTaskCreated"
+      />
+      <WizardAnalysisView
+        v-else-if="currentView === 'wizard-style'"
+        :key="'wizard-style-' + sessionKey"
+        :registration-data="registrationData"
+        :start-at-style="true"
         @task-created="handleTaskCreated"
       />
       <DesignGuideView

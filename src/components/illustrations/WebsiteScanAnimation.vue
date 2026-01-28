@@ -1,8 +1,8 @@
 <template>
-  <div class="w-[820px] h-[500px] flex items-center justify-center">
-    <div class="relative w-[820px] h-[500px]">
-      <!-- Dummy website background -->
-      <div class="absolute left-[10px] bg-white rounded-2xl shadow-xl overflow-hidden border border-[#E3E5E8] w-[800px] h-[500px]">
+  <div class="scanner-container overflow-hidden">
+    <div class="scanner-inner relative">
+      <!-- Dummy website background - centered within scanner -->
+      <div class="absolute left-[15px] top-[10px] bg-white rounded-2xl shadow-xl overflow-hidden border border-[#E3E5E8] w-[790px] h-[480px]">
         <!-- Skeleton content - visible first 2 seconds -->
         <transition name="fade">
           <div v-if="!showScreenshot" class="p-6 space-y-4 h-full overflow-hidden">
@@ -61,7 +61,8 @@
         src="https://lottie.host/3ac1aa01-5f66-42cb-a30f-cd070359a648/UwHQ4qaeYo.lottie"
         autoplay
         loop
-        class="absolute inset-0 w-[820px] h-[500px] z-10"
+        class="absolute inset-0 z-10"
+        style="width: 820px; height: 500px;"
       />
     </div>
   </div>
@@ -89,6 +90,96 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* Base size - scales down for smaller screens */
+.scanner-container {
+  width: 300px;
+  height: 183px;
+}
+
+.scanner-inner {
+  width: 820px;
+  height: 500px;
+  transform: scale(0.366);
+  transform-origin: top left;
+}
+
+/* Small screens - slightly larger */
+@media (min-width: 640px) {
+  .scanner-container {
+    width: 400px;
+    height: 244px;
+  }
+  .scanner-inner {
+    transform: scale(0.488);
+  }
+}
+
+/* Medium screens */
+@media (min-width: 768px) {
+  .scanner-container {
+    width: 450px;
+    height: 275px;
+  }
+  .scanner-inner {
+    transform: scale(0.549);
+  }
+}
+
+/* Large screens */
+@media (min-width: 1024px) {
+  .scanner-container {
+    width: 500px;
+    height: 305px;
+  }
+  .scanner-inner {
+    transform: scale(0.61);
+  }
+}
+
+/* 1200px screens */
+@media (min-width: 1200px) {
+  .scanner-container {
+    width: 574px;
+    height: 350px;
+  }
+  .scanner-inner {
+    transform: scale(0.7);
+  }
+}
+
+/* Extra large screens */
+@media (min-width: 1280px) {
+  .scanner-container {
+    width: 656px;
+    height: 400px;
+  }
+  .scanner-inner {
+    transform: scale(0.8);
+  }
+}
+
+/* 1440px+ screens */
+@media (min-width: 1440px) {
+  .scanner-container {
+    width: 738px;
+    height: 450px;
+  }
+  .scanner-inner {
+    transform: scale(0.9);
+  }
+}
+
+/* 2XL screens - full size */
+@media (min-width: 1600px) {
+  .scanner-container {
+    width: 820px;
+    height: 500px;
+  }
+  .scanner-inner {
+    transform: scale(1);
+  }
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s ease;
