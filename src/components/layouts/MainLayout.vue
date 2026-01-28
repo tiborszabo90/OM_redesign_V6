@@ -1,7 +1,7 @@
 <template>
   <div class="h-screen-safe bg-white flex flex-col relative overflow-hidden">
     <!-- Logo at top left corner -->
-    <div class="fixed top-8 left-8 lg:left-16 z-50">
+    <div class="fixed top-8 left-8 z-50">
       <img
         src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
         alt="OptiMonk"

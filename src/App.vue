@@ -5,6 +5,7 @@ import RegistrationView from './views/RegistrationView.vue'
 import OnboardingView from './views/OnboardingView.vue'
 import TaskCreationView from './views/TaskCreationView.vue'
 import DesignGuideView from './views/DesignGuideView.vue'
+import WizardView from './views/WizardView.vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
 
 const currentView = ref('dev-start')
@@ -25,6 +26,15 @@ const handleRegistrationComplete = (data) => {
 const handleOnboardingComplete = () => {
   // After onboarding, go directly to task creation
   currentView.value = 'task-creation'
+}
+
+const handleGoToWizard = () => {
+  // After onboarding, go to wizard
+  sessionKey.value++
+  currentView.value = null
+  setTimeout(() => {
+    currentView.value = 'wizard'
+  }, 50)
 }
 
 const handleDevNavigate = (view) => {
@@ -52,7 +62,7 @@ const handleDevNavigate = (view) => {
   } else if (view === 'design-guide') {
     // Design guide is a standalone view
     currentView.value = 'design-guide'
-  } else if (view === 'registration' || view === 'onboarding') {
+  } else if (view === 'registration' || view === 'onboarding' || view === 'wizard') {
     // Navigating to flow views - ensure flow is selected
     flowSelected.value = true
     sessionKey.value++
@@ -73,9 +83,23 @@ const handleDevStartSelect = (type) => {
   currentView.value = null
   // Then mount the new view after a brief delay
   setTimeout(() => {
-    // Shopify flow skips registration and goes directly to onboarding
-    currentView.value = type === 'shopify' ? 'onboarding' : 'registration'
+    if (type === 'wizard') {
+      // Wizard flow starts with use case input
+      currentView.value = 'wizard'
+    } else if (type === 'shopify') {
+      // Shopify flow skips registration and goes directly to onboarding
+      currentView.value = 'onboarding'
+    } else {
+      // Email flow starts with registration
+      currentView.value = 'registration'
+    }
   }, 50)
+}
+
+const handleWizardSubmit = (message) => {
+  // Store the wizard message and proceed to next step (for now, go to task creation)
+  console.log('Wizard submitted:', message)
+  currentView.value = 'task-creation'
 }
 
 const handleDevGoToStep = async (step) => {
@@ -169,6 +193,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :registration-data="registrationData"
         :registration-type="registrationType"
         @onboarding-complete="handleOnboardingComplete"
+        @go-to-wizard="handleGoToWizard"
       />
       <TaskCreationView
         v-else-if="currentView === 'task-creation'"
@@ -179,6 +204,11 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       />
       <DesignGuideView
         v-else-if="currentView === 'design-guide'"
+      />
+      <WizardView
+        v-else-if="currentView === 'wizard'"
+        :key="'wizard-' + sessionKey"
+        @submit="handleWizardSubmit"
       />
     </transition>
   </div>

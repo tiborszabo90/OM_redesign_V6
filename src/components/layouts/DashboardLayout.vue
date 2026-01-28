@@ -1,9 +1,9 @@
 <template>
   <div class="h-screen-safe bg-om-gray-50 flex overflow-hidden relative">
     <!-- Left Sidebar - Always visible -->
-    <aside class="fixed left-0 top-0 h-screen-safe w-19 bg-white border-r border-[#E5E7EB] flex flex-col items-center py-4 z-30">
+    <aside class="fixed left-0 top-0 h-screen-safe w-19 bg-white border-r border-[#E5E7EB] flex flex-col items-center pt-5 pb-4 z-30">
       <!-- Logo -->
-      <button @click="$emit('logo-click')" class="w-7 h-7 mb-3 flex items-center justify-center hover:opacity-80 transition-opacity">
+      <button @click="$emit('logo-click')" class="w-7 h-7 mb-5 flex items-center justify-center">
         <img src="/optimonk_logo.svg" alt="OptiMonk" class="w-full h-full" />
       </button>
 
@@ -14,7 +14,7 @@
           :key="item.id"
           @click="activeItem = item.id"
           :class="[
-            'w-full py-1.5 flex flex-col items-center gap-0.5 transition-colors cursor-pointer rounded-xl',
+            'w-full py-2 flex flex-col items-center gap-0.5 transition-colors cursor-pointer rounded-xl',
             activeItem === item.id
               ? 'bg-om-orange-100 text-om-orange-500'
               : 'text-om-gray-500 hover:bg-om-gray-100 hover:text-om-gray-600'

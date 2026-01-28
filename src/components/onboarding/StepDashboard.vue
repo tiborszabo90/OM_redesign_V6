@@ -579,7 +579,7 @@
       </div>
 
       <div class="mb-8 text-center">
-        <h2 class="text-3xl font-semibold text-[#23262A]">Hi Csaba, what do you want to do?</h2>
+        <h2 class="text-3xl font-semibold text-[#23262A]">Hi Csaba, what should we do?</h2>
       </div>
 
       <!-- Input area -->

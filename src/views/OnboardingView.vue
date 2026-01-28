@@ -73,7 +73,6 @@ import { useOnboarding } from '../composables/useOnboarding'
 import MainLayout from '../components/layouts/MainLayout.vue'
 import StepWelcome from '../components/onboarding/StepWelcome.vue'
 import StepReferralSource from '../components/onboarding/StepReferralSource.vue'
-import StepBusinessType from '../components/onboarding/StepBusinessType.vue'
 import StepRelationship from '../components/onboarding/StepRelationship.vue'
 import StepContactType from '../components/onboarding/StepContactType.vue'
 import StepAgencyDetails from '../components/onboarding/StepAgencyDetails.vue'
@@ -89,25 +88,19 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['onboarding-complete'])
+const emit = defineEmits(['onboarding-complete', 'go-to-wizard'])
 
 const transitionName = ref('slide-up')
 const isScrolling = ref(false)
 const scrollDebounceTimeout = ref(null)
 
-// Base steps - exclude business type for Shopify registration
+// Base steps - same for both Email and Shopify registration (BusinessType step removed)
 const baseSteps = computed(() => {
   const steps = [
     { component: StepWelcome, key: 'welcome', showButtons: true },
-    { component: StepReferralSource, key: 'referralSource', showButtons: false }
+    { component: StepReferralSource, key: 'referralSource', showButtons: false },
+    { component: StepRelationship, key: 'relationship', showButtons: false }
   ]
-
-  // Only include business type step for email registration
-  if (props.registrationType !== 'shopify') {
-    steps.push({ component: StepBusinessType, key: 'businessType', showButtons: false })
-  }
-
-  steps.push({ component: StepRelationship, key: 'relationship', showButtons: false })
 
   return steps
 })
@@ -127,13 +120,14 @@ const {
   goToStep,
   totalSteps,
   setTotalSteps
-} = useOnboarding(4)
+} = useOnboarding(3)
 
 // Dynamic steps based on user selection
 const steps = computed(() => {
   const allSteps = [...baseSteps.value]
   // Add contact type step if user selected "client" in relationship step
-  if (formData.value.relationship?.relationship === 'client') {
+  // Only for email registration - Shopify goes directly to wizard after Relationship step
+  if (props.registrationType !== 'shopify' && formData.value.relationship?.relationship === 'client') {
     allSteps.push(contactTypeStep)
     // Add agency details step if user selected "client-contact" in contact type step
     if (formData.value.contactType?.contactType === 'client-contact') {
@@ -148,9 +142,9 @@ watch([() => formData.value.relationship?.relationship, () => formData.value.con
   setTotalSteps(steps.value.length)
 }, { immediate: true })
 
-// Display step number (always max 5 for progress bar)
-const displayStep = computed(() => Math.min(currentStep.value, 5))
-const displayTotalSteps = computed(() => props.registrationType === 'shopify' ? 3 : 4)
+// Display step number - show actual steps count
+const displayStep = computed(() => currentStep.value)
+const displayTotalSteps = computed(() => steps.value.length)
 const displayProgress = computed(() => (displayStep.value / displayTotalSteps.value) * 100)
 
 const currentStepComponent = computed(() => {
@@ -187,8 +181,8 @@ const handleAutoNext = () => {
   nextTick(() => {
     setTotalSteps(steps.value.length)
     if (isLastStep.value) {
-      // Last step - emit completion event to navigate to task creation
-      emit('onboarding-complete')
+      // Last step - go to wizard
+      emit('go-to-wizard')
     } else {
       nextStep()
     }

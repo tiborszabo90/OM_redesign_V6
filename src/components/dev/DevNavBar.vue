@@ -60,6 +60,12 @@
               Shopify Registration
             </button>
             <button
+              @click="selectFlow('wizard')"
+              class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer"
+            >
+              Wizard
+            </button>
+            <button
               @click="goToHome"
               class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer border-t border-[#505763]"
             >
@@ -81,8 +87,26 @@
       </span>
 
       <template v-if="flowSelected">
-        <!-- Registration button only for email flow (hidden on Home) -->
-        <template v-if="currentView !== 'task-creation'">
+        <!-- Wizard-only flow -->
+        <template v-if="registrationType === 'wizard'">
+          <button
+            @click="$emit('navigate', 'wizard')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              currentView === 'wizard'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Use Cases
+          </button>
+
+          <span class="text-[#505763] mx-1">|</span>
+        </template>
+
+        <!-- Email/Shopify flow with onboarding + wizard -->
+        <template v-else>
+          <!-- Registration button only for email flow -->
           <button
             v-if="registrationType === 'email'"
             @click="$emit('navigate', 'registration')"
@@ -96,6 +120,7 @@
             Registration
           </button>
 
+          <!-- Onboarding steps -->
           <div class="flex items-center gap-1 ml-2">
             <span class="text-xs text-[#8F97A4] mr-1">Onboarding:</span>
             <button
@@ -104,7 +129,7 @@
               @click="$emit('go-to-step', step)"
               :class="[
                 'w-8 h-8 text-sm rounded transition-colors flex items-center justify-center cursor-pointer',
-                currentView === 'onboarding' && currentStep === step && currentStep <= onboardingStepsCount
+                currentView === 'onboarding' && currentStep === step
                   ? 'bg-[#ED5A29] text-white'
                   : 'bg-[#505763] hover:bg-[#8F97A4]'
               ]"
@@ -112,6 +137,19 @@
               {{ step }}
             </button>
           </div>
+
+          <!-- Wizard/Use Cases step -->
+          <button
+            @click="$emit('navigate', 'wizard')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer ml-1',
+              currentView === 'wizard'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Use Cases
+          </button>
 
           <span class="text-[#505763] mx-1">|</span>
         </template>
@@ -202,8 +240,11 @@ const props = defineProps({
 
 const emit = defineEmits(['navigate', 'go-to-step', 'go-to-task-phase', 'select-flow', 'update:isOpen'])
 
-// Number of onboarding steps depends on registration type
-const onboardingStepsCount = computed(() => props.registrationType === 'shopify' ? 3 : 4)
+// Onboarding steps count - same for both Email and Shopify
+// 3 steps: Welcome, ReferralSource, Relationship (BusinessType removed)
+const onboardingStepsCount = computed(() => {
+  return 3
+})
 
 const isOpen = ref(true)
 

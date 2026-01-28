@@ -17,6 +17,13 @@
         </button>
 
         <button
+          @click="$emit('select', 'wizard')"
+          class="px-8 py-4 bg-transparent text-om-gray-700 text-lg font-medium rounded-xl border border-om-gray-200 hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] transition-all cursor-pointer"
+        >
+          Wizard
+        </button>
+
+        <button
           @click="$emit('go-home')"
           class="px-8 py-4 bg-transparent text-om-gray-700 text-lg font-medium rounded-xl border border-om-gray-200 hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] transition-all cursor-pointer"
         >
