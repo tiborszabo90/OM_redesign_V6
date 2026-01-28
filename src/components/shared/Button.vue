@@ -36,7 +36,7 @@ const props = defineProps({
 defineEmits(['click'])
 
 const buttonClasses = computed(() => {
-  const base = 'rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2'
+  const base = 'rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer'
 
   const variants = {
     primary: 'bg-[#ED5A29] text-white hover:bg-[#E54D1F] focus:ring-[#ED5A29]',

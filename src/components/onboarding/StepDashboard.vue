@@ -1,9 +1,9 @@
 <template>
   <div class="w-full">
     <!-- Two-column layout after submit -->
-    <div v-if="submitted" class="relative" :class="showPopup ? 'min-h-screen' : 'h-screen'">
+    <div v-if="submitted" class="relative" :class="showPopup ? 'min-h-screen-safe' : 'h-screen-safe'">
       <!-- Top Navbar - show from the beginning -->
-      <nav v-if="submitted" class="fixed top-0 left-16 right-0 h-16 bg-white border-b border-[#E3E5E8] z-30 flex items-center justify-between px-8">
+      <nav v-if="submitted" class="fixed top-0 left-0 right-0 h-16 bg-white border-b border-[#E3E5E8] z-30 flex items-center justify-between px-8">
         <!-- Left side - Steps -->
         <div class="flex items-center gap-1 bg-[#F7F7F8] rounded-lg p-1">
           <button
@@ -46,10 +46,9 @@
               ]"
               title="Desktop"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#505763]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                <line x1="8" y1="21" x2="16" y2="21"></line>
-                <line x1="12" y1="17" x2="12" y2="21"></line>
+              <!-- uil-monitor -->
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#505763]" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19,3H5A3,3,0,0,0,2,6v8a3,3,0,0,0,3,3h6v2H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2H13V17h6a3,3,0,0,0,3-3V6A3,3,0,0,0,19,3Zm1,11a1,1,0,0,1-1,1H5a1,1,0,0,1-1-1V6A1,1,0,0,1,5,5H19a1,1,0,0,1,1,1Z"/>
               </svg>
             </button>
             <button
@@ -64,9 +63,9 @@
               ]"
               title="Mobile"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#505763]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="7" y="2" width="10" height="20" rx="2" ry="2"></rect>
-                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              <!-- uil-mobile-android -->
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#505763]" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M15.5,1h-7A2.5,2.5,0,0,0,6,3.5v17A2.5,2.5,0,0,0,8.5,23h7A2.5,2.5,0,0,0,18,20.5V3.5A2.5,2.5,0,0,0,15.5,1ZM12,21a1,1,0,1,1,1-1A1,1,0,0,1,12,21Zm4-4H8V5h8Z"/>
               </svg>
             </button>
           </div>
@@ -173,18 +172,19 @@
 
           <!-- Backdrop for popup in design phase -->
           <transition name="fade-popup">
-            <div v-if="showPopup && currentPhase !== 'analysis'" class="fixed top-0 left-16 right-90 bottom-14 bg-black/50 z-15"></div>
+            <div v-if="showPopup && currentPhase !== 'analysis'" class="fixed top-0 left-0 right-90 bottom-14-safe bg-black/50 z-15"></div>
           </transition>
 
           <!-- Popup overlay after analysis -->
           <transition name="fade-popup">
-            <div v-if="showPopup" class="fixed inset-x-0 top-0 bottom-16 flex flex-col items-center justify-center z-20 mr-90">
+            <div v-if="showPopup" class="fixed inset-x-0 top-0 bottom-16-safe flex flex-col items-center justify-center z-20 mr-90">
               <!-- OptiMonk List Builder Popup -->
               <div :class="['rounded-2xl shadow-2xl max-w-2xl w-full mx-8 overflow-hidden relative', popupStyles.bgColor]">
                 <!-- Close button -->
                 <button @click="showPopup = false" :class="['absolute top-4 right-4 w-8 h-8 flex items-center justify-center transition-colors z-10 rounded-lg shadow-md', popupStyles.closeBg, popupStyles.closeText, popupStyles.closeHover]">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  <!-- uil-times -->
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M13.41,12l4.3-4.29a1,1,0,1,0-1.42-1.42L12,10.59,7.71,6.29A1,1,0,0,0,6.29,7.71L10.59,12l-4.3,4.29a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0L12,13.41l4.29,4.3a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42Z"/>
                   </svg>
                 </button>
 
@@ -270,7 +270,7 @@
       </div>
 
       <!-- Page selector - fixed to bottom, above dev navbar -->
-      <div v-if="showPopup" class="fixed bottom-14 left-16 right-90 h-16 bg-white border-t border-[#E3E5E8] z-30 flex items-center justify-center">
+      <div v-if="showPopup" class="fixed bottom-14-safe left-0 right-90 h-16 bg-white border-t border-[#E3E5E8] z-30 flex items-center justify-center">
         <div class="flex items-center gap-0 bg-[#F7F7F8] rounded-lg p-1">
           <button
             v-for="page in popupPages"
@@ -289,7 +289,7 @@
       </div>
 
       <!-- Chat on the right - fixed to viewport edge -->
-      <div class="w-90 flex flex-col fixed right-0 top-0 h-screen bg-white border-l border-[#E3E5E8] p-4 pt-20 pb-16">
+      <div class="w-90 flex flex-col fixed right-0 top-0 h-screen-safe bg-white border-l border-[#E3E5E8] p-4 pt-20 pb-16">
         <!-- Messages area -->
         <div ref="messagesContainer" class="flex-1 overflow-y-auto space-y-4 mb-4">
           <!-- User message -->
@@ -341,8 +341,9 @@
               <!-- Success message -->
               <div v-else-if="discovery.type === 'success'" class="flex items-center gap-2">
                 <div class="w-5 h-5 bg-[#239E77] rounded-full flex items-center justify-center">
-                  <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                  <!-- uil-check -->
+                  <svg class="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.71,7.21a1,1,0,0,0-1.42,0L9.84,14.67,6.71,11.53A1,1,0,1,0,5.29,13l3.84,3.84a1,1,0,0,0,1.42,0l8.16-8.16A1,1,0,0,0,18.71,7.21Z"/>
                   </svg>
                 </div>
                 <span class="font-medium">{{ discovery.message }}</span>
@@ -512,8 +513,9 @@
               chatMessage?.trim() ? 'bg-[#ED5A29] text-white cursor-pointer' : 'bg-[#E3E5E8] text-[#8F97A4] cursor-default'
             ]"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+            <!-- uil-arrow-up -->
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.71,11.29l-5-5a1,1,0,0,0-.33-.21,1,1,0,0,0-.76,0,1,1,0,0,0-.33.21l-5,5a1,1,0,0,0,1.42,1.42L11,9.41V19a1,1,0,0,0,2,0V9.41l3.29,3.3a1,1,0,0,0,1.42,0A1,1,0,0,0,17.71,11.29Z"/>
             </svg>
           </button>
         </div>
@@ -521,7 +523,7 @@
     </div>
 
     <!-- Form before submit -->
-    <div v-else class="max-w-3xl mx-auto">
+    <div v-else class="w-full">
       <!-- Domain selector -->
       <div class="mb-12 flex justify-center">
         <div class="relative w-[240px]" ref="dropdownRef">
@@ -537,14 +539,14 @@
             <img src="/telekom.png" alt="Telekom" class="w-full h-full object-cover" />
           </div>
           <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+            <!-- uil-angle-down -->
             <svg
               class="w-4 h-4 text-[#505763] transition-transform"
               :class="{ 'rotate-180': isDropdownOpen }"
-              fill="none"
-              stroke="currentColor"
               viewBox="0 0 24 24"
+              fill="currentColor"
             >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"/>
             </svg>
           </div>
 
@@ -581,15 +583,25 @@
       </div>
 
       <!-- Input area -->
-      <div class="relative">
+      <div class="relative max-w-180 mx-auto">
         <textarea
           ref="textareaRef"
           v-model="localData.message"
           rows="4"
           @keydown.enter.exact.prevent="handleSubmit"
-          class="w-full px-4 py-3 border border-[#D5D8DD] rounded-xl focus:ring-2 focus:ring-[#8F97A4] focus:border-transparent transition-colors text-[#23262A] h-28 resize-none pr-12"
+          class="w-full px-4 py-3 border border-[#D5D8DD] rounded-xl focus:ring-2 focus:ring-[#8F97A4] focus:border-transparent transition-colors text-[#23262A] h-28 resize-none pr-12 bg-white"
           :placeholder="currentPlaceholder"
         ></textarea>
+        <!-- Attach button (ghost) -->
+        <button
+          class="absolute bottom-3 left-2 w-8 h-8 flex items-center justify-center text-om-gray-500 hover:text-om-gray-600 hover:bg-om-gray-100 rounded-lg transition-all cursor-pointer"
+        >
+          <!-- uil-paperclip -->
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9.29,21a6.23,6.23,0,0,1-4.43-1.88,6,6,0,0,1-.22-8.49L12,3.2A4.11,4.11,0,0,1,15,2a4.48,4.48,0,0,1,3.19,1.35,4.36,4.36,0,0,1,.15,6.13l-7.4,7.43a2.54,2.54,0,0,1-1.81.75,2.72,2.72,0,0,1-1.95-.82,2.68,2.68,0,0,1-.08-3.78l6.91-6.87a1,1,0,1,1,1.41,1.42L8.51,14.5a.67.67,0,0,0,.08.95.73.73,0,0,0,.5.2.58.58,0,0,0,.42-.17l7.39-7.42A2.38,2.38,0,0,0,17,6.37,2.38,2.38,0,0,0,16.92,5a2.59,2.59,0,0,0-1.84-.79A2.44,2.44,0,0,0,13.41,5L6.05,12.47a4,4,0,0,0,.17,5.64,4.34,4.34,0,0,0,6-.19l7.78-7.87a1,1,0,0,1,1.42,1.4L13.66,19.32A6.17,6.17,0,0,1,9.29,21Z"/>
+          </svg>
+        </button>
+        <!-- Submit button -->
         <button
           @click="handleSubmit"
           :disabled="!localData.message?.trim()"
@@ -598,24 +610,38 @@
             localData.message?.trim() ? 'bg-[#ED5A29] text-white cursor-pointer' : 'bg-[#E3E5E8] text-[#8F97A4] cursor-default'
           ]"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+          <!-- uil-arrow-up -->
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.71,11.29l-5-5a1,1,0,0,0-.33-.21,1,1,0,0,0-.76,0,1,1,0,0,0-.33.21l-5,5a1,1,0,0,0,1.42,1.42L11,9.41V17a1,1,0,0,0,2,0V9.41l3.29,3.3a1,1,0,0,0,1.42,0A1,1,0,0,0,17.71,11.29Z"/>
           </svg>
         </button>
       </div>
 
-      <!-- Example prompts -->
+      <!-- Example prompts (Pill Chips) -->
       <div class="mt-2 flex flex-wrap items-center justify-center gap-2">
         <span class="text-sm text-[#8F97A4]">Start with this:</span>
         <button
           v-for="example in examples"
           :key="example.label"
           @click="selectExample(example.prompt)"
-          class="flex items-center gap-2 px-2 py-2 rounded-full border border-[#E3E5E8] text-sm text-[#505763] hover:border-[#8F97A4] hover:bg-[#F7F7F8] transition-all cursor-pointer"
+          class="chip flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-om-gray-200 text-sm text-om-gray-700 transition-all duration-200 ease-out cursor-pointer hover:scale-[1.02]"
         >
-          <span class="text-[#505763]" v-html="example.icon"></span>
+          <span class="w-4 h-4 text-om-gray-500" v-html="example.icon"></span>
           <span>{{ example.label }}</span>
         </button>
+      </div>
+
+      <!-- Recommended campaigns -->
+      <div class="mt-16">
+        <h3 class="text-lg font-medium text-om-gray-700 mb-4">Recommended campaigns</h3>
+        <div class="grid grid-cols-6 gap-4">
+          <div class="h-32 bg-white rounded-xl border border-om-gray-200"></div>
+          <div class="h-32 bg-white rounded-xl border border-om-gray-200"></div>
+          <div class="h-32 bg-white rounded-xl border border-om-gray-200"></div>
+          <div class="h-32 bg-white rounded-xl border border-om-gray-200"></div>
+          <div class="h-32 bg-white rounded-xl border border-om-gray-200"></div>
+          <div class="h-32 bg-white rounded-xl border border-om-gray-200"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1079,14 +1105,22 @@ const localData = reactive({
 
 const examples = [
   {
-    label: 'Create a popup',
-    prompt: 'I want to create a popup',
-    icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>'
+    label: 'Suggest ideas',
+    prompt: 'Suggest campaign ideas for my website',
+    // uil-lightbulb-alt (line)
+    icon: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4.33 12.5l.16.16V17a1 1 0 0 0 1 1h6.34a1 1 0 0 0 1-1v-2.34l.16-.16A7 7 0 0 0 12 2"/></svg>'
   },
   {
-    label: 'Connect OptiMonk',
-    prompt: 'Help me connect OptiMonk to my website',
-    icon: '<svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19,6H16V3a1,1,0,0,0-2,0V6H10V3A1,1,0,0,0,8,3V6H5A1,1,0,0,0,5,8H6v5a1,1,0,0,0,.29.71L9,16.41V21a1,1,0,0,0,2,0V17h2v4a1,1,0,0,0,2,0V16.41l2.71-2.7A1,1,0,0,0,18,13V8h1a1,1,0,0,0,0-2Zm-3,6.59L13.59,15H10.41L8,12.59V8h8ZM11,13h2a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2Z"/></svg>'
+    label: 'Create a popup',
+    prompt: 'I want to create a popup',
+    // uil-plus (line)
+    icon: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+  },
+  {
+    label: 'Run A/B test',
+    prompt: 'Help me run an A/B test',
+    // uil-flask (line)
+    icon: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v7.5L5.5 19a2 2 0 0 0 1.7 3h9.6a2 2 0 0 0 1.7-3L14 10.5V3"/></svg>'
   }
 ]
 

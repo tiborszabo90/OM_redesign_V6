@@ -3,11 +3,65 @@
 @theme {
   --text-5xl: 2.5rem;
   --text-5xl--line-height: 1.2;
+
+  /* OptiMonk Orange Color Palette */
+  --color-om-orange-50: #FEEFEA;
+  --color-om-orange-100: #FEEFEA;
+  --color-om-orange-200: #FBD9CE;
+  --color-om-orange-300: #F7B59F;
+  --color-om-orange-400: #F17E58;
+  --color-om-orange-500: #ED5A29;
+  --color-om-orange-600: #D14212;
+  --color-om-orange-700: #B33810;
+  --color-om-orange-800: #952E0D;
+  --color-om-orange-900: #7A260B;
+
+  /* OptiMonk Gray Color Palette */
+  --color-om-gray-50: #F7F7F8;
+  --color-om-gray-100: #F1F2F4;
+  --color-om-gray-200: #E3E5E8;
+  --color-om-gray-300: #D5D8DD;
+  --color-om-gray-400: #B9BEC6;
+  --color-om-gray-500: #8F97A4;
+  --color-om-gray-600: #505763;
+  --color-om-gray-700: #23262A;
+  --color-om-gray-800: #1A1C1F;
+  --color-om-gray-900: #111213;
+}
+
+:root {
+  --dev-nav-height: 0px;
 }
 
 body {
   font-family: 'Funnel Sans', sans-serif;
   font-weight: 400;
+}
+
+/* Safe screen height that accounts for dev nav bar */
+.h-screen-safe {
+  height: calc(100vh - var(--dev-nav-height));
+}
+
+.min-h-screen-safe {
+  min-height: calc(100vh - var(--dev-nav-height));
+}
+
+/* Safe bottom positioning that accounts for dev nav bar */
+.bottom-0-safe {
+  bottom: var(--dev-nav-height);
+}
+
+.bottom-12-safe {
+  bottom: calc(3rem + var(--dev-nav-height));
+}
+
+.bottom-14-safe {
+  bottom: calc(3.5rem + var(--dev-nav-height));
+}
+
+.bottom-16-safe {
+  bottom: calc(4rem + var(--dev-nav-height));
 }
 
 /* Remove blue outline from focused inputs */
@@ -51,6 +105,21 @@ button.bg-transparent:not(:disabled):hover {
 button:disabled {
   cursor: not-allowed;
   box-shadow: none !important;
+}
+
+/* Primary button hover glow effect */
+button.bg-om-orange-500:not(:disabled):hover,
+button.bg-\[\#ED5A29\]:not(:disabled):hover {
+  background-color: #F17E58 !important; /* om-orange-400 */
+  box-shadow: 0 4px 14px rgba(237, 90, 41, 0.4);
+}
+
+/* Secondary button hover effect - orange border and glow */
+/* Also applies to chips */
+button.border-om-gray-200:not(:disabled):hover,
+button.border-\[\#E3E5E8\]:not(:disabled):hover {
+  border-color: #ED5A29 !important; /* om-orange-500 */
+  box-shadow: 0 4px 14px rgba(237, 90, 41, 0.4);
 }
 
 /* Smaller heading on short viewports and mobile */

@@ -47,8 +47,8 @@
             <p class="text-xs text-[#8F97A4] font-normal mt-1.5">You'll receive important alerts and notifications about your account and popups.</p>
           </div>
 
-          <!-- Password -->
-          <div>
+          <!-- Password (only for email registration) -->
+          <div v-if="props.registrationType === 'email'">
             <label class="block text-sm font-medium text-[#23262A] mb-1.5">Password (8+ characters)</label>
             <input
               v-model="formData.password"
@@ -77,9 +77,9 @@
           <!-- Submit Button -->
           <button
             type="submit"
-            class="w-full py-3 bg-[#ED5A29] text-white font-medium rounded-xl hover:bg-[#E54D1F] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2"
+            class="w-full py-3 bg-[#ED5A29] text-white font-medium rounded-xl hover:bg-[#E54D1F] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2 cursor-pointer"
           >
-            Get Started
+            {{ props.registrationType === 'shopify' ? 'Next' : 'Get Started' }}
           </button>
 
           <!-- Disclaimer -->
@@ -108,6 +108,13 @@
 <script setup>
 import { ref, computed } from 'vue'
 import MainLayout from '../components/layouts/MainLayout.vue'
+
+const props = defineProps({
+  registrationType: {
+    type: String,
+    default: 'email' // 'email' or 'shopify'
+  }
+})
 
 const emit = defineEmits(['complete'])
 

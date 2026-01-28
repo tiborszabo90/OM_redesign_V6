@@ -10,10 +10,10 @@
         :key="option.value"
         @click="handleSelect(option.value)"
         :class="[
-          'px-4 py-2.5 rounded-xl transition-all text-base focus:outline-none w-fit',
+          'chip px-4 py-2.5 rounded-xl transition-all duration-200 ease-out text-base focus:outline-none w-fit cursor-pointer hover:scale-[1.02]',
           selectedValue === option.value
-            ? 'bg-[#FFF4E9] border-2 border-[#ED5A29] text-[#23262A]'
-            : 'bg-transparent border border-[#E3E5E8] text-[#23262A] hover:bg-[#F1F2F4]'
+            ? 'bg-om-orange-50 border-2 border-om-orange-500 text-om-gray-700'
+            : 'bg-white border border-om-gray-200 text-om-gray-700'
         ]"
       >
         {{ option.label }}
@@ -21,10 +21,10 @@
       <button
         @click="handleOtherClick"
         :class="[
-          'px-4 py-2.5 rounded-xl transition-all text-base focus:outline-none w-fit',
+          'chip px-4 py-2.5 rounded-xl transition-all duration-200 ease-out text-base focus:outline-none w-fit cursor-pointer hover:scale-[1.02]',
           showOtherInput || selectedValue === 'other'
-            ? 'bg-[#FFF4E9] border-2 border-[#ED5A29] text-[#23262A]'
-            : 'bg-transparent border border-[#E3E5E8] text-[#23262A] hover:bg-[#F1F2F4]'
+            ? 'bg-om-orange-50 border-2 border-om-orange-500 text-om-gray-700'
+            : 'bg-white border border-om-gray-200 text-om-gray-700'
         ]"
       >
         Other
@@ -45,7 +45,7 @@
           v-model="otherValue"
           type="text"
           placeholder="Please specify..."
-          class="w-full px-3 py-2.5 border border-[#D5D8DD] rounded-xl text-[#23262A] placeholder-[#8F97A4] focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:border-transparent"
+          class="w-full px-3 py-2.5 border border-[#D5D8DD] rounded-xl text-[#23262A] placeholder-[#8F97A4] focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:border-transparent bg-white"
           @keyup.enter="submitOther"
         />
         <button

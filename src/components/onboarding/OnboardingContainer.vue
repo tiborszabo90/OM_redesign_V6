@@ -10,14 +10,14 @@
       <button
         v-if="!isFirstStep"
         @click="$emit('prev')"
-        class="px-6 py-2 border border-[#D5D8DD] rounded-lg text-[#505763] hover:bg-[#F7F7F8] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2"
+        class="px-6 py-2 border border-[#D5D8DD] rounded-lg text-[#505763] hover:bg-[#F7F7F8] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2 cursor-pointer"
       >
         Previous
       </button>
 
       <button
         @click="$emit('next')"
-        class="px-6 py-2 bg-[#ED5A29] text-white rounded-lg hover:bg-[#E54D1F] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2"
+        class="px-6 py-2 bg-[#ED5A29] text-white rounded-lg hover:bg-[#E54D1F] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2 cursor-pointer"
       >
         {{ isLastStep ? 'Complete' : 'Next' }}
       </button>

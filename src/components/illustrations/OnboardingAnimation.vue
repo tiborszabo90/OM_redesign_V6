@@ -11,8 +11,9 @@
       <div ref="websiteSection" class="mb-5 opacity-0">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-xl bg-[#FFEFE5] flex items-center justify-center">
-            <svg class="w-5 h-5 text-[#ED5A29]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+            <!-- uil-globe -->
+            <svg class="w-5 h-5 text-[#ED5A29]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21.41,8.64s0,0,0-.05a10,10,0,0,0-18.78,0s0,0,0,.05a9.86,9.86,0,0,0,0,6.72s0,0,0,.05a10,10,0,0,0,18.78,0s0,0,0-.05a9.86,9.86,0,0,0,0-6.72ZM4.26,14a7.82,7.82,0,0,1,0-4H6.12a16.73,16.73,0,0,0,0,4Zm.82,2h1.4a12.13,12.13,0,0,0,1,2.57A8,8,0,0,1,5.08,16Zm1.4-8H5.08A8,8,0,0,1,7.45,5.43,12.13,12.13,0,0,0,6.48,8ZM11,19.7A6.34,6.34,0,0,1,8.57,16H11Zm0-5.7H8.14a14.36,14.36,0,0,1,0-4H11Zm0-6H8.57A6.34,6.34,0,0,1,11,4.3Zm7.92,0h-1.4a12.13,12.13,0,0,0-1-2.57A8,8,0,0,1,18.92,8ZM13,4.3A6.34,6.34,0,0,1,15.43,8H13Zm0,15.4V16h2.43A6.34,6.34,0,0,1,13,19.7Zm2.86-5.7H13V10h2.86a14.36,14.36,0,0,1,0,4Zm.69,4.57a12.13,12.13,0,0,0,1-2.57h1.4A8,8,0,0,1,16.55,18.57ZM19.74,14H17.88a16.73,16.73,0,0,0,0-4h1.86a7.82,7.82,0,0,1,0,4Z"/>
             </svg>
           </div>
           <div class="flex-1">
@@ -31,8 +32,9 @@
       <div ref="referralSection" class="mb-4 opacity-0 -translate-x-4">
         <div class="flex items-center gap-3">
           <div ref="referralIcon" class="w-10 h-10 rounded-xl bg-[#F7F7F8] flex items-center justify-center transition-colors duration-300">
-            <svg class="w-5 h-5 text-[#8F97A4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            <!-- uil-question-circle -->
+            <svg class="w-5 h-5 text-[#8F97A4]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11.29,15.29a1.58,1.58,0,0,0-.12.15.76.76,0,0,0-.09.18.64.64,0,0,0-.06.18,1.36,1.36,0,0,0,0,.2.84.84,0,0,0,.08.38.9.9,0,0,0,.54.54.94.94,0,0,0,.76,0,.9.9,0,0,0,.54-.54A1,1,0,0,0,13,16a1,1,0,0,0-.29-.71A1,1,0,0,0,11.29,15.29ZM12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20ZM12,7A3,3,0,0,0,9.4,8.5a1,1,0,1,0,1.73,1A1,1,0,0,1,12,9a1,1,0,0,1,0,2,1,1,0,0,0-1,1v1a1,1,0,0,0,2,0v-.18A3,3,0,0,0,12,7Z"/>
             </svg>
           </div>
           <div class="flex-1">
@@ -42,8 +44,9 @@
             </p>
           </div>
           <div ref="referralCheck" class="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center opacity-0 scale-0">
-            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+            <!-- uil-check -->
+            <svg class="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.71,7.21a1,1,0,0,0-1.42,0L9.84,14.67,6.71,11.53A1,1,0,1,0,5.29,13l3.84,3.84a1,1,0,0,0,1.42,0l8.16-8.16A1,1,0,0,0,18.71,7.21Z"/>
             </svg>
           </div>
         </div>
@@ -53,8 +56,9 @@
       <div ref="businessSection" class="mb-4 opacity-0 -translate-x-4">
         <div class="flex items-center gap-3">
           <div ref="businessIcon" class="w-10 h-10 rounded-xl bg-[#F7F7F8] flex items-center justify-center transition-colors duration-300">
-            <svg class="w-5 h-5 text-[#8F97A4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            <!-- uil-building -->
+            <svg class="w-5 h-5 text-[#8F97A4]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14,8h1a1,1,0,0,0,0-2H14a1,1,0,0,0,0,2Zm0,4h1a1,1,0,0,0,0-2H14a1,1,0,0,0,0,2ZM9,8h1a1,1,0,0,0,0-2H9A1,1,0,0,0,9,8Zm0,4h1a1,1,0,0,0,0-2H9a1,1,0,0,0,0,2Zm12,8H18V3a1,1,0,0,0-1-1H7A1,1,0,0,0,6,3V20H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Zm-5,0H13V16a1,1,0,0,0-1-1H12a1,1,0,0,0-1,1v4H8V4h8Z"/>
             </svg>
           </div>
           <div class="flex-1">
@@ -64,8 +68,9 @@
             </p>
           </div>
           <div ref="businessCheck" class="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center opacity-0 scale-0">
-            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+            <!-- uil-check -->
+            <svg class="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.71,7.21a1,1,0,0,0-1.42,0L9.84,14.67,6.71,11.53A1,1,0,1,0,5.29,13l3.84,3.84a1,1,0,0,0,1.42,0l8.16-8.16A1,1,0,0,0,18.71,7.21Z"/>
             </svg>
           </div>
         </div>
@@ -75,8 +80,9 @@
       <div ref="relationshipSection" class="mb-4 opacity-0 -translate-x-4">
         <div class="flex items-center gap-3">
           <div ref="relationshipIcon" class="w-10 h-10 rounded-xl bg-[#F7F7F8] flex items-center justify-center transition-colors duration-300">
-            <svg class="w-5 h-5 text-[#8F97A4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <!-- uil-users-alt -->
+            <svg class="w-5 h-5 text-[#8F97A4]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12.3,12.22A4.92,4.92,0,0,0,14,8.5a5,5,0,0,0-10,0,4.92,4.92,0,0,0,1.7,3.72A8,8,0,0,0,1,19.5a1,1,0,0,0,2,0,6,6,0,0,1,12,0,1,1,0,0,0,2,0A8,8,0,0,0,12.3,12.22ZM9,11.5a3,3,0,1,1,3-3A3,3,0,0,1,9,11.5Zm9.74.32A5,5,0,0,0,15,3.5a1,1,0,0,0,0,2,3,3,0,0,1,3,3,3,3,0,0,1-1.5,2.59,1,1,0,0,0-.5.84,1,1,0,0,0,.45.86l.39.26.13.07a7,7,0,0,1,4,6.38,1,1,0,0,0,2,0A9,9,0,0,0,18.74,11.82Z"/>
             </svg>
           </div>
           <div class="flex-1">
@@ -86,8 +92,9 @@
             </p>
           </div>
           <div ref="relationshipCheck" class="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center opacity-0 scale-0">
-            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+            <!-- uil-check -->
+            <svg class="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.71,7.21a1,1,0,0,0-1.42,0L9.84,14.67,6.71,11.53A1,1,0,1,0,5.29,13l3.84,3.84a1,1,0,0,0,1.42,0l8.16-8.16A1,1,0,0,0,18.71,7.21Z"/>
             </svg>
           </div>
         </div>
@@ -97,8 +104,9 @@
       <div v-if="showContactType" ref="contactSection" class="mb-4 opacity-0 -translate-x-4">
         <div class="flex items-center gap-3">
           <div ref="contactIcon" class="w-10 h-10 rounded-xl bg-[#F7F7F8] flex items-center justify-center transition-colors duration-300">
-            <svg class="w-5 h-5 text-[#8F97A4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            <!-- uil-user -->
+            <svg class="w-5 h-5 text-[#8F97A4]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M15.71,12.71a6,6,0,1,0-7.42,0,10,10,0,0,0-6.22,8.18,1,1,0,0,0,2,.22,8,8,0,0,1,15.9,0,1,1,0,0,0,1,.89h.11a1,1,0,0,0,.88-1.1A10,10,0,0,0,15.71,12.71ZM12,12a4,4,0,1,1,4-4A4,4,0,0,1,12,12Z"/>
             </svg>
           </div>
           <div class="flex-1">
@@ -108,8 +116,9 @@
             </p>
           </div>
           <div ref="contactCheck" class="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center opacity-0 scale-0">
-            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+            <!-- uil-check -->
+            <svg class="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.71,7.21a1,1,0,0,0-1.42,0L9.84,14.67,6.71,11.53A1,1,0,1,0,5.29,13l3.84,3.84a1,1,0,0,0,1.42,0l8.16-8.16A1,1,0,0,0,18.71,7.21Z"/>
             </svg>
           </div>
         </div>
@@ -119,8 +128,9 @@
       <div v-if="showAgencyDetails" ref="agencySection" class="opacity-0 -translate-x-4">
         <div class="flex items-center gap-3">
           <div ref="agencyIcon" class="w-10 h-10 rounded-xl bg-[#F7F7F8] flex items-center justify-center transition-colors duration-300">
-            <svg class="w-5 h-5 text-[#8F97A4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            <!-- uil-briefcase-alt -->
+            <svg class="w-5 h-5 text-[#8F97A4]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21,6H16V5a3,3,0,0,0-3-3H11A3,3,0,0,0,8,5V6H3A1,1,0,0,0,2,7V19a3,3,0,0,0,3,3H19a3,3,0,0,0,3-3V7A1,1,0,0,0,21,6ZM10,5a1,1,0,0,1,1-1h2a1,1,0,0,1,1,1V6H10ZM20,19a1,1,0,0,1-1,1H5a1,1,0,0,1-1-1V12.39l5.69,1.9A1.17,1.17,0,0,0,10,14.3a1,1,0,0,0,.31-.05L12,13.72l1.69.53A1,1,0,0,0,14,14.3a1.17,1.17,0,0,0,.31-.01L20,12.39Zm0-8.62-6.15,2.05L12,11.88l-1.85.55L4,10.38V8H20Z"/>
             </svg>
           </div>
           <div class="flex-1">
@@ -130,8 +140,9 @@
             </p>
           </div>
           <div ref="agencyCheck" class="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center opacity-0 scale-0">
-            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+            <!-- uil-check -->
+            <svg class="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.71,7.21a1,1,0,0,0-1.42,0L9.84,14.67,6.71,11.53A1,1,0,1,0,5.29,13l3.84,3.84a1,1,0,0,0,1.42,0l8.16-8.16A1,1,0,0,0,18.71,7.21Z"/>
             </svg>
           </div>
         </div>

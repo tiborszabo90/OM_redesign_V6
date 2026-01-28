@@ -25,7 +25,7 @@
         :key="option.value"
         @click="handleSelect(option.value)"
         :class="[
-          'w-full bg-white rounded-xl p-4 transition-all focus:outline-none text-left',
+          'w-full bg-white rounded-xl p-4 transition-all focus:outline-none text-left cursor-pointer',
           selectedValue === option.value
             ? 'border-2 border-[#ED5A29] shadow-md'
             : 'border-2 border-[#E3E5E8] hover:border-[#ED5A29] hover:shadow-md'

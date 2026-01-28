@@ -55,13 +55,13 @@
     <div class="flex items-center gap-4 mt-4">
       <button
         @click="handleSubmit"
-        class="px-6 py-2.5 bg-[#ED5A29] text-white text-base rounded-xl hover:bg-[#E54D1F] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2"
+        class="px-6 py-2.5 bg-[#ED5A29] text-white text-base rounded-xl hover:bg-[#E54D1F] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2 cursor-pointer"
       >
         Next
       </button>
       <button
         @click="handleSkip"
-        class="btn-text px-6 py-2.5 text-base text-[#505763] border border-transparent rounded-xl hover:bg-[#F7F7F8] transition-colors"
+        class="btn-text px-6 py-2.5 text-base text-[#505763] border border-transparent rounded-xl hover:bg-[#F7F7F8] transition-colors cursor-pointer"
       >
         Skip for now
       </button>

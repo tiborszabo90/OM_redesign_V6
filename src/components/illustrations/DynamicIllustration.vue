@@ -157,8 +157,9 @@
              class="absolute -right-4 top-1/4 bg-white rounded-xl shadow-lg p-2 border border-[#F1F2F4]">
           <div class="flex items-center gap-2">
             <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
-              <svg class="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              <!-- uil-check -->
+              <svg class="w-3 h-3 text-green-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.71,7.21a1,1,0,0,0-1.42,0L9.84,14.67,6.71,11.53A1,1,0,1,0,5.29,13l3.84,3.84a1,1,0,0,0,1.42,0l8.16-8.16A1,1,0,0,0,18.71,7.21Z"/>
               </svg>
             </div>
             <span class="text-xs text-[#8F97A4] font-medium">Profile</span>

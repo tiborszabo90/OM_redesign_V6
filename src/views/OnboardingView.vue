@@ -1,22 +1,6 @@
 <template>
-  <!-- Dashboard Layout for final step -->
-  <DashboardLayout v-if="isDashboardStep" @logo-click="handleLogoClick">
-    <template #content>
-      <component
-        :is="currentStepComponent"
-        ref="dashboardComponentRef"
-        v-model="formData[currentStepKey]"
-        :data="formData"
-        :registration-data="props.registrationData"
-        @auto-next="handleAutoNext"
-        @skip-to-dashboard="handleSkipToDashboard"
-        @task-created="(task) => emit('task-created', task)"
-      />
-    </template>
-  </DashboardLayout>
-
   <!-- Regular Onboarding Layout -->
-  <MainLayout v-else :has-progress="true">
+  <MainLayout :has-progress="true">
     <template #content>
       <div class="w-full" @wheel="handleWheel">
         <transition :name="transitionName" mode="out-in">
@@ -28,6 +12,7 @@
                 v-model="formData[currentStepKey]"
                 :data="formData"
                 :registration-data="props.registrationData"
+                :registration-type="props.registrationType"
                 @auto-next="handleAutoNext"
                 @skip-to-dashboard="handleSkipToDashboard"
                 @task-created="(task) => emit('task-created', task)"
@@ -39,14 +24,14 @@
               <button
                 v-if="!isFirstStep"
                 @click="handlePrev"
-                class="px-6 py-2.5 border border-[#D5D8DD] rounded-xl text-base text-[#23262A] hover:bg-[#F7F7F8] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2"
+                class="px-6 py-2.5 border border-[#D5D8DD] rounded-xl text-base text-[#23262A] hover:bg-[#F7F7F8] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2 cursor-pointer"
               >
                 Previous
               </button>
 
               <button
                 @click="handleNext"
-                class="px-6 py-2.5 bg-[#ED5A29] text-white text-base rounded-xl hover:bg-[#E54D1F] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2"
+                class="px-6 py-2.5 bg-[#ED5A29] text-white text-base rounded-xl hover:bg-[#E54D1F] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2 cursor-pointer"
               >
                 {{ isLastStep ? 'Complete' : 'Next' }}
               </button>
@@ -86,39 +71,49 @@
 import { computed, ref, watch, nextTick } from 'vue'
 import { useOnboarding } from '../composables/useOnboarding'
 import MainLayout from '../components/layouts/MainLayout.vue'
-import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import StepWelcome from '../components/onboarding/StepWelcome.vue'
 import StepReferralSource from '../components/onboarding/StepReferralSource.vue'
 import StepBusinessType from '../components/onboarding/StepBusinessType.vue'
 import StepRelationship from '../components/onboarding/StepRelationship.vue'
 import StepContactType from '../components/onboarding/StepContactType.vue'
 import StepAgencyDetails from '../components/onboarding/StepAgencyDetails.vue'
-import StepDashboard from '../components/onboarding/StepDashboard.vue'
 
 const props = defineProps({
   registrationData: {
     type: Object,
     default: null
+  },
+  registrationType: {
+    type: String,
+    default: 'email'
   }
 })
 
-const emit = defineEmits(['task-created', 'dashboard-mounted'])
+const emit = defineEmits(['onboarding-complete'])
 
 const transitionName = ref('slide-up')
 const isScrolling = ref(false)
 const scrollDebounceTimeout = ref(null)
-const dashboardComponentRef = ref(null)
 
-const baseSteps = [
-  { component: StepWelcome, key: 'welcome', showButtons: true },
-  { component: StepReferralSource, key: 'referralSource', showButtons: false },
-  { component: StepBusinessType, key: 'businessType', showButtons: false },
-  { component: StepRelationship, key: 'relationship', showButtons: false }
-]
+// Base steps - exclude business type for Shopify registration
+const baseSteps = computed(() => {
+  const steps = [
+    { component: StepWelcome, key: 'welcome', showButtons: true },
+    { component: StepReferralSource, key: 'referralSource', showButtons: false }
+  ]
+
+  // Only include business type step for email registration
+  if (props.registrationType !== 'shopify') {
+    steps.push({ component: StepBusinessType, key: 'businessType', showButtons: false })
+  }
+
+  steps.push({ component: StepRelationship, key: 'relationship', showButtons: false })
+
+  return steps
+})
 
 const contactTypeStep = { component: StepContactType, key: 'contactType', showButtons: false }
 const agencyDetailsStep = { component: StepAgencyDetails, key: 'agencyDetails', showButtons: false }
-const dashboardStep = { component: StepDashboard, key: 'dashboard', showButtons: false }
 
 const {
   currentStep,
@@ -136,7 +131,7 @@ const {
 
 // Dynamic steps based on user selection
 const steps = computed(() => {
-  const allSteps = [...baseSteps]
+  const allSteps = [...baseSteps.value]
   // Add contact type step if user selected "client" in relationship step
   if (formData.value.relationship?.relationship === 'client') {
     allSteps.push(contactTypeStep)
@@ -145,8 +140,6 @@ const steps = computed(() => {
       allSteps.push(agencyDetailsStep)
     }
   }
-  // Always add dashboard as the final step
-  allSteps.push(dashboardStep)
   return allSteps
 })
 
@@ -155,17 +148,10 @@ watch([() => formData.value.relationship?.relationship, () => formData.value.con
   setTotalSteps(steps.value.length)
 }, { immediate: true })
 
-// Emit dashboard ref when it mounts
-watch(() => dashboardComponentRef.value, (newRef) => {
-  if (newRef) {
-    emit('dashboard-mounted', newRef)
-  }
-})
-
 // Display step number (always max 5 for progress bar)
 const displayStep = computed(() => Math.min(currentStep.value, 5))
-const displayTotalSteps = 4
-const displayProgress = computed(() => (displayStep.value / displayTotalSteps) * 100)
+const displayTotalSteps = computed(() => props.registrationType === 'shopify' ? 3 : 4)
+const displayProgress = computed(() => (displayStep.value / displayTotalSteps.value) * 100)
 
 const currentStepComponent = computed(() => {
   return steps.value[currentStep.value - 1].component
@@ -179,16 +165,12 @@ const showButtons = computed(() => {
   return steps.value[currentStep.value - 1].showButtons
 })
 
-const isDashboardStep = computed(() => {
-  return currentStepKey.value === 'dashboard'
-})
-
 const handleNext = () => {
   transitionName.value = 'slide-up'
   if (isLastStep.value) {
-    // Handle completion - could navigate to dashboard or show success message
+    // Onboarding completed - emit event to navigate to task creation
     console.log('Onboarding completed with data:', formData.value)
-    // You could also emit an event or call an API here
+    emit('onboarding-complete')
   } else {
     nextStep()
   }
@@ -204,21 +186,13 @@ const handleAutoNext = () => {
   // Use nextTick to ensure total steps are updated before navigating
   nextTick(() => {
     setTotalSteps(steps.value.length)
-    nextStep()
+    if (isLastStep.value) {
+      // Last step - emit completion event to navigate to task creation
+      emit('onboarding-complete')
+    } else {
+      nextStep()
+    }
   })
-}
-
-const handleSkipToDashboard = () => {
-  console.log('Skipping to dashboard with data:', formData.value)
-  // Navigate to dashboard or emit completion event
-  // For now, just log and complete the onboarding
-}
-
-const handleLogoClick = () => {
-  // Reset dashboard to initial state
-  if (dashboardComponentRef.value && dashboardComponentRef.value.resetToInitial) {
-    dashboardComponentRef.value.resetToInitial()
-  }
 }
 
 // Expose for DevNavBar
@@ -247,11 +221,6 @@ defineExpose({
 })
 
 const handleWheel = (event) => {
-  // Don't handle wheel on dashboard step
-  if (isDashboardStep.value) {
-    return
-  }
-
   // If already scrolling, ignore this event
   if (isScrolling.value) {
     event.preventDefault()
