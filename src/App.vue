@@ -86,6 +86,14 @@ const handleDevNavigate = (view) => {
     setTimeout(() => {
       currentView.value = view
     }, 50)
+  } else if (view === 'wizard-quicktune') {
+    // Wizard quicktune - go directly to quicktune
+    flowSelected.value = true
+    sessionKey.value++
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = view
+    }, 50)
   } else if (view === 'registration' || view === 'onboarding' || view === 'wizard') {
     // Navigating to flow views - ensure flow is selected
     flowSelected.value = true
@@ -244,6 +252,13 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :key="'wizard-style-' + sessionKey"
         :registration-data="registrationData"
         :start-at-style="true"
+        @task-created="handleTaskCreated"
+      />
+      <WizardAnalysisView
+        v-else-if="currentView === 'wizard-quicktune'"
+        :key="'wizard-quicktune-' + sessionKey"
+        :registration-data="registrationData"
+        :start-at-quicktune="true"
         @task-created="handleTaskCreated"
       />
       <DesignGuideView

@@ -125,6 +125,18 @@
             Wizard Style
           </button>
 
+          <button
+            @click="$emit('navigate', 'wizard-quicktune')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              currentView === 'wizard-quicktune'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Wizard Quicktune
+          </button>
+
           <span class="text-[#505763] mx-1">|</span>
         </template>
 

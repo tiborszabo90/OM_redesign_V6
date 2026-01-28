@@ -7,6 +7,7 @@
       :registration-data="props.registrationData"
       :initial-message="props.initialMessage"
       :start-at-style="props.startAtStyle"
+      :start-at-quicktune="props.startAtQuicktune"
       @task-created="(task) => emit('task-created', task)"
     />
   </div>
@@ -26,6 +27,10 @@ const props = defineProps({
     default: ''
   },
   startAtStyle: {
+    type: Boolean,
+    default: false
+  },
+  startAtQuicktune: {
     type: Boolean,
     default: false
   }
