@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full">
+  <div class="w-full overflow-hidden">
     <!-- Two-column layout after submit -->
     <div v-if="submitted" class="relative" :class="showPopup ? 'min-h-screen-safe' : 'h-screen-safe'">
       <!-- Top Navbar - show from the beginning -->
@@ -523,7 +523,11 @@
     </div>
 
     <!-- Form before submit -->
-    <div v-else class="w-full">
+    <div
+      v-if="!submitted"
+      class="w-full transition-all duration-500 ease-in-out"
+      :class="{ 'scroll-up-exit-active': isExiting }"
+    >
       <!-- Domain selector -->
       <div class="mb-12 flex justify-center">
         <div class="relative w-[240px]" ref="dropdownRef">
@@ -539,14 +543,18 @@
             <img src="/telekom.png" alt="Telekom" class="w-full h-full object-cover" />
           </div>
           <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-            <!-- uil-angle-down -->
+            <!-- uil-angle-down (Unicons Line) -->
             <svg
-              class="w-4 h-4 text-[#505763] transition-transform"
+              class="w-5 h-5 text-om-gray-600 transition-transform"
               :class="{ 'rotate-180': isDropdownOpen }"
               viewBox="0 0 24 24"
-              fill="currentColor"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
             >
-              <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"/>
+              <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </div>
 
@@ -669,6 +677,7 @@ const chatTextareaRef = ref(null)
 const dropdownRef = ref(null)
 const messagesContainer = ref(null)
 const submitted = ref(false)
+const isExiting = ref(false)
 const submittedMessage = ref('')
 const chatMessage = ref('')
 const currentPlaceholderIndex = ref(0)
@@ -1144,19 +1153,26 @@ const handleSubmit = () => {
     aiMessages.value = []
     currentMessageIndex.value = 0
 
-    // Add initial greeting message
-    setTimeout(() => {
-      aiMessages.value.push({
-        type: 'text',
-        message: 'Great! I\'ll analyze your website and suggest some options for you. Let me start by scanning your site...'
-      })
-      scrollToBottom()
-    }, 500)
+    // Trigger exit animation first
+    isExiting.value = true
 
-    // Emit task creation with phase information
-    emit('task-created', { message: submittedMessage.value, phase: 'analysis' })
-    submitted.value = true
-    startDiscoverySequence()
+    // After animation completes, show wizard view
+    setTimeout(() => {
+      // Add initial greeting message
+      setTimeout(() => {
+        aiMessages.value.push({
+          type: 'text',
+          message: 'Great! I\'ll analyze your website and suggest some options for you. Let me start by scanning your site...'
+        })
+        scrollToBottom()
+      }, 500)
+
+      // Emit task creation with phase information
+      emit('task-created', { message: submittedMessage.value, phase: 'analysis' })
+      submitted.value = true
+      isExiting.value = false
+      startDiscoverySequence()
+    }, 500) // Match animation duration
   }
 }
 
@@ -1170,6 +1186,7 @@ const handleChatSubmit = () => {
 
 const resetToInitial = () => {
   submitted.value = false
+  isExiting.value = false
   submittedMessage.value = ''
   localData.message = ''
   chatMessage.value = ''
@@ -1227,6 +1244,12 @@ defineExpose({
 
 .fade-popup-enter-from,
 .fade-popup-leave-to {
+  opacity: 0;
+}
+
+/* Scroll up exit animation */
+.scroll-up-exit-active {
+  transform: translateY(-100%);
   opacity: 0;
 }
 </style>

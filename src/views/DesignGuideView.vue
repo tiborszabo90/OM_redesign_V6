@@ -365,14 +365,18 @@
                 <span class="text-white text-xs font-bold">O</span>
               </div>
               <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                <!-- uil-angle-down -->
+                <!-- uil-angle-down (Unicons Line) -->
                 <svg
-                  class="w-4 h-4 text-[#505763] transition-transform"
+                  class="w-5 h-5 text-om-gray-600 transition-transform"
                   :class="{ 'rotate-180': isDropdownOpen }"
                   viewBox="0 0 24 24"
-                  fill="currentColor"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
                 >
-                  <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"/>
+                  <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
               </div>
 
@@ -417,14 +421,18 @@
                 {{ singleSelectedOption.label }}
               </button>
               <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                <!-- uil-angle-down -->
+                <!-- uil-angle-down (Unicons Line) -->
                 <svg
-                  class="w-4 h-4 text-[#505763] transition-transform"
+                  class="w-5 h-5 text-om-gray-600 transition-transform"
                   :class="{ 'rotate-180': isSingleDropdownOpen }"
                   viewBox="0 0 24 24"
-                  fill="currentColor"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
                 >
-                  <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"/>
+                  <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
               </div>
 
@@ -447,6 +455,62 @@
                     @click="selectSingleOption(option)"
                     class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F7F7F8] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F7F7F8]"
                     :class="{ 'bg-[#F1F2F4] font-medium': singleSelectedOption.value === option.value }"
+                    style="box-shadow: none !important; outline: none !important;"
+                  >
+                    {{ option.label }}
+                  </button>
+                </div>
+              </transition>
+            </div>
+          </div>
+
+          <!-- Single select dropdown small -->
+          <div>
+            <label class="block text-sm font-medium text-om-gray-700 mb-2">Single select dropdown small</label>
+            <div class="relative w-[240px]" ref="smallDropdownRef">
+              <button
+                @click="isSmallDropdownOpen = !isSmallDropdownOpen"
+                class="dropdown-select w-full px-3 pr-8 py-1.5 border border-om-gray-200 rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white text-left hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
+                :class="{ 'border-om-orange-300': isSmallDropdownOpen }"
+                :style="isSmallDropdownOpen ? 'box-shadow: 0 0 0 2px #FBD9CE; outline: none;' : 'box-shadow: none; outline: none;'"
+              >
+                {{ smallSelectedOption.label }}
+              </button>
+              <div class="absolute inset-y-0 right-2.5 flex items-center pointer-events-none">
+                <!-- uil-angle-down (Unicons Line) -->
+                <svg
+                  class="w-4 h-4 text-om-gray-600 transition-transform"
+                  :class="{ 'rotate-180': isSmallDropdownOpen }"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+
+              <!-- Dropdown menu -->
+              <transition
+                enter-active-class="transition ease-out duration-100"
+                enter-from-class="opacity-0 scale-95"
+                enter-to-class="opacity-100 scale-100"
+                leave-active-class="transition ease-in duration-75"
+                leave-from-class="opacity-100 scale-100"
+                leave-to-class="opacity-0 scale-95"
+              >
+                <div
+                  v-if="isSmallDropdownOpen"
+                  class="absolute z-10 w-full mt-2 bg-white border border-[#D5D8DD] rounded-lg shadow-lg overflow-hidden"
+                >
+                  <button
+                    v-for="option in smallDropdownOptions"
+                    :key="option.value"
+                    @click="selectSmallOption(option)"
+                    class="w-full px-3 py-1.5 text-left text-sm text-[#23262A] hover:bg-[#F7F7F8] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F7F7F8]"
+                    :class="{ 'bg-[#F1F2F4] font-medium': smallSelectedOption.value === option.value }"
                     style="box-shadow: none !important; outline: none !important;"
                   >
                     {{ option.label }}
@@ -650,12 +714,32 @@ const selectSingleOption = (option) => {
   isSingleDropdownOpen.value = false
 }
 
+// Single select dropdown small
+const smallDropdownRef = ref(null)
+const isSmallDropdownOpen = ref(false)
+const smallDropdownOptions = [
+  { value: 'en', label: 'English' },
+  { value: 'hu', label: 'Hungarian' },
+  { value: 'de', label: 'German' },
+  { value: 'fr', label: 'French' },
+  { value: 'es', label: 'Spanish' }
+]
+const smallSelectedOption = ref(smallDropdownOptions[0])
+
+const selectSmallOption = (option) => {
+  smallSelectedOption.value = option
+  isSmallDropdownOpen.value = false
+}
+
 const handleClickOutside = (event) => {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
     isDropdownOpen.value = false
   }
   if (singleDropdownRef.value && !singleDropdownRef.value.contains(event.target)) {
     isSingleDropdownOpen.value = false
+  }
+  if (smallDropdownRef.value && !smallDropdownRef.value.contains(event.target)) {
+    isSmallDropdownOpen.value = false
   }
 }
 

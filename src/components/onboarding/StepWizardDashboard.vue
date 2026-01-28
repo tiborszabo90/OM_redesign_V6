@@ -14,31 +14,92 @@
 
     <!-- Quicktune screen -->
     <transition v-else-if="showQuicktune" name="fade" appear>
-      <div class="min-h-screen-safe bg-om-gray-50 overflow-y-auto">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-24 pb-12">
+      <div class="min-h-screen-safe bg-white overflow-y-auto">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-14 pb-12">
           <!-- Header -->
-          <div class="text-center mb-8">
+          <div class="text-center mb-16">
             <h2 class="text-2xl sm:text-3xl font-semibold text-om-gray-700 mb-2">Quick-tune your brand settings</h2>
             <p class="text-om-gray-500">Don't worry—all settings can be customized later in the editor.</p>
           </div>
 
           <!-- Two column layout -->
           <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
-            <!-- Left side - Settings -->
+            <!-- Left side - Popup preview -->
+            <div class="flex-1 flex items-start justify-center lg:justify-start">
+              <div class="rounded-2xl overflow-hidden border-2 border-om-gray-200 shadow-xl w-full max-w-2xl bg-white">
+                <div class="flex">
+                  <!-- Left content side -->
+                  <div class="w-1/2 p-8 flex flex-col justify-center">
+                    <img src="/telekom.png" alt="Telekom Logo" class="w-10 h-10 object-contain mb-3" />
+                    <h3 class="text-3xl font-bold text-om-gray-800 leading-tight mb-2" :style="{ fontFamily: brandSettings.primaryFont }">
+                      You've got<br>10% OFF
+                    </h3>
+                    <p class="text-sm text-om-gray-400 mb-6" :style="{ fontFamily: brandSettings.secondaryFont }">Save it before it's gone.</p>
+                    <button
+                      class="w-full py-3 text-white text-sm font-semibold uppercase tracking-wide mb-3"
+                      :class="cornerClasses[brandSettings.corners]"
+                      :style="{ backgroundColor: brandSettings.colors[0], fontFamily: brandSettings.primaryFont }"
+                      disabled
+                    >
+                      Claim 10% Off
+                    </button>
+                    <button
+                      class="w-full py-3 bg-transparent text-sm font-medium uppercase tracking-wide border"
+                      :class="cornerClasses[brandSettings.corners]"
+                      :style="{ color: brandSettings.colors[0], borderColor: brandSettings.colors[0], fontFamily: brandSettings.primaryFont }"
+                      disabled
+                    >
+                      No, Thanks
+                    </button>
+                  </div>
+                  <!-- Right image side -->
+                  <div class="w-1/2">
+                    <img
+                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=500&fit=crop"
+                      alt="Popup image"
+                      class="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right side - Settings -->
             <div class="w-full lg:w-80 shrink-0 space-y-6">
               <!-- Template language -->
               <div>
                 <label class="block text-sm font-medium text-om-gray-700 mb-2">Template language</label>
-                <select
-                  v-model="brandSettings.language"
-                  class="w-full px-4 py-2.5 border border-om-gray-200 rounded-xl bg-white text-om-gray-700 focus:outline-none focus:ring-2 focus:ring-om-orange-200 focus:border-om-orange-500 cursor-pointer"
-                >
-                  <option value="en">English</option>
-                  <option value="hu">Hungarian</option>
-                  <option value="de">German</option>
-                  <option value="fr">French</option>
-                  <option value="es">Spanish</option>
-                </select>
+                <div ref="languageDropdownRef" class="relative">
+                  <button
+                    type="button"
+                    @click="isLanguageDropdownOpen = !isLanguageDropdownOpen"
+                    class="dropdown-select w-full px-3 py-1.5 border border-om-gray-200 rounded-lg bg-white text-sm text-om-gray-700 text-left flex items-center justify-between cursor-pointer transition-colors"
+                    :class="isLanguageDropdownOpen ? 'border-om-orange-300 ring-2 ring-om-orange-100' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'"
+                  >
+                    <span>{{ selectedLanguage().label }}</span>
+                    <svg class="w-4 h-4 text-om-gray-600 transition-transform" :class="isLanguageDropdownOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+                  <!-- Dropdown options -->
+                  <transition name="dropdown">
+                    <div
+                      v-if="isLanguageDropdownOpen"
+                      class="absolute z-10 w-full mt-2 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden"
+                    >
+                      <button
+                        v-for="option in languageOptions"
+                        :key="option.value"
+                        type="button"
+                        @click="selectLanguage(option)"
+                        class="w-full px-3 py-1.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                        :class="brandSettings.language === option.value ? 'bg-om-orange-50 text-om-orange-600' : ''"
+                      >
+                        {{ option.label }}
+                      </button>
+                    </div>
+                  </transition>
+                </div>
               </div>
 
               <!-- Logo -->
@@ -46,8 +107,8 @@
                 <label class="block text-sm font-medium text-om-gray-700 mb-2">Logo</label>
                 <div class="flex items-center gap-3">
                   <div class="flex-1 h-16 bg-[repeating-conic-gradient(#E3E5E8_0%_25%,transparent_0%_50%)_50%/16px_16px] rounded-xl flex items-center justify-center border border-om-gray-200">
-                    <div class="w-12 h-12 bg-[#E20074] rounded-lg flex items-center justify-center">
-                      <span class="text-white text-2xl font-bold">T</span>
+                    <div class="w-12 h-12 rounded-lg overflow-hidden">
+                      <img src="/telekom.png" alt="Telekom Logo" class="w-full h-full object-contain" />
                     </div>
                   </div>
                   <button class="w-10 h-10 border border-om-gray-200 rounded-xl flex items-center justify-center text-om-gray-400 hover:text-om-gray-600 hover:border-om-gray-300 transition-colors cursor-pointer">
@@ -79,15 +140,36 @@
                 <div>
                   <label class="block text-xs text-om-gray-500 mb-1">Primary font</label>
                   <div class="flex items-center gap-2">
-                    <select
-                      v-model="brandSettings.primaryFont"
-                      class="flex-1 px-4 py-2.5 border border-om-gray-200 rounded-xl bg-white text-om-gray-700 focus:outline-none focus:ring-2 focus:ring-om-orange-200 focus:border-om-orange-500 cursor-pointer"
-                    >
-                      <option value="Arial Regular">Arial Regular</option>
-                      <option value="TeleNeo">TeleNeo</option>
-                      <option value="Inter">Inter</option>
-                      <option value="Roboto">Roboto</option>
-                    </select>
+                    <div ref="primaryFontDropdownRef" class="relative flex-1">
+                      <button
+                        type="button"
+                        @click="isPrimaryFontDropdownOpen = !isPrimaryFontDropdownOpen"
+                        class="dropdown-select w-full px-3 py-1.5 border border-om-gray-200 rounded-lg bg-white text-sm text-om-gray-700 text-left flex items-center justify-between cursor-pointer transition-colors"
+                        :class="isPrimaryFontDropdownOpen ? 'border-om-orange-300 ring-2 ring-om-orange-100' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'"
+                      >
+                        <span>{{ selectedPrimaryFont().label }}</span>
+                        <svg class="w-4 h-4 text-om-gray-600 transition-transform" :class="isPrimaryFontDropdownOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      </button>
+                      <transition name="dropdown">
+                        <div
+                          v-if="isPrimaryFontDropdownOpen"
+                          class="absolute z-10 w-full mt-2 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden"
+                        >
+                          <button
+                            v-for="option in fontOptions"
+                            :key="option.value"
+                            type="button"
+                            @click="selectPrimaryFont(option)"
+                            class="w-full px-3 py-1.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                            :class="brandSettings.primaryFont === option.value ? 'bg-om-orange-50 text-om-orange-600' : ''"
+                          >
+                            {{ option.label }}
+                          </button>
+                        </div>
+                      </transition>
+                    </div>
                     <button class="w-10 h-10 border border-om-gray-200 rounded-xl flex items-center justify-center text-om-gray-400 hover:text-om-gray-600 hover:border-om-gray-300 transition-colors cursor-pointer">
                       <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20Zm4-9H13V8a1,1,0,0,0-2,0v3H8a1,1,0,0,0,0,2h3v3a1,1,0,0,0,2,0V13h3a1,1,0,0,0,0-2Z"/>
@@ -98,15 +180,36 @@
                 <div>
                   <label class="block text-xs text-om-gray-500 mb-1">Secondary font</label>
                   <div class="flex items-center gap-2">
-                    <select
-                      v-model="brandSettings.secondaryFont"
-                      class="flex-1 px-4 py-2.5 border border-om-gray-200 rounded-xl bg-white text-om-gray-700 focus:outline-none focus:ring-2 focus:ring-om-orange-200 focus:border-om-orange-500 cursor-pointer"
-                    >
-                      <option value="Arial Light">Arial Light</option>
-                      <option value="TeleNeo Light">TeleNeo Light</option>
-                      <option value="Inter Light">Inter Light</option>
-                      <option value="Roboto Light">Roboto Light</option>
-                    </select>
+                    <div ref="secondaryFontDropdownRef" class="relative flex-1">
+                      <button
+                        type="button"
+                        @click="isSecondaryFontDropdownOpen = !isSecondaryFontDropdownOpen"
+                        class="dropdown-select w-full px-3 py-1.5 border border-om-gray-200 rounded-lg bg-white text-sm text-om-gray-700 text-left flex items-center justify-between cursor-pointer transition-colors"
+                        :class="isSecondaryFontDropdownOpen ? 'border-om-orange-300 ring-2 ring-om-orange-100' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'"
+                      >
+                        <span>{{ selectedSecondaryFont().label }}</span>
+                        <svg class="w-4 h-4 text-om-gray-600 transition-transform" :class="isSecondaryFontDropdownOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      </button>
+                      <transition name="dropdown">
+                        <div
+                          v-if="isSecondaryFontDropdownOpen"
+                          class="absolute z-10 w-full mt-2 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden"
+                        >
+                          <button
+                            v-for="option in fontOptions"
+                            :key="option.value"
+                            type="button"
+                            @click="selectSecondaryFont(option)"
+                            class="w-full px-3 py-1.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                            :class="brandSettings.secondaryFont === option.value ? 'bg-om-orange-50 text-om-orange-600' : ''"
+                          >
+                            {{ option.label }}
+                          </button>
+                        </div>
+                      </transition>
+                    </div>
                     <button class="w-10 h-10 border border-om-gray-200 rounded-xl flex items-center justify-center text-om-gray-400 hover:text-om-gray-600 hover:border-om-gray-300 transition-colors cursor-pointer">
                       <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20Zm4-9H13V8a1,1,0,0,0-2,0v3H8a1,1,0,0,0,0,2h3v3a1,1,0,0,0,2,0V13h3a1,1,0,0,0,0-2Z"/>
@@ -148,44 +251,6 @@
                 >
                   Continue
                 </button>
-              </div>
-            </div>
-
-            <!-- Right side - Popup preview -->
-            <div class="flex-1 flex items-start justify-center">
-              <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
-                <!-- Popup preview content -->
-                <div class="flex flex-col items-center text-center">
-                  <!-- Logo -->
-                  <div class="w-16 h-16 rounded-xl flex items-center justify-center mb-4" :style="{ backgroundColor: brandSettings.colors[0] }">
-                    <span class="text-white text-3xl font-bold">T</span>
-                  </div>
-                  <!-- Headline -->
-                  <h3 class="text-xl font-semibold text-om-gray-700 mb-2" :style="{ fontFamily: brandSettings.primaryFont }">
-                    Get 10% off your first order
-                  </h3>
-                  <!-- Subtext -->
-                  <p class="text-sm text-om-gray-500 mb-6" :style="{ fontFamily: brandSettings.secondaryFont }">
-                    Subscribe to our newsletter and receive exclusive offers.
-                  </p>
-                  <!-- Email input -->
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    class="w-full px-4 py-3 border border-om-gray-200 mb-3 text-sm"
-                    :class="cornerClasses[brandSettings.corners]"
-                    disabled
-                  />
-                  <!-- Button -->
-                  <button
-                    class="w-full py-3 text-white font-medium text-sm"
-                    :class="cornerClasses[brandSettings.corners]"
-                    :style="{ backgroundColor: brandSettings.colors[0] }"
-                    disabled
-                  >
-                    Subscribe
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -333,7 +398,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, onUnmounted } from 'vue'
 import WebsiteScanAnimation from '../illustrations/WebsiteScanAnimation.vue'
 
 const props = defineProps({
@@ -372,8 +437,8 @@ const brandSettings = reactive({
   language: 'en',
   colors: ['#E20074', '#18214D', '#5D6482'],
   selectedColorIndex: 0,
-  primaryFont: 'Arial Regular',
-  secondaryFont: 'Arial Light',
+  primaryFont: 'Inter',
+  secondaryFont: 'Arial',
   corners: 'none'
 })
 
@@ -391,6 +456,69 @@ const cornerClasses = {
   large: 'rounded-2xl'
 }
 
+// Language dropdown
+const languageDropdownRef = ref(null)
+const isLanguageDropdownOpen = ref(false)
+const languageOptions = [
+  { value: 'en', label: 'English' },
+  { value: 'hu', label: 'Hungarian' },
+  { value: 'de', label: 'German' },
+  { value: 'fr', label: 'French' },
+  { value: 'es', label: 'Spanish' }
+]
+
+const selectedLanguage = () => {
+  return languageOptions.find(opt => opt.value === brandSettings.language) || languageOptions[0]
+}
+
+const selectLanguage = (option) => {
+  brandSettings.language = option.value
+  isLanguageDropdownOpen.value = false
+}
+
+// Primary font dropdown
+const primaryFontDropdownRef = ref(null)
+const isPrimaryFontDropdownOpen = ref(false)
+const fontOptions = [
+  { value: 'Inter', label: 'Inter' },
+  { value: 'Arial', label: 'Arial' },
+  { value: 'Roboto', label: 'Roboto' }
+]
+
+const selectedPrimaryFont = () => {
+  return fontOptions.find(opt => opt.value === brandSettings.primaryFont) || fontOptions[0]
+}
+
+const selectPrimaryFont = (option) => {
+  brandSettings.primaryFont = option.value
+  isPrimaryFontDropdownOpen.value = false
+}
+
+// Secondary font dropdown
+const secondaryFontDropdownRef = ref(null)
+const isSecondaryFontDropdownOpen = ref(false)
+
+const selectedSecondaryFont = () => {
+  return fontOptions.find(opt => opt.value === brandSettings.secondaryFont) || fontOptions[1]
+}
+
+const selectSecondaryFont = (option) => {
+  brandSettings.secondaryFont = option.value
+  isSecondaryFontDropdownOpen.value = false
+}
+
+const handleClickOutside = (event) => {
+  if (languageDropdownRef.value && !languageDropdownRef.value.contains(event.target)) {
+    isLanguageDropdownOpen.value = false
+  }
+  if (primaryFontDropdownRef.value && !primaryFontDropdownRef.value.contains(event.target)) {
+    isPrimaryFontDropdownOpen.value = false
+  }
+  if (secondaryFontDropdownRef.value && !secondaryFontDropdownRef.value.contains(event.target)) {
+    isSecondaryFontDropdownOpen.value = false
+  }
+}
+
 // Track which discoveries have been made
 const discoveries = reactive({
   logo: false,
@@ -401,7 +529,7 @@ const discoveries = reactive({
 
 const brandColors = ['#E20074', '#18214D', '#5D6482']
 const discoveredFonts = [
-  { name: 'TeleNeo', fontFamily: '"TeleNeo", sans-serif' },
+  { name: 'Inter', fontFamily: '"Inter", sans-serif' },
   { name: 'Arial', fontFamily: 'Arial, sans-serif' }
 ]
 
@@ -526,6 +654,8 @@ const startWithMessage = (message) => {
 
 // Auto-start if initialMessage is provided or start at style selection or quicktune
 onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+
   if (props.startAtQuicktune) {
     // Start directly at quicktune
     submitted.value = true
@@ -541,6 +671,10 @@ onMounted(() => {
       startWithMessage(props.initialMessage)
     }, 100)
   }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 
 defineExpose({
@@ -611,5 +745,20 @@ defineExpose({
   border-color: #E3E5E8 !important;
   box-shadow: none !important;
   outline: none !important;
+}
+
+/* Dropdown transition */
+.dropdown-enter-active {
+  transition: all 0.2s ease-out;
+}
+
+.dropdown-leave-active {
+  transition: all 0.15s ease-in;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
 }
 </style>
