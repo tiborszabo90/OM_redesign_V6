@@ -348,6 +348,113 @@
               class="w-full px-3 py-2.5 border border-om-gray-300 rounded-xl text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:ring-2 focus:ring-om-orange-500 focus:border-transparent resize-none"
             ></textarea>
           </div>
+
+          <!-- Pill single select dropdown -->
+          <div>
+            <label class="block text-sm font-medium text-om-gray-700 mb-2">Pill single select dropdown</label>
+            <div class="relative w-[240px]" ref="dropdownRef">
+              <button
+                @click="isDropdownOpen = !isDropdownOpen"
+                class="w-full pl-12 pr-8 py-2 border border-[#D5D8DD] rounded-full text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none focus:border-[#E3E5E8] active:border-[#E3E5E8] cursor-pointer bg-white text-left hover:border-[#E3E5E8] hover:bg-[#FAFAFA] transition-colors"
+                :class="{ 'border-[#E3E5E8] bg-[#FAFAFA]': isDropdownOpen }"
+                style="box-shadow: none !important; outline: none !important;"
+              >
+                {{ selectedOption }}
+              </button>
+              <div class="absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full overflow-hidden bg-om-orange-500 flex items-center justify-center pointer-events-none">
+                <span class="text-white text-xs font-bold">O</span>
+              </div>
+              <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                <!-- uil-angle-down -->
+                <svg
+                  class="w-4 h-4 text-[#505763] transition-transform"
+                  :class="{ 'rotate-180': isDropdownOpen }"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"/>
+                </svg>
+              </div>
+
+              <!-- Dropdown menu -->
+              <transition
+                enter-active-class="transition ease-out duration-100"
+                enter-from-class="opacity-0 scale-95"
+                enter-to-class="opacity-100 scale-100"
+                leave-active-class="transition ease-in duration-75"
+                leave-from-class="opacity-100 scale-100"
+                leave-to-class="opacity-0 scale-95"
+              >
+                <div
+                  v-if="isDropdownOpen"
+                  class="absolute z-10 w-full mt-3 bg-white border border-[#D5D8DD] rounded-xl shadow-lg overflow-hidden"
+                >
+                  <button
+                    v-for="option in dropdownOptions"
+                    :key="option"
+                    @click="selectOption(option)"
+                    class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F7F7F8] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F7F7F8]"
+                    :class="{ 'bg-[#F1F2F4] font-medium': selectedOption === option }"
+                    style="box-shadow: none !important; outline: none !important;"
+                  >
+                    {{ option }}
+                  </button>
+                </div>
+              </transition>
+            </div>
+          </div>
+
+          <!-- Single select dropdown -->
+          <div>
+            <label class="block text-sm font-medium text-om-gray-700 mb-2">Single select dropdown</label>
+            <div class="relative w-[240px]" ref="singleDropdownRef">
+              <button
+                @click="isSingleDropdownOpen = !isSingleDropdownOpen"
+                class="dropdown-select w-full px-4 pr-8 py-2.5 border border-om-gray-200 rounded-xl text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white text-left hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
+                :class="{ 'border-om-orange-300': isSingleDropdownOpen }"
+                :style="isSingleDropdownOpen ? 'box-shadow: 0 0 0 2px #FBD9CE; outline: none;' : 'box-shadow: none; outline: none;'"
+              >
+                {{ singleSelectedOption.label }}
+              </button>
+              <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                <!-- uil-angle-down -->
+                <svg
+                  class="w-4 h-4 text-[#505763] transition-transform"
+                  :class="{ 'rotate-180': isSingleDropdownOpen }"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M17,9.17a1,1,0,0,0-1.41,0L12,12.71,8.46,9.17a1,1,0,0,0-1.41,0,1,1,0,0,0,0,1.42l4.24,4.24a1,1,0,0,0,1.42,0L17,10.59A1,1,0,0,0,17,9.17Z"/>
+                </svg>
+              </div>
+
+              <!-- Dropdown menu -->
+              <transition
+                enter-active-class="transition ease-out duration-100"
+                enter-from-class="opacity-0 scale-95"
+                enter-to-class="opacity-100 scale-100"
+                leave-active-class="transition ease-in duration-75"
+                leave-from-class="opacity-100 scale-100"
+                leave-to-class="opacity-0 scale-95"
+              >
+                <div
+                  v-if="isSingleDropdownOpen"
+                  class="absolute z-10 w-full mt-3 bg-white border border-[#D5D8DD] rounded-xl shadow-lg overflow-hidden"
+                >
+                  <button
+                    v-for="option in singleDropdownOptions"
+                    :key="option.value"
+                    @click="selectSingleOption(option)"
+                    class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F7F7F8] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F7F7F8]"
+                    :class="{ 'bg-[#F1F2F4] font-medium': singleSelectedOption.value === option.value }"
+                    style="box-shadow: none !important; outline: none !important;"
+                  >
+                    {{ option.label }}
+                  </button>
+                </div>
+              </transition>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -513,4 +620,50 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+
+// Pill dropdown
+const dropdownRef = ref(null)
+const isDropdownOpen = ref(false)
+const selectedOption = ref('Option 1')
+const dropdownOptions = ['Option 1', 'Option 2', 'Option 3', 'Option 4']
+
+const selectOption = (option) => {
+  selectedOption.value = option
+  isDropdownOpen.value = false
+}
+
+// Single select dropdown
+const singleDropdownRef = ref(null)
+const isSingleDropdownOpen = ref(false)
+const singleDropdownOptions = [
+  { value: 'en', label: 'English' },
+  { value: 'hu', label: 'Hungarian' },
+  { value: 'de', label: 'German' },
+  { value: 'fr', label: 'French' },
+  { value: 'es', label: 'Spanish' }
+]
+const singleSelectedOption = ref(singleDropdownOptions[0])
+
+const selectSingleOption = (option) => {
+  singleSelectedOption.value = option
+  isSingleDropdownOpen.value = false
+}
+
+const handleClickOutside = (event) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+    isDropdownOpen.value = false
+  }
+  if (singleDropdownRef.value && !singleDropdownRef.value.contains(event.target)) {
+    isSingleDropdownOpen.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>

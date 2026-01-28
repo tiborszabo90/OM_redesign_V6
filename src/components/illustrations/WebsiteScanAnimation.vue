@@ -2,7 +2,7 @@
   <div class="scanner-container overflow-hidden">
     <div class="scanner-inner relative">
       <!-- Dummy website background - centered within scanner -->
-      <div class="absolute left-[15px] top-[10px] bg-white rounded-2xl shadow-xl overflow-hidden border border-[#E3E5E8] w-[790px] h-[480px]">
+      <div class="absolute left-[15px] top-[10px] bg-white rounded-2xl overflow-hidden border border-[#E3E5E8] w-[790px] h-[480px]">
         <!-- Skeleton content - visible first 2 seconds -->
         <transition name="fade">
           <div v-if="!showScreenshot" class="p-6 space-y-4 h-full overflow-hidden">

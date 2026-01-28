@@ -196,20 +196,20 @@
     <!-- Style selection screen -->
     <transition v-else-if="showStyleSelection" name="fade" appear>
       <div class="min-h-screen-safe bg-om-gray-50 overflow-y-auto">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 md:px-8 pt-24 pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pt-14 pb-12">
           <!-- Header -->
-          <div class="text-center mb-8">
+          <div class="text-center mb-[52px]">
             <h2 class="text-2xl sm:text-3xl font-semibold text-om-gray-700 mb-2">Which style do you like the most?</h2>
             <p class="text-om-gray-500">You can customize colors, fonts, and other style settings in the next step.</p>
           </div>
 
-          <!-- Popup grid - 2 columns -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <!-- Popup grid - 3 columns on large screens -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <button
               v-for="(style, index) in popupStyles"
               :key="style.id"
               @click="selectStyleAndContinue(style.id)"
-              class="relative rounded-2xl overflow-hidden border-2 border-om-gray-200 transition-all duration-300 cursor-pointer hover:scale-105"
+              class="style-card relative rounded-lg overflow-hidden border-2 border-om-gray-200 transition-transform duration-300 cursor-pointer hover:scale-105 focus:outline-none focus:ring-0"
             >
               <!-- Popup preview image -->
               <div class="aspect-video bg-om-gray-100 flex items-center justify-center relative overflow-hidden">
@@ -595,5 +595,21 @@ defineExpose({
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* Style cards - prevent orange border on hover */
+.style-card {
+  box-shadow: none !important;
+}
+
+.style-card:hover {
+  border-color: #E3E5E8 !important;
+  box-shadow: none !important;
+}
+
+.style-card:focus {
+  border-color: #E3E5E8 !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 </style>

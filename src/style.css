@@ -70,6 +70,14 @@ button:focus {
   box-shadow: none;
 }
 
+/* Soft hover effect for inputs */
+input:hover:not(:focus):not(:disabled),
+select:hover:not(:focus):not(:disabled),
+textarea:hover:not(:focus):not(:disabled) {
+  border-color: #D5D8DD; /* om-gray-300 */
+  background-color: #FAFAFA;
+}
+
 /* Double stroke effect for focused inputs */
 input:focus,
 select:focus,
@@ -116,8 +124,9 @@ button.bg-\[\#ED5A29\]:not(:disabled):hover {
 
 /* Secondary button hover effect - orange border and glow */
 /* Also applies to chips */
-button.border-om-gray-200:not(:disabled):hover,
-button.border-\[\#E3E5E8\]:not(:disabled):hover {
+/* Excludes .style-card and .dropdown-select which have their own hover styles */
+button.border-om-gray-200:not(:disabled):not(.style-card):not(.dropdown-select):hover,
+button.border-\[\#E3E5E8\]:not(:disabled):not(.style-card):not(.dropdown-select):hover {
   border-color: #ED5A29 !important; /* om-orange-500 */
   box-shadow: 0 4px 14px rgba(237, 90, 41, 0.4);
 }
