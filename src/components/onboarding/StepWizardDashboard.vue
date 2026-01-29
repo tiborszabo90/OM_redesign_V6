@@ -15,41 +15,54 @@
     <!-- Quicktune screen -->
     <transition v-else-if="showQuicktune" name="fade" appear>
       <div class="min-h-screen-safe bg-white overflow-y-auto">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-14 pb-12">
+        <!-- Continue button at top right -->
+        <div class="fixed top-8 right-8 z-50">
+          <button
+            @click="confirmQuicktune"
+            class="px-5 py-2 bg-om-orange-500 text-white text-sm font-medium rounded-lg hover:bg-om-orange-600 transition-colors cursor-pointer"
+          >
+            Continue
+          </button>
+        </div>
+
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-10 lg:pt-14 pb-8 lg:pb-12">
           <!-- Header -->
-          <div class="text-center mb-16">
+          <div class="text-center mb-8 lg:mb-16">
             <h2 class="text-2xl sm:text-3xl font-semibold text-om-gray-700 mb-2">Quick-tune your brand settings</h2>
             <p class="text-om-gray-500">Don't worry—all settings can be customized later in the editor.</p>
           </div>
 
           <!-- Two column layout -->
-          <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
+          <div class="flex flex-col lg:flex-row gap-6 lg:gap-6">
             <!-- Left side - Popup preview -->
             <div class="flex-1 flex items-start justify-center lg:justify-start">
-              <div class="rounded-2xl overflow-hidden border-2 border-om-gray-200 shadow-xl w-full max-w-2xl bg-white">
+              <div
+                class="overflow-hidden border-2 border-om-gray-200 shadow-xl w-full max-w-2xl bg-white transition-all duration-300"
+                :class="popupCornerClasses[brandSettings.corners]"
+              >
                 <div class="flex">
                   <!-- Left content side -->
-                  <div class="w-1/2 p-8 flex flex-col justify-center">
+                  <div class="w-1/2 p-6 lg:p-8 flex flex-col justify-center">
                     <img src="/telekom.png" alt="Telekom Logo" class="w-10 h-10 object-contain mb-3" />
                     <h3 class="text-3xl font-bold text-om-gray-800 leading-tight mb-2" :style="{ fontFamily: brandSettings.primaryFont }">
-                      You've got<br>10% OFF
+                      {{ popupTexts[brandSettings.language].title }} {{ popupTexts[brandSettings.language].discount }}
                     </h3>
-                    <p class="text-sm text-om-gray-400 mb-6" :style="{ fontFamily: brandSettings.secondaryFont }">Save it before it's gone.</p>
+                    <p class="text-sm text-om-gray-400 mb-6" :style="{ fontFamily: brandSettings.secondaryFont }">{{ popupTexts[brandSettings.language].subtitle }}</p>
                     <button
                       class="w-full py-3 text-white text-sm font-semibold uppercase tracking-wide mb-3"
                       :class="cornerClasses[brandSettings.corners]"
-                      :style="{ backgroundColor: brandSettings.colors[0], fontFamily: brandSettings.primaryFont }"
+                      :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
                       disabled
                     >
-                      Claim 10% Off
+                      {{ popupTexts[brandSettings.language].cta }}
                     </button>
                     <button
                       class="w-full py-3 bg-transparent text-sm font-medium uppercase tracking-wide border"
                       :class="cornerClasses[brandSettings.corners]"
-                      :style="{ color: brandSettings.colors[0], borderColor: brandSettings.colors[0], fontFamily: brandSettings.primaryFont }"
+                      :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex], borderColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
                       disabled
                     >
-                      No, Thanks
+                      {{ popupTexts[brandSettings.language].decline }}
                     </button>
                   </div>
                   <!-- Right image side -->
@@ -65,104 +78,144 @@
             </div>
 
             <!-- Right side - Settings -->
-            <div class="w-full lg:w-80 shrink-0 space-y-6">
-              <!-- Template language -->
-              <div>
-                <label class="block text-sm font-medium text-om-gray-700 mb-2">Template language</label>
-                <div ref="languageDropdownRef" class="relative">
-                  <button
-                    type="button"
-                    @click="isLanguageDropdownOpen = !isLanguageDropdownOpen"
-                    class="dropdown-select w-full px-3 py-1.5 border border-om-gray-200 rounded-lg bg-white text-sm text-om-gray-700 text-left flex items-center justify-between cursor-pointer transition-colors"
-                    :class="isLanguageDropdownOpen ? 'border-om-orange-300 ring-2 ring-om-orange-100' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'"
-                  >
-                    <span>{{ selectedLanguage().label }}</span>
-                    <svg class="w-4 h-4 text-om-gray-600 transition-transform" :class="isLanguageDropdownOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                  </button>
-                  <!-- Dropdown options -->
-                  <transition name="dropdown">
-                    <div
-                      v-if="isLanguageDropdownOpen"
-                      class="absolute z-10 w-full mt-2 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden"
+            <div class="w-full lg:w-80 shrink-0 space-y-4 lg:space-y-5">
+              <!-- Template language + Logo row -->
+              <div class="flex gap-3">
+                <!-- Template language -->
+                <div class="flex-1">
+                  <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Language</label>
+                  <div ref="languageDropdownRef" class="relative">
+                    <button
+                      type="button"
+                      @click="isLanguageDropdownOpen = !isLanguageDropdownOpen"
+                      class="dropdown-select w-full px-3 py-1.5 border border-om-gray-200 rounded-lg bg-white text-sm text-om-gray-700 text-left flex items-center justify-between cursor-pointer transition-colors h-[38px]"
+                      :class="isLanguageDropdownOpen ? 'border-om-orange-300 ring-2 ring-om-orange-100' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'"
                     >
-                      <button
-                        v-for="option in languageOptions"
-                        :key="option.value"
-                        type="button"
-                        @click="selectLanguage(option)"
-                        class="w-full px-3 py-1.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
-                        :class="brandSettings.language === option.value ? 'bg-om-orange-50 text-om-orange-600' : ''"
+                      <span>{{ selectedLanguage().label }}</span>
+                      <svg class="w-4 h-4 text-om-gray-600 transition-transform" :class="isLanguageDropdownOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </button>
+                    <!-- Dropdown options -->
+                    <transition name="dropdown">
+                      <div
+                        v-if="isLanguageDropdownOpen"
+                        class="absolute z-10 w-full mt-2 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden"
                       >
-                        {{ option.label }}
-                      </button>
-                    </div>
-                  </transition>
+                        <button
+                          v-for="option in languageOptions"
+                          :key="option.value"
+                          type="button"
+                          @click="selectLanguage(option)"
+                          class="w-full px-3 py-1.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                          :class="brandSettings.language === option.value ? 'bg-om-orange-50 text-om-orange-600' : ''"
+                        >
+                          {{ option.label }}
+                        </button>
+                      </div>
+                    </transition>
+                  </div>
                 </div>
-              </div>
 
-              <!-- Logo -->
-              <div>
-                <label class="block text-sm font-medium text-om-gray-700 mb-2">Logo</label>
-                <div class="flex items-center gap-3">
-                  <div class="flex-1 h-16 bg-[repeating-conic-gradient(#E3E5E8_0%_25%,transparent_0%_50%)_50%/16px_16px] rounded-xl flex items-center justify-center border border-om-gray-200">
-                    <div class="w-12 h-12 rounded-lg overflow-hidden">
+                <!-- Logo -->
+                <div class="flex-1">
+                  <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Logo</label>
+                  <div class="h-[38px] bg-[repeating-conic-gradient(#E3E5E8_0%_25%,transparent_0%_50%)_50%/12px_12px] rounded-lg flex items-center justify-center border border-om-gray-200">
+                    <div class="w-7 h-7 rounded-sm overflow-hidden">
                       <img src="/telekom.png" alt="Telekom Logo" class="w-full h-full object-contain" />
                     </div>
                   </div>
-                  <button class="w-10 h-10 border border-om-gray-200 rounded-xl flex items-center justify-center text-om-gray-400 hover:text-om-gray-600 hover:border-om-gray-300 transition-colors cursor-pointer">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M21,6H17.5l-1.71-1.71A1,1,0,0,0,15.08,4H8.92a1,1,0,0,0-.71.29L6.5,6H3A1,1,0,0,0,2,7V19a1,1,0,0,0,1,1H21a1,1,0,0,0,1-1V7A1,1,0,0,0,21,6Zm-1,12H4V8H7.08l1.71-1.71h6.42L16.92,8H20Z"/>
-                    </svg>
-                  </button>
                 </div>
               </div>
 
-              <!-- Colors -->
-              <div>
-                <label class="block text-sm font-medium text-om-gray-700 mb-2">Color</label>
-                <div class="flex gap-2">
-                  <button
-                    v-for="(color, index) in brandSettings.colors"
-                    :key="index"
-                    class="w-10 h-10 rounded-lg border-2 transition-all cursor-pointer"
-                    :class="brandSettings.selectedColorIndex === index ? 'border-om-orange-500 ring-2 ring-om-orange-200' : 'border-om-gray-200'"
-                    :style="{ backgroundColor: color }"
-                    @click="brandSettings.selectedColorIndex = index"
-                  ></button>
+              <!-- Colors + Corners row -->
+              <div class="flex gap-3">
+                <!-- Colors -->
+                <div class="flex-1">
+                  <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Color</label>
+                  <div class="flex gap-1.5">
+                    <button
+                      v-for="(color, index) in brandSettings.colors"
+                      :key="index"
+                      class="w-8 h-8 rounded-md border-2 transition-all cursor-pointer"
+                      :class="brandSettings.selectedColorIndex === index ? 'border-om-orange-500 ring-2 ring-om-orange-200' : 'border-om-gray-200'"
+                      :style="{ backgroundColor: color }"
+                      @click="brandSettings.selectedColorIndex = index"
+                    ></button>
+                  </div>
+                </div>
+
+                <!-- Corners -->
+                <div class="flex-1">
+                  <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Corners</label>
+                  <div ref="cornersDropdownRef" class="relative">
+                    <button
+                      type="button"
+                      @click="isCornersDropdownOpen = !isCornersDropdownOpen"
+                      class="dropdown-select w-full px-3 py-1.5 border border-om-gray-200 rounded-lg bg-white text-sm text-om-gray-700 text-left flex items-center justify-between cursor-pointer transition-colors"
+                      :class="isCornersDropdownOpen ? 'border-om-orange-300 ring-2 ring-om-orange-100' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'"
+                    >
+                      <span class="flex items-center gap-2">
+                        <span class="w-4 h-4 border-2 border-om-gray-400" :class="selectedCorner().class"></span>
+                        <span>{{ selectedCorner().label }}</span>
+                      </span>
+                      <svg class="w-4 h-4 text-om-gray-600 transition-transform" :class="isCornersDropdownOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </button>
+                    <transition name="dropdown">
+                      <div
+                        v-if="isCornersDropdownOpen"
+                        class="absolute z-10 w-full mt-1 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden"
+                      >
+                        <button
+                          v-for="corner in cornerOptions"
+                          :key="corner.id"
+                          type="button"
+                          @click="selectCorner(corner)"
+                          class="w-full px-3 py-1.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer flex items-center gap-2"
+                          :class="brandSettings.corners === corner.id ? 'bg-om-orange-50 text-om-orange-600' : ''"
+                        >
+                          <span class="w-4 h-4 border-2 shrink-0" :class="[corner.class, brandSettings.corners === corner.id ? 'border-om-orange-500' : 'border-om-gray-400']"></span>
+                          <span>{{ corner.label }}</span>
+                        </button>
+                      </div>
+                    </transition>
+                  </div>
                 </div>
               </div>
 
               <!-- Fonts -->
-              <div class="space-y-3">
+              <div class="space-y-2">
                 <label class="block text-sm font-medium text-om-gray-700">Font</label>
-                <div>
-                  <label class="block text-xs text-om-gray-500 mb-1">Primary font</label>
-                  <div class="flex items-center gap-2">
-                    <div ref="primaryFontDropdownRef" class="relative flex-1">
+                <!-- Primary and Secondary fonts in a row -->
+                <div class="flex gap-2">
+                  <!-- Primary font -->
+                  <div class="flex-1">
+                    <label class="block text-xs text-om-gray-500 mb-1">Primary</label>
+                    <div ref="primaryFontDropdownRef" class="relative">
                       <button
                         type="button"
                         @click="isPrimaryFontDropdownOpen = !isPrimaryFontDropdownOpen"
-                        class="dropdown-select w-full px-3 py-1.5 border border-om-gray-200 rounded-lg bg-white text-sm text-om-gray-700 text-left flex items-center justify-between cursor-pointer transition-colors"
+                        class="dropdown-select w-full px-2.5 py-1.5 border border-om-gray-200 rounded-lg bg-white text-sm text-om-gray-700 text-left flex items-center justify-between cursor-pointer transition-colors"
                         :class="isPrimaryFontDropdownOpen ? 'border-om-orange-300 ring-2 ring-om-orange-100' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'"
                       >
-                        <span>{{ selectedPrimaryFont().label }}</span>
-                        <svg class="w-4 h-4 text-om-gray-600 transition-transform" :class="isPrimaryFontDropdownOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <span class="truncate">{{ selectedPrimaryFont().label }}</span>
+                        <svg class="w-3.5 h-3.5 text-om-gray-600 transition-transform shrink-0 ml-1" :class="isPrimaryFontDropdownOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                       </button>
                       <transition name="dropdown">
                         <div
                           v-if="isPrimaryFontDropdownOpen"
-                          class="absolute z-10 w-full mt-2 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden"
+                          class="absolute z-10 w-full mt-1 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden"
                         >
                           <button
                             v-for="option in fontOptions"
                             :key="option.value"
                             type="button"
                             @click="selectPrimaryFont(option)"
-                            class="w-full px-3 py-1.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                            class="w-full px-2.5 py-1.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
                             :class="brandSettings.primaryFont === option.value ? 'bg-om-orange-50 text-om-orange-600' : ''"
                           >
                             {{ option.label }}
@@ -170,39 +223,33 @@
                         </div>
                       </transition>
                     </div>
-                    <button class="w-10 h-10 border border-om-gray-200 rounded-xl flex items-center justify-center text-om-gray-400 hover:text-om-gray-600 hover:border-om-gray-300 transition-colors cursor-pointer">
-                      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20Zm4-9H13V8a1,1,0,0,0-2,0v3H8a1,1,0,0,0,0,2h3v3a1,1,0,0,0,2,0V13h3a1,1,0,0,0,0-2Z"/>
-                      </svg>
-                    </button>
                   </div>
-                </div>
-                <div>
-                  <label class="block text-xs text-om-gray-500 mb-1">Secondary font</label>
-                  <div class="flex items-center gap-2">
-                    <div ref="secondaryFontDropdownRef" class="relative flex-1">
+                  <!-- Secondary font -->
+                  <div class="flex-1">
+                    <label class="block text-xs text-om-gray-500 mb-1">Secondary</label>
+                    <div ref="secondaryFontDropdownRef" class="relative">
                       <button
                         type="button"
                         @click="isSecondaryFontDropdownOpen = !isSecondaryFontDropdownOpen"
-                        class="dropdown-select w-full px-3 py-1.5 border border-om-gray-200 rounded-lg bg-white text-sm text-om-gray-700 text-left flex items-center justify-between cursor-pointer transition-colors"
+                        class="dropdown-select w-full px-2.5 py-1.5 border border-om-gray-200 rounded-lg bg-white text-sm text-om-gray-700 text-left flex items-center justify-between cursor-pointer transition-colors"
                         :class="isSecondaryFontDropdownOpen ? 'border-om-orange-300 ring-2 ring-om-orange-100' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'"
                       >
-                        <span>{{ selectedSecondaryFont().label }}</span>
-                        <svg class="w-4 h-4 text-om-gray-600 transition-transform" :class="isSecondaryFontDropdownOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <span class="truncate">{{ selectedSecondaryFont().label }}</span>
+                        <svg class="w-3.5 h-3.5 text-om-gray-600 transition-transform shrink-0 ml-1" :class="isSecondaryFontDropdownOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                       </button>
                       <transition name="dropdown">
                         <div
                           v-if="isSecondaryFontDropdownOpen"
-                          class="absolute z-10 w-full mt-2 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden"
+                          class="absolute z-10 w-full mt-1 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden"
                         >
                           <button
                             v-for="option in fontOptions"
                             :key="option.value"
                             type="button"
                             @click="selectSecondaryFont(option)"
-                            class="w-full px-3 py-1.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                            class="w-full px-2.5 py-1.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
                             :class="brandSettings.secondaryFont === option.value ? 'bg-om-orange-50 text-om-orange-600' : ''"
                           >
                             {{ option.label }}
@@ -210,48 +257,10 @@
                         </div>
                       </transition>
                     </div>
-                    <button class="w-10 h-10 border border-om-gray-200 rounded-xl flex items-center justify-center text-om-gray-400 hover:text-om-gray-600 hover:border-om-gray-300 transition-colors cursor-pointer">
-                      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20Zm4-9H13V8a1,1,0,0,0-2,0v3H8a1,1,0,0,0,0,2h3v3a1,1,0,0,0,2,0V13h3a1,1,0,0,0,0-2Z"/>
-                      </svg>
-                    </button>
                   </div>
                 </div>
               </div>
 
-              <!-- Corners -->
-              <div>
-                <label class="block text-sm font-medium text-om-gray-700 mb-2">Corners</label>
-                <div class="flex gap-2">
-                  <button
-                    v-for="corner in cornerOptions"
-                    :key="corner.id"
-                    @click="brandSettings.corners = corner.id"
-                    :class="[
-                      'flex-1 py-3 px-2 border-2 rounded-xl flex flex-col items-center gap-1 transition-all cursor-pointer',
-                      brandSettings.corners === corner.id
-                        ? 'border-om-orange-500 bg-om-orange-50'
-                        : 'border-om-gray-200 hover:border-om-gray-300'
-                    ]"
-                  >
-                    <div
-                      class="w-6 h-6 border-2 border-om-gray-400"
-                      :class="corner.class"
-                    ></div>
-                    <span class="text-xs text-om-gray-600">{{ corner.label }}</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Continue button -->
-              <div class="pt-4">
-                <button
-                  @click="confirmQuicktune"
-                  class="w-full px-8 py-3 bg-om-orange-500 text-white font-medium rounded-xl hover:bg-om-orange-600 transition-colors cursor-pointer"
-                >
-                  Continue
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -453,7 +462,54 @@ const cornerClasses = {
   none: 'rounded-none',
   small: 'rounded-lg',
   medium: 'rounded-xl',
-  large: 'rounded-2xl'
+  large: 'rounded-full'
+}
+
+// Popup container corner classes (larger for the outer container)
+const popupCornerClasses = {
+  none: 'rounded-none',
+  small: 'rounded-xl',
+  medium: 'rounded-2xl',
+  large: 'rounded-3xl'
+}
+
+// Popup text translations
+const popupTexts = {
+  en: {
+    title: "You've got",
+    discount: "10% OFF",
+    subtitle: "Save it before it's gone.",
+    cta: "Claim 10% Off",
+    decline: "No, Thanks"
+  },
+  hu: {
+    title: "Kaptál",
+    discount: "10% KEDVEZMÉNYT",
+    subtitle: "Mentsd el, mielőtt lejár.",
+    cta: "Kupon igénylése",
+    decline: "Nem, köszönöm"
+  },
+  de: {
+    title: "Du hast",
+    discount: "10% RABATT",
+    subtitle: "Sichere es dir, bevor es weg ist.",
+    cta: "10% sichern",
+    decline: "Nein, danke"
+  },
+  fr: {
+    title: "Vous avez",
+    discount: "10% DE RÉDUCTION",
+    subtitle: "Économisez avant qu'il ne soit trop tard.",
+    cta: "Réclamer 10%",
+    decline: "Non, merci"
+  },
+  es: {
+    title: "Tienes",
+    discount: "10% DE DESCUENTO",
+    subtitle: "Guárdalo antes de que se acabe.",
+    cta: "Reclamar 10%",
+    decline: "No, gracias"
+  }
 }
 
 // Language dropdown
@@ -507,6 +563,19 @@ const selectSecondaryFont = (option) => {
   isSecondaryFontDropdownOpen.value = false
 }
 
+// Corners dropdown
+const cornersDropdownRef = ref(null)
+const isCornersDropdownOpen = ref(false)
+
+const selectedCorner = () => {
+  return cornerOptions.find(opt => opt.id === brandSettings.corners) || cornerOptions[0]
+}
+
+const selectCorner = (corner) => {
+  brandSettings.corners = corner.id
+  isCornersDropdownOpen.value = false
+}
+
 const handleClickOutside = (event) => {
   if (languageDropdownRef.value && !languageDropdownRef.value.contains(event.target)) {
     isLanguageDropdownOpen.value = false
@@ -516,6 +585,9 @@ const handleClickOutside = (event) => {
   }
   if (secondaryFontDropdownRef.value && !secondaryFontDropdownRef.value.contains(event.target)) {
     isSecondaryFontDropdownOpen.value = false
+  }
+  if (cornersDropdownRef.value && !cornersDropdownRef.value.contains(event.target)) {
+    isCornersDropdownOpen.value = false
   }
 }
 
