@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="xl:pr-16">
     <div :class="registrationType === 'shopify' ? 'mb-6' : 'mb-12'">
       <h2 class="text-5xl font-normal text-[#23262A] mb-4 font-headline heading-responsive">Welcome to OptiMonk 🙌</h2>
       <p class="text-base text-[#8F97A4] max-w-[400px] font-light">

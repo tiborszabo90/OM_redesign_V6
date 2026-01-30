@@ -1,10 +1,10 @@
 <template>
   <!-- Regular Onboarding Layout -->
-  <MainLayout :has-progress="true">
+  <MainLayout :has-progress="true" :is-exiting="isExitingToWizard">
     <template #content>
       <div class="w-full" @wheel="handleWheel">
         <transition :name="transitionName" mode="out-in">
-          <div :key="currentStep" class="w-full">
+          <div :key="currentStep" :class="['w-full', isExitingToWizard ? 'exit-animation' : '']">
             <!-- Content -->
             <div :class="showButtons ? 'mb-4' : ''">
               <component
@@ -76,6 +76,7 @@ import StepReferralSource from '../components/onboarding/StepReferralSource.vue'
 import StepRelationship from '../components/onboarding/StepRelationship.vue'
 import StepContactType from '../components/onboarding/StepContactType.vue'
 import StepAgencyDetails from '../components/onboarding/StepAgencyDetails.vue'
+import StepUseCase from '../components/onboarding/StepUseCase.vue'
 
 const props = defineProps({
   registrationData: {
@@ -105,6 +106,8 @@ const baseSteps = computed(() => {
   return steps
 })
 
+const useCaseStep = { component: StepUseCase, key: 'useCase', showButtons: false }
+
 const contactTypeStep = { component: StepContactType, key: 'contactType', showButtons: false }
 const agencyDetailsStep = { component: StepAgencyDetails, key: 'agencyDetails', showButtons: false }
 
@@ -120,20 +123,21 @@ const {
   goToStep,
   totalSteps,
   setTotalSteps
-} = useOnboarding(3)
+} = useOnboarding(4)
 
 // Dynamic steps based on user selection
 const steps = computed(() => {
   const allSteps = [...baseSteps.value]
   // Add contact type step if user selected "client" in relationship step
-  // Only for email registration - Shopify goes directly to wizard after Relationship step
-  if (props.registrationType !== 'shopify' && formData.value.relationship?.relationship === 'client') {
+  if (formData.value.relationship?.relationship === 'client') {
     allSteps.push(contactTypeStep)
     // Add agency details step if user selected "client-contact" in contact type step
     if (formData.value.contactType?.contactType === 'client-contact') {
       allSteps.push(agencyDetailsStep)
     }
   }
+  // Always add use case step as the last step
+  allSteps.push(useCaseStep)
   return allSteps
 })
 
@@ -142,9 +146,24 @@ watch([() => formData.value.relationship?.relationship, () => formData.value.con
   setTotalSteps(steps.value.length)
 }, { immediate: true })
 
-// Display step number - show actual steps count
-const displayStep = computed(() => currentStep.value)
-const displayTotalSteps = computed(() => steps.value.length)
+// Display step number - always show 4 steps, client sub-steps count as step 3
+const displayStep = computed(() => {
+  const isClientPath = formData.value.relationship?.relationship === 'client'
+
+  if (!isClientPath) {
+    return Math.min(currentStep.value, 4)
+  }
+
+  // Client path: steps 1-3 show as 1-3, sub-steps show as 3, last step shows as 4
+  if (currentStep.value <= 3) {
+    return currentStep.value
+  }
+  if (currentStep.value === steps.value.length) {
+    return 4
+  }
+  return 3
+})
+const displayTotalSteps = computed(() => 4)
 const displayProgress = computed(() => (displayStep.value / displayTotalSteps.value) * 100)
 
 const currentStepComponent = computed(() => {
@@ -175,14 +194,21 @@ const handlePrev = () => {
   prevStep()
 }
 
+// Track if we're exiting to wizard (to trigger exit animation)
+const isExitingToWizard = ref(false)
+
 const handleAutoNext = () => {
   transitionName.value = 'slide-up'
   // Use nextTick to ensure total steps are updated before navigating
   nextTick(() => {
     setTotalSteps(steps.value.length)
     if (isLastStep.value) {
-      // Last step - go to wizard
-      emit('go-to-wizard')
+      // Last step - trigger exit animation first, then go to wizard
+      isExitingToWizard.value = true
+      // Wait for animation to complete (500ms transition duration)
+      setTimeout(() => {
+        emit('go-to-wizard', formData.value.useCase?.useCase || '')
+      }, 500)
     } else {
       nextStep()
     }
@@ -191,6 +217,34 @@ const handleAutoNext = () => {
 
 // Expose for DevNavBar
 const totalStepsCount = computed(() => steps.value.length)
+
+// Display step for DevNavBar - maps actual step to visual step (1-4)
+// Extra client steps (ContactType, AgencyDetails) are sub-steps of step 3
+const displayStepForNav = computed(() => {
+  const isClientPath = formData.value.relationship?.relationship === 'client'
+
+  if (!isClientPath) {
+    // No extra steps, direct mapping (max 4)
+    return Math.min(currentStep.value, 4)
+  }
+
+  // Client path has extra steps
+  // Steps 1-3: Show as 1-3
+  // Step 4+ (ContactType, AgencyDetails): Show as 3 (sub-steps of step 3)
+  // Last step (UseCase): Show as 4
+
+  if (currentStep.value <= 3) {
+    return currentStep.value
+  }
+
+  // Check if we're on the last step (UseCase)
+  if (currentStep.value === steps.value.length) {
+    return 4
+  }
+
+  // Otherwise, we're on an extra client step (ContactType/AgencyDetails), show as 3
+  return 3
+})
 
 const devGoToStep = (step) => {
   // Allow navigation to any step for dev purposes
@@ -211,6 +265,7 @@ const devGoToStep = (step) => {
 defineExpose({
   currentStep,
   totalStepsCount,
+  displayStepForNav,
   devGoToStep
 })
 
@@ -297,5 +352,21 @@ const handleWheel = (event) => {
 .slide-down-leave-from {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Exit animation for wizard transition */
+.exit-animation {
+  animation: slideUpExit 0.5s ease-in-out forwards;
+}
+
+@keyframes slideUpExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
 }
 </style>

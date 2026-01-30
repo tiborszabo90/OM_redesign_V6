@@ -1,25 +1,16 @@
 <template>
   <div class="h-screen-safe bg-white flex flex-col relative overflow-hidden">
-    <!-- Logo at top left corner -->
-    <div class="fixed top-8 left-8 z-50">
-      <img
-        src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
-        alt="OptiMonk"
-        class="h-8"
-      />
-    </div>
-
     <!-- Main content area -->
-    <div :class="['w-full h-full max-w-7xl mx-auto flex flex-col md:flex-row', reducedGap ? 'md:gap-8' : 'md:gap-16 lg:gap-32 xl:gap-48']">
+    <div :class="['w-full h-full max-w-7xl mx-auto flex flex-col md:flex-row', reducedGap ? 'md:gap-8' : 'md:gap-16 lg:gap-32 xl:gap-32']">
       <!-- Left Side - Content Area -->
-      <div class="w-full h-full md:w-[516px] flex items-center justify-center md:justify-start px-8 lg:pl-16 lg:pr-0 py-8 overflow-hidden">
+      <div :class="['w-full h-full md:w-129 xl:w-150 flex items-center justify-center md:justify-start px-8 lg:pl-16 lg:pr-0 pt-8 overflow-hidden', hasProgress ? 'pb-32' : 'pb-8']">
         <div class="w-full max-w-[516px] md:max-w-none">
           <slot name="content"></slot>
         </div>
       </div>
 
       <!-- Right Side - Illustration Area -->
-      <div :class="['hidden md:flex flex-1 pt-8 pr-8 lg:pr-16', hasProgress ? 'pb-28' : 'pb-8']">
+      <div :class="['hidden md:flex flex-1 pt-8 pr-8 lg:pr-16', hasProgress ? 'pb-28' : 'pb-8', isExiting ? 'exit-animation' : '']">
         <div :class="['w-full rounded-[40px] flex items-center justify-center overflow-hidden mb-8 transition-colors duration-500', transparentIllustration ? 'bg-transparent' : 'bg-[#FFEFE5]', reducedGap ? '' : 'max-w-xl']">
           <slot name="illustration">
             <!-- Default placeholder -->
@@ -39,7 +30,7 @@
     </div>
 
     <!-- Progress bar at bottom of viewport -->
-    <div v-if="hasProgress" class="fixed bottom-12-safe left-0 right-0 bg-white z-40">
+    <div v-if="hasProgress" :class="['fixed bottom-12-safe left-0 right-0 bg-white z-40', isExiting ? 'fade-out-delayed' : '']">
       <div class="w-full max-w-7xl mx-auto px-8 lg:pl-16 py-4">
         <div class="md:w-[516px]">
           <slot name="progress"></slot>
@@ -62,6 +53,42 @@ defineProps({
   reducedGap: {
     type: Boolean,
     default: false
+  },
+  isExiting: {
+    type: Boolean,
+    default: false
   }
 })
 </script>
+
+<style scoped>
+/* Exit animation for wizard transition */
+.exit-animation {
+  animation: slideUpExit 0.5s ease-in-out forwards;
+}
+
+@keyframes slideUpExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+
+/* Delayed fade out for progress bar */
+.fade-out-delayed {
+  animation: fadeOut 0.3s ease-in-out 0.2s forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+</style>

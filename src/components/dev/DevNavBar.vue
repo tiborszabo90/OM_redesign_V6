@@ -90,18 +90,6 @@
         <!-- Wizard-only flow -->
         <template v-if="registrationType === 'wizard'">
           <button
-            @click="$emit('navigate', 'wizard')"
-            :class="[
-              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
-              currentView === 'wizard'
-                ? 'bg-[#ED5A29] text-white'
-                : 'bg-[#505763] hover:bg-[#8F97A4]'
-            ]"
-          >
-            Use Cases
-          </button>
-
-          <button
             @click="$emit('navigate', 'wizard-analysis')"
             :class="[
               'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
@@ -135,6 +123,30 @@
             ]"
           >
             Wizard Quicktune
+          </button>
+
+          <button
+            @click="$emit('navigate', 'wizard-recommendation')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              currentView === 'wizard-recommendation'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Recommendation V1
+          </button>
+
+          <button
+            @click="$emit('navigate', 'wizard-recommendation-v2')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              currentView === 'wizard-recommendation-v2'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Recommendation V2
           </button>
 
           <span class="text-[#505763] mx-1">|</span>
@@ -173,19 +185,6 @@
               {{ step }}
             </button>
           </div>
-
-          <!-- Wizard/Use Cases step -->
-          <button
-            @click="$emit('navigate', 'wizard')"
-            :class="[
-              'px-3 py-1 text-sm rounded transition-colors cursor-pointer ml-1',
-              currentView === 'wizard'
-                ? 'bg-[#ED5A29] text-white'
-                : 'bg-[#505763] hover:bg-[#8F97A4]'
-            ]"
-          >
-            Use Cases
-          </button>
 
           <span class="text-[#505763] mx-1">|</span>
         </template>
@@ -277,9 +276,9 @@ const props = defineProps({
 const emit = defineEmits(['navigate', 'go-to-step', 'go-to-task-phase', 'select-flow', 'update:isOpen'])
 
 // Onboarding steps count - same for both Email and Shopify
-// 3 steps: Welcome, ReferralSource, Relationship (BusinessType removed)
+// 4 steps: Welcome, ReferralSource, Relationship, UseCase
 const onboardingStepsCount = computed(() => {
-  return 3
+  return 4
 })
 
 const isOpen = ref(true)

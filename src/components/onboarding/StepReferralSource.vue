@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="xl:pr-16">
     <div class="mb-8">
       <h2 class="text-xl font-semibold text-[#23262A]">How did you hear about us?</h2>
     </div>

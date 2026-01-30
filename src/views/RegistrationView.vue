@@ -1,7 +1,7 @@
 <template>
   <MainLayout>
     <template #content>
-      <div class="w-full">
+      <div class="w-full xl:pr-16">
         <!-- Header -->
         <div class="mb-8">
           <h1 class="text-5xl font-normal text-[#23262A] mb-3 heading-responsive">Everything you need to stop losing customers</h1>

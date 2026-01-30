@@ -8,6 +8,8 @@
       :initial-message="props.initialMessage"
       :start-at-style="props.startAtStyle"
       :start-at-quicktune="props.startAtQuicktune"
+      :start-at-recommendation="props.startAtRecommendation"
+      :start-at-recommendation-v2="props.startAtRecommendationV2"
       @task-created="(task) => emit('task-created', task)"
     />
   </div>
@@ -31,6 +33,14 @@ const props = defineProps({
     default: false
   },
   startAtQuicktune: {
+    type: Boolean,
+    default: false
+  },
+  startAtRecommendation: {
+    type: Boolean,
+    default: false
+  },
+  startAtRecommendationV2: {
     type: Boolean,
     default: false
   }

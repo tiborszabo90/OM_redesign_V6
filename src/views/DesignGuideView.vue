@@ -127,6 +127,10 @@
         <h2 class="text-xl font-semibold text-om-gray-700 mb-6">Typography</h2>
         <div class="space-y-6 bg-om-gray-50 p-6 rounded-xl">
           <div class="flex items-baseline gap-4">
+            <span class="text-xs text-om-gray-400 w-20">text-5xl</span>
+            <p class="text-5xl font-normal text-om-gray-700 font-headline heading-responsive">Heading Extra Large</p>
+          </div>
+          <div class="flex items-baseline gap-4">
             <span class="text-xs text-om-gray-400 w-20">text-3xl</span>
             <p class="text-3xl font-semibold text-om-gray-700">Heading Large</p>
           </div>

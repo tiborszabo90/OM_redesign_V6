@@ -31,13 +31,15 @@ const handleOnboardingComplete = () => {
   currentView.value = 'task-creation'
 }
 
-const handleGoToWizard = () => {
-  // After onboarding, go to wizard
+const handleGoToWizard = (useCaseMessage = '') => {
+  // After onboarding, go directly to wizard analysis with the use case message
+  wizardMessage.value = useCaseMessage || 'Demo website analysis'
   sessionKey.value++
+  // Set to null first to unmount onboarding, then show wizard
   currentView.value = null
   setTimeout(() => {
-    currentView.value = 'wizard'
-  }, 50)
+    currentView.value = 'wizard-analysis'
+  }, 16) // One frame delay - minimal but necessary for Vue
 }
 
 const handleDevNavigate = (view) => {
@@ -94,6 +96,22 @@ const handleDevNavigate = (view) => {
     setTimeout(() => {
       currentView.value = view
     }, 50)
+  } else if (view === 'wizard-recommendation') {
+    // Wizard recommendation v1 - go directly to recommendation
+    flowSelected.value = true
+    sessionKey.value++
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = view
+    }, 50)
+  } else if (view === 'wizard-recommendation-v2') {
+    // Wizard recommendation v2 - go directly to recommendation v2
+    flowSelected.value = true
+    sessionKey.value++
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = view
+    }, 50)
   } else if (view === 'registration' || view === 'onboarding' || view === 'wizard') {
     // Navigating to flow views - ensure flow is selected
     flowSelected.value = true
@@ -116,8 +134,9 @@ const handleDevStartSelect = (type) => {
   // Then mount the new view after a brief delay
   setTimeout(() => {
     if (type === 'wizard') {
-      // Wizard flow starts with use case input
-      currentView.value = 'wizard'
+      // Wizard flow goes directly to wizard-analysis
+      wizardMessage.value = 'Demo website analysis'
+      currentView.value = 'wizard-analysis'
     } else if (type === 'shopify') {
       // Shopify flow skips registration and goes directly to onboarding
       currentView.value = 'onboarding'
@@ -210,6 +229,18 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
 
 <template>
   <div class="min-h-screen-safe">
+    <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
+    <div
+      v-if="currentView && !['dev-start', 'design-guide', 'wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2'].includes(currentView)"
+      class="fixed top-8 left-8 z-50"
+    >
+      <img
+        src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
+        alt="OptiMonk"
+        class="h-8"
+      />
+    </div>
+
     <transition name="fade" mode="out-in">
       <DevStartView
         v-if="currentView === 'dev-start'"
@@ -261,6 +292,20 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :start-at-quicktune="true"
         @task-created="handleTaskCreated"
       />
+      <WizardAnalysisView
+        v-else-if="currentView === 'wizard-recommendation'"
+        :key="'wizard-recommendation-' + sessionKey"
+        :registration-data="registrationData"
+        :start-at-recommendation="true"
+        @task-created="handleTaskCreated"
+      />
+      <WizardAnalysisView
+        v-else-if="currentView === 'wizard-recommendation-v2'"
+        :key="'wizard-recommendation-v2-' + sessionKey"
+        :registration-data="registrationData"
+        :start-at-recommendation-v2="true"
+        @task-created="handleTaskCreated"
+      />
       <DesignGuideView
         v-else-if="currentView === 'design-guide'"
       />
@@ -274,7 +319,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
 
   <DevNavBar
     :current-view="currentView"
-    :current-step="onboardingRef?.currentStep || 1"
+    :current-step="onboardingRef?.displayStepForNav || 1"
     :total-steps="onboardingRef?.totalStepsCount || 4"
     :created-tasks="createdTasks"
     :current-task-phase="taskCreationRef?.stepDashboardRef?.currentPhase || 'analysis'"
