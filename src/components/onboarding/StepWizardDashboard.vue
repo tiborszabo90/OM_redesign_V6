@@ -783,7 +783,7 @@
     <transition v-else-if="showRecommendationV4" name="fade" appear>
       <div class="min-h-screen-safe bg-white overflow-y-auto">
         <!-- Two-column intro section -->
-        <div class="w-full flex gap-12 items-stretch px-12 h-screen-safe">
+        <div class="w-full flex gap-12 items-stretch p-5 h-screen-safe">
           <!-- Left column (60%) -->
           <div class="w-[60%] flex items-center">
             <div class="bg-[#F7F7F8] rounded-2xl p-12 w-full">
