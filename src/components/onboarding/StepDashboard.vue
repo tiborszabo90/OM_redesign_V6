@@ -46,10 +46,7 @@
               ]"
               title="Desktop"
             >
-              <!-- uil-monitor -->
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#505763]" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19,3H5A3,3,0,0,0,2,6v8a3,3,0,0,0,3,3h6v2H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2H13V17h6a3,3,0,0,0,3-3V6A3,3,0,0,0,19,3Zm1,11a1,1,0,0,1-1,1H5a1,1,0,0,1-1-1V6A1,1,0,0,1,5,5H19a1,1,0,0,1,1,1Z"/>
-              </svg>
+              <Monitor :size="20" class="text-[#505763]" />
             </button>
             <button
               @click="selectedDevice = 'mobile'"
@@ -63,10 +60,7 @@
               ]"
               title="Mobile"
             >
-              <!-- uil-mobile-android -->
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#505763]" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M15.5,1h-7A2.5,2.5,0,0,0,6,3.5v17A2.5,2.5,0,0,0,8.5,23h7A2.5,2.5,0,0,0,18,20.5V3.5A2.5,2.5,0,0,0,15.5,1ZM12,21a1,1,0,1,1,1-1A1,1,0,0,1,12,21Zm4-4H8V5h8Z"/>
-              </svg>
+              <Smartphone :size="20" class="text-[#505763]" />
             </button>
           </div>
 
@@ -182,10 +176,7 @@
               <div :class="['rounded-2xl shadow-2xl max-w-2xl w-full mx-8 overflow-hidden relative', popupStyles.bgColor]">
                 <!-- Close button -->
                 <button @click="showPopup = false" :class="['absolute top-4 right-4 w-8 h-8 flex items-center justify-center transition-colors z-10 rounded-lg shadow-md', popupStyles.closeBg, popupStyles.closeText, popupStyles.closeHover]">
-                  <!-- uil-times -->
-                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M13.41,12l4.3-4.29a1,1,0,1,0-1.42-1.42L12,10.59,7.71,6.29A1,1,0,0,0,6.29,7.71L10.59,12l-4.3,4.29a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0L12,13.41l4.29,4.3a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42Z"/>
-                  </svg>
+                  <X :size="20" />
                 </button>
 
                 <div class="flex">
@@ -341,10 +332,7 @@
               <!-- Success message -->
               <div v-else-if="discovery.type === 'success'" class="flex items-center gap-2">
                 <div class="w-5 h-5 bg-[#239E77] rounded-full flex items-center justify-center">
-                  <!-- uil-check -->
-                  <svg class="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.71,7.21a1,1,0,0,0-1.42,0L9.84,14.67,6.71,11.53A1,1,0,1,0,5.29,13l3.84,3.84a1,1,0,0,0,1.42,0l8.16-8.16A1,1,0,0,0,18.71,7.21Z"/>
-                  </svg>
+                  <Check :size="12" class="text-white" />
                 </div>
                 <span class="font-medium">{{ discovery.message }}</span>
               </div>
@@ -513,10 +501,7 @@
               chatMessage?.trim() ? 'bg-[#ED5A29] text-white cursor-pointer' : 'bg-[#E3E5E8] text-[#8F97A4] cursor-default'
             ]"
           >
-            <!-- uil-arrow-up -->
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M17.71,11.29l-5-5a1,1,0,0,0-.33-.21,1,1,0,0,0-.76,0,1,1,0,0,0-.33.21l-5,5a1,1,0,0,0,1.42,1.42L11,9.41V19a1,1,0,0,0,2,0V9.41l3.29,3.3a1,1,0,0,0,1.42,0A1,1,0,0,0,17.71,11.29Z"/>
-            </svg>
+            <ArrowUp :size="16" />
           </button>
         </div>
       </div>
@@ -544,18 +529,7 @@
           </div>
           <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
             <!-- uil-angle-down (Unicons Line) -->
-            <svg
-              class="w-5 h-5 text-om-gray-600 transition-transform"
-              :class="{ 'rotate-180': isDropdownOpen }"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
+            <ChevronDown :size="20" class="text-om-gray-600 transition-transform" :class="{ 'rotate-180': isDropdownOpen }" />
           </div>
 
           <!-- Dropdown menu -->
@@ -604,10 +578,7 @@
         <button
           class="absolute bottom-3 left-2 w-8 h-8 flex items-center justify-center text-om-gray-500 hover:text-om-gray-600 hover:bg-om-gray-100 rounded-lg transition-all cursor-pointer"
         >
-          <!-- uil-paperclip -->
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M9.29,21a6.23,6.23,0,0,1-4.43-1.88,6,6,0,0,1-.22-8.49L12,3.2A4.11,4.11,0,0,1,15,2a4.48,4.48,0,0,1,3.19,1.35,4.36,4.36,0,0,1,.15,6.13l-7.4,7.43a2.54,2.54,0,0,1-1.81.75,2.72,2.72,0,0,1-1.95-.82,2.68,2.68,0,0,1-.08-3.78l6.91-6.87a1,1,0,1,1,1.41,1.42L8.51,14.5a.67.67,0,0,0,.08.95.73.73,0,0,0,.5.2.58.58,0,0,0,.42-.17l7.39-7.42A2.38,2.38,0,0,0,17,6.37,2.38,2.38,0,0,0,16.92,5a2.59,2.59,0,0,0-1.84-.79A2.44,2.44,0,0,0,13.41,5L6.05,12.47a4,4,0,0,0,.17,5.64,4.34,4.34,0,0,0,6-.19l7.78-7.87a1,1,0,0,1,1.42,1.4L13.66,19.32A6.17,6.17,0,0,1,9.29,21Z"/>
-          </svg>
+          <Paperclip :size="20" />
         </button>
         <!-- Submit button -->
         <button
@@ -634,7 +605,7 @@
           @click="selectExample(example.prompt)"
           class="chip flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-om-gray-200 text-sm text-om-gray-700 transition-all duration-200 ease-out cursor-pointer hover:scale-[1.02]"
         >
-          <span class="w-4 h-4 text-om-gray-500" v-html="example.icon"></span>
+          <component :is="example.iconComponent" :size="16" class="text-om-gray-500" />
           <span>{{ example.label }}</span>
         </button>
       </div>
@@ -657,6 +628,7 @@
 
 <script setup>
 import { reactive, ref, nextTick, onMounted, onUnmounted, computed, watch } from 'vue'
+import { Monitor, Smartphone, X, Check, ArrowUp, Paperclip, ChevronDown, Lightbulb, Plus, FlaskConical } from 'lucide-vue-next'
 import WebsiteScanAnimation from '../illustrations/WebsiteScanAnimation.vue'
 
 const props = defineProps({
@@ -1113,20 +1085,17 @@ const examples = [
   {
     label: 'Suggest ideas',
     prompt: 'Suggest campaign ideas for my website',
-    // uil-lightbulb-alt (line)
-    icon: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4.33 12.5l.16.16V17a1 1 0 0 0 1 1h6.34a1 1 0 0 0 1-1v-2.34l.16-.16A7 7 0 0 0 12 2"/></svg>'
+    iconComponent: Lightbulb
   },
   {
     label: 'Create a popup',
     prompt: 'I want to create a popup',
-    // uil-plus (line)
-    icon: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+    iconComponent: Plus
   },
   {
     label: 'Run A/B test',
     prompt: 'Help me run an A/B test',
-    // uil-flask (line)
-    icon: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v7.5L5.5 19a2 2 0 0 0 1.7 3h9.6a2 2 0 0 0 1.7-3L14 10.5V3"/></svg>'
+    iconComponent: FlaskConical
   }
 ]
 
