@@ -125,29 +125,74 @@
             Wizard Quicktune
           </button>
 
-          <button
-            @click="$emit('navigate', 'wizard-recommendation')"
-            :class="[
-              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
-              currentView === 'wizard-recommendation'
-                ? 'bg-[#ED5A29] text-white'
-                : 'bg-[#505763] hover:bg-[#8F97A4]'
-            ]"
-          >
-            Recommendation V1
-          </button>
-
-          <button
-            @click="$emit('navigate', 'wizard-recommendation-v2')"
-            :class="[
-              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
-              currentView === 'wizard-recommendation-v2'
-                ? 'bg-[#ED5A29] text-white'
-                : 'bg-[#505763] hover:bg-[#8F97A4]'
-            ]"
-          >
-            Recommendation V2
-          </button>
+          <!-- Recommendation Dropdown -->
+          <div class="relative">
+            <button
+              @click="recommendationDropdownOpen = !recommendationDropdownOpen"
+              :class="[
+                'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
+                ['wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4'].includes(currentView)
+                  ? 'bg-[#ED5A29] text-white'
+                  : 'bg-[#505763] hover:bg-[#8F97A4]'
+              ]"
+            >
+              Recommendation
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" :class="{ 'rotate-180': recommendationDropdownOpen }" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17,13.41,12.71,9.17a1,1,0,0,0-1.42,0L7.05,13.41a1,1,0,0,0,0,1.42,1,1,0,0,0,1.41,0L12,11.29l3.54,3.54a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29A1,1,0,0,0,17,13.41Z"/>
+              </svg>
+            </button>
+            <transition name="fade">
+              <div
+                v-if="recommendationDropdownOpen"
+                class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-32"
+              >
+                <button
+                  @click="selectRecommendation('wizard-recommendation')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'wizard-recommendation'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  V1
+                </button>
+                <button
+                  @click="selectRecommendation('wizard-recommendation-v2')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'wizard-recommendation-v2'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  V2
+                </button>
+                <button
+                  @click="selectRecommendation('wizard-recommendation-v3')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'wizard-recommendation-v3'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  V3
+                </button>
+                <button
+                  @click="selectRecommendation('wizard-recommendation-v4')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'wizard-recommendation-v4'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  V4
+                </button>
+              </div>
+            </transition>
+          </div>
 
           <span class="text-[#505763] mx-1">|</span>
         </template>
@@ -294,10 +339,16 @@ const toggleOpen = (value) => {
   emit('update:isOpen', value)
 }
 const flowDropdownOpen = ref(false)
+const recommendationDropdownOpen = ref(false)
 
 const selectFlow = (type) => {
   emit('select-flow', type)
   flowDropdownOpen.value = false
+}
+
+const selectRecommendation = (view) => {
+  emit('navigate', view)
+  recommendationDropdownOpen.value = false
 }
 
 const goToHome = () => {

@@ -112,6 +112,22 @@ const handleDevNavigate = (view) => {
     setTimeout(() => {
       currentView.value = view
     }, 50)
+  } else if (view === 'wizard-recommendation-v3') {
+    // Wizard recommendation v3 - go directly to recommendation v3
+    flowSelected.value = true
+    sessionKey.value++
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = view
+    }, 50)
+  } else if (view === 'wizard-recommendation-v4') {
+    // Wizard recommendation v4 - go directly to recommendation v4
+    flowSelected.value = true
+    sessionKey.value++
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = view
+    }, 50)
   } else if (view === 'registration' || view === 'onboarding' || view === 'wizard') {
     // Navigating to flow views - ensure flow is selected
     flowSelected.value = true
@@ -231,7 +247,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="min-h-screen-safe">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2'].includes(currentView)"
+      v-if="currentView && !['dev-start', 'design-guide', 'wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'task-creation'].includes(currentView)"
       class="fixed top-8 left-8 z-50"
     >
       <img
@@ -304,6 +320,20 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :key="'wizard-recommendation-v2-' + sessionKey"
         :registration-data="registrationData"
         :start-at-recommendation-v2="true"
+        @task-created="handleTaskCreated"
+      />
+      <WizardAnalysisView
+        v-else-if="currentView === 'wizard-recommendation-v3'"
+        :key="'wizard-recommendation-v3-' + sessionKey"
+        :registration-data="registrationData"
+        :start-at-recommendation-v3="true"
+        @task-created="handleTaskCreated"
+      />
+      <WizardAnalysisView
+        v-else-if="currentView === 'wizard-recommendation-v4'"
+        :key="'wizard-recommendation-v4-' + sessionKey"
+        :registration-data="registrationData"
+        :start-at-recommendation-v4="true"
         @task-created="handleTaskCreated"
       />
       <DesignGuideView
