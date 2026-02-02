@@ -16,7 +16,7 @@
             : 'bg-white border border-om-gray-200 text-om-gray-700'
         ]"
       >
-        <div class="text-[#ED5A29]" v-html="option.icon"></div>
+        <component :is="option.iconComponent" :size="20" class="text-[#ED5A29]" />
         <span>{{ option.label }}</span>
       </button>
       <button
@@ -28,12 +28,7 @@
             : 'bg-white border border-om-gray-200 text-om-gray-700'
         ]"
       >
-        <div class="text-[#ED5A29]">
-          <!-- uil-archive -->
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M10,13h4a1,1,0,0,0,0-2H10a1,1,0,0,0,0,2ZM19,3H5A3,3,0,0,0,2,6V9a1,1,0,0,0,1,1H4v8a3,3,0,0,0,3,3H17a3,3,0,0,0,3-3V10h1a1,1,0,0,0,1-1V6A3,3,0,0,0,19,3ZM18,18a1,1,0,0,1-1,1H7a1,1,0,0,1-1-1V10H18ZM20,8H4V6A1,1,0,0,1,5,5H19a1,1,0,0,1,1,1Z"/>
-          </svg>
-        </div>
+        <Archive :size="20" class="text-[#ED5A29]" />
         <span>Other</span>
       </button>
     </div>
@@ -74,6 +69,7 @@
 
 <script setup>
 import { ref, defineProps, defineEmits, computed } from 'vue'
+import { ShoppingCart, Monitor, Users, Video, Archive } from 'lucide-vue-next'
 
 const props = defineProps({
   modelValue: {
@@ -107,34 +103,22 @@ const mainOptions = [
   {
     value: 'ecommerce',
     label: 'eCommerce',
-    // uil-shopping-cart
-    icon: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M8.5,19A1.5,1.5,0,1,0,10,20.5,1.5,1.5,0,0,0,8.5,19ZM19,16H7a1,1,0,0,1,0-2h8.49121A3.0132,3.0132,0,0,0,18.376,11.82422L19.96143,6.2749A1.00009,1.00009,0,0,0,19,5H6.73907A3.00666,3.00666,0,0,0,3.92139,3H3A1,1,0,0,0,3,5h.92139a1.00459,1.00459,0,0,1,.96142.7251l.15552.54474L6.6792,12.01709A3.00006,3.00006,0,0,0,7,18H19a1,1,0,0,0,0-2ZM17.67432,7l-1.2212,4.27441A1.00458,1.00458,0,0,1,15.49121,12H8.75439l-.25494-.89221L7.32642,7ZM16.5,19A1.5,1.5,0,1,0,18,20.5,1.5,1.5,0,0,0,16.5,19Z"/>
-    </svg>`
+    iconComponent: ShoppingCart
   },
   {
     value: 'saas',
     label: 'SaaS/Software',
-    // uil-desktop
-    icon: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M19,3H5A3,3,0,0,0,2,6v8a3,3,0,0,0,3,3h6v2H7a1,1,0,0,0,0,2H17a1,1,0,0,0,0-2H13V17h6a3,3,0,0,0,3-3V6A3,3,0,0,0,19,3Zm1,11a1,1,0,0,1-1,1H5a1,1,0,0,1-1-1V6A1,1,0,0,1,5,5H19a1,1,0,0,1,1,1Z"/>
-    </svg>`
+    iconComponent: Monitor
   },
   {
     value: 'service',
     label: 'Service',
-    // uil-users-alt
-    icon: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12.3,12.22A4.92,4.92,0,0,0,14,8.5a5,5,0,0,0-10,0,4.92,4.92,0,0,0,1.7,3.72A8,8,0,0,0,1,19.5a1,1,0,0,0,2,0,6,6,0,0,1,12,0,1,1,0,0,0,2,0A8,8,0,0,0,12.3,12.22ZM9,11.5a3,3,0,1,1,3-3A3,3,0,0,1,9,11.5Zm9.74.32A5,5,0,0,0,15,3.5a1,1,0,0,0,0,2,3,3,0,0,1,3,3,3,3,0,0,1-1.5,2.59,1,1,0,0,0-.5.84,1,1,0,0,0,.45.86l.39.26.13.07a7,7,0,0,1,4,6.38,1,1,0,0,0,2,0A9,9,0,0,0,18.74,11.82Z"/>
-    </svg>`
+    iconComponent: Users
   },
   {
     value: 'media',
     label: 'Media',
-    // uil-video
-    icon: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M21.53,7.15a1,1,0,0,0-1,.06L17,9.14V8a3,3,0,0,0-3-3H5A3,3,0,0,0,2,8v8a3,3,0,0,0,3,3h9a3,3,0,0,0,3-3V14.86l3.51,1.93a1,1,0,0,0,1.06,0A1,1,0,0,0,22,16V8A1,1,0,0,0,21.53,7.15ZM15,16a1,1,0,0,1-1,1H5a1,1,0,0,1-1-1V8A1,1,0,0,1,5,7h9a1,1,0,0,1,1,1Zm5-1.73-3-1.65V11.38l3-1.65Z"/>
-    </svg>`
+    iconComponent: Video
   }
 ]
 

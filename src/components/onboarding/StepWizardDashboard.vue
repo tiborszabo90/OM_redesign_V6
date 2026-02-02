@@ -161,9 +161,7 @@
                     <div v-else-if="useCase.id === 'free-shipping'" class="flex flex-col w-full h-full">
                       <!-- Sticky bar at top -->
                       <div class="px-3 py-1.5 flex items-center justify-center gap-2" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <svg class="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M1,12.5v5a1,1,0,0,0,1,1H3a3,3,0,0,0,6,0h6a3,3,0,0,0,6,0h1a1,1,0,0,0,1-1V5.5a3,3,0,0,0-3-3H11a3,3,0,0,0-3,3v2H6A3,3,0,0,0,3.6,8.7L1.2,11.9A1,1,0,0,0,1,12.5Zm16,6a1,1,0,1,1,1,1A1,1,0,0,1,17,18.5Zm-7-13a1,1,0,0,1,1-1h9a1,1,0,0,1,1,1v11H20a3,3,0,0,0-5.8,0H10Zm-4,5H8v4H3.5Zm-1,8a1,1,0,1,1,1,1A1,1,0,0,1,5,18.5Z"/>
-                        </svg>
+                        <Truck :size="12" />
                         <span class="text-[10px] font-medium text-white" :style="{ fontFamily: brandSettings.primaryFont }">
                           {{ useCase.texts[brandSettings.language].progress }}
                         </span>
@@ -333,9 +331,7 @@
                     <div v-else-if="useCase.id === 'free-shipping'" class="flex flex-col w-full h-full">
                       <!-- Sticky bar at top -->
                       <div class="px-2 py-1 flex items-center justify-center gap-1" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <svg class="w-2 h-2 text-white" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M1,12.5v5a1,1,0,0,0,1,1H3a3,3,0,0,0,6,0h6a3,3,0,0,0,6,0h1a1,1,0,0,0,1-1V5.5a3,3,0,0,0-3-3H11a3,3,0,0,0-3,3v2H6A3,3,0,0,0,3.6,8.7L1.2,11.9A1,1,0,0,0,1,12.5Zm16,6a1,1,0,1,1,1,1A1,1,0,0,1,17,18.5Zm-7-13a1,1,0,0,1,1-1h9a1,1,0,0,1,1,1v11H20a3,3,0,0,0-5.8,0H10Zm-4,5H8v4H3.5Zm-1,8a1,1,0,1,1,1,1A1,1,0,0,1,5,18.5Z"/>
-                        </svg>
+                        <Truck :size="8" />
                         <span class="text-[5px] font-medium text-white">Free shipping</span>
                       </div>
                       <!-- Website skeleton -->
@@ -553,9 +549,7 @@
                     <div v-else-if="useCase.id === 'free-shipping'" class="flex flex-col w-full h-full">
                       <!-- Sticky bar at top -->
                       <div class="px-3 py-1.5 flex items-center justify-center gap-2" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <svg class="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M1,12.5v5a1,1,0,0,0,1,1H3a3,3,0,0,0,6,0h6a3,3,0,0,0,6,0h1a1,1,0,0,0,1-1V5.5a3,3,0,0,0-3-3H11a3,3,0,0,0-3,3v2H6A3,3,0,0,0,3.6,8.7L1.2,11.9A1,1,0,0,0,1,12.5Zm16,6a1,1,0,1,1,1,1A1,1,0,0,1,17,18.5Zm-7-13a1,1,0,0,1,1-1h9a1,1,0,0,1,1,1v11H20a3,3,0,0,0-5.8,0H10Zm-4,5H8v4H3.5Zm-1,8a1,1,0,1,1,1,1A1,1,0,0,1,5,18.5Z"/>
-                        </svg>
+                        <Truck :size="12" />
                         <span class="text-[10px] font-medium text-white" :style="{ fontFamily: brandSettings.primaryFont }">
                           {{ useCase.texts[brandSettings.language].progress }}
                         </span>
@@ -724,9 +718,7 @@
                     <div v-else-if="useCase.id === 'free-shipping'" class="flex flex-col w-full h-full">
                       <!-- Sticky bar at top -->
                       <div class="px-2 py-1 flex items-center justify-center gap-1" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <svg class="w-2 h-2 text-white" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M1,12.5v5a1,1,0,0,0,1,1H3a3,3,0,0,0,6,0h6a3,3,0,0,0,6,0h1a1,1,0,0,0,1-1V5.5a3,3,0,0,0-3-3H11a3,3,0,0,0-3,3v2H6A3,3,0,0,0,3.6,8.7L1.2,11.9A1,1,0,0,0,1,12.5Zm16,6a1,1,0,1,1,1,1A1,1,0,0,1,17,18.5Zm-7-13a1,1,0,0,1,1-1h9a1,1,0,0,1,1,1v11H20a3,3,0,0,0-5.8,0H10Zm-4,5H8v4H3.5Zm-1,8a1,1,0,1,1,1,1A1,1,0,0,1,5,18.5Z"/>
-                        </svg>
+                        <Truck :size="8" />
                         <span class="text-[5px] font-medium text-white">Free shipping</span>
                       </div>
                       <!-- Website skeleton -->
@@ -945,9 +937,7 @@
                     <div v-else-if="useCase.id === 'free-shipping'" class="flex flex-col w-full h-full">
                       <!-- Sticky bar at top -->
                       <div class="px-3 py-1.5 flex items-center justify-center gap-2" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <svg class="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M1,12.5v5a1,1,0,0,0,1,1H3a3,3,0,0,0,6,0h6a3,3,0,0,0,6,0h1a1,1,0,0,0,1-1V5.5a3,3,0,0,0-3-3H11a3,3,0,0,0-3,3v2H6A3,3,0,0,0,3.6,8.7L1.2,11.9A1,1,0,0,0,1,12.5Zm16,6a1,1,0,1,1,1,1A1,1,0,0,1,17,18.5Zm-7-13a1,1,0,0,1,1-1h9a1,1,0,0,1,1,1v11H20a3,3,0,0,0-5.8,0H10Zm-4,5H8v4H3.5Zm-1,8a1,1,0,1,1,1,1A1,1,0,0,1,5,18.5Z"/>
-                        </svg>
+                        <Truck :size="12" />
                         <span class="text-[10px] font-medium text-white" :style="{ fontFamily: brandSettings.primaryFont }">
                           {{ useCase.texts[brandSettings.language].progress }}
                         </span>
@@ -1116,9 +1106,7 @@
                     <div v-else-if="useCase.id === 'free-shipping'" class="flex flex-col w-full h-full">
                       <!-- Sticky bar at top -->
                       <div class="px-2 py-1 flex items-center justify-center gap-1" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <svg class="w-2 h-2 text-white" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M1,12.5v5a1,1,0,0,0,1,1H3a3,3,0,0,0,6,0h6a3,3,0,0,0,6,0h1a1,1,0,0,0,1-1V5.5a3,3,0,0,0-3-3H11a3,3,0,0,0-3,3v2H6A3,3,0,0,0,3.6,8.7L1.2,11.9A1,1,0,0,0,1,12.5Zm16,6a1,1,0,1,1,1,1A1,1,0,0,1,17,18.5Zm-7-13a1,1,0,0,1,1-1h9a1,1,0,0,1,1,1v11H20a3,3,0,0,0-5.8,0H10Zm-4,5H8v4H3.5Zm-1,8a1,1,0,1,1,1,1A1,1,0,0,1,5,18.5Z"/>
-                        </svg>
+                        <Truck :size="8" />
                         <span class="text-[5px] font-medium text-white">Free shipping</span>
                       </div>
                       <!-- Website skeleton -->
@@ -1386,9 +1374,7 @@
                         <template v-else-if="useCases[currentDeckCard].id === 'free-shipping'">
                           <div class="flex flex-col w-full h-full">
                             <div class="px-3 py-1.5 flex items-center justify-center gap-2" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                              <svg class="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M1,12.5v5a1,1,0,0,0,1,1H3a3,3,0,0,0,6,0h6a3,3,0,0,0,6,0h1a1,1,0,0,0,1-1V5.5a3,3,0,0,0-3-3H11a3,3,0,0,0-3,3v2H6A3,3,0,0,0,3.6,8.7L1.2,11.9A1,1,0,0,0,1,12.5Zm16,6a1,1,0,1,1,1,1A1,1,0,0,1,17,18.5Zm-7-13a1,1,0,0,1,1-1h9a1,1,0,0,1,1,1v11H20a3,3,0,0,0-5.8,0H10Zm-4,5H8v4H3.5Zm-1,8a1,1,0,1,1,1,1A1,1,0,0,1,5,18.5Z"/>
-                              </svg>
+                              <Truck :size="12" />
                               <span class="text-[10px] font-medium text-white" :style="{ fontFamily: brandSettings.primaryFont }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].progress }}
                               </span>
@@ -1562,9 +1548,7 @@
                         <template v-else-if="useCases[currentDeckCard].id === 'free-shipping'">
                           <div class="flex flex-col w-full h-full">
                             <div class="px-2 py-1 flex items-center justify-center gap-1" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                              <svg class="w-2 h-2 text-white" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M1,12.5v5a1,1,0,0,0,1,1H3a3,3,0,0,0,6,0h6a3,3,0,0,0,6,0h1a1,1,0,0,0,1-1V5.5a3,3,0,0,0-3-3H11a3,3,0,0,0-3,3v2H6A3,3,0,0,0,3.6,8.7L1.2,11.9A1,1,0,0,0,1,12.5Zm16,6a1,1,0,1,1,1,1A1,1,0,0,1,17,18.5Zm-7-13a1,1,0,0,1,1-1h9a1,1,0,0,1,1,1v11H20a3,3,0,0,0-5.8,0H10Zm-4,5H8v4H3.5Zm-1,8a1,1,0,1,1,1,1A1,1,0,0,1,5,18.5Z"/>
-                              </svg>
+                              <Truck :size="8" />
                               <span class="text-[5px] font-medium text-white">Free shipping</span>
                             </div>
                             <div class="flex-1 bg-om-gray-50 p-1.5">
@@ -1710,9 +1694,7 @@
                       :class="isLanguageDropdownOpen ? 'border-om-orange-300 ring-2 ring-om-orange-100' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'"
                     >
                       <span>{{ selectedLanguage().label }}</span>
-                      <svg class="w-4 h-4 text-om-gray-600 transition-transform" :class="isLanguageDropdownOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                      </svg>
+                      <ChevronDown :size="16" class="text-om-gray-600 transition-transform" :class="isLanguageDropdownOpen ? 'rotate-180' : ''" />
                     </button>
                     <!-- Dropdown options -->
                     <transition name="dropdown">
@@ -1777,9 +1759,7 @@
                         <span class="w-4 h-4 border-2 border-om-gray-400" :class="selectedCorner().class"></span>
                         <span>{{ selectedCorner().label }}</span>
                       </span>
-                      <svg class="w-4 h-4 text-om-gray-600 transition-transform" :class="isCornersDropdownOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                      </svg>
+                      <ChevronDown :size="16" class="text-om-gray-600 transition-transform" :class="isCornersDropdownOpen ? 'rotate-180' : ''" />
                     </button>
                     <transition name="dropdown">
                       <div
@@ -1819,9 +1799,7 @@
                         :class="isPrimaryFontDropdownOpen ? 'border-om-orange-300 ring-2 ring-om-orange-100' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'"
                       >
                         <span class="truncate">{{ selectedPrimaryFont().label }}</span>
-                        <svg class="w-3.5 h-3.5 text-om-gray-600 transition-transform shrink-0 ml-1" :class="isPrimaryFontDropdownOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
+                        <ChevronDown :size="14" class="text-om-gray-600 transition-transform shrink-0 ml-1" :class="isPrimaryFontDropdownOpen ? 'rotate-180' : ''" />
                       </button>
                       <transition name="dropdown">
                         <div
@@ -1853,9 +1831,7 @@
                         :class="isSecondaryFontDropdownOpen ? 'border-om-orange-300 ring-2 ring-om-orange-100' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'"
                       >
                         <span class="truncate">{{ selectedSecondaryFont().label }}</span>
-                        <svg class="w-3.5 h-3.5 text-om-gray-600 transition-transform shrink-0 ml-1" :class="isSecondaryFontDropdownOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
+                        <ChevronDown :size="14" class="text-om-gray-600 transition-transform shrink-0 ml-1" :class="isSecondaryFontDropdownOpen ? 'rotate-180' : ''" />
                       </button>
                       <transition name="dropdown">
                         <div
@@ -1926,9 +1902,7 @@
       <div class="h-screen-safe bg-white flex items-center justify-center">
         <div class="flex flex-col items-center gap-4">
           <div class="w-16 h-16 bg-[#239E77] rounded-full flex items-center justify-center">
-            <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18.71,7.21a1,1,0,0,0-1.42,0L9.84,14.67,6.71,11.53A1,1,0,1,0,5.29,13l3.84,3.84a1,1,0,0,0,1.42,0l8.16-8.16A1,1,0,0,0,18.71,7.21Z"/>
-            </svg>
+            <Check :size="32" />
           </div>
           <h2 class="text-2xl sm:text-3xl font-semibold text-[#23262A]">Analysis successful</h2>
         </div>
@@ -2034,6 +2008,7 @@
 
 <script setup>
 import { reactive, ref, computed, onMounted, onUnmounted } from 'vue'
+import { ChevronDown, Truck, Check } from 'lucide-vue-next'
 import WebsiteScanAnimation from '../illustrations/WebsiteScanAnimation.vue'
 
 const props = defineProps({

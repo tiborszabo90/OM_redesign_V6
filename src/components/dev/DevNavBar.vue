@@ -5,10 +5,7 @@
     @click="toggleOpen(true)"
     class="fixed bottom-4 right-4 z-50 w-10 h-10 bg-[#23262A] text-white rounded-lg flex items-center justify-center hover:bg-[#505763] transition-colors cursor-pointer shadow-lg"
   >
-    <!-- uil-angle-up -->
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M17,13.41,12.71,9.17a1,1,0,0,0-1.42,0L7.05,13.41a1,1,0,0,0,0,1.42,1,1,0,0,0,1.41,0L12,11.29l3.54,3.54a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29A1,1,0,0,0,17,13.41Z"/>
-    </svg>
+    <ChevronUp :size="20" />
   </button>
 
   <!-- Full navbar when open -->
@@ -37,10 +34,7 @@
           class="px-3 py-1 text-sm rounded transition-colors cursor-pointer bg-[#505763] hover:bg-[#8F97A4] flex items-center gap-1"
         >
           Select flow
-          <!-- uil-angle-up -->
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" :class="{ 'rotate-180': flowDropdownOpen }" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17,13.41,12.71,9.17a1,1,0,0,0-1.42,0L7.05,13.41a1,1,0,0,0,0,1.42,1,1,0,0,0,1.41,0L12,11.29l3.54,3.54a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29A1,1,0,0,0,17,13.41Z"/>
-          </svg>
+          <ChevronUp :size="12" :class="{ 'rotate-180': flowDropdownOpen }" />
         </button>
         <transition name="fade">
           <div
@@ -137,9 +131,7 @@
               ]"
             >
               Recommendation
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" :class="{ 'rotate-180': recommendationDropdownOpen }" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17,13.41,12.71,9.17a1,1,0,0,0-1.42,0L7.05,13.41a1,1,0,0,0,0,1.42,1,1,0,0,0,1.41,0L12,11.29l3.54,3.54a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29A1,1,0,0,0,17,13.41Z"/>
-              </svg>
+              <ChevronUp :size="12" :class="{ 'rotate-180': recommendationDropdownOpen }" />
             </button>
             <transition name="fade">
               <div
@@ -275,10 +267,7 @@
         @click="toggleOpen(false)"
         class="px-2 py-1 text-sm rounded transition-colors cursor-pointer bg-[#505763] hover:bg-[#8F97A4]"
       >
-        <!-- uil-times -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M13.41,12l4.3-4.29a1,1,0,1,0-1.42-1.42L12,10.59,7.71,6.29A1,1,0,0,0,6.29,7.71L10.59,12l-4.3,4.29a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0L12,13.41l4.29,4.3a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42Z"/>
-        </svg>
+        <X :size="16" />
       </button>
     </div>
   </transition>
@@ -286,6 +275,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { ChevronUp, X } from 'lucide-vue-next'
 
 const props = defineProps({
   currentView: {
