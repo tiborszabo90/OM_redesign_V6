@@ -12,6 +12,7 @@
       :start-at-recommendation-v2="props.startAtRecommendationV2"
       :start-at-recommendation-v3="props.startAtRecommendationV3"
       :start-at-recommendation-v4="props.startAtRecommendationV4"
+      :start-at-recommendation-v5="props.startAtRecommendationV5"
       @task-created="(task) => emit('task-created', task)"
     />
   </div>
@@ -51,6 +52,10 @@ const props = defineProps({
     default: false
   },
   startAtRecommendationV4: {
+    type: Boolean,
+    default: false
+  },
+  startAtRecommendationV5: {
     type: Boolean,
     default: false
   }

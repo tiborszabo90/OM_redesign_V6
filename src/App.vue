@@ -7,6 +7,7 @@ import TaskCreationView from './views/TaskCreationView.vue'
 import WizardAnalysisView from './views/WizardAnalysisView.vue'
 import DesignGuideView from './views/DesignGuideView.vue'
 import WizardView from './views/WizardView.vue'
+import CampaignsView from './views/CampaignsView.vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
 
 const currentView = ref('dev-start')
@@ -128,6 +129,14 @@ const handleDevNavigate = (view) => {
     setTimeout(() => {
       currentView.value = view
     }, 50)
+  } else if (view === 'wizard-recommendation-v5') {
+    // Wizard recommendation v5 - go directly to recommendation v5
+    flowSelected.value = true
+    sessionKey.value++
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = view
+    }, 50)
   } else if (view === 'registration' || view === 'onboarding' || view === 'wizard') {
     // Navigating to flow views - ensure flow is selected
     flowSelected.value = true
@@ -234,6 +243,15 @@ const handleGoDesignGuide = () => {
   currentView.value = 'design-guide'
 }
 
+const handleMenuClick = (menuId) => {
+  if (menuId === 'campaigns') {
+    currentView.value = 'campaigns'
+  } else if (menuId === 'home') {
+    currentView.value = 'task-creation'
+  }
+  // Add other menu items as needed
+}
+
 // Update CSS variable for dev nav height
 const updateNavHeight = (isOpen) => {
   document.documentElement.style.setProperty('--dev-nav-height', isOpen ? '48px' : '0px')
@@ -247,7 +265,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="min-h-screen-safe">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'task-creation'].includes(currentView)"
+      v-if="currentView && !['dev-start', 'design-guide', 'wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'campaigns'].includes(currentView)"
       class="fixed top-8 left-8 z-50"
     >
       <img
@@ -285,6 +303,11 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         ref="taskCreationRef"
         :registration-data="registrationData"
         @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
+      />
+      <CampaignsView
+        v-else-if="currentView === 'campaigns'"
+        @menu-click="handleMenuClick"
       />
       <WizardAnalysisView
         v-else-if="currentView === 'wizard-analysis'"
@@ -334,6 +357,13 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :key="'wizard-recommendation-v4-' + sessionKey"
         :registration-data="registrationData"
         :start-at-recommendation-v4="true"
+        @task-created="handleTaskCreated"
+      />
+      <WizardAnalysisView
+        v-else-if="currentView === 'wizard-recommendation-v5'"
+        :key="'wizard-recommendation-v5-' + sessionKey"
+        :registration-data="registrationData"
+        :start-at-recommendation-v5="true"
         @task-created="handleTaskCreated"
       />
       <DesignGuideView

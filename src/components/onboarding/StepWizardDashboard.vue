@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full relative">
     <!-- Logo at top left corner - fixed positioning, hidden on recommendation pages -->
-    <div v-if="!showRecommendation && !showRecommendationV2 && !showRecommendationV4" class="fixed top-8 left-8 z-50">
+    <div v-if="!showRecommendation && !showRecommendationV2 && !showRecommendationV4 && !showRecommendationV5" class="fixed top-8 left-8 z-50">
       <img
         src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
         alt="OptiMonk"
@@ -51,174 +51,7 @@
                     class="bg-white border border-om-gray-200 overflow-hidden aspect-video flex items-center justify-center"
                     :class="popupCornerClasses[brandSettings.corners]"
                   >
-                    <!-- Newsletter popup -->
-                    <div v-if="useCase.id === 'newsletter'" class="flex w-full h-full">
-                      <div class="flex-1 p-3 flex flex-col justify-center">
-                        <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1" />
-                        <h4 class="text-xs font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[10px] text-om-gray-500 mb-2" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <div class="flex gap-1">
-                          <div class="flex-1 h-5 bg-om-gray-100 rounded text-[8px] flex items-center px-1.5 text-om-gray-400" :class="cornerClasses[brandSettings.corners]">
-                            {{ useCase.texts[brandSettings.language].input }}
-                          </div>
-                          <button
-                            class="px-2 h-5 text-white text-[8px] font-medium"
-                            :class="cornerClasses[brandSettings.corners]"
-                            :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
-                          >
-                            {{ useCase.texts[brandSettings.language].cta }}
-                          </button>
-                        </div>
-                      </div>
-                      <div class="w-2/5 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=200&h=200&fit=crop" alt="Newsletter" class="w-full h-full object-cover" />
-                      </div>
-                    </div>
-
-                    <!-- Cart abandonment popup -->
-                    <div v-else-if="useCase.id === 'cart-abandonment'" class="flex w-full h-full">
-                      <div class="flex-1 p-3 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1 mx-auto" />
-                        <h4 class="text-sm font-bold mb-0.5" :style="{ fontFamily: brandSettings.primaryFont, color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[10px] text-om-gray-500 mb-1" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <p class="text-xs font-bold mb-2" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].discount }}
-                        </p>
-                        <button
-                          class="w-full py-1.5 text-white text-[10px] font-medium"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                      <div class="w-2/5 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=200&h=200&fit=crop" alt="Shopping cart" class="w-full h-full object-cover" />
-                      </div>
-                    </div>
-
-                    <!-- Welcome discount popup -->
-                    <div v-else-if="useCase.id === 'welcome-discount'" class="flex w-full h-full">
-                      <div class="flex-1 p-3 flex flex-col justify-center">
-                        <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1" />
-                        <h4 class="text-xs font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[10px] text-om-gray-500 mb-1" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <div class="w-8 h-8 rounded flex items-center justify-center text-white text-[8px] font-bold mb-1" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].discount }}
-                        </div>
-                        <button
-                          class="px-2 py-1 text-white text-[10px] font-medium w-fit"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                      <div class="w-2/5 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=200&h=200&fit=crop" alt="Gift" class="w-full h-full object-cover" />
-                      </div>
-                    </div>
-
-                    <!-- Feedback popup -->
-                    <div v-else-if="useCase.id === 'feedback'" class="flex w-full h-full">
-                      <div class="flex-1 p-3 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1 mx-auto" />
-                        <h4 class="text-xs font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[10px] text-om-gray-500 mb-1" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <div class="flex justify-center gap-0.5 mb-1">
-                          <span v-for="i in 5" :key="i" class="text-sm" :style="{ color: i <= 4 ? brandSettings.colors[brandSettings.selectedColorIndex] : '#E3E5E8' }">★</span>
-                        </div>
-                        <button
-                          class="px-2 py-1 text-white text-[10px] font-medium mx-auto"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                      <div class="w-2/5 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1531973576160-7125cd663d86?w=200&h=200&fit=crop" alt="Feedback" class="w-full h-full object-cover" />
-                      </div>
-                    </div>
-
-                    <!-- Free shipping bar -->
-                    <div v-else-if="useCase.id === 'free-shipping'" class="flex flex-col w-full h-full">
-                      <!-- Sticky bar at top -->
-                      <div class="px-3 py-1.5 flex items-center justify-center gap-2" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <Truck :size="12" />
-                        <span class="text-[10px] font-medium text-white" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].progress }}
-                        </span>
-                      </div>
-                      <!-- Website skeleton -->
-                      <div class="flex-1 bg-om-gray-50 p-2">
-                        <!-- Header skeleton -->
-                        <div class="flex items-center justify-between mb-3">
-                          <div class="w-12 h-3 bg-om-gray-200 rounded"></div>
-                          <div class="flex gap-2">
-                            <div class="w-8 h-2 bg-om-gray-200 rounded"></div>
-                            <div class="w-8 h-2 bg-om-gray-200 rounded"></div>
-                            <div class="w-8 h-2 bg-om-gray-200 rounded"></div>
-                          </div>
-                        </div>
-                        <!-- Hero skeleton -->
-                        <div class="w-full h-12 bg-om-gray-200 rounded mb-2"></div>
-                        <!-- Content skeleton -->
-                        <div class="flex gap-2">
-                          <div class="flex-1 h-8 bg-om-gray-200 rounded"></div>
-                          <div class="flex-1 h-8 bg-om-gray-200 rounded"></div>
-                          <div class="flex-1 h-8 bg-om-gray-200 rounded"></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Spin wheel popup -->
-                    <div v-else-if="useCase.id === 'spin-wheel'" class="flex w-full h-full">
-                      <!-- Wheel on the left -->
-                      <div class="w-2/5 shrink-0 flex items-center justify-center p-2" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <div class="w-14 h-14 rounded-full border-3 border-white relative bg-white/20">
-                          <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="w-2 h-2 rounded-full bg-white"></div>
-                          </div>
-                          <div v-for="(_prize, i) in 4" :key="i" class="absolute text-[5px] font-bold text-white" :style="{ top: i === 0 ? '4px' : i === 2 ? 'auto' : '50%', bottom: i === 2 ? '4px' : 'auto', left: i === 3 ? '4px' : i === 1 ? 'auto' : '50%', right: i === 1 ? '4px' : 'auto', transform: i === 0 || i === 2 ? 'translateX(-50%)' : 'translateY(-50%)' }">
-                            {{ useCase.texts[brandSettings.language].prizes[i] }}
-                          </div>
-                        </div>
-                      </div>
-                      <!-- Content on the right -->
-                      <div class="flex-1 p-3 flex flex-col justify-center">
-                        <img src="/telekom.png" alt="Logo" class="w-5 h-5 object-contain mb-1" />
-                        <h4 class="text-xs font-bold mb-1" :style="{ fontFamily: brandSettings.primaryFont, color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[9px] text-om-gray-500 mb-2" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <button
-                          class="px-3 py-1 text-white text-[10px] font-medium w-fit"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                    </div>
+                    <img :src="useCase.image" :alt="useCase.title" class="w-full h-full object-cover" />
                   </div>
                   </div>
                 </div>
@@ -229,159 +62,7 @@
                     class="bg-white border border-om-gray-200 overflow-hidden aspect-9/19 flex items-center justify-center"
                     :class="popupCornerClasses[brandSettings.corners]"
                   >
-                    <!-- Newsletter popup mobile -->
-                    <div v-if="useCase.id === 'newsletter'" class="flex flex-col w-full h-full">
-                      <div class="h-1/3 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=200&h=100&fit=crop" alt="Newsletter" class="w-full h-full object-cover" />
-                      </div>
-                      <div class="flex-1 p-2 flex flex-col justify-center">
-                        <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5" />
-                        <h4 class="text-[7px] font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[5px] text-om-gray-500 mb-1" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <div class="h-3 bg-om-gray-100 rounded text-[5px] flex items-center px-1 text-om-gray-400 mb-1" :class="cornerClasses[brandSettings.corners]">
-                          Email
-                        </div>
-                        <button
-                          class="w-full py-0.5 text-white text-[5px] font-medium"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- Cart abandonment mobile -->
-                    <div v-else-if="useCase.id === 'cart-abandonment'" class="flex flex-col w-full h-full">
-                      <div class="h-1/3 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=200&h=100&fit=crop" alt="Shopping cart" class="w-full h-full object-cover" />
-                      </div>
-                      <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
-                        <h4 class="text-[8px] font-bold mb-0.5" :style="{ fontFamily: brandSettings.primaryFont, color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[5px] text-om-gray-500 mb-0.5" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <p class="text-[7px] font-bold mb-1" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].discount }}
-                        </p>
-                        <button
-                          class="w-full py-0.5 text-white text-[5px] font-medium"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- Welcome discount mobile -->
-                    <div v-else-if="useCase.id === 'welcome-discount'" class="flex flex-col w-full h-full">
-                      <div class="h-1/3 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=200&h=100&fit=crop" alt="Gift" class="w-full h-full object-cover" />
-                      </div>
-                      <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
-                        <div class="w-6 h-6 mx-auto rounded flex items-center justify-center text-white text-[5px] font-bold mb-0.5" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].discount }}
-                        </div>
-                        <h4 class="text-[7px] font-bold text-om-gray-800" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <button
-                          class="mt-1 px-2 py-0.5 text-white text-[5px] font-medium mx-auto"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- Feedback mobile -->
-                    <div v-else-if="useCase.id === 'feedback'" class="flex flex-col w-full h-full">
-                      <div class="h-1/3 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1531973576160-7125cd663d86?w=200&h=100&fit=crop" alt="Feedback" class="w-full h-full object-cover" />
-                      </div>
-                      <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
-                        <h4 class="text-[6px] font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].rating }}
-                        </h4>
-                        <div class="flex justify-center gap-0.5 mb-1">
-                          <span v-for="i in 5" :key="i" class="text-[8px]" :style="{ color: i <= 4 ? brandSettings.colors[brandSettings.selectedColorIndex] : '#E3E5E8' }">★</span>
-                        </div>
-                        <button
-                          class="px-2 py-0.5 text-white text-[5px] font-medium mx-auto"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- Free shipping mobile -->
-                    <div v-else-if="useCase.id === 'free-shipping'" class="flex flex-col w-full h-full">
-                      <!-- Sticky bar at top -->
-                      <div class="px-2 py-1 flex items-center justify-center gap-1" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <Truck :size="8" />
-                        <span class="text-[5px] font-medium text-white">Free shipping</span>
-                      </div>
-                      <!-- Website skeleton -->
-                      <div class="flex-1 bg-om-gray-50 p-1.5">
-                        <!-- Header skeleton -->
-                        <div class="flex items-center justify-between mb-2">
-                          <div class="w-6 h-1.5 bg-om-gray-200 rounded"></div>
-                          <div class="flex gap-1">
-                            <div class="w-3 h-1 bg-om-gray-200 rounded"></div>
-                            <div class="w-3 h-1 bg-om-gray-200 rounded"></div>
-                          </div>
-                        </div>
-                        <!-- Hero skeleton -->
-                        <div class="w-full h-10 bg-om-gray-200 rounded mb-1.5"></div>
-                        <!-- Content skeleton -->
-                        <div class="flex gap-1">
-                          <div class="flex-1 h-6 bg-om-gray-200 rounded"></div>
-                          <div class="flex-1 h-6 bg-om-gray-200 rounded"></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Spin wheel mobile -->
-                    <div v-else-if="useCase.id === 'spin-wheel'" class="flex flex-col w-full h-full">
-                      <!-- Content on top -->
-                      <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
-                        <h4 class="text-[7px] font-bold mb-0.5" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[5px] text-om-gray-500 mb-1">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <button
-                          class="px-2 py-0.5 text-white text-[5px] font-medium mx-auto"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                      <!-- Wheel at bottom -->
-                      <div class="h-1/3 shrink-0 flex items-center justify-center" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <div class="w-10 h-10 rounded-full border-2 border-white relative bg-white/20">
-                          <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <img :src="useCase.image" :alt="useCase.title" class="w-full h-full object-cover" />
                   </div>
                 </div>
               </div>
@@ -420,10 +101,15 @@
               <!-- Three column layout: Text | Desktop | Mobile -->
               <div class="flex gap-6 items-center">
                 <!-- Left column: Text and button -->
-                <div class="flex-1 flex flex-col justify-center">
-                  <span class="inline-block text-xs font-normal text-om-gray-500 bg-om-gray-200 px-2 py-0.5 rounded mb-2 w-fit">{{ useCase.title }}</span>
-                  <h3 class="text-lg font-semibold text-om-gray-700 mb-2">{{ useCase.description }}</h3>
-                  <p class="text-base text-om-gray-500 mb-4">{{ useCase.shortDescription || 'Boost engagement and conversions with this proven campaign type.' }}</p>
+                <div class="flex-1 flex flex-col justify-center pl-10">
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="w-8 h-8 bg-om-gray-200 rounded flex items-center justify-center">
+                      <component :is="iconMap[useCase.icon]" :size="18" class="text-om-gray-500" />
+                    </div>
+                    <span class="text-sm font-medium text-om-gray-500 uppercase">{{ useCase.title }}</span>
+                  </div>
+                  <h3 class="text-2xl font-semibold text-om-gray-700 mb-2">{{ useCase.description }}</h3>
+                  <p class="text-base text-om-gray-500 mb-4">{{ useCase.subheadline }}</p>
                   <button
                     class="px-5 py-2.5 text-base font-medium text-white bg-om-orange-500 rounded-lg hover:bg-om-orange-400 transition-colors w-fit"
                   >
@@ -434,341 +120,22 @@
                 <!-- Previews container -->
                 <div class="flex gap-3 shrink-0 items-center">
                   <!-- Desktop Preview -->
-                  <div class="w-80 flex justify-center">
+                  <div class="flex justify-center">
                   <div
-                    class="bg-white border border-om-gray-200 overflow-hidden aspect-video flex items-center justify-center"
+                    class="bg-white border border-om-gray-200 overflow-hidden h-64 aspect-video flex items-center justify-center"
                     :class="popupCornerClasses[brandSettings.corners]"
                   >
-                    <!-- Newsletter popup -->
-                    <div v-if="useCase.id === 'newsletter'" class="flex w-full h-full">
-                      <div class="flex-1 p-3 flex flex-col justify-center">
-                        <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1" />
-                        <h4 class="text-xs font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[10px] text-om-gray-500 mb-2" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <div class="flex gap-1">
-                          <div class="flex-1 h-5 bg-om-gray-100 rounded text-[8px] flex items-center px-1.5 text-om-gray-400" :class="cornerClasses[brandSettings.corners]">
-                            {{ useCase.texts[brandSettings.language].input }}
-                          </div>
-                          <button
-                            class="px-2 h-5 text-white text-[8px] font-medium"
-                            :class="cornerClasses[brandSettings.corners]"
-                            :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
-                          >
-                            {{ useCase.texts[brandSettings.language].cta }}
-                          </button>
-                        </div>
-                      </div>
-                      <div class="w-2/5 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=200&h=200&fit=crop" alt="Newsletter" class="w-full h-full object-cover" />
-                      </div>
-                    </div>
-
-                    <!-- Cart abandonment popup -->
-                    <div v-else-if="useCase.id === 'cart-abandonment'" class="flex w-full h-full">
-                      <div class="flex-1 p-3 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1 mx-auto" />
-                        <h4 class="text-sm font-bold mb-0.5" :style="{ fontFamily: brandSettings.primaryFont, color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[10px] text-om-gray-500 mb-1" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <p class="text-xs font-bold mb-2" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].discount }}
-                        </p>
-                        <button
-                          class="w-full py-1.5 text-white text-[10px] font-medium"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                      <div class="w-2/5 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=200&h=200&fit=crop" alt="Shopping cart" class="w-full h-full object-cover" />
-                      </div>
-                    </div>
-
-                    <!-- Welcome discount popup -->
-                    <div v-else-if="useCase.id === 'welcome-discount'" class="flex w-full h-full">
-                      <div class="flex-1 p-3 flex flex-col justify-center">
-                        <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1" />
-                        <h4 class="text-xs font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[10px] text-om-gray-500 mb-1" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <div class="w-8 h-8 rounded flex items-center justify-center text-white text-[8px] font-bold mb-1" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].discount }}
-                        </div>
-                        <button
-                          class="px-2 py-1 text-white text-[10px] font-medium w-fit"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                      <div class="w-2/5 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=200&h=200&fit=crop" alt="Gift" class="w-full h-full object-cover" />
-                      </div>
-                    </div>
-
-                    <!-- Feedback popup -->
-                    <div v-else-if="useCase.id === 'feedback'" class="flex w-full h-full">
-                      <div class="flex-1 p-3 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1 mx-auto" />
-                        <h4 class="text-xs font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[10px] text-om-gray-500 mb-1" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <div class="flex justify-center gap-0.5 mb-1">
-                          <span v-for="i in 5" :key="i" class="text-sm" :style="{ color: i <= 4 ? brandSettings.colors[brandSettings.selectedColorIndex] : '#E3E5E8' }">★</span>
-                        </div>
-                        <button
-                          class="px-2 py-1 text-white text-[10px] font-medium mx-auto"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                      <div class="w-2/5 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1531973576160-7125cd663d86?w=200&h=200&fit=crop" alt="Feedback" class="w-full h-full object-cover" />
-                      </div>
-                    </div>
-
-                    <!-- Free shipping bar -->
-                    <div v-else-if="useCase.id === 'free-shipping'" class="flex flex-col w-full h-full">
-                      <!-- Sticky bar at top -->
-                      <div class="px-3 py-1.5 flex items-center justify-center gap-2" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <Truck :size="12" />
-                        <span class="text-[10px] font-medium text-white" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].progress }}
-                        </span>
-                      </div>
-                      <!-- Website skeleton -->
-                      <div class="flex-1 bg-om-gray-50 p-2">
-                        <!-- Header skeleton -->
-                        <div class="flex items-center justify-between mb-3">
-                          <div class="w-12 h-3 bg-om-gray-200 rounded"></div>
-                          <div class="flex gap-2">
-                            <div class="w-8 h-2 bg-om-gray-200 rounded"></div>
-                            <div class="w-8 h-2 bg-om-gray-200 rounded"></div>
-                            <div class="w-8 h-2 bg-om-gray-200 rounded"></div>
-                          </div>
-                        </div>
-                        <!-- Hero skeleton -->
-                        <div class="w-full h-12 bg-om-gray-200 rounded mb-2"></div>
-                        <!-- Content skeleton -->
-                        <div class="flex gap-2">
-                          <div class="flex-1 h-8 bg-om-gray-200 rounded"></div>
-                          <div class="flex-1 h-8 bg-om-gray-200 rounded"></div>
-                          <div class="flex-1 h-8 bg-om-gray-200 rounded"></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Spin wheel popup -->
-                    <div v-else-if="useCase.id === 'spin-wheel'" class="flex w-full h-full">
-                      <!-- Wheel on the left -->
-                      <div class="w-2/5 shrink-0 flex items-center justify-center p-2" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <div class="w-14 h-14 rounded-full border-3 border-white relative bg-white/20">
-                          <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="w-2 h-2 rounded-full bg-white"></div>
-                          </div>
-                          <div v-for="(_prize, i) in 4" :key="i" class="absolute text-[5px] font-bold text-white" :style="{ top: i === 0 ? '4px' : i === 2 ? 'auto' : '50%', bottom: i === 2 ? '4px' : 'auto', left: i === 3 ? '4px' : i === 1 ? 'auto' : '50%', right: i === 1 ? '4px' : 'auto', transform: i === 0 || i === 2 ? 'translateX(-50%)' : 'translateY(-50%)' }">
-                            {{ useCase.texts[brandSettings.language].prizes[i] }}
-                          </div>
-                        </div>
-                      </div>
-                      <!-- Content on the right -->
-                      <div class="flex-1 p-3 flex flex-col justify-center">
-                        <img src="/telekom.png" alt="Logo" class="w-5 h-5 object-contain mb-1" />
-                        <h4 class="text-xs font-bold mb-1" :style="{ fontFamily: brandSettings.primaryFont, color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[9px] text-om-gray-500 mb-2" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <button
-                          class="px-3 py-1 text-white text-[10px] font-medium w-fit"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                    </div>
+                    <img :src="useCase.image" :alt="useCase.title" class="w-full h-full object-cover" />
                   </div>
                 </div>
 
                   <!-- Mobile Preview -->
-                  <div class="w-32">
+                  <div class="w-48">
                   <div
                     class="bg-white border border-om-gray-200 overflow-hidden aspect-9/19 flex items-center justify-center"
                     :class="popupCornerClasses[brandSettings.corners]"
                   >
-                    <!-- Newsletter popup mobile -->
-                    <div v-if="useCase.id === 'newsletter'" class="flex flex-col w-full h-full">
-                      <div class="h-1/3 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=200&h=100&fit=crop" alt="Newsletter" class="w-full h-full object-cover" />
-                      </div>
-                      <div class="flex-1 p-2 flex flex-col justify-center">
-                        <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5" />
-                        <h4 class="text-[7px] font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[5px] text-om-gray-500 mb-1" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <div class="h-3 bg-om-gray-100 rounded text-[5px] flex items-center px-1 text-om-gray-400 mb-1" :class="cornerClasses[brandSettings.corners]">
-                          Email
-                        </div>
-                        <button
-                          class="w-full py-0.5 text-white text-[5px] font-medium"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- Cart abandonment mobile -->
-                    <div v-else-if="useCase.id === 'cart-abandonment'" class="flex flex-col w-full h-full">
-                      <div class="h-1/3 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=200&h=100&fit=crop" alt="Shopping cart" class="w-full h-full object-cover" />
-                      </div>
-                      <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
-                        <h4 class="text-[8px] font-bold mb-0.5" :style="{ fontFamily: brandSettings.primaryFont, color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[5px] text-om-gray-500 mb-0.5" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <p class="text-[7px] font-bold mb-1" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].discount }}
-                        </p>
-                        <button
-                          class="w-full py-0.5 text-white text-[5px] font-medium"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- Welcome discount mobile -->
-                    <div v-else-if="useCase.id === 'welcome-discount'" class="flex flex-col w-full h-full">
-                      <div class="h-1/3 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=200&h=100&fit=crop" alt="Gift" class="w-full h-full object-cover" />
-                      </div>
-                      <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
-                        <div class="w-6 h-6 mx-auto rounded flex items-center justify-center text-white text-[5px] font-bold mb-0.5" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].discount }}
-                        </div>
-                        <h4 class="text-[7px] font-bold text-om-gray-800" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <button
-                          class="mt-1 px-2 py-0.5 text-white text-[5px] font-medium mx-auto"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- Feedback mobile -->
-                    <div v-else-if="useCase.id === 'feedback'" class="flex flex-col w-full h-full">
-                      <div class="h-1/3 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1531973576160-7125cd663d86?w=200&h=100&fit=crop" alt="Feedback" class="w-full h-full object-cover" />
-                      </div>
-                      <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
-                        <h4 class="text-[6px] font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].rating }}
-                        </h4>
-                        <div class="flex justify-center gap-0.5 mb-1">
-                          <span v-for="i in 5" :key="i" class="text-[8px]" :style="{ color: i <= 4 ? brandSettings.colors[brandSettings.selectedColorIndex] : '#E3E5E8' }">★</span>
-                        </div>
-                        <button
-                          class="px-2 py-0.5 text-white text-[5px] font-medium mx-auto"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- Free shipping mobile -->
-                    <div v-else-if="useCase.id === 'free-shipping'" class="flex flex-col w-full h-full">
-                      <!-- Sticky bar at top -->
-                      <div class="px-2 py-1 flex items-center justify-center gap-1" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <Truck :size="8" />
-                        <span class="text-[5px] font-medium text-white">Free shipping</span>
-                      </div>
-                      <!-- Website skeleton -->
-                      <div class="flex-1 bg-om-gray-50 p-1.5">
-                        <!-- Header skeleton -->
-                        <div class="flex items-center justify-between mb-2">
-                          <div class="w-6 h-1.5 bg-om-gray-200 rounded"></div>
-                          <div class="flex gap-1">
-                            <div class="w-3 h-1 bg-om-gray-200 rounded"></div>
-                            <div class="w-3 h-1 bg-om-gray-200 rounded"></div>
-                          </div>
-                        </div>
-                        <!-- Hero skeleton -->
-                        <div class="w-full h-10 bg-om-gray-200 rounded mb-1.5"></div>
-                        <!-- Content skeleton -->
-                        <div class="flex gap-1">
-                          <div class="flex-1 h-6 bg-om-gray-200 rounded"></div>
-                          <div class="flex-1 h-6 bg-om-gray-200 rounded"></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Spin wheel mobile -->
-                    <div v-else-if="useCase.id === 'spin-wheel'" class="flex flex-col w-full h-full">
-                      <!-- Content on top -->
-                      <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
-                        <h4 class="text-[7px] font-bold mb-0.5" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[5px] text-om-gray-500 mb-1">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <button
-                          class="px-2 py-0.5 text-white text-[5px] font-medium mx-auto"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                      <!-- Wheel at bottom -->
-                      <div class="h-1/3 shrink-0 flex items-center justify-center" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <div class="w-10 h-10 rounded-full border-2 border-white relative bg-white/20">
-                          <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <img :src="useCase.image" :alt="useCase.title" class="w-full h-full object-cover" />
                   </div>
                 </div>
                 </div>
@@ -783,50 +150,57 @@
     <transition v-else-if="showRecommendationV4" name="fade" appear>
       <div class="min-h-screen-safe bg-white overflow-y-auto">
         <!-- Two-column intro section -->
-        <div class="w-full flex gap-6 items-stretch p-5 h-screen-safe">
+        <div class="w-full flex gap-6 items-stretch p-6 h-screen-safe">
           <!-- Left column (60%) -->
           <div class="w-[60%] flex items-center">
-            <div class="bg-[#F7F7F8] rounded-2xl p-12 w-full">
-              <!-- URL Chip -->
-              <div class="mb-8">
-                <span class="inline-block px-6 py-3 bg-[#FEF3EF] text-[#ED5A29] text-base rounded-full border border-[#FECAB5]">
-                  www.theoodie.com
-                </span>
+            <div class="bg-[#F7F7F8] rounded-2xl px-15 py-12 w-full h-full relative flex items-center">
+              <div class="w-full">
+                <!-- URL Chip -->
+                <div class="mb-5">
+                  <span class="inline-block px-6 py-2 bg-[#FEF3EF] text-[#ED5A29] text-base rounded-full border border-[#FECAB5]">
+                    telekom.hu
+                  </span>
+                </div>
+
+                <!-- Main Heading -->
+                <h1 class="text-6xl font-bold mb-8 leading-none text-[#23262A]">
+                  Optimization Plan<br>
+                  for Telekom
+                </h1>
+
+                <!-- Cards Container -->
+                <div class="flex gap-6">
+                  <!-- Objective Card -->
+                  <div class="flex-1 bg-white rounded-2xl p-5">
+                    <div class="flex items-center gap-3 mb-5">
+                      <div class="w-10 h-10 bg-[#FEF3EF] rounded-lg flex items-center justify-center">
+                        <Target :size="20" class="text-[#ED5A29]" />
+                      </div>
+                      <h2 class="text-xl font-bold text-[#23262A]">Objective</h2>
+                    </div>
+                    <p class="text-sm text-[#505763] leading-relaxed">
+                      The primary goal is to identify effective conversion optimization strategies to boost revenue for Telekom.
+                    </p>
+                  </div>
+
+                  <!-- Solutions Card -->
+                  <div class="flex-1 bg-white rounded-2xl p-5">
+                    <div class="flex items-center gap-3 mb-5">
+                      <div class="w-10 h-10 bg-[#FEF3EF] rounded-lg flex items-center justify-center">
+                        <Lightbulb :size="20" class="text-[#ED5A29]" />
+                      </div>
+                      <h2 class="text-xl font-bold text-[#23262A]">Solutions</h2>
+                    </div>
+                    <p class="text-sm text-[#505763] leading-relaxed">
+                      Following a thorough website analysis, we've developed <span class="font-semibold text-[#ED5A29]">6 tailored popup strategies</span> and <span class="font-semibold text-[#ED5A29]">2 site optimization recommendations</span> aimed at enhancing user engagement and increasing conversions.
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <!-- Main Heading -->
-              <h1 class="text-6xl font-bold mb-12 leading-tight">
-                <span class="text-[#23262A]">Optimization Plan for</span><br>
-                <span class="text-[#ED5A29]">The Oodie</span>
-              </h1>
-
-              <!-- Cards Container -->
-              <div class="flex gap-6">
-                <!-- Objective Card -->
-                <div class="flex-1 bg-white rounded-2xl p-8">
-                  <div class="flex items-center gap-3 mb-6">
-                    <div class="w-12 h-12 bg-[#FEF3EF] rounded-xl flex items-center justify-center">
-                      <Target :size="24" class="text-[#ED5A29]" />
-                    </div>
-                    <h2 class="text-2xl font-bold text-[#23262A]">Objective</h2>
-                  </div>
-                  <p class="text-base text-[#505763] leading-relaxed">
-                    The primary goal is to identify effective conversion optimization strategies to boost revenue for The Oodie.
-                  </p>
-                </div>
-
-                <!-- Solutions Card -->
-                <div class="flex-1 bg-white rounded-2xl p-8">
-                  <div class="flex items-center gap-3 mb-6">
-                    <div class="w-12 h-12 bg-[#FEF3EF] rounded-xl flex items-center justify-center">
-                      <Lightbulb :size="24" class="text-[#ED5A29]" />
-                    </div>
-                    <h2 class="text-2xl font-bold text-[#23262A]">Solutions</h2>
-                  </div>
-                  <p class="text-base text-[#505763] leading-relaxed">
-                    Following a thorough website analysis, we've developed <span class="font-semibold text-[#ED5A29]">6 tailored popup strategies</span> and <span class="font-semibold text-[#ED5A29]">2 site optimization recommendations</span> aimed at enhancing user engagement and increasing conversions.
-                  </p>
-                </div>
+              <!-- Floating Mouse Icon -->
+              <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce-slow">
+                <Mouse :size="36" class="text-[#8F97A4]" />
               </div>
             </div>
           </div>
@@ -836,8 +210,8 @@
             <div class="w-full h-full bg-[#F7F7F8] rounded-2xl overflow-hidden flex items-center justify-center">
               <!-- Placeholder image -->
               <img
-                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=800&fit=crop"
-                alt="Technology and analytics"
+                src="/telekom_img1.png"
+                alt="Telekom"
                 class="w-full h-full object-cover"
               />
             </div>
@@ -845,368 +219,392 @@
         </div>
 
         <!-- Use cases section -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <div class="max-w-[1520px] mx-auto px-6">
           <!-- Use cases list - single column -->
-          <div class="flex flex-col gap-6 lg:gap-8 max-w-[1140px] mx-auto">
+          <div class="flex flex-col gap-6">
             <div
               v-for="useCase in useCases"
               :key="useCase.id"
               class="bg-om-gray-50 rounded-2xl p-5 lg:p-6"
             >
               <!-- Three column layout: Text | Desktop | Mobile -->
-              <div class="flex gap-6 items-center">
+              <div class="flex gap-4 items-center">
                 <!-- Left column: Text and button -->
-                <div class="flex-1 flex flex-col justify-center">
-                  <span class="inline-block text-xs font-normal text-om-gray-500 bg-om-gray-200 px-2 py-0.5 rounded mb-2 w-fit">{{ useCase.title }}</span>
-                  <h3 class="text-lg font-semibold text-om-gray-700 mb-2">{{ useCase.description }}</h3>
-                  <p class="text-base text-om-gray-500 mb-4">{{ useCase.shortDescription || 'Boost engagement and conversions with this proven campaign type.' }}</p>
+                <div class="flex-1 flex flex-col justify-center pl-10 lg:pl-9">
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="w-8 h-8 bg-om-gray-200 rounded-lg flex items-center justify-center">
+                      <component :is="iconMap[useCase.icon]" :size="18" class="text-om-gray-500" />
+                    </div>
+                    <span class="text-sm font-medium text-om-gray-500 uppercase">{{ useCase.title }}</span>
+                  </div>
+                  <h3 class="text-2xl font-semibold text-om-gray-700 mb-2">{{ useCase.description }}</h3>
+                  <p class="text-base text-om-gray-500 mb-4">{{ useCase.subheadline }}</p>
                   <button
-                    class="px-5 py-2.5 text-base font-medium text-white bg-om-orange-500 rounded-lg hover:bg-om-orange-400 transition-colors w-fit"
+                    class="px-5 py-2.5 text-base font-medium text-white bg-om-orange-500 rounded-lg hover:bg-om-orange-400 transition-colors w-fit flex items-center gap-2"
                   >
-                    Show more
+                    <span>Show more</span>
+                    <ChevronRight :size="20" />
                   </button>
                 </div>
 
                 <!-- Previews container -->
                 <div class="flex gap-3 shrink-0 items-center">
                   <!-- Desktop Preview -->
-                  <div class="w-80 flex justify-center">
                   <div
-                    class="bg-white border border-om-gray-200 overflow-hidden aspect-video flex items-center justify-center"
-                    :class="popupCornerClasses[brandSettings.corners]"
+                    class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-video flex items-center justify-center overflow-hidden"
                   >
-                    <!-- Newsletter popup -->
-                    <div v-if="useCase.id === 'newsletter'" class="flex w-full h-full">
-                      <div class="flex-1 p-3 flex flex-col justify-center">
-                        <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1" />
-                        <h4 class="text-xs font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[10px] text-om-gray-500 mb-2" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <div class="flex gap-1">
-                          <div class="flex-1 h-5 bg-om-gray-100 rounded text-[8px] flex items-center px-1.5 text-om-gray-400" :class="cornerClasses[brandSettings.corners]">
-                            {{ useCase.texts[brandSettings.language].input }}
-                          </div>
+                    <img :src="useCase.image" :alt="useCase.title" class="w-full h-full object-cover" />
+                  </div>
+
+                  <!-- Mobile Preview -->
+                  <div
+                    class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden"
+                  >
+                    <!-- Newsletter mobile -->
+                    <template v-if="useCase.id === 'newsletter'">
+                      <div class="flex flex-col w-full h-full">
+                        <div class="h-1/3 shrink-0 bg-white flex items-end justify-center rounded-t-lg">
+                          <img src="/SmartDiscountPopup_img.png" alt="Smart Discount" class="h-full object-contain" />
+                        </div>
+                        <div class="flex-1 px-4 pb-3 flex flex-col justify-center text-center">
+                          <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-1 mx-auto" />
+                          <h4 class="text-[13px] font-bold mb-2 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                            Tiéd a 10% KUPON
+                          </h4>
+                          <p class="text-[7px] text-om-gray-500 mb-2">
+                            Csapj le rá, mielőtt eltűnik!
+                          </p>
                           <button
-                            class="px-2 h-5 text-white text-[8px] font-medium"
+                            class="w-full py-2 text-white text-[7px] font-bold mb-1.5"
                             :class="cornerClasses[brandSettings.corners]"
-                            :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
+                            :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
                           >
-                            {{ useCase.texts[brandSettings.language].cta }}
+                            KÉREM A 10%-OT
+                          </button>
+                          <button
+                            class="w-full py-2 text-[7px] font-bold border"
+                            :class="cornerClasses[brandSettings.corners]"
+                            :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex], borderColor: brandSettings.colors[brandSettings.selectedColorIndex], backgroundColor: 'white' }"
+                          >
+                            NEM, KÖSZ!
                           </button>
                         </div>
                       </div>
-                      <div class="w-2/5 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=200&h=200&fit=crop" alt="Newsletter" class="w-full h-full object-cover" />
-                      </div>
-                    </div>
-
-                    <!-- Cart abandonment popup -->
-                    <div v-else-if="useCase.id === 'cart-abandonment'" class="flex w-full h-full">
-                      <div class="flex-1 p-3 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1 mx-auto" />
-                        <h4 class="text-sm font-bold mb-0.5" :style="{ fontFamily: brandSettings.primaryFont, color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[10px] text-om-gray-500 mb-1" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <p class="text-xs font-bold mb-2" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].discount }}
-                        </p>
-                        <button
-                          class="w-full py-1.5 text-white text-[10px] font-medium"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                      <div class="w-2/5 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=200&h=200&fit=crop" alt="Shopping cart" class="w-full h-full object-cover" />
-                      </div>
-                    </div>
-
-                    <!-- Welcome discount popup -->
-                    <div v-else-if="useCase.id === 'welcome-discount'" class="flex w-full h-full">
-                      <div class="flex-1 p-3 flex flex-col justify-center">
-                        <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1" />
-                        <h4 class="text-xs font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[10px] text-om-gray-500 mb-1" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <div class="w-8 h-8 rounded flex items-center justify-center text-white text-[8px] font-bold mb-1" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].discount }}
-                        </div>
-                        <button
-                          class="px-2 py-1 text-white text-[10px] font-medium w-fit"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                      <div class="w-2/5 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=200&h=200&fit=crop" alt="Gift" class="w-full h-full object-cover" />
-                      </div>
-                    </div>
-
-                    <!-- Feedback popup -->
-                    <div v-else-if="useCase.id === 'feedback'" class="flex w-full h-full">
-                      <div class="flex-1 p-3 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1 mx-auto" />
-                        <h4 class="text-xs font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[10px] text-om-gray-500 mb-1" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <div class="flex justify-center gap-0.5 mb-1">
-                          <span v-for="i in 5" :key="i" class="text-sm" :style="{ color: i <= 4 ? brandSettings.colors[brandSettings.selectedColorIndex] : '#E3E5E8' }">★</span>
-                        </div>
-                        <button
-                          class="px-2 py-1 text-white text-[10px] font-medium mx-auto"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                      <div class="w-2/5 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1531973576160-7125cd663d86?w=200&h=200&fit=crop" alt="Feedback" class="w-full h-full object-cover" />
-                      </div>
-                    </div>
-
-                    <!-- Free shipping bar -->
-                    <div v-else-if="useCase.id === 'free-shipping'" class="flex flex-col w-full h-full">
-                      <!-- Sticky bar at top -->
-                      <div class="px-3 py-1.5 flex items-center justify-center gap-2" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <Truck :size="12" />
-                        <span class="text-[10px] font-medium text-white" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].progress }}
-                        </span>
-                      </div>
-                      <!-- Website skeleton -->
-                      <div class="flex-1 bg-om-gray-50 p-2">
-                        <!-- Header skeleton -->
-                        <div class="flex items-center justify-between mb-3">
-                          <div class="w-12 h-3 bg-om-gray-200 rounded"></div>
-                          <div class="flex gap-2">
-                            <div class="w-8 h-2 bg-om-gray-200 rounded"></div>
-                            <div class="w-8 h-2 bg-om-gray-200 rounded"></div>
-                            <div class="w-8 h-2 bg-om-gray-200 rounded"></div>
-                          </div>
-                        </div>
-                        <!-- Hero skeleton -->
-                        <div class="w-full h-12 bg-om-gray-200 rounded mb-2"></div>
-                        <!-- Content skeleton -->
-                        <div class="flex gap-2">
-                          <div class="flex-1 h-8 bg-om-gray-200 rounded"></div>
-                          <div class="flex-1 h-8 bg-om-gray-200 rounded"></div>
-                          <div class="flex-1 h-8 bg-om-gray-200 rounded"></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Spin wheel popup -->
-                    <div v-else-if="useCase.id === 'spin-wheel'" class="flex w-full h-full">
-                      <!-- Wheel on the left -->
-                      <div class="w-2/5 shrink-0 flex items-center justify-center p-2" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <div class="w-14 h-14 rounded-full border-3 border-white relative bg-white/20">
-                          <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="w-2 h-2 rounded-full bg-white"></div>
-                          </div>
-                          <div v-for="(_prize, i) in 4" :key="i" class="absolute text-[5px] font-bold text-white" :style="{ top: i === 0 ? '4px' : i === 2 ? 'auto' : '50%', bottom: i === 2 ? '4px' : 'auto', left: i === 3 ? '4px' : i === 1 ? 'auto' : '50%', right: i === 1 ? '4px' : 'auto', transform: i === 0 || i === 2 ? 'translateX(-50%)' : 'translateY(-50%)' }">
-                            {{ useCase.texts[brandSettings.language].prizes[i] }}
-                          </div>
-                        </div>
-                      </div>
-                      <!-- Content on the right -->
-                      <div class="flex-1 p-3 flex flex-col justify-center">
-                        <img src="/telekom.png" alt="Logo" class="w-5 h-5 object-contain mb-1" />
-                        <h4 class="text-xs font-bold mb-1" :style="{ fontFamily: brandSettings.primaryFont, color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[9px] text-om-gray-500 mb-2" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <button
-                          class="px-3 py-1 text-white text-[10px] font-medium w-fit"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex], fontFamily: brandSettings.primaryFont }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                  <!-- Mobile Preview -->
-                  <div class="w-32">
-                  <div
-                    class="bg-white border border-om-gray-200 overflow-hidden aspect-9/19 flex items-center justify-center"
-                    :class="popupCornerClasses[brandSettings.corners]"
-                  >
-                    <!-- Newsletter popup mobile -->
-                    <div v-if="useCase.id === 'newsletter'" class="flex flex-col w-full h-full">
-                      <div class="h-1/3 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=200&h=100&fit=crop" alt="Newsletter" class="w-full h-full object-cover" />
-                      </div>
-                      <div class="flex-1 p-2 flex flex-col justify-center">
-                        <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5" />
-                        <h4 class="text-[7px] font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[5px] text-om-gray-500 mb-1" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <div class="h-3 bg-om-gray-100 rounded text-[5px] flex items-center px-1 text-om-gray-400 mb-1" :class="cornerClasses[brandSettings.corners]">
-                          Email
-                        </div>
-                        <button
-                          class="w-full py-0.5 text-white text-[5px] font-medium"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                    </div>
+                    </template>
 
                     <!-- Cart abandonment mobile -->
-                    <div v-else-if="useCase.id === 'cart-abandonment'" class="flex flex-col w-full h-full">
-                      <div class="h-1/3 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=200&h=100&fit=crop" alt="Shopping cart" class="w-full h-full object-cover" />
-                      </div>
-                      <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
-                        <h4 class="text-[8px] font-bold mb-0.5" :style="{ fontFamily: brandSettings.primaryFont, color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[5px] text-om-gray-500 mb-0.5" :style="{ fontFamily: brandSettings.secondaryFont }">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <p class="text-[7px] font-bold mb-1" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].discount }}
-                        </p>
-                        <button
-                          class="w-full py-0.5 text-white text-[5px] font-medium"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- Welcome discount mobile -->
-                    <div v-else-if="useCase.id === 'welcome-discount'" class="flex flex-col w-full h-full">
-                      <div class="h-1/3 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=200&h=100&fit=crop" alt="Gift" class="w-full h-full object-cover" />
-                      </div>
-                      <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
-                        <div class="w-6 h-6 mx-auto rounded flex items-center justify-center text-white text-[5px] font-bold mb-0.5" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].discount }}
+                    <template v-else-if="useCase.id === 'cart-abandonment'">
+                      <div class="flex flex-col w-full h-full">
+                        <div class="h-1/3 shrink-0">
+                          <img src="/CartAbandonmentStopper_img.png" alt="Cart Abandonment" class="w-full h-full object-cover rounded-t-lg" />
                         </div>
-                        <h4 class="text-[7px] font-bold text-om-gray-800" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <button
-                          class="mt-1 px-2 py-0.5 text-white text-[5px] font-medium mx-auto"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- Feedback mobile -->
-                    <div v-else-if="useCase.id === 'feedback'" class="flex flex-col w-full h-full">
-                      <div class="h-1/3 shrink-0">
-                        <img src="https://images.unsplash.com/photo-1531973576160-7125cd663d86?w=200&h=100&fit=crop" alt="Feedback" class="w-full h-full object-cover" />
-                      </div>
-                      <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
-                        <h4 class="text-[6px] font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
-                          {{ useCase.texts[brandSettings.language].rating }}
-                        </h4>
-                        <div class="flex justify-center gap-0.5 mb-1">
-                          <span v-for="i in 5" :key="i" class="text-[8px]" :style="{ color: i <= 4 ? brandSettings.colors[brandSettings.selectedColorIndex] : '#E3E5E8' }">★</span>
-                        </div>
-                        <button
-                          class="px-2 py-0.5 text-white text-[5px] font-medium mx-auto"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
-                      </div>
-                    </div>
-
-                    <!-- Free shipping mobile -->
-                    <div v-else-if="useCase.id === 'free-shipping'" class="flex flex-col w-full h-full">
-                      <!-- Sticky bar at top -->
-                      <div class="px-2 py-1 flex items-center justify-center gap-1" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <Truck :size="8" />
-                        <span class="text-[5px] font-medium text-white">Free shipping</span>
-                      </div>
-                      <!-- Website skeleton -->
-                      <div class="flex-1 bg-om-gray-50 p-1.5">
-                        <!-- Header skeleton -->
-                        <div class="flex items-center justify-between mb-2">
-                          <div class="w-6 h-1.5 bg-om-gray-200 rounded"></div>
-                          <div class="flex gap-1">
-                            <div class="w-3 h-1 bg-om-gray-200 rounded"></div>
-                            <div class="w-3 h-1 bg-om-gray-200 rounded"></div>
+                        <div class="flex-1 px-4 py-3 flex flex-col justify-center">
+                          <p class="text-[7px] text-om-gray-500 mb-2 uppercase tracking-wide">
+                            Vár a
+                          </p>
+                          <h4 class="text-[12px] font-bold mb-3 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                            Szerezz egy<br>10%-os kuport!
+                          </h4>
+                          <div class="h-5 bg-white border border-om-gray-300 rounded text-[7px] flex items-center px-2 text-om-gray-400 mb-3" :class="cornerClasses[brandSettings.corners]">
+                            Email cím
                           </div>
-                        </div>
-                        <!-- Hero skeleton -->
-                        <div class="w-full h-10 bg-om-gray-200 rounded mb-1.5"></div>
-                        <!-- Content skeleton -->
-                        <div class="flex gap-1">
-                          <div class="flex-1 h-6 bg-om-gray-200 rounded"></div>
-                          <div class="flex-1 h-6 bg-om-gray-200 rounded"></div>
+                          <button
+                            class="w-full py-2 text-white text-[7px] font-bold"
+                            :class="cornerClasses[brandSettings.corners]"
+                            :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
+                          >
+                            FOLYTATÁS
+                          </button>
                         </div>
                       </div>
-                    </div>
+                    </template>
 
                     <!-- Spin wheel mobile -->
-                    <div v-else-if="useCase.id === 'spin-wheel'" class="flex flex-col w-full h-full">
-                      <!-- Content on top -->
-                      <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                        <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
-                        <h4 class="text-[7px] font-bold mb-0.5" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          {{ useCase.texts[brandSettings.language].title }}
-                        </h4>
-                        <p class="text-[5px] text-om-gray-500 mb-1">
-                          {{ useCase.texts[brandSettings.language].subtitle }}
-                        </p>
-                        <button
-                          class="px-2 py-0.5 text-white text-[5px] font-medium mx-auto"
-                          :class="cornerClasses[brandSettings.corners]"
-                          :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                        >
-                          {{ useCase.texts[brandSettings.language].cta }}
-                        </button>
+                    <template v-else-if="useCase.id === 'spin-wheel'">
+                      <div class="flex flex-col w-full h-full">
+                        <div class="flex-1 px-4 py-3 flex flex-col justify-center text-center">
+                          <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-2 mx-auto" />
+                          <h4 class="text-[12px] font-bold mb-2 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                            Pörgess, nyerj és<br>spórolj!
+                          </h4>
+                          <p class="text-[6px] text-om-gray-500 mb-2 leading-snug">
+                            Úgy érzed, rád mosolyghat a szerencse?<br>Add meg az email címed, és pörgess!
+                          </p>
+                          <div class="h-5 bg-white border border-om-gray-300 rounded text-[7px] flex items-center px-2 text-om-gray-400 mb-2" :class="cornerClasses[brandSettings.corners]">
+                            Email
+                          </div>
+                          <button
+                            class="w-full py-2 text-white text-[7px] font-bold mb-1"
+                            :class="cornerClasses[brandSettings.corners]"
+                            :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
+                          >
+                            PÖRGETEK
+                          </button>
+                          <button
+                            class="text-[7px] font-medium underline"
+                            :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }"
+                          >
+                            NEM, KÖSZ!
+                          </button>
+                        </div>
+                        <div class="h-1/3 shrink-0">
+                          <img src="/LuckyWheel_img.png" alt="Lucky Wheel" class="w-full h-full object-cover rounded-b-lg" />
+                        </div>
                       </div>
-                      <!-- Wheel at bottom -->
-                      <div class="h-1/3 shrink-0 flex items-center justify-center" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                        <div class="w-10 h-10 rounded-full border-2 border-white relative bg-white/20">
-                          <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+                    </template>
+
+                    <!-- Feedback mobile -->
+                    <template v-else-if="useCase.id === 'feedback'">
+                      <div class="flex flex-col w-full h-full justify-center px-4 py-5 text-center">
+                        <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-3 mx-auto" />
+                        <h4 class="text-[11px] font-bold mb-2 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                          Van egy perced?<br>Mondd el a véleményed!
+                        </h4>
+                        <p class="text-[6px] text-om-gray-500 mb-3 leading-snug">
+                          Hogyan értékelnéd az általános<br>tapasztalatsodat velünk?
+                        </p>
+                        <div class="flex justify-center gap-2 mb-2">
+                          <div v-for="i in 5" :key="i" class="w-6 h-6 rounded-full border-2 flex items-center justify-center text-[8px] font-bold" :style="{ borderColor: brandSettings.colors[brandSettings.selectedColorIndex], color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                            {{ i }}
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </template>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+
+
+    <!-- Recommendation screen V5 -->
+    <transition v-else-if="showRecommendationV5" name="fade" appear>
+      <div class="min-h-screen-safe bg-white overflow-y-auto">
+        <!-- Two-column intro section -->
+        <div class="w-full flex gap-6 items-stretch p-6 h-screen-safe">
+          <!-- Left column (60%) -->
+          <div class="w-[60%] flex items-center">
+            <div class="bg-[#F7F7F8] rounded-2xl px-15 py-12 w-full h-full relative flex items-center">
+              <div class="w-full">
+                <!-- URL Chip -->
+                <div class="mb-5">
+                  <span class="inline-block px-6 py-2 bg-[#FEF3EF] text-[#ED5A29] text-base rounded-full border border-[#FECAB5]">
+                    telekom.hu
+                  </span>
+                </div>
+
+                <!-- Main Heading -->
+                <h1 class="text-6xl font-bold mb-8 leading-none text-[#23262A]">
+                  Optimization Plan<br>
+                  for Telekom
+                </h1>
+
+                <!-- Cards Container -->
+                <div class="flex gap-6">
+                  <!-- Objective Card -->
+                  <div class="flex-1 bg-white rounded-2xl p-5">
+                    <div class="flex items-center gap-3 mb-5">
+                      <div class="w-10 h-10 bg-[#FEF3EF] rounded-lg flex items-center justify-center">
+                        <Target :size="20" class="text-[#ED5A29]" />
+                      </div>
+                      <h2 class="text-xl font-bold text-[#23262A]">Objective</h2>
+                    </div>
+                    <p class="text-sm text-[#505763] leading-relaxed">
+                      The primary goal is to identify effective conversion optimization strategies to boost revenue for Telekom.
+                    </p>
+                  </div>
+
+                  <!-- Solutions Card -->
+                  <div class="flex-1 bg-white rounded-2xl p-5">
+                    <div class="flex items-center gap-3 mb-5">
+                      <div class="w-10 h-10 bg-[#FEF3EF] rounded-lg flex items-center justify-center">
+                        <Lightbulb :size="20" class="text-[#ED5A29]" />
+                      </div>
+                      <h2 class="text-xl font-bold text-[#23262A]">Solutions</h2>
+                    </div>
+                    <p class="text-sm text-[#505763] leading-relaxed">
+                      Following a thorough website analysis, we've developed <span class="font-semibold text-[#ED5A29]">6 tailored popup strategies</span> and <span class="font-semibold text-[#ED5A29]">2 site optimization recommendations</span> aimed at enhancing user engagement and increasing conversions.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Floating Mouse Icon -->
+              <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce-slow">
+                <Mouse :size="36" class="text-[#8F97A4]" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Right column (40%) -->
+          <div class="w-[40%] flex items-center">
+            <div class="w-full h-full bg-[#F7F7F8] rounded-2xl overflow-hidden flex items-center justify-center">
+              <!-- Placeholder image -->
+              <img
+                src="/telekom_img1.png"
+                alt="Telekom"
+                class="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Use cases section -->
+        <div class="max-w-[1520px] mx-auto px-6">
+          <!-- Use cases list - single column -->
+          <div class="flex flex-col gap-6">
+            <div
+              v-for="useCase in useCases"
+              :key="useCase.id"
+              class="bg-om-gray-50 rounded-2xl p-5 lg:p-6"
+            >
+              <!-- Three column layout: Text | Desktop | Mobile -->
+              <div class="flex gap-4 items-center">
+                <!-- Left column: Text and button -->
+                <div class="flex-1 flex flex-col justify-center pl-10 lg:pl-9">
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="w-8 h-8 bg-om-gray-200 rounded-lg flex items-center justify-center">
+                      <component :is="iconMap[useCase.icon]" :size="18" class="text-om-gray-500" />
+                    </div>
+                    <span class="text-sm font-medium text-om-gray-500 uppercase">{{ useCase.title }}</span>
+                  </div>
+                  <h3 class="text-2xl font-semibold text-om-gray-700 mb-2">{{ useCase.description }}</h3>
+                  <p class="text-base text-om-gray-500 mb-4">{{ useCase.subheadline }}</p>
+                  <button
+                    class="px-5 py-2.5 text-base font-medium text-white bg-om-orange-500 rounded-lg hover:bg-om-orange-400 transition-colors w-fit flex items-center gap-2"
+                  >
+                    <span>Show more</span>
+                    <ChevronRight :size="20" />
+                  </button>
+                </div>
+
+                <!-- Previews container -->
+                <div class="flex gap-3 shrink-0 items-center">
+                  <!-- Desktop Preview -->
+                  <div
+                    class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-video flex items-center justify-center overflow-hidden"
+                  >
+                    <img :src="useCase.image" :alt="useCase.title" class="w-full h-full object-cover" />
+                  </div>
+
+                  <!-- Mobile Preview -->
+                  <div
+                    class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden"
+                  >
+                    <!-- Newsletter mobile -->
+                    <template v-if="useCase.id === 'newsletter'">
+                      <div class="flex flex-col w-full h-full">
+                        <div class="h-1/3 shrink-0 bg-white flex items-end justify-center rounded-t-lg">
+                          <img src="/SmartDiscountPopup_img.png" alt="Smart Discount" class="h-full object-contain" />
+                        </div>
+                        <div class="flex-1 px-4 pb-3 flex flex-col justify-center text-center">
+                          <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-1 mx-auto" />
+                          <h4 class="text-[13px] font-bold mb-2 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                            Tiéd a 10% KUPON
+                          </h4>
+                          <p class="text-[7px] text-om-gray-500 mb-2">
+                            Csapj le rá, mielőtt eltűnik!
+                          </p>
+                          <button
+                            class="w-full py-2 text-white text-[7px] font-bold mb-1.5"
+                            :class="cornerClasses[brandSettings.corners]"
+                            :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
+                          >
+                            KÉREM A 10%-OT
+                          </button>
+                          <button
+                            class="w-full py-2 text-[7px] font-bold border"
+                            :class="cornerClasses[brandSettings.corners]"
+                            :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex], borderColor: brandSettings.colors[brandSettings.selectedColorIndex], backgroundColor: 'white' }"
+                          >
+                            NEM, KÖSZ!
+                          </button>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Cart abandonment mobile -->
+                    <template v-else-if="useCase.id === 'cart-abandonment'">
+                      <div class="flex flex-col w-full h-full">
+                        <div class="h-1/3 shrink-0">
+                          <img src="/CartAbandonmentStopper_img.png" alt="Cart Abandonment" class="w-full h-full object-cover rounded-t-lg" />
+                        </div>
+                        <div class="flex-1 px-4 py-3 flex flex-col justify-center">
+                          <p class="text-[7px] text-om-gray-500 mb-2 uppercase tracking-wide">
+                            Vár a
+                          </p>
+                          <h4 class="text-[12px] font-bold mb-3 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                            Szerezz egy<br>10%-os kuport!
+                          </h4>
+                          <div class="h-5 bg-white border border-om-gray-300 rounded text-[7px] flex items-center px-2 text-om-gray-400 mb-3" :class="cornerClasses[brandSettings.corners]">
+                            Email cím
+                          </div>
+                          <button
+                            class="w-full py-2 text-white text-[7px] font-bold"
+                            :class="cornerClasses[brandSettings.corners]"
+                            :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
+                          >
+                            FOLYTATÁS
+                          </button>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Spin wheel mobile -->
+                    <template v-else-if="useCase.id === 'spin-wheel'">
+                      <div class="flex flex-col w-full h-full">
+                        <div class="flex-1 px-4 py-3 flex flex-col justify-center text-center">
+                          <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-2 mx-auto" />
+                          <h4 class="text-[12px] font-bold mb-2 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                            Pörgess, nyerj és<br>spórolj!
+                          </h4>
+                          <p class="text-[6px] text-om-gray-500 mb-2 leading-snug">
+                            Úgy érzed, rád mosolyghat a szerencse?<br>Add meg az email címed, és pörgess!
+                          </p>
+                          <div class="h-5 bg-white border border-om-gray-300 rounded text-[7px] flex items-center px-2 text-om-gray-400 mb-2" :class="cornerClasses[brandSettings.corners]">
+                            Email
+                          </div>
+                          <button
+                            class="w-full py-2 text-white text-[7px] font-bold mb-1"
+                            :class="cornerClasses[brandSettings.corners]"
+                            :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
+                          >
+                            PÖRGETEK
+                          </button>
+                          <button
+                            class="text-[7px] font-medium underline"
+                            :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }"
+                          >
+                            NEM, KÖSZ!
+                          </button>
+                        </div>
+                        <div class="h-1/3 shrink-0">
+                          <img src="/LuckyWheel_img.png" alt="Lucky Wheel" class="w-full h-full object-cover rounded-b-lg" />
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Feedback mobile -->
+                    <template v-else-if="useCase.id === 'feedback'">
+                      <div class="flex flex-col w-full h-full justify-center px-4 py-5 text-center">
+                        <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-3 mx-auto" />
+                        <h4 class="text-[11px] font-bold mb-2 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                          Van egy perced?<br>Mondd el a véleményed!
+                        </h4>
+                        <p class="text-[6px] text-om-gray-500 mb-3 leading-snug">
+                          Hogyan értékelnéd az általános<br>tapasztalatsodat velünk?
+                        </p>
+                        <div class="flex justify-center gap-2 mb-2">
+                          <div v-for="i in 5" :key="i" class="w-6 h-6 rounded-full border-2 flex items-center justify-center text-[8px] font-bold" :style="{ borderColor: brandSettings.colors[brandSettings.selectedColorIndex], color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                            {{ i }}
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1289,7 +687,7 @@
                   <div class="flex-1 flex flex-col justify-center pr-6">
                     <span class="inline-block text-sm font-normal text-om-gray-500 bg-om-gray-200 px-2.5 py-1 rounded mb-3 w-fit">{{ useCases[currentDeckCard].title }}</span>
                     <h3 class="text-2xl font-semibold text-om-gray-700 mb-3">{{ useCases[currentDeckCard].description }}</h3>
-                    <p class="text-lg text-om-gray-500 mb-5">{{ useCases[currentDeckCard].shortDescription || 'Boost engagement and conversions with this proven campaign type.' }}</p>
+                    <p class="text-lg text-om-gray-500 mb-5">{{ useCases[currentDeckCard].subheadline }}</p>
                     <button
                       class="px-5 py-2.5 text-base font-medium text-white bg-om-orange-500 rounded-lg hover:bg-om-orange-400 transition-colors w-fit"
                     >
@@ -2057,7 +1455,7 @@
 
 <script setup>
 import { reactive, ref, computed, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, Truck, Check, Target, Lightbulb } from 'lucide-vue-next'
+import { ChevronDown, ChevronRight, Truck, Check, Target, Lightbulb, Mouse, Mail, ShoppingCart, Gift, Star, CircleDot, Compass } from 'lucide-vue-next'
 import WebsiteScanAnimation from '../illustrations/WebsiteScanAnimation.vue'
 
 const props = defineProps({
@@ -2092,6 +1490,10 @@ const props = defineProps({
   startAtRecommendationV4: {
     type: Boolean,
     default: false
+  },
+  startAtRecommendationV5: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -2109,6 +1511,7 @@ const showRecommendation = ref(false)
 const showRecommendationV2 = ref(false)
 const showRecommendationV3 = ref(false)
 const showRecommendationV4 = ref(false)
+const showRecommendationV5 = ref(false)
 
 // V3 deck card navigation
 const currentDeckCard = ref(0)
@@ -2317,83 +1720,52 @@ const popupStyles = [
 const useCases = [
   {
     id: 'newsletter',
-    title: 'Newsletter Signup',
-    description: 'Build your email list with an engaging signup popup',
+    title: 'Smart Discount Popup',
+    description: 'The most effective list-building popup formula',
+    subheadline: 'Grow your list with a two-step popup formula with every tweak for max conversions',
     icon: 'mail',
-    texts: {
-      en: { title: 'Join our newsletter', subtitle: 'Get exclusive offers and updates', cta: 'Subscribe', input: 'Enter your email' },
-      hu: { title: 'Iratkozz fel hírlevelünkre', subtitle: 'Kapj exkluzív ajánlatokat', cta: 'Feliratkozás', input: 'Add meg az email címed' },
-      de: { title: 'Newsletter abonnieren', subtitle: 'Exklusive Angebote erhalten', cta: 'Abonnieren', input: 'E-Mail eingeben' },
-      fr: { title: 'Inscrivez-vous', subtitle: 'Offres exclusives et actualités', cta: "S'inscrire", input: 'Votre email' },
-      es: { title: 'Suscríbete', subtitle: 'Ofertas exclusivas y novedades', cta: 'Suscribirse', input: 'Tu email' }
-    }
+    image: '/SmartDiscountPopup.png',
+    mobileImage: '/SmartDiscountPopup_mobile.png'
   },
   {
     id: 'cart-abandonment',
-    title: 'Cart Abandonment',
-    description: 'Recover lost sales with exit-intent offers',
+    title: 'Cart Abandonment Stopper',
+    description: 'Offer a discount for cart abandoners',
+    subheadline: 'Decrease cart abandonment rate with a strong discount offer',
     icon: 'cart',
-    texts: {
-      en: { title: 'Wait!', subtitle: "Don't leave your cart behind", cta: 'Get 15% Off', discount: '15% OFF' },
-      hu: { title: 'Várj!', subtitle: 'Ne hagyd itt a kosarad', cta: '15% kedvezmény', discount: '15% KEDVEZMÉNY' },
-      de: { title: 'Warte!', subtitle: 'Vergiss deinen Warenkorb nicht', cta: '15% Rabatt sichern', discount: '15% RABATT' },
-      fr: { title: 'Attendez!', subtitle: "N'oubliez pas votre panier", cta: 'Obtenir 15%', discount: '15% DE RÉDUCTION' },
-      es: { title: '¡Espera!', subtitle: 'No dejes tu carrito', cta: 'Obtener 15%', discount: '15% DESCUENTO' }
-    }
+    image: '/CartAbandonmentStopper.png',
+    mobileImage: '/CartAbandonmentStopper_mobile.png'
   },
   {
-    id: 'welcome-discount',
-    title: 'Welcome Discount',
-    description: 'Convert first-time visitors with a special offer',
-    icon: 'gift',
-    texts: {
-      en: { title: 'Welcome!', subtitle: 'Get your first order discount', cta: 'Claim Offer', discount: '10% OFF' },
-      hu: { title: 'Üdvözlünk!', subtitle: 'Kapd meg az első rendelés kedvezményt', cta: 'Kupon igénylése', discount: '10% KEDVEZMÉNY' },
-      de: { title: 'Willkommen!', subtitle: 'Erstbestellungsrabatt sichern', cta: 'Angebot sichern', discount: '10% RABATT' },
-      fr: { title: 'Bienvenue!', subtitle: 'Remise première commande', cta: 'Réclamer', discount: '10% DE RÉDUCTION' },
-      es: { title: '¡Bienvenido!', subtitle: 'Descuento en tu primer pedido', cta: 'Reclamar', discount: '10% DESCUENTO' }
-    }
+    id: 'spin-wheel',
+    title: 'Lucky Wheel',
+    description: 'Gamify list-building popups to increase new visitor engagement',
+    subheadline: 'Capture new visitor attention and increase conversions with spin-to-win lucky wheels',
+    icon: 'wheel',
+    image: '/LuckyWheel.png',
+    mobileImage: '/LuckyWheel_mobile.png'
   },
   {
     id: 'feedback',
     title: 'Feedback Survey',
-    description: 'Collect valuable customer insights',
+    description: 'Get real, measurable feedback on anything you want',
+    subheadline: 'Find out how much your customers love you easily with a feedback survey',
     icon: 'star',
-    texts: {
-      en: { title: 'How was your experience?', subtitle: 'Help us improve', cta: 'Share Feedback', rating: 'Rate us' },
-      hu: { title: 'Milyen volt a tapasztalatod?', subtitle: 'Segíts nekünk fejlődni', cta: 'Visszajelzés', rating: 'Értékelj minket' },
-      de: { title: 'Wie war Ihre Erfahrung?', subtitle: 'Helfen Sie uns', cta: 'Feedback geben', rating: 'Bewerten Sie uns' },
-      fr: { title: 'Comment était votre expérience?', subtitle: 'Aidez-nous à améliorer', cta: 'Donner un avis', rating: 'Notez-nous' },
-      es: { title: '¿Cómo fue tu experiencia?', subtitle: 'Ayúdanos a mejorar', cta: 'Dar opinión', rating: 'Califícanos' }
-    }
-  },
-  {
-    id: 'free-shipping',
-    title: 'Free Shipping Bar',
-    description: 'Increase average order value',
-    icon: 'truck',
-    texts: {
-      en: { title: 'Free shipping', subtitle: 'on orders over $50', progress: 'Add $25 more for free shipping!' },
-      hu: { title: 'Ingyenes szállítás', subtitle: '15.000 Ft feletti rendelésnél', progress: 'Még 5.000 Ft az ingyenes szállításhoz!' },
-      de: { title: 'Kostenloser Versand', subtitle: 'ab 50€ Bestellwert', progress: 'Noch 25€ für kostenlosen Versand!' },
-      fr: { title: 'Livraison gratuite', subtitle: 'dès 50€ d\'achat', progress: 'Plus que 25€ pour la livraison gratuite!' },
-      es: { title: 'Envío gratis', subtitle: 'en pedidos de más de 50€', progress: '¡Añade 25€ más para envío gratis!' }
-    }
-  },
-  {
-    id: 'spin-wheel',
-    title: 'Spin to Win',
-    description: 'Gamify the shopping experience',
-    icon: 'wheel',
-    texts: {
-      en: { title: 'Spin to Win!', subtitle: 'Try your luck for exclusive prizes', cta: 'Spin Now', prizes: ['10% OFF', '15% OFF', 'Free Gift', '20% OFF'] },
-      hu: { title: 'Pörgesd meg!', subtitle: 'Nyerj exkluzív ajándékokat', cta: 'Pörgetés', prizes: ['10% KEDV.', '15% KEDV.', 'Ajándék', '20% KEDV.'] },
-      de: { title: 'Dreh und Gewinn!', subtitle: 'Gewinne tolle Preise', cta: 'Jetzt drehen', prizes: ['10% RABATT', '15% RABATT', 'Geschenk', '20% RABATT'] },
-      fr: { title: 'Tournez et gagnez!', subtitle: 'Tentez votre chance', cta: 'Tourner', prizes: ['10% OFF', '15% OFF', 'Cadeau', '20% OFF'] },
-      es: { title: '¡Gira y gana!', subtitle: 'Prueba tu suerte', cta: 'Girar', prizes: ['10% DESC.', '15% DESC.', 'Regalo', '20% DESC.'] }
-    }
+    image: '/FeedbackSurvey.png',
+    mobileImage: '/FeedbackSurvey_mobile.png'
   }
 ]
+
+// Icon mapping for use cases
+const iconMap = {
+  mail: Mail,
+  cart: ShoppingCart,
+  gift: Gift,
+  star: Star,
+  truck: Truck,
+  wheel: CircleDot,
+  compass: Compass
+}
 
 const analyzingMessages = {
   logo: 'Looking for logo...',
@@ -2530,6 +1902,11 @@ onMounted(() => {
     submitted.value = true
     showAnalysisContent.value = false
     showRecommendationV4.value = true
+  } else if (props.startAtRecommendationV5) {
+    // Start directly at recommendation v5
+    submitted.value = true
+    showAnalysisContent.value = false
+    showRecommendationV5.value = true
   } else if (props.startAtQuicktune) {
     // Start directly at quicktune
     submitted.value = true
@@ -2695,5 +2072,18 @@ defineExpose({
 .deck-card-up-leave-to {
   opacity: 0;
   transform: translateY(60px) rotate(2deg) scale(0.98);
+}
+
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(0) translateX(-50%);
+  }
+  50% {
+    transform: translateY(-10px) translateX(-50%);
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2s ease-in-out infinite;
 }
 </style>

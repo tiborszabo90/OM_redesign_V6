@@ -125,7 +125,7 @@
               @click="recommendationDropdownOpen = !recommendationDropdownOpen"
               :class="[
                 'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
-                ['wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4'].includes(currentView)
+                ['wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5'].includes(currentView)
                   ? 'bg-[#ED5A29] text-white'
                   : 'bg-[#505763] hover:bg-[#8F97A4]'
               ]"
@@ -181,6 +181,17 @@
                   ]"
                 >
                   V4
+                </button>
+                <button
+                  @click="selectRecommendation('wizard-recommendation-v5')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'wizard-recommendation-v5'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  V5
                 </button>
               </div>
             </transition>
