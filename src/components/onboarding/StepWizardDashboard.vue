@@ -785,46 +785,48 @@
         <!-- Two-column intro section -->
         <div class="max-w-7xl w-full flex gap-12 items-center mx-auto mb-20">
           <!-- Left column (60%) -->
-          <div class="w-[60%] flex flex-col">
-            <!-- URL Chip -->
-            <div class="mb-8">
-              <span class="inline-block px-6 py-3 bg-[#FEF3EF] text-[#ED5A29] text-base rounded-full border border-[#FECAB5]">
-                www.theoodie.com
-              </span>
-            </div>
-
-            <!-- Main Heading -->
-            <h1 class="text-6xl font-bold mb-12 leading-tight">
-              <span class="text-[#23262A]">Optimization Plan for</span><br>
-              <span class="text-[#ED5A29]">The Oodie</span>
-            </h1>
-
-            <!-- Cards Container -->
-            <div class="flex gap-6">
-              <!-- Objective Card -->
-              <div class="flex-1 bg-[#F7F7F8] rounded-2xl p-8">
-                <div class="flex items-center gap-3 mb-6">
-                  <div class="w-12 h-12 bg-[#FEF3EF] rounded-xl flex items-center justify-center">
-                    <Target :size="24" class="text-[#ED5A29]" />
-                  </div>
-                  <h2 class="text-2xl font-bold text-[#23262A]">Objective</h2>
-                </div>
-                <p class="text-base text-[#505763] leading-relaxed">
-                  The primary goal is to identify effective conversion optimization strategies to boost revenue for The Oodie.
-                </p>
+          <div class="w-[60%]">
+            <div class="bg-[#F7F7F8] rounded-2xl p-12">
+              <!-- URL Chip -->
+              <div class="mb-8">
+                <span class="inline-block px-6 py-3 bg-[#FEF3EF] text-[#ED5A29] text-base rounded-full border border-[#FECAB5]">
+                  www.theoodie.com
+                </span>
               </div>
 
-              <!-- Solutions Card -->
-              <div class="flex-1 bg-[#F7F7F8] rounded-2xl p-8">
-                <div class="flex items-center gap-3 mb-6">
-                  <div class="w-12 h-12 bg-[#FEF3EF] rounded-xl flex items-center justify-center">
-                    <Lightbulb :size="24" class="text-[#ED5A29]" />
+              <!-- Main Heading -->
+              <h1 class="text-6xl font-bold mb-12 leading-tight">
+                <span class="text-[#23262A]">Optimization Plan for</span><br>
+                <span class="text-[#ED5A29]">The Oodie</span>
+              </h1>
+
+              <!-- Cards Container -->
+              <div class="flex gap-6">
+                <!-- Objective Card -->
+                <div class="flex-1 bg-white rounded-2xl p-8">
+                  <div class="flex items-center gap-3 mb-6">
+                    <div class="w-12 h-12 bg-[#FEF3EF] rounded-xl flex items-center justify-center">
+                      <Target :size="24" class="text-[#ED5A29]" />
+                    </div>
+                    <h2 class="text-2xl font-bold text-[#23262A]">Objective</h2>
                   </div>
-                  <h2 class="text-2xl font-bold text-[#23262A]">Solutions</h2>
+                  <p class="text-base text-[#505763] leading-relaxed">
+                    The primary goal is to identify effective conversion optimization strategies to boost revenue for The Oodie.
+                  </p>
                 </div>
-                <p class="text-base text-[#505763] leading-relaxed">
-                  Following a thorough website analysis, we've developed <span class="font-semibold text-[#ED5A29]">6 tailored popup strategies</span> and <span class="font-semibold text-[#ED5A29]">2 site optimization recommendations</span> aimed at enhancing user engagement and increasing conversions.
-                </p>
+
+                <!-- Solutions Card -->
+                <div class="flex-1 bg-white rounded-2xl p-8">
+                  <div class="flex items-center gap-3 mb-6">
+                    <div class="w-12 h-12 bg-[#FEF3EF] rounded-xl flex items-center justify-center">
+                      <Lightbulb :size="24" class="text-[#ED5A29]" />
+                    </div>
+                    <h2 class="text-2xl font-bold text-[#23262A]">Solutions</h2>
+                  </div>
+                  <p class="text-base text-[#505763] leading-relaxed">
+                    Following a thorough website analysis, we've developed <span class="font-semibold text-[#ED5A29]">6 tailored popup strategies</span> and <span class="font-semibold text-[#ED5A29]">2 site optimization recommendations</span> aimed at enhancing user engagement and increasing conversions.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
