@@ -844,12 +844,6 @@
 
         <!-- Use cases section -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-          <!-- Header -->
-          <div class="text-center mb-10 lg:mb-14">
-            <h2 class="text-2xl sm:text-3xl font-semibold text-om-gray-700 mb-2">Our recommended campaigns</h2>
-            <p class="text-om-gray-500">We've put together the ultimate popup lineup for your site.<br>Pick the ones you like, or launch them all to engage every customer segment.</p>
-          </div>
-
           <!-- Use cases list - single column -->
           <div class="flex flex-col gap-6 lg:gap-8 max-w-4xl mx-auto">
             <div
