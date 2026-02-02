@@ -219,9 +219,9 @@
         </div>
 
         <!-- Use cases section -->
-        <div class="max-w-[1520px] mx-auto px-6">
+        <div class="max-w-[1520px] mx-auto px-6 mt-6">
           <!-- Use cases list - single column -->
-          <div class="flex flex-col gap-6">
+          <div class="flex flex-col gap-12">
             <div
               v-for="useCase in useCases"
               :key="useCase.id"
@@ -453,20 +453,25 @@
         </div>
 
         <!-- Use cases section -->
-        <div class="max-w-[1520px] mx-auto px-6">
-          <!-- Use cases list - single column -->
-          <div class="flex flex-col gap-6">
+        <div class="bg-om-gray-50 py-12 mx-6 rounded-3xl">
+          <div class="max-w-[1520px] mx-auto px-6">
+            <div class="flex items-center gap-6 mb-10">
+              <h2 class="text-base font-semibold uppercase text-[#23262A] whitespace-nowrap tracking-wide">Our recommended popup campaigns</h2>
+              <div class="flex-1 h-px bg-om-gray-200"></div>
+            </div>
+            <!-- Use cases list - single column -->
+            <div class="flex flex-col gap-12">
             <div
               v-for="useCase in useCases"
               :key="useCase.id"
-              class="bg-om-gray-50 rounded-2xl p-5 lg:p-6"
+              class="bg-white rounded-2xl p-5 lg:p-6 shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)]"
             >
               <!-- Three column layout: Text | Desktop | Mobile -->
-              <div class="flex gap-4 items-center">
+              <div class="flex gap-8 items-center">
                 <!-- Left column: Text and button -->
-                <div class="flex-1 flex flex-col justify-center pl-10 lg:pl-9">
+                <div class="flex-1 flex flex-col justify-center pl-6">
                   <div class="flex items-center gap-2 mb-2">
-                    <div class="w-8 h-8 bg-om-gray-200 rounded-lg flex items-center justify-center">
+                    <div class="w-8 h-8 bg-om-gray-100 rounded-lg flex items-center justify-center">
                       <component :is="iconMap[useCase.icon]" :size="18" class="text-om-gray-500" />
                     </div>
                     <span class="text-sm font-medium text-om-gray-500 uppercase">{{ useCase.title }}</span>
@@ -611,6 +616,7 @@
           </div>
         </div>
       </div>
+    </div>
     </transition>
 
 
