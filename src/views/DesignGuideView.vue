@@ -488,8 +488,8 @@
 
       <!-- Icons Section -->
       <section class="mb-12">
-        <h2 class="text-xl font-semibold text-om-gray-700 mb-6">Icons (Unicons)</h2>
-        <p class="text-sm text-om-gray-500 mb-4">All icons use the Unicons library with filled style.</p>
+        <h2 class="text-xl font-semibold text-om-gray-700 mb-6">Icons (Lucide)</h2>
+        <p class="text-sm text-om-gray-500 mb-4">All icons use the Lucide icon library.</p>
         <div class="grid grid-cols-6 md:grid-cols-12 gap-4">
           <div class="flex flex-col items-center gap-2">
             <div class="w-10 h-10 rounded-xl bg-om-gray-100 flex items-center justify-center text-om-gray-600">
