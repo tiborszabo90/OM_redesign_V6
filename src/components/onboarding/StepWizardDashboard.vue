@@ -845,7 +845,7 @@
         <!-- Use cases section -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           <!-- Use cases list - single column -->
-          <div class="flex flex-col gap-6 lg:gap-8 max-w-4xl mx-auto">
+          <div class="flex flex-col gap-6 lg:gap-8 max-w-[1140px] mx-auto">
             <div
               v-for="useCase in useCases"
               :key="useCase.id"
