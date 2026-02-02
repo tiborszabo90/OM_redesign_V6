@@ -120,6 +120,63 @@
             </div>
           </div>
         </div>
+
+        <!-- Green Palette -->
+        <div class="mb-8">
+          <h3 class="text-base font-medium text-om-gray-600 mb-4">Complementary - Green</h3>
+          <div class="grid grid-cols-5 md:grid-cols-10 gap-2">
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-[#EEFBF7] border border-om-gray-200"></div>
+              <p class="text-xs text-om-gray-500">50</p>
+              <p class="text-xs text-om-gray-400 font-mono">#EEFBF7</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-[#D6F5EC] border border-om-gray-200"></div>
+              <p class="text-xs text-om-gray-500">100</p>
+              <p class="text-xs text-om-gray-400 font-mono">#D6F5EC</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-[#B7EFDD]"></div>
+              <p class="text-xs text-om-gray-500">200</p>
+              <p class="text-xs text-om-gray-400 font-mono">#B7EFDD</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-[#7CE3BE]"></div>
+              <p class="text-xs text-om-gray-500">300</p>
+              <p class="text-xs text-om-gray-400 font-mono">#7CE3BE</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-[#4BD9A8]"></div>
+              <p class="text-xs text-om-gray-500">400</p>
+              <p class="text-xs text-om-gray-400 font-mono">#4BD9A8</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-[#2CC896]"></div>
+              <p class="text-xs text-om-gray-500 font-semibold">500</p>
+              <p class="text-xs text-om-gray-400 font-mono">#2CC896</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-[#239E77]"></div>
+              <p class="text-xs text-om-gray-500">600</p>
+              <p class="text-xs text-om-gray-400 font-mono">#239E77</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-[#1A7457]"></div>
+              <p class="text-xs text-om-gray-500">700</p>
+              <p class="text-xs text-om-gray-400 font-mono">#1A7457</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-[#155A45]"></div>
+              <p class="text-xs text-om-gray-500">800</p>
+              <p class="text-xs text-om-gray-400 font-mono">#155A45</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-[#104A38]"></div>
+              <p class="text-xs text-om-gray-500">900</p>
+              <p class="text-xs text-om-gray-400 font-mono">#104A38</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- Typography Section -->
@@ -191,15 +248,72 @@
           <div>
             <h3 class="text-base font-medium text-om-gray-600 mb-4">Ghost</h3>
             <div class="flex flex-wrap gap-4">
-              <button class="px-6 py-2.5 bg-transparent text-om-gray-500 rounded-xl hover:bg-om-gray-100 hover:text-om-gray-600 transition-all cursor-pointer">
+              <button class="px-6 py-2.5 bg-transparent text-om-gray-700 rounded-xl hover:bg-om-gray-100 hover:text-om-gray-600 transition-all cursor-pointer">
                 Ghost Button
               </button>
-              <button class="w-10 h-10 flex items-center justify-center bg-transparent text-om-gray-500 rounded-lg hover:bg-om-gray-100 hover:text-om-gray-600 transition-all cursor-pointer">
+              <button class="px-6 py-2.5 bg-om-orange-100 text-om-orange-500 rounded-xl transition-all cursor-pointer">
+                Active State
+              </button>
+              <button class="w-10 h-10 flex items-center justify-center bg-transparent text-om-gray-700 rounded-lg hover:bg-om-gray-100 hover:text-om-gray-600 transition-all cursor-pointer">
                 <Paperclip :size="20" />
               </button>
               <button class="px-6 py-2.5 bg-om-gray-100 text-om-gray-400 rounded-xl cursor-not-allowed" disabled>
                 Disabled
               </button>
+            </div>
+          </div>
+
+          <!-- Switch -->
+          <div>
+            <h3 class="text-base font-medium text-om-gray-600 mb-4">Switch</h3>
+            <div class="flex flex-wrap gap-4 items-center">
+              <!-- Standalone Switch -->
+              <button
+                @click="switchStandalone = !switchStandalone"
+                :class="['w-11 h-6 rounded-full relative cursor-pointer transition-colors', switchStandalone ? 'bg-[#2CC896]' : 'bg-om-gray-300']"
+              >
+                <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all', switchStandalone ? 'right-1' : 'left-1']"></div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Checkbox -->
+          <div>
+            <h3 class="text-base font-medium text-om-gray-600 mb-4">Checkbox</h3>
+            <div class="flex flex-wrap gap-4 items-center">
+              <!-- Checked -->
+              <button
+                @click="checkbox1 = !checkbox1"
+                :class="[
+                  'w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-all',
+                  checkbox1
+                    ? 'bg-om-orange-500 border-om-orange-500'
+                    : 'bg-white border-om-gray-300 hover:border-om-orange-500'
+                ]"
+              >
+                <Check v-if="checkbox1" :size="14" class="text-white" stroke-width="3" />
+              </button>
+
+              <!-- Unchecked -->
+              <button
+                @click="checkbox2 = !checkbox2"
+                :class="[
+                  'w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-all',
+                  checkbox2
+                    ? 'bg-om-orange-500 border-om-orange-500'
+                    : 'bg-white border-om-gray-300 hover:border-om-orange-500'
+                ]"
+              >
+                <Check v-if="checkbox2" :size="14" class="text-white" stroke-width="3" />
+              </button>
+
+              <!-- Disabled Checked -->
+              <div class="w-5 h-5 rounded border-2 bg-om-gray-100 border-om-gray-200 flex items-center justify-center cursor-not-allowed">
+                <Check :size="14" class="text-om-gray-400" stroke-width="3" />
+              </div>
+
+              <!-- Disabled Unchecked -->
+              <div class="w-5 h-5 rounded border-2 bg-om-gray-100 border-om-gray-200 cursor-not-allowed"></div>
             </div>
           </div>
 
@@ -281,6 +395,25 @@
               </button>
             </div>
           </div>
+
+          <!-- Small Text-only Chips -->
+          <div>
+            <h3 class="text-base font-medium text-om-gray-600 mb-4">Small Text-only Chips</h3>
+            <div class="flex flex-wrap gap-2">
+              <button class="chip px-3 py-1.5 rounded-lg bg-om-orange-50 border-2 border-om-orange-500 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:scale-[1.02]">
+                Popup
+              </button>
+              <button class="chip px-3 py-1.5 rounded-lg bg-white border border-om-gray-200 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:scale-[1.02]">
+                A/B Test
+              </button>
+              <button class="chip px-3 py-1.5 rounded-lg bg-white border border-om-gray-200 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:scale-[1.02]">
+                Smart A/B
+              </button>
+              <button class="chip px-3 py-1.5 rounded-lg bg-white border border-om-gray-200 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:scale-[1.02]">
+                Active
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -305,54 +438,111 @@
             ></textarea>
           </div>
 
-          <!-- Pill single select dropdown -->
+          <!-- Single select dropdown with icon -->
           <div>
-            <label class="block text-sm font-medium text-om-gray-700 mb-2">Pill single select dropdown</label>
-            <div class="relative w-[240px]" ref="dropdownRef">
-              <button
-                @click="isDropdownOpen = !isDropdownOpen"
-                class="w-full pl-12 pr-8 py-2 border border-[#D5D8DD] rounded-full text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none focus:border-[#E3E5E8] active:border-[#E3E5E8] cursor-pointer bg-white text-left hover:border-[#E3E5E8] hover:bg-[#FAFAFA] transition-colors"
-                :class="{ 'border-[#E3E5E8] bg-[#FAFAFA]': isDropdownOpen }"
-                style="box-shadow: none !important; outline: none !important;"
-              >
-                {{ selectedOption }}
-              </button>
-              <div class="absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full overflow-hidden bg-om-orange-500 flex items-center justify-center pointer-events-none">
-                <span class="text-white text-xs font-bold">O</span>
-              </div>
-              <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                <ChevronDown
-                  :size="20"
-                  class="text-om-gray-600 transition-transform"
-                  :class="{ 'rotate-180': isDropdownOpen }"
-                />
-              </div>
-
-              <!-- Dropdown menu -->
-              <transition
-                enter-active-class="transition ease-out duration-100"
-                enter-from-class="opacity-0 scale-95"
-                enter-to-class="opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
-                leave-from-class="opacity-100 scale-100"
-                leave-to-class="opacity-0 scale-95"
-              >
-                <div
-                  v-if="isDropdownOpen"
-                  class="absolute z-10 w-full mt-3 bg-white border border-[#D5D8DD] rounded-xl shadow-lg overflow-hidden"
-                >
+            <label class="block text-sm font-medium text-om-gray-700 mb-2">Single select dropdown with icon</label>
+            <div class="flex gap-6">
+              <!-- With Logo -->
+              <div>
+                <label class="block text-xs font-medium text-om-gray-500 mb-2">With logo</label>
+                <div class="relative w-[240px]" ref="dropdownRef">
                   <button
-                    v-for="option in dropdownOptions"
-                    :key="option"
-                    @click="selectOption(option)"
-                    class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F7F7F8] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F7F7F8]"
-                    :class="{ 'bg-[#F1F2F4] font-medium': selectedOption === option }"
+                    @click="isDropdownOpen = !isDropdownOpen"
+                    class="w-full pl-9 pr-8 py-2 border border-[#D5D8DD] rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none focus:border-[#E3E5E8] active:border-[#E3E5E8] cursor-pointer bg-white text-left hover:border-[#E3E5E8] hover:bg-[#FAFAFA] transition-colors"
+                    :class="{ 'border-[#E3E5E8] bg-[#FAFAFA]': isDropdownOpen }"
                     style="box-shadow: none !important; outline: none !important;"
                   >
-                    {{ option }}
+                    {{ selectedOption }}
                   </button>
+                  <div class="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full overflow-hidden pointer-events-none">
+                    <img src="/optimonk_logo.svg" alt="Logo" class="w-full h-full object-cover" />
+                  </div>
+                  <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                    <ChevronDown
+                      :size="20"
+                      class="text-om-gray-600 transition-transform"
+                      :class="{ 'rotate-180': isDropdownOpen }"
+                    />
+                  </div>
+
+                  <!-- Dropdown menu -->
+                  <transition
+                    enter-active-class="transition ease-out duration-100"
+                    enter-from-class="opacity-0 scale-95"
+                    enter-to-class="opacity-100 scale-100"
+                    leave-active-class="transition ease-in duration-75"
+                    leave-from-class="opacity-100 scale-100"
+                    leave-to-class="opacity-0 scale-95"
+                  >
+                    <div
+                      v-if="isDropdownOpen"
+                      class="absolute z-10 w-full mt-3 bg-white border border-[#D5D8DD] rounded-xl shadow-lg overflow-hidden"
+                    >
+                      <button
+                        v-for="option in dropdownOptions"
+                        :key="option"
+                        @click="selectOption(option)"
+                        class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F7F7F8] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F7F7F8]"
+                        :class="{ 'bg-[#F1F2F4] font-medium': selectedOption === option }"
+                        style="box-shadow: none !important; outline: none !important;"
+                      >
+                        {{ option }}
+                      </button>
+                    </div>
+                  </transition>
                 </div>
-              </transition>
+              </div>
+
+              <!-- With Icon -->
+              <div>
+                <label class="block text-xs font-medium text-om-gray-500 mb-2">With icon</label>
+                <div class="relative w-[240px]" ref="dropdownIconRef">
+                  <button
+                    @click="isDropdownIconOpen = !isDropdownIconOpen"
+                    class="w-full pl-9 pr-8 py-2 border border-[#D5D8DD] rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none focus:border-[#E3E5E8] active:border-[#E3E5E8] cursor-pointer bg-white text-left hover:border-[#E3E5E8] hover:bg-[#FAFAFA] transition-colors"
+                    :class="{ 'border-[#E3E5E8] bg-[#FAFAFA]': isDropdownIconOpen }"
+                    style="box-shadow: none !important; outline: none !important;"
+                  >
+                    {{ selectedIconOption }}
+                  </button>
+                  <div class="absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+                    <User :size="20" class="text-om-gray-600" />
+                  </div>
+                  <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                    <ChevronDown
+                      :size="20"
+                      class="text-om-gray-600 transition-transform"
+                      :class="{ 'rotate-180': isDropdownIconOpen }"
+                    />
+                  </div>
+
+                  <!-- Dropdown menu -->
+                  <transition
+                    enter-active-class="transition ease-out duration-100"
+                    enter-from-class="opacity-0 scale-95"
+                    enter-to-class="opacity-100 scale-100"
+                    leave-active-class="transition ease-in duration-75"
+                    leave-from-class="opacity-100 scale-100"
+                    leave-to-class="opacity-0 scale-95"
+                  >
+                    <div
+                      v-if="isDropdownIconOpen"
+                      class="absolute z-10 w-full mt-3 bg-white border border-[#D5D8DD] rounded-xl shadow-lg overflow-hidden"
+                    >
+                      <button
+                        v-for="option in dropdownIconOptions"
+                        :key="option"
+                        @click="selectIconOption(option)"
+                        class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F7F7F8] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F7F7F8]"
+                        :class="{ 'bg-[#F1F2F4] font-medium': selectedIconOption === option }"
+                        style="box-shadow: none !important; outline: none !important;"
+                      >
+                        {{ option }}
+                      </button>
+                    </div>
+                  </transition>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -606,6 +796,17 @@ const selectOption = (option) => {
   isDropdownOpen.value = false
 }
 
+// Pill dropdown with icon
+const dropdownIconRef = ref(null)
+const isDropdownIconOpen = ref(false)
+const selectedIconOption = ref('Option 1')
+const dropdownIconOptions = ['Option 1', 'Option 2', 'Option 3', 'Option 4']
+
+const selectIconOption = (option) => {
+  selectedIconOption.value = option
+  isDropdownIconOpen.value = false
+}
+
 // Single select dropdown
 const singleDropdownRef = ref(null)
 const isSingleDropdownOpen = ref(false)
@@ -622,6 +823,16 @@ const selectSingleOption = (option) => {
   singleSelectedOption.value = option
   isSingleDropdownOpen.value = false
 }
+
+// Switch states
+const switchWithLabel = ref(true)
+const switchWithLabelInactive = ref(false)
+const switchStandalone = ref(true)
+const switchStandaloneInactive = ref(false)
+
+// Checkbox states
+const checkbox1 = ref(true)
+const checkbox2 = ref(false)
 
 // Single select dropdown small
 const smallDropdownRef = ref(null)

@@ -12,7 +12,7 @@
         <button
           v-for="item in menuItems"
           :key="item.id"
-          @click="activeItem = item.id"
+          @click="handleMenuClick(item.id)"
           :class="[
             'w-full py-2 flex flex-col items-center gap-0.5 transition-colors cursor-pointer rounded-xl',
             activeItem === item.id
@@ -41,8 +41,8 @@
     </aside>
 
     <!-- Main Content Area -->
-    <main class="w-full ml-19 flex items-center justify-center overflow-hidden">
-      <div class="w-full px-12 -mt-25">
+    <main class="w-full ml-19 overflow-y-auto">
+      <div class="w-full px-12 py-8">
         <slot name="content"></slot>
       </div>
     </main>
@@ -50,12 +50,29 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Home, LayoutGrid, Users, TrendingUp, BookOpen, Settings, Bell } from 'lucide-vue-next'
 
-defineEmits(['logo-click'])
+const props = defineProps({
+  activeMenuItem: {
+    type: String,
+    default: 'home'
+  }
+})
 
-const activeItem = ref('home')
+const emit = defineEmits(['logo-click', 'menu-click'])
+
+const activeItem = ref(props.activeMenuItem)
+
+// Watch for prop changes to update activeItem
+watch(() => props.activeMenuItem, (newValue) => {
+  activeItem.value = newValue
+})
+
+const handleMenuClick = (itemId) => {
+  activeItem.value = itemId
+  emit('menu-click', itemId)
+}
 
 const menuItems = [
   {

@@ -249,6 +249,30 @@
           Home
         </button>
 
+        <button
+          @click="$emit('navigate', 'campaigns2')"
+          :class="[
+            'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+            currentView === 'campaigns2'
+              ? 'bg-[#ED5A29] text-white'
+              : 'bg-[#505763] hover:bg-[#8F97A4]'
+          ]"
+        >
+          Campaigns
+        </button>
+
+        <button
+          @click="$emit('navigate', 'campaigns')"
+          :class="[
+            'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+            currentView === 'campaigns'
+              ? 'bg-[#ED5A29] text-white'
+              : 'bg-[#505763] hover:bg-[#8F97A4]'
+          ]"
+        >
+          Campaign Page
+        </button>
+
         <template v-if="createdTasks.length > 0">
           <span class="text-[#505763] mx-1">|</span>
 

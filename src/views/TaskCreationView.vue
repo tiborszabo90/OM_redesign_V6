@@ -1,5 +1,5 @@
 <template>
-  <DashboardLayout @logo-click="handleLogoClick">
+  <DashboardLayout @logo-click="handleLogoClick" @menu-click="$emit('menu-click', $event)">
     <template #content>
       <StepDashboard
         ref="stepDashboardRef"
@@ -29,7 +29,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['task-created'])
+const emit = defineEmits(['task-created', 'menu-click'])
 
 const stepDashboardRef = ref(null)
 const formData = ref({})

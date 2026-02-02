@@ -8,6 +8,7 @@ import WizardAnalysisView from './views/WizardAnalysisView.vue'
 import DesignGuideView from './views/DesignGuideView.vue'
 import WizardView from './views/WizardView.vue'
 import CampaignsView from './views/CampaignsView.vue'
+import Campaigns2View from './views/Campaigns2View.vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
 
 const currentView = ref('dev-start')
@@ -245,7 +246,7 @@ const handleGoDesignGuide = () => {
 
 const handleMenuClick = (menuId) => {
   if (menuId === 'campaigns') {
-    currentView.value = 'campaigns'
+    currentView.value = 'campaigns2'
   } else if (menuId === 'home') {
     currentView.value = 'task-creation'
   }
@@ -265,7 +266,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="min-h-screen-safe">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'campaigns'].includes(currentView)"
+      v-if="currentView && !['dev-start', 'design-guide', 'wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'campaigns', 'campaigns2'].includes(currentView)"
       class="fixed top-8 left-8 z-50"
     >
       <img
@@ -308,6 +309,11 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       <CampaignsView
         v-else-if="currentView === 'campaigns'"
         @menu-click="handleMenuClick"
+      />
+      <Campaigns2View
+        v-else-if="currentView === 'campaigns2'"
+        @menu-click="handleMenuClick"
+        @navigate-to-campaign="currentView = 'campaigns'"
       />
       <WizardAnalysisView
         v-else-if="currentView === 'wizard-analysis'"

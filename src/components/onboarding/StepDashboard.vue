@@ -518,13 +518,13 @@
         <div class="relative w-[240px]" ref="dropdownRef">
           <button
             @click="isDropdownOpen = !isDropdownOpen"
-            class="w-full pl-12 pr-8 py-2 border border-[#D5D8DD] rounded-full text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none focus:border-[#E3E5E8] active:border-[#E3E5E8] cursor-pointer bg-white text-left hover:border-[#E3E5E8] hover:bg-[#FAFAFA] transition-colors"
+            class="w-full pl-9 pr-8 py-2 border border-[#D5D8DD] rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none focus:border-[#E3E5E8] active:border-[#E3E5E8] cursor-pointer bg-white text-left hover:border-[#E3E5E8] hover:bg-[#FAFAFA] transition-colors"
             :class="{ 'border-[#E3E5E8] bg-[#FAFAFA]': isDropdownOpen }"
             style="box-shadow: none !important; outline: none !important;"
           >
             {{ selectedDomain }}
           </button>
-          <div class="absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full overflow-hidden bg-white border border-[#E3E5E8] flex items-center justify-center pointer-events-none">
+          <div class="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full overflow-hidden pointer-events-none">
             <img src="/telekom.png" alt="Telekom" class="w-full h-full object-cover" />
           </div>
           <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
