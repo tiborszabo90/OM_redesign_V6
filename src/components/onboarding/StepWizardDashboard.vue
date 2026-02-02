@@ -781,12 +781,12 @@
 
     <!-- Recommendation screen V4 -->
     <transition v-else-if="showRecommendationV4" name="fade" appear>
-      <div class="min-h-screen-safe bg-white overflow-y-auto py-12 px-8">
+      <div class="min-h-screen-safe bg-white overflow-y-auto">
         <!-- Two-column intro section -->
-        <div class="max-w-7xl w-full flex gap-12 items-center mx-auto mb-20">
+        <div class="w-full flex gap-12 items-stretch px-12 h-screen-safe">
           <!-- Left column (60%) -->
-          <div class="w-[60%]">
-            <div class="bg-[#F7F7F8] rounded-2xl p-12">
+          <div class="w-[60%] flex items-center">
+            <div class="bg-[#F7F7F8] rounded-2xl p-12 w-full">
               <!-- URL Chip -->
               <div class="mb-8">
                 <span class="inline-block px-6 py-3 bg-[#FEF3EF] text-[#ED5A29] text-base rounded-full border border-[#FECAB5]">
@@ -832,8 +832,8 @@
           </div>
 
           <!-- Right column (40%) -->
-          <div class="w-[40%]">
-            <div class="aspect-square bg-[#F7F7F8] rounded-2xl overflow-hidden flex items-center justify-center">
+          <div class="w-[40%] flex items-center">
+            <div class="w-full h-full bg-[#F7F7F8] rounded-2xl overflow-hidden flex items-center justify-center">
               <!-- Placeholder image -->
               <img
                 src="https://images.unsplash.com/photo-1512314889357-e157c22f938d?w=600&h=600&fit=crop"
