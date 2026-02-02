@@ -836,8 +836,8 @@
             <div class="w-full h-full bg-[#F7F7F8] rounded-2xl overflow-hidden flex items-center justify-center">
               <!-- Placeholder image -->
               <img
-                src="https://images.unsplash.com/photo-1512314889357-e157c22f938d?w=600&h=600&fit=crop"
-                alt="Optimization illustration"
+                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=800&fit=crop"
+                alt="Technology and analytics"
                 class="w-full h-full object-cover"
               />
             </div>
