@@ -8,7 +8,11 @@ import WizardAnalysisView from './views/WizardAnalysisView.vue'
 import DesignGuideView from './views/DesignGuideView.vue'
 import WizardView from './views/WizardView.vue'
 import CampaignsView from './views/CampaignsView.vue'
-import Campaigns2View from './views/Campaigns2View.vue'
+import CampaignsV1View from './views/CampaignsV1View.vue'
+import CampaignsV2View from './views/CampaignsV2View.vue'
+import CampaignsV3View from './views/CampaignsV3View.vue'
+import CampaignPageV1View from './views/CampaignPageV1View.vue'
+import CampaignPageV2View from './views/CampaignPageV2View.vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
 
 const currentView = ref('dev-start')
@@ -138,6 +142,12 @@ const handleDevNavigate = (view) => {
     setTimeout(() => {
       currentView.value = view
     }, 50)
+  } else if (view === 'campaigns-v1' || view === 'campaigns-v2' || view === 'campaigns-v3') {
+    // Campaigns views - go directly to the selected version
+    currentView.value = view
+  } else if (view === 'campaign-page-v1' || view === 'campaign-page-v2') {
+    // Campaign Page views - go directly to the selected version
+    currentView.value = view
   } else if (view === 'registration' || view === 'onboarding' || view === 'wizard') {
     // Navigating to flow views - ensure flow is selected
     flowSelected.value = true
@@ -246,7 +256,7 @@ const handleGoDesignGuide = () => {
 
 const handleMenuClick = (menuId) => {
   if (menuId === 'campaigns') {
-    currentView.value = 'campaigns2'
+    currentView.value = 'campaigns-v1'
   } else if (menuId === 'home') {
     currentView.value = 'task-creation'
   }
@@ -266,7 +276,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="min-h-screen-safe">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'campaigns', 'campaigns2'].includes(currentView)"
+      v-if="currentView && !['dev-start', 'design-guide', 'wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'campaigns', 'campaigns-v1', 'campaigns-v2', 'campaigns-v3', 'campaign-page-v1', 'campaign-page-v2'].includes(currentView)"
       class="fixed top-8 left-8 z-50"
     >
       <img
@@ -310,10 +320,28 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         v-else-if="currentView === 'campaigns'"
         @menu-click="handleMenuClick"
       />
-      <Campaigns2View
-        v-else-if="currentView === 'campaigns2'"
+      <CampaignsV1View
+        v-else-if="currentView === 'campaigns-v1'"
         @menu-click="handleMenuClick"
         @navigate-to-campaign="currentView = 'campaigns'"
+      />
+      <CampaignsV2View
+        v-else-if="currentView === 'campaigns-v2'"
+        @menu-click="handleMenuClick"
+        @navigate-to-campaign="currentView = 'campaigns'"
+      />
+      <CampaignsV3View
+        v-else-if="currentView === 'campaigns-v3'"
+        @menu-click="handleMenuClick"
+        @navigate-to-campaign="currentView = 'campaigns'"
+      />
+      <CampaignPageV1View
+        v-else-if="currentView === 'campaign-page-v1'"
+        @menu-click="handleMenuClick"
+      />
+      <CampaignPageV2View
+        v-else-if="currentView === 'campaign-page-v2'"
+        @menu-click="handleMenuClick"
       />
       <WizardAnalysisView
         v-else-if="currentView === 'wizard-analysis'"

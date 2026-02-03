@@ -1,7 +1,10 @@
 <template>
-  <div class="h-screen-safe bg-om-gray-50 flex overflow-hidden relative">
+  <div class="h-screen-safe flex overflow-hidden relative" :style="{ backgroundColor: backgroundColor }">
     <!-- Left Sidebar - Always visible -->
-    <aside class="fixed left-0 top-0 h-screen-safe w-19 bg-white border-r border-[#E5E7EB] flex flex-col items-center pt-5 pb-4 z-30">
+    <aside :class="[
+      'fixed left-0 top-0 h-screen-safe w-19 bg-white flex flex-col items-center pt-6 pb-4 z-30',
+      { 'border-r border-[#E5E7EB]': !hideSidebarBorder }
+    ]">
       <!-- Logo -->
       <button @click="$emit('logo-click')" class="w-7 h-7 mb-5 flex items-center justify-center">
         <img src="/optimonk_logo.svg" alt="OptiMonk" class="w-full h-full" />
@@ -42,7 +45,7 @@
 
     <!-- Main Content Area -->
     <main class="w-full ml-19 overflow-y-auto">
-      <div class="w-full px-12 py-8">
+      <div :class="noContentPadding ? 'w-full' : 'w-full px-12 py-8'">
         <slot name="content"></slot>
       </div>
     </main>
@@ -57,6 +60,18 @@ const props = defineProps({
   activeMenuItem: {
     type: String,
     default: 'home'
+  },
+  hideSidebarBorder: {
+    type: Boolean,
+    default: false
+  },
+  backgroundColor: {
+    type: String,
+    default: '#F9FAFB'
+  },
+  noContentPadding: {
+    type: Boolean,
+    default: false
   }
 })
 
