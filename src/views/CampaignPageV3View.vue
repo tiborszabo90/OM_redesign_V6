@@ -44,7 +44,7 @@
 
         <!-- Tabs -->
         <div class="flex gap-2">
-          <button class="px-4 py-2 bg-om-gray-200 text-om-gray-700 rounded-xl text-sm font-normal transition-all cursor-pointer">
+          <button class="px-4 py-2 bg-om-orange-100 text-om-orange-500 rounded-xl text-sm font-normal transition-all cursor-pointer">
             Overview
           </button>
           <button class="px-4 py-2 bg-transparent text-om-gray-700 rounded-xl text-sm font-normal hover:bg-om-gray-100 hover:text-om-gray-600 transition-all cursor-pointer">

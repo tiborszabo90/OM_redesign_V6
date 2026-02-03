@@ -153,7 +153,7 @@
         <div class="w-full flex gap-6 items-stretch p-6 h-screen-safe">
           <!-- Left column (60%) -->
           <div class="w-[60%] flex items-center">
-            <div class="bg-[#F7F7F8] rounded-2xl px-15 py-12 w-full h-full relative flex items-center">
+            <div class="bg-[#F9FAFB] rounded-2xl px-15 py-12 w-full h-full relative flex items-center">
               <div class="w-full">
                 <!-- URL Chip -->
                 <div class="mb-5">
@@ -207,7 +207,7 @@
 
           <!-- Right column (40%) -->
           <div class="w-[40%] flex items-center">
-            <div class="w-full h-full bg-[#F7F7F8] rounded-2xl overflow-hidden flex items-center justify-center">
+            <div class="w-full h-full bg-[#F9FAFB] rounded-2xl overflow-hidden flex items-center justify-center">
               <!-- Placeholder image -->
               <img
                 src="/telekom_img1.png"
@@ -228,16 +228,16 @@
               class="bg-om-gray-50 rounded-2xl p-5 lg:p-6"
             >
               <!-- Three column layout: Text | Desktop | Mobile -->
-              <div class="flex gap-4 items-center">
+              <div class="flex gap-12 items-center">
                 <!-- Left column: Text and button -->
                 <div class="flex-1 flex flex-col justify-center pl-10 lg:pl-9">
-                  <div class="flex items-center gap-2 mb-2">
+                  <div class="flex items-center gap-2 mt-4 mb-2">
                     <div class="w-8 h-8 bg-om-gray-200 rounded-lg flex items-center justify-center">
                       <component :is="iconMap[useCase.icon]" :size="18" class="text-om-gray-500" />
                     </div>
                     <span class="text-sm font-medium text-om-gray-500 uppercase">{{ useCase.title }}</span>
                   </div>
-                  <h3 class="text-2xl font-semibold text-om-gray-700 mb-2">{{ useCase.description }}</h3>
+                  <h3 class="text-3xl font-semibold text-om-gray-700 mb-3">{{ useCase.description }}</h3>
                   <p class="text-base text-om-gray-500 mb-4">{{ useCase.subheadline }}</p>
                   <button
                     class="px-5 py-2.5 text-base font-medium text-white bg-om-orange-500 rounded-lg hover:bg-om-orange-400 transition-colors w-fit flex items-center gap-2"
@@ -253,7 +253,120 @@
                   <div
                     class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-video flex items-center justify-center overflow-hidden"
                   >
-                    <img :src="useCase.image" :alt="useCase.title" class="w-full h-full object-cover" />
+                    <!-- Smart Discount Popup desktop -->
+                    <template v-if="useCase.id === 'newsletter'">
+                      <div class="flex w-full h-full">
+                        <!-- Left image -->
+                        <div class="w-[25%] shrink-0 bg-white flex items-end justify-center rounded-l-lg">
+                          <img src="/SmartDiscountPopup_img.png" alt="Smart Discount" class="h-3/4 object-contain" />
+                        </div>
+                        <!-- Center content section -->
+                        <div class="flex-1 px-8 py-6 flex flex-col justify-center text-center">
+                          <img src="/telekom_logo2.png" alt="Logo" class="w-14 h-14 object-contain mb-3 mx-auto" />
+                          <h4 class="text-2xl font-bold mb-2 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                            Tiéd a 10% KUPON
+                          </h4>
+                          <p class="text-sm text-om-gray-500 mb-4">
+                            Csapj le rá, mielőtt eltűnik!
+                          </p>
+                          <button class="w-full py-3 text-white text-sm font-bold mb-2" :class="cornerClasses[brandSettings.corners]" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                            KÉREM A 10%-OT
+                          </button>
+                          <button class="w-full py-3 text-sm font-bold border-2" :class="cornerClasses[brandSettings.corners]" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex], borderColor: brandSettings.colors[brandSettings.selectedColorIndex], backgroundColor: 'white' }">
+                            NEM, KÖSZ!
+                          </button>
+                        </div>
+                        <!-- Right image -->
+                        <div class="w-[25%] shrink-0 bg-white flex items-end justify-center rounded-r-lg">
+                          <img src="/SmartDiscountPopup_img.png" alt="Smart Discount" class="h-3/4 object-contain" />
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Cart Abandonment Stopper desktop -->
+                    <template v-else-if="useCase.id === 'cart-abandonment'">
+                      <div class="relative w-full h-full bg-cover bg-center" style="background-image: url('/templatebg.svg')">
+                        <div class="absolute inset-0 flex items-center justify-center p-6">
+                          <div class="bg-white rounded-lg shadow-lg flex w-[85%] h-[90%]">
+                            <div class="flex-1 px-12 py-6 flex flex-col justify-center">
+                              <p class="text-xs mb-3 uppercase tracking-wide font-bold" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                                VÁRJ
+                              </p>
+                              <h4 class="text-2xl font-bold mb-6 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                                Szerezz egy<br>10%-os kuport!
+                              </h4>
+                              <div class="h-12 bg-white border border-om-gray-300 text-sm flex items-center px-4 text-om-gray-400 mb-4" :class="cornerClasses[brandSettings.corners]">
+                                Email cím
+                              </div>
+                              <button class="w-full py-3 text-white text-sm font-bold" :class="cornerClasses[brandSettings.corners]" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                                FOLYTATÁS
+                              </button>
+                            </div>
+                            <div class="w-[50%] shrink-0 bg-white flex items-center justify-center rounded-r-lg overflow-hidden">
+                              <img src="/CartAbandonmentStopper_img.png" alt="Cart Abandonment" class="w-full h-full object-cover" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Lucky Wheel desktop -->
+                    <template v-else-if="useCase.id === 'spin-wheel'">
+                      <div class="relative w-full h-full bg-cover bg-center" style="background-image: url('/templatebg.svg')">
+                        <div class="absolute inset-0 flex items-center justify-start">
+                          <div class="bg-white shadow-lg flex w-[70%] h-full">
+                            <div class="w-[50%] shrink-0 bg-white flex items-center justify-center overflow-hidden pr-2 py-4">
+                              <img src="/LuckyWheel_img2.png" alt="Lucky Wheel" class="w-full h-auto object-contain" />
+                            </div>
+                            <div class="flex-1 px-8 py-5 flex flex-col justify-center">
+                              <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-2" />
+                              <h4 class="text-lg font-bold mb-2 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                                Pörgess, nyerj és<br>spórolj!
+                              </h4>
+                              <p class="text-[11px] text-om-gray-500 mb-3 leading-relaxed">
+                                Úgy érzed, rád mosolyghat a szerencse?<br>Add meg az email címed, és pörgess!
+                              </p>
+                              <div class="h-10 bg-white border border-om-gray-300 text-xs flex items-center px-3 text-om-gray-400 mb-3" :class="cornerClasses[brandSettings.corners]">
+                                Email
+                              </div>
+                              <button class="w-full py-2.5 text-white text-xs font-bold mb-2" :class="cornerClasses[brandSettings.corners]" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                                PÖRGETEK
+                              </button>
+                              <button class="text-xs font-medium underline" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                                NEM, KÖSZ!
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Feedback Survey desktop -->
+                    <template v-else-if="useCase.id === 'feedback'">
+                      <div class="relative w-full h-full bg-cover bg-center" style="background-image: url('/templatebg.svg')">
+                        <div class="absolute inset-0 flex items-center justify-center p-6">
+                          <div class="bg-white shadow-lg rounded-lg w-[60%] h-[80%] flex flex-col justify-center px-12 py-8 text-center">
+                            <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-3 mx-auto" />
+                            <h4 class="text-xl font-bold mb-2 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                              Van egy perced?<br>Mondd el a véleményed!
+                            </h4>
+                            <p class="text-xs text-om-gray-500 mb-5 leading-relaxed">
+                              Hogyan értékelnéd az általános<br>tapasztalatsodat velünk?
+                            </p>
+                            <div class="flex justify-center gap-4 mb-4">
+                              <div v-for="i in 5" :key="i" class="w-10 h-10 rounded-full border-2 flex items-center justify-center text-base font-bold" :style="{ borderColor: brandSettings.colors[brandSettings.selectedColorIndex], color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                                {{ i }}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Other use cases still use images -->
+                    <template v-else>
+                      <img :src="useCase.image" :alt="useCase.title" class="w-full h-full object-cover" />
+                    </template>
                   </div>
 
                   <!-- Mobile Preview -->
@@ -294,27 +407,29 @@
 
                     <!-- Cart abandonment mobile -->
                     <template v-else-if="useCase.id === 'cart-abandonment'">
-                      <div class="flex flex-col w-full h-full">
-                        <div class="h-1/3 shrink-0">
-                          <img src="/CartAbandonmentStopper_img.png" alt="Cart Abandonment" class="w-full h-full object-cover rounded-t-lg" />
-                        </div>
-                        <div class="flex-1 px-4 py-3 flex flex-col justify-center">
-                          <p class="text-[7px] text-om-gray-500 mb-2 uppercase tracking-wide">
-                            Vár a
-                          </p>
-                          <h4 class="text-[12px] font-bold mb-3 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                            Szerezz egy<br>10%-os kuport!
-                          </h4>
-                          <div class="h-5 bg-white border border-om-gray-300 rounded text-[7px] flex items-center px-2 text-om-gray-400 mb-3" :class="cornerClasses[brandSettings.corners]">
-                            Email cím
+                      <div class="relative w-full h-full flex items-center justify-center p-2" style="background-color: #6A8085">
+                        <div class="flex flex-col w-full h-[90%] bg-white rounded-lg overflow-hidden shadow-lg">
+                          <div class="h-2/5 shrink-0">
+                            <img src="/CartAbandonmentStopper_img.png" alt="Cart Abandonment" class="w-full h-full object-cover" />
                           </div>
-                          <button
-                            class="w-full py-2 text-white text-[7px] font-bold"
-                            :class="cornerClasses[brandSettings.corners]"
-                            :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                          >
-                            FOLYTATÁS
-                          </button>
+                          <div class="flex-1 px-4 py-3 flex flex-col justify-center">
+                            <p class="text-[7px] text-om-gray-500 mb-2 uppercase tracking-wide">
+                              Vár a
+                            </p>
+                            <h4 class="text-[12px] font-bold mb-3 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                              Szerezz egy<br>10%-os kuport!
+                            </h4>
+                            <div class="h-5 bg-white border border-om-gray-300 rounded text-[7px] flex items-center px-2 text-om-gray-400 mb-3" :class="cornerClasses[brandSettings.corners]">
+                              Email cím
+                            </div>
+                            <button
+                              class="w-full py-2 text-white text-[7px] font-bold"
+                              :class="cornerClasses[brandSettings.corners]"
+                              :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
+                            >
+                              FOLYTATÁS
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </template>
@@ -355,17 +470,19 @@
 
                     <!-- Feedback mobile -->
                     <template v-else-if="useCase.id === 'feedback'">
-                      <div class="flex flex-col w-full h-full justify-center px-4 py-5 text-center">
-                        <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-3 mx-auto" />
-                        <h4 class="text-[11px] font-bold mb-2 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          Van egy perced?<br>Mondd el a véleményed!
-                        </h4>
-                        <p class="text-[6px] text-om-gray-500 mb-3 leading-snug">
-                          Hogyan értékelnéd az általános<br>tapasztalatsodat velünk?
-                        </p>
-                        <div class="flex justify-center gap-2 mb-2">
-                          <div v-for="i in 5" :key="i" class="w-6 h-6 rounded-full border-2 flex items-center justify-center text-[8px] font-bold" :style="{ borderColor: brandSettings.colors[brandSettings.selectedColorIndex], color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                            {{ i }}
+                      <div class="relative w-full h-full flex items-center justify-center p-2" style="background-color: #6A8085">
+                        <div class="flex flex-col w-full h-1/2 bg-white rounded-lg shadow-lg justify-center px-4 py-5 text-center">
+                          <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-3 mx-auto" />
+                          <h4 class="text-[11px] font-bold mb-2 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                            Van egy perced?<br>Mondd el a véleményed!
+                          </h4>
+                          <p class="text-[6px] text-om-gray-500 mb-3 leading-snug">
+                            Hogyan értékelnéd az általános<br>tapasztalatsodat velünk?
+                          </p>
+                          <div class="flex justify-center gap-1 mb-2">
+                            <div v-for="i in 5" :key="i" class="w-6 h-6 rounded-full border-2 flex items-center justify-center text-[8px] font-bold" :style="{ borderColor: brandSettings.colors[brandSettings.selectedColorIndex], color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                              {{ i }}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -387,7 +504,7 @@
         <div class="w-full flex gap-6 items-stretch p-6 h-screen-safe">
           <!-- Left column (60%) -->
           <div class="w-[60%] flex items-center">
-            <div class="bg-[#F7F7F8] rounded-2xl px-15 py-12 w-full h-full relative flex items-center">
+            <div class="bg-[#F9FAFB] rounded-2xl px-15 py-12 w-full h-full relative flex items-center">
               <div class="w-full">
                 <!-- URL Chip -->
                 <div class="mb-5">
@@ -441,7 +558,7 @@
 
           <!-- Right column (40%) -->
           <div class="w-[40%] flex items-center">
-            <div class="w-full h-full bg-[#F7F7F8] rounded-2xl overflow-hidden flex items-center justify-center">
+            <div class="w-full h-full bg-[#F9FAFB] rounded-2xl overflow-hidden flex items-center justify-center">
               <!-- Placeholder image -->
               <img
                 src="/telekom_img1.png"
@@ -467,16 +584,16 @@
               class="bg-white rounded-2xl p-5 lg:p-6 shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)]"
             >
               <!-- Three column layout: Text | Desktop | Mobile -->
-              <div class="flex gap-8 items-center">
+              <div class="flex gap-12 items-center">
                 <!-- Left column: Text and button -->
                 <div class="flex-1 flex flex-col justify-center pl-6">
-                  <div class="flex items-center gap-2 mb-2">
+                  <div class="flex items-center gap-2 mt-4 mb-2">
                     <div class="w-8 h-8 bg-om-gray-100 rounded-lg flex items-center justify-center">
                       <component :is="iconMap[useCase.icon]" :size="18" class="text-om-gray-500" />
                     </div>
                     <span class="text-sm font-medium text-om-gray-500 uppercase">{{ useCase.title }}</span>
                   </div>
-                  <h3 class="text-2xl font-semibold text-om-gray-700 mb-2">{{ useCase.description }}</h3>
+                  <h3 class="text-3xl font-semibold text-om-gray-700 mb-3">{{ useCase.description }}</h3>
                   <p class="text-base text-om-gray-500 mb-4">{{ useCase.subheadline }}</p>
                   <button
                     class="px-5 py-2.5 text-base font-medium text-white bg-om-orange-500 rounded-lg hover:bg-om-orange-400 transition-colors w-fit flex items-center gap-2"
@@ -492,7 +609,169 @@
                   <div
                     class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-video flex items-center justify-center overflow-hidden"
                   >
-                    <img :src="useCase.image" :alt="useCase.title" class="w-full h-full object-cover" />
+                    <!-- Newsletter desktop -->
+                    <template v-if="useCase.id === 'newsletter'">
+                      <div class="flex w-full h-full">
+                        <!-- Left image -->
+                        <div class="w-[25%] shrink-0 bg-white flex items-end justify-center rounded-l-lg">
+                          <img src="/SmartDiscountPopup_img.png" alt="Smart Discount" class="h-3/4 object-contain" />
+                        </div>
+
+                        <!-- Center content section -->
+                        <div class="flex-1 px-8 py-6 flex flex-col justify-center text-center">
+                          <!-- Logo -->
+                          <img src="/telekom_logo2.png" alt="Logo" class="w-14 h-14 object-contain mb-3 mx-auto" />
+
+                          <!-- Heading -->
+                          <h4 class="text-2xl font-bold mb-2 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                            Tiéd a 10% KUPON
+                          </h4>
+
+                          <!-- Description -->
+                          <p class="text-sm text-om-gray-500 mb-4">
+                            Csapj le rá, mielőtt eltűnik!
+                          </p>
+
+                          <!-- Primary Button -->
+                          <button
+                            class="w-full py-3 text-white text-sm font-bold mb-2"
+                            :class="cornerClasses[brandSettings.corners]"
+                            :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
+                          >
+                            KÉREM A 10%-OT
+                          </button>
+
+                          <!-- Secondary Button -->
+                          <button
+                            class="w-full py-3 text-sm font-bold border-2"
+                            :class="cornerClasses[brandSettings.corners]"
+                            :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex], borderColor: brandSettings.colors[brandSettings.selectedColorIndex], backgroundColor: 'white' }"
+                          >
+                            NEM, KÖSZ!
+                          </button>
+                        </div>
+
+                        <!-- Right image -->
+                        <div class="w-[25%] shrink-0 bg-white flex items-end justify-center rounded-r-lg">
+                          <img src="/SmartDiscountPopup_img.png" alt="Smart Discount" class="h-3/4 object-contain" />
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Cart Abandonment desktop -->
+                    <template v-else-if="useCase.id === 'cart-abandonment'">
+                      <div class="relative w-full h-full bg-cover bg-center" style="background-image: url('/templatebg.svg')">
+                        <!-- Popup container - smaller and centered -->
+                        <div class="absolute inset-0 flex items-center justify-center p-6">
+                          <div class="bg-white rounded-lg shadow-lg flex w-[85%] h-[90%]">
+                            <!-- Left content section -->
+                            <div class="flex-1 px-8 py-5 flex flex-col justify-center">
+                              <p class="text-[10px] mb-2 uppercase tracking-wide font-bold" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                                VÁRJ
+                              </p>
+                              <h4 class="text-xl font-bold mb-4 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                                Szerezz egy<br>10%-os kuport!
+                              </h4>
+                              <div class="h-10 bg-white border border-om-gray-300 text-xs flex items-center px-3 text-om-gray-400 mb-3" :class="cornerClasses[brandSettings.corners]">
+                                Email cím
+                              </div>
+                              <button
+                                class="w-full py-2.5 text-white text-xs font-bold"
+                                :class="cornerClasses[brandSettings.corners]"
+                                :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
+                              >
+                                FOLYTATÁS
+                              </button>
+                            </div>
+
+                            <!-- Right image -->
+                            <div class="w-[50%] shrink-0 bg-white flex items-center justify-center rounded-r-lg overflow-hidden">
+                              <img src="/CartAbandonmentStopper_img.png" alt="Cart Abandonment" class="w-full h-full object-cover" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Lucky Wheel desktop -->
+                    <template v-else-if="useCase.id === 'spin-wheel'">
+                      <div class="relative w-full h-full bg-cover bg-center" style="background-image: url('/templatebg.svg')">
+                        <!-- Popup container - aligned to left, narrower width -->
+                        <div class="absolute inset-0 flex items-center justify-start">
+                          <div class="bg-white shadow-lg flex w-[70%] h-full">
+                            <!-- Left image (wheel) - bigger, no left padding -->
+                            <div class="w-[50%] shrink-0 bg-white flex items-center justify-center overflow-hidden pr-2 py-4">
+                              <img src="/LuckyWheel_img2.png" alt="Lucky Wheel" class="w-full h-auto object-contain" />
+                            </div>
+
+                            <!-- Right content section - left aligned -->
+                            <div class="flex-1 px-8 py-5 flex flex-col justify-center">
+                              <!-- Logo -->
+                              <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-2" />
+
+                              <!-- Heading -->
+                              <h4 class="text-lg font-bold mb-2 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                                Pörgess, nyerj és<br>spórolj!
+                              </h4>
+
+                              <!-- Description -->
+                              <p class="text-[11px] text-om-gray-500 mb-3 leading-relaxed">
+                                Úgy érzed, rád mosolyghat a szerencse?<br>Add meg az email címed, és pörgess!
+                              </p>
+
+                              <!-- Email input -->
+                              <div class="h-10 bg-white border border-om-gray-300 text-xs flex items-center px-3 text-om-gray-400 mb-3" :class="cornerClasses[brandSettings.corners]">
+                                Email
+                              </div>
+
+                              <!-- Primary Button -->
+                              <button
+                                class="w-full py-2.5 text-white text-xs font-bold mb-2"
+                                :class="cornerClasses[brandSettings.corners]"
+                                :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
+                              >
+                                PÖRGETEK
+                              </button>
+
+                              <!-- Secondary text button -->
+                              <button
+                                class="text-xs font-medium underline"
+                                :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }"
+                              >
+                                NEM, KÖSZ!
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Feedback Survey desktop -->
+                    <template v-else-if="useCase.id === 'feedback'">
+                      <div class="relative w-full h-full bg-cover bg-center" style="background-image: url('/templatebg.svg')">
+                        <div class="absolute inset-0 flex items-center justify-center p-6">
+                          <div class="bg-white shadow-lg rounded-lg w-[60%] h-[80%] flex flex-col justify-center px-12 py-8 text-center">
+                            <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-3 mx-auto" />
+                            <h4 class="text-xl font-bold mb-2 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                              Van egy perced?<br>Mondd el a véleményed!
+                            </h4>
+                            <p class="text-xs text-om-gray-500 mb-5 leading-relaxed">
+                              Hogyan értékelnéd az általános<br>tapasztalatsodat velünk?
+                            </p>
+                            <div class="flex justify-center gap-4 mb-4">
+                              <div v-for="i in 5" :key="i" class="w-10 h-10 rounded-full border-2 flex items-center justify-center text-base font-bold" :style="{ borderColor: brandSettings.colors[brandSettings.selectedColorIndex], color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                                {{ i }}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Other use cases still use images -->
+                    <template v-else>
+                      <img :src="useCase.image" :alt="useCase.title" class="w-full h-full object-cover" />
+                    </template>
                   </div>
 
                   <!-- Mobile Preview -->
@@ -533,27 +812,29 @@
 
                     <!-- Cart abandonment mobile -->
                     <template v-else-if="useCase.id === 'cart-abandonment'">
-                      <div class="flex flex-col w-full h-full">
-                        <div class="h-1/3 shrink-0">
-                          <img src="/CartAbandonmentStopper_img.png" alt="Cart Abandonment" class="w-full h-full object-cover rounded-t-lg" />
-                        </div>
-                        <div class="flex-1 px-4 py-3 flex flex-col justify-center">
-                          <p class="text-[7px] text-om-gray-500 mb-2 uppercase tracking-wide">
-                            Vár a
-                          </p>
-                          <h4 class="text-[12px] font-bold mb-3 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                            Szerezz egy<br>10%-os kuport!
-                          </h4>
-                          <div class="h-5 bg-white border border-om-gray-300 rounded text-[7px] flex items-center px-2 text-om-gray-400 mb-3" :class="cornerClasses[brandSettings.corners]">
-                            Email cím
+                      <div class="relative w-full h-full flex items-center justify-center p-2" style="background-color: #6A8085">
+                        <div class="flex flex-col w-full h-[90%] bg-white rounded-lg overflow-hidden shadow-lg">
+                          <div class="h-2/5 shrink-0">
+                            <img src="/CartAbandonmentStopper_img.png" alt="Cart Abandonment" class="w-full h-full object-cover" />
                           </div>
-                          <button
-                            class="w-full py-2 text-white text-[7px] font-bold"
-                            :class="cornerClasses[brandSettings.corners]"
-                            :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
-                          >
-                            FOLYTATÁS
-                          </button>
+                          <div class="flex-1 px-4 py-3 flex flex-col justify-center">
+                            <p class="text-[7px] text-om-gray-500 mb-2 uppercase tracking-wide">
+                              Vár a
+                            </p>
+                            <h4 class="text-[12px] font-bold mb-3 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                              Szerezz egy<br>10%-os kuport!
+                            </h4>
+                            <div class="h-5 bg-white border border-om-gray-300 rounded text-[7px] flex items-center px-2 text-om-gray-400 mb-3" :class="cornerClasses[brandSettings.corners]">
+                              Email cím
+                            </div>
+                            <button
+                              class="w-full py-2 text-white text-[7px] font-bold"
+                              :class="cornerClasses[brandSettings.corners]"
+                              :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }"
+                            >
+                              FOLYTATÁS
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </template>
@@ -594,17 +875,19 @@
 
                     <!-- Feedback mobile -->
                     <template v-else-if="useCase.id === 'feedback'">
-                      <div class="flex flex-col w-full h-full justify-center px-4 py-5 text-center">
-                        <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-3 mx-auto" />
-                        <h4 class="text-[11px] font-bold mb-2 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                          Van egy perced?<br>Mondd el a véleményed!
-                        </h4>
-                        <p class="text-[6px] text-om-gray-500 mb-3 leading-snug">
-                          Hogyan értékelnéd az általános<br>tapasztalatsodat velünk?
-                        </p>
-                        <div class="flex justify-center gap-2 mb-2">
-                          <div v-for="i in 5" :key="i" class="w-6 h-6 rounded-full border-2 flex items-center justify-center text-[8px] font-bold" :style="{ borderColor: brandSettings.colors[brandSettings.selectedColorIndex], color: brandSettings.colors[brandSettings.selectedColorIndex] }">
-                            {{ i }}
+                      <div class="relative w-full h-full flex items-center justify-center p-2" style="background-color: #6A8085">
+                        <div class="flex flex-col w-full h-1/2 bg-white rounded-lg shadow-lg justify-center px-4 py-5 text-center">
+                          <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-3 mx-auto" />
+                          <h4 class="text-[11px] font-bold mb-2 leading-tight" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                            Van egy perced?<br>Mondd el a véleményed!
+                          </h4>
+                          <p class="text-[6px] text-om-gray-500 mb-3 leading-snug">
+                            Hogyan értékelnéd az általános<br>tapasztalatsodat velünk?
+                          </p>
+                          <div class="flex justify-center gap-1 mb-2">
+                            <div v-for="i in 5" :key="i" class="w-6 h-6 rounded-full border-2 flex items-center justify-center text-[8px] font-bold" :style="{ borderColor: brandSettings.colors[brandSettings.selectedColorIndex], color: brandSettings.colors[brandSettings.selectedColorIndex] }">
+                              {{ i }}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1382,7 +1665,7 @@
           <div class="space-y-3">
             <!-- Logo item - only show box when discovered -->
             <transition name="slide-in">
-              <div v-if="discoveries.logo" class="bg-[#F7F7F8] rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+              <div v-if="discoveries.logo" class="bg-[#F9FAFB] rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
                 <div class="flex-1">
                   <p class="text-sm font-medium text-[#23262A]">Logo</p>
                 </div>
@@ -1394,7 +1677,7 @@
 
             <!-- Colors item - only show box when discovered -->
             <transition name="slide-in">
-              <div v-if="discoveries.colors" class="bg-[#F7F7F8] rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+              <div v-if="discoveries.colors" class="bg-[#F9FAFB] rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
                 <div class="flex-1">
                   <p class="text-sm font-medium text-[#23262A]">Colors</p>
                 </div>
@@ -1408,7 +1691,7 @@
 
             <!-- Fonts item - only show box when discovered -->
             <transition name="slide-in">
-              <div v-if="discoveries.fonts" class="bg-[#F7F7F8] rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+              <div v-if="discoveries.fonts" class="bg-[#F9FAFB] rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
                 <div class="flex-1">
                   <p class="text-sm font-medium text-[#23262A]">Fonts</p>
                 </div>
@@ -1425,7 +1708,7 @@
 
             <!-- Language item - only show box when discovered -->
             <transition name="slide-in">
-              <div v-if="discoveries.language" class="bg-[#F7F7F8] rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+              <div v-if="discoveries.language" class="bg-[#F9FAFB] rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
                 <div class="flex-1">
                   <p class="text-sm font-medium text-[#23262A]">Language</p>
                 </div>
@@ -1745,7 +2028,7 @@ const useCases = [
   {
     id: 'spin-wheel',
     title: 'Lucky Wheel',
-    description: 'Gamify list-building popups to increase new visitor engagement',
+    description: 'Gamify popups to increase visitor engagement',
     subheadline: 'Capture new visitor attention and increase conversions with spin-to-win lucky wheels',
     icon: 'wheel',
     image: '/LuckyWheel.png',
