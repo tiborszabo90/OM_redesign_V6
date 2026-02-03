@@ -1,9 +1,7 @@
 <template>
   <DashboardLayout
     active-menu-item="campaigns"
-    :hide-sidebar-border="true"
     :no-content-padding="true"
-    background-color="#FFFFFF"
     @logo-click="handleLogoClick"
     @menu-click="$emit('menu-click', $event)"
   >
@@ -11,7 +9,7 @@
       <div class="ml-5 mt-6 mr-6 mb-6">
         <div class="w-full max-w-[1400px] mx-auto">
         <!-- Header + Tabs -->
-        <div class="bg-om-gray-50 rounded-lg p-6 mb-4">
+        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-6 mb-4">
         <!-- Header -->
         <div class="flex items-start justify-between mb-4">
           <div>
@@ -62,7 +60,7 @@
         </div>
 
         <!-- Metrics Section -->
-        <div class="bg-om-gray-50 rounded-xl mb-4 relative">
+        <div class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-4 relative">
           <div class="grid grid-cols-12 gap-4">
           <!-- Conversion Uplift -->
           <div class="col-span-3 pl-8 py-8">
@@ -201,7 +199,7 @@
         </div>
 
         <!-- Variants Section -->
-        <div class="bg-om-gray-50 rounded-lg mb-4 pt-5 pb-5 pl-5 pr-8">
+        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-4 pt-5 pb-5 pl-5 pr-8">
           <!-- Variants Table -->
           <div class="space-y-0">
             <!-- Header -->
@@ -318,7 +316,7 @@
         <!-- Campaign Settings Sections -->
         <div class="space-y-4">
           <!-- When will the popup show up -->
-          <div class="bg-om-gray-50 rounded-lg p-5">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">When will the popup show up</h3>
             <div class="space-y-3">
               <div class="flex items-start gap-3">
@@ -347,7 +345,7 @@
           </div>
 
           <!-- How often can it appear -->
-          <div class="bg-om-gray-50 rounded-lg p-5">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">How often can it appear</h3>
             <div class="grid grid-cols-3 gap-4">
               <div class="flex items-start gap-3">
@@ -388,7 +386,7 @@
           </div>
 
           <!-- Who should see the popup -->
-          <div class="bg-om-gray-50 rounded-lg p-5">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">Who should see the popup</h3>
             <div class="space-y-3">
               <div class="flex items-start gap-3">
@@ -423,7 +421,7 @@
           </div>
 
           <!-- Integrations -->
-          <div class="bg-om-gray-50 rounded-lg p-5">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">Integrations</h3>
             <div class="flex items-center gap-3">
               <div class="w-9 h-9 bg-[#FFE01B] rounded flex items-center justify-center">

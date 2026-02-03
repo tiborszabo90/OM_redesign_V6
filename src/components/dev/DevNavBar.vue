@@ -311,7 +311,7 @@
             @click="campaignPageDropdownOpen = !campaignPageDropdownOpen"
             :class="[
               'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
-              ['campaign-page-v1', 'campaign-page-v2'].includes(currentView)
+              ['campaign-page-v1', 'campaign-page-v2', 'campaign-page-v3'].includes(currentView)
                 ? 'bg-[#ED5A29] text-white'
                 : 'bg-[#505763] hover:bg-[#8F97A4]'
             ]"
@@ -345,6 +345,17 @@
                 ]"
               >
                 V2
+              </button>
+              <button
+                @click="selectCampaignPage('campaign-page-v3')"
+                :class="[
+                  'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                  currentView === 'campaign-page-v3'
+                    ? 'bg-[#ED5A29] text-white'
+                    : 'hover:bg-[#505763]'
+                ]"
+              >
+                V3
               </button>
             </div>
           </transition>

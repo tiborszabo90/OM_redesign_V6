@@ -13,6 +13,7 @@ import CampaignsV2View from './views/CampaignsV2View.vue'
 import CampaignsV3View from './views/CampaignsV3View.vue'
 import CampaignPageV1View from './views/CampaignPageV1View.vue'
 import CampaignPageV2View from './views/CampaignPageV2View.vue'
+import CampaignPageV3View from './views/CampaignPageV3View.vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
 
 const currentView = ref('dev-start')
@@ -145,7 +146,7 @@ const handleDevNavigate = (view) => {
   } else if (view === 'campaigns-v1' || view === 'campaigns-v2' || view === 'campaigns-v3') {
     // Campaigns views - go directly to the selected version
     currentView.value = view
-  } else if (view === 'campaign-page-v1' || view === 'campaign-page-v2') {
+  } else if (view === 'campaign-page-v1' || view === 'campaign-page-v2' || view === 'campaign-page-v3') {
     // Campaign Page views - go directly to the selected version
     currentView.value = view
   } else if (view === 'registration' || view === 'onboarding' || view === 'wizard') {
@@ -276,7 +277,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="min-h-screen-safe">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'campaigns', 'campaigns-v1', 'campaigns-v2', 'campaigns-v3', 'campaign-page-v1', 'campaign-page-v2'].includes(currentView)"
+      v-if="currentView && !['dev-start', 'design-guide', 'wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'campaigns', 'campaigns-v1', 'campaigns-v2', 'campaigns-v3', 'campaign-page-v1', 'campaign-page-v2', 'campaign-page-v3'].includes(currentView)"
       class="fixed top-8 left-8 z-50"
     >
       <img
@@ -341,6 +342,10 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       />
       <CampaignPageV2View
         v-else-if="currentView === 'campaign-page-v2'"
+        @menu-click="handleMenuClick"
+      />
+      <CampaignPageV3View
+        v-else-if="currentView === 'campaign-page-v3'"
         @menu-click="handleMenuClick"
       />
       <WizardAnalysisView
