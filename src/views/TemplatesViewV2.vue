@@ -7,6 +7,58 @@
       :no-content-padding="true"
     >
       <template #content>
+        <div class="w-full max-w-[1400px] mx-auto -mt-3">
+        <!-- Header -->
+        <div class="templates-header">
+          <h1>What will you create today?</h1>
+          <div class="language-selector-wrapper">
+            <label class="language-label">Template Language</label>
+            <div class="language-selector relative w-[240px]" ref="languageDropdownRef">
+            <button
+              @click="isLanguageDropdownOpen = !isLanguageDropdownOpen"
+              class="dropdown-select w-full px-3 pr-8 py-1.5 border border-om-gray-200 rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white text-left hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
+              :class="{ 'border-om-orange-300': isLanguageDropdownOpen }"
+              :style="isLanguageDropdownOpen ? 'box-shadow: 0 0 0 2px #FBD9CE; outline: none;' : 'box-shadow: none; outline: none;'"
+            >
+              {{ selectedLanguage.label }}
+            </button>
+            <div class="absolute inset-y-0 right-2.5 flex items-center pointer-events-none">
+              <ChevronDown
+                :size="16"
+                class="text-om-gray-600 transition-transform"
+                :class="{ 'rotate-180': isLanguageDropdownOpen }"
+              />
+            </div>
+
+            <!-- Dropdown menu -->
+            <transition
+              enter-active-class="transition ease-out duration-100"
+              enter-from-class="opacity-0 scale-95"
+              enter-to-class="opacity-100 scale-100"
+              leave-active-class="transition ease-in duration-75"
+              leave-from-class="opacity-100 scale-100"
+              leave-to-class="opacity-0 scale-95"
+            >
+              <div
+                v-if="isLanguageDropdownOpen"
+                class="absolute z-10 w-full mt-2 bg-white border border-[#D5D8DD] rounded-lg shadow-lg overflow-hidden"
+              >
+                <button
+                  v-for="option in languageOptions"
+                  :key="option.value"
+                  @click="selectLanguage(option)"
+                  class="w-full px-3 py-1.5 text-left text-sm text-[#23262A] hover:bg-[#F9FAFB] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F9FAFB]"
+                  :class="{ 'bg-[#F1F2F4] font-medium': selectedLanguage.value === option.value }"
+                  style="box-shadow: none !important; outline: none !important;"
+                >
+                  {{ option.label }}
+                </button>
+              </div>
+            </transition>
+            </div>
+          </div>
+        </div>
+
         <div class="templates-layout">
           <!-- Left Sidebar -->
           <aside class="templates-sidebar">
@@ -307,57 +359,6 @@
 
           <!-- Main Content -->
           <main class="templates-main">
-            <!-- Header -->
-            <div class="templates-header">
-              <h1>What will you create today?</h1>
-              <div class="language-selector-wrapper">
-                <label class="language-label">Template Language</label>
-                <div class="language-selector relative w-[240px]" ref="languageDropdownRef">
-                <button
-                  @click="isLanguageDropdownOpen = !isLanguageDropdownOpen"
-                  class="dropdown-select w-full px-3 pr-8 py-1.5 border border-om-gray-200 rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white text-left hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
-                  :class="{ 'border-om-orange-300': isLanguageDropdownOpen }"
-                  :style="isLanguageDropdownOpen ? 'box-shadow: 0 0 0 2px #FBD9CE; outline: none;' : 'box-shadow: none; outline: none;'"
-                >
-                  {{ selectedLanguage.label }}
-                </button>
-                <div class="absolute inset-y-0 right-2.5 flex items-center pointer-events-none">
-                  <ChevronDown
-                    :size="16"
-                    class="text-om-gray-600 transition-transform"
-                    :class="{ 'rotate-180': isLanguageDropdownOpen }"
-                  />
-                </div>
-
-                <!-- Dropdown menu -->
-                <transition
-                  enter-active-class="transition ease-out duration-100"
-                  enter-from-class="opacity-0 scale-95"
-                  enter-to-class="opacity-100 scale-100"
-                  leave-active-class="transition ease-in duration-75"
-                  leave-from-class="opacity-100 scale-100"
-                  leave-to-class="opacity-0 scale-95"
-                >
-                  <div
-                    v-if="isLanguageDropdownOpen"
-                    class="absolute z-10 w-full mt-2 bg-white border border-[#D5D8DD] rounded-lg shadow-lg overflow-hidden"
-                  >
-                    <button
-                      v-for="option in languageOptions"
-                      :key="option.value"
-                      @click="selectLanguage(option)"
-                      class="w-full px-3 py-1.5 text-left text-sm text-[#23262A] hover:bg-[#F9FAFB] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F9FAFB]"
-                      :class="{ 'bg-[#F1F2F4] font-medium': selectedLanguage.value === option.value }"
-                      style="box-shadow: none !important; outline: none !important;"
-                    >
-                      {{ option.label }}
-                    </button>
-                  </div>
-                </transition>
-                </div>
-              </div>
-            </div>
-
             <!-- Popup Types -->
             <div class="popup-types">
               <div class="popup-type-box">
@@ -494,6 +495,7 @@
               <!-- Templates will be added in next step -->
             </div>
           </main>
+        </div>
         </div>
       </template>
     </DashboardLayout>
@@ -641,7 +643,7 @@ onUnmounted(() => {
 /* Left Sidebar */
 .templates-sidebar {
   width: 280px;
-  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  padding: calc(1rem + 20px) 1.5rem 1.5rem 1.5rem;
   overflow-y: auto;
   flex-shrink: 0;
 }
@@ -745,21 +747,23 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
+/* Header at top */
+.templates-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2.5rem 3rem 0 2rem;
+  background: #FFFFFF;
+}
+
 /* Main Content */
 .templates-main {
   flex: 1;
   overflow-y: auto;
 }
 
-.templates-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem 3rem 0.5rem 3rem;
-}
-
 .templates-header h1 {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 600;
   color: #111827;
 }
@@ -821,7 +825,7 @@ onUnmounted(() => {
 }
 
 .featured-families-title {
-  font-size: 1.125rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: #111827;
   margin-bottom: 1.5rem;
@@ -903,7 +907,7 @@ onUnmounted(() => {
 }
 
 .upcoming-seasons-title {
-  font-size: 1.125rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: #111827;
   margin-bottom: 1.5rem;
@@ -985,7 +989,7 @@ onUnmounted(() => {
 }
 
 .recommended-usecases-title {
-  font-size: 1.125rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: #111827;
   margin-bottom: 1.5rem;
@@ -1046,7 +1050,7 @@ onUnmounted(() => {
 }
 
 .my-theme-telekom-title {
-  font-size: 1.125rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: #111827;
   margin-bottom: 1.5rem;

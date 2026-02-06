@@ -5,7 +5,7 @@
       <!-- Top Navbar - show from the beginning -->
       <nav v-if="submitted" class="fixed top-0 left-0 right-0 h-16 bg-white border-b border-[#E3E5E8] z-30 flex items-center justify-between px-8">
         <!-- Left side - Steps -->
-        <div class="flex items-center gap-1 bg-[#F7F7F8] rounded-lg p-1">
+        <div class="flex items-center gap-1 bg-[#F9FAFB] rounded-lg p-1">
           <button
             :disabled="currentPhase === 'analysis'"
             :class="[
@@ -33,7 +33,7 @@
         <!-- Right side - Device selector and Publish -->
         <div class="flex items-center gap-4">
           <!-- Device selector -->
-          <div class="flex items-center gap-1 bg-[#F7F7F8] rounded-lg p-1">
+          <div class="flex items-center gap-1 bg-[#F9FAFB] rounded-lg p-1">
             <button
               @click="selectedDevice = 'desktop'"
               :disabled="currentPhase === 'analysis'"
@@ -105,7 +105,7 @@
           <WebsiteScanAnimation v-if="!showPopup" />
 
           <!-- Popup editing phase: full page skeleton -->
-          <div v-else class="w-full h-full bg-[#F7F7F8]">
+          <div v-else class="w-full h-full bg-[#F9FAFB]">
             <div class="w-full h-full bg-white">
               <!-- Full page skeleton content -->
               <div class="p-8 space-y-6">
@@ -262,7 +262,7 @@
 
       <!-- Page selector - fixed to bottom, above dev navbar -->
       <div v-if="showPopup" class="fixed bottom-14-safe left-0 right-90 h-16 bg-white border-t border-[#E3E5E8] z-30 flex items-center justify-center">
-        <div class="flex items-center gap-0 bg-[#F7F7F8] rounded-lg p-1">
+        <div class="flex items-center gap-0 bg-[#F9FAFB] rounded-lg p-1">
           <button
             v-for="page in popupPages"
             :key="page.id"
@@ -432,7 +432,7 @@
 
               <!-- Action buttons -->
               <div v-if="!designConfirmed" class="flex gap-2 pt-2">
-                <button class="flex-1 px-4 py-2 border border-[#D5D8DD] rounded-xl text-xs text-[#23262A] hover:bg-[#F7F7F8] transition-colors cursor-pointer">
+                <button class="flex-1 px-4 py-2 border border-[#D5D8DD] rounded-xl text-xs text-[#23262A] hover:bg-[#F9FAFB] transition-colors cursor-pointer">
                   More designs
                 </button>
                 <button @click="handleContinue" class="flex-1 px-4 py-2 bg-[#ED5A29] text-white text-xs rounded-xl transition-colors cursor-pointer">
@@ -472,7 +472,7 @@
 
               <!-- Action buttons for use cases -->
               <div v-if="!useCaseConfirmed" class="flex gap-2 pt-2">
-                <button class="flex-1 px-4 py-2 border border-[#D5D8DD] rounded-xl text-xs text-[#23262A] hover:bg-[#F7F7F8] transition-colors cursor-pointer">
+                <button class="flex-1 px-4 py-2 border border-[#D5D8DD] rounded-xl text-xs text-[#23262A] hover:bg-[#F9FAFB] transition-colors cursor-pointer">
                   More use cases
                 </button>
                 <button @click="handleUseCaseContinue" class="flex-1 px-4 py-2 bg-[#ED5A29] text-white text-xs rounded-xl transition-colors cursor-pointer">
@@ -510,11 +510,11 @@
     <!-- Form before submit -->
     <div
       v-if="!submitted"
-      class="w-full transition-all duration-500 ease-in-out"
+      class="w-full transition-all duration-500 ease-in-out pb-25"
       :class="{ 'scroll-up-exit-active': isExiting }"
     >
       <!-- Domain selector -->
-      <div class="mb-12 flex justify-center">
+      <div class="mt-12 mb-12 flex justify-center">
         <div class="relative w-[240px]" ref="dropdownRef">
           <button
             @click="isDropdownOpen = !isDropdownOpen"
@@ -549,7 +549,7 @@
                 v-for="domain in domains"
                 :key="domain"
                 @click="selectDomain(domain)"
-                class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F7F7F8] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F7F7F8]"
+                class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F9FAFB] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F9FAFB]"
                 :class="{ 'bg-[#F1F2F4] font-medium': selectedDomain === domain }"
                 style="box-shadow: none !important; outline: none !important;"
               >
@@ -610,16 +610,140 @@
         </button>
       </div>
 
-      <!-- Recommended campaigns -->
+
+      <!-- Use Cases -->
       <div class="mt-16">
-        <h3 class="text-lg font-medium text-om-gray-700 mb-4">Recommended campaigns</h3>
-        <div class="grid grid-cols-6 gap-4">
-          <div class="h-32 bg-white rounded-xl border border-om-gray-200"></div>
-          <div class="h-32 bg-white rounded-xl border border-om-gray-200"></div>
-          <div class="h-32 bg-white rounded-xl border border-om-gray-200"></div>
-          <div class="h-32 bg-white rounded-xl border border-om-gray-200"></div>
-          <div class="h-32 bg-white rounded-xl border border-om-gray-200"></div>
-          <div class="h-32 bg-white rounded-xl border border-om-gray-200"></div>
+        <h3 class="text-2xl font-semibold text-om-gray-700 mb-8 text-center">Recommended Use Cases</h3>
+        <div class="grid grid-cols-6 gap-6">
+          <!-- Smart Discount Popup -->
+          <div class="flex flex-col cursor-pointer group">
+            <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
+              <div class="flex flex-col w-full h-full">
+                <div class="h-1/3 shrink-0 bg-white flex items-end justify-center rounded-t-lg">
+                  <img src="/SmartDiscountPopup_img.png" alt="Smart Discount" class="h-full object-contain" />
+                </div>
+                <div class="flex-1 px-4 pb-3 flex flex-col justify-center text-center">
+                  <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-1 mx-auto" />
+                  <h4 class="text-[13px] font-bold mb-2 leading-tight text-[#E20074]">
+                    Tiéd a 10% KUPON
+                  </h4>
+                  <p class="text-[7px] text-om-gray-500 mb-2">
+                    Csapj le rá, mielőtt eltűnik!
+                  </p>
+                  <button class="w-full py-2 text-white text-[7px] font-bold mb-1.5 rounded-lg bg-[#E20074]">
+                    KÉREM A 10%-OT
+                  </button>
+                  <button class="w-full py-2 text-[7px] font-bold border rounded-lg text-[#E20074] border-[#E20074] bg-white">
+                    NEM, KÖSZ!
+                  </button>
+                </div>
+              </div>
+            </div>
+            <h4 class="text-sm font-medium text-om-gray-700">Smart Discount Popup</h4>
+            <p class="text-xs text-om-gray-500 mt-1">The most effective list-building popup formula</p>
+          </div>
+
+          <!-- Cart Abandonment Stopper -->
+          <div class="flex flex-col cursor-pointer group">
+            <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
+              <div class="relative w-full h-full flex items-center justify-center p-2" style="background-color: #6A8085">
+                <div class="flex flex-col w-full h-[90%] bg-white rounded-lg overflow-hidden shadow-lg">
+                  <div class="h-2/5 shrink-0">
+                    <img src="/CartAbandonmentStopper_img.png" alt="Cart Abandonment" class="w-full h-full object-cover" />
+                  </div>
+                  <div class="flex-1 px-4 py-3 flex flex-col justify-center">
+                    <p class="text-[7px] text-om-gray-500 mb-2 uppercase tracking-wide">
+                      Várj
+                    </p>
+                    <h4 class="text-[12px] font-bold mb-3 leading-tight text-[#E20074]">
+                      Szerezz egy<br>10%-os kuport!
+                    </h4>
+                    <div class="h-5 bg-white border border-om-gray-300 rounded text-[7px] flex items-center px-2 text-om-gray-400 mb-3">
+                      Email cím
+                    </div>
+                    <button class="w-full py-2 text-white text-[7px] font-bold rounded bg-[#E20074]">
+                      FOLYTATÁS
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <h4 class="text-sm font-medium text-om-gray-700">Cart Abandonment Stopper</h4>
+            <p class="text-xs text-om-gray-500 mt-1">Offer a discount for cart abandoners</p>
+          </div>
+
+          <!-- Lucky Wheel -->
+          <div class="flex flex-col cursor-pointer group">
+            <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
+              <div class="flex flex-col w-full h-full">
+                <div class="flex-1 px-4 py-3 flex flex-col justify-center text-center">
+                  <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-2 mx-auto" />
+                  <h4 class="text-[12px] font-bold mb-2 leading-tight text-[#E20074]">
+                    Pörgess, nyerj és<br>spórolj!
+                  </h4>
+                  <p class="text-[6px] text-om-gray-500 mb-2 leading-snug">
+                    Úgy érzed, rád mosolyghat a szerencse?<br>Add meg az email címed, és pörgess!
+                  </p>
+                  <div class="h-5 bg-white border border-om-gray-300 rounded text-[7px] flex items-center px-2 text-om-gray-400 mb-2">
+                    Email
+                  </div>
+                  <button class="w-full py-2 text-white text-[7px] font-bold mb-1 rounded bg-[#E20074]">
+                    PÖRGETEK
+                  </button>
+                  <button class="text-[7px] font-medium underline text-[#E20074]">
+                    NEM, KÖSZ!
+                  </button>
+                </div>
+                <div class="h-1/3 shrink-0">
+                  <img src="/LuckyWheel_img.png" alt="Lucky Wheel" class="w-full h-full object-cover rounded-b-lg" />
+                </div>
+              </div>
+            </div>
+            <h4 class="text-sm font-medium text-om-gray-700">Lucky Wheel</h4>
+            <p class="text-xs text-om-gray-500 mt-1">Gamify popups to increase visitor engagement</p>
+          </div>
+
+          <!-- Feedback Survey -->
+          <div class="flex flex-col cursor-pointer group">
+            <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
+              <div class="relative w-full h-full flex items-center justify-center p-2" style="background-color: #6A8085">
+                <div class="flex flex-col w-full h-1/2 bg-white rounded-lg shadow-lg justify-center px-4 py-5 text-center">
+                  <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-3 mx-auto" />
+                  <h4 class="text-[11px] font-bold mb-2 leading-tight text-[#E20074]">
+                    Van egy perced?<br>Mondd el a véleményed!
+                  </h4>
+                  <p class="text-[6px] text-om-gray-500 mb-3 leading-snug">
+                    Hogyan értékelnéd az általános<br>tapasztalatsodat velünk?
+                  </p>
+                  <div class="flex justify-center gap-1 mb-2">
+                    <div v-for="i in 5" :key="i" class="w-6 h-6 rounded-full border-2 flex items-center justify-center text-[8px] font-bold border-[#E20074] text-[#E20074]">
+                      {{ i }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <h4 class="text-sm font-medium text-om-gray-700">Feedback Survey</h4>
+            <p class="text-xs text-om-gray-500 mt-1">Get real, measurable feedback on anything you want</p>
+          </div>
+
+          <!-- Product Value Spotlight -->
+          <div class="flex flex-col cursor-pointer group">
+            <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
+              <img src="/SmartDiscountPopup_img.png" alt="Product Value Spotlight" class="w-full h-full object-cover" />
+            </div>
+            <h4 class="text-sm font-medium text-om-gray-700">Product Value Spotlight</h4>
+            <p class="text-xs text-om-gray-500 mt-1">Highlight key product benefits and drive conversions</p>
+          </div>
+
+          <!-- Product Recommendation -->
+          <div class="flex flex-col cursor-pointer group">
+            <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
+              <img src="/CartAbandonmentStopper_img.png" alt="Product Recommendation" class="w-full h-full object-cover" />
+            </div>
+            <h4 class="text-sm font-medium text-om-gray-700">Product Recommendation</h4>
+            <p class="text-xs text-om-gray-500 mt-1">Show personalized product suggestions to visitors</p>
+          </div>
         </div>
       </div>
     </div>
@@ -836,7 +960,7 @@ const popupStyles = computed(() => {
       closeBg: 'bg-white',
       closeText: 'text-[#5D6482]',
       closeHover: 'hover:text-[#18214D]',
-      rightBg: 'bg-[#F7F7F8]'
+      rightBg: 'bg-[#F9FAFB]'
     },
     inverse: {
       border: 'border-[#18214D]',
@@ -868,7 +992,7 @@ const popupStyles = computed(() => {
       closeBg: 'bg-white',
       closeText: 'text-[#5D6482]',
       closeHover: 'hover:text-[#18214D]',
-      rightBg: 'bg-[#F7F7F8]'
+      rightBg: 'bg-[#F9FAFB]'
     },
     edge: {
       border: 'border-[#E20074]',
