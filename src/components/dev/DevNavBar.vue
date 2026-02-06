@@ -249,30 +249,56 @@
           Home
         </button>
 
-        <!-- Campaigns Dropdown -->
+        <!-- Campaigns List Button -->
+        <button
+          @click="$emit('navigate', 'campaigns-v3')"
+          :class="[
+            'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+            currentView === 'campaigns-v3'
+              ? 'bg-[#ED5A29] text-white'
+              : 'bg-[#505763] hover:bg-[#8F97A4]'
+          ]"
+        >
+          Campaigns List
+        </button>
+
+        <!-- Campaign Page Button -->
+        <button
+          @click="$emit('navigate', 'campaign-page-v1')"
+          :class="[
+            'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+            currentView === 'campaign-page-v1'
+              ? 'bg-[#ED5A29] text-white'
+              : 'bg-[#505763] hover:bg-[#8F97A4]'
+          ]"
+        >
+          Campaign Page
+        </button>
+
+        <!-- Analytics Dropdown -->
         <div class="relative">
           <button
-            @click="campaignsDropdownOpen = !campaignsDropdownOpen"
+            @click="analyticsDropdownOpen = !analyticsDropdownOpen"
             :class="[
               'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
-              ['campaigns-v1', 'campaigns-v2', 'campaigns-v3'].includes(currentView)
+              ['analytics-v1', 'analytics-v2', 'analytics-v3'].includes(currentView)
                 ? 'bg-[#ED5A29] text-white'
                 : 'bg-[#505763] hover:bg-[#8F97A4]'
             ]"
           >
-            Campaigns
-            <ChevronUp :size="12" :class="{ 'rotate-180': campaignsDropdownOpen }" />
+            Analytics
+            <ChevronUp :size="12" :class="{ 'rotate-180': analyticsDropdownOpen }" />
           </button>
           <transition name="fade">
             <div
-              v-if="campaignsDropdownOpen"
+              v-if="analyticsDropdownOpen"
               class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-32"
             >
               <button
-                @click="selectCampaigns('campaigns-v1')"
+                @click="selectAnalytics('analytics-v1')"
                 :class="[
                   'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                  currentView === 'campaigns-v1'
+                  currentView === 'analytics-v1'
                     ? 'bg-[#ED5A29] text-white'
                     : 'hover:bg-[#505763]'
                 ]"
@@ -280,10 +306,10 @@
                 V1
               </button>
               <button
-                @click="selectCampaigns('campaigns-v2')"
+                @click="selectAnalytics('analytics-v2')"
                 :class="[
                   'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                  currentView === 'campaigns-v2'
+                  currentView === 'analytics-v2'
                     ? 'bg-[#ED5A29] text-white'
                     : 'hover:bg-[#505763]'
                 ]"
@@ -291,10 +317,10 @@
                 V2
               </button>
               <button
-                @click="selectCampaigns('campaigns-v3')"
+                @click="selectAnalytics('analytics-v3')"
                 :class="[
                   'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                  currentView === 'campaigns-v3'
+                  currentView === 'analytics-v3'
                     ? 'bg-[#ED5A29] text-white'
                     : 'hover:bg-[#505763]'
                 ]"
@@ -305,30 +331,30 @@
           </transition>
         </div>
 
-        <!-- Campaign Page Dropdown -->
+        <!-- Templates Dropdown -->
         <div class="relative">
           <button
-            @click="campaignPageDropdownOpen = !campaignPageDropdownOpen"
+            @click="templatesDropdownOpen = !templatesDropdownOpen"
             :class="[
               'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
-              ['campaign-page-v1', 'campaign-page-v2', 'campaign-page-v3'].includes(currentView)
+              ['templates-v1', 'templates-v2', 'templates-v3'].includes(currentView)
                 ? 'bg-[#ED5A29] text-white'
                 : 'bg-[#505763] hover:bg-[#8F97A4]'
             ]"
           >
-            Campaign Page
-            <ChevronUp :size="12" :class="{ 'rotate-180': campaignPageDropdownOpen }" />
+            Templates
+            <ChevronUp :size="12" :class="{ 'rotate-180': templatesDropdownOpen }" />
           </button>
           <transition name="fade">
             <div
-              v-if="campaignPageDropdownOpen"
+              v-if="templatesDropdownOpen"
               class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-32"
             >
               <button
-                @click="selectCampaignPage('campaign-page-v1')"
+                @click="selectTemplates('templates-v1')"
                 :class="[
                   'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                  currentView === 'campaign-page-v1'
+                  currentView === 'templates-v1'
                     ? 'bg-[#ED5A29] text-white'
                     : 'hover:bg-[#505763]'
                 ]"
@@ -336,10 +362,10 @@
                 V1
               </button>
               <button
-                @click="selectCampaignPage('campaign-page-v2')"
+                @click="selectTemplates('templates-v2')"
                 :class="[
                   'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                  currentView === 'campaign-page-v2'
+                  currentView === 'templates-v2'
                     ? 'bg-[#ED5A29] text-white'
                     : 'hover:bg-[#505763]'
                 ]"
@@ -347,10 +373,10 @@
                 V2
               </button>
               <button
-                @click="selectCampaignPage('campaign-page-v3')"
+                @click="selectTemplates('templates-v3')"
                 :class="[
                   'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                  currentView === 'campaign-page-v3'
+                  currentView === 'templates-v3'
                     ? 'bg-[#ED5A29] text-white'
                     : 'hover:bg-[#505763]'
                 ]"
@@ -453,8 +479,8 @@ const toggleOpen = (value) => {
 }
 const flowDropdownOpen = ref(false)
 const recommendationDropdownOpen = ref(false)
-const campaignsDropdownOpen = ref(false)
-const campaignPageDropdownOpen = ref(false)
+const analyticsDropdownOpen = ref(false)
+const templatesDropdownOpen = ref(false)
 
 const selectFlow = (type) => {
   emit('select-flow', type)
@@ -466,14 +492,14 @@ const selectRecommendation = (view) => {
   recommendationDropdownOpen.value = false
 }
 
-const selectCampaigns = (view) => {
+const selectAnalytics = (view) => {
   emit('navigate', view)
-  campaignsDropdownOpen.value = false
+  analyticsDropdownOpen.value = false
 }
 
-const selectCampaignPage = (view) => {
+const selectTemplates = (view) => {
   emit('navigate', view)
-  campaignPageDropdownOpen.value = false
+  templatesDropdownOpen.value = false
 }
 
 const goToHome = () => {
