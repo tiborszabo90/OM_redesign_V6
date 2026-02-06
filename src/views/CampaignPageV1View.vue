@@ -5,11 +5,14 @@
         <!-- Header -->
         <div class="flex items-start justify-between mb-4">
           <div>
-            <h1 class="text-xl font-semibold text-om-gray-700 mb-1">Black Friday 2025</h1>
+            <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Black Friday 2025</h1>
             <p class="text-xs text-om-gray-400">www.mydomain.com</p>
           </div>
           <div class="flex items-center gap-2.5">
-            <button class="w-8 h-8 flex items-center justify-center text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600 rounded-lg transition-all cursor-pointer">
+            <button
+              @click="isScheduleModalOpen = true"
+              class="w-8 h-8 flex items-center justify-center text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600 rounded-lg transition-all cursor-pointer"
+            >
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5">
                 <rect x="2" y="4" width="14" height="11" rx="2"/>
                 <path d="M6 2v2M12 2v2M2 8h14"/>
@@ -427,11 +430,283 @@
       </div>
     </template>
   </DashboardLayout>
+
+  <!-- Schedule Modal -->
+  <transition name="modal">
+    <div v-if="isScheduleModalOpen" class="fixed inset-0 z-50 flex items-start justify-center px-6 pt-10 pb-20" style="background-color: rgba(49, 80, 85, 0.65);" @click.self="isScheduleModalOpen = false">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-[600px] max-h-[calc(100vh-120px)] overflow-hidden flex flex-col" @click.stop>
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-om-gray-200 bg-white flex-shrink-0">
+          <h2 class="text-xl font-semibold text-om-gray-700">Set up your schedule</h2>
+          <button @click="isScheduleModalOpen = false" class="text-om-gray-400 hover:text-om-gray-600 transition-colors">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Scrollable content area -->
+        <div class="overflow-y-auto flex-1" style="scrollbar-gutter: stable;">
+        <!-- Modal Content -->
+        <div class="pl-6 pr-3 py-6 space-y-8">
+          <!-- Time zone -->
+          <div class="flex items-center gap-4">
+            <label class="text-sm font-medium text-om-gray-700 w-32 shrink-0">Time zone</label>
+            <div class="relative flex-1">
+              <button
+                @click="isTimezoneOpen = !isTimezoneOpen"
+                class="w-full px-3 pr-8 py-2 border border-om-gray-200 rounded-lg text-sm text-om-gray-700 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white text-left hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
+                :class="{ 'border-om-gray-300 bg-[#FAFAFA]': isTimezoneOpen }"
+                style="box-shadow: none !important; outline: none !important;"
+              >
+                {{ selectedTimezone }}
+              </button>
+              <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                <ChevronDown
+                  :size="20"
+                  class="text-om-gray-600 transition-transform"
+                  :class="{ 'rotate-180': isTimezoneOpen }"
+                />
+              </div>
+              <transition
+                enter-active-class="transition ease-out duration-100"
+                enter-from-class="opacity-0 scale-95"
+                enter-to-class="opacity-100 scale-100"
+                leave-active-class="transition ease-in duration-75"
+                leave-from-class="opacity-100 scale-100"
+                leave-to-class="opacity-0 scale-95"
+              >
+                <div
+                  v-if="isTimezoneOpen"
+                  class="absolute z-10 w-full mt-2 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden max-h-60 overflow-y-auto"
+                >
+                  <button
+                    v-for="option in timezoneOptions"
+                    :key="option"
+                    @click="selectTimezone(option)"
+                    class="w-full px-3 py-2 text-left text-sm text-om-gray-700 hover:bg-[#F9FAFB] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F9FAFB]"
+                    :class="{ 'bg-[#F1F2F4] font-medium': selectedTimezone === option }"
+                    style="box-shadow: none !important; outline: none !important;"
+                  >
+                    {{ option }}
+                  </button>
+                </div>
+              </transition>
+            </div>
+          </div>
+
+          <!-- Start date -->
+          <div class="flex items-center gap-4">
+            <label class="text-sm font-medium text-om-gray-700 w-32 shrink-0">Start date</label>
+            <div class="flex gap-3 flex-1">
+              <div class="relative flex-1">
+                <input
+                  type="date"
+                  v-model="startDate"
+                  class="w-full pl-9 pr-3 py-2 border border-om-gray-200 rounded-lg text-sm text-om-gray-700 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
+                  style="box-shadow: none !important; outline: none !important;"
+                />
+                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                  <Calendar :size="16" class="text-om-gray-600" />
+                </div>
+              </div>
+              <div class="relative w-32">
+                <input
+                  type="time"
+                  v-model="startTime"
+                  class="w-full pl-9 pr-3 py-2 border border-om-gray-200 rounded-lg text-sm text-om-gray-700 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
+                  style="box-shadow: none !important; outline: none !important;"
+                />
+                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                  <Clock :size="16" class="text-om-gray-600" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- End date -->
+          <div class="flex items-start gap-4">
+            <label class="text-sm font-medium text-om-gray-700 w-32 shrink-0 pt-1">End date</label>
+            <div class="space-y-3 flex-1">
+              <div class="grid grid-cols-[110px_1fr] gap-2">
+                <div class="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    id="never"
+                    value="never"
+                    v-model="endDateType"
+                    class="custom-radio cursor-pointer"
+                  />
+                  <label for="never" class="text-sm text-om-gray-700 cursor-pointer">Never</label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    id="on"
+                    value="on"
+                    v-model="endDateType"
+                    class="custom-radio cursor-pointer"
+                  />
+                  <label for="on" class="text-sm text-om-gray-700 cursor-pointer">Set end date</label>
+                </div>
+              </div>
+              <div v-if="endDateType === 'on'" class="flex gap-3">
+                <div class="relative flex-1">
+                  <input
+                    type="date"
+                    v-model="endDate"
+                    placeholder="MM/DD/YYYY"
+                    class="w-full pl-9 pr-3 py-2 border border-om-gray-200 rounded-lg text-sm text-om-gray-700 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
+                    style="box-shadow: none !important; outline: none !important;"
+                  />
+                  <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                    <Calendar :size="16" class="text-om-gray-600" />
+                  </div>
+                </div>
+                <div class="relative w-32">
+                  <input
+                    type="time"
+                    v-model="endTime"
+                    class="w-full pl-9 pr-3 py-2 border border-om-gray-200 rounded-lg text-sm text-om-gray-700 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
+                    style="box-shadow: none !important; outline: none !important;"
+                  />
+                  <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                    <Clock :size="16" class="text-om-gray-600" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Daily schedule -->
+          <div>
+            <!-- Daily schedule label with radio buttons -->
+            <div class="flex items-center gap-4">
+              <label class="text-sm font-medium text-om-gray-700 w-32 shrink-0">Daily schedule</label>
+              <div class="grid grid-cols-[110px_1fr] gap-2 flex-1">
+                <div class="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    id="everyday"
+                    value="everyday"
+                    v-model="scheduleType"
+                    class="custom-radio cursor-pointer"
+                  />
+                  <label for="everyday" class="text-sm text-om-gray-700 cursor-pointer">Every day</label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    id="specific"
+                    value="specific"
+                    v-model="scheduleType"
+                    class="custom-radio cursor-pointer"
+                  />
+                  <label for="specific" class="text-sm text-om-gray-700 cursor-pointer">Specific</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Daily schedule content - only shown when Specific is selected -->
+            <div v-if="scheduleType === 'specific'" class="mt-4 space-y-4">
+              <!-- Days of week -->
+              <div class="flex items-start gap-4">
+                <div class="w-32 shrink-0"></div>
+                <div class="flex gap-2 flex-1">
+                  <button
+                    v-for="day in daysOfWeek"
+                    :key="day.value"
+                    @click="toggleDay(day.value)"
+                    :class="[
+                      'flex-1 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer',
+                      selectedDays.includes(day.value)
+                        ? 'bg-om-orange-500 text-white'
+                        : 'bg-om-gray-100 text-om-gray-600 hover:bg-om-gray-200'
+                    ]"
+                  >
+                    {{ day.label }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Time range -->
+              <div class="flex items-start gap-4">
+                <div class="w-32 shrink-0"></div>
+                <div class="grid grid-cols-[110px_1fr] gap-2 flex-1">
+                  <div>
+                    <label class="block text-sm font-medium text-om-gray-700 mb-2">From</label>
+                    <div class="relative">
+                      <input
+                        type="time"
+                        v-model="dailyFromTime"
+                        class="w-full pl-9 pr-3 py-2 border border-om-gray-200 rounded-lg text-sm text-om-gray-700 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
+                        style="box-shadow: none !important; outline: none !important;"
+                      />
+                      <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                        <Clock :size="16" class="text-om-gray-600" />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-om-gray-700 mb-2">To</label>
+                    <div class="relative">
+                      <input
+                        type="time"
+                        v-model="dailyToTime"
+                        class="w-full pl-9 pr-3 py-2 border border-om-gray-200 rounded-lg text-sm text-om-gray-700 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
+                        style="box-shadow: none !important; outline: none !important;"
+                      />
+                      <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                        <Clock :size="16" class="text-om-gray-600" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Action buttons - Sticky -->
+        <div class="flex items-center justify-end gap-3 pl-6 pr-3 py-3 bg-white">
+          <button
+            @click="isScheduleModalOpen = false"
+            class="px-4 py-2 text-sm font-medium text-om-gray-700 hover:bg-om-gray-100 rounded-lg transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            @click="saveSchedule"
+            class="px-4 py-2 bg-om-orange-500 text-white text-sm font-medium rounded-lg hover:bg-om-orange-600 transition-colors cursor-pointer"
+          >
+            Save
+          </button>
+        </div>
+
+        <!-- How it works - Sticky at bottom -->
+        <div class="pl-6 pr-3 pb-6 bg-white">
+          <div class="bg-om-gray-50 rounded-lg p-3">
+            <div class="flex items-start gap-2">
+              <GraduationCap :size="16" class="shrink-0 mt-0.5 text-om-gray-400" />
+              <div>
+                <p class="text-xs text-om-gray-500 leading-relaxed">
+                  Use the campaign schedule to specify in advance how long your campaign can run, and to specify the specific days and times your campaign can run. Depending on the timing, the campaign will start and stop automatically.
+                  <a href="#" class="text-om-orange-500 hover:text-om-orange-600 font-medium ml-1">Read more</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
-import { ChevronDown, TrendingUp, ChevronRight, Calendar, Target, MoreVertical } from 'lucide-vue-next'
+import { ChevronDown, TrendingUp, ChevronRight, Calendar, Clock, Target, MoreVertical, GraduationCap } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 
 defineEmits(['menu-click'])
@@ -475,4 +750,156 @@ const handleLogoClick = () => {
   // Navigate back to home
   window.location.reload()
 }
+
+// Schedule Modal states
+const isScheduleModalOpen = ref(false)
+const isTimezoneOpen = ref(false)
+const selectedTimezone = ref('GMT+01:00 Europe/Budapest')
+const timezoneOptions = [
+  'GMT-12:00 International Date Line West',
+  'GMT-11:00 Midway Island',
+  'GMT-10:00 Hawaii',
+  'GMT-09:00 Alaska',
+  'GMT-08:00 Pacific Time (US & Canada)',
+  'GMT-07:00 Mountain Time (US & Canada)',
+  'GMT-06:00 Central Time (US & Canada)',
+  'GMT-05:00 Eastern Time (US & Canada)',
+  'GMT-04:00 Atlantic Time (Canada)',
+  'GMT-03:00 Buenos Aires',
+  'GMT-02:00 Mid-Atlantic',
+  'GMT-01:00 Azores',
+  'GMT+00:00 London',
+  'GMT+01:00 Europe/Budapest',
+  'GMT+02:00 Athens',
+  'GMT+03:00 Moscow',
+  'GMT+04:00 Dubai',
+  'GMT+05:00 Islamabad',
+  'GMT+06:00 Dhaka',
+  'GMT+07:00 Bangkok',
+  'GMT+08:00 Singapore',
+  'GMT+09:00 Tokyo',
+  'GMT+10:00 Sydney',
+  'GMT+11:00 Solomon Islands',
+  'GMT+12:00 Auckland'
+]
+
+const startDate = ref('2026-02-06')
+const startTime = ref('10:46')
+const endDateType = ref('never')
+const endDate = ref('')
+const endTime = ref('10:46')
+const isDailyScheduleOpen = ref(false)
+
+// Daily schedule states
+const isDailyTimezoneOpen = ref(false)
+const selectedDailyTimezone = ref('GMT+01:00 Europe/Budapest')
+const scheduleType = ref('everyday')
+const selectedDays = ref(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'])
+const daysOfWeek = [
+  { value: 'mon', label: 'Mon' },
+  { value: 'tue', label: 'Tue' },
+  { value: 'wed', label: 'Wed' },
+  { value: 'thu', label: 'Thu' },
+  { value: 'fri', label: 'Fri' },
+  { value: 'sat', label: 'Sat' },
+  { value: 'sun', label: 'Sun' }
+]
+const dailyFromTime = ref('10:47')
+const dailyToTime = ref('10:47')
+
+const selectTimezone = (option) => {
+  selectedTimezone.value = option
+  isTimezoneOpen.value = false
+}
+
+const selectDailyTimezone = (option) => {
+  selectedDailyTimezone.value = option
+  isDailyTimezoneOpen.value = false
+}
+
+const toggleDay = (day) => {
+  const index = selectedDays.value.indexOf(day)
+  if (index > -1) {
+    selectedDays.value.splice(index, 1)
+  } else {
+    selectedDays.value.push(day)
+  }
+}
+
+const saveSchedule = () => {
+  // Handle save logic here
+  console.log('Schedule saved:', {
+    timezone: selectedTimezone.value,
+    startDate: startDate.value,
+    startTime: startTime.value,
+    endDateType: endDateType.value,
+    endDate: endDate.value,
+    endTime: endTime.value
+  })
+  isScheduleModalOpen.value = false
+}
 </script>
+
+<style scoped>
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active > div,
+.modal-leave-active > div {
+  transition: transform 0.2s ease;
+}
+
+.modal-enter-from > div,
+.modal-leave-to > div {
+  transform: scale(0.95);
+}
+
+/* Custom Radio Button */
+.custom-radio {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #D5D8DD;
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+.custom-radio:checked {
+  border-color: #ED5A29;
+  background-color: white;
+}
+
+.custom-radio:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ED5A29;
+}
+
+.custom-radio:hover {
+  border-color: #C44D24;
+}
+
+.custom-radio:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(237, 90, 41, 0.1);
+}
+</style>
