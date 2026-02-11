@@ -41,7 +41,7 @@ const buttonClasses = computed(() => {
   const variants = {
     primary: 'bg-[#ED5A29] text-white hover:bg-[#E54D1F] focus:ring-[#ED5A29]',
     secondary: 'bg-[#E3E5E8] text-[#23262A] hover:bg-[#D5D8DD] focus:ring-[#8F97A4]',
-    outline: 'border border-[#D5D8DD] text-[#505763] hover:bg-[#F7F7F8] focus:ring-[#ED5A29]'
+    outline: 'border border-[#D5D8DD] text-[#505763] hover:bg-[#F9FAFB] focus:ring-[#ED5A29]'
   }
 
   const sizes = {

@@ -1,0 +1,6 @@
+.new-campaign-sms-prompt-modal.v--modal-overlay.loading { z-index: 10 !important; }
+.new-campaign-sms-prompt-modal .brand-modal-header { text-align: center; }
+.new-campaign-sms-prompt-modal .brand-modal-header .heading-5 { font-size: 20px !important; }
+.new-campaign-sms-prompt-modal .box-select-item-title { margin-bottom: 0px; font-size: 16px; font-weight: 500; }
+.new-campaign-sms-prompt-modal .box-select-item { padding: 20px 0px; }
+.new-campaign-sms-prompt-modal .brand-modal-body { padding: 0px 2.857rem; }

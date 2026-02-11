@@ -1,0 +1,5 @@
+.money-format-modal .results { -webkit-box-pack: justify; justify-content: space-between; }
+.money-format-modal .switch { display: flex; -webkit-box-orient: vertical; -webkit-box-direction: normal; flex-direction: column; margin-left: unset; }
+.money-format-modal .switch label { margin-bottom: unset; }
+.money-format-modal .gap-1 { gap: 1rem; }
+.money-format-modal .gap-2 { gap: 2rem; }

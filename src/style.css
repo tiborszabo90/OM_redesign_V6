@@ -17,7 +17,7 @@
   --color-om-orange-900: #7A260B;
 
   /* OptiMonk Gray Color Palette */
-  --color-om-gray-50: #F7F7F8;
+  --color-om-gray-50: #F9FAFB;
   --color-om-gray-100: #F1F2F4;
   --color-om-gray-200: #E3E5E8;
   --color-om-gray-300: #D5D8DD;
@@ -137,4 +137,392 @@ button.border-\[\#E3E5E8\]:not(:disabled):not(.style-card):not(.dropdown-select)
     font-size: 1.875rem !important; /* text-3xl */
     line-height: 2.25rem !important;
   }
+}
+
+/* VueDatePicker custom styles */
+.om-datepicker .dp__input {
+  padding: 0.5rem 2.25rem 0.5rem 0.75rem !important;
+  border: 1px solid #E3E5E8 !important;
+  border-radius: 0.5rem !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  color: #23262A !important;
+  background-color: white !important;
+  font-family: 'Funnel Sans', sans-serif !important;
+  box-shadow: none !important;
+}
+
+.om-datepicker .dp__input:hover {
+  border-color: #D5D8DD !important;
+  background-color: #FAFAFA !important;
+}
+
+.om-datepicker .dp__input:focus {
+  border-color: #E3E5E8 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.om-datepicker .dp__input_icon {
+  right: 0.75rem !important;
+  left: auto !important;
+  color: #505763 !important;
+}
+
+.om-datepicker .dp__input_icon_pad {
+  padding-right: 2rem !important;
+}
+
+.om-datepicker .dp__input_icons {
+  width: 2rem !important;
+}
+
+.om-datepicker .dp__input_icons > *:not(:last-child) {
+  display: none !important;
+}
+
+.om-datepicker .dp__input_wrap button:not(.dp__input_icon) {
+  display: none !important;
+}
+
+.om-datepicker svg[data-test="close-icon"],
+.om-datepicker .dp__icon[data-test="close-icon"] {
+  display: none !important;
+}
+
+.om-datepicker .dp__clear_icon {
+  display: none !important;
+}
+
+.om-datepicker .dp__action_button {
+  display: none !important;
+}
+
+.om-datepicker .dp__action_buttons {
+  display: none !important;
+}
+
+.om-datepicker .dp__selection_preview {
+  display: none !important;
+}
+
+.om-datepicker .dp__now_button {
+  display: none !important;
+}
+
+.om-datepicker .dp__time_display {
+  display: none !important;
+}
+
+.om-datepicker .dp__action_row {
+  display: none !important;
+}
+
+.om-datepicker .dp__action_icon {
+  display: none !important;
+}
+
+.om-datepicker .dp__calendar_icon {
+  display: none !important;
+}
+
+.om-datepicker .dp__icon {
+  display: none !important;
+}
+
+.om-datepicker .dp__action_extra {
+  display: none !important;
+}
+
+.om-datepicker .dp__menu {
+  border: 1px solid #E3E5E8 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+  padding: 12px !important;
+  font-family: 'Funnel Sans', sans-serif !important;
+}
+
+.om-datepicker .dp__calendar_header {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #23262A !important;
+}
+
+.om-datepicker .dp__calendar_header_item {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #505763 !important;
+  text-transform: uppercase !important;
+}
+
+.om-datepicker .dp__cell_inner {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  color: #23262A !important;
+}
+
+.om-datepicker .dp__cell_inner:hover {
+  background-color: #FEEFEA !important;
+  color: #ED5A29 !important;
+}
+
+.om-datepicker .dp__today {
+  background-color: #FEEFEA !important;
+  color: #23262A !important;
+  border: 2px solid #ED5A29 !important;
+}
+
+.om-datepicker .dp__active_date {
+  background-color: #ED5A29 !important;
+  color: white !important;
+}
+
+.om-datepicker .dp__arrow_top,
+.om-datepicker .dp__arrow_bottom {
+  display: none !important;
+}
+
+.om-datepicker .dp__button {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 6px !important;
+  color: #505763 !important;
+}
+
+.om-datepicker .dp__button:hover {
+  background-color: #F1F2F4 !important;
+  color: #23262A !important;
+}
+
+.om-datepicker .dp__overlay_cell_active {
+  background-color: #ED5A29 !important;
+  color: white !important;
+}
+
+.om-datepicker .dp__overlay_cell:hover {
+  background-color: #FEEFEA !important;
+  color: #ED5A29 !important;
+}
+
+.om-datepicker .dp__month_year_select:hover {
+  background-color: #FEEFEA !important;
+  color: #ED5A29 !important;
+}
+
+/* Global VueDatePicker styles (for teleported menu) */
+.dp__input_icon_pad {
+  padding-right: 2rem !important;
+}
+
+.dp__input_icons {
+  width: 2rem !important;
+}
+
+.dp__input_icons > *:not(:last-child) {
+  display: none !important;
+}
+
+.dp__input_wrap button:not(.dp__input_icon) {
+  display: none !important;
+}
+
+svg[data-test="close-icon"],
+.dp__icon[data-test="close-icon"] {
+  display: none !important;
+}
+
+.dp__clear_icon {
+  display: none !important;
+}
+
+.dp__action_button {
+  display: none !important;
+}
+
+.dp__action_buttons {
+  display: none !important;
+}
+
+.dp__selection_preview {
+  display: none !important;
+}
+
+.dp__now_button {
+  display: none !important;
+}
+
+.dp__time_display {
+  display: none !important;
+}
+
+.dp__action_row {
+  display: none !important;
+}
+
+.dp__action_icon {
+  display: none !important;
+}
+
+.dp__calendar_icon {
+  display: none !important;
+}
+
+.dp__icon {
+  display: none !important;
+}
+
+.dp__action_extra {
+  display: none !important;
+}
+
+.dp__menu {
+  border: 1px solid #E3E5E8 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+  padding: 12px !important;
+  font-family: 'Funnel Sans', sans-serif !important;
+}
+
+.dp__calendar_header {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #23262A !important;
+}
+
+.dp__calendar_header_item {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #505763 !important;
+  text-transform: uppercase !important;
+}
+
+.dp__cell_inner {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  color: #23262A !important;
+}
+
+.dp__cell_inner:hover {
+  background-color: #FEEFEA !important;
+  color: #ED5A29 !important;
+}
+
+.dp__today {
+  background-color: #FEEFEA !important;
+  color: #23262A !important;
+  border: 2px solid #ED5A29 !important;
+}
+
+.dp__active_date {
+  background-color: #ED5A29 !important;
+  color: white !important;
+}
+
+.dp__arrow_top,
+.dp__arrow_bottom {
+  display: none !important;
+}
+
+.dp__button {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 6px !important;
+  color: #505763 !important;
+}
+
+.dp__button:hover {
+  background-color: #F1F2F4 !important;
+  color: #23262A !important;
+}
+
+.dp__overlay_cell_active {
+  background-color: #ED5A29 !important;
+  color: white !important;
+}
+
+.dp__overlay_cell:hover {
+  background-color: #FEEFEA !important;
+  color: #ED5A29 !important;
+}
+
+.dp__month_year_select:hover {
+  background-color: #FEEFEA !important;
+  color: #ED5A29 !important;
+}
+
+
+
+/* Time Picker custom styles - with higher specificity */
+input[type="time"].cursor-pointer {
+  font-family: 'Funnel Sans', sans-serif !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  color: #23262A !important;
+  border: 1px solid #E3E5E8 !important;
+  border-radius: 0.5rem !important;
+  background-color: white !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  padding: 0.5rem 2.25rem 0.5rem 0.75rem !important;
+}
+
+input[type="time"].cursor-pointer:hover {
+  border-color: #D5D8DD !important;
+  background-color: #FAFAFA !important;
+}
+
+input[type="time"].cursor-pointer:focus {
+  border-color: #ED5A29 !important;
+  background-color: white !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(237, 90, 41, 0.1) !important;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 0 !important;
+  position: absolute !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  cursor: pointer !important;
+}
+
+input[type="time"]::-webkit-inner-spin-button,
+input[type="time"]::-webkit-clear-button {
+  display: none !important;
+}
+
+input[type="time"]::-webkit-datetime-edit {
+  font-family: 'Funnel Sans', sans-serif !important;
+  color: #23262A !important;
+}
+
+input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+  font-family: 'Funnel Sans', sans-serif !important;
+}
+
+input[type="time"]::-webkit-datetime-edit-text {
+  font-family: 'Funnel Sans', sans-serif !important;
+  color: #505763 !important;
+}
+
+input[type="time"]::-webkit-datetime-edit-hour-field,
+input[type="time"]::-webkit-datetime-edit-minute-field,
+input[type="time"]::-webkit-datetime-edit-ampm-field {
+  font-family: 'Funnel Sans', sans-serif !important;
+  color: #23262A !important;
+  padding: 0 2px !important;
+  border-radius: 2px !important;
+}
+
+input[type="time"]::-webkit-datetime-edit-hour-field:focus,
+input[type="time"]::-webkit-datetime-edit-minute-field:focus,
+input[type="time"]::-webkit-datetime-edit-ampm-field:focus {
+  background-color: #FEEFEA !important;
+  color: #ED5A29 !important;
+  outline: none !important;
 }

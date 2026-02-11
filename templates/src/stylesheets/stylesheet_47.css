@@ -1,0 +1,3 @@
+.layout-side-by-side { gap: 3.75rem; }
+.layout-side-by-side .layout-right-column { width: 100%; padding-bottom: 60px; }
+.layout-side-by-side .layout-left-column { min-width: 15rem; }

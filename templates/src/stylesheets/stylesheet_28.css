@@ -1,0 +1,5 @@
+.season-card[data-v-a7d2a7f0] { position: relative; background-repeat: no-repeat; background-size: cover; background-position: 0px 0px; border-radius: 1rem; aspect-ratio: 583 / 353; border: 1px solid rgb(228, 227, 229); overflow: hidden; cursor: pointer; }
+.season-card img[data-v-a7d2a7f0] { object-fit: cover; width: 100%; height: auto; transition: 0.3s; }
+@media (pointer: fine) and (hover: hover) {
+  .season-card:hover img[data-v-a7d2a7f0] { transform: scale(1.06); }
+}

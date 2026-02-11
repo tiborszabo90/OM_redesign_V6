@@ -1,0 +1,4 @@
+.vc-tab-wrapper-empty .sidebar-tab-wrapper-tabs { display: none; margin: 0px !important; }
+.vc-sketch .sidebar-tab-wrapper-tabs { border-bottom: 1px solid rgb(227, 229, 232); }
+.backdrop[data-v-55b340b3] { position: absolute; height: 100%; width: 100%; left: 0px; top: 0px; z-index: 9999999; }
+.editor-color-picker[data-v-55b340b3] { width: 296px; z-index: 2000; position: absolute; border-radius: 8px; box-shadow: rgba(0, 0, 0, 0.2) 0px 15px 15px 0px; transition: opacity 0.1s ease-in-out; }

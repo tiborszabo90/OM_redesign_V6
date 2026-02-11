@@ -1,0 +1,8 @@
+.vue-js-switch[data-v-25adc6c0] { display: inline-block; position: relative; vertical-align: middle; user-select: none; font-size: 10px; cursor: pointer; }
+.vue-js-switch .v-switch-input[data-v-25adc6c0] { opacity: 0; position: absolute; width: 1px; height: 1px; }
+.vue-js-switch .v-switch-label[data-v-25adc6c0] { position: absolute; top: 0px; font-weight: 600; color: rgb(255, 255, 255); z-index: 1; }
+.vue-js-switch .v-switch-label.v-left[data-v-25adc6c0] { left: 10px; }
+.vue-js-switch .v-switch-label.v-right[data-v-25adc6c0] { right: 10px; }
+.vue-js-switch .v-switch-core[data-v-25adc6c0] { display: block; position: relative; box-sizing: border-box; outline: 0px; margin: 0px; transition: border-color 0.3s, background-color 0.3s; user-select: none; }
+.vue-js-switch .v-switch-core .v-switch-button[data-v-25adc6c0] { display: block; position: absolute; overflow: hidden; top: 0px; left: 0px; border-radius: 100%; background-color: rgb(255, 255, 255); z-index: 2; }
+.vue-js-switch.disabled[data-v-25adc6c0] { pointer-events: none; opacity: 0.6; }

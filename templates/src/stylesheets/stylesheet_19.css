@@ -1,0 +1,5 @@
+.brand-themes-card[data-v-021da501] { position: relative; border-radius: 20px; aspect-ratio: 562 / 340; height: auto; border: 1px solid rgb(228, 227, 229); overflow: hidden; cursor: pointer; }
+.brand-themes-card img[data-v-021da501] { object-fit: cover; width: 100%; height: auto; transition: 0.3s; }
+@media (pointer: fine) and (hover: hover) {
+  .brand-themes-card:hover img[data-v-021da501] { transform: scale(1.06); }
+}

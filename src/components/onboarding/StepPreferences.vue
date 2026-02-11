@@ -12,7 +12,7 @@
           <label
             v-for="interest in interests"
             :key="interest"
-            class="flex items-center p-3 border border-[#D5D8DD] rounded-lg hover:bg-[#F7F7F8] cursor-pointer"
+            class="flex items-center p-3 border border-[#D5D8DD] rounded-lg hover:bg-[#F9FAFB] cursor-pointer"
           >
             <input
               type="checkbox"

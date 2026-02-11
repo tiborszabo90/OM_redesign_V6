@@ -1,0 +1,30 @@
+.loader { width: fit-content; cursor: wait; --gradient-color: rgba(255,255,255,0.5); }
+@keyframes fade { 
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+@keyframes pulse { 
+  0% { transform: scale(1); }
+  50% { transform: scale(0.85); }
+  100% { transform: scale(1); }
+}
+@keyframes pulse-x { 
+  0% { transform: scaleX(1); }
+  50% { transform: scaleX(0.75); }
+  100% { transform: scaleX(1); }
+}
+@keyframes pulse-y { 
+  0% { transform: scaleY(1); }
+  50% { transform: scaleY(0.75); }
+  100% { transform: scaleY(1); }
+}
+@keyframes wave { 
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.animation--fade { animation: 1.5s linear 0.5s infinite normal none running fade; }
+.animation--wave::before { background: linear-gradient(90deg,transparent,var(--gradient-color),transparent); animation: 1.5s linear 0.5s infinite normal none running wave; }
+.animation--pulse-x { animation: 1.5s linear 0.5s infinite normal none running pulse-x; }
+.animation--pulse-y { animation: 1.5s linear 0.5s infinite normal none running pulse-y; }
+.animation--pulse { animation: 1.5s linear 0.5s infinite normal none running pulse; }

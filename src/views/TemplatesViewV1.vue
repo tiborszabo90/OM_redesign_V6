@@ -312,48 +312,12 @@
               <h1>What will you create today?</h1>
               <div class="language-selector-wrapper">
                 <label class="language-label">Template Language</label>
-                <div class="language-selector relative w-[240px]" ref="languageDropdownRef">
-                <button
-                  @click="isLanguageDropdownOpen = !isLanguageDropdownOpen"
-                  class="dropdown-select w-full px-3 pr-8 py-1.5 border border-om-gray-200 rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white text-left hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
-                  :class="{ 'border-om-orange-300': isLanguageDropdownOpen }"
-                  :style="isLanguageDropdownOpen ? 'box-shadow: 0 0 0 2px #FBD9CE; outline: none;' : 'box-shadow: none; outline: none;'"
-                >
-                  {{ selectedLanguage.label }}
-                </button>
-                <div class="absolute inset-y-0 right-2.5 flex items-center pointer-events-none">
-                  <ChevronDown
-                    :size="16"
-                    class="text-om-gray-600 transition-transform"
-                    :class="{ 'rotate-180': isLanguageDropdownOpen }"
+                <div class="language-selector w-[240px]">
+                  <Dropdown
+                    v-model="selectedLanguage"
+                    :options="languageOptions"
+                    size="sm"
                   />
-                </div>
-
-                <!-- Dropdown menu -->
-                <transition
-                  enter-active-class="transition ease-out duration-100"
-                  enter-from-class="opacity-0 scale-95"
-                  enter-to-class="opacity-100 scale-100"
-                  leave-active-class="transition ease-in duration-75"
-                  leave-from-class="opacity-100 scale-100"
-                  leave-to-class="opacity-0 scale-95"
-                >
-                  <div
-                    v-if="isLanguageDropdownOpen"
-                    class="absolute z-10 w-full mt-2 bg-white border border-[#D5D8DD] rounded-lg shadow-lg overflow-hidden"
-                  >
-                    <button
-                      v-for="option in languageOptions"
-                      :key="option.value"
-                      @click="selectLanguage(option)"
-                      class="w-full px-3 py-1.5 text-left text-sm text-[#23262A] hover:bg-[#F9FAFB] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F9FAFB]"
-                      :class="{ 'bg-[#F1F2F4] font-medium': selectedLanguage.value === option.value }"
-                      style="box-shadow: none !important; outline: none !important;"
-                    >
-                      {{ option.label }}
-                    </button>
-                  </div>
-                </transition>
                 </div>
               </div>
             </div>
@@ -501,9 +465,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { Check, ChevronDown, ChevronRight, Home, Paintbrush, FolderOpen, Edit, Search } from 'lucide-vue-next'
+import { ref } from 'vue'
+import { Check, ChevronRight, Home, Paintbrush, FolderOpen, Edit, Search } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+import Dropdown from '../components/shared/Dropdown.vue'
 
 const emit = defineEmits(['menu-click'])
 
@@ -543,25 +508,12 @@ const messageType = ref({
 })
 
 // Language dropdown state
-const languageDropdownRef = ref(null)
-const isLanguageDropdownOpen = ref(false)
 const languageOptions = [
   { value: 'en', label: 'English' },
   { value: 'hu', label: 'Magyar' },
   { value: 'de', label: 'Deutsch' }
 ]
 const selectedLanguage = ref(languageOptions[0])
-
-const selectLanguage = (option) => {
-  selectedLanguage.value = option
-  isLanguageDropdownOpen.value = false
-}
-
-const handleClickOutside = (event) => {
-  if (languageDropdownRef.value && !languageDropdownRef.value.contains(event.target)) {
-    isLanguageDropdownOpen.value = false
-  }
-}
 
 // Carousel navigation
 const carouselRef = ref(null)
@@ -621,13 +573,6 @@ const handleSeasonsScroll = () => {
   }
 }
 
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
 </script>
 
 <style scoped>

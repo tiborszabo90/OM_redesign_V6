@@ -1,0 +1,111 @@
+:root { --brand-primary-color: #ed5a29; --brand-secondary-color: #fff; }
+.color-black { color: rgb(0, 0, 0) !important; }
+.color-white { color: rgb(255, 255, 255) !important; }
+.color-brand-primary { color: var(--brand-primary-color) !important; }
+.color-dark-grey { color: rgb(108, 117, 125); }
+.color-ligh-grey { color: rgb(216, 216, 216); }
+.color-gray-ultra-dark { color: rgb(80, 87, 99); }
+.bg-dark-grey { background-color: rgb(108, 117, 125); }
+.bg-dark-grey-2 { background-color: rgb(35, 31, 32); }
+.bg-grey-op-8 { background-color: rgba(0, 0, 0, 0.8) !important; }
+.bg-white { background-color: rgb(255, 255, 255) !important; }
+.bg-brand-primary { background-color: var(--brand-primary-color) !important; }
+.brand-color { color: var(--brand-primary-color); }
+.brand-color-positive { color: rgb(44, 200, 150); }
+.brand-color-negative { color: rgb(238, 53, 84); }
+.auxiliary-brown { color: rgb(139, 80, 67); }
+.auxiliary-abyssal { color: rgba(49, 80, 85, 0.65); }
+.auxiliary-purple { color: rgb(132, 68, 225); }
+.auxiliary-pink { color: rgb(222, 109, 147); }
+.auxiliary-teal { color: rgb(88, 166, 164); }
+.auxiliary-blue { color: rgb(109, 154, 231); }
+.auxiliary-yellow { color: rgb(240, 201, 32); }
+.orange-500 { color: rgb(237, 90, 41) !important; }
+.orange-600 { color: rgb(209, 66, 18) !important; }
+.orange-400 { color: rgb(241, 126, 88) !important; }
+.orange-300 { color: rgb(247, 181, 159) !important; }
+.orange-200 { color: rgb(251, 217, 206) !important; }
+.orange-500-10 { color: rgba(237, 90, 41, 0.1) !important; }
+.gray-500 { color: rgb(185, 190, 198) !important; }
+.gray-900 { color: rgb(0, 0, 0) !important; }
+.gray-800 { color: rgb(35, 38, 42) !important; }
+.gray-700 { color: rgb(80, 87, 99) !important; }
+.gray-600 { color: rgb(143, 151, 164) !important; }
+.gray-400 { color: rgb(213, 216, 221) !important; }
+.gray-300 { color: rgb(227, 229, 232) !important; }
+.gray-200 { color: rgb(241, 242, 244) !important; }
+.gray-100 { color: rgb(247, 247, 248) !important; }
+.gray-50 { color: rgb(255, 255, 255) !important; }
+.gray-700-70 { color: rgba(80, 87, 99, 0.7) !important; }
+.gray-700-40 { color: rgba(80, 87, 99, 0.4) !important; }
+.gray-700-20 { color: rgba(80, 87, 99, 0.2) !important; }
+.gray-500-40 { color: rgba(185, 190, 198, 0.4) !important; }
+.gray-500-20 { color: rgba(185, 190, 198, 0.2) !important; }
+.gray-50-20 { color: rgba(255, 255, 255, 0.2) !important; }
+.peach-200 { color: rgb(255, 224, 204); }
+.peach-900 { color: rgb(153, 60, 0); }
+.peach-800 { color: rgb(204, 80, 0); }
+.peach-700 { color: rgb(255, 100, 0); }
+.peach-600 { color: rgb(255, 131, 51); }
+.peach-500 { color: rgb(255, 178, 128); }
+.peach-400 { color: rgb(255, 193, 153); }
+.peach-300 { color: rgb(255, 209, 179); }
+.peach-100 { color: rgb(255, 240, 230); }
+.peach-50 { color: rgb(255, 255, 255); }
+.alert-red-500-40 { color: rgba(228, 37, 45, 0.4); }
+.alert-red-500-10 { color: rgba(228, 37, 45, 0.1); }
+.alert-red-500 { color: rgb(228, 37, 45); }
+.alert-red-900 { color: rgb(54, 7, 9); }
+.alert-red-800 { color: rgb(100, 12, 16); }
+.alert-red-700 { color: rgb(145, 18, 23); }
+.alert-red-600 { color: rgb(190, 24, 31); }
+.alert-red-400 { color: rgb(234, 82, 89); }
+.alert-red-300 { color: rgb(242, 150, 154); }
+.alert-red-200 { color: rgb(248, 196, 198); }
+.alert-red-100 { color: rgb(250, 219, 220); }
+.alert-red-50 { color: rgb(253, 241, 242); }
+.alert-green-500 { color: rgb(44, 200, 150); }
+.alert-green-900 { color: rgb(7, 33, 25); }
+.alert-green-800 { color: rgb(16, 75, 56); }
+.alert-green-700 { color: rgb(26, 116, 87); }
+.alert-green-600 { color: rgb(35, 158, 119); }
+.alert-green-600-10 { color: rgba(35, 158, 119, 0.1); }
+.alert-green-600-40 { color: rgba(35, 158, 119, 0.4); }
+.alert-green-400 { color: rgb(79, 216, 172); }
+.alert-green-300 { color: rgb(141, 230, 202); }
+.alert-green-200 { color: rgb(183, 239, 221); }
+.alert-green-100 { color: rgb(204, 244, 231); }
+.alert-green-50 { color: rgb(225, 248, 241); }
+.alert-green-500-40 { color: rgba(44, 200, 150, 0.4); }
+.alert-green-500-20 { color: rgba(44, 200, 150, 0.2); }
+.template-filter { padding: 4px 40px; }
+@media screen and (max-width: 767px) {
+  .template-filter { padding-top: 40px; padding-bottom: 5rem; }
+}
+.template-filter-item { display: flex; font-size: 12px; padding-bottom: 18px; }
+.template-filter-item-label, .template-filter-item input { transition: 0.3s; }
+.template-filter-item-label { display: block; width: 100%; color: rgb(80, 87, 99); margin-bottom: 0px; margin-left: 0.625rem; cursor: pointer; font-size: 16px; }
+@media screen and (min-width: 768px) {
+  .template-filter-item-label { font-size: 12px; padding-right: 0.75rem; }
+}
+.template-filter-item-label:checked { border: 1px solid rgb(195, 207, 217); }
+.template-filter-item-label-active { font-weight: 500; }
+.template-filter-item-disabled { pointer-events: none; }
+.template-filter-item-disabled input { background: rgb(246, 247, 249) !important; }
+.template-filter-item-disabled input:checked { border: 1px solid rgb(195, 207, 217) !important; }
+.template-filter-item-disabled .template-filter-item-label { color: rgb(170, 177, 193); }
+.template-filter .brand-separator { background: rgb(230, 233, 240); margin-left: -1.5625rem; margin-right: -1.5625rem; width: auto; border-width: 1px; height: 1px; }
+@media screen and (min-width: 768px) {
+  .template-filter .brand-separator { margin-top: 1.75rem; margin-bottom: 0.625rem; }
+}
+@media screen and (max-width: 767px) {
+  .template-filter .brand-separator { margin-top: 0.625rem; margin-bottom: 0.625rem; }
+}
+@media screen and (max-width: 767px) {
+  .template-filter { right: 0px; width: 80vw; transform: translateX(80vw); transition: 0.3s; background: rgb(255, 255, 255); overflow-y: scroll; }
+  .template-filter, .template-filter-overlay { position: fixed; top: 0px; z-index: 200001; height: 100vh; }
+  .template-filter-overlay { left: 0px; width: 100vw; background: rgba(39, 39, 39, 0.5); }
+  .template-filter-title-holder { display: flex; -webkit-box-align: center; align-items: center; margin-bottom: 0.875rem; }
+  .template-filter-title { font-size: 1.5rem; color: rgb(170, 177, 193); font-weight: 500; line-height: 1.2; }
+  .template-filter-opened { transform: translateX(0px); }
+}

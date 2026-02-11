@@ -1,0 +1,15 @@
+import type { JSX } from 'react/jsx-runtime'
+
+
+import React from 'react';
+
+export const Archive_box = () => {
+    return (
+<svg data-v-54b206f2={""} width={"1.715em"} height={"1.715em"} xmlns={"http://www.w3.org/2000/svg"} viewBox={"0 0 24 24"} fill={"currentColor"} className={"ui-svg-inline"}>
+<path d={"M10,14h4a1,1,0,0,0,0-2H10a1,1,0,0,0,0,2ZM19,3H5A3,3,0,0,0,2,6V9a1,1,0,0,0,1,1H4v8a3,3,0,0,0,3,3H17a3,3,0,0,0,3-3V10h1a1,1,0,0,0,1-1V6A3,3,0,0,0,19,3ZM18,18a1,1,0,0,1-1,1H7a1,1,0,0,1-1-1V10H18ZM20,8H4V6A1,1,0,0,1,5,5H19a1,1,0,0,1,1,1Z"}></path>
+</svg>    );
+}
+
+
+
+export default Archive_box

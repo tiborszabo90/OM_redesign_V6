@@ -1,0 +1,10 @@
+.brand-avatar { height: 2.125rem; width: 2.125rem; min-width: 2.125rem; border-radius: 100%; background-color: rgb(145, 152, 169); color: rgb(255, 255, 255); display: flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; font-size: 0.75rem; font-weight: 500; }
+.brand-avatar-info { padding-left: 3.125rem; }
+.brand-avatar + .brand-avatar-info { padding-left: 0px; margin-right: 20px; }
+.brand-avatar-big { height: 4.625rem; width: 4.625rem; font-size: 1.625rem; box-shadow: rgba(0, 0, 0, 0.15) 0px 4px 10px; }
+.brand-avatar-name { font-size: 1rem; color: var(--brand-primary-color); }
+.brand-avatar-email, .brand-avatar-name { font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 14.25rem; }
+.brand-avatar-email { font-size: 0.8125rem; color: rgb(150, 155, 160); }
+.progress .current[data-v-afff6e7a] { border-top-right-radius: unset !important; border-bottom-right-radius: unset !important; }
+.progress .overrun[data-v-afff6e7a] { border-top-left-radius: unset !important; border-bottom-left-radius: unset !important; }
+.progress .progress-bar[data-v-afff6e7a] { border-radius: 4px; }

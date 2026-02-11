@@ -54,7 +54,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { Home, LayoutGrid, Users, TrendingUp, BookOpen, Settings, Bell } from 'lucide-vue-next'
+import { Home, LayoutGrid, Users, TrendingUp, BookOpen, GitBranch, Bell } from 'lucide-vue-next'
 
 const props = defineProps({
   activeMenuItem: {
@@ -107,7 +107,7 @@ const menuItems = [
   },
   {
     id: 'insights',
-    label: 'Insights',
+    label: 'Analytics',
     iconComponent: TrendingUp
   },
   {
@@ -117,8 +117,8 @@ const menuItems = [
   },
   {
     id: 'settings',
-    label: 'Settings',
-    iconComponent: Settings
+    label: 'A/B Tests',
+    iconComponent: GitBranch
   }
 ]
 </script>

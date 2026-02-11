@@ -1,0 +1,4 @@
+.loader[data-v-39eb697a] { overflow: hidden; position: relative; }
+.loader[data-v-39eb697a]::before { content: ""; display: block; position: absolute; inset: 0px; }
+.shape--text[data-v-39eb697a] { height: 20px; }
+.shape--round[data-v-39eb697a] { border-radius: 8px; }

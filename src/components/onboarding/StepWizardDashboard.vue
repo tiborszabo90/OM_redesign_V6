@@ -148,7 +148,7 @@
 
     <!-- Recommendation screen V4 -->
     <transition v-else-if="showRecommendationV4" name="fade" appear>
-      <div class="min-h-screen-safe bg-white overflow-y-auto">
+      <div class="min-h-screen-safe bg-white">
         <!-- Two-column intro section -->
         <div class="w-full flex gap-6 items-stretch p-6 h-screen-safe">
           <!-- Left column (60%) -->
@@ -219,13 +219,24 @@
         </div>
 
         <!-- Use cases section -->
-        <div class="max-w-[1520px] mx-auto px-6 mt-6">
+        <div class="max-w-[1520px] mx-auto px-6 mt-6 pb-[100px]">
+          <!-- Heading with divider -->
+          <div class="flex items-center gap-6 mb-12">
+            <h2 class="text-3xl font-semibold text-om-gray-700 whitespace-nowrap pl-15">
+              Recommended Popup Campaigns
+            </h2>
+            <div class="flex-1 h-px bg-om-gray-300"></div>
+            <div class="w-15"></div>
+          </div>
+
           <!-- Use cases list - single column -->
           <div class="flex flex-col gap-12">
             <div
-              v-for="useCase in useCases"
+              v-for="(useCase, index) in useCases"
               :key="useCase.id"
-              class="bg-om-gray-50 rounded-2xl p-5 lg:p-6"
+              :ref="el => { if (el) useCaseRefs[index] = el }"
+              class="bg-om-gray-50 rounded-2xl p-5 lg:p-6 use-case-item"
+              :class="{ 'animate-fade-in-up-visible': visibleUseCases[index] }"
             >
               <!-- Three column layout: Text | Desktop | Mobile -->
               <div class="flex gap-12 items-center">
@@ -488,6 +499,45 @@
                       </div>
                     </template>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Second heading with divider -->
+          <div class="flex items-center gap-6 mb-12 mt-24">
+            <h2 class="text-3xl font-semibold text-om-gray-700 whitespace-nowrap pl-15">
+              Recommended Site Optimizations
+            </h2>
+            <div class="flex-1 h-px bg-om-gray-300"></div>
+            <div class="w-15"></div>
+          </div>
+
+          <!-- Site Optimization use case -->
+          <div class="bg-om-gray-50 rounded-2xl p-5 lg:p-6">
+            <div class="flex gap-12 items-center">
+              <!-- Left column: Text and button -->
+              <div class="flex-1 flex flex-col justify-center pl-10 lg:pl-9">
+                <div class="flex items-center gap-2 mt-4 mb-2">
+                  <div class="w-8 h-8 bg-om-gray-200 rounded-lg flex items-center justify-center">
+                    <component :is="Sparkles" :size="18" class="text-om-gray-500" />
+                  </div>
+                  <span class="text-sm font-medium text-om-gray-500 uppercase">Product Value Spotlight</span>
+                </div>
+                <h3 class="text-3xl font-semibold text-om-gray-700 mb-3">Showcase the value shoppers need to say yes</h3>
+                <p class="text-base text-om-gray-500 mb-4">Highlight what matters most, exactly where buying decisions happen.</p>
+                <button
+                  class="px-5 py-2.5 text-base font-medium text-white bg-om-orange-500 rounded-lg hover:bg-om-orange-400 transition-colors w-fit flex items-center gap-2"
+                >
+                  <span>Show more</span>
+                  <ChevronRight :size="20" />
+                </button>
+              </div>
+
+              <!-- Right: Large gray box -->
+              <div class="shrink-0" style="width: calc(21/9 * 24rem - 20px);">
+                <div class="bg-om-gray-200 rounded-lg h-96 w-full flex items-center justify-center">
+                  <span class="text-om-gray-400 text-sm">Preview</span>
                 </div>
               </div>
             </div>
@@ -1744,7 +1794,7 @@
 
 <script setup>
 import { reactive, ref, computed, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronRight, Truck, Check, Target, Lightbulb, Mouse, Mail, ShoppingCart, Gift, Star, CircleDot, Compass } from 'lucide-vue-next'
+import { ChevronDown, ChevronRight, Truck, Check, Target, Lightbulb, Mouse, Mail, ShoppingCart, Gift, Star, CircleDot, Compass, Sparkles } from 'lucide-vue-next'
 import WebsiteScanAnimation from '../illustrations/WebsiteScanAnimation.vue'
 
 const props = defineProps({
@@ -1801,6 +1851,11 @@ const showRecommendationV2 = ref(false)
 const showRecommendationV3 = ref(false)
 const showRecommendationV4 = ref(false)
 const showRecommendationV5 = ref(false)
+
+// Intersection Observer for use cases
+const useCaseRefs = ref([])
+const visibleUseCases = ref({})
+let observer = null
 
 // V3 deck card navigation
 const currentDeckCard = ref(0)
@@ -2191,6 +2246,27 @@ onMounted(() => {
     submitted.value = true
     showAnalysisContent.value = false
     showRecommendationV4.value = true
+
+    // Set up Intersection Observer for use cases
+    setTimeout(() => {
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const index = useCaseRefs.value.indexOf(entry.target)
+              if (index !== -1) {
+                visibleUseCases.value[index] = true
+              }
+            }
+          })
+        },
+        { threshold: 0.2 }
+      )
+
+      useCaseRefs.value.forEach((el) => {
+        if (el) observer.observe(el)
+      })
+    }, 100)
   } else if (props.startAtRecommendationV5) {
     // Start directly at recommendation v5
     submitted.value = true
@@ -2219,6 +2295,9 @@ onMounted(() => {
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  if (observer) {
+    observer.disconnect()
+  }
 })
 
 defineExpose({
@@ -2273,6 +2352,27 @@ defineExpose({
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* Fade in up animation for use cases */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.use-case-item {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.animate-fade-in-up-visible {
+  animation: fadeInUp 0.6s ease-out forwards;
 }
 
 /* Style cards - prevent orange border on hover */

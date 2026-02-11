@@ -4,7 +4,7 @@
       <h2 class="text-xl font-semibold text-[#23262A] mb-4">Who does this account belong to?</h2>
 
       <!-- Profile Card -->
-      <div class="bg-[#F7F7F8] rounded-xl p-4">
+      <div class="bg-[#F9FAFB] rounded-xl p-4">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 bg-[#ED5A29] rounded-full flex items-center justify-center text-white font-medium">
             {{ userInitials }}

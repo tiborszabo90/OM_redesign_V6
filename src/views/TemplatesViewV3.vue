@@ -15,48 +15,12 @@
               <h1>What will you create today?</h1>
               <div class="language-selector-wrapper">
                 <label class="language-label">Template Language</label>
-                <div class="language-selector relative w-[240px]" ref="languageDropdownRef">
-                <button
-                  @click="isLanguageDropdownOpen = !isLanguageDropdownOpen"
-                  class="dropdown-select w-full px-3 pr-8 py-2 border border-om-gray-200 rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white text-left hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
-                  :class="{ 'border-om-orange-300': isLanguageDropdownOpen }"
-                  :style="isLanguageDropdownOpen ? 'box-shadow: 0 0 0 2px #FBD9CE; outline: none;' : 'box-shadow: none; outline: none;'"
-                >
-                  {{ selectedLanguage.label }}
-                </button>
-                <div class="absolute inset-y-0 right-2.5 flex items-center pointer-events-none">
-                  <ChevronDown
-                    :size="16"
-                    class="text-om-gray-600 transition-transform"
-                    :class="{ 'rotate-180': isLanguageDropdownOpen }"
+                <div class="language-selector w-[240px]">
+                  <Dropdown
+                    v-model="selectedLanguage"
+                    :options="languageOptions"
+                    size="sm"
                   />
-                </div>
-
-                <!-- Dropdown menu -->
-                <transition
-                  enter-active-class="transition ease-out duration-100"
-                  enter-from-class="opacity-0 scale-95"
-                  enter-to-class="opacity-100 scale-100"
-                  leave-active-class="transition ease-in duration-75"
-                  leave-from-class="opacity-100 scale-100"
-                  leave-to-class="opacity-0 scale-95"
-                >
-                  <div
-                    v-if="isLanguageDropdownOpen"
-                    class="absolute z-10 w-full mt-2 bg-white border border-[#D5D8DD] rounded-lg shadow-lg overflow-hidden"
-                  >
-                    <button
-                      v-for="option in languageOptions"
-                      :key="option.value"
-                      @click="selectLanguage(option)"
-                      class="w-full px-3 py-1.5 text-left text-sm text-[#23262A] hover:bg-[#F9FAFB] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F9FAFB]"
-                      :class="{ 'bg-[#F1F2F4] font-medium': selectedLanguage.value === option.value }"
-                      style="box-shadow: none !important; outline: none !important;"
-                    >
-                      {{ option.label }}
-                    </button>
-                  </div>
-                </transition>
                 </div>
               </div>
             </div>
@@ -84,175 +48,23 @@
               </div>
 
               <!-- Goals Section -->
-              <div class="filter-dropdown-wrapper" ref="goalsDropdownRef">
-                <button
-                  @click="isGoalsDropdownOpen = !isGoalsDropdownOpen"
-                  class="filter-dropdown-button"
-                >
-                  <span>{{ selectedGoalsText }}</span>
-                  <ChevronDown
-                    :size="16"
-                    class="filter-dropdown-icon"
-                    :class="{ 'rotate-180': isGoalsDropdownOpen }"
-                  />
-                </button>
-                <transition
-                  enter-active-class="transition ease-out duration-100"
-                  enter-from-class="opacity-0 scale-95"
-                  enter-to-class="opacity-100 scale-100"
-                  leave-active-class="transition ease-in duration-75"
-                  leave-from-class="opacity-100 scale-100"
-                  leave-to-class="opacity-0 scale-95"
-                >
-                  <div v-if="isGoalsDropdownOpen" class="filter-dropdown-menu">
-                    <label
-                      class="filter-checkbox-item"
-                      :class="{ 'filter-checkbox-item-selected': goals.listBuilding }"
-                      @click="goals.listBuilding = !goals.listBuilding"
-                    >
-                      <span>List Building</span>
-                      <Check v-if="goals.listBuilding" :size="16" class="text-gray-500" stroke-width="2" />
-                    </label>
-                    <label
-                      class="filter-checkbox-item"
-                      :class="{ 'filter-checkbox-item-selected': goals.cartAbandonment }"
-                      @click="goals.cartAbandonment = !goals.cartAbandonment"
-                    >
-                      <span>Reduce Cart Abandonment</span>
-                      <Check v-if="goals.cartAbandonment" :size="16" class="text-gray-500" stroke-width="2" />
-                    </label>
-                    <label
-                      class="filter-checkbox-item"
-                      :class="{ 'filter-checkbox-item-selected': goals.averageOrderValue }"
-                      @click="goals.averageOrderValue = !goals.averageOrderValue"
-                    >
-                      <span>Increase Average Order Value</span>
-                      <Check v-if="goals.averageOrderValue" :size="16" class="text-gray-500" stroke-width="2" />
-                    </label>
-                    <label
-                      class="filter-checkbox-item"
-                      :class="{ 'filter-checkbox-item-selected': goals.feedback }"
-                      @click="goals.feedback = !goals.feedback"
-                    >
-                      <span>Collect Feedback</span>
-                      <Check v-if="goals.feedback" :size="16" class="text-gray-500" stroke-width="2" />
-                    </label>
-                    <label
-                      class="filter-checkbox-item"
-                      :class="{ 'filter-checkbox-item-selected': goals.visitorDirection }"
-                      @click="goals.visitorDirection = !goals.visitorDirection"
-                    >
-                      <span>Direct Visitors</span>
-                      <Check v-if="goals.visitorDirection" :size="16" class="text-gray-500" stroke-width="2" />
-                    </label>
-                    <label
-                      class="filter-checkbox-item"
-                      :class="{ 'filter-checkbox-item-selected': goals.conversion }"
-                      @click="goals.conversion = !goals.conversion"
-                    >
-                      <span>Increase Conversion</span>
-                      <Check v-if="goals.conversion" :size="16" class="text-gray-500" stroke-width="2" />
-                    </label>
-                    <label
-                      class="filter-checkbox-item"
-                      :class="{ 'filter-checkbox-item-selected': goals.salesPromotion }"
-                      @click="goals.salesPromotion = !goals.salesPromotion"
-                    >
-                      <span>Promote Sales</span>
-                      <Check v-if="goals.salesPromotion" :size="16" class="text-gray-500" stroke-width="2" />
-                    </label>
-                  </div>
-                </transition>
+              <div class="filter-dropdown-wrapper">
+                <MultiSelect
+                  v-model="selectedGoals"
+                  :options="goalsOptions"
+                  placeholder="All goals"
+                  size="sm"
+                />
               </div>
 
               <!-- Content Section -->
-              <div class="filter-dropdown-wrapper" ref="contentDropdownRef">
-                <button
-                  @click="isContentDropdownOpen = !isContentDropdownOpen"
-                  class="filter-dropdown-button"
-                >
-                  <span>{{ selectedContentText }}</span>
-                  <ChevronDown
-                    :size="16"
-                    class="filter-dropdown-icon"
-                    :class="{ 'rotate-180': isContentDropdownOpen }"
-                  />
-                </button>
-                <transition
-                  enter-active-class="transition ease-out duration-100"
-                  enter-from-class="opacity-0 scale-95"
-                  enter-to-class="opacity-100 scale-100"
-                  leave-active-class="transition ease-in duration-75"
-                  leave-from-class="opacity-100 scale-100"
-                  leave-to-class="opacity-0 scale-95"
-                >
-                  <div v-if="isContentDropdownOpen" class="filter-dropdown-menu">
-                    <label
-                      class="filter-checkbox-item"
-                      :class="{ 'filter-checkbox-item-selected': content.kupon }"
-                      @click="content.kupon = !content.kupon"
-                    >
-                      <span>Coupon</span>
-                      <Check v-if="content.kupon" :size="16" class="text-gray-500" stroke-width="2" />
-                    </label>
-                    <label
-                      class="filter-checkbox-item"
-                      :class="{ 'filter-checkbox-item-selected': content.szerencsekerek }"
-                      @click="content.szerencsekerek = !content.szerencsekerek"
-                    >
-                      <span>Lucky Wheel</span>
-                      <Check v-if="content.szerencsekerek" :size="16" class="text-gray-500" stroke-width="2" />
-                    </label>
-                    <label
-                      class="filter-checkbox-item"
-                      :class="{ 'filter-checkbox-item-selected': content.termekajanlo }"
-                      @click="content.termekajanlo = !content.termekajanlo"
-                    >
-                      <span>Product Recommender</span>
-                      <Check v-if="content.termekajanlo" :size="16" class="text-gray-500" stroke-width="2" />
-                    </label>
-                    <label
-                      class="filter-checkbox-item"
-                      :class="{ 'filter-checkbox-item-selected': content.visszaszamlalo }"
-                      @click="content.visszaszamlalo = !content.visszaszamlalo"
-                    >
-                      <span>Countdown</span>
-                      <Check v-if="content.visszaszamlalo" :size="16" class="text-gray-500" stroke-width="2" />
-                    </label>
-                    <label
-                      class="filter-checkbox-item"
-                      :class="{ 'filter-checkbox-item-selected': content.felmeres }"
-                      @click="content.felmeres = !content.felmeres"
-                    >
-                      <span>Survey</span>
-                      <Check v-if="content.felmeres" :size="16" class="text-gray-500" stroke-width="2" />
-                    </label>
-                    <label
-                      class="filter-checkbox-item"
-                      :class="{ 'filter-checkbox-item-selected': content.feedback }"
-                      @click="content.feedback = !content.feedback"
-                    >
-                      <span>Feedback</span>
-                      <Check v-if="content.feedback" :size="16" class="text-gray-500" stroke-width="2" />
-                    </label>
-                    <label
-                      class="filter-checkbox-item"
-                      :class="{ 'filter-checkbox-item-selected': content.ajandekvalaszto }"
-                      @click="content.ajandekvalaszto = !content.ajandekvalaszto"
-                    >
-                      <span>Gift Selector</span>
-                      <Check v-if="content.ajandekvalaszto" :size="16" class="text-gray-500" stroke-width="2" />
-                    </label>
-                    <label
-                      class="filter-checkbox-item"
-                      :class="{ 'filter-checkbox-item-selected': content.kaparosSorsjegy }"
-                      @click="content.kaparosSorsjegy = !content.kaparosSorsjegy"
-                    >
-                      <span>Scratch Card</span>
-                      <Check v-if="content.kaparosSorsjegy" :size="16" class="text-gray-500" stroke-width="2" />
-                    </label>
-                  </div>
-                </transition>
+              <div class="filter-dropdown-wrapper">
+                <MultiSelect
+                  v-model="selectedContent"
+                  :options="contentOptions"
+                  placeholder="All content"
+                  size="sm"
+                />
               </div>
 
               <!-- Search on right -->
@@ -417,9 +229,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { Check, ChevronDown, ChevronRight, Paintbrush, FolderOpen, Edit, Search, Calendar } from 'lucide-vue-next'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { ChevronRight, Paintbrush, FolderOpen, Edit, Search, Calendar } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+import Dropdown from '../components/shared/Dropdown.vue'
+import MultiSelect from '../components/shared/MultiSelect.vue'
 
 const emit = defineEmits(['menu-click'])
 
@@ -427,74 +241,38 @@ const handleMenuClick = (menuId) => {
   emit('menu-click', menuId)
 }
 
-// Goals checkboxes state
-const goals = ref({
-  listBuilding: false,
-  cartAbandonment: false,
-  averageOrderValue: false,
-  feedback: false,
-  visitorDirection: false,
-  conversion: false,
-  salesPromotion: false
-})
+// Goals filter state
+const selectedGoals = ref([])
+const goalsOptions = [
+  { value: 'listBuilding', label: 'List Building' },
+  { value: 'cartAbandonment', label: 'Reduce Cart Abandonment' },
+  { value: 'averageOrderValue', label: 'Increase Average Order Value' },
+  { value: 'feedback', label: 'Collect Feedback' },
+  { value: 'visitorDirection', label: 'Direct Visitors' },
+  { value: 'conversion', label: 'Increase Conversion' },
+  { value: 'salesPromotion', label: 'Promote Sales' }
+]
 
-// Content checkboxes state
-const content = ref({
-  kupon: false,
-  szerencsekerek: false,
-  termekajanlo: false,
-  visszaszamlalo: false,
-  felmeres: false,
-  feedback: false,
-  ajandekvalaszto: false,
-  kaparosSorsjegy: false
-})
-
-// Filter dropdown state
-const goalsDropdownRef = ref(null)
-const contentDropdownRef = ref(null)
-const isGoalsDropdownOpen = ref(false)
-const isContentDropdownOpen = ref(false)
-
-// Computed properties for dropdown button text
-const selectedGoalsText = computed(() => {
-  const selectedCount = Object.values(goals.value).filter(Boolean).length
-  if (selectedCount === 0) return 'All goals'
-  return `${selectedCount} selected`
-})
-
-const selectedContentText = computed(() => {
-  const selectedCount = Object.values(content.value).filter(Boolean).length
-  if (selectedCount === 0) return 'All content'
-  return `${selectedCount} selected`
-})
+// Content filter state
+const selectedContent = ref([])
+const contentOptions = [
+  { value: 'kupon', label: 'Coupon' },
+  { value: 'szerencsekerek', label: 'Lucky Wheel' },
+  { value: 'termekajanlo', label: 'Product Recommender' },
+  { value: 'visszaszamlalo', label: 'Countdown' },
+  { value: 'felmeres', label: 'Survey' },
+  { value: 'feedback', label: 'Feedback' },
+  { value: 'ajandekvalaszto', label: 'Gift Selector' },
+  { value: 'kaparosSorsjegy', label: 'Scratch Card' }
+]
 
 // Language dropdown state
-const languageDropdownRef = ref(null)
-const isLanguageDropdownOpen = ref(false)
 const languageOptions = [
   { value: 'en', label: 'English' },
   { value: 'hu', label: 'Magyar' },
   { value: 'de', label: 'Deutsch' }
 ]
 const selectedLanguage = ref(languageOptions[0])
-
-const selectLanguage = (option) => {
-  selectedLanguage.value = option
-  isLanguageDropdownOpen.value = false
-}
-
-const handleClickOutside = (event) => {
-  if (languageDropdownRef.value && !languageDropdownRef.value.contains(event.target)) {
-    isLanguageDropdownOpen.value = false
-  }
-  if (goalsDropdownRef.value && !goalsDropdownRef.value.contains(event.target)) {
-    isGoalsDropdownOpen.value = false
-  }
-  if (contentDropdownRef.value && !contentDropdownRef.value.contains(event.target)) {
-    isContentDropdownOpen.value = false
-  }
-}
 
 // Main scroll for sticky shadow
 const mainRef = ref(null)
@@ -565,14 +343,12 @@ const handleSeasonsScroll = () => {
 }
 
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
   if (mainRef.value) {
     mainRef.value.addEventListener('scroll', handleMainScroll)
   }
 })
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
   if (mainRef.value) {
     mainRef.value.removeEventListener('scroll', handleMainScroll)
   }
@@ -1094,69 +870,5 @@ onUnmounted(() => {
 .filter-dropdown-wrapper {
   position: relative;
   width: 280px;
-}
-
-.filter-dropdown-button {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0.875rem;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  background: white;
-  font-size: 0.875rem;
-  color: #374151;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.filter-dropdown-button:hover {
-  border-color: #D1D5DB;
-  background: #F9FAFB;
-}
-
-.filter-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  max-height: 300px;
-  overflow-y: auto;
-  z-index: 20;
-}
-
-.filter-checkbox-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.5rem 0.875rem;
-  font-size: 0.875rem;
-  color: #374151;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.filter-checkbox-item:hover {
-  background: #F9FAFB;
-}
-
-.filter-checkbox-item-selected {
-  background: #F3F4F6;
-}
-
-.filter-dropdown-icon {
-  flex-shrink: 0;
-  transition: transform 0.2s;
-  color: #6B7280;
-}
-
-.rotate-180 {
-  transform: rotate(180deg);
 }
 </style>

@@ -4,7 +4,7 @@
       <div class="w-full max-w-[1400px] mx-auto -mt-3">
         <!-- Header -->
         <div class="flex items-center justify-between mb-5">
-          <h1 class="text-xl font-semibold text-om-gray-700">Campaigns (32)</h1>
+          <h1 class="text-2xl font-semibold text-om-gray-700">Campaigns (32)</h1>
           <button class="px-4 py-2 bg-om-orange-500 text-white rounded-lg hover:bg-om-orange-400 transition-colors text-sm font-normal">
             New Campaign
           </button>
@@ -15,50 +15,17 @@
           <!-- Left: Domain dropdown and Tab filters -->
           <div class="flex items-center gap-3">
             <!-- Domain dropdown -->
-            <div class="relative w-[240px]" ref="domainDropdownRef">
-              <button
-                @click="isDomainDropdownOpen = !isDomainDropdownOpen"
-                class="w-full pl-9 pr-8 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none focus:border-[#E3E5E8] active:border-[#E3E5E8] cursor-pointer bg-white text-left hover:border-[#E3E5E8] hover:bg-[#FAFAFA] transition-colors"
-                :class="{ 'border-[#E3E5E8] bg-[#FAFAFA]': isDomainDropdownOpen }"
-                style="box-shadow: none !important; outline: none !important;"
-              >
-                {{ selectedDomain }}
-              </button>
-              <div class="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full overflow-hidden pointer-events-none">
-                <img src="/telekom.png" alt="Telekom" class="w-full h-full object-cover" />
-              </div>
-              <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                <ChevronDown
-                  :size="20"
-                  class="text-om-gray-600 transition-transform"
-                  :class="{ 'rotate-180': isDomainDropdownOpen }"
-                />
-              </div>
-              <transition
-                enter-active-class="transition ease-out duration-100"
-                enter-from-class="opacity-0 scale-95"
-                enter-to-class="opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
-                leave-from-class="opacity-100 scale-100"
-                leave-to-class="opacity-0 scale-95"
-              >
-                <div
-                  v-if="isDomainDropdownOpen"
-                  class="absolute z-10 w-full mt-3 bg-white border border-[#E5E7EB] rounded-xl shadow-lg overflow-hidden"
-                >
-                  <button
-                    v-for="domain in domains"
-                    :key="domain"
-                    @click="selectDomain(domain)"
-                    class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F9FAFB] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F9FAFB]"
-                    :class="{ 'bg-[#F1F2F4] font-medium': selectedDomain === domain }"
-                    style="box-shadow: none !important; outline: none !important;"
-                  >
-                    {{ domain }}
-                  </button>
+            <Dropdown
+              v-model="selectedDomain"
+              :options="domains"
+              class="w-[240px]"
+            >
+              <template #icon>
+                <div class="w-6 h-6 rounded-full overflow-hidden">
+                  <img src="/telekom.png" alt="Telekom" class="w-full h-full object-cover" />
                 </div>
-              </transition>
-            </div>
+              </template>
+            </Dropdown>
 
             <!-- Tab filters -->
             <div class="flex items-center gap-2">
@@ -94,50 +61,15 @@
             <button class="w-8 h-8 flex items-center justify-center text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600 rounded-lg transition-all cursor-pointer">
               <ArrowUpDown :size="18" />
             </button>
-            <div class="relative w-[240px]" ref="timeFilterRef">
-              <button
-                @click="isTimeFilterOpen = !isTimeFilterOpen"
-                class="w-full pl-9 pr-8 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none focus:border-[#E3E5E8] active:border-[#E3E5E8] cursor-pointer bg-white text-left hover:border-[#E3E5E8] hover:bg-[#FAFAFA] transition-colors"
-                :class="{ 'border-[#E3E5E8] bg-[#FAFAFA]': isTimeFilterOpen }"
-                style="box-shadow: none !important; outline: none !important;"
-              >
-                {{ selectedTimeFilter.label }}
-              </button>
-              <div class="absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+            <Dropdown
+              v-model="selectedTimeFilter"
+              :options="timeFilterOptions"
+              class="w-[240px]"
+            >
+              <template #icon>
                 <Calendar :size="20" class="text-om-gray-600" />
-              </div>
-              <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                <ChevronDown
-                  :size="20"
-                  class="text-om-gray-600 transition-transform"
-                  :class="{ 'rotate-180': isTimeFilterOpen }"
-                />
-              </div>
-              <transition
-                enter-active-class="transition ease-out duration-100"
-                enter-from-class="opacity-0 scale-95"
-                enter-to-class="opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
-                leave-from-class="opacity-100 scale-100"
-                leave-to-class="opacity-0 scale-95"
-              >
-                <div
-                  v-if="isTimeFilterOpen"
-                  class="absolute z-10 w-full mt-3 bg-white border border-[#E5E7EB] rounded-xl shadow-lg overflow-hidden"
-                >
-                  <button
-                    v-for="option in timeFilterOptions"
-                    :key="option.value"
-                    @click="selectTimeFilter(option)"
-                    class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F9FAFB] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F9FAFB]"
-                    :class="{ 'bg-[#F1F2F4] font-medium': selectedTimeFilter.value === option.value }"
-                    style="box-shadow: none !important; outline: none !important;"
-                  >
-                    {{ option.label }}
-                  </button>
-                </div>
-              </transition>
-            </div>
+              </template>
+            </Dropdown>
           </div>
         </div>
 
@@ -220,12 +152,7 @@
 
             <!-- Toggle and Last Updated -->
             <div class="flex items-center gap-4 ml-6">
-              <button
-                @click.stop="campaign1Active = !campaign1Active"
-                :class="['w-11 h-6 rounded-full relative cursor-pointer transition-colors', campaign1Active ? 'bg-[#2CC896]' : 'bg-om-gray-300']"
-              >
-                <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all', campaign1Active ? 'right-1' : 'left-1']"></div>
-              </button>
+              <ToggleSwitch v-model="campaign1Active" @click.stop />
               <p class="text-xs text-om-gray-400 whitespace-nowrap text-right">Last updated<br/>14 days ago</p>
             </div>
             </div>
@@ -302,12 +229,7 @@
 
             <!-- Toggle and Last Updated -->
             <div class="flex items-center gap-4 ml-6">
-              <button
-                @click.stop="campaign2Active = !campaign2Active"
-                :class="['w-11 h-6 rounded-full relative cursor-pointer transition-colors', campaign2Active ? 'bg-[#2CC896]' : 'bg-om-gray-300']"
-              >
-                <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all', campaign2Active ? 'right-1' : 'left-1']"></div>
-              </button>
+              <ToggleSwitch v-model="campaign2Active" @click.stop />
               <p class="text-xs text-om-gray-400 whitespace-nowrap text-right">Last updated<br/>14 days ago</p>
             </div>
             </div>
@@ -384,12 +306,7 @@
 
             <!-- Toggle and Last Updated -->
             <div class="flex items-center gap-4 ml-6">
-              <button
-                @click.stop="campaign3Active = !campaign3Active"
-                :class="['w-11 h-6 rounded-full relative cursor-pointer transition-colors', campaign3Active ? 'bg-[#2CC896]' : 'bg-om-gray-300']"
-              >
-                <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all', campaign3Active ? 'right-1' : 'left-1']"></div>
-              </button>
+              <ToggleSwitch v-model="campaign3Active" @click.stop />
               <p class="text-xs text-om-gray-400 whitespace-nowrap text-right">Last updated<br/>14 days ago</p>
             </div>
             </div>
@@ -460,12 +377,7 @@
 
             <!-- Toggle and Last Updated -->
             <div class="flex items-center gap-4 ml-6">
-              <button
-                @click.stop="campaign4Active = !campaign4Active"
-                :class="['w-11 h-6 rounded-full relative cursor-pointer transition-colors', campaign4Active ? 'bg-[#2CC896]' : 'bg-om-gray-300']"
-              >
-                <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all', campaign4Active ? 'right-1' : 'left-1']"></div>
-              </button>
+              <ToggleSwitch v-model="campaign4Active" @click.stop />
               <p class="text-xs text-om-gray-400 whitespace-nowrap text-right">Last updated<br/>14 days ago</p>
             </div>
             </div>
@@ -527,12 +439,7 @@
                   <h3 class="text-base font-semibold text-om-gray-700 mb-1">Smart Discount Popup</h3>
                   <p class="text-xs text-om-gray-400">domain.com</p>
                 </div>
-                <button
-                  @click.stop="campaign1Active = !campaign1Active"
-                  :class="['w-11 h-6 rounded-full relative cursor-pointer transition-colors', campaign1Active ? 'bg-[#2CC896]' : 'bg-om-gray-300']"
-                >
-                  <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all', campaign1Active ? 'right-1' : 'left-1']"></div>
-                </button>
+                <ToggleSwitch v-model="campaign1Active" @click.stop />
               </div>
 
               <!-- Metrics -->
@@ -610,12 +517,7 @@
                   <h3 class="text-base font-semibold text-om-gray-700 mb-1">Lucky Wheel</h3>
                   <p class="text-xs text-om-gray-400">domain.com</p>
                 </div>
-                <button
-                  @click.stop="campaign2Active = !campaign2Active"
-                  :class="['w-11 h-6 rounded-full relative cursor-pointer transition-colors', campaign2Active ? 'bg-[#2CC896]' : 'bg-om-gray-300']"
-                >
-                  <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all', campaign2Active ? 'right-1' : 'left-1']"></div>
-                </button>
+                <ToggleSwitch v-model="campaign2Active" @click.stop />
               </div>
 
               <div class="grid grid-cols-2 gap-3 mb-3">
@@ -691,12 +593,7 @@
                   <h3 class="text-base font-semibold text-om-gray-700 mb-1">Cart Abandonment Stopper</h3>
                   <p class="text-xs text-om-gray-400">domain.com</p>
                 </div>
-                <button
-                  @click.stop="campaign3Active = !campaign3Active"
-                  :class="['w-11 h-6 rounded-full relative cursor-pointer transition-colors', campaign3Active ? 'bg-[#2CC896]' : 'bg-om-gray-300']"
-                >
-                  <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all', campaign3Active ? 'right-1' : 'left-1']"></div>
-                </button>
+                <ToggleSwitch v-model="campaign3Active" @click.stop />
               </div>
 
               <div class="grid grid-cols-2 gap-3 mb-3">
@@ -772,12 +669,7 @@
                   <h3 class="text-base font-semibold text-om-gray-700 mb-1">Feedback Survey</h3>
                   <p class="text-xs text-om-gray-400">domain.com</p>
                 </div>
-                <button
-                  @click.stop="campaign4Active = !campaign4Active"
-                  :class="['w-11 h-6 rounded-full relative cursor-pointer transition-colors', campaign4Active ? 'bg-[#2CC896]' : 'bg-om-gray-300']"
-                >
-                  <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all', campaign4Active ? 'right-1' : 'left-1']"></div>
-                </button>
+                <ToggleSwitch v-model="campaign4Active" @click.stop />
               </div>
 
               <div class="grid grid-cols-2 gap-3 mb-3">
@@ -802,7 +694,9 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
-import { Plus, LayoutGrid, Search, TrendingUp, ChevronDown, Check, Calendar, ArrowUpDown } from 'lucide-vue-next'
+import { Plus, LayoutGrid, Search, TrendingUp, Check, Calendar, ArrowUpDown } from 'lucide-vue-next'
+import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
+import Dropdown from '../components/shared/Dropdown.vue'
 
 const emit = defineEmits(['menu-click', 'navigate-to-campaign'])
 
@@ -842,19 +736,10 @@ const handleMouseMove = (event) => {
 }
 
 // Domain dropdown
-const domainDropdownRef = ref(null)
-const isDomainDropdownOpen = ref(false)
 const selectedDomain = ref('telekom.hu')
 const domains = ['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com']
 
-const selectDomain = (domain) => {
-  selectedDomain.value = domain
-  isDomainDropdownOpen.value = false
-}
-
 // Time filter dropdown
-const timeFilterRef = ref(null)
-const isTimeFilterOpen = ref(false)
 const timeFilterOptions = [
   { value: 'week', label: 'Last week' },
   { value: 'month', label: 'Last month' },
@@ -862,27 +747,11 @@ const timeFilterOptions = [
 ]
 const selectedTimeFilter = ref(timeFilterOptions[0])
 
-const selectTimeFilter = (option) => {
-  selectedTimeFilter.value = option
-  isTimeFilterOpen.value = false
-}
-
-const handleClickOutside = (event) => {
-  if (domainDropdownRef.value && !domainDropdownRef.value.contains(event.target)) {
-    isDomainDropdownOpen.value = false
-  }
-  if (timeFilterRef.value && !timeFilterRef.value.contains(event.target)) {
-    isTimeFilterOpen.value = false
-  }
-}
-
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
   document.addEventListener('mousemove', handleMouseMove)
 })
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
   document.removeEventListener('mousemove', handleMouseMove)
 })
 

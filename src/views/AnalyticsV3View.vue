@@ -17,166 +17,50 @@
         <!-- Filters Section -->
         <div class="filters-section">
           <!-- Domain Selector -->
-          <div class="relative" ref="domainDropdownRef">
-            <button
-              @click="isDomainDropdownOpen = !isDomainDropdownOpen"
-              class="domain-select"
-              :class="{ 'domain-select-open': isDomainDropdownOpen }"
-            >
-              <div class="domain-select-favicon">
-                <img src="/telekom.png" alt="Domain" class="w-full h-full object-cover" />
-              </div>
-              <span>{{ selectedDomain }}</span>
-              <ChevronDown
-                :size="16"
-                class="domain-select-icon"
-              />
-            </button>
-            <transition
-              enter-active-class="transition ease-out duration-100"
-              enter-from-class="opacity-0 scale-95"
-              enter-to-class="opacity-100 scale-100"
-              leave-active-class="transition ease-in duration-75"
-              leave-from-class="opacity-100 scale-100"
-              leave-to-class="opacity-0 scale-95"
-            >
-              <div
-                v-if="isDomainDropdownOpen"
-                class="domain-dropdown"
-              >
-                <button
-                  v-for="domain in domains"
-                  :key="domain"
-                  @click="selectDomain(domain)"
-                  class="domain-option"
-                  :class="{ 'domain-option-selected': selectedDomain === domain }"
-                >
-                  {{ domain }}
-                </button>
-              </div>
-            </transition>
-          </div>
+          <Dropdown
+            v-model="selectedDomain"
+            :options="domains"
+            placeholder="Select domain"
+          >
+            <template #icon>
+              <img src="/telekom.png" alt="Domain" class="w-5 h-5 rounded-full object-cover" />
+            </template>
+          </Dropdown>
 
           <!-- Right-aligned filters -->
           <div class="filters-right">
             <!-- Devices Dropdown -->
-            <div class="relative" ref="devicesDropdownRef">
-              <button
-                @click="isDevicesDropdownOpen = !isDevicesDropdownOpen"
-                class="icon-dropdown"
-                :class="{ 'icon-dropdown-open': isDevicesDropdownOpen }"
-              >
-                <Monitor :size="20" class="icon-dropdown-icon" />
-                <span>{{ selectedDevice }}</span>
-                <ChevronDown
-                  :size="20"
-                  class="chevron-icon"
-                />
-              </button>
-              <transition
-                enter-active-class="transition ease-out duration-100"
-                enter-from-class="opacity-0 scale-95"
-                enter-to-class="opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
-                leave-from-class="opacity-100 scale-100"
-                leave-to-class="opacity-0 scale-95"
-              >
-                <div
-                  v-if="isDevicesDropdownOpen"
-                  class="icon-dropdown-menu"
-                >
-                  <button
-                    v-for="device in devices"
-                    :key="device"
-                    @click="selectDevice(device)"
-                    class="icon-dropdown-option"
-                    :class="{ 'icon-dropdown-option-selected': selectedDevice === device }"
-                  >
-                    {{ device }}
-                  </button>
-                </div>
-              </transition>
-            </div>
+            <Dropdown
+              v-model="selectedDevice"
+              :options="devices"
+              placeholder="Select device"
+            >
+              <template #icon>
+                <Monitor :size="20" class="text-om-gray-400" />
+              </template>
+            </Dropdown>
 
             <!-- Goal Dropdown -->
-            <div class="relative" ref="goalDropdownRef">
-              <button
-                @click="isGoalDropdownOpen = !isGoalDropdownOpen"
-                class="icon-dropdown"
-                :class="{ 'icon-dropdown-open': isGoalDropdownOpen }"
-              >
-                <Target :size="20" class="icon-dropdown-icon" />
-                <span>{{ selectedGoal }}</span>
-                <ChevronDown
-                  :size="20"
-                  class="chevron-icon"
-                />
-              </button>
-              <transition
-                enter-active-class="transition ease-out duration-100"
-                enter-from-class="opacity-0 scale-95"
-                enter-to-class="opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
-                leave-from-class="opacity-100 scale-100"
-                leave-to-class="opacity-0 scale-95"
-              >
-                <div
-                  v-if="isGoalDropdownOpen"
-                  class="icon-dropdown-menu"
-                >
-                  <button
-                    v-for="goal in goals"
-                    :key="goal"
-                    @click="selectGoal(goal)"
-                    class="icon-dropdown-option"
-                    :class="{ 'icon-dropdown-option-selected': selectedGoal === goal }"
-                  >
-                    <span>{{ goal }}</span>
-                    <Check v-if="selectedGoal === goal" :size="16" class="dropdown-check-icon" />
-                  </button>
-                </div>
-              </transition>
-            </div>
+            <Dropdown
+              v-model="selectedGoal"
+              :options="goals"
+              placeholder="Select goal"
+            >
+              <template #icon>
+                <Target :size="20" class="text-om-gray-400" />
+              </template>
+            </Dropdown>
 
             <!-- Period Dropdown -->
-            <div class="relative" ref="periodDropdownRef">
-              <button
-                @click="isPeriodDropdownOpen = !isPeriodDropdownOpen"
-                class="icon-dropdown"
-                :class="{ 'icon-dropdown-open': isPeriodDropdownOpen }"
-              >
-                <Calendar :size="20" class="icon-dropdown-icon" />
-                <span>{{ selectedPeriod }}</span>
-                <ChevronDown
-                  :size="20"
-                  class="chevron-icon"
-                />
-              </button>
-              <transition
-                enter-active-class="transition ease-out duration-100"
-                enter-from-class="opacity-0 scale-95"
-                enter-to-class="opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
-                leave-from-class="opacity-100 scale-100"
-                leave-to-class="opacity-0 scale-95"
-              >
-                <div
-                  v-if="isPeriodDropdownOpen"
-                  class="icon-dropdown-menu"
-                >
-                  <button
-                    v-for="period in periods"
-                    :key="period"
-                    @click="selectPeriod(period)"
-                    class="icon-dropdown-option"
-                    :class="{ 'icon-dropdown-option-selected': selectedPeriod === period }"
-                  >
-                    <span>{{ period }}</span>
-                    <Check v-if="selectedPeriod === period" :size="16" class="dropdown-check-icon" />
-                  </button>
-                </div>
-              </transition>
-            </div>
+            <Dropdown
+              v-model="selectedPeriod"
+              :options="periods"
+              placeholder="Select period"
+            >
+              <template #icon>
+                <Calendar :size="20" class="text-om-gray-400" />
+              </template>
+            </Dropdown>
           </div>
         </div>
 
@@ -213,22 +97,18 @@
         </div>
 
         <!-- Campaign Performance Section -->
-        <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] mb-6 pt-5 pb-5">
+        <div :class="['bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] mb-6 pt-5 pb-5', { 'has-selection': hasSelection }]">
           <h2 class="section-title">Campaign Performance</h2>
 
           <!-- Filter Bar - Full Width -->
           <div v-if="hasSelection" class="campaign-filter-bar">
-            <button
-              ref="masterCheckbox"
+            <Checkbox
+              :model-value="allSelected"
+              :indeterminate="isIndeterminate"
+              size="sm"
               class="custom-checkbox"
-              :class="allSelected ? 'custom-checkbox-checked' : 'custom-checkbox-unchecked'"
-              @click="toggleSelectAll"
-            >
-              <Check v-if="allSelected" :size="12" :stroke-width="3" class="check-icon" />
-              <svg v-else-if="isIndeterminate" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2 6H10" stroke="white" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
+              @update:model-value="toggleSelectAll"
+            />
             <span class="selection-count">{{ selectedCount }} selected</span>
             <button class="filter-btn">
               Filter
@@ -260,13 +140,13 @@
                     :class="{ 'is-hovered': hoveredCampaignId === campaign.id }"
                     @click="toggleSelection(campaign.id)"
                   >
-                    <button
+                    <Checkbox
+                      :model-value="isSelected(campaign.id)"
+                      size="sm"
                       class="custom-checkbox"
-                      :class="isSelected(campaign.id) ? 'custom-checkbox-checked' : 'custom-checkbox-unchecked'"
-                      @click.stop="toggleSelection(campaign.id)"
-                    >
-                      <Check v-if="isSelected(campaign.id)" :size="12" :stroke-width="3" class="check-icon" />
-                    </button>
+                      @click.stop
+                      @update:model-value="toggleSelection(campaign.id)"
+                    />
                     <div class="campaign-name-wrapper">
                       <div class="campaign-name-with-icon" @click.stop="campaign.variants && toggleCampaign(campaign.id)">
                         <div class="campaign-name">{{ campaign.name }}</div>
@@ -291,13 +171,13 @@
                       class="campaign-variant-row"
                       @click="toggleSelection(`${campaign.id}-variant-${index}`)"
                     >
-                      <button
+                      <Checkbox
+                        :model-value="isSelected(`${campaign.id}-variant-${index}`)"
+                        size="sm"
                         class="custom-checkbox"
-                        :class="isSelected(`${campaign.id}-variant-${index}`) ? 'custom-checkbox-checked' : 'custom-checkbox-unchecked'"
-                        @click.stop="toggleSelection(`${campaign.id}-variant-${index}`)"
-                      >
-                        <Check v-if="isSelected(`${campaign.id}-variant-${index}`)" :size="12" :stroke-width="3" class="check-icon" />
-                      </button>
+                        @click.stop
+                        @update:model-value="toggleSelection(`${campaign.id}-variant-${index}`)"
+                      />
                       <div class="campaign-variant-name">{{ variant.name }}</div>
                     </div>
                   </template>
@@ -347,16 +227,13 @@
 
           <!-- Filter Bar - Full Width -->
           <div v-if="hasVisitedPagesSelection" class="campaign-filter-bar">
-            <button
+            <Checkbox
+              :model-value="allVisitedPagesSelected"
+              :indeterminate="isVisitedPagesIndeterminate"
+              size="sm"
               class="custom-checkbox"
-              :class="allVisitedPagesSelected ? 'custom-checkbox-checked' : 'custom-checkbox-unchecked'"
-              @click="toggleSelectAllVisitedPages"
-            >
-              <Check v-if="allVisitedPagesSelected" :size="12" :stroke-width="3" class="check-icon" />
-              <svg v-else-if="isVisitedPagesIndeterminate" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2 6H10" stroke="white" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
+              @update:model-value="toggleSelectAllVisitedPages"
+            />
             <span class="selection-count">{{ selectedVisitedPagesCount }} selected</span>
             <button class="filter-btn">
               Filter
@@ -389,13 +266,13 @@
                   :class="{ 'is-hovered': hoveredVisitedPageUrl === page.url }"
                   @click="toggleVisitedPageSelection(page.url)"
                 >
-                  <button
+                  <Checkbox
+                    :model-value="isVisitedPageSelected(page.url)"
+                    size="sm"
                     class="custom-checkbox"
-                    :class="isVisitedPageSelected(page.url) ? 'custom-checkbox-checked' : 'custom-checkbox-unchecked'"
-                    @click.stop="toggleVisitedPageSelection(page.url)"
-                  >
-                    <Check v-if="isVisitedPageSelected(page.url)" :size="12" :stroke-width="3" class="check-icon" />
-                  </button>
+                    @click.stop
+                    @update:model-value="toggleVisitedPageSelection(page.url)"
+                  />
                   <div class="campaign-name-wrapper">
                     <a :href="page.url" target="_blank" class="campaign-name-with-icon" @click.stop>
                       <div class="campaign-name">{{ page.url }}</div>
@@ -441,16 +318,13 @@
 
             <!-- Filter Bar - Full Width -->
             <div v-if="hasLandingPagesSelection" class="campaign-filter-bar">
-              <button
+              <Checkbox
+                :model-value="allLandingPagesSelected"
+                :indeterminate="isLandingPagesIndeterminate"
+                size="sm"
                 class="custom-checkbox"
-                :class="allLandingPagesSelected ? 'custom-checkbox-checked' : 'custom-checkbox-unchecked'"
-                @click="toggleSelectAllLandingPages"
-              >
-                <Check v-if="allLandingPagesSelected" :size="12" :stroke-width="3" class="check-icon" />
-                <svg v-else-if="isLandingPagesIndeterminate" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2 6H10" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </button>
+                @update:model-value="toggleSelectAllLandingPages"
+              />
               <span class="selection-count">{{ selectedLandingPagesCount }} selected</span>
               <button class="filter-btn">
                 Filter
@@ -482,13 +356,13 @@
                     :class="{ 'is-hovered': hoveredLandingPageUrl === page.url }"
                     @click="toggleLandingPageSelection(page.url)"
                   >
-                    <button
+                    <Checkbox
+                      :model-value="isLandingPageSelected(page.url)"
+                      size="sm"
                       class="custom-checkbox"
-                      :class="isLandingPageSelected(page.url) ? 'custom-checkbox-checked' : 'custom-checkbox-unchecked'"
-                      @click.stop="toggleLandingPageSelection(page.url)"
-                    >
-                      <Check v-if="isLandingPageSelected(page.url)" :size="12" :stroke-width="3" class="check-icon" />
-                    </button>
+                      @click.stop
+                      @update:model-value="toggleLandingPageSelection(page.url)"
+                    />
                     <div class="campaign-name-wrapper">
                       <a :href="page.url" target="_blank" class="campaign-name-with-icon" @click.stop>
                         <div class="campaign-name">{{ page.url }}</div>
@@ -531,16 +405,13 @@
 
             <!-- Filter Bar - Full Width -->
             <div v-if="hasBrowserLanguagesSelection" class="campaign-filter-bar">
-              <button
+              <Checkbox
+                :model-value="allBrowserLanguagesSelected"
+                :indeterminate="isBrowserLanguagesIndeterminate"
+                size="sm"
                 class="custom-checkbox"
-                :class="allBrowserLanguagesSelected ? 'custom-checkbox-checked' : 'custom-checkbox-unchecked'"
-                @click="toggleSelectAllBrowserLanguages"
-              >
-                <Check v-if="allBrowserLanguagesSelected" :size="12" :stroke-width="3" class="check-icon" />
-                <svg v-else-if="isBrowserLanguagesIndeterminate" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2 6H10" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </button>
+                @update:model-value="toggleSelectAllBrowserLanguages"
+              />
               <span class="selection-count">{{ selectedBrowserLanguagesCount }} selected</span>
               <button class="filter-btn">
                 Filter
@@ -572,13 +443,13 @@
                     :class="{ 'is-hovered': hoveredBrowserLanguageCode === lang.code }"
                     @click="toggleBrowserLanguageSelection(lang.code)"
                   >
-                    <button
+                    <Checkbox
+                      :model-value="isBrowserLanguageSelected(lang.code)"
+                      size="sm"
                       class="custom-checkbox"
-                      :class="isBrowserLanguageSelected(lang.code) ? 'custom-checkbox-checked' : 'custom-checkbox-unchecked'"
-                      @click.stop="toggleBrowserLanguageSelection(lang.code)"
-                    >
-                      <Check v-if="isBrowserLanguageSelected(lang.code)" :size="12" :stroke-width="3" class="check-icon" />
-                    </button>
+                      @click.stop
+                      @update:model-value="toggleBrowserLanguageSelection(lang.code)"
+                    />
                     <div class="campaign-name-wrapper">
                       <div class="campaign-name">{{ lang.code }}</div>
                     </div>
@@ -618,16 +489,13 @@
 
             <!-- Filter Bar - Full Width -->
             <div v-if="hasUtmCampaignsSelection" class="campaign-filter-bar">
-              <button
+              <Checkbox
+                :model-value="allUtmCampaignsSelected"
+                :indeterminate="isUtmCampaignsIndeterminate"
+                size="sm"
                 class="custom-checkbox"
-                :class="allUtmCampaignsSelected ? 'custom-checkbox-checked' : 'custom-checkbox-unchecked'"
-                @click="toggleSelectAllUtmCampaigns"
-              >
-                <Check v-if="allUtmCampaignsSelected" :size="12" :stroke-width="3" class="check-icon" />
-                <svg v-else-if="isUtmCampaignsIndeterminate" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2 6H10" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </button>
+                @update:model-value="toggleSelectAllUtmCampaigns"
+              />
               <span class="selection-count">{{ selectedUtmCampaignsCount }} selected</span>
               <button class="filter-btn">
                 Filter
@@ -659,13 +527,13 @@
                     :class="{ 'is-hovered': hoveredUtmCampaignName === campaign.name }"
                     @click="toggleUtmCampaignSelection(campaign.name)"
                   >
-                    <button
+                    <Checkbox
+                      :model-value="isUtmCampaignSelected(campaign.name)"
+                      size="sm"
                       class="custom-checkbox"
-                      :class="isUtmCampaignSelected(campaign.name) ? 'custom-checkbox-checked' : 'custom-checkbox-unchecked'"
-                      @click.stop="toggleUtmCampaignSelection(campaign.name)"
-                    >
-                      <Check v-if="isUtmCampaignSelected(campaign.name)" :size="12" :stroke-width="3" class="check-icon" />
-                    </button>
+                      @click.stop
+                      @update:model-value="toggleUtmCampaignSelection(campaign.name)"
+                    />
                     <div class="campaign-name-wrapper">
                       <div class="campaign-name">{{ campaign.name }}</div>
                     </div>
@@ -702,16 +570,13 @@
 
             <!-- Filter Bar - Full Width -->
             <div v-if="hasUtmSourcesSelection" class="campaign-filter-bar">
-              <button
+              <Checkbox
+                :model-value="allUtmSourcesSelected"
+                :indeterminate="isUtmSourcesIndeterminate"
+                size="sm"
                 class="custom-checkbox"
-                :class="allUtmSourcesSelected ? 'custom-checkbox-checked' : 'custom-checkbox-unchecked'"
-                @click="toggleSelectAllUtmSources"
-              >
-                <Check v-if="allUtmSourcesSelected" :size="12" :stroke-width="3" class="check-icon" />
-                <svg v-else-if="isUtmSourcesIndeterminate" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2 6H10" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </button>
+                @update:model-value="toggleSelectAllUtmSources"
+              />
               <span class="selection-count">{{ selectedUtmSourcesCount }} selected</span>
               <button class="filter-btn">
                 Filter
@@ -743,13 +608,13 @@
                     :class="{ 'is-hovered': hoveredUtmSourceName === source.name }"
                     @click="toggleUtmSourceSelection(source.name)"
                   >
-                    <button
+                    <Checkbox
+                      :model-value="isUtmSourceSelected(source.name)"
+                      size="sm"
                       class="custom-checkbox"
-                      :class="isUtmSourceSelected(source.name) ? 'custom-checkbox-checked' : 'custom-checkbox-unchecked'"
-                      @click.stop="toggleUtmSourceSelection(source.name)"
-                    >
-                      <Check v-if="isUtmSourceSelected(source.name)" :size="12" :stroke-width="3" class="check-icon" />
-                    </button>
+                      @click.stop
+                      @update:model-value="toggleUtmSourceSelection(source.name)"
+                    />
                     <div class="campaign-name-wrapper">
                       <div class="campaign-name">{{ source.name }}</div>
                     </div>
@@ -920,9 +785,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { ExternalLink, ChevronDown, Monitor, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, Check, X } from 'lucide-vue-next'
+import { ref, computed } from 'vue'
+import { ExternalLink, ChevronDown, Monitor, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+import Checkbox from '../components/shared/Checkbox.vue'
+import Dropdown from '../components/shared/Dropdown.vue'
 import VueApexCharts from 'vue3-apexcharts'
 
 const emit = defineEmits(['menu-click'])
@@ -930,8 +797,6 @@ const emit = defineEmits(['menu-click'])
 const activeTab = ref('conversion-rate')
 
 // Domain selector
-const isDomainDropdownOpen = ref(false)
-const domainDropdownRef = ref(null)
 const selectedDomain = ref('reflexshop.hu')
 const domains = ref([
   'reflexshop.hu',
@@ -940,14 +805,7 @@ const domains = ref([
   'demo.optimonk.com'
 ])
 
-const selectDomain = (domain) => {
-  selectedDomain.value = domain
-  isDomainDropdownOpen.value = false
-}
-
 // Devices dropdown
-const isDevicesDropdownOpen = ref(false)
-const devicesDropdownRef = ref(null)
 const selectedDevice = ref('PC and Mobile')
 const devices = ref([
   'PC and Mobile',
@@ -955,14 +813,7 @@ const devices = ref([
   'Mobile only'
 ])
 
-const selectDevice = (device) => {
-  selectedDevice.value = device
-  isDevicesDropdownOpen.value = false
-}
-
 // Goal dropdown
-const isGoalDropdownOpen = ref(false)
-const goalDropdownRef = ref(null)
 const selectedGoal = ref('Conversions (default)')
 const goals = ref([
   'Conversions (default)',
@@ -972,14 +823,7 @@ const goals = ref([
   'Purchase'
 ])
 
-const selectGoal = (goal) => {
-  selectedGoal.value = goal
-  isGoalDropdownOpen.value = false
-}
-
 // Period dropdown
-const isPeriodDropdownOpen = ref(false)
-const periodDropdownRef = ref(null)
 const selectedPeriod = ref('Last 30 days')
 const periods = ref([
   'Yesterday',
@@ -989,34 +833,6 @@ const periods = ref([
   'Last year',
   'Custom period'
 ])
-
-const selectPeriod = (period) => {
-  selectedPeriod.value = period
-  isPeriodDropdownOpen.value = false
-}
-
-const handleClickOutside = (event) => {
-  if (domainDropdownRef.value && !domainDropdownRef.value.contains(event.target)) {
-    isDomainDropdownOpen.value = false
-  }
-  if (devicesDropdownRef.value && !devicesDropdownRef.value.contains(event.target)) {
-    isDevicesDropdownOpen.value = false
-  }
-  if (goalDropdownRef.value && !goalDropdownRef.value.contains(event.target)) {
-    isGoalDropdownOpen.value = false
-  }
-  if (periodDropdownRef.value && !periodDropdownRef.value.contains(event.target)) {
-    isPeriodDropdownOpen.value = false
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
 
 // Chart data - 30 days of conversion rate (0.4% to 0.8%)
 // Chart data for each metric
@@ -1919,194 +1735,6 @@ const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
   margin-left: auto;
 }
 
-/* Domain Selector */
-.domain-select {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  min-width: 200px;
-  padding: 0.5rem 2rem 0.5rem 2.5rem;
-  border: 1px solid rgb(227, 229, 232);
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  color: rgb(80, 87, 99);
-  background-color: white;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-}
-
-.domain-select:hover {
-  border-color: rgb(185, 190, 198);
-  background-color: rgb(250, 250, 250);
-}
-
-.domain-select:focus {
-  outline: none;
-  border-color: #ed5a29;
-  box-shadow: 0 0 0 3px rgba(237, 90, 41, 0.1);
-}
-
-.domain-select-open {
-  border-color: rgb(227, 229, 232);
-  background-color: rgb(250, 250, 250);
-}
-
-.domain-select-favicon {
-  position: absolute;
-  left: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: 50%;
-  overflow: hidden;
-}
-
-.domain-select-icon {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: rgb(107, 114, 128);
-  transition: transform 0.2s;
-  transform-origin: center;
-}
-
-.domain-select-open .domain-select-icon {
-  transform: translateY(-50%) rotate(180deg);
-}
-
-.domain-dropdown {
-  position: absolute;
-  z-index: 10;
-  width: 100%;
-  margin-top: 0.5rem;
-  background: white;
-  border: 1px solid rgb(227, 229, 232);
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  overflow: hidden;
-}
-
-.domain-option {
-  width: 100%;
-  padding: 0.5rem 1rem;
-  text-align: left;
-  font-size: 0.875rem;
-  color: rgb(35, 38, 42);
-  background: white;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.domain-option:hover {
-  background-color: rgb(249, 250, 251);
-}
-
-.domain-option-selected {
-  background-color: rgb(241, 242, 244);
-  font-weight: 500;
-}
-
-/* Icon Dropdowns (Devices, Goal, Period) */
-.icon-dropdown {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: auto;
-  min-width: 220px;
-  padding: 0.5rem 2.5rem 0.5rem 2.5rem;
-  border: 1px solid rgb(213, 216, 221);
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  color: rgb(35, 38, 42);
-  background-color: white;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-}
-
-.icon-dropdown:hover {
-  border-color: rgb(227, 229, 232);
-  background-color: rgb(250, 250, 250);
-}
-
-.icon-dropdown:focus {
-  outline: none;
-  box-shadow: none;
-}
-
-.icon-dropdown-open {
-  border-color: rgb(227, 229, 232);
-  background-color: rgb(250, 250, 250);
-}
-
-.icon-dropdown-icon {
-  position: absolute;
-  left: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: rgb(143, 151, 164);
-  flex-shrink: 0;
-}
-
-.chevron-icon {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: rgb(143, 151, 164);
-  transition: transform 0.2s;
-  transform-origin: center;
-}
-
-.icon-dropdown-open .chevron-icon {
-  transform: translateY(-50%) rotate(180deg);
-}
-
-.icon-dropdown-menu {
-  position: absolute;
-  z-index: 10;
-  margin-top: 0.75rem;
-  background: white;
-  border: 1px solid rgb(213, 216, 221);
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  overflow: hidden;
-}
-
-.icon-dropdown-option {
-  width: 100%;
-  padding: 0.5rem 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  text-align: left;
-  font-size: 0.875rem;
-  color: rgb(35, 38, 42);
-  background: white;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.icon-dropdown-option:hover {
-  background-color: rgb(249, 250, 251);
-}
-
-.icon-dropdown-option-selected {
-  background-color: rgb(241, 242, 244);
-  font-weight: 500;
-}
-
-.dropdown-check-icon {
-  color: rgb(35, 38, 42);
-  flex-shrink: 0;
-}
-
 /* Trend Chart Tabs */
 .trend-chart-tabs {
   display: flex;
@@ -2539,16 +2167,13 @@ const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
   background: rgb(249, 250, 251);
 }
 
-.breakdown-row .custom-checkbox-unchecked {
+.breakdown-row .custom-checkbox {
   opacity: 0;
+  flex-shrink: 0;
 }
 
 .breakdown-row:hover .custom-checkbox {
   opacity: 1;
-}
-
-.breakdown-row .custom-checkbox {
-  flex-shrink: 0;
 }
 
 .breakdown-cell {
@@ -2720,48 +2345,15 @@ const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
 
 /* Custom Checkboxes */
 .custom-checkbox {
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  transition: opacity 0.2s ease;
   opacity: 0;
 }
 
-.custom-checkbox-unchecked {
-  background: white;
-  border: 1.5px solid rgb(213, 216, 221);
-  opacity: 0;
-}
-
-.custom-checkbox-unchecked:hover {
-  border-color: #ed5a29;
-  transform: scale(1.1);
-}
-
-.custom-checkbox-checked {
-  background: #ed5a29;
-  border: 1.5px solid #ed5a29;
-  opacity: 1 !important;
-}
-
-.custom-checkbox-unchecked:has(svg) {
-  background: #ed5a29;
-  border: 1px solid #ed5a29;
-}
-
-.check-icon {
-  color: white;
-}
-
-/* Show checkboxes on row hover */
+/* Show checkboxes on row hover or when any selection exists */
 .campaign-row.is-hovered .custom-checkbox,
-.campaign-variant-row:hover .custom-checkbox {
+.campaign-variant-row:hover .custom-checkbox,
+.has-selection .custom-checkbox {
   opacity: 1;
 }
 

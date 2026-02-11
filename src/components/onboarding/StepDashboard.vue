@@ -515,48 +515,18 @@
     >
       <!-- Domain selector -->
       <div class="mt-12 mb-12 flex justify-center">
-        <div class="relative w-[240px]" ref="dropdownRef">
-          <button
-            @click="isDropdownOpen = !isDropdownOpen"
-            class="w-full pl-9 pr-8 py-2 border border-[#D5D8DD] rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none focus:border-[#E3E5E8] active:border-[#E3E5E8] cursor-pointer bg-white text-left hover:border-[#E3E5E8] hover:bg-[#FAFAFA] transition-colors"
-            :class="{ 'border-[#E3E5E8] bg-[#FAFAFA]': isDropdownOpen }"
-            style="box-shadow: none !important; outline: none !important;"
+        <div class="w-[240px]">
+          <Dropdown
+            v-model="selectedDomain"
+            :options="domains"
+            placeholder="Select domain"
           >
-            {{ selectedDomain }}
-          </button>
-          <div class="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full overflow-hidden pointer-events-none">
-            <img src="/telekom.png" alt="Telekom" class="w-full h-full object-cover" />
-          </div>
-          <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-            <!-- uil-angle-down (Unicons Line) -->
-            <ChevronDown :size="20" class="text-om-gray-600 transition-transform" :class="{ 'rotate-180': isDropdownOpen }" />
-          </div>
-
-          <!-- Dropdown menu -->
-          <transition
-            enter-active-class="transition ease-out duration-100"
-            enter-from-class="opacity-0 scale-95"
-            enter-to-class="opacity-100 scale-100"
-            leave-active-class="transition ease-in duration-75"
-            leave-from-class="opacity-100 scale-100"
-            leave-to-class="opacity-0 scale-95"
-          >
-            <div
-              v-if="isDropdownOpen"
-              class="absolute z-10 w-full mt-3 bg-white border border-[#D5D8DD] rounded-xl shadow-lg overflow-hidden"
-            >
-              <button
-                v-for="domain in domains"
-                :key="domain"
-                @click="selectDomain(domain)"
-                class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F9FAFB] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F9FAFB]"
-                :class="{ 'bg-[#F1F2F4] font-medium': selectedDomain === domain }"
-                style="box-shadow: none !important; outline: none !important;"
-              >
-                {{ domain }}
-              </button>
-            </div>
-          </transition>
+            <template #icon>
+              <div class="w-6 h-6 rounded-full overflow-hidden">
+                <img src="/telekom.png" alt="Telekom" class="w-full h-full object-cover" />
+              </div>
+            </template>
+          </Dropdown>
         </div>
       </div>
 
@@ -752,8 +722,9 @@
 
 <script setup>
 import { reactive, ref, nextTick, onMounted, onUnmounted, computed, watch } from 'vue'
-import { Monitor, Smartphone, X, Check, ArrowUp, Paperclip, ChevronDown, Lightbulb, Plus, FlaskConical } from 'lucide-vue-next'
+import { Monitor, Smartphone, X, Check, ArrowUp, Paperclip, Lightbulb, Plus, FlaskConical } from 'lucide-vue-next'
 import WebsiteScanAnimation from '../illustrations/WebsiteScanAnimation.vue'
+import Dropdown from '../shared/Dropdown.vue'
 
 const props = defineProps({
   modelValue: {
@@ -770,7 +741,6 @@ const emit = defineEmits(['update:modelValue', 'auto-next', 'skip-to-dashboard',
 
 const textareaRef = ref(null)
 const chatTextareaRef = ref(null)
-const dropdownRef = ref(null)
 const messagesContainer = ref(null)
 const submitted = ref(false)
 const isExiting = ref(false)
@@ -783,8 +753,6 @@ let typingTimeout = null
 
 const selectedDomain = ref('telekom.hu')
 const domains = ['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com']
-const isDropdownOpen = ref(false)
-
 const aiMessages = ref([])
 const currentMessageIndex = ref(0)
 const isDiscovering = ref(false)
@@ -1192,14 +1160,7 @@ onUnmounted(() => {
   if (typingTimeout) {
     clearTimeout(typingTimeout)
   }
-  document.removeEventListener('click', handleClickOutside)
 })
-
-const handleClickOutside = (event) => {
-  if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
-    isDropdownOpen.value = false
-  }
-}
 
 const localData = reactive({
   message: props.modelValue.message || ''
@@ -1230,11 +1191,6 @@ const selectExample = (prompt) => {
       textareaRef.value.focus()
     }
   })
-}
-
-const selectDomain = (domain) => {
-  selectedDomain.value = domain
-  isDropdownOpen.value = false
 }
 
 const handleSubmit = () => {
@@ -1287,7 +1243,6 @@ const resetToInitial = () => {
   currentMessageIndex.value = 0
   isDiscovering.value = false
   currentAnalyzingMessage.value = 'Scanning your website...'
-  isDropdownOpen.value = false
   showPopup.value = false
   showDesignOptions.value = false
   showUseCases.value = false
@@ -1308,9 +1263,6 @@ const startWithMessage = (message) => {
 // Auto-start if initialMessage is provided
 onMounted(() => {
   typeText(placeholderSuggestions[0] + '...')
-
-  // Close dropdown when clicking outside
-  document.addEventListener('click', handleClickOutside)
 
   // If initial message is provided, start the analysis
   if (props.initialMessage) {

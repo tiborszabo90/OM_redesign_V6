@@ -66,7 +66,7 @@
             <path d="M77 205 L84 201 L84 209 Z" class="fill-purple-500" />
           </g>
           <g v-else class="transition-all duration-300">
-            <rect x="65" y="190" width="30" height="30" rx="6" class="fill-[#F7F7F8] stroke-[#D5D8DD]" stroke-width="1" />
+            <rect x="65" y="190" width="30" height="30" rx="6" class="fill-[#F9FAFB] stroke-[#D5D8DD]" stroke-width="1" />
             <rect x="73" y="198" width="14" height="3" rx="1.5" class="fill-[#D5D8DD]" />
             <rect x="73" y="205" width="10" height="3" rx="1.5" class="fill-[#D5D8DD]" />
           </g>
@@ -255,7 +255,7 @@ const referralBgClass = computed(() => {
     'blog-article': 'fill-[#ED5A29]/5 stroke-[#ED5A29]/30',
     'youtube': 'fill-red-50 stroke-red-300/30',
   }
-  return classes[referralSource.value] || 'fill-[#F7F7F8] stroke-[#E3E5E8]'
+  return classes[referralSource.value] || 'fill-[#F9FAFB] stroke-[#E3E5E8]'
 })
 
 // Relationship badge styling

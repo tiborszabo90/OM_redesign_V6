@@ -24,7 +24,7 @@
               <button
                 v-if="!isFirstStep"
                 @click="handlePrev"
-                class="px-6 py-2.5 border border-[#D5D8DD] rounded-xl text-base text-[#23262A] hover:bg-[#F7F7F8] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2 cursor-pointer"
+                class="px-6 py-2.5 border border-[#D5D8DD] rounded-xl text-base text-[#23262A] hover:bg-[#F9FAFB] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2 cursor-pointer"
               >
                 Previous
               </button>

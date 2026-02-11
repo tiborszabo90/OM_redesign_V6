@@ -71,7 +71,7 @@
             <div class="space-y-2">
               <div class="h-16 w-full rounded-lg bg-om-gray-50 border border-om-gray-200"></div>
               <p class="text-xs text-om-gray-500">50</p>
-              <p class="text-xs text-om-gray-400 font-mono">#F7F7F8</p>
+              <p class="text-xs text-om-gray-400 font-mono">#F9FAFB</p>
             </div>
             <div class="space-y-2">
               <div class="h-16 w-full rounded-lg bg-om-gray-100 border border-om-gray-200"></div>
@@ -268,12 +268,7 @@
             <h3 class="text-base font-medium text-om-gray-600 mb-4">Switch</h3>
             <div class="flex flex-wrap gap-4 items-center">
               <!-- Standalone Switch -->
-              <button
-                @click="switchStandalone = !switchStandalone"
-                :class="['w-11 h-6 rounded-full relative cursor-pointer transition-colors', switchStandalone ? 'bg-[#2CC896]' : 'bg-om-gray-300']"
-              >
-                <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all', switchStandalone ? 'right-1' : 'left-1']"></div>
-              </button>
+              <ToggleSwitch v-model="switchStandalone" />
             </div>
           </div>
 
@@ -281,39 +276,14 @@
           <div>
             <h3 class="text-base font-medium text-om-gray-600 mb-4">Checkbox</h3>
             <div class="flex flex-wrap gap-4 items-center">
-              <!-- Checked -->
-              <button
-                @click="checkbox1 = !checkbox1"
-                :class="[
-                  'w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-all',
-                  checkbox1
-                    ? 'bg-om-orange-500 border-om-orange-500'
-                    : 'bg-white border-om-gray-300 hover:border-om-orange-500'
-                ]"
-              >
-                <Check v-if="checkbox1" :size="14" class="text-white" stroke-width="3" />
-              </button>
-
-              <!-- Unchecked -->
-              <button
-                @click="checkbox2 = !checkbox2"
-                :class="[
-                  'w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-all',
-                  checkbox2
-                    ? 'bg-om-orange-500 border-om-orange-500'
-                    : 'bg-white border-om-gray-300 hover:border-om-orange-500'
-                ]"
-              >
-                <Check v-if="checkbox2" :size="14" class="text-white" stroke-width="3" />
-              </button>
-
-              <!-- Disabled Checked -->
-              <div class="w-5 h-5 rounded border-2 bg-om-gray-100 border-om-gray-200 flex items-center justify-center cursor-not-allowed">
-                <Check :size="14" class="text-om-gray-400" stroke-width="3" />
-              </div>
-
-              <!-- Disabled Unchecked -->
-              <div class="w-5 h-5 rounded border-2 bg-om-gray-100 border-om-gray-200 cursor-not-allowed"></div>
+              <Checkbox v-model="checkbox1" />
+              <Checkbox v-model="checkbox2" />
+              <Checkbox :model-value="true" disabled />
+              <Checkbox :model-value="false" disabled />
+              <Checkbox v-model="checkbox1" size="sm" />
+              <Checkbox v-model="checkbox2" size="sm" />
+              <Checkbox :model-value="true" size="sm" disabled />
+              <Checkbox :model-value="false" size="sm" disabled />
             </div>
           </div>
 
@@ -417,6 +387,45 @@
         </div>
       </section>
 
+      <!-- Accordion Section -->
+      <section class="mb-12">
+        <h2 class="text-xl font-semibold text-om-gray-700 mb-6">Accordion</h2>
+        <div class="space-y-4 max-w-2xl">
+          <Accordion
+            title="When would you like this campaign to show up?"
+            :open="accordionOpen === 'showUp'"
+            @toggle="toggleAccordion('showUp')"
+          >
+            <template #icon>
+              <Clock :size="20" class="text-om-gray-600" />
+            </template>
+            <p class="text-sm text-om-gray-500">Trigger settings content goes here...</p>
+          </Accordion>
+
+          <Accordion
+            title="How many times should this campaign appear?"
+            :open="accordionOpen === 'howMany'"
+            @toggle="toggleAccordion('howMany')"
+          >
+            <template #icon>
+              <Settings :size="20" class="text-om-gray-600" />
+            </template>
+            <p class="text-sm text-om-gray-500">Frequency settings content goes here...</p>
+          </Accordion>
+
+          <Accordion
+            title="Who should see this campaign?"
+            :open="accordionOpen === 'whoSee'"
+            @toggle="toggleAccordion('whoSee')"
+          >
+            <template #icon>
+              <User :size="20" class="text-om-gray-600" />
+            </template>
+            <p class="text-sm text-om-gray-500">Targeting settings content goes here...</p>
+          </Accordion>
+        </div>
+      </section>
+
       <!-- Inputs Section -->
       <section class="mb-12">
         <h2 class="text-xl font-semibold text-om-gray-700 mb-6">Inputs</h2>
@@ -445,103 +454,23 @@
               <!-- With Logo -->
               <div>
                 <label class="block text-xs font-medium text-om-gray-500 mb-2">With logo</label>
-                <div class="relative w-[240px]" ref="dropdownRef">
-                  <button
-                    @click="isDropdownOpen = !isDropdownOpen"
-                    class="w-full pl-9 pr-8 py-2 border border-[#D5D8DD] rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none focus:border-[#E3E5E8] active:border-[#E3E5E8] cursor-pointer bg-white text-left hover:border-[#E3E5E8] hover:bg-[#FAFAFA] transition-colors"
-                    :class="{ 'border-[#E3E5E8] bg-[#FAFAFA]': isDropdownOpen }"
-                    style="box-shadow: none !important; outline: none !important;"
-                  >
-                    {{ selectedOption }}
-                  </button>
-                  <div class="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full overflow-hidden pointer-events-none">
-                    <img src="/optimonk_logo.svg" alt="Logo" class="w-full h-full object-cover" />
-                  </div>
-                  <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                    <ChevronDown
-                      :size="20"
-                      class="text-om-gray-600 transition-transform"
-                      :class="{ 'rotate-180': isDropdownOpen }"
-                    />
-                  </div>
-
-                  <!-- Dropdown menu -->
-                  <transition
-                    enter-active-class="transition ease-out duration-100"
-                    enter-from-class="opacity-0 scale-95"
-                    enter-to-class="opacity-100 scale-100"
-                    leave-active-class="transition ease-in duration-75"
-                    leave-from-class="opacity-100 scale-100"
-                    leave-to-class="opacity-0 scale-95"
-                  >
-                    <div
-                      v-if="isDropdownOpen"
-                      class="absolute z-10 w-full mt-3 bg-white border border-[#D5D8DD] rounded-xl shadow-lg overflow-hidden"
-                    >
-                      <button
-                        v-for="option in dropdownOptions"
-                        :key="option"
-                        @click="selectOption(option)"
-                        class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F7F7F8] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F7F7F8]"
-                        :class="{ 'bg-[#F1F2F4] font-medium': selectedOption === option }"
-                        style="box-shadow: none !important; outline: none !important;"
-                      >
-                        {{ option }}
-                      </button>
+                <Dropdown v-model="selectedOption" :options="dropdownOptions" class="w-[240px]">
+                  <template #icon>
+                    <div class="w-6 h-6 rounded-full overflow-hidden">
+                      <img src="/optimonk_logo.svg" alt="Logo" class="w-full h-full object-cover" />
                     </div>
-                  </transition>
-                </div>
+                  </template>
+                </Dropdown>
               </div>
 
               <!-- With Icon -->
               <div>
                 <label class="block text-xs font-medium text-om-gray-500 mb-2">With icon</label>
-                <div class="relative w-[240px]" ref="dropdownIconRef">
-                  <button
-                    @click="isDropdownIconOpen = !isDropdownIconOpen"
-                    class="w-full pl-9 pr-8 py-2 border border-[#D5D8DD] rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none focus:border-[#E3E5E8] active:border-[#E3E5E8] cursor-pointer bg-white text-left hover:border-[#E3E5E8] hover:bg-[#FAFAFA] transition-colors"
-                    :class="{ 'border-[#E3E5E8] bg-[#FAFAFA]': isDropdownIconOpen }"
-                    style="box-shadow: none !important; outline: none !important;"
-                  >
-                    {{ selectedIconOption }}
-                  </button>
-                  <div class="absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+                <Dropdown v-model="selectedIconOption" :options="dropdownIconOptions" class="w-[240px]">
+                  <template #icon>
                     <User :size="20" class="text-om-gray-600" />
-                  </div>
-                  <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                    <ChevronDown
-                      :size="20"
-                      class="text-om-gray-600 transition-transform"
-                      :class="{ 'rotate-180': isDropdownIconOpen }"
-                    />
-                  </div>
-
-                  <!-- Dropdown menu -->
-                  <transition
-                    enter-active-class="transition ease-out duration-100"
-                    enter-from-class="opacity-0 scale-95"
-                    enter-to-class="opacity-100 scale-100"
-                    leave-active-class="transition ease-in duration-75"
-                    leave-from-class="opacity-100 scale-100"
-                    leave-to-class="opacity-0 scale-95"
-                  >
-                    <div
-                      v-if="isDropdownIconOpen"
-                      class="absolute z-10 w-full mt-3 bg-white border border-[#D5D8DD] rounded-xl shadow-lg overflow-hidden"
-                    >
-                      <button
-                        v-for="option in dropdownIconOptions"
-                        :key="option"
-                        @click="selectIconOption(option)"
-                        class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F7F7F8] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F7F7F8]"
-                        :class="{ 'bg-[#F1F2F4] font-medium': selectedIconOption === option }"
-                        style="box-shadow: none !important; outline: none !important;"
-                      >
-                        {{ option }}
-                      </button>
-                    </div>
-                  </transition>
-                </div>
+                  </template>
+                </Dropdown>
               </div>
             </div>
           </div>
@@ -549,96 +478,27 @@
           <!-- Single select dropdown -->
           <div>
             <label class="block text-sm font-medium text-om-gray-700 mb-2">Single select dropdown</label>
-            <div class="relative w-[240px]" ref="singleDropdownRef">
-              <button
-                @click="isSingleDropdownOpen = !isSingleDropdownOpen"
-                class="dropdown-select w-full px-4 pr-8 py-2.5 border border-om-gray-200 rounded-xl text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white text-left hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
-                :class="{ 'border-om-orange-300': isSingleDropdownOpen }"
-                :style="isSingleDropdownOpen ? 'box-shadow: 0 0 0 2px #FBD9CE; outline: none;' : 'box-shadow: none; outline: none;'"
-              >
-                {{ singleSelectedOption.label }}
-              </button>
-              <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                <ChevronDown
-                  :size="20"
-                  class="text-om-gray-600 transition-transform"
-                  :class="{ 'rotate-180': isSingleDropdownOpen }"
-                />
-              </div>
-
-              <!-- Dropdown menu -->
-              <transition
-                enter-active-class="transition ease-out duration-100"
-                enter-from-class="opacity-0 scale-95"
-                enter-to-class="opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
-                leave-from-class="opacity-100 scale-100"
-                leave-to-class="opacity-0 scale-95"
-              >
-                <div
-                  v-if="isSingleDropdownOpen"
-                  class="absolute z-10 w-full mt-3 bg-white border border-[#D5D8DD] rounded-xl shadow-lg overflow-hidden"
-                >
-                  <button
-                    v-for="option in singleDropdownOptions"
-                    :key="option.value"
-                    @click="selectSingleOption(option)"
-                    class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F7F7F8] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F7F7F8]"
-                    :class="{ 'bg-[#F1F2F4] font-medium': singleSelectedOption.value === option.value }"
-                    style="box-shadow: none !important; outline: none !important;"
-                  >
-                    {{ option.label }}
-                  </button>
-                </div>
-              </transition>
-            </div>
+            <Dropdown v-model="singleSelectedOption" :options="singleDropdownOptions" class="w-[240px]" />
           </div>
 
           <!-- Single select dropdown small -->
           <div>
             <label class="block text-sm font-medium text-om-gray-700 mb-2">Single select dropdown small</label>
-            <div class="relative w-[240px]" ref="smallDropdownRef">
-              <button
-                @click="isSmallDropdownOpen = !isSmallDropdownOpen"
-                class="dropdown-select w-full px-3 pr-8 py-1.5 border border-om-gray-200 rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white text-left hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
-                :class="{ 'border-om-orange-300': isSmallDropdownOpen }"
-                :style="isSmallDropdownOpen ? 'box-shadow: 0 0 0 2px #FBD9CE; outline: none;' : 'box-shadow: none; outline: none;'"
-              >
-                {{ smallSelectedOption.label }}
-              </button>
-              <div class="absolute inset-y-0 right-2.5 flex items-center pointer-events-none">
-                <ChevronDown
-                  :size="16"
-                  class="text-om-gray-600 transition-transform"
-                  :class="{ 'rotate-180': isSmallDropdownOpen }"
-                />
-              </div>
+            <Dropdown v-model="smallSelectedOption" :options="smallDropdownOptions" size="sm" class="w-[240px]" />
+          </div>
 
-              <!-- Dropdown menu -->
-              <transition
-                enter-active-class="transition ease-out duration-100"
-                enter-from-class="opacity-0 scale-95"
-                enter-to-class="opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
-                leave-from-class="opacity-100 scale-100"
-                leave-to-class="opacity-0 scale-95"
-              >
-                <div
-                  v-if="isSmallDropdownOpen"
-                  class="absolute z-10 w-full mt-2 bg-white border border-[#D5D8DD] rounded-lg shadow-lg overflow-hidden"
-                >
-                  <button
-                    v-for="option in smallDropdownOptions"
-                    :key="option.value"
-                    @click="selectSmallOption(option)"
-                    class="w-full px-3 py-1.5 text-left text-sm text-[#23262A] hover:bg-[#F7F7F8] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F7F7F8]"
-                    :class="{ 'bg-[#F1F2F4] font-medium': smallSelectedOption.value === option.value }"
-                    style="box-shadow: none !important; outline: none !important;"
-                  >
-                    {{ option.label }}
-                  </button>
-                </div>
-              </transition>
+          <!-- Multi select dropdown -->
+          <div>
+            <label class="block text-sm font-medium text-om-gray-700 mb-2">Multi select dropdown</label>
+            <div class="flex gap-6">
+              <div>
+                <label class="block text-xs font-medium text-om-gray-500 mb-2">Default</label>
+                <MultiSelect v-model="multiSelectedOptions" :options="multiSelectOptions" placeholder="All goals" class="w-[240px]" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-om-gray-500 mb-2">Small</label>
+                <MultiSelect v-model="multiSelectedSmallOptions" :options="multiSelectOptions" placeholder="All content" size="sm" class="w-[240px]" />
+              </div>
             </div>
           </div>
         </div>
@@ -777,39 +637,122 @@
           </div>
         </div>
       </section>
+
+      <!-- Data Tables Section -->
+      <section class="mb-12">
+        <h2 class="text-xl font-semibold text-om-gray-700 mb-6">Data Tables</h2>
+
+        <div class="space-y-6">
+          <!-- Table Structure Documentation -->
+          <div class="bg-om-gray-50 p-4 rounded-lg">
+            <h3 class="text-base font-medium text-om-gray-700 mb-2">Table Structure</h3>
+            <p class="text-sm text-om-gray-600 mb-3">All data tables follow a consistent structure with checkboxes for row selection, filter bars, and proper padding alignment.</p>
+            <div class="bg-white p-3 rounded border border-om-gray-200 font-mono text-xs text-om-gray-600 overflow-x-auto">
+              <pre>White Box Container (pt-5 pb-5, no left/right padding)
+  ├─ Section Title (32px left/right padding) OR
+  ├─ Section Header (32px left/right padding)
+  │   ├─ Section Title (no padding, inside header)
+  │   └─ Action Button (e.g., "View All")
+  ├─ Filter Bar (shows when items selected, no padding)
+  │   ├─ Master Checkbox
+  │   ├─ Selection Count
+  │   └─ Filter Button
+  └─ Table (no padding on rows/headers)
+      ├─ Header Row (no padding, gap 0.5rem)
+      │   ├─ Master Checkbox (hidden when items selected)
+      │   └─ Column Headers
+      └─ Body Rows (no padding, gap 0.5rem)
+          ├─ Checkbox (opacity 0 by default, 1 on hover)
+          └─ Cell Content</pre>
+            </div>
+          </div>
+
+          <!-- Example Table -->
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pt-5 pb-5">
+            <div class="flex justify-between items-center mb-4 px-8">
+              <h3 class="text-lg font-medium text-om-gray-700">Example Data Table</h3>
+              <button class="px-3 py-1.5 text-sm text-om-gray-600 hover:text-om-gray-700 hover:bg-om-gray-50 rounded transition-colors">
+                View All
+              </button>
+            </div>
+
+            <!-- Table Header -->
+            <div class="flex items-center gap-2 border-b border-om-gray-200">
+              <div class="w-4 h-4 ml-2 rounded border border-om-gray-300 shrink-0"></div>
+              <div class="flex-1 py-3 text-sm font-medium text-om-gray-500">Item Name</div>
+              <div class="w-24 py-3 text-sm font-medium text-om-gray-500 text-right">Count</div>
+              <div class="w-24 py-3 text-sm font-medium text-om-gray-500 text-right mr-8">Rate</div>
+            </div>
+
+            <!-- Table Rows -->
+            <div class="flex items-center gap-2 border-b border-om-gray-100 hover:bg-om-gray-50 transition-colors cursor-pointer">
+              <div class="w-4 h-4 ml-2 rounded border border-om-gray-300 shrink-0"></div>
+              <div class="flex-1 py-3.5 text-sm text-om-gray-700">Example Item 1</div>
+              <div class="w-24 py-3.5 text-sm text-om-gray-700 text-right">1,234</div>
+              <div class="w-24 py-3.5 text-sm text-om-gray-700 text-right mr-8">45.2%</div>
+            </div>
+            <div class="flex items-center gap-2 border-b border-om-gray-100 hover:bg-om-gray-50 transition-colors cursor-pointer">
+              <div class="w-4 h-4 ml-2 rounded border border-om-gray-300 shrink-0"></div>
+              <div class="flex-1 py-3.5 text-sm text-om-gray-700">Example Item 2</div>
+              <div class="w-24 py-3.5 text-sm text-om-gray-700 text-right">987</div>
+              <div class="w-24 py-3.5 text-sm text-om-gray-700 text-right mr-8">38.7%</div>
+            </div>
+            <div class="flex items-center gap-2 hover:bg-om-gray-50 transition-colors cursor-pointer">
+              <div class="w-4 h-4 ml-2 rounded border border-om-gray-300 shrink-0"></div>
+              <div class="flex-1 py-3.5 text-sm text-om-gray-700">Example Item 3</div>
+              <div class="w-24 py-3.5 text-sm text-om-gray-700 text-right">756</div>
+              <div class="w-24 py-3.5 text-sm text-om-gray-700 text-right mr-8">52.1%</div>
+            </div>
+          </div>
+
+          <!-- Checkbox States -->
+          <div>
+            <h3 class="text-base font-medium text-om-gray-700 mb-3">Checkbox States</h3>
+            <div class="flex gap-4 items-center">
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 rounded border border-om-gray-300"></div>
+                <span class="text-sm text-om-gray-600">Unchecked</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 rounded bg-om-orange-500 border border-om-orange-500 flex items-center justify-center">
+                  <Check :size="12" :stroke-width="3" class="text-white" />
+                </div>
+                <span class="text-sm text-om-gray-600">Checked</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 rounded bg-om-orange-500 border border-om-orange-500 flex items-center justify-center">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 6H10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <span class="text-sm text-om-gray-600">Indeterminate</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { Paperclip, Check, Store, Briefcase, Globe, Archive, Plus, Bot, TrendingUp, Settings, ChevronDown, User, Home, X, ShoppingCart } from 'lucide-vue-next'
+import { ref } from 'vue'
+import { Paperclip, Check, Store, Briefcase, Globe, Archive, Plus, Bot, TrendingUp, Settings, User, Home, X, ShoppingCart, Clock } from 'lucide-vue-next'
+import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
+import Accordion from '../components/shared/Accordion.vue'
+import Checkbox from '../components/shared/Checkbox.vue'
+import Dropdown from '../components/shared/Dropdown.vue'
+import MultiSelect from '../components/shared/MultiSelect.vue'
 
-// Pill dropdown
-const dropdownRef = ref(null)
-const isDropdownOpen = ref(false)
+// Pill dropdown with logo
 const selectedOption = ref('Option 1')
 const dropdownOptions = ['Option 1', 'Option 2', 'Option 3', 'Option 4']
 
-const selectOption = (option) => {
-  selectedOption.value = option
-  isDropdownOpen.value = false
-}
-
 // Pill dropdown with icon
-const dropdownIconRef = ref(null)
-const isDropdownIconOpen = ref(false)
 const selectedIconOption = ref('Option 1')
 const dropdownIconOptions = ['Option 1', 'Option 2', 'Option 3', 'Option 4']
 
-const selectIconOption = (option) => {
-  selectedIconOption.value = option
-  isDropdownIconOpen.value = false
-}
-
 // Single select dropdown
-const singleDropdownRef = ref(null)
-const isSingleDropdownOpen = ref(false)
 const singleDropdownOptions = [
   { value: 'en', label: 'English' },
   { value: 'hu', label: 'Hungarian' },
@@ -819,9 +762,10 @@ const singleDropdownOptions = [
 ]
 const singleSelectedOption = ref(singleDropdownOptions[0])
 
-const selectSingleOption = (option) => {
-  singleSelectedOption.value = option
-  isSingleDropdownOpen.value = false
+// Accordion state
+const accordionOpen = ref(null)
+const toggleAccordion = (id) => {
+  accordionOpen.value = accordionOpen.value === id ? null : id
 }
 
 // Switch states
@@ -835,8 +779,6 @@ const checkbox1 = ref(true)
 const checkbox2 = ref(false)
 
 // Single select dropdown small
-const smallDropdownRef = ref(null)
-const isSmallDropdownOpen = ref(false)
 const smallDropdownOptions = [
   { value: 'en', label: 'English' },
   { value: 'hu', label: 'Hungarian' },
@@ -846,28 +788,9 @@ const smallDropdownOptions = [
 ]
 const smallSelectedOption = ref(smallDropdownOptions[0])
 
-const selectSmallOption = (option) => {
-  smallSelectedOption.value = option
-  isSmallDropdownOpen.value = false
-}
+// Multi select dropdown
+const multiSelectOptions = ['List Building', 'Cart Abandonment', 'Average Order Value', 'Collect Feedback', 'Direct Visitors', 'Increase Conversion', 'Promote Sales']
+const multiSelectedOptions = ref([])
+const multiSelectedSmallOptions = ref([])
 
-const handleClickOutside = (event) => {
-  if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
-    isDropdownOpen.value = false
-  }
-  if (singleDropdownRef.value && !singleDropdownRef.value.contains(event.target)) {
-    isSingleDropdownOpen.value = false
-  }
-  if (smallDropdownRef.value && !smallDropdownRef.value.contains(event.target)) {
-    isSmallDropdownOpen.value = false
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
 </script>

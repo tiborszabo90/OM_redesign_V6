@@ -31,7 +31,7 @@
       <!-- Referral Source (Step 2) -->
       <div ref="referralSection" class="mb-4 opacity-0 -translate-x-4">
         <div class="flex items-center gap-3">
-          <div ref="referralIcon" class="w-10 h-10 rounded-xl bg-[#F7F7F8] flex items-center justify-center transition-colors duration-300">
+          <div ref="referralIcon" class="w-10 h-10 rounded-xl bg-[#F9FAFB] flex items-center justify-center transition-colors duration-300">
             <!-- uil-question-circle -->
             <svg class="w-5 h-5 text-[#8F97A4]" viewBox="0 0 24 24" fill="currentColor">
               <path d="M11.29,15.29a1.58,1.58,0,0,0-.12.15.76.76,0,0,0-.09.18.64.64,0,0,0-.06.18,1.36,1.36,0,0,0,0,.2.84.84,0,0,0,.08.38.9.9,0,0,0,.54.54.94.94,0,0,0,.76,0,.9.9,0,0,0,.54-.54A1,1,0,0,0,13,16a1,1,0,0,0-.29-.71A1,1,0,0,0,11.29,15.29ZM12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20ZM12,7A3,3,0,0,0,9.4,8.5a1,1,0,1,0,1.73,1A1,1,0,0,1,12,9a1,1,0,0,1,0,2,1,1,0,0,0-1,1v1a1,1,0,0,0,2,0v-.18A3,3,0,0,0,12,7Z"/>
@@ -55,7 +55,7 @@
       <!-- Business Type (Step 3) -->
       <div ref="businessSection" class="mb-4 opacity-0 -translate-x-4">
         <div class="flex items-center gap-3">
-          <div ref="businessIcon" class="w-10 h-10 rounded-xl bg-[#F7F7F8] flex items-center justify-center transition-colors duration-300">
+          <div ref="businessIcon" class="w-10 h-10 rounded-xl bg-[#F9FAFB] flex items-center justify-center transition-colors duration-300">
             <!-- uil-building -->
             <svg class="w-5 h-5 text-[#8F97A4]" viewBox="0 0 24 24" fill="currentColor">
               <path d="M14,8h1a1,1,0,0,0,0-2H14a1,1,0,0,0,0,2Zm0,4h1a1,1,0,0,0,0-2H14a1,1,0,0,0,0,2ZM9,8h1a1,1,0,0,0,0-2H9A1,1,0,0,0,9,8Zm0,4h1a1,1,0,0,0,0-2H9a1,1,0,0,0,0,2Zm12,8H18V3a1,1,0,0,0-1-1H7A1,1,0,0,0,6,3V20H3a1,1,0,0,0,0,2H21a1,1,0,0,0,0-2Zm-5,0H13V16a1,1,0,0,0-1-1H12a1,1,0,0,0-1,1v4H8V4h8Z"/>
@@ -79,7 +79,7 @@
       <!-- Relationship (Step 4) -->
       <div ref="relationshipSection" class="mb-4 opacity-0 -translate-x-4">
         <div class="flex items-center gap-3">
-          <div ref="relationshipIcon" class="w-10 h-10 rounded-xl bg-[#F7F7F8] flex items-center justify-center transition-colors duration-300">
+          <div ref="relationshipIcon" class="w-10 h-10 rounded-xl bg-[#F9FAFB] flex items-center justify-center transition-colors duration-300">
             <!-- uil-users-alt -->
             <svg class="w-5 h-5 text-[#8F97A4]" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12.3,12.22A4.92,4.92,0,0,0,14,8.5a5,5,0,0,0-10,0,4.92,4.92,0,0,0,1.7,3.72A8,8,0,0,0,1,19.5a1,1,0,0,0,2,0,6,6,0,0,1,12,0,1,1,0,0,0,2,0A8,8,0,0,0,12.3,12.22ZM9,11.5a3,3,0,1,1,3-3A3,3,0,0,1,9,11.5Zm9.74.32A5,5,0,0,0,15,3.5a1,1,0,0,0,0,2,3,3,0,0,1,3,3,3,3,0,0,1-1.5,2.59,1,1,0,0,0-.5.84,1,1,0,0,0,.45.86l.39.26.13.07a7,7,0,0,1,4,6.38,1,1,0,0,0,2,0A9,9,0,0,0,18.74,11.82Z"/>
@@ -103,7 +103,7 @@
       <!-- Contact Type (Step 5 - conditional) -->
       <div v-if="showContactType" ref="contactSection" class="mb-4 opacity-0 -translate-x-4">
         <div class="flex items-center gap-3">
-          <div ref="contactIcon" class="w-10 h-10 rounded-xl bg-[#F7F7F8] flex items-center justify-center transition-colors duration-300">
+          <div ref="contactIcon" class="w-10 h-10 rounded-xl bg-[#F9FAFB] flex items-center justify-center transition-colors duration-300">
             <!-- uil-user -->
             <svg class="w-5 h-5 text-[#8F97A4]" viewBox="0 0 24 24" fill="currentColor">
               <path d="M15.71,12.71a6,6,0,1,0-7.42,0,10,10,0,0,0-6.22,8.18,1,1,0,0,0,2,.22,8,8,0,0,1,15.9,0,1,1,0,0,0,1,.89h.11a1,1,0,0,0,.88-1.1A10,10,0,0,0,15.71,12.71ZM12,12a4,4,0,1,1,4-4A4,4,0,0,1,12,12Z"/>
@@ -127,7 +127,7 @@
       <!-- Agency Details (Step 6 - conditional) -->
       <div v-if="showAgencyDetails" ref="agencySection" class="opacity-0 -translate-x-4">
         <div class="flex items-center gap-3">
-          <div ref="agencyIcon" class="w-10 h-10 rounded-xl bg-[#F7F7F8] flex items-center justify-center transition-colors duration-300">
+          <div ref="agencyIcon" class="w-10 h-10 rounded-xl bg-[#F9FAFB] flex items-center justify-center transition-colors duration-300">
             <!-- uil-briefcase-alt -->
             <svg class="w-5 h-5 text-[#8F97A4]" viewBox="0 0 24 24" fill="currentColor">
               <path d="M21,6H16V5a3,3,0,0,0-3-3H11A3,3,0,0,0,8,5V6H3A1,1,0,0,0,2,7V19a3,3,0,0,0,3,3H19a3,3,0,0,0,3-3V7A1,1,0,0,0,21,6ZM10,5a1,1,0,0,1,1-1h2a1,1,0,0,1,1,1V6H10ZM20,19a1,1,0,0,1-1,1H5a1,1,0,0,1-1-1V12.39l5.69,1.9A1.17,1.17,0,0,0,10,14.3a1,1,0,0,0,.31-.05L12,13.72l1.69.53A1,1,0,0,0,14,14.3a1.17,1.17,0,0,0,.31-.01L20,12.39Zm0-8.62-6.15,2.05L12,11.88l-1.85.55L4,10.38V8H20Z"/>

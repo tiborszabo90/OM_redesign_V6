@@ -15,7 +15,7 @@
         <!-- Header -->
         <div class="flex items-start justify-between mb-4">
           <div>
-            <h1 class="text-xl font-semibold text-om-gray-700 mb-1">Black Friday 2025</h1>
+            <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Black Friday 2025</h1>
             <p class="text-xs text-om-gray-400">www.mydomain.com</p>
           </div>
           <div class="flex items-center gap-2.5">
@@ -27,12 +27,7 @@
             </button>
             <button :class="['px-3.5 py-1.5 rounded-lg flex items-center gap-2.5 text-sm font-medium cursor-pointer text-om-gray-700', isActive ? 'bg-[#D6F5EC]' : 'bg-om-gray-100']">
               <span>{{ isActive ? 'Active' : 'Inactive' }}</span>
-              <button
-                @click.stop="isActive = !isActive"
-                :class="['w-11 h-6 rounded-full relative cursor-pointer transition-colors', isActive ? 'bg-[#2CC896]' : 'bg-om-gray-300']"
-              >
-                <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all', isActive ? 'right-1' : 'left-1']"></div>
-              </button>
+              <ToggleSwitch v-model="isActive" @click.stop />
             </button>
             <button class="w-8 h-8 flex items-center justify-center text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600 rounded-lg transition-all cursor-pointer">
               <svg width="4" height="18" viewBox="0 0 4 18" fill="currentColor">
@@ -106,96 +101,18 @@
           <!-- Filters -->
           <div class="col-span-3 flex flex-col justify-end gap-2.5 pr-8 py-8">
             <!-- Time Period Dropdown -->
-            <div class="relative">
-              <button
-                @click="isTimePeriodOpen = !isTimePeriodOpen"
-                class="w-full pl-9 pr-8 py-2 border border-[#D5D8DD] rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none focus:border-[#E3E5E8] active:border-[#E3E5E8] cursor-pointer bg-white text-left hover:border-[#E3E5E8] hover:bg-[#FAFAFA] transition-colors"
-                :class="{ 'border-[#E3E5E8] bg-[#FAFAFA]': isTimePeriodOpen }"
-                style="box-shadow: none !important; outline: none !important;"
-              >
-                {{ selectedTimePeriod }}
-              </button>
-              <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-om-gray-400">
-                <Calendar :size="18" />
-              </div>
-              <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                <ChevronDown
-                  :size="20"
-                  class="text-om-gray-600 transition-transform"
-                  :class="{ 'rotate-180': isTimePeriodOpen }"
-                />
-              </div>
-              <transition
-                enter-active-class="transition ease-out duration-100"
-                enter-from-class="opacity-0 scale-95"
-                enter-to-class="opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
-                leave-from-class="opacity-100 scale-100"
-                leave-to-class="opacity-0 scale-95"
-              >
-                <div
-                  v-if="isTimePeriodOpen"
-                  class="absolute z-10 w-full mt-3 bg-white border border-[#D5D8DD] rounded-xl shadow-lg overflow-hidden"
-                >
-                  <button
-                    v-for="option in timePeriodOptions"
-                    :key="option"
-                    @click="selectTimePeriod(option)"
-                    class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F9FAFB] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F9FAFB]"
-                    :class="{ 'bg-[#F1F2F4] font-medium': selectedTimePeriod === option }"
-                    style="box-shadow: none !important; outline: none !important;"
-                  >
-                    {{ option }}
-                  </button>
-                </div>
-              </transition>
-            </div>
+            <Dropdown v-model="selectedTimePeriod" :options="timePeriodOptions">
+              <template #icon>
+                <Calendar :size="18" class="text-om-gray-400" />
+              </template>
+            </Dropdown>
 
             <!-- Goal Dropdown -->
-            <div class="relative">
-              <button
-                @click="isGoalOpen = !isGoalOpen"
-                class="w-full pl-9 pr-8 py-2 border border-[#D5D8DD] rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none focus:border-[#E3E5E8] active:border-[#E3E5E8] cursor-pointer bg-white text-left hover:border-[#E3E5E8] hover:bg-[#FAFAFA] transition-colors"
-                :class="{ 'border-[#E3E5E8] bg-[#FAFAFA]': isGoalOpen }"
-                style="box-shadow: none !important; outline: none !important;"
-              >
-                {{ selectedGoal }}
-              </button>
-              <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-om-gray-400">
-                <Target :size="18" />
-              </div>
-              <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                <ChevronDown
-                  :size="20"
-                  class="text-om-gray-600 transition-transform"
-                  :class="{ 'rotate-180': isGoalOpen }"
-                />
-              </div>
-              <transition
-                enter-active-class="transition ease-out duration-100"
-                enter-from-class="opacity-0 scale-95"
-                enter-to-class="opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
-                leave-from-class="opacity-100 scale-100"
-                leave-to-class="opacity-0 scale-95"
-              >
-                <div
-                  v-if="isGoalOpen"
-                  class="absolute z-10 w-full mt-3 bg-white border border-[#D5D8DD] rounded-xl shadow-lg overflow-hidden"
-                >
-                  <button
-                    v-for="option in goalOptions"
-                    :key="option"
-                    @click="selectGoal(option)"
-                    class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F9FAFB] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F9FAFB]"
-                    :class="{ 'bg-[#F1F2F4] font-medium': selectedGoal === option }"
-                    style="box-shadow: none !important; outline: none !important;"
-                  >
-                    {{ option }}
-                  </button>
-                </div>
-              </transition>
-            </div>
+            <Dropdown v-model="selectedGoal" :options="goalOptions">
+              <template #icon>
+                <Target :size="18" class="text-om-gray-400" />
+              </template>
+            </Dropdown>
           </div>
         </div>
         </div>
@@ -237,12 +154,7 @@
                 <span class="text-sm font-medium text-om-gray-700">Klaviyo Popup</span>
               </div>
               <div class="col-span-1">
-                <button
-                  @click="variant1Active = !variant1Active"
-                  :class="['w-11 h-6 rounded-full relative cursor-pointer transition-colors', variant1Active ? 'bg-[#2CC896]' : 'bg-om-gray-300']"
-                >
-                  <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all', variant1Active ? 'right-1' : 'left-1']"></div>
-                </button>
+                <ToggleSwitch v-model="variant1Active" />
               </div>
               <div class="col-span-1 text-base font-semibold text-om-gray-700 text-right">12,593</div>
               <div class="col-span-1 text-base font-semibold text-om-gray-700 text-right">650</div>
@@ -281,12 +193,7 @@
                 <span class="text-sm font-medium text-om-gray-700">AI Variant</span>
               </div>
               <div class="col-span-1">
-                <button
-                  @click="variant2Active = !variant2Active"
-                  :class="['w-11 h-6 rounded-full relative cursor-pointer transition-colors', variant2Active ? 'bg-[#2CC896]' : 'bg-om-gray-300']"
-                >
-                  <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all', variant2Active ? 'right-1' : 'left-1']"></div>
-                </button>
+                <ToggleSwitch v-model="variant2Active" />
               </div>
               <div class="col-span-1 text-base font-semibold text-om-gray-700 text-right">12,593</div>
               <div class="col-span-1 text-base font-semibold text-om-gray-700 text-right">650</div>
@@ -443,8 +350,10 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { ChevronDown, TrendingUp, ChevronRight, Calendar, Target, MoreVertical } from 'lucide-vue-next'
+import { TrendingUp, Calendar, Target, MoreVertical } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
+import Dropdown from '../components/shared/Dropdown.vue'
 
 defineEmits(['menu-click'])
 
@@ -464,24 +373,12 @@ const tooltipStyle = computed(() => ({
   transform: 'translate(-50%, -50%)'
 }))
 
-// Dropdown states
-const isTimePeriodOpen = ref(false)
+// Dropdown data
 const selectedTimePeriod = ref('Last 30 days')
 const timePeriodOptions = ['Last 7 days', 'Last 30 days', 'Last 90 days', 'Last 12 months']
 
-const isGoalOpen = ref(false)
 const selectedGoal = ref('Submit')
 const goalOptions = ['Submit', 'Click', 'View', 'Conversion']
-
-const selectTimePeriod = (option) => {
-  selectedTimePeriod.value = option
-  isTimePeriodOpen.value = false
-}
-
-const selectGoal = (option) => {
-  selectedGoal.value = option
-  isGoalOpen.value = false
-}
 
 const handleLogoClick = () => {
   // Navigate back to home

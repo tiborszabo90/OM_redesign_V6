@@ -1,0 +1,97 @@
+.help-center-content .heading { color: rgb(80, 87, 99); }
+.help-center-video-title { white-space: normal !important; }
+.help-center-video { color: rgb(143, 151, 164); display: flex; }
+.help-center-video img { border-radius: 4px; max-height: 60px; }
+:root { --brand-primary-color: #ed5a29; --brand-secondary-color: #fff; }
+.color-black { color: rgb(0, 0, 0) !important; }
+.color-white { color: rgb(255, 255, 255) !important; }
+.color-brand-primary { color: var(--brand-primary-color) !important; }
+.color-dark-grey { color: rgb(108, 117, 125); }
+.color-ligh-grey { color: rgb(216, 216, 216); }
+.color-gray-ultra-dark { color: rgb(80, 87, 99); }
+.bg-dark-grey { background-color: rgb(108, 117, 125); }
+.bg-dark-grey-2 { background-color: rgb(35, 31, 32); }
+.bg-grey-op-8 { background-color: rgba(0, 0, 0, 0.8) !important; }
+.bg-white { background-color: rgb(255, 255, 255) !important; }
+.bg-brand-primary { background-color: var(--brand-primary-color) !important; }
+.brand-color { color: var(--brand-primary-color); }
+.brand-color-positive { color: rgb(44, 200, 150); }
+.brand-color-negative { color: rgb(238, 53, 84); }
+.auxiliary-brown { color: rgb(139, 80, 67); }
+.auxiliary-abyssal { color: rgba(49, 80, 85, 0.65); }
+.auxiliary-purple { color: rgb(132, 68, 225); }
+.auxiliary-pink { color: rgb(222, 109, 147); }
+.auxiliary-teal { color: rgb(88, 166, 164); }
+.auxiliary-blue { color: rgb(109, 154, 231); }
+.auxiliary-yellow { color: rgb(240, 201, 32); }
+.orange-500 { color: rgb(237, 90, 41) !important; }
+.orange-600 { color: rgb(209, 66, 18) !important; }
+.orange-400 { color: rgb(241, 126, 88) !important; }
+.orange-300 { color: rgb(247, 181, 159) !important; }
+.orange-200 { color: rgb(251, 217, 206) !important; }
+.orange-500-10 { color: rgba(237, 90, 41, 0.1) !important; }
+.gray-500 { color: rgb(185, 190, 198) !important; }
+.gray-900 { color: rgb(0, 0, 0) !important; }
+.gray-800 { color: rgb(35, 38, 42) !important; }
+.gray-700 { color: rgb(80, 87, 99) !important; }
+.gray-600 { color: rgb(143, 151, 164) !important; }
+.gray-400 { color: rgb(213, 216, 221) !important; }
+.gray-300 { color: rgb(227, 229, 232) !important; }
+.gray-200 { color: rgb(241, 242, 244) !important; }
+.gray-100 { color: rgb(247, 247, 248) !important; }
+.gray-50 { color: rgb(255, 255, 255) !important; }
+.gray-700-70 { color: rgba(80, 87, 99, 0.7) !important; }
+.gray-700-40 { color: rgba(80, 87, 99, 0.4) !important; }
+.gray-700-20 { color: rgba(80, 87, 99, 0.2) !important; }
+.gray-500-40 { color: rgba(185, 190, 198, 0.4) !important; }
+.gray-500-20 { color: rgba(185, 190, 198, 0.2) !important; }
+.gray-50-20 { color: rgba(255, 255, 255, 0.2) !important; }
+.peach-200 { color: rgb(255, 224, 204); }
+.peach-900 { color: rgb(153, 60, 0); }
+.peach-800 { color: rgb(204, 80, 0); }
+.peach-700 { color: rgb(255, 100, 0); }
+.peach-600 { color: rgb(255, 131, 51); }
+.peach-500 { color: rgb(255, 178, 128); }
+.peach-400 { color: rgb(255, 193, 153); }
+.peach-300 { color: rgb(255, 209, 179); }
+.peach-100 { color: rgb(255, 240, 230); }
+.peach-50 { color: rgb(255, 255, 255); }
+.alert-red-500-40 { color: rgba(228, 37, 45, 0.4); }
+.alert-red-500-10 { color: rgba(228, 37, 45, 0.1); }
+.alert-red-500 { color: rgb(228, 37, 45); }
+.alert-red-900 { color: rgb(54, 7, 9); }
+.alert-red-800 { color: rgb(100, 12, 16); }
+.alert-red-700 { color: rgb(145, 18, 23); }
+.alert-red-600 { color: rgb(190, 24, 31); }
+.alert-red-400 { color: rgb(234, 82, 89); }
+.alert-red-300 { color: rgb(242, 150, 154); }
+.alert-red-200 { color: rgb(248, 196, 198); }
+.alert-red-100 { color: rgb(250, 219, 220); }
+.alert-red-50 { color: rgb(253, 241, 242); }
+.alert-green-500 { color: rgb(44, 200, 150); }
+.alert-green-900 { color: rgb(7, 33, 25); }
+.alert-green-800 { color: rgb(16, 75, 56); }
+.alert-green-700 { color: rgb(26, 116, 87); }
+.alert-green-600 { color: rgb(35, 158, 119); }
+.alert-green-600-10 { color: rgba(35, 158, 119, 0.1); }
+.alert-green-600-40 { color: rgba(35, 158, 119, 0.4); }
+.alert-green-400 { color: rgb(79, 216, 172); }
+.alert-green-300 { color: rgb(141, 230, 202); }
+.alert-green-200 { color: rgb(183, 239, 221); }
+.alert-green-100 { color: rgb(204, 244, 231); }
+.alert-green-50 { color: rgb(225, 248, 241); }
+.alert-green-500-40 { color: rgba(44, 200, 150, 0.4); }
+.alert-green-500-20 { color: rgba(44, 200, 150, 0.2); }
+.more-menu-content { border: 1px solid rgb(227, 229, 232); border-radius: 4px; }
+.more-menu-content .brand-link-element { padding: 6px 16px; }
+.more-menu-content .brand-link-element:hover { background: rgb(241, 242, 244); }
+.more-menu-content .brand-link-element .title { line-height: 16px; font-size: 12px; padding-right: 8px; }
+.more-menu-content .brand-link-element .brand-link-element-icon { padding: 8px; }
+.more-menu-content .brand-link-element .brand-link-element-icon svg { width: 20px; }
+.help-center-popper .popper { width: 360px; }
+.brand-side-nav-item { position: relative; }
+.brand-side-nav-item:hover, .more-menu-items:hover { text-decoration: none; }
+.brand-side-nav-item .side-nav-icon, .more-menu-items .side-nav-icon { height: 20px; width: 20px; }
+.brand-side-nav-item .item-title, .more-menu-items .item-title { color: rgb(255, 255, 255); font-size: 10px; font-weight: 500; line-height: 16px; display: block; margin-top: 4px; text-align: center; padding: 0px 2px; }
+.more-menu-items.active .brand-side-nav-item, .more-menu-items.selected .brand-side-nav-item { background-color: rgba(0, 0, 0, 0.15); }
+.more-menu-items .popper__arrow { display: none; }

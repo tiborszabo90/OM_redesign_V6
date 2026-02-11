@@ -1,0 +1,185 @@
+.om-animated { animation-duration: 1s; animation-fill-mode: both; }
+.om-animated.om-infinite { animation-iteration-count: infinite; }
+@-webkit-keyframes om-bounce { 
+  20%, 53%, 80%, 0%, 100% { animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1); transform: translate3d(0px, 0px, 0px); }
+  40%, 43% { animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06); transform: translate3d(0px, -30px, 0px); }
+  70% { animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06); transform: translate3d(0px, -15px, 0px); }
+  90% { transform: translate3d(0px, -4px, 0px); }
+}
+@keyframes om-bounce { 
+  20%, 53%, 80%, 0%, 100% { animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1); transform: translate3d(0px, 0px, 0px); }
+  40%, 43% { animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06); transform: translate3d(0px, -30px, 0px); }
+  70% { animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06); transform: translate3d(0px, -15px, 0px); }
+  90% { transform: translate3d(0px, -4px, 0px); }
+}
+.om-bounce { animation-name: om-bounce; transform-origin: center bottom; }
+@-webkit-keyframes om-fadeIn { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes om-fadeIn { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.om-fadeIn { animation-name: om-fadeIn; }
+@-webkit-keyframes om-slideInLeft { 
+  0% { transform: translate3d(-100%, 0px, 0px); visibility: visible; }
+  100% { transform: translate3d(0px, 0px, 0px); }
+}
+@keyframes om-slideInLeft { 
+  0% { transform: translate3d(-100%, 0px, 0px); visibility: visible; }
+  100% { transform: translate3d(0px, 0px, 0px); }
+}
+.om-slideInLeft { animation-name: om-slideInLeft; }
+@-webkit-keyframes om-slideInUp { 
+  0% { transform: translate3d(0px, 100%, 0px); visibility: visible; }
+  100% { transform: translate3d(0px, 0px, 0px); }
+}
+@keyframes om-slideInUp { 
+  0% { transform: translate3d(0px, 100%, 0px); visibility: visible; }
+  100% { transform: translate3d(0px, 0px, 0px); }
+}
+.om-slideInUp { animation-name: om-slideInUp; }
+@-webkit-keyframes om-shake { 
+  0%, 100% { transform: translate3d(0px, 0px, 0px); }
+  10%, 30%, 50%, 70%, 90% { transform: translate3d(-10px, 0px, 0px); }
+  20%, 40%, 60%, 80% { transform: translate3d(10px, 0px, 0px); }
+}
+@keyframes om-shake { 
+  0%, 100% { transform: translate3d(0px, 0px, 0px); }
+  10%, 30%, 50%, 70%, 90% { transform: translate3d(-10px, 0px, 0px); }
+  20%, 40%, 60%, 80% { transform: translate3d(10px, 0px, 0px); }
+}
+.om-shake { animation-name: om-shake; }
+@-webkit-keyframes om-slideInDown { 
+  0% { transform: translate3d(0px, -100%, 0px); visibility: visible; }
+  100% { transform: translate3d(0px, 0px, 0px); }
+}
+@keyframes om-slideInDown { 
+  0% { transform: translate3d(0px, -100%, 0px); visibility: visible; }
+  100% { transform: translate3d(0px, 0px, 0px); }
+}
+.om-slideInDown { animation-name: om-slideInDown; }
+@-webkit-keyframes om-flipInY { 
+  0% { transform: perspective(400px) rotate3d(0, 1, 0, 90deg); animation-timing-function: ease-in; opacity: 0; }
+  40% { transform: perspective(400px) rotate3d(0, 1, 0, -20deg); animation-timing-function: ease-in; }
+  60% { transform: perspective(400px) rotate3d(0, 1, 0, 10deg); opacity: 1; }
+  80% { transform: perspective(400px) rotate3d(0, 1, 0, -5deg); }
+  100% { transform: perspective(400px); }
+}
+@keyframes om-flipInY { 
+  0% { transform: perspective(400px) rotate3d(0, 1, 0, 90deg); animation-timing-function: ease-in; opacity: 0; }
+  40% { transform: perspective(400px) rotate3d(0, 1, 0, -20deg); animation-timing-function: ease-in; }
+  60% { transform: perspective(400px) rotate3d(0, 1, 0, 10deg); opacity: 1; }
+  80% { transform: perspective(400px) rotate3d(0, 1, 0, -5deg); }
+  100% { transform: perspective(400px); }
+}
+.om-flipInY { animation-name: om-flipInY; backface-visibility: visible !important; }
+@-webkit-keyframes om-flipInX { 
+  0% { transform: perspective(400px) rotate3d(1, 0, 0, 90deg); animation-timing-function: ease-in; opacity: 0; }
+  40% { transform: perspective(400px) rotate3d(1, 0, 0, -20deg); animation-timing-function: ease-in; }
+  60% { transform: perspective(400px) rotate3d(1, 0, 0, 10deg); opacity: 1; }
+  80% { transform: perspective(400px) rotate3d(1, 0, 0, -5deg); }
+  100% { transform: perspective(400px); }
+}
+@keyframes om-flipInX { 
+  0% { transform: perspective(400px) rotate3d(1, 0, 0, 90deg); animation-timing-function: ease-in; opacity: 0; }
+  40% { transform: perspective(400px) rotate3d(1, 0, 0, -20deg); animation-timing-function: ease-in; }
+  60% { transform: perspective(400px) rotate3d(1, 0, 0, 10deg); opacity: 1; }
+  80% { transform: perspective(400px) rotate3d(1, 0, 0, -5deg); }
+  100% { transform: perspective(400px); }
+}
+.om-flipInX { animation-name: om-flipInX; backface-visibility: visible !important; }
+@-webkit-keyframes om-wobble { 
+  0% { transform: translate3d(0px, 0px, 0px); }
+  15% { transform: translate3d(-25%, 0px, 0px) rotate3d(0, 0, 1, -5deg); }
+  30% { transform: translate3d(20%, 0px, 0px) rotate3d(0, 0, 1, 3deg); }
+  45% { transform: translate3d(-15%, 0px, 0px) rotate3d(0, 0, 1, -3deg); }
+  60% { transform: translate3d(10%, 0px, 0px) rotate3d(0, 0, 1, 2deg); }
+  75% { transform: translate3d(-5%, 0px, 0px) rotate3d(0, 0, 1, -1deg); }
+  100% { transform: translate3d(0px, 0px, 0px); }
+}
+@keyframes om-wobble { 
+  0% { transform: translate3d(0px, 0px, 0px); }
+  15% { transform: translate3d(-25%, 0px, 0px) rotate3d(0, 0, 1, -5deg); }
+  30% { transform: translate3d(20%, 0px, 0px) rotate3d(0, 0, 1, 3deg); }
+  45% { transform: translate3d(-15%, 0px, 0px) rotate3d(0, 0, 1, -3deg); }
+  60% { transform: translate3d(10%, 0px, 0px) rotate3d(0, 0, 1, 2deg); }
+  75% { transform: translate3d(-5%, 0px, 0px) rotate3d(0, 0, 1, -1deg); }
+  100% { transform: translate3d(0px, 0px, 0px); }
+}
+.om-wobble { animation-name: om-wobble; }
+@-webkit-keyframes om-tada { 
+  0% { transform: scale3d(1, 1, 1); }
+  10%, 20% { transform: scale3d(0.9, 0.9, 0.9) rotate3d(0, 0, 1, -3deg); }
+  30%, 50%, 70%, 90% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg); }
+  40%, 60%, 80% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg); }
+  100% { transform: scale3d(1, 1, 1); }
+}
+@keyframes om-tada { 
+  0% { transform: scale3d(1, 1, 1); }
+  10%, 20% { transform: scale3d(0.9, 0.9, 0.9) rotate3d(0, 0, 1, -3deg); }
+  30%, 50%, 70%, 90% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg); }
+  40%, 60%, 80% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg); }
+  100% { transform: scale3d(1, 1, 1); }
+}
+.om-tada { animation-name: om-tada; }
+@-webkit-keyframes om-rotateInDownLeft { 
+  0% { transform-origin: left bottom; transform: rotate3d(0, 0, 1, -45deg); opacity: 0; }
+  100% { transform-origin: left bottom; transform: translate3d(0px, 0px, 0px); opacity: 1; }
+}
+@keyframes om-rotateInDownLeft { 
+  0% { transform-origin: left bottom; transform: rotate3d(0, 0, 1, -45deg); opacity: 0; }
+  100% { transform-origin: left bottom; transform: translate3d(0px, 0px, 0px); opacity: 1; }
+}
+.om-rotateInDownLeft { animation-name: om-rotateInDownLeft; }
+@-webkit-keyframes om-rotateInUpLeft { 
+  0% { transform-origin: left bottom; transform: rotate3d(0, 0, 1, 45deg); opacity: 0; }
+  100% { transform-origin: left bottom; transform: translate3d(0px, 0px, 0px); opacity: 1; }
+}
+@keyframes om-rotateInUpLeft { 
+  0% { transform-origin: left bottom; transform: rotate3d(0, 0, 1, 45deg); opacity: 0; }
+  100% { transform-origin: left bottom; transform: translate3d(0px, 0px, 0px); opacity: 1; }
+}
+.om-rotateInUpLeft { animation-name: om-rotateInUpLeft; }
+@-webkit-keyframes om-zoomIn { 
+  0% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+  50% { opacity: 1; }
+}
+@keyframes om-zoomIn { 
+  0% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+  50% { opacity: 1; }
+}
+.om-zoomIn { animation-name: om-zoomIn; }
+body.OM-body-visible.OM-ios-cursor-fix { margin: 0px; width: 100%; position: fixed; }
+div.optimonk-holder.optimonk-holder-fixed { position: fixed; inset: 0px; z-index: 2147483646; }
+div.optimonk-holder div, div.optimonk-holder iframe { margin: 0px; border: 0px; padding: 0px; overflow: visible; max-height: none; }
+.optimonk-container { background: rgba(0, 0, 0, 0.75); position: fixed; bottom: 0px; right: 0px; display: none; overflow: hidden; width: 100%; height: 100%; z-index: 2147483645; }
+.optimonk-container.optimonk-sidebar-container { z-index: 20000000; }
+.optimonk-container.optimonk-nanobar-container { z-index: 19999999; }
+.optimonk-desktop-container, .optimonk-mobile-container { bottom: 0px; right: 0px; }
+.optimonk-nanobar-container { top: 0px; left: 0px; }
+.optimonk-sidebar-container { height: auto; }
+.optimonk-container .optimonk-powered-by-custom-link, .optimonk-container .powered-by-optimonk { position: absolute; bottom: 15px; left: 25px; z-index: 2147483646; color: rgb(255, 255, 255) !important; }
+.optimonk-mobile-container .powered-by-optimonk { display: none; }
+[id^="om-campaign-"] .overlay:not(.om-sidebar):not(.nanobar) { display: block !important; opacity: 1 !important; }
+[id^="om-campaign-"] .overlay { opacity: 1 !important; }
+@media screen and (max-width: 768px) {
+  .powered-by-optimonk { display: none; }
+}
+.optimonk-container .optimonk-powered-by-custom-link, .optimonk-container .powered-by-optimonk a { font-size: 15px; font-family: "Segoe UI", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; text-decoration: none; color: rgb(255, 255, 255) !important; }
+.optimonk-container .powered-by-optimonk-link::after { content: "Made with ♥️ by OptiMonk"; color: rgb(255, 255, 255) !important; }
+.optimonk-middle { z-index: 2147483645; text-align: center; width: 100%; height: 100%; }
+.optimonk-container a.optimonk-close, .optimonk-container a.optimonk-close:visited { transition: none; }
+.optimonk-desktop-container a.optimonk-close { width: 34px; height: 34px; display: block; cursor: pointer; position: absolute; z-index: 2147483647; left: 0px; top: 0px; margin: -15px; background: url("images/7ab67b9e-6996-4705-8af6-6471db3413f0.png") 0px 0px no-repeat transparent !important; }
+.optimonk-nanobar-container a.optimonk-close { width: 26px; height: 26px; line-height: 26px; display: block; background: 0px center; cursor: pointer; position: absolute; z-index: 2147483647; }
+.optimonk-nanobar-container a.optimonk-close::before { content: "×"; color: rgb(34, 34, 34); font-size: 24px; font-family: "Arial Black", Gadget, sans-serif; transition: 0.5s; }
+.optimonk-nanobar-container a.optimonk-close:active::before, .optimonk-nanobar-container a.optimonk-close:hover::before { color: rgb(51, 51, 51); opacity: 0.5; }
+@media screen and (max-width: 1024px) {
+  .optimonk-nanobar-container a.optimonk-close { right: 15px !important; }
+}
+.optimonk-container a, .optimonk-container img { border: 0px none; }
+.optimonk-container .optimonk-iframe-container { position: relative; width: 100%; height: 100%; }
+.optimonk-container iframe { overflow: hidden; top: 0px; left: 0px; visibility: visible; opacity: 1; background: inherit; position: absolute !important; max-width: none !important; min-width: 0px !important; width: 100% !important; height: 100% !important; }
+.optimonk-container.optimonk-outer-middle button, .optimonk-container.optimonk-outer-middle form, .optimonk-container.optimonk-outer-middle input, .optimonk-container.optimonk-outer-middle select { margin: 0px; padding: 0px; border: 0px; background: 0px center; }
+.OM-animation-shake { animation-name: om-shake; animation-fill-mode: both; animation-duration: 1s; }
