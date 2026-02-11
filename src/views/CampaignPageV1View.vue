@@ -9,50 +9,157 @@
             <p class="text-xs text-om-gray-400">www.mydomain.com</p>
           </div>
           <div class="flex items-center gap-2.5">
-            <button
-              @click="isScheduleModalOpen = true"
-              class="w-8 h-8 flex items-center justify-center text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600 rounded-lg transition-all cursor-pointer"
-            >
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="2" y="4" width="14" height="11" rx="2"/>
-                <path d="M6 2v2M12 2v2M2 8h14"/>
-              </svg>
-            </button>
-            <button :class="['px-3.5 py-1.5 rounded-lg flex items-center gap-2.5 text-sm font-medium cursor-pointer text-om-gray-700', isActive ? 'bg-[#D6F5EC]' : 'bg-om-gray-100']">
-              <span>{{ isActive ? 'Active' : 'Inactive' }}</span>
-              <button
-                @click.stop="isActive = !isActive"
-                :class="['w-11 h-6 rounded-full relative cursor-pointer transition-colors', isActive ? 'bg-[#2CC896]' : 'bg-om-gray-300']"
-              >
-                <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all', isActive ? 'right-1' : 'left-1']"></div>
+            <!-- Schedule Info Block (shown when schedule is saved) -->
+            <div v-if="scheduleSaved" class="flex items-center gap-3 pl-4 pr-2 py-2 rounded-lg bg-[#D6F5EC]">
+              <button @click="isScheduleModalOpen = true" class="text-om-gray-700 hover:text-om-gray-600 transition-colors cursor-pointer">
+                <Calendar :size="18" />
               </button>
-            </button>
-            <button class="w-8 h-8 flex items-center justify-center text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600 rounded-lg transition-all cursor-pointer">
-              <svg width="4" height="18" viewBox="0 0 4 18" fill="currentColor">
-                <circle cx="2" cy="2" r="2"/>
-                <circle cx="2" cy="9" r="2"/>
-                <circle cx="2" cy="16" r="2"/>
-              </svg>
-            </button>
+              <div class="flex items-center gap-3 text-sm text-om-gray-700">
+                <span>Start date: <span class="font-semibold">{{ formattedStartDate }}</span></span>
+                <span class="text-om-gray-400">|</span>
+                <span>End date: <span class="font-semibold">{{ formattedEndDate }}</span></span>
+                <span class="text-om-gray-400">|</span>
+                <span>Currently active</span>
+              </div>
+              <ToggleSwitch v-model="isActive" disabled />
+            </div>
+
+            <!-- Original Buttons (shown when schedule is not saved) -->
+            <template v-else>
+              <button
+                @click="isScheduleModalOpen = true"
+                class="w-8 h-8 flex items-center justify-center text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600 rounded-lg transition-all cursor-pointer"
+              >
+                <Calendar :size="18" />
+              </button>
+              <button :class="['pl-3.5 pr-2 pt-2 pb-1.5 rounded-lg flex items-center gap-2.5 text-sm font-medium cursor-pointer text-om-gray-700', isActive ? 'bg-[#D6F5EC]' : 'bg-om-gray-100']">
+                <span>{{ isActive ? 'Active' : 'Inactive' }}</span>
+                <ToggleSwitch v-model="isActive" @click.stop />
+              </button>
+            </template>
+
+            <!-- Kebab Menu -->
+            <div class="relative">
+              <button
+                @click="isKebabMenuOpen = !isKebabMenuOpen"
+                class="w-8 h-8 flex items-center justify-center text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600 rounded-lg transition-all cursor-pointer"
+              >
+                <MoreVertical :size="18" />
+              </button>
+
+              <!-- Dropdown Menu -->
+              <transition
+                enter-active-class="transition ease-out duration-100"
+                enter-from-class="opacity-0 scale-95"
+                enter-to-class="opacity-100 scale-100"
+                leave-active-class="transition ease-in duration-75"
+                leave-from-class="opacity-100 scale-100"
+                leave-to-class="opacity-0 scale-95"
+              >
+                <div
+                  v-if="isKebabMenuOpen"
+                  class="absolute right-0 mt-2 w-56 bg-white border border-om-gray-200 rounded-xl shadow-lg overflow-hidden z-10"
+                >
+                  <button
+                    @click="handleDuplicate"
+                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                  >
+                    Duplicate
+                  </button>
+                  <button
+                    @click="handlePrioritySettings"
+                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                  >
+                    Priority settings
+                  </button>
+                  <button
+                    @click="handleChangeLog"
+                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                  >
+                    Change log
+                  </button>
+                  <button
+                    @click="handleArchive"
+                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                  >
+                    Archive
+                  </button>
+                  <button
+                    @click="handleEditSchedule"
+                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                  >
+                    {{ scheduleSaved ? 'Edit schedule' : 'Add schedule' }}
+                  </button>
+                  <button
+                    v-if="scheduleSaved"
+                    @click="handleDeleteSchedule"
+                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                  >
+                    Delete schedule
+                  </button>
+                  <div class="border-t border-om-gray-200"></div>
+                  <button
+                    @click="handleDelete"
+                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </transition>
+            </div>
           </div>
         </div>
 
         <!-- Tabs -->
         <div class="flex gap-2 mb-6">
-          <button class="px-4 py-2 bg-om-orange-100 text-om-orange-500 rounded-xl text-sm font-normal transition-all cursor-pointer">
+          <button
+            @click="activeTab = 'Overview'"
+            :class="[
+              'px-4 py-2 rounded-xl text-sm font-normal transition-all cursor-pointer',
+              activeTab === 'Overview'
+                ? 'bg-om-orange-100 text-om-orange-500'
+                : 'bg-transparent text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600'
+            ]"
+          >
             Overview
           </button>
-          <button class="px-4 py-2 bg-transparent text-om-gray-700 rounded-xl text-sm font-normal hover:bg-om-gray-100 hover:text-om-gray-600 transition-all cursor-pointer">
+          <button
+            @click="activeTab = 'Settings'"
+            :class="[
+              'px-4 py-2 rounded-xl text-sm font-normal transition-all cursor-pointer',
+              activeTab === 'Settings'
+                ? 'bg-om-orange-100 text-om-orange-500'
+                : 'bg-transparent text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600'
+            ]"
+          >
             Settings
           </button>
-          <button class="px-4 py-2 bg-transparent text-om-gray-700 rounded-xl text-sm font-normal hover:bg-om-gray-100 hover:text-om-gray-600 transition-all cursor-pointer">
+          <button
+            @click="activeTab = 'Submits'"
+            :class="[
+              'px-4 py-2 rounded-xl text-sm font-normal transition-all cursor-pointer',
+              activeTab === 'Submits'
+                ? 'bg-om-orange-100 text-om-orange-500'
+                : 'bg-transparent text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600'
+            ]"
+          >
             Submits
           </button>
-          <button class="px-4 py-2 bg-transparent text-om-gray-700 rounded-xl text-sm font-normal hover:bg-om-gray-100 hover:text-om-gray-600 transition-all cursor-pointer">
+          <button
+            @click="activeTab = 'Analytics'"
+            :class="[
+              'px-4 py-2 rounded-xl text-sm font-normal transition-all cursor-pointer',
+              activeTab === 'Analytics'
+                ? 'bg-om-orange-100 text-om-orange-500'
+                : 'bg-transparent text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600'
+            ]"
+          >
             Analytics
           </button>
         </div>
 
+        <!-- Overview Tab Content -->
+        <div v-if="activeTab === 'Overview'">
         <!-- Metrics Section -->
         <div class="bg-om-gray-100 rounded-xl mb-6 relative">
           <div class="grid grid-cols-12 gap-4">
@@ -98,96 +205,18 @@
           <!-- Filters -->
           <div class="col-span-3 flex flex-col justify-end gap-2.5 pr-8 py-8">
             <!-- Time Period Dropdown -->
-            <div class="relative">
-              <button
-                @click="isTimePeriodOpen = !isTimePeriodOpen"
-                class="w-full pl-9 pr-8 py-2 border border-[#D5D8DD] rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none focus:border-[#E3E5E8] active:border-[#E3E5E8] cursor-pointer bg-white text-left hover:border-[#E3E5E8] hover:bg-[#FAFAFA] transition-colors"
-                :class="{ 'border-[#E3E5E8] bg-[#FAFAFA]': isTimePeriodOpen }"
-                style="box-shadow: none !important; outline: none !important;"
-              >
-                {{ selectedTimePeriod }}
-              </button>
-              <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-om-gray-400">
-                <Calendar :size="18" />
-              </div>
-              <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                <ChevronDown
-                  :size="20"
-                  class="text-om-gray-600 transition-transform"
-                  :class="{ 'rotate-180': isTimePeriodOpen }"
-                />
-              </div>
-              <transition
-                enter-active-class="transition ease-out duration-100"
-                enter-from-class="opacity-0 scale-95"
-                enter-to-class="opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
-                leave-from-class="opacity-100 scale-100"
-                leave-to-class="opacity-0 scale-95"
-              >
-                <div
-                  v-if="isTimePeriodOpen"
-                  class="absolute z-10 w-full mt-3 bg-white border border-[#D5D8DD] rounded-xl shadow-lg overflow-hidden"
-                >
-                  <button
-                    v-for="option in timePeriodOptions"
-                    :key="option"
-                    @click="selectTimePeriod(option)"
-                    class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F9FAFB] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F9FAFB]"
-                    :class="{ 'bg-[#F1F2F4] font-medium': selectedTimePeriod === option }"
-                    style="box-shadow: none !important; outline: none !important;"
-                  >
-                    {{ option }}
-                  </button>
-                </div>
-              </transition>
-            </div>
+            <Dropdown v-model="selectedTimePeriod" :options="timePeriodOptions">
+              <template #icon>
+                <Calendar :size="18" class="text-om-gray-400" />
+              </template>
+            </Dropdown>
 
             <!-- Goal Dropdown -->
-            <div class="relative">
-              <button
-                @click="isGoalOpen = !isGoalOpen"
-                class="w-full pl-9 pr-8 py-2 border border-[#D5D8DD] rounded-lg text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none focus:border-[#E3E5E8] active:border-[#E3E5E8] cursor-pointer bg-white text-left hover:border-[#E3E5E8] hover:bg-[#FAFAFA] transition-colors"
-                :class="{ 'border-[#E3E5E8] bg-[#FAFAFA]': isGoalOpen }"
-                style="box-shadow: none !important; outline: none !important;"
-              >
-                {{ selectedGoal }}
-              </button>
-              <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-om-gray-400">
-                <Target :size="18" />
-              </div>
-              <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                <ChevronDown
-                  :size="20"
-                  class="text-om-gray-600 transition-transform"
-                  :class="{ 'rotate-180': isGoalOpen }"
-                />
-              </div>
-              <transition
-                enter-active-class="transition ease-out duration-100"
-                enter-from-class="opacity-0 scale-95"
-                enter-to-class="opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
-                leave-from-class="opacity-100 scale-100"
-                leave-to-class="opacity-0 scale-95"
-              >
-                <div
-                  v-if="isGoalOpen"
-                  class="absolute z-10 w-full mt-3 bg-white border border-[#D5D8DD] rounded-xl shadow-lg overflow-hidden"
-                >
-                  <button
-                    v-for="option in goalOptions"
-                    :key="option"
-                    @click="selectGoal(option)"
-                    class="w-full px-4 py-2 text-left text-sm text-[#23262A] hover:bg-[#F9FAFB] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F9FAFB]"
-                    :class="{ 'bg-[#F1F2F4] font-medium': selectedGoal === option }"
-                    style="box-shadow: none !important; outline: none !important;"
-                  >
-                    {{ option }}
-                  </button>
-                </div>
-              </transition>
-            </div>
+            <Dropdown v-model="selectedGoal" :options="goalOptions">
+              <template #icon>
+                <Target :size="18" class="text-om-gray-400" />
+              </template>
+            </Dropdown>
           </div>
         </div>
         </div>
@@ -229,12 +258,7 @@
                 <span class="text-sm font-medium text-om-gray-700">Klaviyo Popup</span>
               </div>
               <div class="col-span-1">
-                <button
-                  @click="variant1Active = !variant1Active"
-                  :class="['w-11 h-6 rounded-full relative cursor-pointer transition-colors', variant1Active ? 'bg-[#2CC896]' : 'bg-om-gray-300']"
-                >
-                  <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all', variant1Active ? 'right-1' : 'left-1']"></div>
-                </button>
+                <ToggleSwitch v-model="variant1Active" />
               </div>
               <div class="col-span-1 text-base font-semibold text-om-gray-700 text-right">12,593</div>
               <div class="col-span-1 text-base font-semibold text-om-gray-700 text-right">650</div>
@@ -273,12 +297,7 @@
                 <span class="text-sm font-medium text-om-gray-700">AI Variant</span>
               </div>
               <div class="col-span-1">
-                <button
-                  @click="variant2Active = !variant2Active"
-                  :class="['w-11 h-6 rounded-full relative cursor-pointer transition-colors', variant2Active ? 'bg-[#2CC896]' : 'bg-om-gray-300']"
-                >
-                  <div :class="['absolute top-1 w-4 h-4 bg-white rounded-full transition-all', variant2Active ? 'right-1' : 'left-1']"></div>
-                </button>
+                <ToggleSwitch v-model="variant2Active" />
               </div>
               <div class="col-span-1 text-base font-semibold text-om-gray-700 text-right">12,593</div>
               <div class="col-span-1 text-base font-semibold text-om-gray-700 text-right">650</div>
@@ -427,6 +446,229 @@
             </div>
           </div>
         </div>
+        </div>
+
+        <!-- Settings Tab Content -->
+        <div v-if="activeTab === 'Settings'" class="space-y-4">
+          <!-- When would you like this campaign to show up? -->
+          <Accordion
+            title="When would you like this campaign to show up?"
+            :open="openAccordion === 'showUp'"
+            @toggle="toggleAccordion('showUp')"
+          >
+            <template #icon>
+              <Clock :size="20" class="text-om-gray-600" />
+            </template>
+              <!-- Trigger Timeline -->
+              <div class="trigger-timeline">
+                <!-- First trigger: On exit-intent -->
+                <div class="trigger-timeline-item">
+                  <div class="trigger-card">
+                    <div class="flex items-center gap-5">
+                      <div class="w-20 h-14 shrink-0">
+                        <img src="/setting_1.png" alt="Exit intent" class="w-full h-full object-contain" />
+                      </div>
+                      <div class="flex-1">
+                        <h5 class="text-base font-semibold text-om-gray-700 mb-1">On exit-intent</h5>
+                        <p class="text-sm text-om-gray-400">When a visitor is about to leave your site</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- OR Badge on timeline -->
+                <div class="trigger-timeline-or">
+                  <span class="trigger-or-badge">OR</span>
+                </div>
+
+                <!-- Second trigger: After x seconds of inactivity -->
+                <div class="trigger-timeline-item">
+                  <div class="trigger-card">
+                    <div class="flex items-center gap-5">
+                      <div class="w-20 h-14 shrink-0">
+                        <img src="/setting_1.png" alt="After seconds" class="w-full h-full object-contain" />
+                      </div>
+                      <div>
+                        <h5 class="text-base font-semibold text-om-gray-700 mb-1">After x seconds of inactivity</h5>
+                        <p class="text-sm text-om-gray-400">
+                          When a visitor is inactive for <span class="font-semibold text-om-gray-700">20 seconds</span>
+                        </p>
+                      </div>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <Monitor :size="20" class="text-om-gray-700" />
+                        <Smartphone :size="20" class="text-om-gray-700" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Add new trigger on timeline -->
+                <div class="trigger-timeline-add">
+                  <button class="trigger-add-button">
+                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" class="shrink-0">
+                      <circle cx="11" cy="11" r="10" stroke="currentColor" stroke-width="1.5"/>
+                      <path d="M11 7v8M7 11h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    Add new trigger
+                  </button>
+                </div>
+              </div>
+
+              <!-- Next button -->
+              <div class="flex justify-end mt-6">
+                <button class="px-4 py-2 bg-om-orange-500 text-white text-sm font-medium rounded-lg hover:bg-om-orange-600 transition-colors cursor-pointer">
+                  Next to Frequency
+                </button>
+              </div>
+          </Accordion>
+
+          <!-- How many times should this campaign appear? -->
+          <Accordion
+            title="How many times should this campaign appear?"
+            :open="openAccordion === 'howMany'"
+            @toggle="toggleAccordion('howMany')"
+          >
+            <template #icon>
+              <RefreshCw :size="20" class="text-om-gray-600" />
+            </template>
+              <!-- How many times can this campaign appear -->
+              <div class="mb-6">
+                <h4 class="text-sm font-semibold text-om-gray-700 mb-3">
+                  How many times <span class="font-normal text-om-gray-500">can this campaign appear to a visitor?</span>
+                </h4>
+                <div class="space-y-2.5">
+                  <div class="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      id="unlimited"
+                      value="unlimited"
+                      v-model="frequencyType"
+                      class="custom-radio cursor-pointer"
+                    />
+                    <label for="unlimited" class="text-sm text-om-gray-700 cursor-pointer">Unlimited Times</label>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      id="maximum"
+                      value="maximum"
+                      v-model="frequencyType"
+                      class="custom-radio cursor-pointer"
+                    />
+                    <label for="maximum" class="text-sm text-om-gray-700 cursor-pointer">Maximum</label>
+                    <input
+                      type="number"
+                      v-model="maxTimes"
+                      :disabled="frequencyType !== 'maximum'"
+                      class="w-16 px-2 py-1 border border-om-gray-200 rounded text-sm text-om-gray-700 focus:outline-none focus:border-om-gray-300 disabled:bg-om-gray-50 disabled:text-om-gray-400"
+                    />
+                    <span class="text-sm text-om-gray-700">times</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- How frequently -->
+              <div class="mb-6">
+                <h4 class="text-sm font-semibold text-om-gray-700 mb-3">
+                  How frequently <span class="font-normal text-om-gray-500">can this campaign appear again after a visitor has closed it?</span>
+                </h4>
+                <div class="space-y-2.5">
+                  <div class="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      id="asap"
+                      value="asap"
+                      v-model="frequencyMode"
+                      class="custom-radio cursor-pointer"
+                    />
+                    <label for="asap" class="text-sm text-om-gray-700 cursor-pointer">As soon as possible</label>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      id="min"
+                      value="min"
+                      v-model="frequencyMode"
+                      class="custom-radio cursor-pointer"
+                    />
+                    <label for="min" class="text-sm text-om-gray-700 cursor-pointer">Min.</label>
+                    <input
+                      type="number"
+                      v-model="minValue"
+                      :disabled="frequencyMode !== 'min'"
+                      class="w-16 px-2 py-1 border border-om-gray-200 rounded text-sm text-om-gray-700 focus:outline-none focus:border-om-gray-300 disabled:bg-om-gray-50 disabled:text-om-gray-400"
+                    />
+                    <div class="relative">
+                      <select
+                        v-model="timeUnit"
+                        :disabled="frequencyMode !== 'min'"
+                        class="w-24 pl-2 pr-6 py-1 border border-om-gray-200 rounded text-sm text-om-gray-700 focus:outline-none focus:border-om-gray-300 appearance-none cursor-pointer disabled:bg-om-gray-50 disabled:text-om-gray-400 disabled:cursor-not-allowed"
+                      >
+                        <option value="hour">hour(s)</option>
+                        <option value="day">day(s)</option>
+                        <option value="session">session(s)</option>
+                      </select>
+                      <ChevronDown :size="16" class="absolute right-1.5 top-1/2 -translate-y-1/2 text-om-gray-600 pointer-events-none" />
+                    </div>
+                    <span class="text-sm text-om-gray-700">between two impressions</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- When should stop showing -->
+              <div class="mb-6">
+                <h4 class="text-sm font-semibold text-om-gray-700 mb-3">
+                  When should <span class="font-normal text-om-gray-500">the campaign</span> stop showing <span class="font-normal text-om-gray-500">to the visitors?</span>
+                </h4>
+                <div class="space-y-2.5">
+                  <Checkbox v-model="stopAfterClose" label="After a visitor has closed the campaign" />
+                  <Checkbox v-model="stopAfterConvert" label="After a visitor has converted in this campaign" />
+                </div>
+              </div>
+
+              <!-- Next button -->
+              <div class="flex justify-end">
+                <button class="px-4 py-2 bg-om-orange-500 text-white text-sm font-medium rounded-lg hover:bg-om-orange-600 transition-colors cursor-pointer">
+                  Next to Targeting
+                </button>
+              </div>
+          </Accordion>
+
+          <!-- Who should see this campaign? -->
+          <Accordion
+            title="Who should see this campaign?"
+            :open="openAccordion === 'whoSee'"
+            @toggle="toggleAccordion('whoSee')"
+          >
+            <template #icon>
+              <Users :size="20" class="text-om-gray-600" />
+            </template>
+            <p class="text-sm text-om-gray-500">Settings for targeting...</p>
+          </Accordion>
+
+          <!-- Where you would like to send the subscribers and campaign data? -->
+          <Accordion
+            title="Where you would like to send the subscribers and campaign data?"
+            :open="openAccordion === 'sendData'"
+            @toggle="toggleAccordion('sendData')"
+          >
+            <template #icon>
+              <Send :size="20" class="text-om-gray-600" />
+            </template>
+            <p class="text-sm text-om-gray-500">Settings for integrations and data sending...</p>
+          </Accordion>
+
+          <!-- Email Notification Toggle -->
+          <div class="bg-om-gray-100 rounded-lg px-5 py-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-base font-semibold text-om-gray-700">Email notification</h4>
+                <p class="text-sm text-om-gray-500 mt-1">Get notified when someone submits this campaign</p>
+              </div>
+              <ToggleSwitch v-model="emailNotification" />
+            </div>
+          </div>
+        </div>
       </div>
     </template>
   </DashboardLayout>
@@ -434,10 +676,10 @@
   <!-- Schedule Modal -->
   <transition name="modal">
     <div v-if="isScheduleModalOpen" class="fixed inset-0 z-50 flex items-start justify-center px-6 pt-10 pb-20" style="background-color: rgba(49, 80, 85, 0.65);" @click.self="isScheduleModalOpen = false">
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-[600px] max-h-[calc(100vh-120px)] overflow-hidden flex flex-col" @click.stop>
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-[600px] max-h-[calc(100vh-120px)] overflow-visible flex flex-col" @click.stop>
         <!-- Modal Header -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-om-gray-200 bg-white flex-shrink-0">
-          <h2 class="text-xl font-semibold text-om-gray-700">Set up your schedule</h2>
+        <div class="flex items-center justify-between px-6 py-4 border-b border-om-gray-200 bg-white flex-shrink-0 rounded-t-xl">
+          <h2 class="text-xl font-semibold text-om-gray-700">Set up campaign schedule</h2>
           <button @click="isScheduleModalOpen = false" class="text-om-gray-400 hover:text-om-gray-600 transition-colors">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <path d="M18 6L6 18M6 6l12 12"/>
@@ -452,46 +694,8 @@
           <!-- Time zone -->
           <div class="flex items-center gap-4">
             <label class="text-sm font-medium text-om-gray-700 w-32 shrink-0">Time zone</label>
-            <div class="relative flex-1">
-              <button
-                @click="isTimezoneOpen = !isTimezoneOpen"
-                class="w-full px-3 pr-8 py-2 border border-om-gray-200 rounded-lg text-sm text-om-gray-700 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white text-left hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
-                :class="{ 'border-om-gray-300 bg-[#FAFAFA]': isTimezoneOpen }"
-                style="box-shadow: none !important; outline: none !important;"
-              >
-                {{ selectedTimezone }}
-              </button>
-              <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                <ChevronDown
-                  :size="20"
-                  class="text-om-gray-600 transition-transform"
-                  :class="{ 'rotate-180': isTimezoneOpen }"
-                />
-              </div>
-              <transition
-                enter-active-class="transition ease-out duration-100"
-                enter-from-class="opacity-0 scale-95"
-                enter-to-class="opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75"
-                leave-from-class="opacity-100 scale-100"
-                leave-to-class="opacity-0 scale-95"
-              >
-                <div
-                  v-if="isTimezoneOpen"
-                  class="absolute z-10 w-full mt-2 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden max-h-60 overflow-y-auto"
-                >
-                  <button
-                    v-for="option in timezoneOptions"
-                    :key="option"
-                    @click="selectTimezone(option)"
-                    class="w-full px-3 py-2 text-left text-sm text-om-gray-700 hover:bg-[#F9FAFB] transition-colors cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none active:bg-[#F9FAFB]"
-                    :class="{ 'bg-[#F1F2F4] font-medium': selectedTimezone === option }"
-                    style="box-shadow: none !important; outline: none !important;"
-                  >
-                    {{ option }}
-                  </button>
-                </div>
-              </transition>
+            <div class="flex-1">
+              <Dropdown v-model="selectedTimezone" :options="timezoneOptions" />
             </div>
           </div>
 
@@ -499,34 +703,31 @@
           <div class="flex items-center gap-4">
             <label class="text-sm font-medium text-om-gray-700 w-32 shrink-0">Start date</label>
             <div class="flex gap-3 flex-1">
-              <div class="relative flex-1">
-                <input
-                  type="date"
+              <div class="flex-1 om-datepicker">
+                <VueDatePicker
                   v-model="startDate"
-                  class="w-full pl-9 pr-3 py-2 border border-om-gray-200 rounded-lg text-sm text-om-gray-700 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
-                  style="box-shadow: none !important; outline: none !important;"
-                />
-                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                  <Calendar :size="16" class="text-om-gray-600" />
-                </div>
+                  :enable-time-picker="false"
+                  format="MM/dd/yyyy"
+                  auto-apply
+                  :clearable="false"
+                  teleport="body"
+                  :text-input="false"
+                  :action-row="{ showNow: false, showPreview: false }"
+                >
+                  <template #input-icon>
+                    <Calendar :size="16" />
+                  </template>
+                </VueDatePicker>
               </div>
-              <div class="relative w-32">
-                <input
-                  type="time"
-                  v-model="startTime"
-                  class="w-full pl-9 pr-3 py-2 border border-om-gray-200 rounded-lg text-sm text-om-gray-700 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
-                  style="box-shadow: none !important; outline: none !important;"
-                />
-                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                  <Clock :size="16" class="text-om-gray-600" />
-                </div>
+              <div class="flex-1">
+                <ScrollTimePicker v-model="startTime" />
               </div>
             </div>
           </div>
 
           <!-- End date -->
           <div class="flex items-start gap-4">
-            <label class="text-sm font-medium text-om-gray-700 w-32 shrink-0 pt-1">End date</label>
+            <label class="text-sm font-medium text-om-gray-700 w-32 shrink-0">End date</label>
             <div class="space-y-3 flex-1">
               <div class="grid grid-cols-[110px_1fr] gap-2">
                 <div class="flex items-center gap-2">
@@ -551,35 +752,30 @@
                 </div>
               </div>
               <div v-if="endDateType === 'on'" class="flex gap-3">
-                <div class="relative flex-1">
-                  <input
-                    type="date"
+                <div class="flex-1 om-datepicker">
+                  <VueDatePicker
                     v-model="endDate"
+                    :enable-time-picker="false"
+                    format="MM/dd/yyyy"
+                    auto-apply
+                    :clearable="false"
                     placeholder="MM/DD/YYYY"
-                    class="w-full pl-9 pr-3 py-2 border border-om-gray-200 rounded-lg text-sm text-om-gray-700 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
-                    style="box-shadow: none !important; outline: none !important;"
-                  />
-                  <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <Calendar :size="16" class="text-om-gray-600" />
-                  </div>
+                    teleport="body"
+                  >
+                    <template #input-icon>
+                      <Calendar :size="16" />
+                    </template>
+                  </VueDatePicker>
                 </div>
-                <div class="relative w-32">
-                  <input
-                    type="time"
-                    v-model="endTime"
-                    class="w-full pl-9 pr-3 py-2 border border-om-gray-200 rounded-lg text-sm text-om-gray-700 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
-                    style="box-shadow: none !important; outline: none !important;"
-                  />
-                  <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <Clock :size="16" class="text-om-gray-600" />
-                  </div>
+                <div class="flex-1">
+                  <ScrollTimePicker v-model="endTime" />
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Daily schedule -->
-          <div>
+          <div class="mt-6">
             <!-- Daily schedule label with radio buttons -->
             <div class="flex items-center gap-4">
               <label class="text-sm font-medium text-om-gray-700 w-32 shrink-0">Daily schedule</label>
@@ -635,31 +831,11 @@
                 <div class="grid grid-cols-[110px_1fr] gap-2 flex-1">
                   <div>
                     <label class="block text-sm font-medium text-om-gray-700 mb-2">From</label>
-                    <div class="relative">
-                      <input
-                        type="time"
-                        v-model="dailyFromTime"
-                        class="w-full pl-9 pr-3 py-2 border border-om-gray-200 rounded-lg text-sm text-om-gray-700 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
-                        style="box-shadow: none !important; outline: none !important;"
-                      />
-                      <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                        <Clock :size="16" class="text-om-gray-600" />
-                      </div>
-                    </div>
+                    <ScrollTimePicker v-model="dailyFromTime" />
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-om-gray-700 mb-2">To</label>
-                    <div class="relative">
-                      <input
-                        type="time"
-                        v-model="dailyToTime"
-                        class="w-full pl-9 pr-3 py-2 border border-om-gray-200 rounded-lg text-sm text-om-gray-700 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus:shadow-none active:shadow-none cursor-pointer bg-white hover:border-om-gray-300 hover:bg-[#FAFAFA] transition-colors"
-                        style="box-shadow: none !important; outline: none !important;"
-                      />
-                      <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                        <Clock :size="16" class="text-om-gray-600" />
-                      </div>
-                    </div>
+                    <ScrollTimePicker v-model="dailyToTime" />
                   </div>
                 </div>
               </div>
@@ -671,10 +847,10 @@
         <!-- Action buttons - Sticky -->
         <div class="flex items-center justify-end gap-3 pl-6 pr-3 py-3 bg-white">
           <button
-            @click="isScheduleModalOpen = false"
+            @click="scheduleSaved ? handleDeleteSchedule() : (isScheduleModalOpen = false)"
             class="px-4 py-2 text-sm font-medium text-om-gray-700 hover:bg-om-gray-100 rounded-lg transition-colors cursor-pointer"
           >
-            Cancel
+            {{ scheduleSaved ? 'Delete Schedule' : 'Cancel' }}
           </button>
           <button
             @click="saveSchedule"
@@ -706,12 +882,37 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { ChevronDown, TrendingUp, ChevronRight, Calendar, Clock, Target, MoreVertical, GraduationCap } from 'lucide-vue-next'
+import { ChevronDown, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
+import Dropdown from '../components/shared/Dropdown.vue'
+import Accordion from '../components/shared/Accordion.vue'
+import Checkbox from '../components/shared/Checkbox.vue'
+import { VueDatePicker } from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
+import ScrollTimePicker from '../components/shared/ScrollTimePicker.vue'
 
 defineEmits(['menu-click'])
 
+const activeTab = ref('Overview')
 const isActive = ref(true)
+
+// Settings tab - Accordion state
+const openAccordion = ref(null)
+const emailNotification = ref(false)
+
+// How many times accordion state
+const frequencyType = ref('maximum')
+const maxTimes = ref(2)
+const frequencyMode = ref('min')
+const minValue = ref(1)
+const timeUnit = ref('hour')
+const stopAfterClose = ref(false)
+const stopAfterConvert = ref(true)
+
+const toggleAccordion = (section) => {
+  openAccordion.value = openAccordion.value === section ? null : section
+}
 
 // Variant active states
 const variant1Active = ref(true)
@@ -727,33 +928,24 @@ const tooltipStyle = computed(() => ({
   transform: 'translate(-50%, -50%)'
 }))
 
-// Dropdown states
-const isTimePeriodOpen = ref(false)
+// Dropdown data
 const selectedTimePeriod = ref('Last 30 days')
 const timePeriodOptions = ['Last 7 days', 'Last 30 days', 'Last 90 days', 'Last 12 months']
 
-const isGoalOpen = ref(false)
 const selectedGoal = ref('Submit')
 const goalOptions = ['Submit', 'Click', 'View', 'Conversion']
-
-const selectTimePeriod = (option) => {
-  selectedTimePeriod.value = option
-  isTimePeriodOpen.value = false
-}
-
-const selectGoal = (option) => {
-  selectedGoal.value = option
-  isGoalOpen.value = false
-}
 
 const handleLogoClick = () => {
   // Navigate back to home
   window.location.reload()
 }
 
+// Kebab menu state
+const isKebabMenuOpen = ref(false)
+
 // Schedule Modal states
 const isScheduleModalOpen = ref(false)
-const isTimezoneOpen = ref(false)
+const scheduleSaved = ref(false)
 const selectedTimezone = ref('GMT+01:00 Europe/Budapest')
 const timezoneOptions = [
   'GMT-12:00 International Date Line West',
@@ -783,16 +975,14 @@ const timezoneOptions = [
   'GMT+12:00 Auckland'
 ]
 
-const startDate = ref('2026-02-06')
+const startDate = ref(new Date('2026-02-06'))
 const startTime = ref('10:46')
 const endDateType = ref('never')
-const endDate = ref('')
+const endDate = ref(null)
 const endTime = ref('10:46')
 const isDailyScheduleOpen = ref(false)
 
 // Daily schedule states
-const isDailyTimezoneOpen = ref(false)
-const selectedDailyTimezone = ref('GMT+01:00 Europe/Budapest')
 const scheduleType = ref('everyday')
 const selectedDays = ref(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'])
 const daysOfWeek = [
@@ -807,15 +997,6 @@ const daysOfWeek = [
 const dailyFromTime = ref('10:47')
 const dailyToTime = ref('10:47')
 
-const selectTimezone = (option) => {
-  selectedTimezone.value = option
-  isTimezoneOpen.value = false
-}
-
-const selectDailyTimezone = (option) => {
-  selectedDailyTimezone.value = option
-  isDailyTimezoneOpen.value = false
-}
 
 const toggleDay = (day) => {
   const index = selectedDays.value.indexOf(day)
@@ -825,6 +1006,21 @@ const toggleDay = (day) => {
     selectedDays.value.push(day)
   }
 }
+
+// Format dates for display
+const formattedStartDate = computed(() => {
+  if (!startDate.value) return ''
+  const date = new Date(startDate.value)
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+})
+
+const formattedEndDate = computed(() => {
+  if (endDateType.value === 'never' || !endDate.value) {
+    return 'Never'
+  }
+  const date = new Date(endDate.value)
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+})
 
 const saveSchedule = () => {
   // Handle save logic here
@@ -836,7 +1032,46 @@ const saveSchedule = () => {
     endDate: endDate.value,
     endTime: endTime.value
   })
+  scheduleSaved.value = true
   isScheduleModalOpen.value = false
+}
+
+// Kebab menu handlers
+const handleDuplicate = () => {
+  console.log('Duplicate campaign')
+  isKebabMenuOpen.value = false
+}
+
+const handlePrioritySettings = () => {
+  console.log('Open priority settings')
+  isKebabMenuOpen.value = false
+}
+
+const handleChangeLog = () => {
+  console.log('Open change log')
+  isKebabMenuOpen.value = false
+}
+
+const handleArchive = () => {
+  console.log('Archive campaign')
+  isKebabMenuOpen.value = false
+}
+
+const handleEditSchedule = () => {
+  isScheduleModalOpen.value = true
+  isKebabMenuOpen.value = false
+}
+
+const handleDeleteSchedule = () => {
+  scheduleSaved.value = false
+  isKebabMenuOpen.value = false
+  isScheduleModalOpen.value = false
+  console.log('Schedule deleted')
+}
+
+const handleDelete = () => {
+  console.log('Delete campaign')
+  isKebabMenuOpen.value = false
 }
 </script>
 
@@ -901,5 +1136,121 @@ const saveSchedule = () => {
 .custom-radio:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(237, 90, 41, 0.1);
+}
+
+/* Hide default date and time picker icons */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button,
+input[type="time"]::-webkit-inner-spin-button,
+input[type="time"]::-webkit-clear-button {
+  display: none;
+}
+
+/* Trigger Timeline */
+.trigger-timeline {
+  position: relative;
+  margin-left: 10px;
+  padding-left: 28px;
+}
+
+/* Continuous vertical line (trunk) */
+.trigger-timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 21px;
+  width: 3px;
+  background: #D5D8DD;
+  border-radius: 2px;
+}
+
+/* Timeline items with horizontal branch */
+.trigger-timeline-item {
+  position: relative;
+}
+
+.trigger-timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -28px;
+  top: 50%;
+  width: 24px;
+  height: 3px;
+  background: #D5D8DD;
+}
+
+.trigger-card {
+  padding: 1.25rem 1.5rem;
+  background: white;
+  cursor: pointer;
+}
+
+/* OR section */
+.trigger-timeline-or {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 2.75rem;
+}
+
+.trigger-or-badge {
+  position: absolute;
+  left: -28px;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 4px 10px;
+  background: #D5D8DD;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 6px;
+  z-index: 1;
+}
+
+/* Add trigger */
+.trigger-timeline-add {
+  position: relative;
+  margin-top: 1.5rem;
+}
+
+.trigger-timeline-add::before {
+  content: '';
+  position: absolute;
+  left: -28px;
+  top: 50%;
+  width: 24px;
+  height: 3px;
+  background: #D5D8DD;
+}
+
+.trigger-add-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  background: white;
+  color: #ED5A29;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.trigger-add-button:hover {
+  border-color: #ED5A29;
+  background: #FEF7F3;
 }
 </style>
