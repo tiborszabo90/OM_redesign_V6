@@ -16,6 +16,9 @@ import AnalyticsV3View from './views/AnalyticsV3View.vue'
 import TemplatesViewV1 from './views/TemplatesViewV1.vue'
 import TemplatesViewV2 from './views/TemplatesViewV2.vue'
 import TemplatesViewV3 from './views/TemplatesViewV3.vue'
+import ImageWithBadgeView from './views/ImageWithBadgeView.vue'
+import ImageWithBadgeV2View from './views/ImageWithBadgeV2View.vue'
+import ImageWithBadgeV3View from './views/ImageWithBadgeV3View.vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
 
 const currentView = ref('dev-start')
@@ -23,6 +26,7 @@ const registrationData = ref(null)
 const onboardingRef = ref(null)
 const taskCreationRef = ref(null)
 const wizardAnalysisRef = ref(null)
+const imageWithBadgeRef = ref(null)
 const createdTasks = ref([])
 const flowSelected = ref(false)
 const registrationType = ref('email')
@@ -78,6 +82,21 @@ const handleDevNavigate = (view) => {
   } else if (view === 'design-guide') {
     // Design guide is a standalone view
     currentView.value = 'design-guide'
+  } else if (view === 'image-with-badge') {
+    // Image with badge flow
+    flowSelected.value = true
+    registrationType.value = 'image-with-badge'
+    currentView.value = 'image-with-badge'
+  } else if (view === 'image-with-badge-v2') {
+    // Image with badge V2 flow
+    flowSelected.value = true
+    registrationType.value = 'image-with-badge'
+    currentView.value = 'image-with-badge-v2'
+  } else if (view === 'image-with-badge-v3') {
+    // Image with badge V3 flow
+    flowSelected.value = true
+    registrationType.value = 'image-with-badge'
+    currentView.value = 'image-with-badge-v3'
   } else if (view === 'wizard-analysis') {
     // Wizard analysis - set default message to auto-start
     flowSelected.value = true
@@ -182,6 +201,10 @@ const handleDevStartSelect = (type) => {
       // Wizard flow goes directly to wizard-analysis
       wizardMessage.value = 'Demo website analysis'
       currentView.value = 'wizard-analysis'
+    } else if (type === 'image-with-badge') {
+      // Image with Badge flow goes directly to image-with-badge V3
+      registrationType.value = 'image-with-badge'
+      currentView.value = 'image-with-badge-v3'
     } else if (type === 'shopify') {
       // Shopify flow skips registration and goes directly to onboarding
       currentView.value = 'onboarding'
@@ -227,6 +250,34 @@ const handleDevGoToStep = async (step) => {
   }
 }
 
+const handleImageWithBadgeGoToStep = async (step) => {
+  // Ensure flow is selected when navigating to image-with-badge steps
+  flowSelected.value = true
+  registrationType.value = 'image-with-badge'
+
+  const isImageWithBadgeView = currentView.value === 'image-with-badge' || currentView.value === 'image-with-badge-v2' || currentView.value === 'image-with-badge-v3'
+
+  if (!isImageWithBadgeView) {
+    // Force fresh component if coming from a different view
+    sessionKey.value++
+    currentView.value = null
+    await nextTick()
+    setTimeout(() => {
+      currentView.value = 'image-with-badge'
+      // Wait for the component to mount and transition to complete
+      setTimeout(() => {
+        if (imageWithBadgeRef.value) {
+          imageWithBadgeRef.value.devGoToStep(step)
+        }
+      }, 350)
+    }, 50)
+  } else {
+    if (imageWithBadgeRef.value) {
+      imageWithBadgeRef.value.devGoToStep(step)
+    }
+  }
+}
+
 const handleTaskCreated = (taskData) => {
   // Only add task if it doesn't exist already
   const existingTask = createdTasks.value.find(t => t.phase === taskData.phase)
@@ -263,6 +314,12 @@ const handleGoDesignGuide = () => {
   currentView.value = 'design-guide'
 }
 
+const handleGoImageWithBadge = () => {
+  flowSelected.value = true
+  registrationType.value = 'image-with-badge'
+  currentView.value = 'image-with-badge-v3'
+}
+
 const handleMenuClick = (menuId) => {
   if (menuId === 'campaigns') {
     currentView.value = 'campaigns-v3'
@@ -291,7 +348,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="min-h-screen-safe">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'campaigns', 'campaigns-v3', 'campaign-page-v1', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'templates-v1', 'templates-v2', 'templates-v3'].includes(currentView)"
+      v-if="currentView && !['dev-start', 'design-guide', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'campaigns', 'campaigns-v3', 'campaign-page-v1', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'templates-v1', 'templates-v2', 'templates-v3'].includes(currentView)"
       class="fixed top-8 left-8 z-50"
     >
       <img
@@ -307,6 +364,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         @select="handleDevStartSelect"
         @go-home="handleGoHome"
         @go-design-guide="handleGoDesignGuide"
+        @go-image-with-badge="handleGoImageWithBadge"
       />
       <RegistrationView
         v-else-if="currentView === 'registration'"
@@ -428,6 +486,21 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       <DesignGuideView
         v-else-if="currentView === 'design-guide'"
       />
+      <ImageWithBadgeView
+        v-else-if="currentView === 'image-with-badge'"
+        :key="'image-with-badge-' + sessionKey"
+        ref="imageWithBadgeRef"
+      />
+      <ImageWithBadgeV2View
+        v-else-if="currentView === 'image-with-badge-v2'"
+        :key="'image-with-badge-v2-' + sessionKey"
+        ref="imageWithBadgeRef"
+      />
+      <ImageWithBadgeV3View
+        v-else-if="currentView === 'image-with-badge-v3'"
+        :key="'image-with-badge-v3-' + sessionKey"
+        ref="imageWithBadgeRef"
+      />
       <WizardView
         v-else-if="currentView === 'wizard'"
         :key="'wizard-' + sessionKey"
@@ -440,12 +513,14 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
     :current-view="currentView"
     :current-step="onboardingRef?.displayStepForNav || 1"
     :total-steps="onboardingRef?.totalStepsCount || 4"
+    :current-image-step="imageWithBadgeRef?.currentStep || 1"
     :created-tasks="createdTasks"
     :current-task-phase="taskCreationRef?.stepDashboardRef?.currentPhase || 'analysis'"
     :flow-selected="flowSelected"
     :registration-type="registrationType"
     @navigate="handleDevNavigate"
     @go-to-step="handleDevGoToStep"
+    @go-to-image-step="handleImageWithBadgeGoToStep"
     @go-to-task-phase="handleTaskPhaseNavigate"
     @select-flow="handleDevStartSelect"
     @update:is-open="devNavOpen = $event"

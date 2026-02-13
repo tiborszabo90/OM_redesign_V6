@@ -60,6 +60,12 @@
               Wizard
             </button>
             <button
+              @click="selectFlow('image-with-badge')"
+              class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer"
+            >
+              Image with Badge
+            </button>
+            <button
               @click="goToHome"
               class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer border-t border-[#505763]"
             >
@@ -200,6 +206,85 @@
           <span class="text-[#505763] mx-1">|</span>
         </template>
 
+        <!-- Image with Badge flow -->
+        <template v-else-if="registrationType === 'image-with-badge'">
+          <!-- Image with Badge Dropdown -->
+          <div class="relative">
+            <button
+              @click="imageWithBadgeDropdownOpen = !imageWithBadgeDropdownOpen"
+              :class="[
+                'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
+                ['image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3'].includes(currentView)
+                  ? 'bg-[#ED5A29] text-white'
+                  : 'bg-[#505763] hover:bg-[#8F97A4]'
+              ]"
+            >
+              Image with Badge
+              <ChevronUp :size="12" :class="{ 'rotate-180': imageWithBadgeDropdownOpen }" />
+            </button>
+            <transition name="fade">
+              <div
+                v-if="imageWithBadgeDropdownOpen"
+                class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-32"
+              >
+                <button
+                  @click="selectImageWithBadge('image-with-badge')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'image-with-badge'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  V1
+                </button>
+                <button
+                  @click="selectImageWithBadge('image-with-badge-v2')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'image-with-badge-v2'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  V2
+                </button>
+                <button
+                  @click="selectImageWithBadge('image-with-badge-v3')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'image-with-badge-v3'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  V3
+                </button>
+              </div>
+            </transition>
+          </div>
+
+          <!-- Image with Badge steps -->
+          <div class="flex items-center gap-1 ml-2">
+            <span class="text-xs text-[#8F97A4] mr-1">Steps:</span>
+            <button
+              v-for="step in (currentView === 'image-with-badge-v2' ? 2 : 3)"
+              :key="step"
+              @click="$emit('go-to-image-step', step)"
+              :class="[
+                'w-8 h-8 text-sm rounded transition-colors flex items-center justify-center cursor-pointer',
+                ['image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3'].includes(currentView) && currentImageStep === step
+                  ? 'bg-[#ED5A29] text-white'
+                  : 'bg-[#505763] hover:bg-[#8F97A4]'
+              ]"
+            >
+              {{ step }}
+            </button>
+          </div>
+
+          <span class="text-[#505763] mx-1">|</span>
+        </template>
+
         <!-- Email/Shopify flow with onboarding + wizard -->
         <template v-else>
           <!-- Registration button only for email flow -->
@@ -237,178 +322,180 @@
           <span class="text-[#505763] mx-1">|</span>
         </template>
 
-        <button
-          @click="$emit('navigate', 'task-creation')"
-          :class="[
-            'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
-            currentView === 'task-creation'
-              ? 'bg-[#ED5A29] text-white'
-              : 'bg-[#505763] hover:bg-[#8F97A4]'
-          ]"
-        >
-          Home
-        </button>
-
-        <!-- Campaigns List Button -->
-        <button
-          @click="$emit('navigate', 'campaigns-v3')"
-          :class="[
-            'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
-            currentView === 'campaigns-v3'
-              ? 'bg-[#ED5A29] text-white'
-              : 'bg-[#505763] hover:bg-[#8F97A4]'
-          ]"
-        >
-          Campaigns List
-        </button>
-
-        <!-- Campaign Page Button -->
-        <button
-          @click="$emit('navigate', 'campaign-page-v1')"
-          :class="[
-            'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
-            currentView === 'campaign-page-v1'
-              ? 'bg-[#ED5A29] text-white'
-              : 'bg-[#505763] hover:bg-[#8F97A4]'
-          ]"
-        >
-          Campaign Page
-        </button>
-
-        <!-- Analytics Dropdown -->
-        <div class="relative">
+        <template v-if="registrationType !== 'image-with-badge'">
           <button
-            @click="analyticsDropdownOpen = !analyticsDropdownOpen"
+            @click="$emit('navigate', 'task-creation')"
             :class="[
-              'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
-              ['analytics-v1', 'analytics-v2', 'analytics-v3'].includes(currentView)
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              currentView === 'task-creation'
                 ? 'bg-[#ED5A29] text-white'
                 : 'bg-[#505763] hover:bg-[#8F97A4]'
             ]"
           >
-            Analytics
-            <ChevronUp :size="12" :class="{ 'rotate-180': analyticsDropdownOpen }" />
+            Home
           </button>
-          <transition name="fade">
-            <div
-              v-if="analyticsDropdownOpen"
-              class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-32"
-            >
-              <button
-                @click="selectAnalytics('analytics-v1')"
-                :class="[
-                  'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                  currentView === 'analytics-v1'
-                    ? 'bg-[#ED5A29] text-white'
-                    : 'hover:bg-[#505763]'
-                ]"
-              >
-                V1
-              </button>
-              <button
-                @click="selectAnalytics('analytics-v2')"
-                :class="[
-                  'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                  currentView === 'analytics-v2'
-                    ? 'bg-[#ED5A29] text-white'
-                    : 'hover:bg-[#505763]'
-                ]"
-              >
-                V2
-              </button>
-              <button
-                @click="selectAnalytics('analytics-v3')"
-                :class="[
-                  'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                  currentView === 'analytics-v3'
-                    ? 'bg-[#ED5A29] text-white'
-                    : 'hover:bg-[#505763]'
-                ]"
-              >
-                V3
-              </button>
-            </div>
-          </transition>
-        </div>
 
-        <!-- Templates Dropdown -->
-        <div class="relative">
+          <!-- Campaigns List Button -->
           <button
-            @click="templatesDropdownOpen = !templatesDropdownOpen"
+            @click="$emit('navigate', 'campaigns-v3')"
             :class="[
-              'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
-              ['templates-v1', 'templates-v2', 'templates-v3'].includes(currentView)
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              currentView === 'campaigns-v3'
                 ? 'bg-[#ED5A29] text-white'
                 : 'bg-[#505763] hover:bg-[#8F97A4]'
             ]"
           >
-            Templates
-            <ChevronUp :size="12" :class="{ 'rotate-180': templatesDropdownOpen }" />
+            Campaigns List
           </button>
-          <transition name="fade">
-            <div
-              v-if="templatesDropdownOpen"
-              class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-32"
-            >
-              <button
-                @click="selectTemplates('templates-v1')"
-                :class="[
-                  'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                  currentView === 'templates-v1'
-                    ? 'bg-[#ED5A29] text-white'
-                    : 'hover:bg-[#505763]'
-                ]"
-              >
-                V1
-              </button>
-              <button
-                @click="selectTemplates('templates-v2')"
-                :class="[
-                  'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                  currentView === 'templates-v2'
-                    ? 'bg-[#ED5A29] text-white'
-                    : 'hover:bg-[#505763]'
-                ]"
-              >
-                V2
-              </button>
-              <button
-                @click="selectTemplates('templates-v3')"
-                :class="[
-                  'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                  currentView === 'templates-v3'
-                    ? 'bg-[#ED5A29] text-white'
-                    : 'hover:bg-[#505763]'
-                ]"
-              >
-                V3
-              </button>
-            </div>
-          </transition>
-        </div>
 
-        <template v-if="createdTasks.length > 0">
-          <span class="text-[#505763] mx-1">|</span>
+          <!-- Campaign Page Button -->
+          <button
+            @click="$emit('navigate', 'campaign-page-v1')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              currentView === 'campaign-page-v1'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Campaign Page
+          </button>
 
-          <div class="flex items-center gap-2">
-            <span class="text-xs text-[#8F97A4] mr-1">{{ createdTasks[0].message }}:</span>
+          <!-- Analytics Dropdown -->
+          <div class="relative">
             <button
-              v-for="(task, index) in createdTasks"
-              :key="index"
-              @click="$emit('go-to-task-phase', task.phase)"
+              @click="analyticsDropdownOpen = !analyticsDropdownOpen"
               :class="[
-                'px-3 py-1 text-sm rounded transition-colors cursor-pointer capitalize',
-                currentView === 'task-creation' && currentTaskPhase === task.phase
+                'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
+                ['analytics-v1', 'analytics-v2', 'analytics-v3'].includes(currentView)
                   ? 'bg-[#ED5A29] text-white'
                   : 'bg-[#505763] hover:bg-[#8F97A4]'
               ]"
             >
-              {{ task.phase }}
+              Analytics
+              <ChevronUp :size="12" :class="{ 'rotate-180': analyticsDropdownOpen }" />
             </button>
+            <transition name="fade">
+              <div
+                v-if="analyticsDropdownOpen"
+                class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-32"
+              >
+                <button
+                  @click="selectAnalytics('analytics-v1')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'analytics-v1'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  V1
+                </button>
+                <button
+                  @click="selectAnalytics('analytics-v2')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'analytics-v2'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  V2
+                </button>
+                <button
+                  @click="selectAnalytics('analytics-v3')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'analytics-v3'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  V3
+                </button>
+              </div>
+            </transition>
           </div>
-        </template>
 
-        <span class="text-[#505763] mx-1">|</span>
+          <!-- Templates Dropdown -->
+          <div class="relative">
+            <button
+              @click="templatesDropdownOpen = !templatesDropdownOpen"
+              :class="[
+                'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
+                ['templates-v1', 'templates-v2', 'templates-v3'].includes(currentView)
+                  ? 'bg-[#ED5A29] text-white'
+                  : 'bg-[#505763] hover:bg-[#8F97A4]'
+              ]"
+            >
+              Templates
+              <ChevronUp :size="12" :class="{ 'rotate-180': templatesDropdownOpen }" />
+            </button>
+            <transition name="fade">
+              <div
+                v-if="templatesDropdownOpen"
+                class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-32"
+              >
+                <button
+                  @click="selectTemplates('templates-v1')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'templates-v1'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  V1
+                </button>
+                <button
+                  @click="selectTemplates('templates-v2')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'templates-v2'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  V2
+                </button>
+                <button
+                  @click="selectTemplates('templates-v3')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'templates-v3'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  V3
+                </button>
+              </div>
+            </transition>
+          </div>
+
+          <template v-if="createdTasks.length > 0">
+            <span class="text-[#505763] mx-1">|</span>
+
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-[#8F97A4] mr-1">{{ createdTasks[0].message }}:</span>
+              <button
+                v-for="(task, index) in createdTasks"
+                :key="index"
+                @click="$emit('go-to-task-phase', task.phase)"
+                :class="[
+                  'px-3 py-1 text-sm rounded transition-colors cursor-pointer capitalize',
+                  currentView === 'task-creation' && currentTaskPhase === task.phase
+                    ? 'bg-[#ED5A29] text-white'
+                    : 'bg-[#505763] hover:bg-[#8F97A4]'
+                ]"
+              >
+                {{ task.phase }}
+              </button>
+            </div>
+          </template>
+
+          <span class="text-[#505763] mx-1">|</span>
+        </template>
       </template>
 
       <!-- Close button -->
@@ -439,6 +526,10 @@ const props = defineProps({
     type: Number,
     default: 4
   },
+  currentImageStep: {
+    type: Number,
+    default: 1
+  },
   createdTasks: {
     type: Array,
     default: () => []
@@ -457,7 +548,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['navigate', 'go-to-step', 'go-to-task-phase', 'select-flow', 'update:isOpen'])
+const emit = defineEmits(['navigate', 'go-to-step', 'go-to-image-step', 'go-to-task-phase', 'select-flow', 'update:isOpen'])
 
 // Onboarding steps count - same for both Email and Shopify
 // 4 steps: Welcome, ReferralSource, Relationship, UseCase
@@ -481,6 +572,7 @@ const flowDropdownOpen = ref(false)
 const recommendationDropdownOpen = ref(false)
 const analyticsDropdownOpen = ref(false)
 const templatesDropdownOpen = ref(false)
+const imageWithBadgeDropdownOpen = ref(false)
 
 const selectFlow = (type) => {
   emit('select-flow', type)
@@ -500,6 +592,11 @@ const selectAnalytics = (view) => {
 const selectTemplates = (view) => {
   emit('navigate', view)
   templatesDropdownOpen.value = false
+}
+
+const selectImageWithBadge = (view) => {
+  emit('navigate', view)
+  imageWithBadgeDropdownOpen.value = false
 }
 
 const goToHome = () => {

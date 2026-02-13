@@ -5,9 +5,9 @@
       @click="isOpen = !isOpen"
       :class="[
         'dropdown-select w-full text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 cursor-pointer bg-white text-left transition-colors border border-om-gray-200',
-        hasIcon ? 'pl-9 pr-8 py-2 rounded-lg' : '',
-        !hasIcon && size === 'default' ? 'px-4 pr-8 py-2.5 rounded-xl' : '',
-        !hasIcon && size === 'sm' ? 'px-3 pr-8 py-1.5 rounded-lg' : '',
+        hasIcon ? 'pl-9 pr-8 py-2 rounded' : '',
+        !hasIcon && size === 'default' ? 'px-4 pr-8 py-2.5 rounded' : '',
+        !hasIcon && size === 'sm' ? 'px-3 pr-8 py-1.5 rounded' : '',
         isOpen ? 'border-om-orange-300' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'
       ]"
       :style="buttonStyle"
@@ -42,7 +42,7 @@
         v-if="isOpen"
         :class="[
           'absolute z-10 w-full bg-white border border-[#D5D8DD] shadow-lg overflow-hidden',
-          'mt-0 rounded-lg'
+          'mt-0 rounded'
         ]"
       >
         <button
