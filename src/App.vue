@@ -1,5 +1,5 @@
 <script setup>
-import { ref, nextTick, watch } from 'vue'
+import { ref, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import DevStartView from './views/DevStartView.vue'
 import RegistrationView from './views/RegistrationView.vue'
 import OnboardingView from './views/OnboardingView.vue'
@@ -19,9 +19,22 @@ import TemplatesViewV3 from './views/TemplatesViewV3.vue'
 import ImageWithBadgeView from './views/ImageWithBadgeView.vue'
 import ImageWithBadgeV2View from './views/ImageWithBadgeV2View.vue'
 import ImageWithBadgeV3View from './views/ImageWithBadgeV3View.vue'
+import HomeOldView from './views/HomeOldView.vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
 
-const currentView = ref('dev-start')
+// URL slug <-> view name mapping
+const viewToSlug = { 'task-creation': 'home' }
+const slugToView = { 'home': 'task-creation' }
+
+const getViewFromHash = () => {
+  const hash = window.location.hash.replace('#/', '').replace('#', '')
+  if (!hash) return null
+  return slugToView[hash] || hash
+}
+
+const viewToHash = (view) => viewToSlug[view] || view
+
+const currentView = ref(getViewFromHash() || 'dev-start')
 const registrationData = ref(null)
 const onboardingRef = ref(null)
 const taskCreationRef = ref(null)
@@ -33,6 +46,16 @@ const registrationType = ref('email')
 const sessionKey = ref(0)
 const devNavOpen = ref(true)
 const wizardMessage = ref('')
+
+// Sync URL hash with currentView
+let skipHashChange = false
+watch(currentView, (view) => {
+  if (view && view !== 'null') {
+    skipHashChange = true
+    window.location.hash = '/' + viewToHash(view)
+    skipHashChange = false
+  }
+})
 
 const handleRegistrationComplete = (data) => {
   registrationData.value = data
@@ -79,6 +102,15 @@ const handleDevNavigate = (view) => {
     setTimeout(() => {
       currentView.value = 'task-creation'
     }, 50)
+  } else if (view === 'home-old') {
+    // Home Old - reset for fresh state
+    sessionKey.value++
+    flowSelected.value = true
+    wizardMessage.value = ''
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = 'home-old'
+    }, 50)
   } else if (view === 'design-guide') {
     // Design guide is a standalone view
     currentView.value = 'design-guide'
@@ -99,6 +131,18 @@ const handleDevNavigate = (view) => {
     currentView.value = 'image-with-badge-v3'
   } else if (view === 'wizard-analysis') {
     // Wizard analysis - set default message to auto-start
+    flowSelected.value = true
+    registrationType.value = 'wizard'
+    sessionKey.value++
+    if (!wizardMessage.value) {
+      wizardMessage.value = 'Demo website analysis'
+    }
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = view
+    }, 50)
+  } else if (view === 'wizard-analysis-no-chat') {
+    // Wizard analysis without chat (archived version)
     flowSelected.value = true
     sessionKey.value++
     if (!wizardMessage.value) {
@@ -189,6 +233,28 @@ const handleDevNavigate = (view) => {
   }
 }
 
+// Hash-based navigation listeners (placed after handleDevNavigate)
+const onHashChange = () => {
+  if (skipHashChange) return
+  const view = getViewFromHash()
+  if (view && view !== currentView.value) {
+    handleDevNavigate(view)
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('hashchange', onHashChange)
+  // If page loaded with a hash, navigate to that view
+  const initialView = getViewFromHash()
+  if (initialView && initialView !== 'dev-start') {
+    handleDevNavigate(initialView)
+  }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('hashchange', onHashChange)
+})
+
 const handleDevStartSelect = (type) => {
   sessionKey.value++ // Force fresh component creation for new flow
   flowSelected.value = true
@@ -202,9 +268,9 @@ const handleDevStartSelect = (type) => {
       wizardMessage.value = 'Demo website analysis'
       currentView.value = 'wizard-analysis'
     } else if (type === 'image-with-badge') {
-      // Image with Badge flow goes directly to image-with-badge V3
+      // Image with Badge flow goes directly to image-with-badge V1
       registrationType.value = 'image-with-badge'
-      currentView.value = 'image-with-badge-v3'
+      currentView.value = 'image-with-badge'
     } else if (type === 'shopify') {
       // Shopify flow skips registration and goes directly to onboarding
       currentView.value = 'onboarding'
@@ -317,7 +383,7 @@ const handleGoDesignGuide = () => {
 const handleGoImageWithBadge = () => {
   flowSelected.value = true
   registrationType.value = 'image-with-badge'
-  currentView.value = 'image-with-badge-v3'
+  currentView.value = 'image-with-badge'
 }
 
 const handleMenuClick = (menuId) => {
@@ -348,8 +414,8 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="min-h-screen-safe">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'campaigns', 'campaigns-v3', 'campaign-page-v1', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'templates-v1', 'templates-v2', 'templates-v3'].includes(currentView)"
-      class="fixed top-8 left-8 z-50"
+      v-if="currentView && !['dev-start', 'design-guide', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'campaigns', 'campaigns-v3', 'campaign-page-v1', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'templates-v1', 'templates-v2', 'templates-v3'].includes(currentView)"
+      class="pt-8 pl-8"
     >
       <img
         src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
@@ -385,6 +451,14 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         v-else-if="currentView === 'task-creation'"
         :key="'task-' + sessionKey"
         ref="taskCreationRef"
+        :registration-data="registrationData"
+        @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
+        @navigate-to="(view, message) => { if (message) wizardMessage = message; handleDevNavigate(view) }"
+      />
+      <HomeOldView
+        v-else-if="currentView === 'home-old'"
+        :key="'home-old-' + sessionKey"
         :registration-data="registrationData"
         @task-created="handleTaskCreated"
         @menu-click="handleMenuClick"
@@ -433,6 +507,16 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :registration-data="registrationData"
         :initial-message="wizardMessage"
         @task-created="handleTaskCreated"
+        @navigate-to="handleDevNavigate"
+      />
+      <WizardAnalysisView
+        v-else-if="currentView === 'wizard-analysis-no-chat'"
+        :key="'wizard-analysis-no-chat-' + sessionKey"
+        :registration-data="registrationData"
+        :initial-message="wizardMessage"
+        :no-chat="true"
+        @task-created="handleTaskCreated"
+        @navigate-to="handleDevNavigate"
       />
       <WizardAnalysisView
         v-else-if="currentView === 'wizard-style'"
@@ -447,6 +531,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :registration-data="registrationData"
         :start-at-quicktune="true"
         @task-created="handleTaskCreated"
+        @navigate-to="handleDevNavigate"
       />
       <WizardAnalysisView
         v-else-if="currentView === 'wizard-recommendation'"

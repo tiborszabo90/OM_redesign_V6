@@ -27,6 +27,45 @@
         Design Guide
       </button>
 
+      <!-- Archive Dropdown -->
+      <div class="relative">
+        <button
+          @click="archiveDropdownOpen = !archiveDropdownOpen"
+          :class="[
+            'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
+            archiveViews.includes(currentView)
+              ? 'bg-[#ED5A29] text-white'
+              : 'bg-[#505763] hover:bg-[#8F97A4]'
+          ]"
+        >
+          Archive
+          <ChevronUp :size="12" :class="{ 'rotate-180': archiveDropdownOpen }" />
+        </button>
+        <transition name="fade">
+          <div
+            v-if="archiveDropdownOpen"
+            class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-40"
+          >
+            <div v-if="archiveItems.length === 0" class="px-4 py-3 text-sm text-[#8F97A4] italic">
+              No archived items
+            </div>
+            <button
+              v-for="item in archiveItems"
+              :key="item.view"
+              @click="selectArchive(item.view)"
+              :class="[
+                'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                currentView === item.view
+                  ? 'bg-[#ED5A29] text-white'
+                  : 'hover:bg-[#505763]'
+              ]"
+            >
+              {{ item.label }}
+            </button>
+          </div>
+        </transition>
+      </div>
+
       <!-- Select Flow Dropdown -->
       <div class="relative">
         <button
@@ -125,83 +164,18 @@
             Wizard Quicktune
           </button>
 
-          <!-- Recommendation Dropdown -->
-          <div class="relative">
-            <button
-              @click="recommendationDropdownOpen = !recommendationDropdownOpen"
-              :class="[
-                'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
-                ['wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5'].includes(currentView)
-                  ? 'bg-[#ED5A29] text-white'
-                  : 'bg-[#505763] hover:bg-[#8F97A4]'
-              ]"
-            >
-              Recommendation
-              <ChevronUp :size="12" :class="{ 'rotate-180': recommendationDropdownOpen }" />
-            </button>
-            <transition name="fade">
-              <div
-                v-if="recommendationDropdownOpen"
-                class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-32"
-              >
-                <button
-                  @click="selectRecommendation('wizard-recommendation')"
-                  :class="[
-                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                    currentView === 'wizard-recommendation'
-                      ? 'bg-[#ED5A29] text-white'
-                      : 'hover:bg-[#505763]'
-                  ]"
-                >
-                  V1
-                </button>
-                <button
-                  @click="selectRecommendation('wizard-recommendation-v2')"
-                  :class="[
-                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                    currentView === 'wizard-recommendation-v2'
-                      ? 'bg-[#ED5A29] text-white'
-                      : 'hover:bg-[#505763]'
-                  ]"
-                >
-                  V2
-                </button>
-                <button
-                  @click="selectRecommendation('wizard-recommendation-v3')"
-                  :class="[
-                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                    currentView === 'wizard-recommendation-v3'
-                      ? 'bg-[#ED5A29] text-white'
-                      : 'hover:bg-[#505763]'
-                  ]"
-                >
-                  V3
-                </button>
-                <button
-                  @click="selectRecommendation('wizard-recommendation-v4')"
-                  :class="[
-                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                    currentView === 'wizard-recommendation-v4'
-                      ? 'bg-[#ED5A29] text-white'
-                      : 'hover:bg-[#505763]'
-                  ]"
-                >
-                  V4
-                </button>
-                <button
-                  @click="selectRecommendation('wizard-recommendation-v5')"
-                  :class="[
-                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                    currentView === 'wizard-recommendation-v5'
-                      ? 'bg-[#ED5A29] text-white'
-                      : 'hover:bg-[#505763]'
-                  ]"
-                >
-                  V5
-                </button>
-              </div>
-            </transition>
-          </div>
+          <!-- Recommendation Button -->
+          <button
+            @click="$emit('navigate', 'wizard-recommendation-v4')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              currentView === 'wizard-recommendation-v4'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Recommendation
+          </button>
 
           <span class="text-[#505763] mx-1">|</span>
         </template>
@@ -268,7 +242,7 @@
           <div class="flex items-center gap-1 ml-2">
             <span class="text-xs text-[#8F97A4] mr-1">Steps:</span>
             <button
-              v-for="step in (currentView === 'image-with-badge-v2' ? 2 : 3)"
+              v-for="step in (currentView === 'image-with-badge-v2' ? 2 : currentView === 'image-with-badge' ? 7 : 3)"
               :key="step"
               @click="$emit('go-to-image-step', step)"
               :class="[
@@ -323,17 +297,50 @@
         </template>
 
         <template v-if="registrationType !== 'image-with-badge'">
-          <button
-            @click="$emit('navigate', 'task-creation')"
-            :class="[
-              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
-              currentView === 'task-creation'
-                ? 'bg-[#ED5A29] text-white'
-                : 'bg-[#505763] hover:bg-[#8F97A4]'
-            ]"
-          >
-            Home
-          </button>
+          <!-- Home Dropdown -->
+          <div class="relative">
+            <button
+              @click="homeDropdownOpen = !homeDropdownOpen"
+              :class="[
+                'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
+                ['task-creation', 'home-old'].includes(currentView)
+                  ? 'bg-[#ED5A29] text-white'
+                  : 'bg-[#505763] hover:bg-[#8F97A4]'
+              ]"
+            >
+              Home
+              <ChevronUp :size="12" :class="{ 'rotate-180': homeDropdownOpen }" />
+            </button>
+            <transition name="fade">
+              <div
+                v-if="homeDropdownOpen"
+                class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-40"
+              >
+                <button
+                  @click="selectHome('task-creation')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'task-creation'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  Home Agentic
+                </button>
+                <button
+                  @click="selectHome('home-old')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'home-old'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  Home Old
+                </button>
+              </div>
+            </transition>
+          </div>
 
           <!-- Campaigns List Button -->
           <button
@@ -361,117 +368,31 @@
             Campaign Page
           </button>
 
-          <!-- Analytics Dropdown -->
-          <div class="relative">
-            <button
-              @click="analyticsDropdownOpen = !analyticsDropdownOpen"
-              :class="[
-                'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
-                ['analytics-v1', 'analytics-v2', 'analytics-v3'].includes(currentView)
-                  ? 'bg-[#ED5A29] text-white'
-                  : 'bg-[#505763] hover:bg-[#8F97A4]'
-              ]"
-            >
-              Analytics
-              <ChevronUp :size="12" :class="{ 'rotate-180': analyticsDropdownOpen }" />
-            </button>
-            <transition name="fade">
-              <div
-                v-if="analyticsDropdownOpen"
-                class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-32"
-              >
-                <button
-                  @click="selectAnalytics('analytics-v1')"
-                  :class="[
-                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                    currentView === 'analytics-v1'
-                      ? 'bg-[#ED5A29] text-white'
-                      : 'hover:bg-[#505763]'
-                  ]"
-                >
-                  V1
-                </button>
-                <button
-                  @click="selectAnalytics('analytics-v2')"
-                  :class="[
-                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                    currentView === 'analytics-v2'
-                      ? 'bg-[#ED5A29] text-white'
-                      : 'hover:bg-[#505763]'
-                  ]"
-                >
-                  V2
-                </button>
-                <button
-                  @click="selectAnalytics('analytics-v3')"
-                  :class="[
-                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                    currentView === 'analytics-v3'
-                      ? 'bg-[#ED5A29] text-white'
-                      : 'hover:bg-[#505763]'
-                  ]"
-                >
-                  V3
-                </button>
-              </div>
-            </transition>
-          </div>
+          <!-- Analytics Button -->
+          <button
+            @click="$emit('navigate', 'analytics-v3')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              currentView === 'analytics-v3'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Analytics
+          </button>
 
-          <!-- Templates Dropdown -->
-          <div class="relative">
-            <button
-              @click="templatesDropdownOpen = !templatesDropdownOpen"
-              :class="[
-                'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
-                ['templates-v1', 'templates-v2', 'templates-v3'].includes(currentView)
-                  ? 'bg-[#ED5A29] text-white'
-                  : 'bg-[#505763] hover:bg-[#8F97A4]'
-              ]"
-            >
-              Templates
-              <ChevronUp :size="12" :class="{ 'rotate-180': templatesDropdownOpen }" />
-            </button>
-            <transition name="fade">
-              <div
-                v-if="templatesDropdownOpen"
-                class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-32"
-              >
-                <button
-                  @click="selectTemplates('templates-v1')"
-                  :class="[
-                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                    currentView === 'templates-v1'
-                      ? 'bg-[#ED5A29] text-white'
-                      : 'hover:bg-[#505763]'
-                  ]"
-                >
-                  V1
-                </button>
-                <button
-                  @click="selectTemplates('templates-v2')"
-                  :class="[
-                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                    currentView === 'templates-v2'
-                      ? 'bg-[#ED5A29] text-white'
-                      : 'hover:bg-[#505763]'
-                  ]"
-                >
-                  V2
-                </button>
-                <button
-                  @click="selectTemplates('templates-v3')"
-                  :class="[
-                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                    currentView === 'templates-v3'
-                      ? 'bg-[#ED5A29] text-white'
-                      : 'hover:bg-[#505763]'
-                  ]"
-                >
-                  V3
-                </button>
-              </div>
-            </transition>
-          </div>
+          <!-- Templates Button -->
+          <button
+            @click="$emit('navigate', 'templates-v3')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              currentView === 'templates-v3'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Templates
+          </button>
 
           <template v-if="createdTasks.length > 0">
             <span class="text-[#505763] mx-1">|</span>
@@ -569,29 +490,43 @@ const toggleOpen = (value) => {
   emit('update:isOpen', value)
 }
 const flowDropdownOpen = ref(false)
-const recommendationDropdownOpen = ref(false)
-const analyticsDropdownOpen = ref(false)
-const templatesDropdownOpen = ref(false)
+
+
 const imageWithBadgeDropdownOpen = ref(false)
+const archiveDropdownOpen = ref(false)
+const homeDropdownOpen = ref(false)
+
+// Archive items - add views here that you want to archive
+const archiveItems = ref([
+  { view: 'analytics-v1', label: 'Analytics V1' },
+  { view: 'analytics-v2', label: 'Analytics V2' },
+  { view: 'templates-v1', label: 'Templates V1' },
+  { view: 'templates-v2', label: 'Templates V2' },
+  { view: 'wizard-recommendation', label: 'Recommendation V1' },
+  { view: 'wizard-recommendation-v2', label: 'Recommendation V2' },
+  { view: 'wizard-recommendation-v3', label: 'Recommendation V3' },
+  { view: 'wizard-recommendation-v5', label: 'Recommendation V5' },
+  { view: 'wizard-analysis-no-chat', label: 'Wizard Flow (no chat)' },
+])
+
+const archiveViews = computed(() => archiveItems.value.map(item => item.view))
+
+const selectArchive = (view) => {
+  emit('navigate', view)
+  archiveDropdownOpen.value = false
+}
 
 const selectFlow = (type) => {
   emit('select-flow', type)
   flowDropdownOpen.value = false
 }
 
-const selectRecommendation = (view) => {
-  emit('navigate', view)
-  recommendationDropdownOpen.value = false
-}
 
-const selectAnalytics = (view) => {
-  emit('navigate', view)
-  analyticsDropdownOpen.value = false
-}
 
-const selectTemplates = (view) => {
+
+const selectHome = (view) => {
   emit('navigate', view)
-  templatesDropdownOpen.value = false
+  homeDropdownOpen.value = false
 }
 
 const selectImageWithBadge = (view) => {

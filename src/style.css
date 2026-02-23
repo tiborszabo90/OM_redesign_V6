@@ -125,8 +125,8 @@ button.bg-\[\#ED5A29\]:not(:disabled):hover {
 /* Secondary button hover effect - orange border and glow */
 /* Also applies to chips */
 /* Excludes .style-card, .dropdown-select, and .color-swatch which have their own hover styles */
-button.border-om-gray-200:not(:disabled):not(.style-card):not(.dropdown-select):not(.color-swatch):hover,
-button.border-\[\#E3E5E8\]:not(:disabled):not(.style-card):not(.dropdown-select):not(.color-swatch):hover {
+button.border-om-gray-200:not(:disabled):not(.style-card):not(.dropdown-select):not(.color-swatch):not(.image-card):hover,
+button.border-\[\#E3E5E8\]:not(:disabled):not(.style-card):not(.dropdown-select):not(.color-swatch):not(.image-card):hover {
   border-color: #ED5A29 !important; /* om-orange-500 */
   box-shadow: 0 4px 14px rgba(237, 90, 41, 0.4);
 }

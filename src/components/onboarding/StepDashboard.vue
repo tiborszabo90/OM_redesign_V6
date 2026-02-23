@@ -1,7 +1,60 @@
 <template>
   <div class="w-full overflow-hidden">
-    <!-- Two-column layout after submit -->
-    <div v-if="submitted" class="relative" :class="showPopup ? 'min-h-screen-safe' : 'h-screen-safe'">
+    <!-- Chat-only mode (Boost conversions) -->
+    <div v-if="submitted && chatOnlyMode" class="chat-only-container flex items-center justify-center">
+      <div class="w-full max-w-2xl flex flex-col h-full pb-4 px-6">
+        <!-- Messages area -->
+        <div ref="messagesContainer" class="flex-1 overflow-y-auto space-y-4 mb-4">
+          <!-- User message -->
+          <div class="flex justify-end">
+            <div class="bg-[#FFEFE5] text-[#23262A] px-4 py-2.5 rounded-2xl rounded-br-md max-w-[85%] text-sm">
+              {{ submittedMessage }}
+            </div>
+          </div>
+
+          <!-- AI messages -->
+          <div v-for="(msg, index) in aiMessages" :key="index" class="flex justify-start">
+            <div class="bg-[#F1F2F4] text-[#23262A] px-4 py-2.5 rounded-2xl rounded-bl-md max-w-[85%] text-sm leading-relaxed" v-html="formatMessage(msg.message)">
+            </div>
+          </div>
+
+          <!-- Loading indicator -->
+          <div v-if="isDiscovering" class="flex justify-start">
+            <div class="bg-[#F1F2F4] text-[#23262A] px-4 py-2.5 rounded-2xl rounded-bl-md">
+              <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-[#ED5A29] rounded-full animate-pulse"></div>
+                <span class="text-sm text-[#8F97A4]">{{ currentAnalyzingMessage }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat input -->
+        <div class="relative">
+          <textarea
+            ref="chatTextareaRef"
+            v-model="chatMessage"
+            rows="3"
+            @keydown.enter.exact.prevent="handleChatSubmit"
+            class="w-full px-4 py-3 border border-[#D5D8DD] rounded-xl focus:ring-2 focus:ring-[#8F97A4] focus:border-transparent transition-colors text-[#23262A] resize-none pr-12"
+            placeholder="Ask a follow-up question..."
+          ></textarea>
+          <button
+            @click="handleChatSubmit"
+            :disabled="!chatMessage?.trim()"
+            :class="[
+              'absolute bottom-3 right-1.5 w-8 h-8 rounded-lg flex items-center justify-center transition-colors',
+              chatMessage?.trim() ? 'bg-[#ED5A29] text-white cursor-pointer' : 'bg-[#E3E5E8] text-[#8F97A4] cursor-default'
+            ]"
+          >
+            <ArrowUp :size="16" />
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Two-column layout after submit (wizard flow) -->
+    <div v-else-if="submitted" class="relative" :class="showPopup ? 'min-h-screen-safe' : 'h-screen-safe'">
       <!-- Top Navbar - show from the beginning -->
       <nav v-if="submitted" class="fixed top-0 left-0 right-0 h-16 bg-white border-b border-[#E3E5E8] z-30 flex items-center justify-between px-8">
         <!-- Left side - Steps -->
@@ -540,6 +593,7 @@
           ref="textareaRef"
           v-model="localData.message"
           rows="4"
+          @input="pendingChatOnly = false"
           @keydown.enter.exact.prevent="handleSubmit"
           class="w-full px-4 py-3 border border-[#D5D8DD] rounded-xl focus:ring-2 focus:ring-[#8F97A4] focus:border-transparent transition-colors text-[#23262A] h-28 resize-none pr-12 bg-white"
           :placeholder="currentPlaceholder"
@@ -572,7 +626,7 @@
         <button
           v-for="example in examples"
           :key="example.label"
-          @click="selectExample(example.prompt)"
+          @click="selectExample(example)"
           class="chip flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-om-gray-200 text-sm text-om-gray-700 transition-all duration-200 ease-out cursor-pointer hover:scale-[1.02]"
         >
           <component :is="example.iconComponent" :size="16" class="text-om-gray-500" />
@@ -737,7 +791,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'auto-next', 'skip-to-dashboard', 'task-created'])
+const emit = defineEmits(['update:modelValue', 'auto-next', 'skip-to-dashboard', 'task-created', 'navigate-to'])
 
 const textareaRef = ref(null)
 const chatTextareaRef = ref(null)
@@ -772,6 +826,7 @@ const popupPages = [
 
 // Task phases
 const currentPhase = ref('analysis') // 'analysis', 'design', or 'usecase'
+const chatOnlyMode = ref(false) // Simple chat mode without wizard flow
 
 // Analysis phase messages
 const analysisSteps = [
@@ -818,6 +873,25 @@ const designSteps = [
 
 // Use case phase messages
 const useCaseSteps = []
+
+// Chat-only conversation steps (for "Boost conversions")
+const conversionChatSteps = [
+  {
+    delay: 2500,
+    type: 'text',
+    message: 'I\'ve analyzed your website performance data and your existing campaigns. Here\'s a comprehensive plan to boost your conversion rate:\n\n' +
+      '**New campaign ideas:**\n' +
+      '1. **Exit-Intent Popup** — Your bounce rate is above average. An exit-intent popup with a 10% discount could recover 5-8% of leaving visitors.\n' +
+      '2. **Free Shipping Bar** — Visitors with carts under 15,000 HUF could see a dynamic progress bar motivating them to reach the free shipping threshold. This typically lifts AOV by 12-18%.\n\n' +
+      '**A/B test suggestions for existing campaigns:**\n' +
+      '3. **Smart Discount Popup** — Test a two-step opt-in (email first, then coupon reveal) vs. the current single-step. Two-step flows often increase submit rates by 20-30%.\n' +
+      '4. **Lucky Wheel** — Test reducing the number of wheel segments from 6 to 4 and increasing the perceived win chance. Simpler wheels tend to convert 15% better.\n\n' +
+      '**Personalization opportunities:**\n' +
+      '5. **Cart Abandonment Stopper** — Show different offers based on cart value: free shipping for carts above 10,000 HUF, and a 5% discount for smaller carts.\n' +
+      '6. **Returning visitor targeting** — Visitors who came back within 7 days but haven\'t purchased yet are high-intent. Show them a personalized "Welcome back" popup with their last viewed products.\n\n' +
+      'Would you like me to set up any of these? I can create a ready-to-publish version in minutes.'
+  }
+]
 
 const showDesignOptions = ref(false)
 const showUseCases = ref(false)
@@ -981,6 +1055,14 @@ const popupStyles = computed(() => {
   }
   return styles[selectedDesign.value]
 })
+
+// Format message text (convert **bold** to <strong>, \n to <br>)
+const formatMessage = (text) => {
+  if (!text) return ''
+  return text
+    .replace(/\n/g, '<br>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+}
 
 // Scroll chat to bottom
 const scrollToBottom = () => {
@@ -1168,9 +1250,10 @@ const localData = reactive({
 
 const examples = [
   {
-    label: 'Suggest ideas',
-    prompt: 'Suggest campaign ideas for my website',
-    iconComponent: Lightbulb
+    label: 'Boost conversions',
+    prompt: 'Help increase the conversion rate',
+    iconComponent: Lightbulb,
+    chatOnly: true
   },
   {
     label: 'Create a popup',
@@ -1184,8 +1267,11 @@ const examples = [
   }
 ]
 
-const selectExample = (prompt) => {
-  localData.message = prompt
+const pendingChatOnly = ref(false)
+
+const selectExample = (example) => {
+  localData.message = example.prompt
+  pendingChatOnly.value = !!example.chatOnly
   nextTick(() => {
     if (textareaRef.value) {
       textareaRef.value.focus()
@@ -1197,31 +1283,33 @@ const handleSubmit = () => {
   if (localData.message?.trim()) {
     submittedMessage.value = localData.message.trim()
     emit('update:modelValue', { message: submittedMessage.value })
-    // Initialize with analysis phase
-    currentPhase.value = 'analysis'
-    aiMessages.value = []
-    currentMessageIndex.value = 0
 
-    // Trigger exit animation first
-    isExiting.value = true
+    // Check if this is a chat-only flow
+    if (pendingChatOnly.value) {
+      chatOnlyMode.value = true
+      pendingChatOnly.value = false
+      aiMessages.value = []
+      currentMessageIndex.value = 0
 
-    // After animation completes, show wizard view
-    setTimeout(() => {
-      // Add initial greeting message
+      // Trigger exit animation
+      isExiting.value = true
+
       setTimeout(() => {
-        aiMessages.value.push({
-          type: 'text',
-          message: 'Great! I\'ll analyze your website and suggest some options for you. Let me start by scanning your site...'
-        })
-        scrollToBottom()
-      }, 500)
+        submitted.value = true
+        isExiting.value = false
 
-      // Emit task creation with phase information
-      emit('task-created', { message: submittedMessage.value, phase: 'analysis' })
-      submitted.value = true
-      isExiting.value = false
-      startDiscoverySequence()
-    }, 500) // Match animation duration
+        // Start showing chat-only messages
+        isDiscovering.value = true
+        currentAnalyzingMessage.value = 'Analyzing your data...'
+        startPhase(conversionChatSteps, () => {
+          isDiscovering.value = false
+        })
+      }, 500)
+      return
+    }
+
+    // Navigate to external wizard flow (wizard-analysis)
+    emit('navigate-to', 'wizard-analysis', submittedMessage.value)
   }
 }
 
@@ -1250,6 +1338,8 @@ const resetToInitial = () => {
   useCaseConfirmed.value = false
   selectedUseCase.value = useCases[0]
   currentPhase.value = 'analysis'
+  chatOnlyMode.value = false
+  pendingChatOnly.value = false
 }
 
 // Start analysis with a pre-filled message (used when coming from wizard)
@@ -1296,5 +1386,33 @@ defineExpose({
 .scroll-up-exit-active {
   transform: translateY(-100%);
   opacity: 0;
+}
+
+/* Chat-only mode container - fit within DashboardLayout content area */
+.chat-only-container {
+  height: calc(100vh - var(--dev-nav-height) - 4rem);
+}
+
+/* Scrollbar - always reserve space, only show thumb on hover */
+.chat-only-container .overflow-y-auto {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.chat-only-container .overflow-y-auto:hover {
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+.chat-only-container .overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+.chat-only-container .overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+.chat-only-container .overflow-y-auto::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 3px;
+}
+.chat-only-container .overflow-y-auto:hover::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
 }
 </style>

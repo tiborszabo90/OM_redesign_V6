@@ -13,7 +13,9 @@
       :start-at-recommendation-v3="props.startAtRecommendationV3"
       :start-at-recommendation-v4="props.startAtRecommendationV4"
       :start-at-recommendation-v5="props.startAtRecommendationV5"
+      :show-chat="!props.noChat"
       @task-created="(task) => emit('task-created', task)"
+      @navigate-to="(view) => emit('navigate-to', view)"
     />
   </div>
 </template>
@@ -58,10 +60,14 @@ const props = defineProps({
   startAtRecommendationV5: {
     type: Boolean,
     default: false
+  },
+  noChat: {
+    type: Boolean,
+    default: false
   }
 })
 
-const emit = defineEmits(['task-created'])
+const emit = defineEmits(['task-created', 'navigate-to'])
 
 const stepWizardDashboardRef = ref(null)
 const formData = ref({})

@@ -8,6 +8,7 @@
         :registration-data="props.registrationData"
         :initial-message="props.initialMessage"
         @task-created="(task) => emit('task-created', task)"
+        @navigate-to="(view, message) => emit('navigate-to', view, message)"
       />
     </template>
   </DashboardLayout>
@@ -29,7 +30,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['task-created', 'menu-click'])
+const emit = defineEmits(['task-created', 'menu-click', 'navigate-to'])
 
 const stepDashboardRef = ref(null)
 const formData = ref({})

@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full relative">
-    <!-- Logo at top left corner - fixed positioning, hidden on recommendation pages -->
-    <div v-if="!showRecommendation && !showRecommendationV2 && !showRecommendationV4 && !showRecommendationV5" class="fixed top-8 left-8 z-50">
+    <!-- Logo at top left corner - hidden on recommendation pages -->
+    <div v-if="!showRecommendation && !showRecommendationV2 && !(showRecommendationV4 && !props.showChat) && !showRecommendationV5" class="pt-8 pl-8 pb-3">
       <img
         src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
         alt="OptiMonk"
@@ -148,7 +148,7 @@
 
     <!-- Recommendation screen V4 -->
     <transition v-else-if="showRecommendationV4" name="fade" appear>
-      <div class="min-h-screen-safe bg-white">
+      <div class="min-h-screen-safe bg-white" :class="{ 'mr-90': props.showChat }">
         <!-- Two-column intro section -->
         <div class="w-full flex gap-6 items-stretch p-6 h-screen-safe">
           <!-- Left column (60%) -->
@@ -1412,10 +1412,10 @@
 
     <!-- Quicktune screen -->
     <transition v-else-if="showQuicktune" name="fade" appear>
-      <div class="min-h-screen-safe bg-white overflow-y-auto">
+      <div class="min-h-screen-safe bg-white overflow-y-auto" :class="{ 'mr-90': props.showChat }">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-10 lg:pt-14 pb-8 lg:pb-12">
-          <!-- Header -->
-          <div class="text-center mb-12 lg:mb-20">
+          <!-- Header (only when chat is OFF) -->
+          <div v-if="!props.showChat" class="text-center mb-12 lg:mb-20">
             <h2 class="text-2xl sm:text-3xl font-semibold text-om-gray-700 mb-2">Quick-tune your brand settings</h2>
             <p class="text-om-gray-500">Don't worry—all settings can be customized later in the editor.</p>
           </div>
@@ -1657,16 +1657,16 @@
 
     <!-- Style selection screen -->
     <transition v-else-if="showStyleSelection" name="fade" appear>
-      <div class="min-h-screen-safe bg-om-gray-50 overflow-y-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pt-14 pb-12">
-          <!-- Header -->
-          <div class="text-center mb-[52px]">
+      <div class="min-h-screen-safe bg-om-gray-50 overflow-y-auto" :class="{ 'mr-90': props.showChat }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pt-4 pb-12">
+          <!-- Header (only when chat is OFF) -->
+          <div v-if="!props.showChat" class="mb-[52px]">
             <h2 class="text-2xl sm:text-3xl font-semibold text-om-gray-700 mb-2">Which style do you like the most?</h2>
             <p class="text-om-gray-500">You can customize colors, fonts, and other style settings in the next step.</p>
           </div>
 
-          <!-- Popup grid - 3 columns on large screens -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <!-- Popup grid - 2 columns -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <button
               v-for="(style, index) in popupStyles"
               :key="style.id"
@@ -1685,7 +1685,7 @@
 
     <!-- Success message screen -->
     <transition v-else-if="showSuccessMessage" name="fade" appear>
-      <div class="h-screen-safe bg-white flex items-center justify-center">
+      <div class="h-screen-safe bg-white flex items-center justify-center" :class="{ 'mr-90': props.showChat }">
         <div class="flex flex-col items-center gap-4">
           <div class="w-16 h-16 bg-[#239E77] rounded-full flex items-center justify-center">
             <Check :size="32" />
@@ -1695,17 +1695,17 @@
       </div>
     </transition>
 
-    <!-- Analysis screen - two column layout (responsive) -->
+    <!-- Analysis screen - scanner only when chat is active, two-column when no chat -->
     <transition v-else-if="submitted && showAnalysisContent" name="fade" appear>
-      <div class="h-screen-safe bg-white flex items-center justify-center px-4 sm:px-6 md:px-8 xl:px-12">
-      <div class="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 lg:gap-12 xl:gap-16 max-w-6xl w-full">
-        <!-- Left side - Scanner animation -->
+      <div class="h-screen-safe bg-white flex items-start justify-center pt-[10vh] px-4 sm:px-6 md:px-8 xl:px-12" :class="{ 'mr-90': props.showChat }">
+      <div class="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 lg:gap-12 xl:gap-16 max-w-6xl w-full" :class="{ 'justify-center': props.showChat }">
+        <!-- Scanner animation -->
         <div class="shrink-0 -mt-10">
           <WebsiteScanAnimation />
         </div>
 
-        <!-- Right side - Discovered items list -->
-        <div class="flex-1 w-full md:w-auto md:min-w-72 lg:min-w-80 xl:max-w-72 2xl:max-w-80">
+        <!-- Right side - Discovered items list (only when chat is OFF) -->
+        <div v-if="!props.showChat" class="flex-1 w-full md:w-auto md:min-w-72 lg:min-w-80 xl:max-w-72 2xl:max-w-80">
           <!-- Title -->
           <div class="mb-6 text-center md:text-left">
             <h2 class="text-xl sm:text-2xl font-semibold text-[#23262A]">Analyzing your website</h2>
@@ -1789,12 +1789,106 @@
         <p class="text-[#505763] mt-2">Starting analysis based on your use case...</p>
       </div>
     </div>
+
+    <!-- Chat panel - right side, visible during wizard phases (not recommendations) -->
+    <transition name="fade">
+      <div
+        v-if="props.showChat && submitted && !showRecommendation && !showRecommendationV2 && !showRecommendationV3 && !showRecommendationV5"
+        class="w-90 flex flex-col fixed right-0 top-0 h-screen-safe bg-white border-l border-[#E3E5E8] p-4 pt-6 pb-4 z-40"
+      >
+        <!-- Messages area -->
+        <div ref="chatMessagesContainer" class="flex-1 overflow-y-auto space-y-3 mb-4 wizard-chat-scroll">
+          <!-- User message -->
+          <div v-if="submittedMessage" class="flex justify-end">
+            <div class="bg-[#FFEFE5] text-[#23262A] px-3 py-2 rounded-2xl rounded-br-md max-w-[90%] text-sm">
+              {{ submittedMessage }}
+            </div>
+          </div>
+
+          <!-- AI / discovery messages -->
+          <div v-for="(msg, index) in wizardChatMessages" :key="index" class="flex" :class="msg.type === 'user' ? 'justify-end' : 'justify-start'">
+            <!-- User follow-up messages -->
+            <div v-if="msg.type === 'user'" class="bg-[#FFEFE5] text-[#23262A] px-3 py-2 rounded-2xl rounded-br-md max-w-[90%] text-sm">
+              {{ msg.message }}
+            </div>
+
+            <!-- AI success message -->
+            <div v-else-if="msg.type === 'ai-success'" class="bg-[#F1F2F4] text-[#23262A] px-3 py-2 rounded-2xl rounded-bl-md max-w-[90%] text-sm">
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-5 bg-[#239E77] rounded-full flex items-center justify-center">
+                  <Check :size="12" class="text-white" />
+                </div>
+                <span class="font-medium">{{ msg.message }}</span>
+              </div>
+            </div>
+
+            <!-- AI logo message -->
+            <div v-else-if="msg.type === 'ai-logo'" class="bg-[#F1F2F4] text-[#23262A] px-3 py-2 rounded-2xl rounded-bl-md max-w-[90%] text-sm">
+              <div class="flex items-center gap-2">
+                <span>{{ msg.message }}</span>
+                <div class="w-8 h-8 rounded overflow-hidden bg-white border border-[#E3E5E8] flex items-center justify-center shrink-0">
+                  <img src="/telekom.png" alt="Logo" class="w-full h-full object-cover" />
+                </div>
+              </div>
+            </div>
+
+            <!-- AI colors message -->
+            <div v-else-if="msg.type === 'ai-colors'" class="bg-[#F1F2F4] text-[#23262A] px-3 py-2 rounded-2xl rounded-bl-md max-w-[90%] text-sm">
+              <div class="space-y-1.5">
+                <div>{{ msg.message }}</div>
+                <div class="flex gap-1.5">
+                  <div v-for="color in msg.colors" :key="color"
+                       class="w-6 h-6 rounded-full border border-white shadow-sm"
+                       :style="{ backgroundColor: color }"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- AI text message -->
+            <div v-else class="bg-[#F1F2F4] text-[#23262A] px-3 py-2 rounded-2xl rounded-bl-md max-w-[90%] text-sm leading-relaxed" v-html="formatChatMessage(msg.message)">
+            </div>
+          </div>
+
+          <!-- Loading indicator during analysis -->
+          <div v-if="currentlyAnalyzing" class="flex justify-start">
+            <div class="bg-[#F1F2F4] text-[#23262A] px-3 py-2 rounded-2xl rounded-bl-md">
+              <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-[#ED5A29] rounded-full animate-pulse"></div>
+                <span class="text-sm text-[#8F97A4]">{{ analyzingMessages[currentlyAnalyzing] }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat input -->
+        <div class="relative">
+          <textarea
+            ref="chatTextareaRef"
+            v-model="chatMessage"
+            rows="3"
+            @keydown.enter.exact.prevent="handleChatSubmit"
+            class="w-full px-4 py-3 border border-[#D5D8DD] rounded-xl focus:ring-2 focus:ring-[#8F97A4] focus:border-transparent transition-colors text-[#23262A] resize-none pr-12 text-sm"
+            placeholder="Ask OptiMonk..."
+          ></textarea>
+          <button
+            @click="handleChatSubmit"
+            :disabled="!chatMessage?.trim()"
+            :class="[
+              'absolute bottom-3 right-1.5 w-8 h-8 rounded-lg flex items-center justify-center transition-colors',
+              chatMessage?.trim() ? 'bg-[#ED5A29] text-white cursor-pointer' : 'bg-[#E3E5E8] text-[#8F97A4] cursor-default'
+            ]"
+          >
+            <ArrowUp :size="16" />
+          </button>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronRight, Truck, Check, Target, Lightbulb, Mouse, Mail, ShoppingCart, Gift, Star, CircleDot, Compass, Sparkles } from 'lucide-vue-next'
+import { reactive, ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ChevronDown, ChevronRight, Truck, Check, Target, Lightbulb, Mouse, Mail, ShoppingCart, Gift, Star, CircleDot, Compass, Sparkles, ArrowUp } from 'lucide-vue-next'
 import WebsiteScanAnimation from '../illustrations/WebsiteScanAnimation.vue'
 
 const props = defineProps({
@@ -1833,10 +1927,14 @@ const props = defineProps({
   startAtRecommendationV5: {
     type: Boolean,
     default: false
+  },
+  showChat: {
+    type: Boolean,
+    default: true
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'task-created'])
+const emit = defineEmits(['update:modelValue', 'task-created', 'navigate-to'])
 
 const submitted = ref(false)
 const submittedMessage = ref('')
@@ -2118,12 +2216,55 @@ const analyzingMessages = {
   language: 'Detecting language...'
 }
 
+// Chat panel state
+const chatMessage = ref('')
+const wizardChatMessages = ref([])
+const chatMessagesContainer = ref(null)
+const chatTextareaRef = ref(null)
+
+// Format message text (convert **bold** to <strong>, \n to <br>)
+const formatChatMessage = (text) => {
+  if (!text) return ''
+  return text
+    .replace(/\n/g, '<br>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+}
+
+const scrollChatToBottom = () => {
+  if (chatMessagesContainer.value) {
+    nextTick(() => {
+      chatMessagesContainer.value.scrollTop = chatMessagesContainer.value.scrollHeight
+    })
+  }
+}
+
+const handleChatSubmit = () => {
+  if (chatMessage.value?.trim()) {
+    // Add user message to chat
+    wizardChatMessages.value.push({
+      type: 'user',
+      message: chatMessage.value.trim()
+    })
+    scrollChatToBottom()
+    chatMessage.value = ''
+  }
+}
+
 const localData = reactive({
   message: props.modelValue.message || ''
 })
 
 // Analysis steps with timing
 const runAnalysis = () => {
+  // Initial chat message
+  setTimeout(() => {
+    wizardChatMessages.value.push({
+      type: 'ai',
+      message: 'I\'m scanning your website to understand your brand identity...'
+    })
+    scrollChatToBottom()
+  }, 300)
+
   // Step 1: Start analyzing logo
   setTimeout(() => {
     currentlyAnalyzing.value = 'logo'
@@ -2133,37 +2274,78 @@ const runAnalysis = () => {
   setTimeout(() => {
     discoveries.logo = true
     currentlyAnalyzing.value = 'colors'
+    wizardChatMessages.value.push({
+      type: 'ai-logo',
+      message: 'Found your website logo'
+    })
+    scrollChatToBottom()
   }, 3000)
 
   // Step 2: Colors found
   setTimeout(() => {
     discoveries.colors = true
     currentlyAnalyzing.value = 'fonts'
+    wizardChatMessages.value.push({
+      type: 'ai-colors',
+      message: 'Detected your brand colors',
+      colors: ['#E20074', '#18214D', '#5D6482']
+    })
+    scrollChatToBottom()
   }, 6000)
 
   // Step 3: Fonts found
   setTimeout(() => {
     discoveries.fonts = true
     currentlyAnalyzing.value = 'language'
+    wizardChatMessages.value.push({
+      type: 'ai',
+      message: 'Identified primary fonts: Inter, Arial'
+    })
+    scrollChatToBottom()
   }, 9000)
 
   // Step 4: Language found
   setTimeout(() => {
     discoveries.language = true
     currentlyAnalyzing.value = null
+    wizardChatMessages.value.push({
+      type: 'ai',
+      message: 'Website language: English 🇬🇧'
+    })
+    scrollChatToBottom()
   }, 11500)
 
-  // Step 5: Fade out analysis content and show success message simultaneously
-  setTimeout(() => {
-    showAnalysisContent.value = false
-    showSuccessMessage.value = true
-  }, 12000)
+  if (props.showChat) {
+    // With chat: skip success screen, go directly to style selection
+    setTimeout(() => {
+      showAnalysisContent.value = false
+      showStyleSelection.value = true
+      wizardChatMessages.value.push({
+        type: 'ai-success',
+        message: 'Analysis complete!'
+      })
+      scrollChatToBottom()
+      // Add style prompt after a short delay
+      setTimeout(() => {
+        wizardChatMessages.value.push({
+          type: 'ai',
+          message: 'Great! Your brand is all set! 🎉\nNow pick a style that feels right for your site. You\'ll be able to fine-tune everything in the next step.'
+        })
+        scrollChatToBottom()
+      }, 500)
+    }, 12000)
+  } else {
+    // Without chat: show success message screen first
+    setTimeout(() => {
+      showAnalysisContent.value = false
+      showSuccessMessage.value = true
+    }, 12000)
 
-  // Step 6: Fade out success message and show style selection
-  setTimeout(() => {
-    showSuccessMessage.value = false
-    showStyleSelection.value = true
-  }, 14000)
+    setTimeout(() => {
+      showSuccessMessage.value = false
+      showStyleSelection.value = true
+    }, 14000)
+  }
 }
 
 const selectStyle = (styleId) => {
@@ -2174,6 +2356,11 @@ const selectStyleAndContinue = (styleId) => {
   selectedStyle.value = styleId
   showStyleSelection.value = false
   showQuicktune.value = true
+  wizardChatMessages.value.push({
+    type: 'ai',
+    message: 'Great choice! **Quick-tune your brand settings** — colors, fonts, language, and corner radius.\nDon\'t worry, all settings can be customized later in the editor.'
+  })
+  scrollChatToBottom()
 }
 
 const confirmStyleSelection = () => {
@@ -2182,8 +2369,38 @@ const confirmStyleSelection = () => {
 }
 
 const confirmQuicktune = () => {
-  showQuicktune.value = false
-  showRecommendation.value = true
+  if (props.showChat) {
+    // Stay inside the component to preserve chat state
+    showQuicktune.value = false
+    showRecommendationV4.value = true
+    // Add chat message for recommendation
+    wizardChatMessages.value.push({
+      type: 'ai',
+      message: 'Here\'s your personalized optimization plan! 🚀\nPick the campaigns you\'d like to launch, or go with all of them for maximum impact.'
+    })
+    scrollChatToBottom()
+    // Set up Intersection Observer for use cases
+    setTimeout(() => {
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const index = useCaseRefs.value.indexOf(entry.target)
+              if (index !== -1) {
+                visibleUseCases.value[index] = true
+              }
+            }
+          })
+        },
+        { threshold: 0.2 }
+      )
+      useCaseRefs.value.forEach((el) => {
+        if (el) observer.observe(el)
+      })
+    }, 100)
+  } else {
+    emit('navigate-to', 'wizard-recommendation-v4')
+  }
 }
 
 const handleSubmit = () => {
@@ -2212,6 +2429,8 @@ const resetToInitial = () => {
   discoveries.colors = false
   discoveries.fonts = false
   discoveries.language = false
+  chatMessage.value = ''
+  wizardChatMessages.value = []
 }
 
 // Start analysis with a pre-filled message (used when coming from wizard)
@@ -2286,6 +2505,7 @@ onMounted(() => {
     // Immediately set submitted to true to avoid flash of initial state
     submitted.value = true
     localData.message = props.initialMessage.trim()
+    submittedMessage.value = props.initialMessage.trim()
     // Delay analysis start for fade-in animation
     setTimeout(() => {
       runAnalysis()
@@ -2474,5 +2694,28 @@ defineExpose({
 
 .animate-bounce-slow {
   animation: bounce-slow 2s ease-in-out infinite;
+}
+
+/* Wizard chat scrollbar - reserve space, only show thumb on hover */
+.wizard-chat-scroll {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.wizard-chat-scroll:hover {
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+.wizard-chat-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.wizard-chat-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.wizard-chat-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 3px;
+}
+.wizard-chat-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
 }
 </style>
