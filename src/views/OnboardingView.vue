@@ -21,20 +21,22 @@
 
             <!-- Navigation Buttons -->
             <div v-if="showButtons" class="flex justify-start gap-4">
-              <button
+              <Button
                 v-if="!isFirstStep"
+                variant="outline"
+                size="md"
                 @click="handlePrev"
-                class="px-6 py-2.5 border border-[#D5D8DD] rounded-xl text-base text-[#23262A] hover:bg-[#F9FAFB] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2 cursor-pointer"
               >
                 Previous
-              </button>
+              </Button>
 
-              <button
+              <Button
+                variant="primary"
+                size="md"
                 @click="handleNext"
-                class="px-6 py-2.5 bg-[#ED5A29] text-white text-base rounded-xl hover:bg-[#E54D1F] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2 cursor-pointer"
               >
                 {{ isLastStep ? 'Complete' : 'Next' }}
-              </button>
+              </Button>
             </div>
           </div>
         </transition>
@@ -71,6 +73,7 @@
 import { computed, ref, watch, nextTick } from 'vue'
 import { useOnboarding } from '../composables/useOnboarding'
 import MainLayout from '../components/layouts/MainLayout.vue'
+import Button from '../components/shared/Button.vue'
 import StepWelcome from '../components/onboarding/StepWelcome.vue'
 import StepReferralSource from '../components/onboarding/StepReferralSource.vue'
 import StepRelationship from '../components/onboarding/StepRelationship.vue'

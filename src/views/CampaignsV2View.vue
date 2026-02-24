@@ -13,9 +13,7 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
           <h1 class="text-2xl font-semibold text-om-gray-700">Campaigns (32)</h1>
-          <button class="px-5 py-2.5 bg-om-orange-500 text-white rounded-lg hover:bg-om-orange-400 transition-colors text-sm font-normal">
-            New Campaign
-          </button>
+          <Button variant="primary" size="sm">New Campaign</Button>
         </div>
 
         <!-- Filters and Controls -->
@@ -54,21 +52,21 @@
 
           <!-- Right: View controls and dropdown -->
           <div class="flex items-center gap-2">
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
+              icon-only
+              :active="viewMode === 'grid'"
               @click="viewMode = viewMode === 'list' ? 'grid' : 'list'"
-              :class="[
-                'w-8 h-8 flex items-center justify-center rounded-lg transition-all cursor-pointer',
-                viewMode === 'grid' ? 'bg-om-gray-100 text-om-gray-700' : 'text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600'
-              ]"
             >
-              <LayoutGrid :size="18" />
-            </button>
-            <button class="w-8 h-8 flex items-center justify-center text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600 rounded-lg transition-all cursor-pointer">
-              <Search :size="18" />
-            </button>
-            <button class="w-8 h-8 flex items-center justify-center text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600 rounded-lg transition-all cursor-pointer">
-              <ArrowUpDown :size="18" />
-            </button>
+              <template #icon><LayoutGrid :size="18" /></template>
+            </Button>
+            <Button variant="ghost" size="sm" icon-only>
+              <template #icon><Search :size="18" /></template>
+            </Button>
+            <Button variant="ghost" size="sm" icon-only>
+              <template #icon><ArrowUpDown :size="18" /></template>
+            </Button>
             <Dropdown
               v-model="selectedTimeFilter"
               :options="timeFilterOptions"
@@ -706,6 +704,7 @@ import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import { Plus, LayoutGrid, Search, TrendingUp, Check, Calendar, ArrowUpDown } from 'lucide-vue-next'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
+import Button from '../components/shared/Button.vue'
 
 const emit = defineEmits(['menu-click', 'navigate-to-campaign'])
 

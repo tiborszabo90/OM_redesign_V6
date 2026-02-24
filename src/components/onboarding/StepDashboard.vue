@@ -118,28 +118,12 @@
           </div>
 
           <!-- Save as draft and Publish buttons -->
-          <button
-            :disabled="currentPhase === 'analysis'"
-            :class="[
-              'px-6 py-2 border border-[#D5D8DD] text-sm font-medium rounded-lg transition-colors',
-              currentPhase === 'analysis'
-                ? 'text-[#505763] cursor-not-allowed opacity-50'
-                : 'text-[#505763] cursor-pointer'
-            ]"
-          >
+          <Button variant="outline" :disabled="currentPhase === 'analysis'">
             Save as draft
-          </button>
-          <button
-            :disabled="currentPhase === 'analysis'"
-            :class="[
-              'px-6 py-2 text-sm font-medium rounded-lg transition-colors',
-              currentPhase === 'analysis'
-                ? 'bg-[#E3E5E8] text-[#8F97A4] cursor-not-allowed'
-                : 'bg-[#ED5A29] text-white cursor-pointer'
-            ]"
-          >
+          </Button>
+          <Button variant="primary" :disabled="currentPhase === 'analysis'">
             Publish
-          </button>
+          </Button>
         </div>
       </nav>
 
@@ -779,6 +763,7 @@ import { reactive, ref, nextTick, onMounted, onUnmounted, computed, watch } from
 import { Monitor, Smartphone, X, Check, ArrowUp, Paperclip, Lightbulb, Plus, FlaskConical } from 'lucide-vue-next'
 import WebsiteScanAnimation from '../illustrations/WebsiteScanAnimation.vue'
 import Dropdown from '../shared/Dropdown.vue'
+import Button from '../shared/Button.vue'
 
 const props = defineProps({
   modelValue: {

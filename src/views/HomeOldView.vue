@@ -79,7 +79,7 @@
         <div class="mt-8">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold text-om-gray-700">Top campaigns</h2>
-            <button class="show-all-button">All campaigns</button>
+            <Button variant="ghost" size="sm">All campaigns</Button>
           </div>
 
           <div class="space-y-4">
@@ -238,6 +238,7 @@ import { ref, computed } from 'vue'
 import { TrendingUp, TrendingDown, Target, Calendar } from 'lucide-vue-next'
 import VueApexCharts from 'vue3-apexcharts'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 
@@ -585,17 +586,4 @@ const chartOptions = computed(() => {
   padding: 0;
 }
 
-.show-all-button {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #6B7280;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.show-all-button:hover {
-  color: #111827;
-}
 </style>

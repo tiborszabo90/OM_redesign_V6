@@ -7,25 +7,27 @@
 
     <!-- Navigation Buttons -->
     <div class="flex justify-start gap-4">
-      <button
+      <Button
         v-if="!isFirstStep"
+        variant="outline"
         @click="$emit('prev')"
-        class="px-6 py-2 border border-[#D5D8DD] rounded-lg text-[#505763] hover:bg-[#F9FAFB] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2 cursor-pointer"
       >
         Previous
-      </button>
+      </Button>
 
-      <button
+      <Button
+        variant="primary"
         @click="$emit('next')"
-        class="px-6 py-2 bg-[#ED5A29] text-white rounded-lg hover:bg-[#E54D1F] transition-colors focus:outline-none focus:ring-2 focus:ring-[#ED5A29] focus:ring-offset-2 cursor-pointer"
       >
         {{ isLastStep ? 'Complete' : 'Next' }}
-      </button>
+      </Button>
     </div>
   </div>
 </template>
 
 <script setup>
+import Button from '../shared/Button.vue'
+
 defineProps({
   currentStep: {
     type: Number,

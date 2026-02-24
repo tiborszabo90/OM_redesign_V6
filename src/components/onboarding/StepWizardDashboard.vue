@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full relative">
-    <!-- Logo at top left corner - hidden on recommendation pages -->
-    <div v-if="!showRecommendation && !showRecommendationV2 && !(showRecommendationV4 && !props.showChat) && !showRecommendationV5" class="pt-8 pl-8 pb-3">
+    <!-- Logo at top left corner - only in no-chat version (chat version has sidebar with logo) -->
+    <div v-if="!props.showChat && !showRecommendation && !showRecommendationV2 && !showRecommendationV4 && !showRecommendationV5" class="pt-8 pl-8 pb-3">
       <img
         src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
         alt="OptiMonk"
@@ -104,12 +104,12 @@
                 <div class="flex-1 flex flex-col justify-center pl-10">
                   <div class="flex items-center gap-2 mb-2">
                     <div class="w-8 h-8 bg-om-gray-200 rounded flex items-center justify-center">
-                      <component :is="iconMap[useCase.icon]" :size="18" class="text-om-gray-500" />
+                      <component :is="iconMap[useCase.icon]" :size="14" class="text-om-gray-500" />
                     </div>
-                    <span class="text-sm font-medium text-om-gray-500 uppercase">{{ useCase.title }}</span>
+                    <span class="text-xs font-medium text-om-gray-500 uppercase">{{ useCase.title }}</span>
                   </div>
                   <h3 class="text-2xl font-semibold text-om-gray-700 mb-2">{{ useCase.description }}</h3>
-                  <p class="text-base text-om-gray-500 mb-4">{{ useCase.subheadline }}</p>
+                  <p class="text-sm text-om-gray-500 mb-4">{{ useCase.subheadline }}</p>
                   <button
                     class="px-5 py-2.5 text-base font-medium text-white bg-om-orange-500 rounded-lg hover:bg-om-orange-400 transition-colors w-fit"
                   >
@@ -130,7 +130,7 @@
                 </div>
 
                   <!-- Mobile Preview -->
-                  <div class="w-48">
+                  <div class="w-36">
                   <div
                     class="bg-white border border-om-gray-200 overflow-hidden aspect-9/19 flex items-center justify-center"
                     :class="popupCornerClasses[brandSettings.corners]"
@@ -243,13 +243,13 @@
                 <!-- Left column: Text and button -->
                 <div class="flex-1 flex flex-col justify-center pl-10 lg:pl-9">
                   <div class="flex items-center gap-2 mt-4 mb-2">
-                    <div class="w-8 h-8 bg-om-gray-200 rounded-lg flex items-center justify-center">
-                      <component :is="iconMap[useCase.icon]" :size="18" class="text-om-gray-500" />
+                    <div class="w-6 h-6 bg-om-gray-200 rounded-md flex items-center justify-center">
+                      <component :is="iconMap[useCase.icon]" :size="14" class="text-om-gray-500" />
                     </div>
-                    <span class="text-sm font-medium text-om-gray-500 uppercase">{{ useCase.title }}</span>
+                    <span class="text-xs font-medium text-om-gray-500 uppercase">{{ useCase.title }}</span>
                   </div>
-                  <h3 class="text-3xl font-semibold text-om-gray-700 mb-3">{{ useCase.description }}</h3>
-                  <p class="text-base text-om-gray-500 mb-4">{{ useCase.subheadline }}</p>
+                  <h3 class="text-xl font-semibold text-om-gray-700 mb-3">{{ useCase.description }}</h3>
+                  <p class="text-sm text-om-gray-500 mb-4">{{ useCase.subheadline }}</p>
                   <button
                     class="px-5 py-2.5 text-base font-medium text-white bg-om-orange-500 rounded-lg hover:bg-om-orange-400 transition-colors w-fit flex items-center gap-2"
                   >
@@ -262,8 +262,9 @@
                 <div class="flex gap-3 shrink-0 items-center">
                   <!-- Desktop Preview -->
                   <div
-                    class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-video flex items-center justify-center overflow-hidden"
+                    class="bg-white border border-om-gray-200 rounded-lg h-40 lg:h-52 xl:h-64 2xl:h-72 3xl:h-80 aspect-video overflow-hidden relative"
                   >
+                    <div class="absolute top-0 left-0 w-[682px] h-[384px] origin-top-left scale-[0.42] lg:scale-[0.54] xl:scale-[0.67] 2xl:scale-[0.75] 3xl:scale-[0.83]">
                     <!-- Smart Discount Popup desktop -->
                     <template v-if="useCase.id === 'newsletter'">
                       <div class="flex w-full h-full">
@@ -378,12 +379,14 @@
                     <template v-else>
                       <img :src="useCase.image" :alt="useCase.title" class="w-full h-full object-cover" />
                     </template>
+                    </div>
                   </div>
 
                   <!-- Mobile Preview -->
                   <div
-                    class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden"
+                    class="bg-white border border-om-gray-200 rounded-lg h-56 lg:h-72 xl:h-80 2xl:h-96 3xl:h-[28rem] aspect-9/19 overflow-hidden relative"
                   >
+                    <div class="absolute top-0 left-0 w-[182px] h-[384px] origin-top-left scale-[0.58] lg:scale-[0.75] xl:scale-[0.84] 2xl:scale-[1.00] 3xl:scale-[1.17]">
                     <!-- Newsletter mobile -->
                     <template v-if="useCase.id === 'newsletter'">
                       <div class="flex flex-col w-full h-full">
@@ -498,6 +501,7 @@
                         </div>
                       </div>
                     </template>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -519,13 +523,13 @@
               <!-- Left column: Text and button -->
               <div class="flex-1 flex flex-col justify-center pl-10 lg:pl-9">
                 <div class="flex items-center gap-2 mt-4 mb-2">
-                  <div class="w-8 h-8 bg-om-gray-200 rounded-lg flex items-center justify-center">
-                    <component :is="Sparkles" :size="18" class="text-om-gray-500" />
+                  <div class="w-6 h-6 bg-om-gray-200 rounded-md flex items-center justify-center">
+                    <component :is="Sparkles" :size="14" class="text-om-gray-500" />
                   </div>
-                  <span class="text-sm font-medium text-om-gray-500 uppercase">Product Value Spotlight</span>
+                  <span class="text-xs font-medium text-om-gray-500 uppercase">Product Value Spotlight</span>
                 </div>
-                <h3 class="text-3xl font-semibold text-om-gray-700 mb-3">Showcase the value shoppers need to say yes</h3>
-                <p class="text-base text-om-gray-500 mb-4">Highlight what matters most, exactly where buying decisions happen.</p>
+                <h3 class="text-xl font-semibold text-om-gray-700 mb-3">Showcase the value shoppers need to say yes</h3>
+                <p class="text-sm text-om-gray-500 mb-4">Highlight what matters most, exactly where buying decisions happen.</p>
                 <button
                   class="px-5 py-2.5 text-base font-medium text-white bg-om-orange-500 rounded-lg hover:bg-om-orange-400 transition-colors w-fit flex items-center gap-2"
                 >
@@ -534,10 +538,16 @@
                 </button>
               </div>
 
-              <!-- Right: Large gray box -->
-              <div class="shrink-0" style="width: calc(21/9 * 24rem - 20px);">
-                <div class="bg-om-gray-200 rounded-lg h-96 w-full flex items-center justify-center">
-                  <span class="text-om-gray-400 text-sm">Preview</span>
+              <!-- Previews container -->
+              <div class="flex gap-3 shrink-0 items-center">
+                <!-- Desktop Preview -->
+                <div class="w-[284px] lg:w-[370px] xl:w-[455px] 2xl:w-[512px] 3xl:w-[569px]">
+                  <img src="/image-with-badge1.jpg" alt="Product Value Spotlight" class="w-full h-auto rounded-lg border border-om-gray-200" />
+                </div>
+
+                <!-- Mobile Preview -->
+                <div class="w-[106px] lg:w-[136px] xl:w-[152px] 2xl:w-[182px] 3xl:w-[212px]">
+                  <img src="/image-with-badge1m.jpg" alt="Product Value Spotlight Mobile" class="w-full h-auto rounded-lg border border-om-gray-200" />
                 </div>
               </div>
             </div>
@@ -639,12 +649,12 @@
                 <div class="flex-1 flex flex-col justify-center pl-6">
                   <div class="flex items-center gap-2 mt-4 mb-2">
                     <div class="w-8 h-8 bg-om-gray-100 rounded-lg flex items-center justify-center">
-                      <component :is="iconMap[useCase.icon]" :size="18" class="text-om-gray-500" />
+                      <component :is="iconMap[useCase.icon]" :size="14" class="text-om-gray-500" />
                     </div>
-                    <span class="text-sm font-medium text-om-gray-500 uppercase">{{ useCase.title }}</span>
+                    <span class="text-xs font-medium text-om-gray-500 uppercase">{{ useCase.title }}</span>
                   </div>
-                  <h3 class="text-3xl font-semibold text-om-gray-700 mb-3">{{ useCase.description }}</h3>
-                  <p class="text-base text-om-gray-500 mb-4">{{ useCase.subheadline }}</p>
+                  <h3 class="text-xl font-semibold text-om-gray-700 mb-3">{{ useCase.description }}</h3>
+                  <p class="text-sm text-om-gray-500 mb-4">{{ useCase.subheadline }}</p>
                   <button
                     class="px-5 py-2.5 text-base font-medium text-white bg-om-orange-500 rounded-lg hover:bg-om-orange-400 transition-colors w-fit flex items-center gap-2"
                   >
@@ -657,8 +667,9 @@
                 <div class="flex gap-3 shrink-0 items-center">
                   <!-- Desktop Preview -->
                   <div
-                    class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-video flex items-center justify-center overflow-hidden"
+                    class="bg-white border border-om-gray-200 rounded-lg h-40 lg:h-52 xl:h-64 2xl:h-72 3xl:h-80 aspect-video overflow-hidden relative"
                   >
+                    <div class="absolute top-0 left-0 w-[682px] h-[384px] origin-top-left scale-[0.42] lg:scale-[0.54] xl:scale-[0.67] 2xl:scale-[0.75] 3xl:scale-[0.83]">
                     <!-- Newsletter desktop -->
                     <template v-if="useCase.id === 'newsletter'">
                       <div class="flex w-full h-full">
@@ -822,12 +833,14 @@
                     <template v-else>
                       <img :src="useCase.image" :alt="useCase.title" class="w-full h-full object-cover" />
                     </template>
+                    </div>
                   </div>
 
                   <!-- Mobile Preview -->
                   <div
-                    class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden"
+                    class="bg-white border border-om-gray-200 rounded-lg h-56 lg:h-72 xl:h-80 2xl:h-96 3xl:h-[28rem] aspect-9/19 overflow-hidden relative"
                   >
+                    <div class="absolute top-0 left-0 w-[182px] h-[384px] origin-top-left scale-[0.58] lg:scale-[0.75] xl:scale-[0.84] 2xl:scale-[1.00] 3xl:scale-[1.17]">
                     <!-- Newsletter mobile -->
                     <template v-if="useCase.id === 'newsletter'">
                       <div class="flex flex-col w-full h-full">
@@ -942,6 +955,7 @@
                         </div>
                       </div>
                     </template>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1413,9 +1427,9 @@
     <!-- Quicktune screen -->
     <transition v-else-if="showQuicktune" name="fade" appear>
       <div class="min-h-screen-safe bg-white overflow-y-auto" :class="{ 'mr-90': props.showChat }">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-10 lg:pt-14 pb-8 lg:pb-12">
-          <!-- Header (only when chat is OFF) -->
-          <div v-if="!props.showChat" class="text-center mb-12 lg:mb-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-12 pb-8 lg:pb-12">
+          <!-- Header -->
+          <div class="text-left mb-12 lg:mb-20">
             <h2 class="text-2xl sm:text-3xl font-semibold text-om-gray-700 mb-2">Quick-tune your brand settings</h2>
             <p class="text-om-gray-500">Don't worry—all settings can be customized later in the editor.</p>
           </div>
@@ -1472,35 +1486,7 @@
                 <!-- Template language -->
                 <div class="flex-1">
                   <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Language</label>
-                  <div ref="languageDropdownRef" class="relative">
-                    <button
-                      type="button"
-                      @click="isLanguageDropdownOpen = !isLanguageDropdownOpen"
-                      class="dropdown-select w-full px-3 py-1.5 border border-om-gray-200 rounded-lg bg-white text-sm text-om-gray-700 text-left flex items-center justify-between cursor-pointer transition-colors h-[38px]"
-                      :class="isLanguageDropdownOpen ? 'border-om-orange-300 ring-2 ring-om-orange-100' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'"
-                    >
-                      <span>{{ selectedLanguage().label }}</span>
-                      <ChevronDown :size="16" class="text-om-gray-600 transition-transform" :class="isLanguageDropdownOpen ? 'rotate-180' : ''" />
-                    </button>
-                    <!-- Dropdown options -->
-                    <transition name="dropdown">
-                      <div
-                        v-if="isLanguageDropdownOpen"
-                        class="absolute z-10 w-full mt-2 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden"
-                      >
-                        <button
-                          v-for="option in languageOptions"
-                          :key="option.value"
-                          type="button"
-                          @click="selectLanguage(option)"
-                          class="w-full px-3 py-1.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
-                          :class="brandSettings.language === option.value ? 'bg-om-orange-50 text-om-orange-600' : ''"
-                        >
-                          {{ option.label }}
-                        </button>
-                      </div>
-                    </transition>
-                  </div>
+                  <Dropdown v-model="languageModel" :options="languageOptions" size="sm" />
                 </div>
 
                 <!-- Logo -->
@@ -1534,38 +1520,20 @@
                 <!-- Corners -->
                 <div class="flex-1">
                   <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Corners</label>
-                  <div ref="cornersDropdownRef" class="relative">
-                    <button
-                      type="button"
-                      @click="isCornersDropdownOpen = !isCornersDropdownOpen"
-                      class="dropdown-select w-full px-3 py-1.5 border border-om-gray-200 rounded-lg bg-white text-sm text-om-gray-700 text-left flex items-center justify-between cursor-pointer transition-colors"
-                      :class="isCornersDropdownOpen ? 'border-om-orange-300 ring-2 ring-om-orange-100' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'"
-                    >
+                  <Dropdown v-model="cornersModel" :options="cornerDropdownOptions" size="sm">
+                    <template #selected="{ option }">
                       <span class="flex items-center gap-2">
-                        <span class="w-4 h-4 border-2 border-om-gray-400" :class="selectedCorner().class"></span>
-                        <span>{{ selectedCorner().label }}</span>
+                        <span class="w-4 h-4 border-2 border-om-gray-400" :class="option?.iconClass"></span>
+                        <span>{{ option?.label || 'None' }}</span>
                       </span>
-                      <ChevronDown :size="16" class="text-om-gray-600 transition-transform" :class="isCornersDropdownOpen ? 'rotate-180' : ''" />
-                    </button>
-                    <transition name="dropdown">
-                      <div
-                        v-if="isCornersDropdownOpen"
-                        class="absolute z-10 w-full mt-1 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden"
-                      >
-                        <button
-                          v-for="corner in cornerOptions"
-                          :key="corner.id"
-                          type="button"
-                          @click="selectCorner(corner)"
-                          class="w-full px-3 py-1.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer flex items-center gap-2"
-                          :class="brandSettings.corners === corner.id ? 'bg-om-orange-50 text-om-orange-600' : ''"
-                        >
-                          <span class="w-4 h-4 border-2 shrink-0" :class="[corner.class, brandSettings.corners === corner.id ? 'border-om-orange-500' : 'border-om-gray-400']"></span>
-                          <span>{{ corner.label }}</span>
-                        </button>
-                      </div>
-                    </transition>
-                  </div>
+                    </template>
+                    <template #option="{ option, selected }">
+                      <span class="flex items-center gap-2">
+                        <span class="w-4 h-4 border-2 shrink-0" :class="[option.iconClass, selected ? 'border-om-orange-500' : 'border-om-gray-400']"></span>
+                        <span>{{ option.label }}</span>
+                      </span>
+                    </template>
+                  </Dropdown>
                 </div>
               </div>
 
@@ -1577,66 +1545,12 @@
                   <!-- Primary font -->
                   <div class="flex-1">
                     <label class="block text-xs text-om-gray-500 mb-1">Primary</label>
-                    <div ref="primaryFontDropdownRef" class="relative">
-                      <button
-                        type="button"
-                        @click="isPrimaryFontDropdownOpen = !isPrimaryFontDropdownOpen"
-                        class="dropdown-select w-full px-2.5 py-1.5 border border-om-gray-200 rounded-lg bg-white text-sm text-om-gray-700 text-left flex items-center justify-between cursor-pointer transition-colors"
-                        :class="isPrimaryFontDropdownOpen ? 'border-om-orange-300 ring-2 ring-om-orange-100' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'"
-                      >
-                        <span class="truncate">{{ selectedPrimaryFont().label }}</span>
-                        <ChevronDown :size="14" class="text-om-gray-600 transition-transform shrink-0 ml-1" :class="isPrimaryFontDropdownOpen ? 'rotate-180' : ''" />
-                      </button>
-                      <transition name="dropdown">
-                        <div
-                          v-if="isPrimaryFontDropdownOpen"
-                          class="absolute z-10 w-full mt-1 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden"
-                        >
-                          <button
-                            v-for="option in fontOptions"
-                            :key="option.value"
-                            type="button"
-                            @click="selectPrimaryFont(option)"
-                            class="w-full px-2.5 py-1.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
-                            :class="brandSettings.primaryFont === option.value ? 'bg-om-orange-50 text-om-orange-600' : ''"
-                          >
-                            {{ option.label }}
-                          </button>
-                        </div>
-                      </transition>
-                    </div>
+                    <Dropdown v-model="primaryFontModel" :options="fontOptions" size="sm" />
                   </div>
                   <!-- Secondary font -->
                   <div class="flex-1">
                     <label class="block text-xs text-om-gray-500 mb-1">Secondary</label>
-                    <div ref="secondaryFontDropdownRef" class="relative">
-                      <button
-                        type="button"
-                        @click="isSecondaryFontDropdownOpen = !isSecondaryFontDropdownOpen"
-                        class="dropdown-select w-full px-2.5 py-1.5 border border-om-gray-200 rounded-lg bg-white text-sm text-om-gray-700 text-left flex items-center justify-between cursor-pointer transition-colors"
-                        :class="isSecondaryFontDropdownOpen ? 'border-om-orange-300 ring-2 ring-om-orange-100' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'"
-                      >
-                        <span class="truncate">{{ selectedSecondaryFont().label }}</span>
-                        <ChevronDown :size="14" class="text-om-gray-600 transition-transform shrink-0 ml-1" :class="isSecondaryFontDropdownOpen ? 'rotate-180' : ''" />
-                      </button>
-                      <transition name="dropdown">
-                        <div
-                          v-if="isSecondaryFontDropdownOpen"
-                          class="absolute z-10 w-full mt-1 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden"
-                        >
-                          <button
-                            v-for="option in fontOptions"
-                            :key="option.value"
-                            type="button"
-                            @click="selectSecondaryFont(option)"
-                            class="w-full px-2.5 py-1.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
-                            :class="brandSettings.secondaryFont === option.value ? 'bg-om-orange-50 text-om-orange-600' : ''"
-                          >
-                            {{ option.label }}
-                          </button>
-                        </div>
-                      </transition>
-                    </div>
+                    <Dropdown v-model="secondaryFontModel" :options="fontOptions" size="sm" />
                   </div>
                 </div>
               </div>
@@ -1658,9 +1572,9 @@
     <!-- Style selection screen -->
     <transition v-else-if="showStyleSelection" name="fade" appear>
       <div class="min-h-screen-safe bg-om-gray-50 overflow-y-auto" :class="{ 'mr-90': props.showChat }">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pt-4 pb-12">
-          <!-- Header (only when chat is OFF) -->
-          <div v-if="!props.showChat" class="mb-[52px]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pt-12 pb-12">
+          <!-- Header -->
+          <div class="mb-[52px]">
             <h2 class="text-2xl sm:text-3xl font-semibold text-om-gray-700 mb-2">Which style do you like the most?</h2>
             <p class="text-om-gray-500">You can customize colors, fonts, and other style settings in the next step.</p>
           </div>
@@ -1697,7 +1611,7 @@
 
     <!-- Analysis screen - scanner only when chat is active, two-column when no chat -->
     <transition v-else-if="submitted && showAnalysisContent" name="fade" appear>
-      <div class="h-screen-safe bg-white flex items-start justify-center pt-[10vh] px-4 sm:px-6 md:px-8 xl:px-12" :class="{ 'mr-90': props.showChat }">
+      <div class="h-screen-safe bg-white flex items-center justify-center px-4 sm:px-6 md:px-8 xl:px-12" :class="{ 'mr-90': props.showChat }">
       <div class="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 lg:gap-12 xl:gap-16 max-w-6xl w-full" :class="{ 'justify-center': props.showChat }">
         <!-- Scanner animation -->
         <div class="shrink-0 -mt-10">
@@ -1888,8 +1802,9 @@
 
 <script setup>
 import { reactive, ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import { ChevronDown, ChevronRight, Truck, Check, Target, Lightbulb, Mouse, Mail, ShoppingCart, Gift, Star, CircleDot, Compass, Sparkles, ArrowUp } from 'lucide-vue-next'
+import { ChevronRight, Truck, Check, Target, Lightbulb, Mouse, Mail, ShoppingCart, Gift, Star, CircleDot, Compass, Sparkles, ArrowUp } from 'lucide-vue-next'
 import WebsiteScanAnimation from '../illustrations/WebsiteScanAnimation.vue'
+import Dropdown from '../shared/Dropdown.vue'
 
 const props = defineProps({
   modelValue: {
@@ -1934,7 +1849,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'task-created', 'navigate-to'])
+const emit = defineEmits(['update:modelValue', 'task-created', 'navigate-to', 'phase-changed'])
 
 const submitted = ref(false)
 const submittedMessage = ref('')
@@ -1995,13 +1910,6 @@ const brandSettings = reactive({
   corners: 'none'
 })
 
-const cornerOptions = [
-  { id: 'none', label: 'None', class: 'rounded-none' },
-  { id: 'small', label: 'Small', class: 'rounded-sm' },
-  { id: 'medium', label: 'Medium', class: 'rounded-md' },
-  { id: 'large', label: 'Large', class: 'rounded-lg' }
-]
-
 const cornerClasses = {
   none: 'rounded-none',
   small: 'rounded-lg',
@@ -2057,8 +1965,6 @@ const popupTexts = {
 }
 
 // Language dropdown
-const languageDropdownRef = ref(null)
-const isLanguageDropdownOpen = ref(false)
 const languageOptions = [
   { value: 'en', label: 'English' },
   { value: 'hu', label: 'Hungarian' },
@@ -2067,73 +1973,40 @@ const languageOptions = [
   { value: 'es', label: 'Spanish' }
 ]
 
-const selectedLanguage = () => {
-  return languageOptions.find(opt => opt.value === brandSettings.language) || languageOptions[0]
-}
+const languageModel = computed({
+  get: () => languageOptions.find(opt => opt.value === brandSettings.language) || languageOptions[0],
+  set: (val) => { brandSettings.language = val.value }
+})
 
-const selectLanguage = (option) => {
-  brandSettings.language = option.value
-  isLanguageDropdownOpen.value = false
-}
-
-// Primary font dropdown
-const primaryFontDropdownRef = ref(null)
-const isPrimaryFontDropdownOpen = ref(false)
+// Font dropdowns
 const fontOptions = [
   { value: 'Inter', label: 'Inter' },
   { value: 'Arial', label: 'Arial' },
   { value: 'Roboto', label: 'Roboto' }
 ]
 
-const selectedPrimaryFont = () => {
-  return fontOptions.find(opt => opt.value === brandSettings.primaryFont) || fontOptions[0]
-}
+const primaryFontModel = computed({
+  get: () => fontOptions.find(opt => opt.value === brandSettings.primaryFont) || fontOptions[0],
+  set: (val) => { brandSettings.primaryFont = val.value }
+})
 
-const selectPrimaryFont = (option) => {
-  brandSettings.primaryFont = option.value
-  isPrimaryFontDropdownOpen.value = false
-}
-
-// Secondary font dropdown
-const secondaryFontDropdownRef = ref(null)
-const isSecondaryFontDropdownOpen = ref(false)
-
-const selectedSecondaryFont = () => {
-  return fontOptions.find(opt => opt.value === brandSettings.secondaryFont) || fontOptions[1]
-}
-
-const selectSecondaryFont = (option) => {
-  brandSettings.secondaryFont = option.value
-  isSecondaryFontDropdownOpen.value = false
-}
+const secondaryFontModel = computed({
+  get: () => fontOptions.find(opt => opt.value === brandSettings.secondaryFont) || fontOptions[1],
+  set: (val) => { brandSettings.secondaryFont = val.value }
+})
 
 // Corners dropdown
-const cornersDropdownRef = ref(null)
-const isCornersDropdownOpen = ref(false)
+const cornerDropdownOptions = [
+  { value: 'none', label: 'None', iconClass: 'rounded-none' },
+  { value: 'small', label: 'Small', iconClass: 'rounded-sm' },
+  { value: 'medium', label: 'Medium', iconClass: 'rounded-md' },
+  { value: 'large', label: 'Large', iconClass: 'rounded-lg' }
+]
 
-const selectedCorner = () => {
-  return cornerOptions.find(opt => opt.id === brandSettings.corners) || cornerOptions[0]
-}
-
-const selectCorner = (corner) => {
-  brandSettings.corners = corner.id
-  isCornersDropdownOpen.value = false
-}
-
-const handleClickOutside = (event) => {
-  if (languageDropdownRef.value && !languageDropdownRef.value.contains(event.target)) {
-    isLanguageDropdownOpen.value = false
-  }
-  if (primaryFontDropdownRef.value && !primaryFontDropdownRef.value.contains(event.target)) {
-    isPrimaryFontDropdownOpen.value = false
-  }
-  if (secondaryFontDropdownRef.value && !secondaryFontDropdownRef.value.contains(event.target)) {
-    isSecondaryFontDropdownOpen.value = false
-  }
-  if (cornersDropdownRef.value && !cornersDropdownRef.value.contains(event.target)) {
-    isCornersDropdownOpen.value = false
-  }
-}
+const cornersModel = computed({
+  get: () => cornerDropdownOptions.find(opt => opt.value === brandSettings.corners) || cornerDropdownOptions[0],
+  set: (val) => { brandSettings.corners = val.value }
+})
 
 // Track which discoveries have been made
 const discoveries = reactive({
@@ -2320,6 +2193,7 @@ const runAnalysis = () => {
     setTimeout(() => {
       showAnalysisContent.value = false
       showStyleSelection.value = true
+      emit('phase-changed', 'wizard-style')
       wizardChatMessages.value.push({
         type: 'ai-success',
         message: 'Analysis complete!'
@@ -2344,6 +2218,7 @@ const runAnalysis = () => {
     setTimeout(() => {
       showSuccessMessage.value = false
       showStyleSelection.value = true
+      emit('phase-changed', 'wizard-style')
     }, 14000)
   }
 }
@@ -2356,6 +2231,7 @@ const selectStyleAndContinue = (styleId) => {
   selectedStyle.value = styleId
   showStyleSelection.value = false
   showQuicktune.value = true
+  emit('phase-changed', 'wizard-quicktune')
   wizardChatMessages.value.push({
     type: 'ai',
     message: 'Great choice! **Quick-tune your brand settings** — colors, fonts, language, and corner radius.\nDon\'t worry, all settings can be customized later in the editor.'
@@ -2366,6 +2242,7 @@ const selectStyleAndContinue = (styleId) => {
 const confirmStyleSelection = () => {
   showStyleSelection.value = false
   showQuicktune.value = true
+  emit('phase-changed', 'wizard-quicktune')
 }
 
 const confirmQuicktune = () => {
@@ -2373,6 +2250,7 @@ const confirmQuicktune = () => {
     // Stay inside the component to preserve chat state
     showQuicktune.value = false
     showRecommendationV4.value = true
+    emit('phase-changed', 'wizard-recommendation-v4')
     // Add chat message for recommendation
     wizardChatMessages.value.push({
       type: 'ai',
@@ -2443,8 +2321,6 @@ const startWithMessage = (message) => {
 
 // Auto-start if initialMessage is provided or start at style selection, quicktune, or recommendation
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-
   if (props.startAtRecommendation) {
     // Start directly at recommendation v1
     submitted.value = true
@@ -2514,15 +2390,38 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
   if (observer) {
     observer.disconnect()
   }
 })
 
+const navigateToPhase = (phase) => {
+  // Reset all phase flags
+  showAnalysisContent.value = false
+  showSuccessMessage.value = false
+  showStyleSelection.value = false
+  showQuicktune.value = false
+  showRecommendation.value = false
+  showRecommendationV2.value = false
+  showRecommendationV3.value = false
+  showRecommendationV4.value = false
+  showRecommendationV5.value = false
+
+  if (phase === 'wizard-analysis') {
+    showAnalysisContent.value = true
+  } else if (phase === 'wizard-style') {
+    showStyleSelection.value = true
+  } else if (phase === 'wizard-quicktune') {
+    showQuicktune.value = true
+  } else if (phase === 'wizard-recommendation-v4') {
+    showRecommendationV4.value = true
+  }
+}
+
 defineExpose({
   resetToInitial,
-  startWithMessage
+  startWithMessage,
+  navigateToPhase
 })
 </script>
 

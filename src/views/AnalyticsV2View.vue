@@ -188,7 +188,7 @@
         <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 pt-5 pb-5 pl-5 pr-5">
           <div class="section-header">
             <h2 class="section-title">Visited Pages</h2>
-            <button class="view-all-btn" @click="showModal('visited-pages')">View All</button>
+            <Button variant="ghost" size="sm" @click="showModal('visited-pages')">View All</Button>
           </div>
           <div class="breakdown-table">
             <div class="breakdown-header">
@@ -225,7 +225,7 @@
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pt-5 pb-5 pl-5 pr-5">
             <div class="section-header">
               <h2 class="section-title">Landing Pages</h2>
-              <button class="view-all-btn" @click="showModal('landing-pages')">View All</button>
+              <Button variant="ghost" size="sm" @click="showModal('landing-pages')">View All</Button>
             </div>
             <div class="breakdown-table">
               <div class="breakdown-header">
@@ -258,7 +258,7 @@
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pt-5 pb-5 pl-5 pr-5">
             <div class="section-header">
               <h2 class="section-title">Browser Languages</h2>
-              <button class="view-all-btn" @click="showModal('browser-languages')">View All</button>
+              <Button variant="ghost" size="sm" @click="showModal('browser-languages')">View All</Button>
             </div>
             <div class="breakdown-table">
               <div class="breakdown-header">
@@ -289,7 +289,7 @@
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pt-5 pb-5 pl-5 pr-5">
             <div class="section-header">
               <h2 class="section-title">UTM Campaigns</h2>
-              <button class="view-all-btn" @click="showModal('utm-campaigns')">View All</button>
+              <Button variant="ghost" size="sm" @click="showModal('utm-campaigns')">View All</Button>
             </div>
             <div class="breakdown-table">
               <div class="breakdown-header">
@@ -317,7 +317,7 @@
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pt-5 pb-5 pl-5 pr-5">
             <div class="section-header">
               <h2 class="section-title">UTM Sources</h2>
-              <button class="view-all-btn" @click="showModal('utm-sources')">View All</button>
+              <Button variant="ghost" size="sm" @click="showModal('utm-sources')">View All</Button>
             </div>
             <div class="breakdown-table">
               <div class="breakdown-header">
@@ -349,9 +349,11 @@
           <div class="modal-container" @click.stop>
             <div class="modal-header">
               <h2 class="modal-title">{{ modalTitle }}</h2>
-              <button class="modal-close-btn" @click="closeModal">
-                <X :size="20" />
-              </button>
+              <Button variant="ghost" size="sm" icon-only @click="closeModal">
+                <template #icon>
+                  <X :size="20" />
+                </template>
+              </Button>
             </div>
             <div class="modal-body">
               <!-- Visited Pages -->
@@ -487,6 +489,7 @@
 import { ref, computed } from 'vue'
 import { ExternalLink, ChevronDown, Monitor, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import VueApexCharts from 'vue3-apexcharts'
 
@@ -1346,21 +1349,6 @@ const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
   margin-bottom: 1rem;
 }
 
-.view-all-btn {
-  padding: 0.5rem 1rem;
-  background: transparent;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  color: rgb(80, 87, 99);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.view-all-btn:hover {
-  background: rgb(243, 244, 246);
-  color: rgb(35, 38, 42);
-}
 
 .breakdown-table {
   display: flex;
@@ -1500,23 +1488,6 @@ const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
   color: rgb(35, 38, 42);
 }
 
-.modal-close-btn {
-  padding: 0.5rem;
-  background: transparent;
-  border: none;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  color: rgb(143, 151, 164);
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-close-btn:hover {
-  background: rgb(243, 244, 246);
-  color: rgb(35, 38, 42);
-}
 
 .modal-body {
   padding: 1.5rem;

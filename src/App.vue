@@ -1,5 +1,5 @@
 <script setup>
-import { ref, nextTick, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import DevStartView from './views/DevStartView.vue'
 import RegistrationView from './views/RegistrationView.vue'
 import OnboardingView from './views/OnboardingView.vue'
@@ -46,16 +46,24 @@ const registrationType = ref('email')
 const sessionKey = ref(0)
 const devNavOpen = ref(true)
 const wizardMessage = ref('')
+const wizardPhase = ref(null) // Tracks internal wizard phase for DevNavBar + URL
 
-// Sync URL hash with currentView
+// The view name shown in DevNavBar and URL (wizardPhase overrides currentView when set)
+const displayView = computed(() => wizardPhase.value || currentView.value)
+
+// Sync URL hash with displayView
 let skipHashChange = false
-watch(currentView, (view) => {
+watch(displayView, (view) => {
   if (view && view !== 'null') {
     skipHashChange = true
     window.location.hash = '/' + viewToHash(view)
     skipHashChange = false
   }
 })
+
+const handlePhaseChanged = (phase) => {
+  wizardPhase.value = phase
+}
 
 const handleRegistrationComplete = (data) => {
   registrationData.value = data
@@ -78,7 +86,20 @@ const handleGoToWizard = (useCaseMessage = '') => {
   }, 16) // One frame delay - minimal but necessary for Vue
 }
 
+// Wizard phases that can be navigated to internally without remounting
+const wizardPhases = ['wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation-v4']
+
 const handleDevNavigate = (view) => {
+  // If already in wizard-analysis (chat version) and navigating to a wizard phase,
+  // use internal navigation to preserve chat content
+  if (currentView.value === 'wizard-analysis' && wizardPhases.includes(view) && wizardAnalysisRef.value) {
+    wizardAnalysisRef.value.navigateToPhase(view)
+    wizardPhase.value = view === 'wizard-analysis' ? null : view
+    return
+  }
+
+  // Reset wizard phase when navigating
+  wizardPhase.value = null
   // Reset all state when going back to start
   if (view === 'dev-start') {
     // Force unmount current component first
@@ -508,6 +529,8 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :initial-message="wizardMessage"
         @task-created="handleTaskCreated"
         @navigate-to="handleDevNavigate"
+        @phase-changed="handlePhaseChanged"
+        @menu-click="handleMenuClick"
       />
       <WizardAnalysisView
         v-else-if="currentView === 'wizard-analysis-no-chat'"
@@ -517,6 +540,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :no-chat="true"
         @task-created="handleTaskCreated"
         @navigate-to="handleDevNavigate"
+        @phase-changed="handlePhaseChanged"
       />
       <WizardAnalysisView
         v-else-if="currentView === 'wizard-style'"
@@ -524,6 +548,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :registration-data="registrationData"
         :start-at-style="true"
         @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
       />
       <WizardAnalysisView
         v-else-if="currentView === 'wizard-quicktune'"
@@ -532,6 +557,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :start-at-quicktune="true"
         @task-created="handleTaskCreated"
         @navigate-to="handleDevNavigate"
+        @menu-click="handleMenuClick"
       />
       <WizardAnalysisView
         v-else-if="currentView === 'wizard-recommendation'"
@@ -539,6 +565,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :registration-data="registrationData"
         :start-at-recommendation="true"
         @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
       />
       <WizardAnalysisView
         v-else-if="currentView === 'wizard-recommendation-v2'"
@@ -546,6 +573,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :registration-data="registrationData"
         :start-at-recommendation-v2="true"
         @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
       />
       <WizardAnalysisView
         v-else-if="currentView === 'wizard-recommendation-v3'"
@@ -553,6 +581,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :registration-data="registrationData"
         :start-at-recommendation-v3="true"
         @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
       />
       <WizardAnalysisView
         v-else-if="currentView === 'wizard-recommendation-v4'"
@@ -560,6 +589,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :registration-data="registrationData"
         :start-at-recommendation-v4="true"
         @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
       />
       <WizardAnalysisView
         v-else-if="currentView === 'wizard-recommendation-v5'"
@@ -567,6 +597,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :registration-data="registrationData"
         :start-at-recommendation-v5="true"
         @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
       />
       <DesignGuideView
         v-else-if="currentView === 'design-guide'"
@@ -595,7 +626,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   </div>
 
   <DevNavBar
-    :current-view="currentView"
+    :current-view="displayView"
     :current-step="onboardingRef?.displayStepForNav || 1"
     :total-steps="onboardingRef?.totalStepsCount || 4"
     :current-image-step="imageWithBadgeRef?.currentStep || 1"

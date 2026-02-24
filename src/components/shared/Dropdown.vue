@@ -5,14 +5,16 @@
       @click="isOpen = !isOpen"
       :class="[
         'dropdown-select w-full text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 cursor-pointer bg-white text-left transition-colors border border-om-gray-200',
-        hasIcon ? 'pl-9 pr-8 py-2 rounded' : '',
-        !hasIcon && size === 'default' ? 'px-4 pr-8 py-2.5 rounded' : '',
-        !hasIcon && size === 'sm' ? 'px-3 pr-8 py-1.5 rounded' : '',
+        hasIcon ? 'pl-9 pr-8 py-2 rounded-lg' : '',
+        !hasIcon && size === 'default' ? 'px-4 pr-8 py-2.5 rounded-lg' : '',
+        !hasIcon && size === 'sm' ? 'px-3 pr-8 py-1.5 rounded-lg' : '',
         isOpen ? 'border-om-orange-300' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'
       ]"
       :style="buttonStyle"
     >
-      {{ displayLabel }}
+      <slot name="selected" :option="selectedOption" :label="displayLabel">
+        {{ displayLabel }}
+      </slot>
     </button>
 
     <!-- Icon slot positioned absolutely -->
@@ -42,7 +44,7 @@
         v-if="isOpen"
         :class="[
           'absolute z-10 w-full bg-white border border-[#D5D8DD] shadow-lg overflow-hidden',
-          'mt-0 rounded'
+          'mt-0 rounded-lg'
         ]"
       >
         <button
@@ -57,7 +59,9 @@
           style="box-shadow: none !important; outline: none !important;"
         >
           <span class="flex items-center justify-between w-full">
-            <span>{{ option.label }}</span>
+            <slot name="option" :option="option" :selected="isOptionSelected(option)">
+              <span>{{ option.label }}</span>
+            </slot>
             <Check v-if="isOptionSelected(option)" :size="16" class="text-om-gray-500 shrink-0" />
           </span>
         </button>
@@ -117,10 +121,13 @@ const currentValue = computed(() => {
   return props.modelValue
 })
 
+const selectedOption = computed(() => {
+  if (currentValue.value === null || currentValue.value === undefined) return null
+  return normalizedOptions.value.find(opt => opt.value === currentValue.value) || null
+})
+
 const displayLabel = computed(() => {
-  if (currentValue.value === null || currentValue.value === undefined) return props.placeholder
-  const found = normalizedOptions.value.find(opt => opt.value === currentValue.value)
-  return found ? found.label : props.placeholder
+  return selectedOption.value ? selectedOption.value.label : props.placeholder
 })
 
 const isOptionSelected = (option) => {

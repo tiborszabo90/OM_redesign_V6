@@ -5,7 +5,7 @@
       @click="isOpen = !isOpen"
       :class="[
         'dropdown-select w-full text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 cursor-pointer bg-white text-left transition-colors border border-om-gray-200',
-        size === 'default' ? 'px-4 pr-8 py-2.5 rounded-xl' : '',
+        size === 'default' ? 'px-4 pr-8 py-2.5 rounded-lg' : '',
         size === 'sm' ? 'px-3 pr-8 py-1.5 rounded-lg' : '',
         isOpen ? 'border-om-orange-300' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'
       ]"

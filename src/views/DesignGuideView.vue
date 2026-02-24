@@ -216,50 +216,141 @@
 
       <!-- Buttons Section -->
       <section class="mb-12">
-        <h2 class="text-xl font-semibold text-om-gray-700 mb-6">Buttons</h2>
+        <h2 class="text-xl font-semibold text-om-gray-700 mb-6">Buttons (Component)</h2>
+        <p class="text-sm text-om-gray-500 mb-6">All buttons have a pressed (active) state visible on click &amp; hold.</p>
         <div class="space-y-6">
           <!-- Primary Buttons -->
           <div>
             <h3 class="text-base font-medium text-om-gray-600 mb-4">Primary</h3>
-            <div class="flex flex-wrap gap-4">
-              <button class="px-6 py-2.5 bg-om-orange-500 text-white rounded-xl hover:bg-om-orange-400 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] transition-all cursor-pointer">
-                Primary Button
-              </button>
-              <button class="px-6 py-2.5 bg-om-gray-200 text-om-gray-600 rounded-xl cursor-not-allowed" disabled>
-                Disabled
-              </button>
+            <div class="flex flex-wrap gap-4 items-center">
+              <Button variant="primary" size="lg">Large</Button>
+              <Button variant="primary" size="md">Medium</Button>
+              <Button variant="primary" size="sm">Small</Button>
+              <Button variant="primary" size="md" disabled>Disabled</Button>
             </div>
           </div>
 
           <!-- Secondary Buttons -->
           <div>
             <h3 class="text-base font-medium text-om-gray-600 mb-4">Secondary</h3>
-            <div class="flex flex-wrap gap-4">
-              <button class="px-6 py-2.5 bg-transparent border border-om-gray-200 text-om-gray-700 rounded-xl hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] transition-all cursor-pointer">
-                Secondary Button
-              </button>
-              <button class="px-6 py-2.5 bg-om-gray-200 text-om-gray-600 border border-om-gray-200 rounded-xl cursor-not-allowed" disabled>
-                Disabled
-              </button>
+            <div class="flex flex-wrap gap-4 items-center">
+              <Button variant="secondary" size="lg">Large</Button>
+              <Button variant="secondary" size="md">Medium</Button>
+              <Button variant="secondary" size="sm">Small</Button>
+              <Button variant="secondary" size="md" disabled>Disabled</Button>
+            </div>
+          </div>
+
+          <!-- Outline Buttons -->
+          <div>
+            <h3 class="text-base font-medium text-om-gray-600 mb-4">Outline</h3>
+            <div class="flex flex-wrap gap-4 items-center">
+              <Button variant="outline" size="lg">Large</Button>
+              <Button variant="outline" size="md">Medium</Button>
+              <Button variant="outline" size="sm">Small</Button>
+              <Button variant="outline" size="md" disabled>Disabled</Button>
             </div>
           </div>
 
           <!-- Ghost Buttons -->
           <div>
             <h3 class="text-base font-medium text-om-gray-600 mb-4">Ghost</h3>
-            <div class="flex flex-wrap gap-4">
-              <button class="px-6 py-2.5 bg-transparent text-om-gray-700 rounded-xl hover:bg-om-gray-100 hover:text-om-gray-600 transition-all cursor-pointer">
-                Ghost Button
-              </button>
-              <button class="px-6 py-2.5 bg-om-orange-100 text-om-orange-500 rounded-xl transition-all cursor-pointer">
-                Active State
-              </button>
-              <button class="w-10 h-10 flex items-center justify-center bg-transparent text-om-gray-700 rounded-lg hover:bg-om-gray-100 hover:text-om-gray-600 transition-all cursor-pointer">
-                <Paperclip :size="20" />
-              </button>
-              <button class="px-6 py-2.5 bg-om-gray-100 text-om-gray-400 rounded-xl cursor-not-allowed" disabled>
-                Disabled
-              </button>
+            <div class="flex flex-wrap gap-4 items-center">
+              <Button variant="ghost" size="lg">Large</Button>
+              <Button variant="ghost" size="md">Medium</Button>
+              <Button variant="ghost" size="sm">Small</Button>
+              <Button variant="ghost" size="md" disabled>Disabled</Button>
+              <Button variant="ghost" size="md" active>Active</Button>
+            </div>
+          </div>
+
+          <!-- With Icon - Primary -->
+          <div>
+            <h3 class="text-base font-medium text-om-gray-600 mb-4">With Icon - Primary</h3>
+            <div class="flex flex-wrap gap-4 items-center">
+              <Button variant="primary" size="lg"><template #icon><Plus :size="20" /></template>Large</Button>
+              <Button variant="primary" size="md"><template #icon><Plus :size="18" /></template>Medium</Button>
+              <Button variant="primary" size="sm"><template #icon><Plus :size="16" /></template>Small</Button>
+              <Button variant="primary" size="md" disabled><template #icon><Plus :size="18" /></template>Disabled</Button>
+            </div>
+          </div>
+
+          <!-- With Icon - Secondary -->
+          <div>
+            <h3 class="text-base font-medium text-om-gray-600 mb-4">With Icon - Secondary</h3>
+            <div class="flex flex-wrap gap-4 items-center">
+              <Button variant="secondary" size="lg"><template #icon><Settings :size="20" /></template>Large</Button>
+              <Button variant="secondary" size="md"><template #icon><Settings :size="18" /></template>Medium</Button>
+              <Button variant="secondary" size="sm"><template #icon><Settings :size="16" /></template>Small</Button>
+              <Button variant="secondary" size="md" disabled><template #icon><Settings :size="18" /></template>Disabled</Button>
+            </div>
+          </div>
+
+          <!-- With Icon - Outline -->
+          <div>
+            <h3 class="text-base font-medium text-om-gray-600 mb-4">With Icon - Outline</h3>
+            <div class="flex flex-wrap gap-4 items-center">
+              <Button variant="outline" size="lg"><template #icon><User :size="20" /></template>Large</Button>
+              <Button variant="outline" size="md"><template #icon><User :size="18" /></template>Medium</Button>
+              <Button variant="outline" size="sm"><template #icon><User :size="16" /></template>Small</Button>
+              <Button variant="outline" size="md" disabled><template #icon><User :size="18" /></template>Disabled</Button>
+            </div>
+          </div>
+
+          <!-- With Icon - Ghost -->
+          <div>
+            <h3 class="text-base font-medium text-om-gray-600 mb-4">With Icon - Ghost</h3>
+            <div class="flex flex-wrap gap-4 items-center">
+              <Button variant="ghost" size="lg"><template #icon><Home :size="20" /></template>Large</Button>
+              <Button variant="ghost" size="md"><template #icon><Home :size="18" /></template>Medium</Button>
+              <Button variant="ghost" size="sm"><template #icon><Home :size="16" /></template>Small</Button>
+              <Button variant="ghost" size="md" disabled><template #icon><Home :size="18" /></template>Disabled</Button>
+              <Button variant="ghost" size="md" active><template #icon><Home :size="18" /></template>Active</Button>
+            </div>
+          </div>
+
+          <!-- Icon Only - Primary -->
+          <div>
+            <h3 class="text-base font-medium text-om-gray-600 mb-4">Icon Only - Primary</h3>
+            <div class="flex flex-wrap gap-4 items-center">
+              <Button variant="primary" size="lg" icon-only><template #icon><Plus :size="20" /></template></Button>
+              <Button variant="primary" size="md" icon-only><template #icon><Plus :size="18" /></template></Button>
+              <Button variant="primary" size="sm" icon-only><template #icon><Plus :size="16" /></template></Button>
+              <Button variant="primary" size="md" icon-only disabled><template #icon><Plus :size="18" /></template></Button>
+            </div>
+          </div>
+
+          <!-- Icon Only - Secondary -->
+          <div>
+            <h3 class="text-base font-medium text-om-gray-600 mb-4">Icon Only - Secondary</h3>
+            <div class="flex flex-wrap gap-4 items-center">
+              <Button variant="secondary" size="lg" icon-only><template #icon><Settings :size="20" /></template></Button>
+              <Button variant="secondary" size="md" icon-only><template #icon><Settings :size="18" /></template></Button>
+              <Button variant="secondary" size="sm" icon-only><template #icon><Settings :size="16" /></template></Button>
+              <Button variant="secondary" size="md" icon-only disabled><template #icon><Settings :size="18" /></template></Button>
+            </div>
+          </div>
+
+          <!-- Icon Only - Outline -->
+          <div>
+            <h3 class="text-base font-medium text-om-gray-600 mb-4">Icon Only - Outline</h3>
+            <div class="flex flex-wrap gap-4 items-center">
+              <Button variant="outline" size="lg" icon-only><template #icon><X :size="20" /></template></Button>
+              <Button variant="outline" size="md" icon-only><template #icon><X :size="18" /></template></Button>
+              <Button variant="outline" size="sm" icon-only><template #icon><X :size="16" /></template></Button>
+              <Button variant="outline" size="md" icon-only disabled><template #icon><X :size="18" /></template></Button>
+            </div>
+          </div>
+
+          <!-- Icon Only - Ghost -->
+          <div>
+            <h3 class="text-base font-medium text-om-gray-600 mb-4">Icon Only - Ghost</h3>
+            <div class="flex flex-wrap gap-4 items-center">
+              <Button variant="ghost" size="lg" icon-only><template #icon><X :size="20" /></template></Button>
+              <Button variant="ghost" size="md" icon-only><template #icon><X :size="18" /></template></Button>
+              <Button variant="ghost" size="sm" icon-only><template #icon><X :size="16" /></template></Button>
+              <Button variant="ghost" size="md" icon-only disabled><template #icon><X :size="18" /></template></Button>
+              <Button variant="ghost" size="md" icon-only active><template #icon><X :size="18" /></template></Button>
             </div>
           </div>
 
@@ -500,6 +591,25 @@
                 <MultiSelect v-model="multiSelectedSmallOptions" :options="multiSelectOptions" placeholder="All content" size="sm" class="w-[240px]" />
               </div>
             </div>
+          </div>
+
+          <!-- Dropdown with custom slots (corners) -->
+          <div>
+            <label class="block text-sm font-medium text-om-gray-700 mb-2">Dropdown with custom slots</label>
+            <Dropdown v-model="selectedCorner" :options="cornerOptions" size="sm" class="w-[240px]">
+              <template #selected="{ option }">
+                <span class="flex items-center gap-2">
+                  <span class="w-4 h-4 border-2 border-om-gray-400" :class="option?.iconClass"></span>
+                  <span>{{ option?.label || 'None' }}</span>
+                </span>
+              </template>
+              <template #option="{ option, selected }">
+                <span class="flex items-center gap-2">
+                  <span class="w-4 h-4 border-2 shrink-0" :class="[option.iconClass, selected ? 'border-om-orange-500' : 'border-om-gray-400']"></span>
+                  <span>{{ option.label }}</span>
+                </span>
+              </template>
+            </Dropdown>
           </div>
         </div>
       </section>
@@ -743,6 +853,7 @@ import Accordion from '../components/shared/Accordion.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import MultiSelect from '../components/shared/MultiSelect.vue'
+import Button from '../components/shared/Button.vue'
 
 // Pill dropdown with logo
 const selectedOption = ref('Option 1')
@@ -792,5 +903,14 @@ const smallSelectedOption = ref(smallDropdownOptions[0])
 const multiSelectOptions = ['List Building', 'Cart Abandonment', 'Average Order Value', 'Collect Feedback', 'Direct Visitors', 'Increase Conversion', 'Promote Sales']
 const multiSelectedOptions = ref([])
 const multiSelectedSmallOptions = ref([])
+
+// Corners dropdown with custom slots
+const cornerOptions = [
+  { value: 'none', label: 'None', iconClass: 'rounded-none' },
+  { value: 'small', label: 'Small', iconClass: 'rounded-sm' },
+  { value: 'medium', label: 'Medium', iconClass: 'rounded-md' },
+  { value: 'large', label: 'Large', iconClass: 'rounded-lg' }
+]
+const selectedCorner = ref(cornerOptions[0])
 
 </script>

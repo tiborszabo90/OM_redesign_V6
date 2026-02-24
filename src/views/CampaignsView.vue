@@ -9,23 +9,20 @@
             <p class="text-xs text-om-gray-400">www.mydomain.com</p>
           </div>
           <div class="flex items-center gap-2.5">
-            <button class="w-8 h-8 flex items-center justify-center text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600 rounded-lg transition-all cursor-pointer">
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="2" y="4" width="14" height="11" rx="2"/>
-                <path d="M6 2v2M12 2v2M2 8h14"/>
-              </svg>
-            </button>
+            <Button variant="ghost" size="sm" icon-only>
+              <template #icon>
+                <Calendar :size="18" />
+              </template>
+            </Button>
             <button :class="['px-3.5 py-1.5 rounded-lg flex items-center gap-2.5 text-sm font-medium cursor-pointer text-om-gray-700', isActive ? 'bg-[#D6F5EC]' : 'bg-om-gray-100']">
               <span>{{ isActive ? 'Active' : 'Inactive' }}</span>
               <ToggleSwitch v-model="isActive" @click.stop />
             </button>
-            <button class="w-8 h-8 flex items-center justify-center text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600 rounded-lg transition-all cursor-pointer">
-              <svg width="4" height="18" viewBox="0 0 4 18" fill="currentColor">
-                <circle cx="2" cy="2" r="2"/>
-                <circle cx="2" cy="9" r="2"/>
-                <circle cx="2" cy="16" r="2"/>
-              </svg>
-            </button>
+            <Button variant="ghost" size="sm" icon-only>
+              <template #icon>
+                <MoreVertical :size="18" />
+              </template>
+            </Button>
           </div>
         </div>
 
@@ -155,9 +152,13 @@
               <div class="col-span-1 text-base font-semibold text-om-gray-400 text-right">-</div>
               <!-- Kebab Menu -->
               <div class="col-span-1 flex items-center justify-end w-fit justify-self-end">
-                <button class="opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8 flex items-center justify-center text-om-gray-600 hover:bg-om-gray-100 rounded cursor-pointer">
-                  <MoreVertical :size="20" />
-                </button>
+                <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="sm" icon-only>
+                    <template #icon>
+                      <MoreVertical :size="20" />
+                    </template>
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -194,9 +195,13 @@
               <div class="col-span-1 text-base font-semibold text-om-gray-400 text-right">9.23%</div>
               <!-- Kebab Menu -->
               <div class="col-span-1 flex items-center justify-end w-fit justify-self-end">
-                <button class="opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8 flex items-center justify-center text-om-gray-600 hover:bg-om-gray-100 rounded cursor-pointer">
-                  <MoreVertical :size="20" />
-                </button>
+                <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="sm" icon-only>
+                    <template #icon>
+                      <MoreVertical :size="20" />
+                    </template>
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -340,6 +345,7 @@
 import { ref, computed } from 'vue'
 import { TrendingUp, Calendar, Target, MoreVertical } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+import Button from '../components/shared/Button.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 

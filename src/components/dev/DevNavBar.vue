@@ -419,6 +419,14 @@
         </template>
       </template>
 
+      <!-- Reset button -->
+      <button
+        @click="$emit('navigate', 'dev-start')"
+        class="px-3 py-1 text-sm rounded transition-colors cursor-pointer bg-red-500/80 hover:bg-red-500 text-white"
+      >
+        Reset
+      </button>
+
       <!-- Close button -->
       <button
         @click="toggleOpen(false)"

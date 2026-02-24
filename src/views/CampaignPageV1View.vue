@@ -26,12 +26,7 @@
 
             <!-- Original Buttons (shown when schedule is not saved) -->
             <template v-else>
-              <button
-                @click="isScheduleModalOpen = true"
-                class="w-8 h-8 flex items-center justify-center text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600 rounded-lg transition-all cursor-pointer"
-              >
-                <Calendar :size="18" />
-              </button>
+              <Button variant="ghost" size="sm" icon-only @click="isScheduleModalOpen = true"><template #icon><Calendar :size="18" /></template></Button>
               <button :class="['pl-3.5 pr-2 pt-2 pb-1.5 rounded-lg flex items-center gap-2.5 text-sm font-medium cursor-pointer text-om-gray-700', isActive ? 'bg-[#D6F5EC]' : 'bg-om-gray-100']">
                 <span>{{ isActive ? 'Active' : 'Inactive' }}</span>
                 <ToggleSwitch v-model="isActive" @click.stop />
@@ -40,12 +35,7 @@
 
             <!-- Kebab Menu -->
             <div class="relative">
-              <button
-                @click="isKebabMenuOpen = !isKebabMenuOpen"
-                class="w-8 h-8 flex items-center justify-center text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600 rounded-lg transition-all cursor-pointer"
-              >
-                <MoreVertical :size="18" />
-              </button>
+              <Button variant="ghost" size="sm" icon-only @click="isKebabMenuOpen = !isKebabMenuOpen"><template #icon><MoreVertical :size="18" /></template></Button>
 
               <!-- Dropdown Menu -->
               <transition
@@ -270,9 +260,7 @@
               <div class="col-span-1 text-base font-semibold text-om-gray-400 text-right">-</div>
               <!-- Kebab Menu -->
               <div class="col-span-1 flex items-center justify-end w-fit justify-self-end">
-                <button class="opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8 flex items-center justify-center text-om-gray-600 hover:bg-om-gray-100 rounded cursor-pointer">
-                  <MoreVertical :size="20" />
-                </button>
+                <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
               </div>
             </div>
 
@@ -309,9 +297,7 @@
               <div class="col-span-1 text-base font-semibold text-om-gray-400 text-right">9.23%</div>
               <!-- Kebab Menu -->
               <div class="col-span-1 flex items-center justify-end w-fit justify-self-end">
-                <button class="opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8 flex items-center justify-center text-om-gray-600 hover:bg-om-gray-100 rounded cursor-pointer">
-                  <MoreVertical :size="20" />
-                </button>
+                <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
               </div>
             </div>
           </div>
@@ -516,9 +502,7 @@
 
               <!-- Next button -->
               <div class="flex justify-end mt-6">
-                <button class="px-4 py-2 bg-om-orange-500 text-white text-sm font-medium rounded-lg hover:bg-om-orange-600 transition-colors cursor-pointer">
-                  Next to Frequency
-                </button>
+                <Button variant="primary" size="sm">Next to Frequency</Button>
               </div>
           </Accordion>
 
@@ -602,7 +586,7 @@
                       <select
                         v-model="timeUnit"
                         :disabled="frequencyMode !== 'min'"
-                        class="w-24 pl-2 pr-6 py-1 border border-om-gray-200 rounded text-sm text-om-gray-700 focus:outline-none focus:border-om-gray-300 appearance-none cursor-pointer disabled:bg-om-gray-50 disabled:text-om-gray-400 disabled:cursor-not-allowed"
+                        class="w-24 pl-2 pr-6 py-1 border border-om-gray-200 rounded-lg text-sm text-om-gray-700 focus:outline-none focus:border-om-gray-300 appearance-none cursor-pointer disabled:bg-om-gray-50 disabled:text-om-gray-400 disabled:cursor-not-allowed"
                       >
                         <option value="hour">hour(s)</option>
                         <option value="day">day(s)</option>
@@ -628,9 +612,7 @@
 
               <!-- Next button -->
               <div class="flex justify-end">
-                <button class="px-4 py-2 bg-om-orange-500 text-white text-sm font-medium rounded-lg hover:bg-om-orange-600 transition-colors cursor-pointer">
-                  Next to Targeting
-                </button>
+                <Button variant="primary" size="sm">Next to Targeting</Button>
               </div>
           </Accordion>
 
@@ -680,11 +662,7 @@
         <!-- Modal Header -->
         <div class="flex items-center justify-between px-6 py-4 border-b border-om-gray-200 bg-white flex-shrink-0 rounded-t-xl">
           <h2 class="text-xl font-semibold text-om-gray-700">Set up campaign schedule</h2>
-          <button @click="isScheduleModalOpen = false" class="text-om-gray-400 hover:text-om-gray-600 transition-colors">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <path d="M18 6L6 18M6 6l12 12"/>
-            </svg>
-          </button>
+          <Button variant="ghost" size="sm" icon-only @click="isScheduleModalOpen = false"><template #icon><X :size="20" /></template></Button>
         </div>
 
         <!-- Scrollable content area -->
@@ -846,18 +824,8 @@
 
         <!-- Action buttons - Sticky -->
         <div class="flex items-center justify-end gap-3 pl-6 pr-3 py-3 bg-white">
-          <button
-            @click="scheduleSaved ? handleDeleteSchedule() : (isScheduleModalOpen = false)"
-            class="px-4 py-2 text-sm font-medium text-om-gray-700 hover:bg-om-gray-100 rounded-lg transition-colors cursor-pointer"
-          >
-            {{ scheduleSaved ? 'Delete Schedule' : 'Cancel' }}
-          </button>
-          <button
-            @click="saveSchedule"
-            class="px-4 py-2 bg-om-orange-500 text-white text-sm font-medium rounded-lg hover:bg-om-orange-600 transition-colors cursor-pointer"
-          >
-            Save
-          </button>
+          <Button variant="ghost" size="sm" @click="scheduleSaved ? handleDeleteSchedule() : (isScheduleModalOpen = false)">{{ scheduleSaved ? 'Delete Schedule' : 'Cancel' }}</Button>
+          <Button variant="primary" size="sm" @click="saveSchedule">Save</Button>
         </div>
 
         <!-- How it works - Sticky at bottom -->
@@ -882,7 +850,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { ChevronDown, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone } from 'lucide-vue-next'
+import { ChevronDown, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X } from 'lucide-vue-next'
+import Button from '../components/shared/Button.vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
