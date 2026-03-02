@@ -1,5 +1,6 @@
 <template>
-  <DashboardLayout active-menu-item="campaigns" @logo-click="handleLogoClick" @menu-click="$emit('menu-click', $event)">
+  <div>
+  <DashboardLayout active-menu-item="campaigns" @logo-click="handleLogoClick" @menu-click="$emit('menu-click', $event)" :right-panel-collapsed="!isChatOpen">
     <template #content>
       <div class="w-full max-w-[1400px] mx-auto -mt-2">
         <!-- Header -->
@@ -653,6 +654,9 @@
         </div>
       </div>
     </template>
+    <template #right-panel>
+      <ChatPanel v-model="isChatOpen" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
+    </template>
   </DashboardLayout>
 
   <!-- Schedule Modal -->
@@ -846,6 +850,7 @@
       </div>
     </div>
   </transition>
+  </div>
 </template>
 
 <script setup>
@@ -860,8 +865,30 @@ import Checkbox from '../components/shared/Checkbox.vue'
 import { VueDatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import ScrollTimePicker from '../components/shared/ScrollTimePicker.vue'
+import ChatPanel from '../components/shared/ChatPanel.vue'
 
 defineEmits(['menu-click'])
+
+const isChatOpen = ref(true)
+
+const chatSuggestions = [
+  'How is this campaign performing?',
+  'How can I improve this campaign\'s conversion rate?',
+  'Suggest A/B test ideas for this campaign',
+  'What\'s the best time to run this campaign?',
+  'How does this compare to my other campaigns?',
+]
+
+const chatAiResponses = {
+  'How is this campaign performing?': 'Your **Black Friday 2025** campaign is performing well overall:\n\n- **Impressions:** 24,310\n- **Conversion rate:** 5.2% (above your 3.2% average)\n- **Supported revenue:** 1,240,000 HUF\n\nThe campaign is running on schedule and hitting its targets. The biggest opportunity is on mobile — desktop converts at **6.8%** vs **3.1%** on mobile.',
+  'How can I improve this campaign\'s conversion rate?': {
+    message: 'Here are the top opportunities for **Black Friday 2025**:\n\n**1. Mobile optimization** — Your mobile conversion rate (3.1%) is less than half of desktop. Consider a dedicated mobile variant.\n\n**2. Exit intent trigger** — Adding an exit intent trigger could recover an estimated 12–15% of abandoning visitors.\n\n**3. Stronger headline** — A/B test a more urgent headline like "Today only: 30% off everything".',
+    followUp: 'Which of these would you like to tackle first? I can walk you through the setup.\n\nFor a deeper look at your traffic and conversion patterns, check the **Insights** block on the **Analytics** page.',
+  },
+  'Suggest A/B test ideas for this campaign': 'Here are 3 high-impact A/B test ideas for this campaign:\n\n**1. Headline** — "Black Friday Deal" vs "Limited time: 30% off"\n\n**2. CTA button** — "Get the deal" vs "Claim your discount"\n\n**3. Trigger timing** — Show after 5 seconds vs on exit intent\n\nI\'d start with the headline test — it typically has the biggest impact on conversion rate.',
+  'What\'s the best time to run this campaign?': 'Based on your historical data, peak engagement for discount campaigns is:\n\n- **Thursday–Friday** between 18:00–22:00\n- **Saturday morning** 09:00–12:00\n\nYour current schedule runs from Nov 27–30, which aligns well with Black Friday traffic. I\'d recommend enabling the campaign at least 2 hours before the sale starts to capture early visitors.',
+  'How does this compare to my other campaigns?': 'Compared to your other active campaigns, **Black Friday 2025** ranks:\n\n- **#2** in conversion rate (5.2% vs Smart Discount\'s 8.37%)\n- **#1** in total impressions\n- **#1** in supported revenue\n\nIt\'s your highest-volume campaign. Even a 1% improvement in conversion rate would add ~240,000 HUF in supported revenue.',
+}
 
 const activeTab = ref('Overview')
 const isActive = ref(true)

@@ -1,5 +1,5 @@
 <template>
-  <div class="relative" ref="dropdownRef">
+  <div class="relative w-full" ref="dropdownRef" :style="lockedWidth ? { width: lockedWidth } : {}">
     <button
       type="button"
       @click="isOpen = !isOpen"
@@ -99,6 +99,7 @@ const emit = defineEmits(['update:modelValue'])
 const slots = useSlots()
 const dropdownRef = ref(null)
 const isOpen = ref(false)
+const lockedWidth = ref(null)
 
 const hasIcon = computed(() => !!slots.icon)
 
@@ -157,6 +158,9 @@ const handleClickOutside = (event) => {
 }
 
 onMounted(() => {
+  if (dropdownRef.value) {
+    lockedWidth.value = dropdownRef.value.offsetWidth + 'px'
+  }
   document.addEventListener('click', handleClickOutside)
 })
 

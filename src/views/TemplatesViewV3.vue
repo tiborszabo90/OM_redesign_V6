@@ -7,7 +7,7 @@
       :no-content-padding="true"
     >
       <template #content>
-        <div class="templates-layout">
+        <div class="templates-layout" :class="{ 'chat-open': isChatOpen }">
           <!-- Main Content -->
           <main class="templates-main" ref="mainRef">
             <!-- Header -->
@@ -26,7 +26,7 @@
             </div>
 
             <!-- NEW: Horizontal Filter Bar -->
-            <div class="filters-bar" :class="{ 'filters-bar-scrolled': isScrolled }">
+            <div class="filters-bar" :class="{ 'filters-bar-scrolled': isScrolled, 'chat-open': isChatOpen }">
               <!-- Navigation Tabs -->
               <div class="sidebar-tabs">
                 <button class="sidebar-tab">
@@ -116,7 +116,7 @@
                 >
                   <ChevronRight :size="24" style="transform: rotate(180deg);" />
                 </button>
-                <div class="families-carousel" ref="carouselRef" @scroll="handleFamilyScroll">
+                <div class="families-carousel" :class="{ 'chat-open': isChatOpen }" ref="carouselRef" @scroll="handleFamilyScroll">
                   <div class="family-item">
                     <img src="/family_essential.png" alt="Family Essential" class="family-image" />
                   </div>
@@ -224,6 +224,9 @@
           </main>
         </div>
       </template>
+      <template #right-panel>
+        <ChatPanel v-model="isChatOpen" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
+      </template>
     </DashboardLayout>
   </div>
 </template>
@@ -234,8 +237,28 @@ import { ChevronRight, Paintbrush, FolderOpen, Edit, Search, Calendar } from 'lu
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import MultiSelect from '../components/shared/MultiSelect.vue'
+import ChatPanel from '../components/shared/ChatPanel.vue'
 
 const emit = defineEmits(['menu-click'])
+
+const isChatOpen = ref(true)
+
+const chatSuggestions = [
+  'What are the best templates for Black Friday?',
+  'Which template works best for cart abandonment?',
+  'Recommend a template for email list building',
+  'Show me countdown timer templates',
+  'What\'s the most popular template this month?',
+]
+
+const chatAiResponses = {
+  'What are the best templates for Black Friday?': 'For Black Friday, the highest-converting template types are:\n\n**1. Countdown Timer Popup** — Creates urgency, avg. 7.2% conversion rate\n**2. Discount Wheel** — High engagement and viral potential\n**3. Cart Abandonment Banner** — Captures last-minute saves\n\nYou can find all of these under the **Seasonal** category in the templates library.',
+  'Which template works best for cart abandonment?': 'The top cart abandonment templates in your library are:\n\n**1. Exit Intent Overlay** — Shows a discount offer when the user moves to close the tab (avg. 5.8% CR)\n**2. Sticky Bottom Bar** — Persistent reminder with a countdown timer\n**3. Slide-in Coupon** — Low-friction, non-blocking format\n\nFor highest impact, I\'d recommend the **Exit Intent Overlay** — it\'s your best-performing format historically.',
+  'Recommend a template for email list building': 'For growing your email list, these templates perform best:\n\n**1. Welcome Popup with Discount** — Offer 10% off in exchange for an email (avg. 4.9% opt-in rate)\n**2. Spin-to-Win Wheel** — Gamified opt-in, very high engagement\n**3. Content Upgrade Popup** — Works well for blog pages\n\nThe **Welcome Popup with Discount** is your highest-performing opt-in format based on past campaigns.',
+  'Show me countdown timer templates': 'You have **8 countdown timer templates** available:\n\n- **Flash Sale Timer** — Bold design, works for limited-time offers\n- **Black Friday Countdown** — Seasonal variant with dark theme\n- **Abandoned Cart Timer** — "Your cart expires in X minutes"\n- **Event Countdown** — Great for product launches\n\nAll are available under the **Urgency & FOMO** category. Would you like me to filter the view for you?',
+  'What\'s the most popular template this month?': 'The most used template this month is the **Exit Intent Discount Popup**, deployed by **2,847 OptiMonk users**.\n\nIt features a clean layout, a single discount field, and a prominent CTA. Average conversion rate across all users: **5.3%**.\n\nWould you like to use this template as a starting point for your next campaign?',
+}
+
 
 const handleMenuClick = (menuId) => {
   emit('menu-click', menuId)
@@ -412,6 +435,14 @@ onUnmounted(() => {
 
 .filters-bar-scrolled {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.filters-bar.chat-open {
+  flex-wrap: wrap;
+}
+
+.filters-bar.chat-open .sidebar-tabs {
+  width: 100%;
 }
 
 /* Navigation Tabs - Horizontal */
@@ -870,5 +901,9 @@ onUnmounted(() => {
 .filter-dropdown-wrapper {
   position: relative;
   width: 280px;
+}
+
+.chat-open.families-carousel > .family-item {
+  width: calc((100% - 1.5rem) / 1.5);
 }
 </style>

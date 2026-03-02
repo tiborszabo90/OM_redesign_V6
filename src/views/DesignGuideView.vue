@@ -841,19 +841,34 @@
           </div>
         </div>
       </section>
+
+      <!-- Optimization Plan Card Section -->
+      <section class="mb-12">
+        <h2 class="text-xl font-semibold text-om-gray-700 mb-6">Optimization Plan Card</h2>
+        <div class="bg-om-gray-50 rounded-2xl p-5 lg:p-6">
+          <OptimizationPlanCard
+            :use-case="sampleUseCases[0]"
+            :brand-color="sampleBrandColor"
+            :corner-class="sampleCornerClass"
+            :icon-component="sampleIconMap[sampleUseCases[0].icon]"
+            variant="v4"
+          />
+        </div>
+      </section>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { Paperclip, Check, Store, Briefcase, Globe, Archive, Plus, Bot, TrendingUp, Settings, User, Home, X, ShoppingCart, Clock } from 'lucide-vue-next'
+import { Paperclip, Check, Store, Briefcase, Globe, Archive, Plus, Bot, TrendingUp, Settings, User, Home, X, ShoppingCart, Clock, Mail, Star, CircleDot } from 'lucide-vue-next'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import Accordion from '../components/shared/Accordion.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import MultiSelect from '../components/shared/MultiSelect.vue'
 import Button from '../components/shared/Button.vue'
+import OptimizationPlanCard from '../components/onboarding/OptimizationPlanCard.vue'
 
 // Pill dropdown with logo
 const selectedOption = ref('Option 1')
@@ -912,5 +927,36 @@ const cornerOptions = [
   { value: 'large', label: 'Large', iconClass: 'rounded-lg' }
 ]
 const selectedCorner = ref(cornerOptions[0])
+
+// OptimizationPlanCard sample data
+const sampleUseCases = [
+  {
+    id: 'newsletter',
+    title: 'Smart Discount Popup',
+    description: 'The most effective list-building popup formula',
+    subheadline: 'Grow your list with a two-step popup formula with every tweak for max conversions',
+    icon: 'mail',
+    image: '/SmartDiscountPopup.png'
+  },
+  {
+    id: 'cart-abandonment',
+    title: 'Cart Abandonment Stopper',
+    description: 'Offer a discount for cart abandoners',
+    subheadline: 'Decrease cart abandonment rate with a strong discount offer',
+    icon: 'cart',
+    image: '/CartAbandonmentStopper.png'
+  },
+  {
+    id: 'spin-wheel',
+    title: 'Lucky Wheel',
+    description: 'Gamify popups to increase visitor engagement',
+    subheadline: 'Capture new visitor attention and increase conversions with spin-to-win lucky wheels',
+    icon: 'wheel',
+    image: '/LuckyWheel.png'
+  }
+]
+const sampleBrandColor = '#E20074'
+const sampleCornerClass = 'rounded-none'
+const sampleIconMap = { mail: Mail, cart: ShoppingCart, star: Star, wheel: CircleDot }
 
 </script>

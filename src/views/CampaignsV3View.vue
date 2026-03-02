@@ -1,5 +1,5 @@
 <template>
-  <DashboardLayout active-menu-item="campaigns" @logo-click="handleLogoClick" @menu-click="$emit('menu-click', $event)">
+  <DashboardLayout active-menu-item="campaigns" @logo-click="handleLogoClick" @menu-click="$emit('menu-click', $event)" :right-panel-collapsed="!isChatOpen">
     <template #content>
       <div class="w-full max-w-[1400px] mx-auto -mt-3">
         <!-- Header -->
@@ -94,7 +94,7 @@
             <!-- Card with integrated hover zone -->
             <div
               @click="handleCampaignClick"
-              class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pr-6 flex items-center gap-6 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow relative"
+              class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pr-4 flex items-center gap-4 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow relative"
             >
             <!-- Left hover zone overlay -->
             <div
@@ -120,13 +120,13 @@
             </div>
 
             <!-- Campaign Info -->
-            <div class="flex-1 min-w-50">
+            <div class="flex-1 min-w-0">
               <h3 class="text-base font-semibold text-om-gray-700 mb-1">Smart Discount Popup</h3>
               <p class="text-xs text-om-gray-400">domain.com</p>
             </div>
 
             <!-- Metrics -->
-            <div class="flex items-center gap-8">
+            <div class="flex items-center gap-5 shrink-0">
               <div class="w-20">
                 <p class="text-xs text-om-gray-400 mb-1">Impressions</p>
                 <p class="text-base font-semibold text-om-gray-700">1,456</p>
@@ -149,7 +149,7 @@
             </div>
 
             <!-- Toggle and Last Updated -->
-            <div class="flex items-center gap-4 ml-6">
+            <div class="flex items-center gap-4 shrink-0">
               <ToggleSwitch v-model="campaign1Active" @click.stop />
               <p class="text-xs text-om-gray-400 whitespace-nowrap text-right">Last updated<br/>14 days ago</p>
             </div>
@@ -177,7 +177,7 @@
             <!-- Card with integrated hover zone -->
             <div
               @click="handleCampaignClick"
-              class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pr-6 flex items-center gap-6 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow relative"
+              class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pr-4 flex items-center gap-4 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow relative"
             >
             <!-- Left hover zone overlay -->
             <div
@@ -203,13 +203,13 @@
             </div>
 
             <!-- Campaign Info -->
-            <div class="flex-1 min-w-50">
+            <div class="flex-1 min-w-0">
               <h3 class="text-base font-semibold text-om-gray-700 mb-1">Lucky Wheel</h3>
               <p class="text-xs text-om-gray-400">domain.com</p>
             </div>
 
             <!-- Metrics -->
-            <div class="flex items-center gap-8">
+            <div class="flex items-center gap-5 shrink-0">
               <div class="w-20">
                 <p class="text-xs text-om-gray-400 mb-1">Impressions</p>
                 <p class="text-base font-semibold text-om-gray-700">1,456</p>
@@ -226,7 +226,7 @@
             </div>
 
             <!-- Toggle and Last Updated -->
-            <div class="flex items-center gap-4 ml-6">
+            <div class="flex items-center gap-4 shrink-0">
               <ToggleSwitch v-model="campaign2Active" @click.stop />
               <p class="text-xs text-om-gray-400 whitespace-nowrap text-right">Last updated<br/>14 days ago</p>
             </div>
@@ -254,7 +254,7 @@
             <!-- Card with integrated hover zone -->
             <div
               @click="handleCampaignClick"
-              class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pr-6 flex items-center gap-6 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow relative"
+              class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pr-4 flex items-center gap-4 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow relative"
             >
             <!-- Left hover zone overlay -->
             <div
@@ -280,13 +280,13 @@
             </div>
 
             <!-- Campaign Info -->
-            <div class="flex-1 min-w-50">
+            <div class="flex-1 min-w-0">
               <h3 class="text-base font-semibold text-om-gray-700 mb-1">Cart Abandonment Stopper</h3>
               <p class="text-xs text-om-gray-400">domain.com</p>
             </div>
 
             <!-- Metrics -->
-            <div class="flex items-center gap-8">
+            <div class="flex items-center gap-5 shrink-0">
               <div class="w-20">
                 <p class="text-xs text-om-gray-400 mb-1">Visitors</p>
                 <p class="text-base font-semibold text-om-gray-700">1,456</p>
@@ -303,7 +303,7 @@
             </div>
 
             <!-- Toggle and Last Updated -->
-            <div class="flex items-center gap-4 ml-6">
+            <div class="flex items-center gap-4 shrink-0">
               <ToggleSwitch v-model="campaign3Active" @click.stop />
               <p class="text-xs text-om-gray-400 whitespace-nowrap text-right">Last updated<br/>14 days ago</p>
             </div>
@@ -331,7 +331,7 @@
             <!-- Card with integrated hover zone -->
             <div
               @click="handleCampaignClick"
-              class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pr-6 flex items-center gap-6 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow relative"
+              class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pr-4 flex items-center gap-4 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow relative"
             >
             <!-- Left hover zone overlay -->
             <div
@@ -357,13 +357,13 @@
             </div>
 
             <!-- Campaign Info -->
-            <div class="flex-1 min-w-50">
+            <div class="flex-1 min-w-0">
               <h3 class="text-base font-semibold text-om-gray-700 mb-1">Feedback Survey</h3>
               <p class="text-xs text-om-gray-400">domain.com</p>
             </div>
 
             <!-- Metrics -->
-            <div class="flex items-center gap-8">
+            <div class="flex items-center gap-5 shrink-0">
               <div class="w-20">
                 <p class="text-xs text-om-gray-400 mb-1">Visitors</p>
                 <p class="text-base font-semibold text-om-gray-700">1,456</p>
@@ -374,7 +374,7 @@
             </div>
 
             <!-- Toggle and Last Updated -->
-            <div class="flex items-center gap-4 ml-6">
+            <div class="flex items-center gap-4 shrink-0">
               <ToggleSwitch v-model="campaign4Active" @click.stop />
               <p class="text-xs text-om-gray-400 whitespace-nowrap text-right">Last updated<br/>14 days ago</p>
             </div>
@@ -686,6 +686,9 @@
         </div>
       </div>
     </template>
+    <template #right-panel>
+      <ChatPanel v-model="isChatOpen" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
+    </template>
   </DashboardLayout>
 </template>
 
@@ -696,8 +699,27 @@ import { Plus, LayoutGrid, Search, TrendingUp, Check, Calendar, ArrowUpDown } fr
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import Button from '../components/shared/Button.vue'
+import ChatPanel from '../components/shared/ChatPanel.vue'
 
 const emit = defineEmits(['menu-click', 'navigate-to-campaign'])
+
+const isChatOpen = ref(true)
+
+const chatSuggestions = [
+  'Which campaign has the best conversion rate?',
+  'Show me campaigns with low impressions',
+  'How can I improve my popup engagement?',
+  'Which campaigns should I pause?',
+  'How do I reduce cart abandonment?',
+]
+
+const chatAiResponses = {
+  'Which campaign has the best conversion rate?': 'Your **Smart Discount Popup** is leading with an **8.37% submit rate** and **84.23% conversion uplift**. It\'s significantly outperforming your other active campaigns.\n\nWould you like tips on how to replicate this success across your other campaigns?',
+  'Show me campaigns with low impressions': 'Based on your current data, **Feedback Survey** has the lowest impressions with only **1,456 visitors** reached.\n\nThis is likely due to a narrow audience targeting rule. I\'d recommend reviewing the trigger settings and expanding the target URL conditions.',
+  'How can I improve my popup engagement?': 'Here are the top strategies to boost engagement:\n\n**1. Timing** — Show your popup after 30–60 seconds or on exit intent, not immediately on page load.\n\n**2. Personalization** — Target by traffic source, device, or previous behavior.\n\n**3. Copy** — Use a clear value proposition and a single, specific CTA.\n\nWould you like me to audit a specific campaign?',
+  'Which campaigns should I pause?': 'I\'d recommend reviewing **Feedback Survey** and **Welcome Back** — both have high impression counts but below-average conversion rates.\n\n**Feedback Survey** in particular has a **0.8% conversion rate**, well below your account average of **3.2%**. Pausing or reworking it could free up audience exposure for better-performing campaigns.',
+  'How do I reduce cart abandonment?': 'Your **Cart Abandonment Stopper** campaign is already active. To improve it further:\n\n**1. Trigger earlier** — Show at 70% scroll on the cart page, not just on exit.\n**2. Offer a stronger incentive** — Free shipping converts better than % discounts.\n**3. Add urgency** — "Only 3 left in stock" messaging.\n\nWould you like me to suggest a specific template?',
+}
 
 // View mode state
 const viewMode = ref('list') // 'list' or 'grid'

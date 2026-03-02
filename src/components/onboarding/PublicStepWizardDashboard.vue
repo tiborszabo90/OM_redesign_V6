@@ -1850,6 +1850,25 @@ const navigateToPhase = (phase) => {
     showQuicktune.value = true
   } else if (phase === 'wizard-recommendation-v4') {
     showRecommendationV4.value = true
+    setTimeout(() => {
+      if (observer) observer.disconnect()
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const index = useCaseRefs.value.indexOf(entry.target)
+              if (index !== -1) {
+                visibleUseCases.value[index] = true
+              }
+            }
+          })
+        },
+        { threshold: 0.2 }
+      )
+      useCaseRefs.value.forEach((el) => {
+        if (el) observer.observe(el)
+      })
+    }, 100)
   }
 }
 

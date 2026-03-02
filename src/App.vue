@@ -20,11 +20,14 @@ import ImageWithBadgeView from './views/ImageWithBadgeView.vue'
 import ImageWithBadgeV2View from './views/ImageWithBadgeV2View.vue'
 import ImageWithBadgeV3View from './views/ImageWithBadgeV3View.vue'
 import HomeOldView from './views/HomeOldView.vue'
+import PublicWizardView from './views/PublicWizardView.vue'
+import OptimizationOpportunityDetailView from './views/OptimizationOpportunityDetailView.vue'
+import OptimizationOpportunitiesAllView from './views/OptimizationOpportunitiesAllView.vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
 
 // URL slug <-> view name mapping
-const viewToSlug = { 'task-creation': 'home' }
-const slugToView = { 'home': 'task-creation' }
+const viewToSlug = { 'task-creation': 'home', 'campaign-page-v1': 'campaign-detail', 'opportunity-detail': 'opportunity-detail' }
+const slugToView = { 'home': 'task-creation', 'campaign-detail': 'campaign-page-v1', 'opportunity-detail': 'opportunity-detail' }
 
 const getViewFromHash = () => {
   const hash = window.location.hash.replace('#/', '').replace('#', '')
@@ -39,17 +42,19 @@ const registrationData = ref(null)
 const onboardingRef = ref(null)
 const taskCreationRef = ref(null)
 const wizardAnalysisRef = ref(null)
+const publicWizardRef = ref(null)
 const imageWithBadgeRef = ref(null)
 const createdTasks = ref([])
 const flowSelected = ref(false)
 const registrationType = ref('email')
+const selectedOpportunityId = ref(1)
 const sessionKey = ref(0)
 const devNavOpen = ref(true)
 const wizardMessage = ref('')
 const wizardPhase = ref(null) // Tracks internal wizard phase for DevNavBar + URL
 
 // The view name shown in DevNavBar and URL (wizardPhase overrides currentView when set)
-const displayView = computed(() => wizardPhase.value || currentView.value)
+const displayView = computed(() => wizardPhase.value || currentView.value || '')
 
 // Sync URL hash with displayView
 let skipHashChange = false
@@ -98,6 +103,11 @@ const handleDevNavigate = (view) => {
     return
   }
 
+  if (currentView.value === 'public-wizard' && wizardPhases.includes(view) && publicWizardRef.value) {
+    publicWizardRef.value.navigateToPhase(view)
+    return
+  }
+
   // Reset wizard phase when navigating
   wizardPhase.value = null
   // Reset all state when going back to start
@@ -131,6 +141,14 @@ const handleDevNavigate = (view) => {
     currentView.value = null
     setTimeout(() => {
       currentView.value = 'home-old'
+    }, 50)
+  } else if (view === 'public-wizard') {
+    sessionKey.value++
+    flowSelected.value = true
+    wizardMessage.value = ''
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = 'public-wizard'
     }, 50)
   } else if (view === 'design-guide') {
     // Design guide is a standalone view
@@ -234,6 +252,8 @@ const handleDevNavigate = (view) => {
     currentView.value = view
   } else if (view === 'campaign-page-v1') {
     // Campaign Page view
+    currentView.value = view
+  } else if (view === 'opportunity-detail' || view === 'opportunities-all') {
     currentView.value = view
   } else if (view === 'analytics-v1' || view === 'analytics-v2' || view === 'analytics-v3') {
     // Analytics views
@@ -407,6 +427,27 @@ const handleGoImageWithBadge = () => {
   currentView.value = 'image-with-badge'
 }
 
+const handleGoPublicWizard = () => {
+  sessionKey.value++
+  flowSelected.value = true
+  if (!wizardMessage.value) {
+    wizardMessage.value = 'Demo website analysis'
+  }
+  currentView.value = null
+  setTimeout(() => {
+    currentView.value = 'public-wizard'
+  }, 50)
+}
+
+const handleNavigateToOpportunity = (id) => {
+  selectedOpportunityId.value = id
+  handleDevNavigate('opportunity-detail')
+}
+
+const handleNavigateToOpportunities = () => {
+  handleDevNavigate('opportunities-all')
+}
+
 const handleMenuClick = (menuId) => {
   if (menuId === 'campaigns') {
     currentView.value = 'campaigns-v3'
@@ -435,7 +476,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="min-h-screen-safe">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'campaigns', 'campaigns-v3', 'campaign-page-v1', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'templates-v1', 'templates-v2', 'templates-v3'].includes(currentView)"
+      v-if="currentView && !['dev-start', 'design-guide', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'public-wizard', 'campaigns', 'campaigns-v3', 'campaign-page-v1', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all'].includes(currentView)"
       class="pt-8 pl-8"
     >
       <img
@@ -450,6 +491,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         v-if="currentView === 'dev-start'"
         @select="handleDevStartSelect"
         @go-home="handleGoHome"
+        @go-public-wizard="handleGoPublicWizard"
         @go-design-guide="handleGoDesignGuide"
         @go-image-with-badge="handleGoImageWithBadge"
       />
@@ -484,6 +526,15 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         @task-created="handleTaskCreated"
         @menu-click="handleMenuClick"
       />
+      <PublicWizardView
+        v-else-if="currentView === 'public-wizard'"
+        ref="publicWizardRef"
+        :key="'public-wizard-' + sessionKey"
+        :registration-data="registrationData"
+        :initial-message="wizardMessage"
+        @task-created="handleTaskCreated"
+        @navigate-to="(view) => handleDevNavigate(view)"
+      />
       <CampaignsView
         v-else-if="currentView === 'campaigns'"
         @menu-click="handleMenuClick"
@@ -491,7 +542,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       <CampaignsV3View
         v-else-if="currentView === 'campaigns-v3'"
         @menu-click="handleMenuClick"
-        @navigate-to-campaign="currentView = 'campaigns'"
+        @navigate-to-campaign="currentView = 'campaign-page-v1'"
       />
       <CampaignPageV1View
         v-else-if="currentView === 'campaign-page-v1'"
@@ -508,6 +559,20 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       <AnalyticsV3View
         v-else-if="currentView === 'analytics-v3'"
         @menu-click="handleMenuClick"
+        @navigate-to-opportunity="handleNavigateToOpportunity"
+        @navigate-to-opportunities="handleNavigateToOpportunities"
+      />
+      <OptimizationOpportunityDetailView
+        v-else-if="currentView === 'opportunity-detail'"
+        :opportunity-id="selectedOpportunityId"
+        @menu-click="handleMenuClick"
+        @go-back="handleDevNavigate('analytics-v3')"
+      />
+      <OptimizationOpportunitiesAllView
+        v-else-if="currentView === 'opportunities-all'"
+        @menu-click="handleMenuClick"
+        @go-back="handleDevNavigate('analytics-v3')"
+        @navigate-to-opportunity="handleNavigateToOpportunity"
       />
       <TemplatesViewV1
         v-else-if="currentView === 'templates-v1'"

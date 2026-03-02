@@ -44,10 +44,11 @@
     </aside>
 
     <!-- Main Content Area -->
-    <main class="w-full ml-19 overflow-y-auto">
-      <div :class="noContentPadding ? 'w-full' : 'w-full px-12 py-8'">
+    <main class="w-full ml-19 flex overflow-hidden">
+      <div class="flex-1 overflow-y-auto min-w-0 transition-all duration-300" :class="noContentPadding ? '' : ['py-8 pl-12', rightPanelCollapsed ? 'pr-3' : 'pr-12']">
         <slot name="content"></slot>
       </div>
+      <slot name="right-panel"></slot>
     </main>
   </div>
 </template>
@@ -70,6 +71,10 @@ const props = defineProps({
     default: '#F9FAFB'
   },
   noContentPadding: {
+    type: Boolean,
+    default: false
+  },
+  rightPanelCollapsed: {
     type: Boolean,
     default: false
   }

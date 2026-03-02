@@ -2,6 +2,7 @@
   <label :class="['inline-flex items-center gap-2', disabled ? 'cursor-not-allowed' : 'cursor-pointer']">
     <button
       type="button"
+      :disabled="disabled"
       @click="!disabled && $emit('update:modelValue', !modelValue)"
       :class="[
         'rounded flex items-center justify-center transition-all shrink-0',

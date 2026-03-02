@@ -13,8 +13,11 @@
           </div>
 
           <!-- AI messages -->
-          <div v-for="(msg, index) in aiMessages" :key="index" class="flex justify-start">
-            <div class="bg-[#F1F2F4] text-[#23262A] px-4 py-2.5 rounded-2xl rounded-bl-md max-w-[85%] text-sm leading-relaxed" v-html="formatMessage(msg.message)">
+          <div v-for="(msg, index) in aiMessages" :key="index" class="flex" :class="msg.type === 'user' ? 'justify-end' : 'justify-start'">
+            <div v-if="msg.type === 'user'" class="bg-[#FFEFE5] text-[#23262A] px-4 py-2.5 rounded-2xl rounded-br-md max-w-[85%] text-sm">
+              {{ msg.message }}
+            </div>
+            <div v-else class="bg-[#F1F2F4] text-[#23262A] px-4 py-2.5 rounded-2xl rounded-bl-md max-w-[85%] text-sm leading-relaxed" v-html="formatMessage(msg.message)">
             </div>
           </div>
 
@@ -864,17 +867,26 @@ const conversionChatSteps = [
   {
     delay: 2500,
     type: 'text',
-    message: 'I\'ve analyzed your website performance data and your existing campaigns. Here\'s a comprehensive plan to boost your conversion rate:\n\n' +
-      '**New campaign ideas:**\n' +
-      '1. **Exit-Intent Popup** — Your bounce rate is above average. An exit-intent popup with a 10% discount could recover 5-8% of leaving visitors.\n' +
-      '2. **Free Shipping Bar** — Visitors with carts under 15,000 HUF could see a dynamic progress bar motivating them to reach the free shipping threshold. This typically lifts AOV by 12-18%.\n\n' +
-      '**A/B test suggestions for existing campaigns:**\n' +
-      '3. **Smart Discount Popup** — Test a two-step opt-in (email first, then coupon reveal) vs. the current single-step. Two-step flows often increase submit rates by 20-30%.\n' +
-      '4. **Lucky Wheel** — Test reducing the number of wheel segments from 6 to 4 and increasing the perceived win chance. Simpler wheels tend to convert 15% better.\n\n' +
-      '**Personalization opportunities:**\n' +
-      '5. **Cart Abandonment Stopper** — Show different offers based on cart value: free shipping for carts above 10,000 HUF, and a 5% discount for smaller carts.\n' +
-      '6. **Returning visitor targeting** — Visitors who came back within 7 days but haven\'t purchased yet are high-intent. Show them a personalized "Welcome back" popup with their last viewed products.\n\n' +
-      'Would you like me to set up any of these? I can create a ready-to-publish version in minutes.'
+    message: 'I\'ve analyzed your traffic, campaigns, and conversion data. Here are your **top optimization opportunities**, ranked by revenue impact:\n\n' +
+      '1. **"Vásárlói Klub" Conversion Popup** — No campaign converts visitors into club members despite the prominent 7% discount benefit shown on every page. Potential: **+4.6M Ft/month**\n\n' +
+      '2. **Fix the Facebook Traffic Conversion Gap** — Facebook is your #1 traffic source (34,811 visitors/month) but converts at just 0.72%, far below the 2.17% site average. Potential: **+3.7M Ft/month**\n\n' +
+      '3. **Search-to-Purchase Optimization** — Search is your most visited page (81,574 pageviews, 6.94% purchase rate) but 93% of searchers still leave without buying. Potential: **+3.7M Ft/month**\n\n' +
+      '4. **Mobile-First Cart Abandonment Flow** — 61% of cart visitors leave without buying, with no recovery mechanism for mobile users who make up 76% of all traffic. Potential: **+3.0M Ft/month**\n\n' +
+      '5. **Deploy Smart Abandonment Stopper on Mobile** — Your top-performing campaign (7.67% purchase rate) runs on desktop only — 130K mobile visitors are completely untouched. Potential: **+2.5M Ft/month**\n\n' +
+      'Which would you like to tackle first? You can also see all 10 opportunities on the <a href="#/opportunities-all" style="color: #ED5A29; text-decoration: underline; font-weight: 600;">Optimization Opportunities page</a>.'
+  }
+]
+
+// Chat-only conversation steps (for "Run A/B test")
+const abTestChatSteps = [
+  {
+    delay: 2500,
+    type: 'text',
+    message: 'I\'ve reviewed your active campaigns and found **3 high-impact A/B test opportunities** based on your current data:\n\n' +
+      '1. **Smart Discount Popup — CTA Button Copy** — Your best-performing campaign (8.37% submit rate) could go even higher. Test "Get 10% Off" vs "Claim My Discount" vs "Unlock Deal". Potential uplift: **+15–25%**\n\n' +
+      '2. **Cart Abandonment Stopper — Trigger Timing** — Currently triggers on exit intent only. Test triggering at 70% scroll depth on the cart page instead. Potential uplift: **+20–35%**\n\n' +
+      '3. **Facebook Traffic Welcome Experience** — Your Facebook visitors convert at just 0.72% vs the 2.17% site average. Test a personalized welcome popup for Facebook traffic against the default experience. Potential uplift: **+2–3× conversion rate**\n\n' +
+      'Which A/B test would you like to set up? You can also explore all your campaign data on the <a href="#/opportunities-all" style="color: #ED5A29; text-decoration: underline; font-weight: 600;">Optimization Opportunities page</a>.'
   }
 ]
 
@@ -1248,15 +1260,22 @@ const examples = [
   {
     label: 'Run A/B test',
     prompt: 'Help me run an A/B test',
-    iconComponent: FlaskConical
+    iconComponent: FlaskConical,
+    chatOnly: true
   }
 ]
 
 const pendingChatOnly = ref(false)
+const pendingChatSteps = ref(conversionChatSteps)
 
 const selectExample = (example) => {
   localData.message = example.prompt
   pendingChatOnly.value = !!example.chatOnly
+  if (example.prompt === 'Help me run an A/B test') {
+    pendingChatSteps.value = abTestChatSteps
+  } else {
+    pendingChatSteps.value = conversionChatSteps
+  }
   nextTick(() => {
     if (textareaRef.value) {
       textareaRef.value.focus()
@@ -1286,7 +1305,7 @@ const handleSubmit = () => {
         // Start showing chat-only messages
         isDiscovering.value = true
         currentAnalyzingMessage.value = 'Analyzing your data...'
-        startPhase(conversionChatSteps, () => {
+        startPhase(pendingChatSteps.value, () => {
           isDiscovering.value = false
         })
       }, 500)
@@ -1300,11 +1319,26 @@ const handleSubmit = () => {
 
 const handleChatSubmit = () => {
   if (chatMessage.value?.trim()) {
-    // For now, just log the message - can be extended later
-    console.log('Chat message:', chatMessage.value.trim())
+    const text = chatMessage.value.trim()
     chatMessage.value = ''
+
+    // Add user reply to conversation
+    aiMessages.value.push({ type: 'user', message: text })
+    scrollToBottom()
+
+    // If user replied "1" or "2", start the wizard flow
+    if (text === '1' || text === '2') {
+      isDiscovering.value = true
+      currentAnalyzingMessage.value = 'Setting up your campaign...'
+      setTimeout(() => {
+        isDiscovering.value = false
+        emit('navigate-to', 'wizard-analysis', submittedMessage.value)
+      }, 1200)
+    }
   }
 }
+
+const CHAT_STATE_KEY = 'stepDashboard_chatOnlyState'
 
 const resetToInitial = () => {
   submitted.value = false
@@ -1325,7 +1359,18 @@ const resetToInitial = () => {
   currentPhase.value = 'analysis'
   chatOnlyMode.value = false
   pendingChatOnly.value = false
+  sessionStorage.removeItem(CHAT_STATE_KEY)
 }
+
+// Save chat-only state to sessionStorage whenever messages change
+watch(aiMessages, () => {
+  if (chatOnlyMode.value) {
+    sessionStorage.setItem(CHAT_STATE_KEY, JSON.stringify({
+      submittedMessage: submittedMessage.value,
+      aiMessages: aiMessages.value,
+    }))
+  }
+}, { deep: true })
 
 // Start analysis with a pre-filled message (used when coming from wizard)
 const startWithMessage = (message) => {
@@ -1338,6 +1383,22 @@ const startWithMessage = (message) => {
 // Auto-start if initialMessage is provided
 onMounted(() => {
   typeText(placeholderSuggestions[0] + '...')
+
+  // Restore chat-only state if user navigated away and back
+  const saved = sessionStorage.getItem(CHAT_STATE_KEY)
+  if (saved) {
+    try {
+      const state = JSON.parse(saved)
+      submittedMessage.value = state.submittedMessage || ''
+      aiMessages.value = state.aiMessages || []
+      chatOnlyMode.value = true
+      submitted.value = true
+      isDiscovering.value = false
+      return
+    } catch {
+      sessionStorage.removeItem(CHAT_STATE_KEY)
+    }
+  }
 
   // If initial message is provided, start the analysis
   if (props.initialMessage) {

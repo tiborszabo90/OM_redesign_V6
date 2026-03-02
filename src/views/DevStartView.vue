@@ -29,6 +29,14 @@
         <Button
           variant="outline"
           size="lg"
+          @click="$emit('go-public-wizard')"
+        >
+          Public Wizard
+        </Button>
+
+        <Button
+          variant="outline"
+          size="lg"
           @click="$emit('go-home')"
         >
           Home
@@ -57,5 +65,5 @@
 <script setup>
 import Button from '../components/shared/Button.vue'
 
-defineEmits(['select', 'go-home', 'go-design-guide', 'go-image-with-badge'])
+defineEmits(['select', 'go-home', 'go-public-wizard', 'go-design-guide', 'go-image-with-badge'])
 </script>

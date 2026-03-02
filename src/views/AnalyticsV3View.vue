@@ -2,9 +2,10 @@
   <DashboardLayout
     active-menu-item="insights"
     @menu-click="$emit('menu-click', $event)"
+    :right-panel-collapsed="!isChatOpen"
   >
     <template #content>
-      <div class="w-full max-w-[1400px] mx-auto -mt-3">
+      <div class="w-full max-w-[1400px] mx-auto -mt-3" :class="{ 'chat-open': isChatOpen }">
         <!-- Header Section -->
         <div class="flex items-center justify-between mb-5">
           <h1 class="text-2xl font-semibold text-om-gray-700">Analytics</h1>
@@ -93,6 +94,32 @@
               :options="chartOptions"
               :series="chartSeries"
             />
+          </div>
+        </div>
+
+        <!-- Top Optimization Opportunities -->
+        <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] mb-6 pt-5 pb-5">
+          <div class="opportunities-title-row">
+            <h2 class="section-title">Top Optimization Opportunities</h2>
+            <button class="view-all-btn" @click="emit('navigate-to-opportunities')">View all</button>
+          </div>
+          <div class="opportunities-list">
+            <div
+              v-for="opp in optimizationOpportunities"
+              :key="opp.id"
+              class="opportunity-item"
+              @click="emit('navigate-to-opportunity', opp.id)"
+            >
+              <div class="opportunity-info">
+                <div class="opportunity-header">
+                  <div class="opportunity-name">{{ opp.name }}</div>
+                  <div :class="['opportunity-badge', `badge-${opp.level}`]">{{ opp.value }}</div>
+                </div>
+                <div class="opportunity-desc">{{ opp.description }}</div>
+              </div>
+              <ChevronRight :size="16" class="opportunity-chevron" />
+
+            </div>
           </div>
         </div>
 
@@ -781,18 +808,78 @@
         </div>
       </transition>
     </template>
+    <template #right-panel>
+      <ChatPanel v-model="isChatOpen" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
+    </template>
   </DashboardLayout>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
-import { ExternalLink, ChevronDown, Monitor, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X } from 'lucide-vue-next'
+import { ExternalLink, ChevronDown, ChevronRight, Monitor, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import VueApexCharts from 'vue3-apexcharts'
+import ChatPanel from '../components/shared/ChatPanel.vue'
 
-const emit = defineEmits(['menu-click'])
+const emit = defineEmits(['menu-click', 'navigate-to-opportunity', 'navigate-to-opportunities'])
+
+const isChatOpen = ref(true)
+
+const chatSuggestions = [
+  'What drove the conversion rate change this week?',
+  'Which page has the highest drop-off rate?',
+  'How can I improve my supported revenue?',
+  'What are my top performing campaigns?',
+  'Show me trends for the last 30 days',
+]
+
+const chatAiResponses = {
+  'What drove the conversion rate change this week?': 'Your conversion rate increased by **+0.12%** this week, driven mainly by two factors:\n\n**1. Smart Discount Popup** — updated CTA copy boosted its submit rate from 7.1% to 8.4%\n\n**2. Mobile traffic share** — down 8% this week, which raises the overall rate since desktop converts significantly better.\n\nWould you like a breakdown by device or campaign?',
+  'Which page has the highest drop-off rate?': 'Based on your visited pages data, **/checkout** has the highest drop-off rate at **78%** — meaning only 22% of visitors who land there complete a purchase.\n\nThe second highest is **/cart** at **64%**. I\'d recommend deploying a cart abandonment popup on both pages to recover some of these visitors.',
+  'How can I improve my supported revenue?': 'Your current supported revenue is **8,494,963 HUF**, up 15.8% month-over-month. To accelerate growth:\n\n**1. Upsell campaigns** — Add a post-purchase upsell popup to your thank-you page.\n**2. Expand to email captures** — Visitors who opt in convert at 3× the rate of anonymous traffic.\n**3. Increase campaign frequency** — Your current campaigns reach only 34% of your visitors.',
+  'What are my top performing campaigns?': 'Your top 3 campaigns by conversion rate this period:\n\n**1. Smart Discount Popup** — 8.37% conversion rate, +84% uplift\n**2. Black Friday 2025** — 5.2% conversion rate, +56% uplift\n**3. Exit Intent Offer** — 4.8% conversion rate, +41% uplift\n\nAll three are active and performing above your account average of 3.2%.',
+  'Show me trends for the last 30 days': 'Over the last 30 days:\n\n- **Impressions:** +12% (↑ trending)\n- **Conversion rate:** +0.57% (↑ trending)\n- **Conversions:** +18% (↑ trending)\n- **Supported revenue:** +15.8% (↑ trending)\n\nAll key metrics are trending positively. The biggest growth driver is your Black Friday campaign which launched 2 weeks ago.',
+}
+
+const optimizationOpportunities = ref([
+  {
+    id: 1,
+    name: 'Deploy Smart Abandonment Stopper on Mobile',
+    description: 'Top-performing campaign (7.67% purchase rate) runs on desktop only — 130K mobile visitors are completely untouched.',
+    value: '+2.5M Ft/month',
+    level: 'high',
+  },
+  {
+    id: 2,
+    name: 'Fix the Facebook Traffic Conversion Gap',
+    description: 'Facebook is the #1 traffic source (34,811 visitors) but converts at just 0.72%, far below the 2.17% site average.',
+    value: '+3.7M Ft/month',
+    level: 'high',
+  },
+  {
+    id: 3,
+    name: 'Scale the Winning Email Subscription Variant',
+    description: 'A/B test winner outperforms loser by 70.7% — yet the losing variant still receives 50% of traffic.',
+    value: '+945K Ft/month',
+    level: 'medium',
+  },
+  {
+    id: 4,
+    name: 'Replace Zero-Converting Dynamic Content Campaign',
+    description: '57K visitors, 261K impressions, zero purchases — the most-shown campaign generates no measurable value.',
+    value: '+2.3M Ft/month',
+    level: 'high',
+  },
+  {
+    id: 5,
+    name: 'Build a Mobile-First Cart Abandonment Flow',
+    description: '61% of cart visitors leave without buying, with no recovery mechanism for mobile users (76% of all traffic).',
+    value: '+3.0M Ft/month',
+    level: 'high',
+  }
+])
 
 const activeTab = ref('conversion-rate')
 
@@ -1096,7 +1183,7 @@ const trendTabs = ref([
   { id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true },
   { id: 'unique-visitors', title: 'Unique Visitors', value: '168.2K', change: '+6.7%', isPositive: true },
   { id: 'supported-orders', title: 'Supported Orders', value: '286', change: '-4.2%', isPositive: false },
-  { id: 'supported-revenue', title: 'Supported Revenue', value: 'HUF 8,494,963', change: '+15.8%', isPositive: true }
+  { id: 'supported-revenue', title: 'Supported Rev. (HUF)', value: '8,494,963', change: '+15.8%', isPositive: true }
 ])
 
 const expandedCampaigns = ref(new Set())
@@ -1735,6 +1822,35 @@ const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
   margin-left: auto;
 }
 
+.filters-section > .relative {
+  width: 240px;
+}
+
+.filters-right > .relative {
+  width: 210px;
+}
+
+@media (max-width: 1439px) {
+  .chat-open .filters-section {
+    justify-content: flex-start;
+  }
+
+  .chat-open .filters-section > .relative {
+    flex: 1;
+    width: auto;
+  }
+
+  .chat-open .filters-right {
+    flex: 3;
+    margin-left: 0;
+  }
+
+  .chat-open .filters-right > .relative {
+    flex: 1;
+    width: auto;
+  }
+}
+
 /* Trend Chart Tabs */
 .trend-chart-tabs {
   display: flex;
@@ -1761,7 +1877,7 @@ const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
 }
 
 .trend-chart-tab-title {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: rgb(80, 87, 99);
   opacity: 0.8;
   margin-bottom: 0.625rem;
@@ -1775,13 +1891,13 @@ const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
 }
 
 .trend-chart-value {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 500;
   color: rgb(80, 87, 99);
 }
 
 .trend-chart-change {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 400;
   display: flex;
   align-items: center;
@@ -2447,5 +2563,126 @@ const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
   color: rgb(35, 38, 42);
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.chat-open .campaign-list-column {
+  flex: 0 0 320px;
+}
+
+.chat-open .campaign-list-header {
+  flex: 0 0 320px;
+}
+
+/* Optimization Opportunities */
+.opportunities-list {
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px;
+}
+
+.opportunity-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 13px 12px;
+  gap: 16px;
+  background: white;
+  position: relative;
+  transition: background 0.15s;
+}
+
+.opportunity-item + .opportunity-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12px;
+  right: 12px;
+  height: 1px;
+  background: #F1F2F4;
+}
+
+.opportunity-item:hover {
+  background: #F1F2F4;
+  border-radius: 8px;
+}
+
+.opportunity-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.opportunity-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.opportunity-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #23262A;
+}
+
+.opportunity-desc {
+  font-size: 0.8125rem;
+  color: #6B7280;
+  line-height: 1.4;
+}
+
+.opportunity-badge {
+  font-size: 0.75rem;
+  font-weight: 400;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-high {
+  background: #FFF0EB;
+  color: #C94B14;
+}
+
+.badge-medium {
+  background: #FFF8E6;
+  color: #9A6400;
+}
+
+.opportunity-chevron {
+  color: #D1D5DB;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.opportunity-item:hover .opportunity-chevron {
+  color: #9CA3AF;
+}
+
+.opportunities-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 20px;
+}
+
+.view-all-btn {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #6B7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.view-all-btn:hover {
+  color: #23262A;
+  background: #F1F2F4;
 }
 </style>
