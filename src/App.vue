@@ -23,6 +23,7 @@ import HomeOldView from './views/HomeOldView.vue'
 import PublicWizardView from './views/PublicWizardView.vue'
 import OptimizationOpportunityDetailView from './views/OptimizationOpportunityDetailView.vue'
 import OptimizationOpportunitiesAllView from './views/OptimizationOpportunitiesAllView.vue'
+import SettingsView from './views/SettingsView.vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
 
 // URL slug <-> view name mapping
@@ -169,6 +170,8 @@ const handleDevNavigate = (view) => {
   } else if (view === 'design-guide') {
     // Design guide is a standalone view
     currentView.value = 'design-guide'
+  } else if (view === 'settings') {
+    currentView.value = 'settings'
   } else if (view === 'image-with-badge') {
     // Image with badge flow
     flowSelected.value = true
@@ -494,7 +497,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="min-h-screen-safe">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'public-wizard', 'campaigns', 'campaigns-v3', 'campaign-page-v1', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all'].includes(currentView)"
+      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'public-wizard', 'campaigns', 'campaigns-v3', 'campaign-page-v1', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all'].includes(currentView)"
       class="pt-8 pl-8"
     >
       <img
@@ -684,6 +687,10 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       />
       <DesignGuideView
         v-else-if="currentView === 'design-guide'"
+      />
+      <SettingsView
+        v-else-if="currentView === 'settings'"
+        @menu-click="handleMenuClick"
       />
       <ImageWithBadgeView
         v-else-if="currentView === 'image-with-badge'"
