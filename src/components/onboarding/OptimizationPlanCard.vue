@@ -7,10 +7,10 @@
         <div :class="['rounded-lg flex items-center justify-center', iconWrapperClass]">
           <component :is="iconComponent" :size="14" class="text-om-gray-500" />
         </div>
-        <span class="text-xs min-[1200px]:text-sm font-medium text-om-gray-500 uppercase">{{ useCase.title }}</span>
+        <span class="text-xs @[1000px]:text-sm font-medium text-om-gray-500 uppercase">{{ useCase.title }}</span>
       </div>
-      <h3 class="text-xl min-[1200px]:text-2xl font-semibold text-om-gray-700 mb-3">{{ useCase.description }}</h3>
-      <p class="text-sm min-[1200px]:text-base text-om-gray-500 mb-4">{{ useCase.subheadline }}</p>
+      <h3 class="text-xl @[1000px]:text-2xl font-semibold text-om-gray-700 mb-3">{{ useCase.description }}</h3>
+      <p class="text-sm @[1000px]:text-base text-om-gray-500 mb-4">{{ useCase.subheadline }}</p>
       <button class="px-5 py-2.5 text-base font-medium text-white bg-om-orange-500 rounded-lg hover:bg-om-orange-400 transition-colors w-fit flex items-center gap-2">
         <span>Show more</span>
         <ChevronRight :size="20" />
@@ -20,8 +20,8 @@
     <!-- Previews container -->
     <div class="flex gap-3 shrink-0 items-center">
       <!-- Desktop Preview -->
-      <div class="bg-white border border-om-gray-200 rounded-lg h-40 min-[1200px]:h-64 2xl:h-72 3xl:h-80 aspect-video overflow-hidden relative">
-        <div class="absolute top-0 left-0 w-[682px] h-[384px] origin-top-left scale-[0.42] min-[1200px]:scale-[0.67] 2xl:scale-[0.75] 3xl:scale-[0.83]">
+      <div class="bg-white border border-om-gray-200 rounded-lg h-48 @[1000px]:h-72 @[1200px]:h-80 @[1400px]:h-96 aspect-video overflow-hidden relative">
+        <div class="absolute top-0 left-0 w-[682px] h-[384px] origin-top-left scale-[0.50] @[1000px]:scale-[0.75] @[1200px]:scale-[0.83] @[1400px]:scale-[1.00]">
           <!-- Newsletter desktop -->
           <template v-if="useCase.id === 'newsletter'">
             <div class="flex w-full h-full">
@@ -105,8 +105,8 @@
       </div>
 
       <!-- Mobile Preview -->
-      <div class="bg-white border border-om-gray-200 rounded-lg h-56 min-[1200px]:h-80 2xl:h-96 3xl:h-112 aspect-9/19 overflow-hidden relative">
-        <div class="absolute top-0 left-0 w-[182px] h-[384px] origin-top-left scale-[0.58] min-[1200px]:scale-[0.84] 2xl:scale-[1.00] 3xl:scale-[1.17]">
+      <div class="bg-white border border-om-gray-200 rounded-lg h-72 @[1000px]:h-96 @[1200px]:h-112 @[1400px]:h-128 aspect-9/19 overflow-hidden relative">
+        <div class="absolute top-0 left-0 w-[182px] h-[384px] origin-top-left scale-[0.75] @[1000px]:scale-[1.00] @[1200px]:scale-[1.17] @[1400px]:scale-[1.33]">
           <!-- Newsletter mobile -->
           <template v-if="useCase.id === 'newsletter'">
             <div class="flex flex-col w-full h-full">

@@ -47,6 +47,7 @@ const imageWithBadgeRef = ref(null)
 const createdTasks = ref([])
 const flowSelected = ref(false)
 const registrationType = ref('email')
+const publicWizardStep = ref('url')
 const selectedOpportunityId = ref(1)
 const sessionKey = ref(0)
 const devNavOpen = ref(true)
@@ -103,8 +104,21 @@ const handleDevNavigate = (view) => {
     return
   }
 
+  if (view === 'public-wizard-url') {
+    publicWizardStep.value = 'url'
+    publicWizardRef.value?.navigateToStep('url')
+    return
+  }
+
+  if (view === 'public-wizard-chat') {
+    publicWizardStep.value = 'chat'
+    publicWizardRef.value?.navigateToStep('chat')
+    return
+  }
+
   if (currentView.value === 'public-wizard' && wizardPhases.includes(view) && publicWizardRef.value) {
     publicWizardRef.value.navigateToPhase(view)
+    publicWizardStep.value = view
     return
   }
 
@@ -145,6 +159,8 @@ const handleDevNavigate = (view) => {
   } else if (view === 'public-wizard') {
     sessionKey.value++
     flowSelected.value = true
+    registrationType.value = 'public-wizard'
+    publicWizardStep.value = 'url'
     wizardMessage.value = ''
     currentView.value = null
     setTimeout(() => {
@@ -430,6 +446,8 @@ const handleGoImageWithBadge = () => {
 const handleGoPublicWizard = () => {
   sessionKey.value++
   flowSelected.value = true
+  registrationType.value = 'public-wizard'
+  publicWizardStep.value = 'url'
   if (!wizardMessage.value) {
     wizardMessage.value = 'Demo website analysis'
   }
@@ -699,6 +717,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
     :current-task-phase="taskCreationRef?.stepDashboardRef?.currentPhase || 'analysis'"
     :flow-selected="flowSelected"
     :registration-type="registrationType"
+    :public-wizard-step="publicWizardStep"
     @navigate="handleDevNavigate"
     @go-to-step="handleDevGoToStep"
     @go-to-image-step="handleImageWithBadgeGoToStep"

@@ -180,6 +180,83 @@
           <span class="text-[#505763] mx-1">|</span>
         </template>
 
+        <!-- Public Wizard flow -->
+        <template v-else-if="registrationType === 'public-wizard'">
+          <button
+            @click="$emit('navigate', 'public-wizard-url')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              publicWizardStep === 'url'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            URL Input
+          </button>
+
+          <button
+            @click="$emit('navigate', 'public-wizard-chat')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              publicWizardStep === 'chat'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Goal Input
+          </button>
+
+          <button
+            @click="$emit('navigate', 'wizard-analysis')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              publicWizardStep === 'wizard-analysis'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Analysis
+          </button>
+
+          <button
+            @click="$emit('navigate', 'wizard-style')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              publicWizardStep === 'wizard-style'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Style
+          </button>
+
+          <button
+            @click="$emit('navigate', 'wizard-quicktune')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              publicWizardStep === 'wizard-quicktune'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Quicktune
+          </button>
+
+          <button
+            @click="$emit('navigate', 'wizard-recommendation-v4')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              publicWizardStep === 'wizard-recommendation-v4'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Recommendation
+          </button>
+
+          <span class="text-[#505763] mx-1">|</span>
+        </template>
+
         <!-- Image with Badge flow -->
         <template v-else-if="registrationType === 'image-with-badge'">
           <!-- Image with Badge Dropdown -->
@@ -296,7 +373,7 @@
           <span class="text-[#505763] mx-1">|</span>
         </template>
 
-        <template v-if="registrationType !== 'image-with-badge'">
+        <template v-if="registrationType !== 'image-with-badge' && registrationType !== 'public-wizard'">
           <!-- Home Dropdown -->
           <div class="relative">
             <button
@@ -474,6 +551,10 @@ const props = defineProps({
   registrationType: {
     type: String,
     default: 'email'
+  },
+  publicWizardStep: {
+    type: String,
+    default: 'url'
   }
 })
 

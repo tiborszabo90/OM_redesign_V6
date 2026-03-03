@@ -85,7 +85,7 @@
       </div>
 
       <!-- Chips -->
-      <div class="mt-3 flex flex-wrap items-center gap-2">
+      <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
         <button
           v-for="chip in chips"
           :key="chip"
@@ -201,10 +201,14 @@ const handleChatSubmit = () => {
 
 defineExpose({
   stepWizardDashboardRef,
+  navigateToStep: (s) => { step.value = s },
   navigateToPhase: (phase) => {
-    if (stepWizardDashboardRef.value && stepWizardDashboardRef.value.navigateToPhase) {
-      stepWizardDashboardRef.value.navigateToPhase(phase)
-    }
+    step.value = 'wizard'
+    nextTick(() => {
+      if (stepWizardDashboardRef.value && stepWizardDashboardRef.value.navigateToPhase) {
+        stepWizardDashboardRef.value.navigateToPhase(phase)
+      }
+    })
   }
 })
 </script>

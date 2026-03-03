@@ -235,7 +235,7 @@
               v-for="(useCase, index) in useCases"
               :key="useCase.id"
               :ref="el => { if (el) useCaseRefs[index] = el }"
-              class="bg-om-gray-50 rounded-2xl p-5 lg:p-6 use-case-item"
+              class="bg-om-gray-50 rounded-2xl p-5 lg:p-6 use-case-item @container"
               :class="{ 'animate-fade-in-up-visible': visibleUseCases[index] }"
             >
               <OptimizationPlanCard
@@ -381,7 +381,7 @@
             <div
               v-for="useCase in useCases"
               :key="useCase.id"
-              class="bg-white rounded-2xl p-5 lg:p-6 shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)]"
+              class="bg-white rounded-2xl p-5 lg:p-6 shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] @container"
             >
               <OptimizationPlanCard
                 :use-case="useCase"

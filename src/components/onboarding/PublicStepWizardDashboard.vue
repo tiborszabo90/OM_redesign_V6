@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full relative">
     <!-- Logo at top left corner - only in no-chat version (chat version has sidebar with logo) -->
-    <div v-if="!props.showChat && !showRecommendation && !showRecommendationV2 && !showRecommendationV4 && !showRecommendationV5" class="pt-8 pl-8 pb-3">
+    <div v-if="!props.showChat && !showRecommendation && !showRecommendationV2 && !showRecommendationV4 && !showRecommendationV5" class="pt-8 pl-8 pb-3" :class="{ 'bg-om-gray-50': showStyleSelection }">
       <img
         src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
         alt="OptiMonk"
@@ -235,7 +235,7 @@
               v-for="(useCase, index) in useCases"
               :key="useCase.id"
               :ref="el => { if (el) useCaseRefs[index] = el }"
-              class="bg-om-gray-50 rounded-2xl p-5 lg:p-6 use-case-item"
+              class="bg-om-gray-50 rounded-2xl p-5 lg:p-6 use-case-item @container"
               :class="{ 'animate-fade-in-up-visible': visibleUseCases[index] }"
             >
               <OptimizationPlanCard
@@ -292,6 +292,7 @@
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </transition>
@@ -381,7 +382,7 @@
             <div
               v-for="useCase in useCases"
               :key="useCase.id"
-              class="bg-white rounded-2xl p-5 lg:p-6 shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)]"
+              class="bg-white rounded-2xl p-5 lg:p-6 shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] @container"
             >
               <OptimizationPlanCard
                 :use-case="useCase"
@@ -1013,7 +1014,7 @@
           <!-- Popup grid - 2 columns -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <button
-              v-for="(style, index) in popupStyles"
+              v-for="style in popupStyles"
               :key="style.id"
               @click="selectStyleAndContinue(style.id)"
               class="style-card relative rounded-lg overflow-hidden border-2 border-om-gray-200 transition-transform duration-300 cursor-pointer hover:scale-105 focus:outline-none focus:ring-0"
@@ -1135,6 +1136,222 @@
       </div>
     </div>
 
+    <!-- Registration Modal (shown after scrolling through the Optimization Plan) -->
+    <transition name="modal-fade">
+      <div v-if="showRegistrationModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl overflow-hidden max-w-4xl w-full flex shadow-2xl h-[620px]">
+          <!-- Left: Form content -->
+          <div class="w-1/2 py-8 pl-8 lg:py-10 lg:pl-10 pr-8 lg:pr-10 flex flex-col justify-center relative">
+
+            <transition name="modal-step-fade" mode="out-in">
+            <div :key="modalStep" class="flex flex-col justify-center">
+
+            <!-- Social login buttons view -->
+            <template v-if="modalStep === 'buttons'">
+              <h2 class="text-2xl font-bold text-om-gray-700 mb-1">Create your free account</h2>
+              <p class="text-om-gray-500 mb-8">and unlock your full optimization plan</p>
+
+              <div class="flex flex-col gap-3">
+                <!-- Email -->
+                <Button variant="outline" size="lg" class="w-full" @click="modalStep = 'email-form'">
+                  <template #icon><Mail :size="18" /></template>
+                  Continue with Email
+                </Button>
+
+                <!-- Google -->
+                <Button variant="outline" size="lg" class="w-full">
+                  <template #icon>
+                    <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+                      <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+                      <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+                      <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+                    </svg>
+                  </template>
+                  Continue with Google
+                </Button>
+
+                <!-- Shopify -->
+                <Button variant="outline" size="lg" class="w-full">
+                  <template #icon>
+                    <img src="/shopify-logo-svg-vector.svg" alt="Shopify" class="w-4.5 h-4.5 object-contain" />
+                  </template>
+                  Continue with Shopify
+                </Button>
+              </div>
+
+              <p class="text-xs text-om-gray-400 text-center mt-6">
+                By submitting this form, you agree to the
+                <a href="#" class="text-om-orange-500 hover:underline">Terms of Service</a>
+                and
+                <a href="#" class="text-om-orange-500 hover:underline">Privacy Policy</a>.
+              </p>
+
+              <button
+                @click="showRegistrationModal = false; emit('navigate-to', 'public-wizard-url')"
+                class="mt-4 text-xs text-om-gray-400 hover:text-om-gray-600 underline cursor-pointer text-center w-full transition-colors"
+              >
+                I don't want to register
+              </button>
+            </template>
+
+            <!-- Email registration form view -->
+            <template v-else-if="modalStep === 'email-form'">
+              <button @click="modalStep = 'buttons'" class="absolute top-8 lg:top-10 flex items-center gap-1.5 text-sm text-om-gray-500 hover:text-om-gray-700 cursor-pointer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Back
+              </button>
+
+              <h2 class="text-2xl font-bold text-om-gray-700 mb-1">Create your free account</h2>
+              <p class="text-om-gray-500 mb-6">and unlock your full optimization plan</p>
+
+              <form @submit.prevent="handleEmailRegSubmit" class="space-y-3">
+                <!-- Name Row -->
+                <div class="flex gap-3">
+                  <div class="flex-1">
+                    <label class="block text-sm font-medium text-om-gray-700 mb-1.5">First name</label>
+                    <input
+                      v-model="emailFormData.firstName"
+                      type="text"
+                      placeholder="John"
+                      required
+                      class="w-full px-3 py-2.5 border border-om-gray-200 rounded-xl focus:ring-2 focus:ring-om-orange-400 focus:border-transparent transition-colors text-om-gray-700 text-sm"
+                    />
+                  </div>
+                  <div class="flex-1">
+                    <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Last name</label>
+                    <input
+                      v-model="emailFormData.lastName"
+                      type="text"
+                      placeholder="Doe"
+                      required
+                      class="w-full px-3 py-2.5 border border-om-gray-200 rounded-xl focus:ring-2 focus:ring-om-orange-400 focus:border-transparent transition-colors text-om-gray-700 text-sm"
+                    />
+                  </div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                  <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Business email</label>
+                  <input
+                    v-model="emailFormData.email"
+                    type="email"
+                    placeholder="john@company.com"
+                    required
+                    class="w-full px-3 py-2.5 border border-om-gray-200 rounded-xl focus:ring-2 focus:ring-om-orange-400 focus:border-transparent transition-colors text-om-gray-700 text-sm"
+                  />
+                  <p class="text-xs text-om-gray-400 mt-1.5">You'll receive important alerts and notifications about your account.</p>
+                </div>
+
+                <!-- Password -->
+                <div>
+                  <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Password (8+ characters)</label>
+                  <input
+                    v-model="emailFormData.password"
+                    type="password"
+                    placeholder="Enter your password"
+                    minlength="8"
+                    required
+                    class="w-full px-3 py-2.5 border border-om-gray-200 rounded-xl focus:ring-2 focus:ring-om-orange-400 focus:border-transparent transition-colors text-om-gray-700 text-sm"
+                  />
+                  <div class="mt-2">
+                    <div class="flex gap-1.5">
+                      <div
+                        v-for="i in 4"
+                        :key="i"
+                        class="h-1 flex-1 rounded-full transition-colors"
+                        :class="i <= emailPasswordStrength ? strengthColors[emailPasswordStrength] : 'bg-om-gray-200'"
+                      ></div>
+                    </div>
+                    <p v-if="emailFormData.password" class="text-xs mt-1.5" :class="strengthTextColors[emailPasswordStrength]">
+                      {{ strengthLabels[emailPasswordStrength] }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Submit -->
+                <button
+                  type="submit"
+                  class="w-full py-3 bg-om-orange-500 text-white font-medium rounded-xl hover:bg-om-orange-600 transition-colors cursor-pointer text-sm"
+                >
+                  Get Started
+                </button>
+
+                <p class="text-xs text-om-gray-400 text-center">
+                  By submitting this form, you agree to the
+                  <a href="#" class="text-om-orange-500 hover:underline">Terms of Service</a>
+                  and
+                  <a href="#" class="text-om-orange-500 hover:underline">Privacy Policy</a>.
+                </p>
+              </form>
+            </template>
+
+            <!-- How did you hear about us? -->
+            <template v-else-if="modalStep === 'referral'">
+              <button @click="modalStep = 'email-form'" class="absolute top-8 lg:top-10 flex items-center gap-1.5 text-sm text-om-gray-500 hover:text-om-gray-700 cursor-pointer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Back
+              </button>
+              <div class="[&>div]:pr-0!">
+                <StepReferralSource
+                  v-model="referralData"
+                  @auto-next="handleReferralNext"
+                />
+              </div>
+            </template>
+
+            <!-- Who are you optimizing this website for? -->
+            <template v-else-if="modalStep === 'relationship'">
+              <button @click="modalStep = 'referral'" class="absolute top-8 lg:top-10 flex items-center gap-1.5 text-sm text-om-gray-500 hover:text-om-gray-700 cursor-pointer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Back
+              </button>
+              <div class="[&>div]:pr-0!">
+                <StepRelationship
+                  v-model="relationshipData"
+                  @auto-next="handleRelationshipNext"
+                />
+              </div>
+            </template>
+
+            <!-- Who does this account belong to? -->
+            <template v-else-if="modalStep === 'contact-type'">
+              <button @click="modalStep = 'relationship'" class="absolute top-8 lg:top-10 flex items-center gap-1.5 text-sm text-om-gray-500 hover:text-om-gray-700 cursor-pointer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Back
+              </button>
+              <StepContactType
+                v-model="contactTypeData"
+                :registration-data="emailFormData"
+                @auto-next="handleContactTypeNext"
+              />
+            </template>
+
+            <!-- Agency details -->
+            <template v-else-if="modalStep === 'agency-details'">
+              <button @click="modalStep = 'contact-type'" class="absolute top-8 lg:top-10 flex items-center gap-1.5 text-sm text-om-gray-500 hover:text-om-gray-700 cursor-pointer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Back
+              </button>
+              <StepAgencyDetails
+                v-model="agencyDetailsData"
+                @auto-next="handleAgencyDetailsNext"
+              />
+            </template>
+
+            </div>
+            </transition>
+
+          </div>
+
+          <!-- Right: Monk illustration -->
+          <div class="w-1/2 bg-[#FFEFE5] flex items-center justify-center overflow-hidden">
+            <img src="/monk1.png" alt="OptiMonk Mascot" class="w-full object-contain" />
+          </div>
+        </div>
+      </div>
+    </transition>
+
     <!-- Chat panel - right side, visible during wizard phases (not recommendations) -->
     <transition name="fade">
       <div
@@ -1236,7 +1453,12 @@ import { reactive, ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { ChevronRight, Truck, Check, Target, Lightbulb, Mouse, Mail, ShoppingCart, Gift, Star, CircleDot, Compass, Sparkles, ArrowUp } from 'lucide-vue-next'
 import WebsiteScanAnimation from '../illustrations/WebsiteScanAnimation.vue'
 import Dropdown from '../shared/Dropdown.vue'
+import Button from '../shared/Button.vue'
 import OptimizationPlanCard from './OptimizationPlanCard.vue'
+import StepReferralSource from './StepReferralSource.vue'
+import StepRelationship from './StepRelationship.vue'
+import StepContactType from './StepContactType.vue'
+import StepAgencyDetails from './StepAgencyDetails.vue'
 
 const props = defineProps({
   modelValue: {
@@ -1301,6 +1523,84 @@ const showRecommendationV5 = ref(false)
 const useCaseRefs = ref([])
 const visibleUseCases = ref({})
 let observer = null
+
+// Registration modal
+const showRegistrationModal = ref(false)
+// modalStep: 'buttons' | 'email-form' | 'referral' | 'relationship' | 'contact-type' | 'agency-details'
+const modalStep = ref('buttons')
+const emailFormData = ref({ firstName: '', lastName: '', email: '', password: '' })
+const referralData = ref({})
+const relationshipData = ref({})
+const contactTypeData = ref({})
+const agencyDetailsData = ref({})
+
+const emailPasswordStrength = computed(() => {
+  const pw = emailFormData.value.password
+  if (!pw) return 0
+  let s = 0
+  if (pw.length >= 8) s++
+  if (pw.length >= 12) s++
+  if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) s++
+  if (/\d/.test(pw)) s++
+  if (/[^a-zA-Z0-9]/.test(pw)) s++
+  return Math.min(4, s)
+})
+const strengthColors = { 0: 'bg-om-gray-200', 1: 'bg-red-400', 2: 'bg-orange-400', 3: 'bg-yellow-400', 4: 'bg-green-500' }
+const strengthTextColors = { 0: 'text-om-gray-400', 1: 'text-red-500', 2: 'text-orange-500', 3: 'text-yellow-600', 4: 'text-green-600' }
+const strengthLabels = { 0: '', 1: 'Weak', 2: 'Fair', 3: 'Good', 4: 'Strong' }
+
+const handleEmailRegSubmit = () => {
+  modalStep.value = 'referral'
+}
+
+const handleReferralNext = () => {
+  modalStep.value = 'relationship'
+}
+
+const handleRelationshipNext = () => {
+  const rel = relationshipData.value?.relationship
+  if (rel === 'client') {
+    modalStep.value = 'contact-type'
+  } else {
+    showRegistrationModal.value = false
+    modalStep.value = 'buttons'
+  }
+}
+
+const handleContactTypeNext = () => {
+  if (relationshipData.value?.relationship === 'client' && contactTypeData.value?.contactType === 'client-contact') {
+    modalStep.value = 'agency-details'
+  } else {
+    showRegistrationModal.value = false
+    modalStep.value = 'buttons'
+  }
+}
+
+const handleAgencyDetailsNext = () => {
+  showRegistrationModal.value = false
+  modalStep.value = 'buttons'
+}
+
+const setupV4Observer = () => {
+  setTimeout(() => {
+    if (observer) observer.disconnect()
+    observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = useCaseRefs.value.indexOf(entry.target)
+            if (index !== -1) {
+              visibleUseCases.value[index] = true
+              if (index === 0) showRegistrationModal.value = true
+            }
+          }
+        })
+      },
+      { threshold: 0.2 }
+    )
+    useCaseRefs.value.forEach((el) => { if (el) observer.observe(el) })
+  }, 100)
+}
 
 // V3 deck card navigation
 const currentDeckCard = ref(0)
@@ -1528,7 +1828,6 @@ const analyzingMessages = {
 const chatMessage = ref('')
 const wizardChatMessages = ref([])
 const chatMessagesContainer = ref(null)
-const chatTextareaRef = ref(null)
 
 // Format message text (convert **bold** to <strong>, \n to <br>)
 const formatChatMessage = (text) => {
@@ -1644,22 +1943,13 @@ const runAnalysis = () => {
       }, 500)
     }, 12000)
   } else {
-    // Without chat: show success message screen first
+    // Without chat: skip success screen, go directly to style selection
     setTimeout(() => {
       showAnalysisContent.value = false
-      showSuccessMessage.value = true
-    }, 12000)
-
-    setTimeout(() => {
-      showSuccessMessage.value = false
       showStyleSelection.value = true
       emit('phase-changed', 'wizard-style')
-    }, 14000)
+    }, 12000)
   }
-}
-
-const selectStyle = (styleId) => {
-  selectedStyle.value = styleId
 }
 
 const selectStyleAndContinue = (styleId) => {
@@ -1674,11 +1964,6 @@ const selectStyleAndContinue = (styleId) => {
   scrollChatToBottom()
 }
 
-const confirmStyleSelection = () => {
-  showStyleSelection.value = false
-  showQuicktune.value = true
-  emit('phase-changed', 'wizard-quicktune')
-}
 
 const confirmQuicktune = () => {
   if (props.showChat) {
@@ -1692,25 +1977,7 @@ const confirmQuicktune = () => {
       message: 'Here\'s your personalized optimization plan! 🚀\nPick the campaigns you\'d like to launch, or go with all of them for maximum impact.'
     })
     scrollChatToBottom()
-    // Set up Intersection Observer for use cases
-    setTimeout(() => {
-      observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const index = useCaseRefs.value.indexOf(entry.target)
-              if (index !== -1) {
-                visibleUseCases.value[index] = true
-              }
-            }
-          })
-        },
-        { threshold: 0.2 }
-      )
-      useCaseRefs.value.forEach((el) => {
-        if (el) observer.observe(el)
-      })
-    }, 100)
+    setupV4Observer()
   } else {
     emit('navigate-to', 'wizard-recommendation-v4')
   }
@@ -1776,27 +2043,7 @@ onMounted(() => {
     submitted.value = true
     showAnalysisContent.value = false
     showRecommendationV4.value = true
-
-    // Set up Intersection Observer for use cases
-    setTimeout(() => {
-      observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const index = useCaseRefs.value.indexOf(entry.target)
-              if (index !== -1) {
-                visibleUseCases.value[index] = true
-              }
-            }
-          })
-        },
-        { threshold: 0.2 }
-      )
-
-      useCaseRefs.value.forEach((el) => {
-        if (el) observer.observe(el)
-      })
-    }, 100)
+    setupV4Observer()
   } else if (props.startAtRecommendationV5) {
     // Start directly at recommendation v5
     submitted.value = true
@@ -1825,9 +2072,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  if (observer) {
-    observer.disconnect()
-  }
+  if (observer) observer.disconnect()
 })
 
 const navigateToPhase = (phase) => {
@@ -1850,25 +2095,7 @@ const navigateToPhase = (phase) => {
     showQuicktune.value = true
   } else if (phase === 'wizard-recommendation-v4') {
     showRecommendationV4.value = true
-    setTimeout(() => {
-      if (observer) observer.disconnect()
-      observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const index = useCaseRefs.value.indexOf(entry.target)
-              if (index !== -1) {
-                visibleUseCases.value[index] = true
-              }
-            }
-          })
-        },
-        { threshold: 0.2 }
-      )
-      useCaseRefs.value.forEach((el) => {
-        if (el) observer.observe(el)
-      })
-    }, 100)
+    setupV4Observer()
   }
 }
 
@@ -1937,6 +2164,32 @@ defineExpose({
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.modal-fade-enter-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+.modal-step-fade-enter-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-step-fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.modal-step-fade-enter-from,
+.modal-step-fade-leave-to {
+  opacity: 0;
 }
 
 .use-case-item {
