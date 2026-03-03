@@ -1,46 +1,52 @@
 <template>
-  <DashboardLayout @logo-click="handleLogoClick" @menu-click="$emit('menu-click', $event)">
+  <DashboardLayout @logo-click="handleLogoClick" @menu-click="$emit('menu-click', $event)" :right-panel-collapsed="!isChatOpen">
     <template #content>
       <div class="w-full max-w-[1400px] mx-auto -mt-3">
         <!-- Header -->
         <h1 class="text-2xl font-semibold text-om-gray-700 mb-5">Hi Csaba</h1>
 
         <!-- Filters Section -->
-        <div class="filters-section">
+        <div class="flex items-center justify-between mb-5 gap-4">
           <!-- Domain Selector -->
-          <Dropdown
-            v-model="selectedDomain"
-            :options="domains"
-            placeholder="Select domain"
-          >
-            <template #icon>
-              <img src="/telekom.png" alt="Domain" class="w-5 h-5 rounded-full object-cover" />
-            </template>
-          </Dropdown>
+          <div class="w-56">
+            <Dropdown
+              v-model="selectedDomain"
+              :options="domains"
+              placeholder="Select domain"
+            >
+              <template #icon>
+                <img src="/telekom.png" alt="Domain" class="w-5 h-5 rounded-full object-cover" />
+              </template>
+            </Dropdown>
+          </div>
 
           <!-- Right-aligned filters -->
-          <div class="filters-right">
+          <div class="flex items-center gap-3">
             <!-- Goal Dropdown -->
-            <Dropdown
-              v-model="selectedGoal"
-              :options="goals"
-              placeholder="Select goal"
-            >
-              <template #icon>
-                <Target :size="20" class="text-om-gray-400" />
-              </template>
-            </Dropdown>
+            <div class="w-56">
+              <Dropdown
+                v-model="selectedGoal"
+                :options="goals"
+                placeholder="Select goal"
+              >
+                <template #icon>
+                  <Target :size="20" class="text-om-gray-400" />
+                </template>
+              </Dropdown>
+            </div>
 
             <!-- Period Dropdown -->
-            <Dropdown
-              v-model="selectedPeriod"
-              :options="periods"
-              placeholder="Select period"
-            >
-              <template #icon>
-                <Calendar :size="20" class="text-om-gray-400" />
-              </template>
-            </Dropdown>
+            <div class="w-56">
+              <Dropdown
+                v-model="selectedPeriod"
+                :options="periods"
+                placeholder="Select period"
+              >
+                <template #icon>
+                  <Calendar :size="20" class="text-om-gray-400" />
+                </template>
+              </Dropdown>
+            </div>
           </div>
         </div>
 
@@ -75,172 +81,85 @@
           </div>
         </div>
 
+        <!-- Promo Blocks -->
+        <div v-if="showInviteBlock || showConsultBlock" class="flex gap-4 mb-8">
+          <!-- Invite block -->
+          <div v-if="showInviteBlock" class="flex-1 bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-4 flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-om-orange-100 flex items-center justify-center shrink-0">
+              <UserPlus :size="20" class="text-om-orange-500" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-om-gray-700">Invite your teammates</p>
+              <p class="text-xs text-om-gray-400 mt-0.5">Get more out of OptiMonk by inviting your team for free</p>
+            </div>
+            <Button variant="outline" size="sm">Invite your team</Button>
+            <button @click="showInviteBlock = false" class="text-om-gray-400 hover:text-om-gray-600 transition-colors cursor-pointer shrink-0">
+              <X :size="16" />
+            </button>
+          </div>
+
+          <!-- Consultation block -->
+          <div v-if="showConsultBlock" class="flex-1 bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-4 flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-om-orange-100 flex items-center justify-center shrink-0">
+              <Signpost :size="20" class="text-om-orange-500" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-om-gray-700">Free consultation / demo</p>
+              <p class="text-xs text-om-gray-400 mt-0.5">Discover OptiMonk with expert guidance</p>
+            </div>
+            <Button variant="outline" size="sm">Book now</Button>
+            <button @click="showConsultBlock = false" class="text-om-gray-400 hover:text-om-gray-600 transition-colors cursor-pointer shrink-0">
+              <X :size="16" />
+            </button>
+          </div>
+        </div>
+
         <!-- Top Campaigns Section -->
         <div class="mt-8">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold text-om-gray-700">Top campaigns</h2>
-            <Button variant="ghost" size="sm">All campaigns</Button>
+            <div class="flex items-center gap-2">
+              <Button variant="ghost" size="md">All campaigns</Button>
+              <Button variant="primary" size="md">New campaign</Button>
+            </div>
           </div>
 
           <div class="space-y-4">
-            <!-- Campaign Card 1 -->
-            <div
-              class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pr-6 flex items-center gap-6 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow"
-            >
-              <!-- Thumbnail -->
-              <div class="w-36 h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
-                <img src="/SmartDiscountPopup.png" alt="Campaign preview" class="w-full h-full object-cover" />
-              </div>
-              <!-- Campaign Info -->
-              <div class="flex-1 min-w-50">
-                <h3 class="text-base font-semibold text-om-gray-700 mb-1">Smart Discount Popup</h3>
-                <p class="text-xs text-om-gray-400">domain.com</p>
-              </div>
-              <!-- Metrics -->
-              <div class="flex items-center gap-8">
-                <div class="w-20">
-                  <p class="text-xs text-om-gray-400 mb-1">Impressions</p>
-                  <p class="text-base font-semibold text-om-gray-700">1,456</p>
-                </div>
-                <div class="w-16">
-                  <p class="text-xs text-om-gray-400 mb-1">Submits</p>
-                  <p class="text-base font-semibold text-om-gray-700">125</p>
-                </div>
-                <div class="w-20">
-                  <p class="text-xs text-om-gray-400 mb-1">Submit rate</p>
-                  <p class="text-base font-semibold text-om-gray-700">8.37%</p>
-                </div>
-                <div class="w-28">
-                  <p class="text-xs text-om-gray-400 mb-1">Conversion uplift</p>
-                  <p class="text-base font-semibold text-om-gray-700 flex items-center gap-1">
-                    84.23%
-                    <TrendingUp :size="16" class="text-[#2CC896]" />
-                  </p>
-                </div>
-              </div>
-              <!-- Toggle and Last Updated -->
-              <div class="flex items-center gap-4 ml-6">
-                <ToggleSwitch v-model="campaign1Active" @click.stop />
-                <p class="text-xs text-om-gray-400 whitespace-nowrap text-right">Last updated<br/>14 days ago</p>
-              </div>
-            </div>
-
-            <!-- Campaign Card 2 -->
-            <div
-              class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pr-6 flex items-center gap-6 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow"
-            >
-              <!-- Thumbnail -->
-              <div class="w-36 h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
-                <img src="/LuckyWheel.png" alt="Campaign preview" class="w-full h-full object-cover" />
-              </div>
-              <!-- Campaign Info -->
-              <div class="flex-1 min-w-50">
-                <h3 class="text-base font-semibold text-om-gray-700 mb-1">Lucky Wheel</h3>
-                <p class="text-xs text-om-gray-400">domain.com</p>
-              </div>
-              <!-- Metrics -->
-              <div class="flex items-center gap-8">
-                <div class="w-20">
-                  <p class="text-xs text-om-gray-400 mb-1">Impressions</p>
-                  <p class="text-base font-semibold text-om-gray-700">1,456</p>
-                </div>
-                <div class="w-16">
-                  <p class="text-xs text-om-gray-400 mb-1">Submits</p>
-                  <p class="text-base font-semibold text-om-gray-700">125</p>
-                </div>
-                <div class="w-20">
-                  <p class="text-xs text-om-gray-400 mb-1">Submit rate</p>
-                  <p class="text-base font-semibold text-om-gray-700">8.37%</p>
-                </div>
-                <div class="w-28"></div>
-              </div>
-              <!-- Toggle and Last Updated -->
-              <div class="flex items-center gap-4 ml-6">
-                <ToggleSwitch v-model="campaign2Active" @click.stop />
-                <p class="text-xs text-om-gray-400 whitespace-nowrap text-right">Last updated<br/>14 days ago</p>
-              </div>
-            </div>
-
-            <!-- Campaign Card 3 -->
-            <div
-              class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pr-6 flex items-center gap-6 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow"
-            >
-              <!-- Thumbnail -->
-              <div class="w-36 h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
-                <img src="/CartAbandonmentStopper.png" alt="Campaign preview" class="w-full h-full object-cover" />
-              </div>
-              <!-- Campaign Info -->
-              <div class="flex-1 min-w-50">
-                <h3 class="text-base font-semibold text-om-gray-700 mb-1">Cart Abandonment Stopper</h3>
-                <p class="text-xs text-om-gray-400">domain.com</p>
-              </div>
-              <!-- Metrics -->
-              <div class="flex items-center gap-8">
-                <div class="w-20">
-                  <p class="text-xs text-om-gray-400 mb-1">Visitors</p>
-                  <p class="text-base font-semibold text-om-gray-700">1,456</p>
-                </div>
-                <div class="w-16">
-                  <p class="text-xs text-om-gray-400 mb-1">Submits</p>
-                  <p class="text-base font-semibold text-om-gray-700">125</p>
-                </div>
-                <div class="w-20">
-                  <p class="text-xs text-om-gray-400 mb-1">Submit rate</p>
-                  <p class="text-base font-semibold text-om-gray-700">8.37%</p>
-                </div>
-                <div class="w-28"></div>
-              </div>
-              <!-- Toggle and Last Updated -->
-              <div class="flex items-center gap-4 ml-6">
-                <ToggleSwitch v-model="campaign3Active" @click.stop />
-                <p class="text-xs text-om-gray-400 whitespace-nowrap text-right">Last updated<br/>14 days ago</p>
-              </div>
-            </div>
-
-            <!-- Campaign Card 4 -->
-            <div
-              class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pr-6 flex items-center gap-6 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow"
-            >
-              <!-- Thumbnail -->
-              <div class="w-36 h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
-                <img src="/FeedbackSurvey.png" alt="Campaign preview" class="w-full h-full object-cover" />
-              </div>
-              <!-- Campaign Info -->
-              <div class="flex-1 min-w-50">
-                <h3 class="text-base font-semibold text-om-gray-700 mb-1">Feedback Survey</h3>
-                <p class="text-xs text-om-gray-400">domain.com</p>
-              </div>
-              <!-- Metrics -->
-              <div class="flex items-center gap-8">
-                <div class="w-20">
-                  <p class="text-xs text-om-gray-400 mb-1">Visitors</p>
-                  <p class="text-base font-semibold text-om-gray-700">1,456</p>
-                </div>
-                <div class="w-16"></div>
-                <div class="w-20"></div>
-                <div class="w-28"></div>
-              </div>
-              <!-- Toggle and Last Updated -->
-              <div class="flex items-center gap-4 ml-6">
-                <ToggleSwitch v-model="campaign4Active" @click.stop />
-                <p class="text-xs text-om-gray-400 whitespace-nowrap text-right">Last updated<br/>14 days ago</p>
-              </div>
-            </div>
+            <CampaignCard
+              v-for="campaign in homeCampaigns"
+              :key="campaign.id"
+              :name="campaign.name"
+              :domain="campaign.domain"
+              :image="campaign.image"
+              :active="campaign.active"
+              @update:active="campaign.active = $event"
+              :selected="campaign.selected"
+              @update:selected="campaign.selected = $event"
+              :metrics="campaign.metrics"
+              :last-updated="campaign.lastUpdated"
+              variant="list"
+              @click="$emit('menu-click', 'campaigns')"
+            />
           </div>
         </div>
       </div>
+    </template>
+    <template #right-panel>
+      <ChatPanel v-model="isChatOpen" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
     </template>
   </DashboardLayout>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { TrendingUp, TrendingDown, Target, Calendar } from 'lucide-vue-next'
+import { ref, computed, reactive } from 'vue'
+import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X } from 'lucide-vue-next'
 import VueApexCharts from 'vue3-apexcharts'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
+import ChatPanel from '../components/shared/ChatPanel.vue'
+import CampaignCard from '../components/shared/CampaignCard.vue'
 
 defineProps({
   registrationData: {
@@ -254,6 +173,25 @@ defineEmits(['task-created', 'menu-click'])
 const handleLogoClick = () => {
   // No-op for now
 }
+
+const isChatOpen = ref(true)
+
+const chatSuggestions = [
+  'How is my account performing?',
+  'Which campaigns need attention?',
+  'How can I improve my conversion rate?',
+  'Show me my top performing campaigns',
+]
+
+const chatAiResponses = {
+  'How is my account performing?': 'Your account is performing well overall. Conversion rate is at **5.2%**, which is above your **3.2% average**. Impressions are up **12%** compared to last month.',
+  'Which campaigns need attention?': 'Based on recent data, **2 campaigns** have below-average conversion rates and may benefit from optimization:\n\n- **Summer Sale 2025** — 1.8% CVR (avg: 3.2%)\n- **Exit Intent Popup** — 2.1% CVR\n\nWould you like suggestions for improving these?',
+  'How can I improve my conversion rate?': 'Here are the top opportunities based on your current data:\n\n1. **A/B test your headlines** — campaigns with personalized headlines convert 2–3x better\n2. **Add exit intent triggers** to recover abandoning visitors\n3. **Optimize for mobile** — your mobile CVR is 40% lower than desktop',
+  'Show me my top performing campaigns': 'Your top 3 campaigns this month:\n\n1. **Smart Discount** — 8.37% CVR\n2. **Black Friday 2025** — 5.2% CVR\n3. **Welcome Popup** — 4.1% CVR\n\nSmart Discount is significantly outperforming. Consider applying similar targeting to other campaigns.',
+}
+
+const showInviteBlock = ref(true)
+const showConsultBlock = ref(true)
 
 // Domain selector
 const selectedDomain = ref('reflexshop.hu')
@@ -285,11 +223,63 @@ const periods = ref([
   'Custom period'
 ])
 
-// Campaign toggle states
-const campaign1Active = ref(true)
-const campaign2Active = ref(true)
-const campaign3Active = ref(true)
-const campaign4Active = ref(true)
+const homeCampaigns = reactive([
+  {
+    id: 'campaign1',
+    name: 'Smart Discount Popup',
+    domain: 'domain.com',
+    image: '/SmartDiscountPopup.png',
+    active: true,
+    selected: false,
+    lastUpdated: '14 days ago',
+    metrics: [
+      { label: 'Impressions', value: '1,456' },
+      { label: 'Submits', value: '125' },
+      { label: 'Submit rate', value: '8.37%' },
+      { label: 'Conversion uplift', value: '84.23%', trend: true },
+    ],
+  },
+  {
+    id: 'campaign2',
+    name: 'Lucky Wheel',
+    domain: 'domain.com',
+    image: '/LuckyWheel.png',
+    active: true,
+    selected: false,
+    lastUpdated: '14 days ago',
+    metrics: [
+      { label: 'Impressions', value: '1,456' },
+      { label: 'Submits', value: '125' },
+      { label: 'Submit rate', value: '8.37%' },
+    ],
+  },
+  {
+    id: 'campaign3',
+    name: 'Cart Abandonment Stopper',
+    domain: 'domain.com',
+    image: '/CartAbandonmentStopper.png',
+    active: true,
+    selected: false,
+    lastUpdated: '14 days ago',
+    metrics: [
+      { label: 'Visitors', value: '1,456' },
+      { label: 'Submits', value: '125' },
+      { label: 'Submit rate', value: '8.37%' },
+    ],
+  },
+  {
+    id: 'campaign4',
+    name: 'Feedback Survey',
+    domain: 'domain.com',
+    image: '/FeedbackSurvey.png',
+    active: true,
+    selected: false,
+    lastUpdated: '14 days ago',
+    metrics: [
+      { label: 'Visitors', value: '1,456' },
+    ],
+  },
+])
 
 const activeTab = ref('conversion-rate')
 
@@ -299,7 +289,7 @@ const trendTabs = ref([
   { id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true },
   { id: 'unique-visitors', title: 'Unique Visitors', value: '168.2K', change: '+6.7%', isPositive: true },
   { id: 'supported-orders', title: 'Supported Orders', value: '286', change: '-4.2%', isPositive: false },
-  { id: 'supported-revenue', title: 'Supported Revenue', value: 'HUF 8,494,963', change: '+15.8%', isPositive: true }
+  { id: 'supported-revenue', title: 'Supported Rev. (HUF)', value: '8,494,963', change: '+15.8%', isPositive: true }
 ])
 
 // Chart data
@@ -506,6 +496,15 @@ const chartOptions = computed(() => {
 </script>
 
 <style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
 /* Filters Section */
 .filters-section {
   display: flex;
@@ -547,7 +546,7 @@ const chartOptions = computed(() => {
 }
 
 .trend-chart-tab-title {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: rgb(80, 87, 99);
   opacity: 0.8;
   margin-bottom: 0.625rem;
@@ -561,13 +560,13 @@ const chartOptions = computed(() => {
 }
 
 .trend-chart-value {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 500;
   color: rgb(80, 87, 99);
 }
 
 .trend-chart-change {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 400;
   display: flex;
   align-items: center;

@@ -378,6 +378,25 @@
             </div>
           </div>
 
+          <!-- Radio Button -->
+          <div>
+            <h3 class="text-base font-medium text-om-gray-600 mb-4">Radio Button</h3>
+            <div class="flex flex-col gap-3">
+              <div class="flex gap-6">
+                <RadioButton v-model="radioLanguage" value="EN" label="EN" />
+                <RadioButton v-model="radioLanguage" value="HU" label="HU" />
+              </div>
+              <div class="flex gap-6">
+                <RadioButton v-model="radioFreq" value="unlimited" label="Unlimited Times" />
+                <RadioButton v-model="radioFreq" value="maximum" label="Maximum" />
+              </div>
+              <div class="flex gap-6">
+                <RadioButton :model-value="'yes'" value="yes" label="Checked (disabled)" disabled />
+                <RadioButton :model-value="'yes'" value="no" label="Unchecked (disabled)" disabled />
+              </div>
+            </div>
+          </div>
+
           <!-- Chip Buttons -->
           <div>
             <h3 class="text-base font-medium text-om-gray-600 mb-4">Chips / Tags</h3>
@@ -855,20 +874,65 @@
           />
         </div>
       </section>
+
+      <!-- Campaign Card Section -->
+      <section class="mb-12">
+        <h2 class="text-xl font-semibold text-om-gray-700 mb-6">Campaign Card</h2>
+
+        <!-- List variant -->
+        <h3 class="text-base font-medium text-om-gray-600 mb-4">List variant</h3>
+        <div class="space-y-4 pl-8 mb-8">
+          <CampaignCard
+            v-for="campaign in dgCampaigns"
+            :key="campaign.id"
+            :name="campaign.name"
+            :domain="campaign.domain"
+            :image="campaign.image"
+            :active="campaign.active"
+            @update:active="campaign.active = $event"
+            :selected="campaign.selected"
+            @update:selected="campaign.selected = $event"
+            :metrics="campaign.metrics"
+            last-updated="14 days ago"
+            variant="list"
+          />
+        </div>
+
+        <!-- Grid variant -->
+        <h3 class="text-base font-medium text-om-gray-600 mb-4">Grid variant</h3>
+        <div class="grid grid-cols-3 gap-4 pl-8">
+          <CampaignCard
+            v-for="campaign in dgCampaigns"
+            :key="campaign.id + '-grid'"
+            :name="campaign.name"
+            :domain="campaign.domain"
+            :image="campaign.image"
+            :active="campaign.active"
+            @update:active="campaign.active = $event"
+            :selected="campaign.selected"
+            @update:selected="campaign.selected = $event"
+            :metrics="campaign.metrics"
+            last-updated="14 days ago"
+            variant="grid"
+          />
+        </div>
+      </section>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import { Paperclip, Check, Store, Briefcase, Globe, Archive, Plus, Bot, TrendingUp, Settings, User, Home, X, ShoppingCart, Clock, Mail, Star, CircleDot } from 'lucide-vue-next'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import Accordion from '../components/shared/Accordion.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
+import RadioButton from '../components/shared/RadioButton.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import MultiSelect from '../components/shared/MultiSelect.vue'
 import Button from '../components/shared/Button.vue'
 import OptimizationPlanCard from '../components/onboarding/OptimizationPlanCard.vue'
+import CampaignCard from '../components/shared/CampaignCard.vue'
 
 // Pill dropdown with logo
 const selectedOption = ref('Option 1')
@@ -903,6 +967,8 @@ const switchStandaloneInactive = ref(false)
 // Checkbox states
 const checkbox1 = ref(true)
 const checkbox2 = ref(false)
+const radioLanguage = ref('EN')
+const radioFreq = ref('unlimited')
 
 // Single select dropdown small
 const smallDropdownOptions = [
@@ -927,6 +993,48 @@ const cornerOptions = [
   { value: 'large', label: 'Large', iconClass: 'rounded-lg' }
 ]
 const selectedCorner = ref(cornerOptions[0])
+
+// CampaignCard sample data
+const dgCampaigns = reactive([
+  {
+    id: 'dg-campaign1',
+    name: 'Smart Discount Popup',
+    domain: 'domain.com',
+    image: '/SmartDiscountPopup.png',
+    active: true,
+    selected: false,
+    metrics: [
+      { label: 'Impressions', value: '1,456' },
+      { label: 'Submits', value: '125' },
+      { label: 'Submit rate', value: '8.37%' },
+      { label: 'Conversion uplift', value: '84.23%', trend: true },
+    ],
+  },
+  {
+    id: 'dg-campaign2',
+    name: 'Lucky Wheel',
+    domain: 'domain.com',
+    image: '/LuckyWheel.png',
+    active: true,
+    selected: false,
+    metrics: [
+      { label: 'Impressions', value: '2,341' },
+      { label: 'Submits', value: '187' },
+      { label: 'Submit rate', value: '7.99%' },
+    ],
+  },
+  {
+    id: 'dg-campaign3',
+    name: 'Feedback Survey',
+    domain: 'domain.com',
+    image: '/FeedbackSurvey.png',
+    active: false,
+    selected: false,
+    metrics: [
+      { label: 'Visitors', value: '987' },
+    ],
+  },
+])
 
 // OptimizationPlanCard sample data
 const sampleUseCases = [

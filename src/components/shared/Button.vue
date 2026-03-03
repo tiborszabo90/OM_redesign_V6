@@ -8,7 +8,7 @@
     <span v-if="iconOnly" class="flex items-center justify-center">
       <slot name="icon"></slot>
     </span>
-    <span v-else class="flex items-center justify-center gap-2">
+    <span v-else :class="['flex items-center justify-center', size === 'lg' ? 'gap-2' : 'gap-1.5']">
       <slot name="icon"></slot>
       <slot></slot>
     </span>
@@ -57,7 +57,7 @@ const buttonClasses = computed(() => {
     const activeGhost = 'bg-[#FEEFEA] text-[#ED5A29] focus:ring-[#ED5A29]'
     const sizes = props.iconOnly
       ? { sm: 'w-8 h-8 text-sm', md: 'w-10 h-10', lg: 'w-12 h-12 text-lg' }
-      : { sm: 'px-4 py-1.5 text-sm', md: 'px-6 py-2', lg: 'px-8 py-3 text-lg' }
+      : { sm: 'px-3 py-1.5 text-sm', md: 'px-4 py-2', lg: 'px-6 py-3 text-lg' }
     return `${base} ${activeGhost} ${sizes[props.size]}`
   }
 
@@ -82,9 +82,9 @@ const buttonClasses = computed(() => {
         lg: 'w-12 h-12 text-lg'
       }
     : {
-        sm: 'px-4 py-1.5 text-sm',
-        md: 'px-6 py-2',
-        lg: 'px-8 py-3 text-lg'
+        sm: 'px-3 py-1.5 text-sm',
+        md: 'px-4 py-2',
+        lg: 'px-6 py-3 text-lg'
       }
 
   if (props.disabled) {

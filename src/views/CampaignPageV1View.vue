@@ -522,25 +522,9 @@
                   How many times <span class="font-normal text-om-gray-500">can this campaign appear to a visitor?</span>
                 </h4>
                 <div class="space-y-2.5">
-                  <div class="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      id="unlimited"
-                      value="unlimited"
-                      v-model="frequencyType"
-                      class="custom-radio cursor-pointer"
-                    />
-                    <label for="unlimited" class="text-sm text-om-gray-700 cursor-pointer">Unlimited Times</label>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      id="maximum"
-                      value="maximum"
-                      v-model="frequencyType"
-                      class="custom-radio cursor-pointer"
-                    />
-                    <label for="maximum" class="text-sm text-om-gray-700 cursor-pointer">Maximum</label>
+                  <RadioButton v-model="frequencyType" value="unlimited" label="Unlimited Times" />
+                  <RadioButton v-model="frequencyType" value="maximum">
+                    Maximum
                     <input
                       type="number"
                       v-model="maxTimes"
@@ -548,7 +532,7 @@
                       class="w-16 px-2 py-1 border border-om-gray-200 rounded text-sm text-om-gray-700 focus:outline-none focus:border-om-gray-300 disabled:bg-om-gray-50 disabled:text-om-gray-400"
                     />
                     <span class="text-sm text-om-gray-700">times</span>
-                  </div>
+                  </RadioButton>
                 </div>
               </div>
 
@@ -558,25 +542,9 @@
                   How frequently <span class="font-normal text-om-gray-500">can this campaign appear again after a visitor has closed it?</span>
                 </h4>
                 <div class="space-y-2.5">
-                  <div class="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      id="asap"
-                      value="asap"
-                      v-model="frequencyMode"
-                      class="custom-radio cursor-pointer"
-                    />
-                    <label for="asap" class="text-sm text-om-gray-700 cursor-pointer">As soon as possible</label>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      id="min"
-                      value="min"
-                      v-model="frequencyMode"
-                      class="custom-radio cursor-pointer"
-                    />
-                    <label for="min" class="text-sm text-om-gray-700 cursor-pointer">Min.</label>
+                  <RadioButton v-model="frequencyMode" value="asap" label="As soon as possible" />
+                  <RadioButton v-model="frequencyMode" value="min">
+                    Min.
                     <input
                       type="number"
                       v-model="minValue"
@@ -596,7 +564,7 @@
                       <ChevronDown :size="16" class="absolute right-1.5 top-1/2 -translate-y-1/2 text-om-gray-600 pointer-events-none" />
                     </div>
                     <span class="text-sm text-om-gray-700">between two impressions</span>
-                  </div>
+                  </RadioButton>
                 </div>
               </div>
 
@@ -712,26 +680,8 @@
             <label class="text-sm font-medium text-om-gray-700 w-32 shrink-0">End date</label>
             <div class="space-y-3 flex-1">
               <div class="grid grid-cols-[110px_1fr] gap-2">
-                <div class="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    id="never"
-                    value="never"
-                    v-model="endDateType"
-                    class="custom-radio cursor-pointer"
-                  />
-                  <label for="never" class="text-sm text-om-gray-700 cursor-pointer">Never</label>
-                </div>
-                <div class="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    id="on"
-                    value="on"
-                    v-model="endDateType"
-                    class="custom-radio cursor-pointer"
-                  />
-                  <label for="on" class="text-sm text-om-gray-700 cursor-pointer">Set end date</label>
-                </div>
+                <RadioButton v-model="endDateType" value="never" label="Never" />
+                <RadioButton v-model="endDateType" value="on" label="Set end date" />
               </div>
               <div v-if="endDateType === 'on'" class="flex gap-3">
                 <div class="flex-1 om-datepicker">
@@ -762,26 +712,8 @@
             <div class="flex items-center gap-4">
               <label class="text-sm font-medium text-om-gray-700 w-32 shrink-0">Daily schedule</label>
               <div class="grid grid-cols-[110px_1fr] gap-2 flex-1">
-                <div class="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    id="everyday"
-                    value="everyday"
-                    v-model="scheduleType"
-                    class="custom-radio cursor-pointer"
-                  />
-                  <label for="everyday" class="text-sm text-om-gray-700 cursor-pointer">Every day</label>
-                </div>
-                <div class="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    id="specific"
-                    value="specific"
-                    v-model="scheduleType"
-                    class="custom-radio cursor-pointer"
-                  />
-                  <label for="specific" class="text-sm text-om-gray-700 cursor-pointer">Specific</label>
-                </div>
+                <RadioButton v-model="scheduleType" value="everyday" label="Every day" />
+                <RadioButton v-model="scheduleType" value="specific" label="Specific" />
               </div>
             </div>
 
@@ -862,6 +794,7 @@ import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import Accordion from '../components/shared/Accordion.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
+import RadioButton from '../components/shared/RadioButton.vue'
 import { VueDatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import ScrollTimePicker from '../components/shared/ScrollTimePicker.vue'
@@ -1090,48 +1023,6 @@ const handleDelete = () => {
 .modal-enter-from > div,
 .modal-leave-to > div {
   transform: scale(0.95);
-}
-
-/* Custom Radio Button */
-.custom-radio {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #D5D8DD;
-  border-radius: 50%;
-  outline: none;
-  cursor: pointer;
-  position: relative;
-  background-color: white;
-  transition: all 0.2s ease;
-}
-
-.custom-radio:checked {
-  border-color: #ED5A29;
-  background-color: white;
-}
-
-.custom-radio:checked::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: #ED5A29;
-}
-
-.custom-radio:hover {
-  border-color: #C44D24;
-}
-
-.custom-radio:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(237, 90, 41, 0.1);
 }
 
 /* Hide default date and time picker icons */

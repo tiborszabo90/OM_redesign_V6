@@ -1,12 +1,12 @@
 <template>
   <div class="h-screen-safe flex overflow-hidden relative" :style="{ backgroundColor: backgroundColor }">
     <!-- Left Sidebar - Always visible -->
-    <aside :class="[
+    <aside v-show="!hideSidebar" :class="[
       'fixed left-0 top-0 h-screen-safe w-19 bg-white flex flex-col items-center pt-6 pb-4 z-30',
       { 'border-r border-[#E5E7EB]': !hideSidebarBorder }
     ]">
       <!-- Logo -->
-      <button @click="$emit('logo-click')" class="w-7 h-7 mb-5 flex items-center justify-center">
+      <button @click="$emit('logo-click'); navigateTo('home')" class="w-7 h-7 mb-5 flex items-center justify-center">
         <img src="/optimonk_logo.svg" alt="OptiMonk" class="w-full h-full" />
       </button>
 
@@ -157,7 +157,7 @@
     </Teleport>
 
     <!-- Main Content Area -->
-    <main class="w-full ml-19 flex overflow-hidden">
+    <main class="w-full flex overflow-hidden" :class="{ 'ml-19': !hideSidebar }">
       <div ref="contentDivRef" class="flex-1 overflow-y-auto min-w-0 transition-all duration-300" :class="noContentPadding ? '' : ['py-8 pl-12', rightPanelCollapsed ? 'pr-10' : 'pr-12']">
         <slot name="content"></slot>
       </div>
@@ -167,15 +167,12 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted, nextTick, provide } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { Home, LayoutGrid, Users, TrendingUp, BookOpen, GitBranch, Bell, LayoutTemplate, MoreHorizontal } from 'lucide-vue-next'
 
 const showProfilePopover = ref(false)
 
-// Content div scrollbar tracking (provided to ChatPanel via inject)
 const contentDivRef = ref(null)
-const contentScrollbarWidth = ref(0)
-provide('contentScrollbarWidth', contentScrollbarWidth)
 
 // Nav overflow refs
 const navRef = ref(null)
@@ -203,6 +200,10 @@ const props = defineProps({
     default: false
   },
   rightPanelCollapsed: {
+    type: Boolean,
+    default: false
+  },
+  hideSidebar: {
     type: Boolean,
     default: false
   }
@@ -283,8 +284,6 @@ const toggleMorePopover = () => {
 }
 
 let resizeObserver = null
-let contentResizeObserver = null
-
 onMounted(async () => {
   await nextTick()
   if (navRef.value) {
@@ -299,21 +298,10 @@ onMounted(async () => {
     resizeObserver.observe(navRef.value)
   }
 
-  if (contentDivRef.value) {
-    const updateContentScrollbar = () => {
-      if (contentDivRef.value) {
-        contentScrollbarWidth.value = contentDivRef.value.offsetWidth - contentDivRef.value.clientWidth
-      }
-    }
-    updateContentScrollbar()
-    contentResizeObserver = new ResizeObserver(updateContentScrollbar)
-    contentResizeObserver.observe(contentDivRef.value)
-  }
 })
 
 onUnmounted(() => {
   if (resizeObserver) resizeObserver.disconnect()
-  if (contentResizeObserver) contentResizeObserver.disconnect()
 })
 </script>
 

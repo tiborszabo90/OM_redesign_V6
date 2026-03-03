@@ -98,24 +98,27 @@
     </div>
   </div>
 
-  <!-- Step 3: Wizard -->
-  <div v-else class="h-screen-safe bg-white flex overflow-auto relative">
-    <PublicStepWizardDashboard
-      ref="stepWizardDashboardRef"
-      :data="formData"
-      :registration-data="props.registrationData"
-      :initial-message="finalMessage"
-      :show-chat="false"
-      @task-created="(task) => emit('task-created', task)"
-      @navigate-to="(view) => emit('navigate-to', view)"
-      @phase-changed="(view) => emit('phase-changed', view)"
-    />
-  </div>
+  <!-- Step 3: Wizard (with sidebar only on recommendation) -->
+  <DashboardLayout v-else no-content-padding background-color="#FFFFFF" :hide-sidebar="!isRecommendationPhase" @menu-click="handleMenuClick">
+    <template #content>
+      <PublicStepWizardDashboard
+        ref="stepWizardDashboardRef"
+        :data="formData"
+        :registration-data="props.registrationData"
+        :initial-message="finalMessage"
+        :show-chat="false"
+        @task-created="(task) => emit('task-created', task)"
+        @navigate-to="(view) => emit('navigate-to', view)"
+        @phase-changed="(view) => { currentPhase.value = view; emit('phase-changed', view) }"
+      />
+    </template>
+  </DashboardLayout>
 </template>
 
 <script setup>
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { Paperclip } from 'lucide-vue-next'
+import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import PublicStepWizardDashboard from '../components/onboarding/PublicStepWizardDashboard.vue'
 
 const props = defineProps({
@@ -125,11 +128,13 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['task-created', 'navigate-to', 'phase-changed'])
+const emit = defineEmits(['task-created', 'navigate-to', 'phase-changed', 'menu-click'])
 
 const stepWizardDashboardRef = ref(null)
 const formData = ref({})
 const textareaRef = ref(null)
+const currentPhase = ref('wizard-analysis')
+const isRecommendationPhase = computed(() => currentPhase.value.includes('recommendation'))
 
 const step = ref('url')
 const url = ref('')
@@ -199,11 +204,16 @@ const handleChatSubmit = () => {
   step.value = 'wizard'
 }
 
+const handleMenuClick = () => {
+  stepWizardDashboardRef.value?.openRegistrationModal()
+}
+
 defineExpose({
   stepWizardDashboardRef,
   navigateToStep: (s) => { step.value = s },
   navigateToPhase: (phase) => {
     step.value = 'wizard'
+    currentPhase.value = phase
     nextTick(() => {
       if (stepWizardDashboardRef.value && stepWizardDashboardRef.value.navigateToPhase) {
         stepWizardDashboardRef.value.navigateToPhase(phase)

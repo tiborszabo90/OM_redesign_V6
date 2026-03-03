@@ -1,16 +1,12 @@
 <template>
-  <!-- Collapsed tab (flow element, narrow column with tab button) -->
-  <div
+  <!-- Collapsed tab (fixed to viewport right edge, no layout space taken) -->
+  <button
     v-if="!modelValue"
-    class="shrink-0 w-9 relative"
+    @click="emit('update:modelValue', true)"
+    class="chat-tab fixed top-4 right-0 z-20 w-9 h-12 bg-om-orange-500 border border-r-0 border-transparent rounded-l-xl shadow-sm flex items-center justify-center text-white hover:bg-[#E54D1F] transition-colors cursor-pointer"
   >
-    <button
-      @click="emit('update:modelValue', true)"
-      class="absolute left-0 top-3.5 w-9 h-12 bg-[#ED5A29] border border-r-0 border-[#ED5A29] rounded-l-xl shadow-sm flex items-center justify-center text-white hover:bg-[#E54D1F] transition-colors cursor-pointer"
-    >
-      <Bot :size="18" />
-    </button>
-  </div>
+    <img src="/optibot24.svg" alt="OptiBot" class="w-6 h-6" />
+  </button>
 
   <!-- Chat panel (flow element, wide column) -->
   <div
@@ -32,8 +28,8 @@
     <div v-if="messages.length === 0" class="flex-1 flex flex-col mb-4">
       <!-- Robot icon in circle -->
       <div class="flex flex-col items-center pt-6">
-        <div class="w-20 h-20 rounded-full bg-om-gray-100 flex items-center justify-center mb-4">
-          <Bot :size="40" class="text-om-gray-400" />
+        <div class="w-24 h-24 rounded-full bg-om-gray-100 flex items-center justify-center mb-4">
+          <img src="/optibot64.svg" alt="OptiBot" class="w-16 h-16" />
         </div>
         <!-- Headline -->
         <h3 class="text-base font-semibold text-om-gray-700 mb-1 text-center">How can I help you?</h3>
@@ -117,15 +113,20 @@
         v-model="chatMessage"
         rows="3"
         @keydown.enter.exact.prevent="handleChatSubmit"
-        class="w-full px-4 py-3 border border-[#D5D8DD] rounded-xl focus:ring-2 focus:ring-[#8F97A4] focus:border-transparent transition-colors text-[#23262A] resize-none pr-12 text-sm"
+        class="w-full px-4 py-3 pb-10 border border-om-gray-300 rounded-xl focus:ring-2 focus:ring-om-gray-500 focus:border-transparent transition-colors text-om-gray-700 resize-none pr-12 text-sm"
         placeholder="Ask OptiMonk..."
       ></textarea>
+      <button
+        class="absolute bottom-3 left-1.5 w-8 h-8 rounded-lg flex items-center justify-center text-om-gray-500 hover:bg-om-gray-100 hover:text-om-gray-600 active:bg-om-gray-200 transition-colors cursor-pointer"
+      >
+        <Paperclip :size="16" />
+      </button>
       <button
         @click="handleChatSubmit"
         :disabled="!chatMessage?.trim()"
         :class="[
           'absolute bottom-3 right-1.5 w-8 h-8 rounded-lg flex items-center justify-center transition-colors',
-          chatMessage?.trim() ? 'bg-[#ED5A29] text-white cursor-pointer' : 'bg-[#E3E5E8] text-[#8F97A4] cursor-default'
+          chatMessage?.trim() ? 'bg-om-orange-500 text-white cursor-pointer' : 'bg-om-gray-200 text-om-gray-500 cursor-default'
         ]"
       >
         <ArrowUp :size="16" />
@@ -136,7 +137,7 @@
 
 <script setup>
 import { ref, nextTick } from 'vue'
-import { ArrowUp, Bot, X, Check } from 'lucide-vue-next'
+import { ArrowUp, X, Check, Paperclip } from 'lucide-vue-next'
 
 const props = defineProps({
   modelValue: {

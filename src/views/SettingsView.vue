@@ -4,7 +4,7 @@
       <div class="flex gap-12 -mt-3">
         <!-- Settings Sidebar -->
         <aside class="w-48 shrink-0">
-          <h2 class="text-xl font-bold text-om-gray-700 mb-6">Settings</h2>
+          <h2 class="text-2xl font-bold text-om-gray-700 mb-6">Settings</h2>
 
           <!-- Contact information -->
           <div class="mb-5">
@@ -50,7 +50,7 @@
         <div class="flex-1 min-w-0">
           <!-- Personal details -->
           <template v-if="activeSection === 'personal-details'">
-            <h1 class="text-2xl font-bold text-om-gray-700 mb-8">Personal details</h1>
+            <h1 class="text-xl font-bold text-om-gray-700 mb-8">Personal details</h1>
             <div class="max-w-sm space-y-6">
               <FormInput v-model="lastName" label="Last name" />
               <FormInput v-model="firstName" label="First name" />
@@ -58,14 +58,8 @@
               <div>
                 <p class="block text-sm font-medium text-om-gray-600 mb-2">Account language</p>
                 <div class="flex flex-col gap-2">
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" v-model="accountLanguage" value="EN" class="custom-radio cursor-pointer" />
-                    <span class="text-sm text-om-gray-700">EN</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" v-model="accountLanguage" value="HU" class="custom-radio cursor-pointer" />
-                    <span class="text-sm text-om-gray-700">HU</span>
-                  </label>
+                  <RadioButton v-model="accountLanguage" value="EN" label="EN" />
+                  <RadioButton v-model="accountLanguage" value="HU" label="HU" />
                 </div>
               </div>
 
@@ -77,7 +71,7 @@
 
           <!-- Change email -->
           <template v-else-if="activeSection === 'change-email'">
-            <h1 class="text-2xl font-bold text-om-gray-700 mb-8">Change email</h1>
+            <h1 class="text-xl font-bold text-om-gray-700 mb-8">Change email</h1>
             <div class="max-w-sm space-y-6">
               <FormInput v-model="currentEmail" label="Current email" type="email" disabled />
               <FormInput v-model="newEmail" label="New email" type="email" placeholder="Enter new email" />
@@ -89,7 +83,7 @@
 
           <!-- Change password -->
           <template v-else-if="activeSection === 'change-password'">
-            <h1 class="text-2xl font-bold text-om-gray-700 mb-8">Change password</h1>
+            <h1 class="text-xl font-bold text-om-gray-700 mb-8">Change password</h1>
             <div class="max-w-sm space-y-6">
               <FormInput v-model="currentPassword" label="Current password" type="password" placeholder="Enter current password" />
               <FormInput v-model="newPassword" label="New password" type="password" placeholder="Enter new password" />
@@ -102,7 +96,7 @@
 
           <!-- Placeholder for all other sections -->
           <template v-else>
-            <h1 class="text-2xl font-bold text-om-gray-700 mb-8">{{ currentSectionTitle }}</h1>
+            <h1 class="text-xl font-bold text-om-gray-700 mb-8">{{ currentSectionTitle }}</h1>
             <p class="text-sm text-om-gray-400">Coming soon</p>
           </template>
         </div>
@@ -116,6 +110,7 @@ import { ref, computed } from 'vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import FormInput from '../components/shared/FormInput.vue'
 import Button from '../components/shared/Button.vue'
+import RadioButton from '../components/shared/RadioButton.vue'
 
 defineEmits(['menu-click'])
 
@@ -173,45 +168,3 @@ const handleSave = () => {
 }
 </script>
 
-<style scoped>
-.custom-radio {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #D5D8DD;
-  border-radius: 50%;
-  outline: none;
-  cursor: pointer;
-  position: relative;
-  background-color: white;
-  transition: all 0.2s ease;
-}
-
-.custom-radio:checked {
-  border-color: #ED5A29;
-  background-color: white;
-}
-
-.custom-radio:checked::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: #ED5A29;
-}
-
-.custom-radio:hover {
-  border-color: #C44D24;
-}
-
-.custom-radio:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(237, 90, 41, 0.1);
-}
-</style>

@@ -1043,7 +1043,7 @@
 
     <!-- Analysis screen - scanner only when chat is active, two-column when no chat -->
     <transition v-else-if="submitted && showAnalysisContent" name="fade" appear>
-      <div class="h-screen-safe bg-white flex items-center justify-center px-4 sm:px-6 md:px-8 xl:px-12" :class="{ 'mr-90': props.showChat }">
+      <div class="h-screen-safe bg-white flex items-start justify-center pt-20 px-4 sm:px-6 md:px-8 xl:px-12" :class="{ 'mr-90': props.showChat }">
       <div class="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 lg:gap-12 xl:gap-16 max-w-6xl w-full" :class="{ 'justify-center': props.showChat }">
         <!-- Scanner animation -->
         <div class="shrink-0 -mt-10">
@@ -1138,13 +1138,13 @@
 
     <!-- Registration Modal (shown after scrolling through the Optimization Plan) -->
     <transition name="modal-fade">
-      <div v-if="showRegistrationModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div v-if="showRegistrationModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 pb-14 bg-black/50 backdrop-blur-sm">
         <div class="bg-white rounded-2xl overflow-hidden max-w-4xl w-full flex shadow-2xl h-[620px]">
           <!-- Left: Form content -->
-          <div class="w-1/2 py-8 pl-8 lg:py-10 lg:pl-10 pr-8 lg:pr-10 flex flex-col justify-center relative">
+          <div class="w-1/2 py-8 pl-8 lg:py-10 lg:pl-10 pr-8 lg:pr-10 flex flex-col relative">
 
             <transition name="modal-step-fade" mode="out-in">
-            <div :key="modalStep" class="flex flex-col justify-center">
+            <div :key="modalStep" class="flex-1 flex flex-col justify-center">
 
             <!-- Social login buttons view -->
             <template v-if="modalStep === 'buttons'">
@@ -2099,10 +2099,15 @@ const navigateToPhase = (phase) => {
   }
 }
 
+const openRegistrationModal = () => {
+  showRegistrationModal.value = true
+}
+
 defineExpose({
   resetToInitial,
   startWithMessage,
-  navigateToPhase
+  navigateToPhase,
+  openRegistrationModal
 })
 </script>
 

@@ -304,6 +304,7 @@ const onHashChange = () => {
 
 onMounted(() => {
   window.addEventListener('hashchange', onHashChange)
+  window.addEventListener('scroll', handleGlobalScroll, { capture: true, passive: true })
   // If page loaded with a hash, navigate to that view
   const initialView = getViewFromHash()
   if (initialView && initialView !== 'dev-start') {
@@ -313,6 +314,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('hashchange', onHashChange)
+  window.removeEventListener('scroll', handleGlobalScroll, { capture: true })
 })
 
 const handleDevStartSelect = (type) => {
@@ -484,6 +486,18 @@ const handleMenuClick = (menuId) => {
   // Add other menu items as needed
 }
 
+// Scrollbar visibility: show thumb while scrolling, hide after idle
+const scrollTimers = new WeakMap()
+const handleGlobalScroll = (e) => {
+  const el = e.target
+  if (!el || !el.classList) return
+  el.classList.add('is-scrolling')
+  clearTimeout(scrollTimers.get(el))
+  scrollTimers.set(el, setTimeout(() => {
+    el.classList.remove('is-scrolling')
+  }, 1000))
+}
+
 // Update CSS variable for dev nav height
 const updateNavHeight = (isOpen) => {
   document.documentElement.style.setProperty('--dev-nav-height', isOpen ? '48px' : '0px')
@@ -555,6 +569,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :initial-message="wizardMessage"
         @task-created="handleTaskCreated"
         @navigate-to="(view) => handleDevNavigate(view)"
+        @menu-click="handleMenuClick"
       />
       <CampaignsView
         v-else-if="currentView === 'campaigns'"
