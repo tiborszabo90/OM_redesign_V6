@@ -1671,14 +1671,13 @@ const setupV4Observer = () => {
     )
     useCaseRefs.value.forEach((el) => { if (el) observer.observe(el) })
 
-    const card1 = useCaseRefs.value[0]
-    const anchorCard = card1 || useCaseRefs.value[1]
+    const anchorCard = useCaseRefs.value[1] || useCaseRefs.value[0]
     if (anchorCard) {
       const container = getScrollContainer(anchorCard)
       const handlePaywallScroll = () => {
         if (registrationCompleted.value) return
         const rect = anchorCard.getBoundingClientRect()
-        // Modal jelenik meg amikor az 1. kártya alja a viewport 60%-ánál feljebb kerül
+        // Modal jelenik meg amikor a 2. kártya alja a viewport 60%-ánál feljebb kerül
         showRegistrationModal.value = rect.bottom < window.innerHeight * 0.6
       }
       handlePaywallScroll()
