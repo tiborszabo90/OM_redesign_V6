@@ -567,7 +567,7 @@
                 <Dropdown v-model="selectedOption" :options="dropdownOptions" class="w-[240px]">
                   <template #icon>
                     <div class="w-6 h-6 rounded-full overflow-hidden">
-                      <img src="/optimonk_logo.svg" alt="Logo" class="w-full h-full object-cover" />
+                      <img src="/icons/optimonk-logo.svg" alt="Logo" class="w-full h-full object-cover" />
                     </div>
                   </template>
                 </Dropdown>
@@ -1000,7 +1000,7 @@ const dgCampaigns = reactive([
     id: 'dg-campaign1',
     name: 'Smart Discount Popup',
     domain: 'domain.com',
-    image: '/SmartDiscountPopup.png',
+    image: '/campaigns/smart-discount-popup.png',
     active: true,
     selected: false,
     metrics: [
@@ -1014,7 +1014,7 @@ const dgCampaigns = reactive([
     id: 'dg-campaign2',
     name: 'Lucky Wheel',
     domain: 'domain.com',
-    image: '/LuckyWheel.png',
+    image: '/campaigns/lucky-wheel.png',
     active: true,
     selected: false,
     metrics: [
@@ -1027,7 +1027,7 @@ const dgCampaigns = reactive([
     id: 'dg-campaign3',
     name: 'Feedback Survey',
     domain: 'domain.com',
-    image: '/FeedbackSurvey.png',
+    image: '/campaigns/feedback-survey.png',
     active: false,
     selected: false,
     metrics: [
@@ -1044,7 +1044,7 @@ const sampleUseCases = [
     description: 'The most effective list-building popup formula',
     subheadline: 'Grow your list with a two-step popup formula with every tweak for max conversions',
     icon: 'mail',
-    image: '/SmartDiscountPopup.png'
+    image: '/campaigns/smart-discount-popup.png'
   },
   {
     id: 'cart-abandonment',
@@ -1052,7 +1052,7 @@ const sampleUseCases = [
     description: 'Offer a discount for cart abandoners',
     subheadline: 'Decrease cart abandonment rate with a strong discount offer',
     icon: 'cart',
-    image: '/CartAbandonmentStopper.png'
+    image: '/campaigns/cart-abandonment-stopper.png'
   },
   {
     id: 'spin-wheel',
@@ -1060,7 +1060,7 @@ const sampleUseCases = [
     description: 'Gamify popups to increase visitor engagement',
     subheadline: 'Capture new visitor attention and increase conversions with spin-to-win lucky wheels',
     icon: 'wheel',
-    image: '/LuckyWheel.png'
+    image: '/campaigns/lucky-wheel.png'
   }
 ]
 const sampleBrandColor = '#E20074'

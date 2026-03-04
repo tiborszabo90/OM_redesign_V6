@@ -5,7 +5,7 @@
     @click="emit('update:modelValue', true)"
     class="chat-tab fixed top-4 right-0 z-20 w-9 h-12 bg-om-orange-500 border border-r-0 border-transparent rounded-l-xl shadow-sm flex items-center justify-center text-white hover:bg-[#E54D1F] transition-colors cursor-pointer"
   >
-    <img src="/optibot24.svg" alt="OptiBot" class="w-6 h-6" />
+    <img src="/icons/optibot24.svg" alt="OptiBot" class="w-6 h-6" />
   </button>
 
   <!-- Chat panel (flow element, wide column) -->
@@ -29,7 +29,7 @@
       <!-- Robot icon in circle -->
       <div class="flex flex-col items-center pt-6">
         <div class="w-24 h-24 rounded-full bg-om-gray-100 flex items-center justify-center mb-4">
-          <img src="/optibot64.svg" alt="OptiBot" class="w-16 h-16" />
+          <img src="/icons/optibot64.svg" alt="OptiBot" class="w-16 h-16" />
         </div>
         <!-- Headline -->
         <h3 class="text-base font-semibold text-om-gray-700 mb-1 text-center">How can I help you?</h3>
@@ -74,7 +74,7 @@
           <div class="flex items-center gap-2">
             <span>{{ msg.message }}</span>
             <div class="w-8 h-8 rounded overflow-hidden bg-white border border-[#E3E5E8] flex items-center justify-center shrink-0">
-              <img src="/telekom.png" alt="Logo" class="w-full h-full object-cover" />
+              <img src="/demos/telekom/logo.png" alt="Logo" class="w-full h-full object-cover" />
             </div>
           </div>
         </div>

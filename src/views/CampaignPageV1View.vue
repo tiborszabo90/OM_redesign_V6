@@ -236,12 +236,12 @@
                   @mouseenter="hoveredImage = 'variant1'"
                   @mouseleave="hoveredImage = null"
                 >
-                  <img src="/CartAbandonmentStopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
+                  <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
                   <!-- Tooltip -->
                   <transition name="fade">
                     <div v-if="hoveredImage === 'variant1'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
                       <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-                        <img src="/CartAbandonmentStopper.png" alt="Cart Abandonment Stopper Large" class="w-96 h-auto rounded-lg" />
+                        <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper Large" class="w-96 h-auto rounded-lg" />
                       </div>
                     </div>
                   </transition>
@@ -273,12 +273,12 @@
                   @mouseenter="hoveredImage = 'variant2'"
                   @mouseleave="hoveredImage = null"
                 >
-                  <img src="/CartAbandonmentStopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
+                  <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
                   <!-- Tooltip -->
                   <transition name="fade">
                     <div v-if="hoveredImage === 'variant2'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
                       <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-                        <img src="/CartAbandonmentStopper.png" alt="Cart Abandonment Stopper Large" class="w-96 h-auto rounded-lg" />
+                        <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper Large" class="w-96 h-auto rounded-lg" />
                       </div>
                     </div>
                   </transition>
@@ -453,7 +453,7 @@
                   <div class="trigger-card">
                     <div class="flex items-center gap-5">
                       <div class="w-20 h-14 shrink-0">
-                        <img src="/setting_1.png" alt="Exit intent" class="w-full h-full object-contain" />
+                        <img src="/settings/setting-1.png" alt="Exit intent" class="w-full h-full object-contain" />
                       </div>
                       <div class="flex-1">
                         <h5 class="text-base font-semibold text-om-gray-700 mb-1">On exit-intent</h5>
@@ -473,7 +473,7 @@
                   <div class="trigger-card">
                     <div class="flex items-center gap-5">
                       <div class="w-20 h-14 shrink-0">
-                        <img src="/setting_1.png" alt="After seconds" class="w-full h-full object-contain" />
+                        <img src="/settings/setting-1.png" alt="After seconds" class="w-full h-full object-contain" />
                       </div>
                       <div>
                         <h5 class="text-base font-semibold text-om-gray-700 mb-1">After x seconds of inactivity</h5>

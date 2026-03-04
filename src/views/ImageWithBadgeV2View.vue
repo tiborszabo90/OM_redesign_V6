@@ -14,7 +14,7 @@
           <!-- Desktop Preview -->
           <div ref="previewContainer" class="overflow-auto rounded-xl border border-om-gray-200 shadow-lg" style="width: 720px; height: 400px;">
             <img
-              src="/iwb_preview_1.png"
+              src="/image-with-badge/preview-1.png"
               alt="Preview"
               class="w-full h-auto"
               @load="onImageLoad"
@@ -23,7 +23,7 @@
           <!-- Mobile Preview -->
           <div ref="mobilePreviewContainer" class="overflow-auto rounded-xl border border-om-gray-200 shadow-lg" style="width: 220px; height: 400px;">
             <img
-              src="/iwb_preview_1m.png"
+              src="/image-with-badge/preview-1-mobile.png"
               alt="Mobile Preview"
               class="w-full h-auto"
             />
@@ -203,7 +203,7 @@
             <!-- Single Image -->
             <div v-else>
               <img
-                src="/image-with-badge1m.jpg"
+                src="/image-with-badge/image-1-mobile.jpg"
                 alt="Product with badge mobile"
                 class="h-128 w-auto shrink-0 rounded-xl shadow-lg object-contain"
               />
@@ -234,11 +234,11 @@ const showSlider = ref(false)
 const currentImageIndex = ref(0)
 
 const sliderImages = [
-  '/image-with-badge1m.jpg',
-  '/image-with-badge2m.jpg',
-  '/image-with-badge3m.jpg',
-  '/image-with-badge4m.jpg',
-  '/image-with-badge5m.jpg'
+  '/image-with-badge/image-1-mobile.jpg',
+  '/image-with-badge/image-2-mobile.jpg',
+  '/image-with-badge/image-3-mobile.jpg',
+  '/image-with-badge/image-4-mobile.jpg',
+  '/image-with-badge/image-5-mobile.jpg'
 ]
 
 // Computed property to track current step

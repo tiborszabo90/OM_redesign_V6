@@ -63,7 +63,7 @@
               <!-- Whiskynet screenshot - visible after 2 seconds -->
               <transition name="fade">
                 <div v-if="showScreenshot" class="w-full h-full">
-                  <img src="/whiskeynet_screenshot.png" alt="Whiskynet Website" class="w-full h-full object-cover object-top" />
+                  <img src="/demos/whiskeynet/screenshot.png" alt="Whiskynet Website" class="w-full h-full object-cover object-top" />
                 </div>
               </transition>
             </div>
@@ -147,7 +147,7 @@
             <!-- Actual Preview -->
             <div v-else ref="previewContainer" class="overflow-auto w-full h-full rounded-xl">
               <img
-                src="/iwb_preview_1.png"
+                src="/image-with-badge/preview-1.png"
                 alt="Preview"
                 class="w-full h-auto"
                 @load="onImageLoad"
@@ -161,7 +161,7 @@
             <!-- Actual Preview -->
             <div v-else ref="mobilePreviewContainer" class="overflow-auto w-full h-full rounded-xl">
               <img
-                src="/iwb_preview_1m.png"
+                src="/image-with-badge/preview-1-mobile.png"
                 alt="Mobile Preview"
                 class="w-full h-auto"
               />
@@ -353,7 +353,7 @@
             <!-- Single Image -->
             <div v-else>
               <img
-                src="/image-with-badge1m.jpg"
+                src="/image-with-badge/image-1-mobile.jpg"
                 alt="Product with badge mobile"
                 class="h-128 w-auto shrink-0 rounded-xl shadow-lg object-contain"
               />
@@ -395,14 +395,14 @@ const currentImageIndex = ref(0)
 const sliderLoading = ref(false)
 
 const additionalPreviewImages = [
-  '/image-with-badge2m.jpg',
-  '/image-with-badge3m.jpg'
+  '/image-with-badge/image-2-mobile.jpg',
+  '/image-with-badge/image-3-mobile.jpg'
 ]
 
 const sliderImages = [
-  '/image-with-badge1m.jpg',
-  '/image-with-badge2m.jpg',
-  '/image-with-badge3m.jpg'
+  '/image-with-badge/image-1-mobile.jpg',
+  '/image-with-badge/image-2-mobile.jpg',
+  '/image-with-badge/image-3-mobile.jpg'
 ]
 
 // Activities for loading screen

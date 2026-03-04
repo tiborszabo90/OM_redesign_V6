@@ -289,7 +289,7 @@
                     </div>
 
                     <!-- Regular image for other use cases -->
-                    <img v-else src="/telekom_img.png" alt="Offer" class="w-full h-full object-cover" />
+                    <img v-else src="/demos/telekom/img.png" alt="Offer" class="w-full h-full object-cover" />
                   </div>
                 </div>
               </div>
@@ -337,7 +337,7 @@
               <div v-if="discovery.type === 'logo'" class="flex flex-col items-center gap-2">
                 <span>{{ discovery.message }}</span>
                 <div class="w-12 h-12 rounded overflow-hidden bg-white border border-[#E3E5E8] flex items-center justify-center">
-                  <img src="/telekom.png" alt="Logo" class="w-full h-full object-cover" />
+                  <img src="/demos/telekom/logo.png" alt="Logo" class="w-full h-full object-cover" />
                 </div>
               </div>
 
@@ -563,7 +563,7 @@
           >
             <template #icon>
               <div class="w-6 h-6 rounded-full overflow-hidden">
-                <img src="/telekom.png" alt="Telekom" class="w-full h-full object-cover" />
+                <img src="/demos/telekom/logo.png" alt="Telekom" class="w-full h-full object-cover" />
               </div>
             </template>
           </Dropdown>
@@ -631,10 +631,10 @@
             <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
               <div class="flex flex-col w-full h-full">
                 <div class="h-1/3 shrink-0 bg-white flex items-end justify-center rounded-t-lg">
-                  <img src="/SmartDiscountPopup_img.png" alt="Smart Discount" class="h-full object-contain" />
+                  <img src="/campaigns/smart-discount-popup-img.png" alt="Smart Discount" class="h-full object-contain" />
                 </div>
                 <div class="flex-1 px-4 pb-3 flex flex-col justify-center text-center">
-                  <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-1 mx-auto" />
+                  <img src="/demos/telekom/logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-1 mx-auto" />
                   <h4 class="text-[13px] font-bold mb-2 leading-tight text-[#E20074]">
                     Tiéd a 10% KUPON
                   </h4>
@@ -660,7 +660,7 @@
               <div class="relative w-full h-full flex items-center justify-center p-2" style="background-color: #6A8085">
                 <div class="flex flex-col w-full h-[90%] bg-white rounded-lg overflow-hidden shadow-lg">
                   <div class="h-2/5 shrink-0">
-                    <img src="/CartAbandonmentStopper_img.png" alt="Cart Abandonment" class="w-full h-full object-cover" />
+                    <img src="/campaigns/cart-abandonment-stopper-img.png" alt="Cart Abandonment" class="w-full h-full object-cover" />
                   </div>
                   <div class="flex-1 px-4 py-3 flex flex-col justify-center">
                     <p class="text-[7px] text-om-gray-500 mb-2 uppercase tracking-wide">
@@ -688,7 +688,7 @@
             <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
               <div class="flex flex-col w-full h-full">
                 <div class="flex-1 px-4 py-3 flex flex-col justify-center text-center">
-                  <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-2 mx-auto" />
+                  <img src="/demos/telekom/logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-2 mx-auto" />
                   <h4 class="text-[12px] font-bold mb-2 leading-tight text-[#E20074]">
                     Pörgess, nyerj és<br>spórolj!
                   </h4>
@@ -706,7 +706,7 @@
                   </button>
                 </div>
                 <div class="h-1/3 shrink-0">
-                  <img src="/LuckyWheel_img.png" alt="Lucky Wheel" class="w-full h-full object-cover rounded-b-lg" />
+                  <img src="/campaigns/lucky-wheel-img.png" alt="Lucky Wheel" class="w-full h-full object-cover rounded-b-lg" />
                 </div>
               </div>
             </div>
@@ -719,7 +719,7 @@
             <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
               <div class="relative w-full h-full flex items-center justify-center p-2" style="background-color: #6A8085">
                 <div class="flex flex-col w-full h-1/2 bg-white rounded-lg shadow-lg justify-center px-4 py-5 text-center">
-                  <img src="/telekom_logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-3 mx-auto" />
+                  <img src="/demos/telekom/logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-3 mx-auto" />
                   <h4 class="text-[11px] font-bold mb-2 leading-tight text-[#E20074]">
                     Van egy perced?<br>Mondd el a véleményed!
                   </h4>
@@ -741,7 +741,7 @@
           <!-- Product Value Spotlight -->
           <div class="flex flex-col cursor-pointer group">
             <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
-              <img src="/SmartDiscountPopup_img.png" alt="Product Value Spotlight" class="w-full h-full object-cover" />
+              <img src="/campaigns/smart-discount-popup-img.png" alt="Product Value Spotlight" class="w-full h-full object-cover" />
             </div>
             <h4 class="text-sm font-medium text-om-gray-700">Product Value Spotlight</h4>
             <p class="text-xs text-om-gray-500 mt-1">Highlight key product benefits and drive conversions</p>
@@ -750,7 +750,7 @@
           <!-- Product Recommendation -->
           <div class="flex flex-col cursor-pointer group">
             <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
-              <img src="/CartAbandonmentStopper_img.png" alt="Product Recommendation" class="w-full h-full object-cover" />
+              <img src="/campaigns/cart-abandonment-stopper-img.png" alt="Product Recommendation" class="w-full h-full object-cover" />
             </div>
             <h4 class="text-sm font-medium text-om-gray-700">Product Recommendation</h4>
             <p class="text-xs text-om-gray-500 mt-1">Show personalized product suggestions to visitors</p>

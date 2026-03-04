@@ -210,7 +210,7 @@
             <div class="w-full h-full bg-[#F9FAFB] rounded-2xl overflow-hidden flex items-center justify-center">
               <!-- Placeholder image -->
               <img
-                src="/telekom_img1.png"
+                src="/demos/telekom/img1.png"
                 alt="Telekom"
                 class="w-full h-full object-cover"
               />
@@ -282,12 +282,12 @@
               <div class="flex gap-3 shrink-0 items-center">
                 <!-- Desktop Preview -->
                 <div class="w-[284px] lg:w-[370px] xl:w-[455px] 2xl:w-[512px] 3xl:w-[569px]">
-                  <img src="/image-with-badge1.jpg" alt="Product Value Spotlight" class="w-full h-auto rounded-lg border border-om-gray-200" />
+                  <img src="/image-with-badge/image-1.jpg" alt="Product Value Spotlight" class="w-full h-auto rounded-lg border border-om-gray-200" />
                 </div>
 
                 <!-- Mobile Preview -->
                 <div class="w-[106px] lg:w-[136px] xl:w-[152px] 2xl:w-[182px] 3xl:w-[212px]">
-                  <img src="/image-with-badge1m.jpg" alt="Product Value Spotlight Mobile" class="w-full h-auto rounded-lg border border-om-gray-200" />
+                  <img src="/image-with-badge/image-1-mobile.jpg" alt="Product Value Spotlight Mobile" class="w-full h-auto rounded-lg border border-om-gray-200" />
                 </div>
               </div>
             </div>
@@ -362,7 +362,7 @@
             <div class="w-full h-full bg-[#F9FAFB] rounded-2xl overflow-hidden flex items-center justify-center">
               <!-- Placeholder image -->
               <img
-                src="/telekom_img1.png"
+                src="/demos/telekom/img1.png"
                 alt="Telekom"
                 class="w-full h-full object-cover"
               />
@@ -492,7 +492,7 @@
                         <template v-if="useCases[currentDeckCard].id === 'newsletter'">
                           <div class="flex w-full h-full">
                             <div class="flex-1 p-3 flex flex-col justify-center">
-                              <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-6 h-6 object-contain mb-1" />
                               <h4 class="text-xs font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].title }}
                               </h4>
@@ -522,7 +522,7 @@
                         <template v-else-if="useCases[currentDeckCard].id === 'cart-abandonment'">
                           <div class="flex w-full h-full">
                             <div class="flex-1 p-3 flex flex-col justify-center text-center">
-                              <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1 mx-auto" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-6 h-6 object-contain mb-1 mx-auto" />
                               <h4 class="text-sm font-bold mb-0.5" :style="{ fontFamily: brandSettings.primaryFont, color: brandSettings.colors[brandSettings.selectedColorIndex] }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].title }}
                               </h4>
@@ -550,7 +550,7 @@
                         <template v-else-if="useCases[currentDeckCard].id === 'welcome-discount'">
                           <div class="flex w-full h-full">
                             <div class="flex-1 p-3 flex flex-col justify-center">
-                              <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-6 h-6 object-contain mb-1" />
                               <h4 class="text-xs font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].title }}
                               </h4>
@@ -578,7 +578,7 @@
                         <template v-else-if="useCases[currentDeckCard].id === 'feedback'">
                           <div class="flex w-full h-full">
                             <div class="flex-1 p-3 flex flex-col justify-center text-center">
-                              <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1 mx-auto" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-6 h-6 object-contain mb-1 mx-auto" />
                               <h4 class="text-xs font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].title }}
                               </h4>
@@ -644,7 +644,7 @@
                               </div>
                             </div>
                             <div class="flex-1 p-3 flex flex-col justify-center">
-                              <img src="/telekom.png" alt="Logo" class="w-5 h-5 object-contain mb-1" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-5 h-5 object-contain mb-1" />
                               <h4 class="text-xs font-bold mb-1" :style="{ fontFamily: brandSettings.primaryFont, color: brandSettings.colors[brandSettings.selectedColorIndex] }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].title }}
                               </h4>
@@ -677,7 +677,7 @@
                               <img src="https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=200&h=100&fit=crop" alt="Newsletter" class="w-full h-full object-cover" />
                             </div>
                             <div class="flex-1 p-2 flex flex-col justify-center">
-                              <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5" />
                               <h4 class="text-[7px] font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].title }}
                               </h4>
@@ -705,7 +705,7 @@
                               <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=200&h=100&fit=crop" alt="Shopping cart" class="w-full h-full object-cover" />
                             </div>
                             <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                              <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
                               <h4 class="text-[8px] font-bold mb-0.5" :style="{ fontFamily: brandSettings.primaryFont, color: brandSettings.colors[brandSettings.selectedColorIndex] }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].title }}
                               </h4>
@@ -733,7 +733,7 @@
                               <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=200&h=100&fit=crop" alt="Gift" class="w-full h-full object-cover" />
                             </div>
                             <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                              <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
                               <div class="w-6 h-6 mx-auto rounded flex items-center justify-center text-white text-[5px] font-bold mb-0.5" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].discount }}
                               </div>
@@ -758,7 +758,7 @@
                               <img src="https://images.unsplash.com/photo-1531973576160-7125cd663d86?w=200&h=100&fit=crop" alt="Feedback" class="w-full h-full object-cover" />
                             </div>
                             <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                              <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
                               <h4 class="text-[6px] font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].rating }}
                               </h4>
@@ -804,7 +804,7 @@
                         <template v-else-if="useCases[currentDeckCard].id === 'spin-wheel'">
                           <div class="flex flex-col w-full h-full">
                             <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                              <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
                               <h4 class="text-[7px] font-bold mb-0.5" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].title }}
                               </h4>
@@ -877,7 +877,7 @@
                 <div class="flex">
                   <!-- Left content side -->
                   <div class="w-1/2 p-6 lg:p-8 flex flex-col justify-center">
-                    <img src="/telekom.png" alt="Telekom Logo" class="w-10 h-10 object-contain mb-3" />
+                    <img src="/demos/telekom/logo.png" alt="Telekom Logo" class="w-10 h-10 object-contain mb-3" />
                     <h3 class="text-3xl font-bold text-om-gray-800 leading-tight mb-2" :style="{ fontFamily: brandSettings.primaryFont }">
                       {{ popupTexts[brandSettings.language].title }} {{ popupTexts[brandSettings.language].discount }}
                     </h3>
@@ -926,7 +926,7 @@
                   <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Logo</label>
                   <div class="h-[38px] bg-[repeating-conic-gradient(#E3E5E8_0%_25%,transparent_0%_50%)_50%/12px_12px] rounded-lg flex items-center justify-center border border-om-gray-200">
                     <div class="w-7 h-7 rounded-sm overflow-hidden">
-                      <img src="/telekom.png" alt="Telekom Logo" class="w-full h-full object-contain" />
+                      <img src="/demos/telekom/logo.png" alt="Telekom Logo" class="w-full h-full object-contain" />
                     </div>
                   </div>
                 </div>
@@ -1066,7 +1066,7 @@
                   <p class="text-sm font-medium text-[#23262A]">Logo</p>
                 </div>
                 <div class="w-14 h-14 rounded-lg overflow-hidden bg-white border border-[#E3E5E8] flex items-center justify-center shrink-0">
-                  <img src="/telekom.png" alt="Logo" class="w-full h-full object-cover" />
+                  <img src="/demos/telekom/logo.png" alt="Logo" class="w-full h-full object-cover" />
                 </div>
               </div>
             </transition>
@@ -1138,10 +1138,16 @@
 
     <!-- Registration Modal (shown after scrolling through the Optimization Plan) -->
     <transition name="modal-fade">
-      <div v-if="showRegistrationModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 pb-14 bg-black/50 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl overflow-hidden max-w-4xl w-full flex shadow-2xl h-[620px]">
+      <div v-if="showRegistrationModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 pb-14 bg-black/50 backdrop-blur-sm pointer-events-none">
+        <div class="bg-white rounded-2xl overflow-hidden max-w-4xl w-full flex shadow-2xl h-[620px] pointer-events-auto">
           <!-- Left: Form content -->
           <div class="w-1/2 py-8 pl-8 lg:py-10 lg:pl-10 pr-8 lg:pr-10 flex flex-col relative">
+
+            <img
+              src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
+              alt="OptiMonk"
+              class="h-7 shrink-0 self-start mb-6"
+            />
 
             <transition name="modal-step-fade" mode="out-in">
             <div :key="modalStep" class="flex-1 flex flex-col justify-center">
@@ -1174,7 +1180,7 @@
                 <!-- Shopify -->
                 <Button variant="outline" size="lg" class="w-full">
                   <template #icon>
-                    <img src="/shopify-logo-svg-vector.svg" alt="Shopify" class="w-4.5 h-4.5 object-contain" />
+                    <img src="/icons/shopify-logo.svg" alt="Shopify" class="w-4.5 h-4.5 object-contain" />
                   </template>
                   Continue with Shopify
                 </Button>
@@ -1197,11 +1203,6 @@
 
             <!-- Email registration form view -->
             <template v-else-if="modalStep === 'email-form'">
-              <button @click="modalStep = 'buttons'" class="absolute top-8 lg:top-10 flex items-center gap-1.5 text-sm text-om-gray-500 hover:text-om-gray-700 cursor-pointer">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                Back
-              </button>
-
               <h2 class="text-2xl font-bold text-om-gray-700 mb-1">Create your free account</h2>
               <p class="text-om-gray-500 mb-6">and unlock your full optimization plan</p>
 
@@ -1288,10 +1289,6 @@
 
             <!-- How did you hear about us? -->
             <template v-else-if="modalStep === 'referral'">
-              <button @click="modalStep = 'email-form'" class="absolute top-8 lg:top-10 flex items-center gap-1.5 text-sm text-om-gray-500 hover:text-om-gray-700 cursor-pointer">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                Back
-              </button>
               <div class="[&>div]:pr-0!">
                 <StepReferralSource
                   v-model="referralData"
@@ -1302,10 +1299,6 @@
 
             <!-- Who are you optimizing this website for? -->
             <template v-else-if="modalStep === 'relationship'">
-              <button @click="modalStep = 'referral'" class="absolute top-8 lg:top-10 flex items-center gap-1.5 text-sm text-om-gray-500 hover:text-om-gray-700 cursor-pointer">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                Back
-              </button>
               <div class="[&>div]:pr-0!">
                 <StepRelationship
                   v-model="relationshipData"
@@ -1316,10 +1309,6 @@
 
             <!-- Who does this account belong to? -->
             <template v-else-if="modalStep === 'contact-type'">
-              <button @click="modalStep = 'relationship'" class="absolute top-8 lg:top-10 flex items-center gap-1.5 text-sm text-om-gray-500 hover:text-om-gray-700 cursor-pointer">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                Back
-              </button>
               <StepContactType
                 v-model="contactTypeData"
                 :registration-data="emailFormData"
@@ -1329,10 +1318,6 @@
 
             <!-- Agency details -->
             <template v-else-if="modalStep === 'agency-details'">
-              <button @click="modalStep = 'contact-type'" class="absolute top-8 lg:top-10 flex items-center gap-1.5 text-sm text-om-gray-500 hover:text-om-gray-700 cursor-pointer">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                Back
-              </button>
               <StepAgencyDetails
                 v-model="agencyDetailsData"
                 @auto-next="handleAgencyDetailsNext"
@@ -1342,11 +1327,41 @@
             </div>
             </transition>
 
+            <button
+              v-if="modalStep !== 'buttons'"
+              @click="goModalBack"
+              class="flex items-center gap-1.5 text-sm text-om-gray-500 hover:text-om-gray-700 cursor-pointer mt-4"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              Back
+            </button>
+
           </div>
 
-          <!-- Right: Monk illustration -->
-          <div class="w-1/2 bg-[#FFEFE5] flex items-center justify-center overflow-hidden">
-            <img src="/monk1.png" alt="OptiMonk Mascot" class="w-full object-contain" />
+          <!-- Right: Why join us -->
+          <div class="w-1/2 bg-[#ED5A29] flex flex-col px-8 py-8 lg:py-10 overflow-hidden">
+            <h2 class="text-white font-bold text-2xl mb-8">Why join us?</h2>
+            <ul class="space-y-3 mb-8">
+              <li v-for="item in whyJoinItems" :key="item" class="flex items-center gap-3">
+                <span class="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                  <Check :size="12" class="text-white" stroke-width="3" />
+                </span>
+                <span class="text-white text-base font-semibold">{{ item }}</span>
+              </li>
+            </ul>
+            <div class="flex items-center gap-2 mb-8">
+              <div class="flex">
+                <svg v-for="i in 5" :key="i" width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              </div>
+              <span class="text-white/90 text-sm">Trusted by 30,000+ businesses</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div v-for="logo in trustedLogos" :key="logo.name" class="bg-white/15 rounded-xl px-4 py-3 flex items-center justify-center h-12">
+                <component :is="logo.component" class="max-w-full max-h-full brightness-0 invert opacity-90" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1389,7 +1404,7 @@
               <div class="flex items-center gap-2">
                 <span>{{ msg.message }}</span>
                 <div class="w-8 h-8 rounded overflow-hidden bg-white border border-[#E3E5E8] flex items-center justify-center shrink-0">
-                  <img src="/telekom.png" alt="Logo" class="w-full h-full object-cover" />
+                  <img src="/demos/telekom/logo.png" alt="Logo" class="w-full h-full object-cover" />
                 </div>
               </div>
             </div>
@@ -1459,6 +1474,16 @@ import StepReferralSource from './StepReferralSource.vue'
 import StepRelationship from './StepRelationship.vue'
 import StepContactType from './StepContactType.vue'
 import StepAgencyDetails from './StepAgencyDetails.vue'
+import YamahaLogo from '../logos/YamahaLogo.vue'
+import AvonLogo from '../logos/AvonLogo.vue'
+import NikonLogo from '../logos/NikonLogo.vue'
+import AcerLogo from '../logos/AcerLogo.vue'
+import VilgainLogo from '../logos/VilgainLogo.vue'
+import LoccitaneLogo from '../logos/LoccitaneLogo.vue'
+import AldoLogo from '../logos/AldoLogo.vue'
+import BenchLogo from '../logos/BenchLogo.vue'
+import YvesRocherLogo from '../logos/YvesRocherLogo.vue'
+import HugoLogo from '../logos/HugoLogo.vue'
 
 const props = defineProps({
   modelValue: {
@@ -1526,8 +1551,40 @@ let observer = null
 
 // Registration modal
 const showRegistrationModal = ref(false)
+const registrationCompleted = ref(false)
+
+const whyJoinItems = [
+  'Personalized optimization strategies',
+  'AI-powered conversion insights',
+  'Real-time performance tracking',
+  '100+ optimization solutions',
+]
+
+const trustedLogos = [
+  { name: 'Yamaha', component: YamahaLogo },
+  { name: 'Avon', component: AvonLogo },
+  { name: 'Nikon', component: NikonLogo },
+  { name: 'Acer', component: AcerLogo },
+  { name: 'Vilgain', component: VilgainLogo },
+  { name: "L'Occitane", component: LoccitaneLogo },
+  { name: 'Aldo', component: AldoLogo },
+  { name: 'Bench', component: BenchLogo },
+  { name: 'Yves Rocher', component: YvesRocherLogo },
+  { name: 'Hugo', component: HugoLogo },
+]
+let paywallScrollCleanup = null
 // modalStep: 'buttons' | 'email-form' | 'referral' | 'relationship' | 'contact-type' | 'agency-details'
 const modalStep = ref('buttons')
+const goModalBack = () => {
+  const prevMap = {
+    'email-form': 'buttons',
+    'referral': 'email-form',
+    'relationship': 'referral',
+    'contact-type': 'relationship',
+    'agency-details': 'contact-type',
+  }
+  modalStep.value = prevMap[modalStep.value] || 'buttons'
+}
 const emailFormData = ref({ firstName: '', lastName: '', email: '', password: '' })
 const referralData = ref({})
 const relationshipData = ref({})
@@ -1562,6 +1619,7 @@ const handleRelationshipNext = () => {
   if (rel === 'client') {
     modalStep.value = 'contact-type'
   } else {
+    registrationCompleted.value = true
     showRegistrationModal.value = false
     modalStep.value = 'buttons'
   }
@@ -1571,17 +1629,31 @@ const handleContactTypeNext = () => {
   if (relationshipData.value?.relationship === 'client' && contactTypeData.value?.contactType === 'client-contact') {
     modalStep.value = 'agency-details'
   } else {
+    registrationCompleted.value = true
     showRegistrationModal.value = false
     modalStep.value = 'buttons'
   }
 }
 
 const handleAgencyDetailsNext = () => {
+  registrationCompleted.value = true
   showRegistrationModal.value = false
   modalStep.value = 'buttons'
 }
 
+const getScrollContainer = (el) => {
+  let current = el.parentElement
+  while (current) {
+    const style = getComputedStyle(current)
+    if (['auto', 'scroll'].includes(style.overflowY)) return current
+    current = current.parentElement
+  }
+  return window
+}
+
 const setupV4Observer = () => {
+  paywallScrollCleanup?.()
+  paywallScrollCleanup = null
   setTimeout(() => {
     if (observer) observer.disconnect()
     observer = new IntersectionObserver(
@@ -1591,7 +1663,6 @@ const setupV4Observer = () => {
             const index = useCaseRefs.value.indexOf(entry.target)
             if (index !== -1) {
               visibleUseCases.value[index] = true
-              if (index === 0) showRegistrationModal.value = true
             }
           }
         })
@@ -1599,6 +1670,21 @@ const setupV4Observer = () => {
       { threshold: 0.2 }
     )
     useCaseRefs.value.forEach((el) => { if (el) observer.observe(el) })
+
+    const card1 = useCaseRefs.value[0]
+    const anchorCard = card1 || useCaseRefs.value[1]
+    if (anchorCard) {
+      const container = getScrollContainer(anchorCard)
+      const handlePaywallScroll = () => {
+        if (registrationCompleted.value) return
+        const rect = anchorCard.getBoundingClientRect()
+        // Modal jelenik meg amikor az 1. kártya alja a viewport 60%-ánál feljebb kerül
+        showRegistrationModal.value = rect.bottom < window.innerHeight * 0.6
+      }
+      handlePaywallScroll()
+      container.addEventListener('scroll', handlePaywallScroll, { passive: true })
+      paywallScrollCleanup = () => container.removeEventListener('scroll', handlePaywallScroll)
+    }
   }, 100)
 }
 
@@ -1758,12 +1844,12 @@ const discoveredFonts = [
 ]
 
 const popupStyles = [
-  { id: 'modern', name: 'Modern', image: '/om_popup_1.png' },
-  { id: 'classic', name: 'Classic', image: '/om_popup_2.png' },
-  { id: 'minimal', name: 'Minimal', image: '/om_popup_3.png' },
-  { id: 'bold', name: 'Bold', image: '/om_popup_4.png' },
-  { id: 'elegant', name: 'Elegant', image: '/om_popup_5.png' },
-  { id: 'playful', name: 'Playful', image: '/om_popup_6.png' }
+  { id: 'modern', name: 'Modern', image: '/templates/popup-style-1.png' },
+  { id: 'classic', name: 'Classic', image: '/templates/popup-style-2.png' },
+  { id: 'minimal', name: 'Minimal', image: '/templates/popup-style-3.png' },
+  { id: 'bold', name: 'Bold', image: '/templates/popup-style-4.png' },
+  { id: 'elegant', name: 'Elegant', image: '/templates/popup-style-5.png' },
+  { id: 'playful', name: 'Playful', image: '/templates/popup-style-6.png' }
 ]
 
 // Use cases for recommendation page
@@ -1774,7 +1860,7 @@ const useCases = [
     description: 'The most effective list-building popup formula',
     subheadline: 'Grow your list with a two-step popup formula with every tweak for max conversions',
     icon: 'mail',
-    image: '/SmartDiscountPopup.png',
+    image: '/campaigns/smart-discount-popup.png',
     mobileImage: '/SmartDiscountPopup_mobile.png'
   },
   {
@@ -1783,7 +1869,7 @@ const useCases = [
     description: 'Offer a discount for cart abandoners',
     subheadline: 'Decrease cart abandonment rate with a strong discount offer',
     icon: 'cart',
-    image: '/CartAbandonmentStopper.png',
+    image: '/campaigns/cart-abandonment-stopper.png',
     mobileImage: '/CartAbandonmentStopper_mobile.png'
   },
   {
@@ -1792,7 +1878,7 @@ const useCases = [
     description: 'Gamify popups to increase visitor engagement',
     subheadline: 'Capture new visitor attention and increase conversions with spin-to-win lucky wheels',
     icon: 'wheel',
-    image: '/LuckyWheel.png',
+    image: '/campaigns/lucky-wheel.png',
     mobileImage: '/LuckyWheel_mobile.png'
   },
   {
@@ -1801,7 +1887,7 @@ const useCases = [
     description: 'Get real, measurable feedback on anything you want',
     subheadline: 'Find out how much your customers love you easily with a feedback survey',
     icon: 'star',
-    image: '/FeedbackSurvey.png',
+    image: '/campaigns/feedback-survey.png',
     mobileImage: '/FeedbackSurvey_mobile.png'
   }
 ]
@@ -2073,6 +2159,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (observer) observer.disconnect()
+  paywallScrollCleanup?.()
 })
 
 const navigateToPhase = (phase) => {
@@ -2086,6 +2173,8 @@ const navigateToPhase = (phase) => {
   showRecommendationV3.value = false
   showRecommendationV4.value = false
   showRecommendationV5.value = false
+  paywallScrollCleanup?.()
+  paywallScrollCleanup = null
 
   if (phase === 'wizard-analysis') {
     showAnalysisContent.value = true

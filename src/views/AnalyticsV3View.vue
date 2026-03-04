@@ -24,7 +24,7 @@
             placeholder="Select domain"
           >
             <template #icon>
-              <img src="/telekom.png" alt="Domain" class="w-5 h-5 rounded-full object-cover" />
+              <img src="/demos/telekom/logo.png" alt="Domain" class="w-5 h-5 rounded-full object-cover" />
             </template>
           </Dropdown>
 

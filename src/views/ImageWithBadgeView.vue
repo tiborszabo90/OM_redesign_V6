@@ -5,7 +5,7 @@
     <aside class="fixed left-0 top-0 h-screen w-19 bg-white flex flex-col items-center pt-6 pb-4 z-30 border-r border-[#E5E7EB]">
       <!-- Logo -->
       <div class="w-7 h-7 mb-5 flex items-center justify-center">
-        <img src="/optimonk_logo.svg" alt="OptiMonk" class="w-full h-full" />
+        <img src="/icons/optimonk-logo.svg" alt="OptiMonk" class="w-full h-full" />
       </div>
 
       <!-- Navigation Menu -->
@@ -175,7 +175,7 @@
               <div class="grid grid-cols-12 gap-1 items-center py-3 border-b border-om-gray-100 group">
                 <div class="col-span-5 flex items-center gap-2.5">
                   <div class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200">
-                    <img src="/image-with-badge1.jpg" alt="Variant A" class="w-full h-full object-cover" />
+                    <img src="/image-with-badge/image-1.jpg" alt="Variant A" class="w-full h-full object-cover" />
                   </div>
                   <span class="text-sm font-medium text-om-gray-700">Original</span>
                 </div>
@@ -200,7 +200,7 @@
               <div class="grid grid-cols-12 gap-1 items-center py-3 group">
                 <div class="col-span-5 flex items-center gap-2.5">
                   <div class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200">
-                    <img src="/image-with-badge2.jpg" alt="Variant B" class="w-full h-full object-cover" />
+                    <img src="/image-with-badge/image-2.jpg" alt="Variant B" class="w-full h-full object-cover" />
                   </div>
                   <span class="text-sm font-medium text-om-gray-700">AI Variant</span>
                 </div>
@@ -331,7 +331,7 @@
     <!-- Optimonk Logo + Back -->
     <div class="absolute top-6 left-6 flex items-center gap-1.5">
       <img
-        src="/optimonk_logo.svg"
+        src="/icons/optimonk-logo.svg"
         alt="OptiMonk"
         class="h-10"
       />
@@ -359,7 +359,7 @@
               style="width: 280px;"
             >
               <img
-                src="/nikka_4.jpg"
+                src="/demos/nikka/4.jpg"
                 alt="Uniform Store Brand"
                 class="w-full h-auto"
               />
@@ -376,7 +376,7 @@
               style="width: 280px;"
             >
               <img
-                src="/nikka_2.jpg"
+                src="/demos/nikka/2.jpg"
                 alt="Dynamic Product Brand"
                 class="w-full h-auto"
               />
@@ -400,7 +400,7 @@
             style="width: 280px;"
           >
             <img
-              src="/nikka_1.jpg"
+              src="/demos/nikka/1.jpg"
               alt="Style 1"
               class="w-full h-auto"
             />
@@ -414,7 +414,7 @@
             style="width: 280px;"
           >
             <img
-              src="/nikka_2.jpg"
+              src="/demos/nikka/2.jpg"
               alt="Style 2"
               class="w-full h-auto"
             />
@@ -428,7 +428,7 @@
             style="width: 280px;"
           >
             <img
-              src="/nikka_3.jpg"
+              src="/demos/nikka/3.jpg"
               alt="Style 3"
               class="w-full h-auto"
             />
@@ -553,7 +553,7 @@
             <div v-if="previewLoading" class="w-full h-full bg-om-gray-200 animate-pulse rounded-xl"></div>
             <div v-else ref="previewContainer" class="overflow-auto w-full h-full rounded-xl">
               <img
-                src="/iwb_preview_1.png"
+                src="/image-with-badge/preview-1.png"
                 alt="Preview"
                 class="w-full h-auto"
                 @load="onImageLoad"
@@ -565,7 +565,7 @@
             <div v-if="previewLoading" class="w-full h-full bg-om-gray-200 animate-pulse rounded-xl"></div>
             <div v-else ref="mobilePreviewContainer" class="overflow-auto w-full h-full rounded-xl">
               <img
-                src="/iwb_preview_1m.png"
+                src="/image-with-badge/preview-1-mobile.png"
                 alt="Mobile Preview"
                 class="w-full h-auto"
               />
@@ -785,35 +785,35 @@ const sidebarMenuItems = [
 ]
 
 const products = [
-  { name: "Nikka From The Barrel 0.5L 51.4%", thumbnail: "/nikka_1.jpg", desktop: "/image-with-badge1.jpg", mobile: "/image-with-badge1m.jpg" },
-  { name: "Shanky's Whip Black Irish Whiskey Likőr 0.7L 33%", thumbnail: "/nikka_2.jpg", desktop: "/image-with-badge2.jpg", mobile: "/image-with-badge2m.jpg" },
-  { name: "Nikka Coffey Grain Whisky 0.7L 45%", thumbnail: "/nikka_3.jpg", desktop: "/image-with-badge3.jpg", mobile: "/image-with-badge3m.jpg" },
-  { name: "Nikka Taketsuru Pure Malt 0.7L 43%", thumbnail: "/nikka_4.jpg", desktop: "/image-with-badge4.jpg", mobile: "/image-with-badge4m.jpg" },
-  { name: "Nikka Miyagikyo Single Malt 0.7L 45%", thumbnail: "/nikka_1.jpg", desktop: "/image-with-badge5.jpg", mobile: "/image-with-badge5m.jpg" },
-  { name: "Jameson Irish Whiskey 0.7L 40%", thumbnail: "/nikka_2.jpg", desktop: "/image-with-badge1.jpg", mobile: "/image-with-badge1m.jpg" },
-  { name: "Tullamore Dew Irish Whiskey 0.7L 40%", thumbnail: "/nikka_3.jpg", desktop: "/image-with-badge2.jpg", mobile: "/image-with-badge2m.jpg" },
-  { name: "Bushmills Original 0.7L 40%", thumbnail: "/nikka_4.jpg", desktop: "/image-with-badge3.jpg", mobile: "/image-with-badge3m.jpg" },
-  { name: "Redbreast 12 Year Old 0.7L 40%", thumbnail: "/nikka_1.jpg", desktop: "/image-with-badge4.jpg", mobile: "/image-with-badge4m.jpg" },
-  { name: "Green Spot Single Pot Still 0.7L 40%", thumbnail: "/nikka_2.jpg", desktop: "/image-with-badge5.jpg", mobile: "/image-with-badge5m.jpg" },
-  { name: "Maker's Mark Bourbon 0.7L 45%", thumbnail: "/nikka_3.jpg", desktop: "/image-with-badge1.jpg", mobile: "/image-with-badge1m.jpg" },
-  { name: "Glenfiddich 12 Year Old 0.7L 40%", thumbnail: "/nikka_4.jpg", desktop: "/image-with-badge2.jpg", mobile: "/image-with-badge2m.jpg" },
-  { name: "Lagavulin 16 Year Old 0.7L 43%", thumbnail: "/nikka_1.jpg", desktop: "/image-with-badge3.jpg", mobile: "/image-with-badge3m.jpg" },
-  { name: "Talisker 10 Year Old 0.7L 45.8%", thumbnail: "/nikka_2.jpg", desktop: "/image-with-badge4.jpg", mobile: "/image-with-badge4m.jpg" },
-  { name: "Monkey Shoulder Blended Malt 0.7L 40%", thumbnail: "/nikka_3.jpg", desktop: "/image-with-badge5.jpg", mobile: "/image-with-badge5m.jpg" },
-  { name: "Hibiki Japanese Harmony 0.7L 43%", thumbnail: "/nikka_4.jpg", desktop: "/image-with-badge1.jpg", mobile: "/image-with-badge1m.jpg" },
-  { name: "Woodford Reserve Bourbon 0.7L 43.2%", thumbnail: "/nikka_1.jpg", desktop: "/image-with-badge2.jpg", mobile: "/image-with-badge2m.jpg" },
-  { name: "Laphroaig 10 Year Old 0.7L 40%", thumbnail: "/nikka_2.jpg", desktop: "/image-with-badge3.jpg", mobile: "/image-with-badge3m.jpg" },
-  { name: "Bulleit Bourbon 0.7L 45%", thumbnail: "/nikka_3.jpg", desktop: "/image-with-badge4.jpg", mobile: "/image-with-badge4m.jpg" },
-  { name: "Ardbeg 10 Year Old 0.7L 46%", thumbnail: "/nikka_4.jpg", desktop: "/image-with-badge5.jpg", mobile: "/image-with-badge5m.jpg" },
-  { name: "Highland Park 12 Year Old 0.7L 40%", thumbnail: "/nikka_1.jpg", desktop: "/image-with-badge1.jpg", mobile: "/image-with-badge1m.jpg" },
-  { name: "Balvenie DoubleWood 12 Year Old 0.7L 40%", thumbnail: "/nikka_2.jpg", desktop: "/image-with-badge2.jpg", mobile: "/image-with-badge2m.jpg" },
-  { name: "Oban 14 Year Old 0.7L 43%", thumbnail: "/nikka_3.jpg", desktop: "/image-with-badge3.jpg", mobile: "/image-with-badge3m.jpg" },
-  { name: "Dalmore 12 Year Old 0.7L 40%", thumbnail: "/nikka_4.jpg", desktop: "/image-with-badge4.jpg", mobile: "/image-with-badge4m.jpg" },
-  { name: "Aberlour 12 Year Old 0.7L 40%", thumbnail: "/nikka_1.jpg", desktop: "/image-with-badge5.jpg", mobile: "/image-with-badge5m.jpg" },
-  { name: "Bruichladdich Classic Laddie 0.7L 50%", thumbnail: "/nikka_2.jpg", desktop: "/image-with-badge1.jpg", mobile: "/image-with-badge1m.jpg" },
-  { name: "Glenmorangie Original 0.7L 40%", thumbnail: "/nikka_3.jpg", desktop: "/image-with-badge2.jpg", mobile: "/image-with-badge2m.jpg" },
-  { name: "Cardhu 12 Year Old 0.7L 40%", thumbnail: "/nikka_4.jpg", desktop: "/image-with-badge3.jpg", mobile: "/image-with-badge3m.jpg" },
-  { name: "Singleton 12 Year Old 0.7L 40%", thumbnail: "/nikka_1.jpg", desktop: "/image-with-badge4.jpg", mobile: "/image-with-badge4m.jpg" },
+  { name: "Nikka From The Barrel 0.5L 51.4%", thumbnail: "/demos/nikka/1.jpg", desktop: "/image-with-badge/image-1.jpg", mobile: "/image-with-badge/image-1-mobile.jpg" },
+  { name: "Shanky's Whip Black Irish Whiskey Likőr 0.7L 33%", thumbnail: "/demos/nikka/2.jpg", desktop: "/image-with-badge/image-2.jpg", mobile: "/image-with-badge/image-2-mobile.jpg" },
+  { name: "Nikka Coffey Grain Whisky 0.7L 45%", thumbnail: "/demos/nikka/3.jpg", desktop: "/image-with-badge/image-3.jpg", mobile: "/image-with-badge/image-3-mobile.jpg" },
+  { name: "Nikka Taketsuru Pure Malt 0.7L 43%", thumbnail: "/demos/nikka/4.jpg", desktop: "/image-with-badge/image-4.jpg", mobile: "/image-with-badge/image-4-mobile.jpg" },
+  { name: "Nikka Miyagikyo Single Malt 0.7L 45%", thumbnail: "/demos/nikka/1.jpg", desktop: "/image-with-badge/image-5.jpg", mobile: "/image-with-badge/image-5-mobile.jpg" },
+  { name: "Jameson Irish Whiskey 0.7L 40%", thumbnail: "/demos/nikka/2.jpg", desktop: "/image-with-badge/image-1.jpg", mobile: "/image-with-badge/image-1-mobile.jpg" },
+  { name: "Tullamore Dew Irish Whiskey 0.7L 40%", thumbnail: "/demos/nikka/3.jpg", desktop: "/image-with-badge/image-2.jpg", mobile: "/image-with-badge/image-2-mobile.jpg" },
+  { name: "Bushmills Original 0.7L 40%", thumbnail: "/demos/nikka/4.jpg", desktop: "/image-with-badge/image-3.jpg", mobile: "/image-with-badge/image-3-mobile.jpg" },
+  { name: "Redbreast 12 Year Old 0.7L 40%", thumbnail: "/demos/nikka/1.jpg", desktop: "/image-with-badge/image-4.jpg", mobile: "/image-with-badge/image-4-mobile.jpg" },
+  { name: "Green Spot Single Pot Still 0.7L 40%", thumbnail: "/demos/nikka/2.jpg", desktop: "/image-with-badge/image-5.jpg", mobile: "/image-with-badge/image-5-mobile.jpg" },
+  { name: "Maker's Mark Bourbon 0.7L 45%", thumbnail: "/demos/nikka/3.jpg", desktop: "/image-with-badge/image-1.jpg", mobile: "/image-with-badge/image-1-mobile.jpg" },
+  { name: "Glenfiddich 12 Year Old 0.7L 40%", thumbnail: "/demos/nikka/4.jpg", desktop: "/image-with-badge/image-2.jpg", mobile: "/image-with-badge/image-2-mobile.jpg" },
+  { name: "Lagavulin 16 Year Old 0.7L 43%", thumbnail: "/demos/nikka/1.jpg", desktop: "/image-with-badge/image-3.jpg", mobile: "/image-with-badge/image-3-mobile.jpg" },
+  { name: "Talisker 10 Year Old 0.7L 45.8%", thumbnail: "/demos/nikka/2.jpg", desktop: "/image-with-badge/image-4.jpg", mobile: "/image-with-badge/image-4-mobile.jpg" },
+  { name: "Monkey Shoulder Blended Malt 0.7L 40%", thumbnail: "/demos/nikka/3.jpg", desktop: "/image-with-badge/image-5.jpg", mobile: "/image-with-badge/image-5-mobile.jpg" },
+  { name: "Hibiki Japanese Harmony 0.7L 43%", thumbnail: "/demos/nikka/4.jpg", desktop: "/image-with-badge/image-1.jpg", mobile: "/image-with-badge/image-1-mobile.jpg" },
+  { name: "Woodford Reserve Bourbon 0.7L 43.2%", thumbnail: "/demos/nikka/1.jpg", desktop: "/image-with-badge/image-2.jpg", mobile: "/image-with-badge/image-2-mobile.jpg" },
+  { name: "Laphroaig 10 Year Old 0.7L 40%", thumbnail: "/demos/nikka/2.jpg", desktop: "/image-with-badge/image-3.jpg", mobile: "/image-with-badge/image-3-mobile.jpg" },
+  { name: "Bulleit Bourbon 0.7L 45%", thumbnail: "/demos/nikka/3.jpg", desktop: "/image-with-badge/image-4.jpg", mobile: "/image-with-badge/image-4-mobile.jpg" },
+  { name: "Ardbeg 10 Year Old 0.7L 46%", thumbnail: "/demos/nikka/4.jpg", desktop: "/image-with-badge/image-5.jpg", mobile: "/image-with-badge/image-5-mobile.jpg" },
+  { name: "Highland Park 12 Year Old 0.7L 40%", thumbnail: "/demos/nikka/1.jpg", desktop: "/image-with-badge/image-1.jpg", mobile: "/image-with-badge/image-1-mobile.jpg" },
+  { name: "Balvenie DoubleWood 12 Year Old 0.7L 40%", thumbnail: "/demos/nikka/2.jpg", desktop: "/image-with-badge/image-2.jpg", mobile: "/image-with-badge/image-2-mobile.jpg" },
+  { name: "Oban 14 Year Old 0.7L 43%", thumbnail: "/demos/nikka/3.jpg", desktop: "/image-with-badge/image-3.jpg", mobile: "/image-with-badge/image-3-mobile.jpg" },
+  { name: "Dalmore 12 Year Old 0.7L 40%", thumbnail: "/demos/nikka/4.jpg", desktop: "/image-with-badge/image-4.jpg", mobile: "/image-with-badge/image-4-mobile.jpg" },
+  { name: "Aberlour 12 Year Old 0.7L 40%", thumbnail: "/demos/nikka/1.jpg", desktop: "/image-with-badge/image-5.jpg", mobile: "/image-with-badge/image-5-mobile.jpg" },
+  { name: "Bruichladdich Classic Laddie 0.7L 50%", thumbnail: "/demos/nikka/2.jpg", desktop: "/image-with-badge/image-1.jpg", mobile: "/image-with-badge/image-1-mobile.jpg" },
+  { name: "Glenmorangie Original 0.7L 40%", thumbnail: "/demos/nikka/3.jpg", desktop: "/image-with-badge/image-2.jpg", mobile: "/image-with-badge/image-2-mobile.jpg" },
+  { name: "Cardhu 12 Year Old 0.7L 40%", thumbnail: "/demos/nikka/4.jpg", desktop: "/image-with-badge/image-3.jpg", mobile: "/image-with-badge/image-3-mobile.jpg" },
+  { name: "Singleton 12 Year Old 0.7L 40%", thumbnail: "/demos/nikka/1.jpg", desktop: "/image-with-badge/image-4.jpg", mobile: "/image-with-badge/image-4-mobile.jpg" },
 ]
 
 const selectedTimePeriod = ref('Last 30 days')

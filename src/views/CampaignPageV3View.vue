@@ -139,12 +139,12 @@
                   @mouseenter="hoveredImage = 'variant1'"
                   @mouseleave="hoveredImage = null"
                 >
-                  <img src="/CartAbandonmentStopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
+                  <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
                   <!-- Tooltip -->
                   <transition name="fade">
                     <div v-if="hoveredImage === 'variant1'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
                       <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-                        <img src="/CartAbandonmentStopper.png" alt="Cart Abandonment Stopper Large" class="w-96 h-auto rounded-lg" />
+                        <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper Large" class="w-96 h-auto rounded-lg" />
                       </div>
                     </div>
                   </transition>
@@ -178,12 +178,12 @@
                   @mouseenter="hoveredImage = 'variant2'"
                   @mouseleave="hoveredImage = null"
                 >
-                  <img src="/CartAbandonmentStopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
+                  <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
                   <!-- Tooltip -->
                   <transition name="fade">
                     <div v-if="hoveredImage === 'variant2'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
                       <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-                        <img src="/CartAbandonmentStopper.png" alt="Cart Abandonment Stopper Large" class="w-96 h-auto rounded-lg" />
+                        <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper Large" class="w-96 h-auto rounded-lg" />
                       </div>
                     </div>
                   </transition>

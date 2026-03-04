@@ -7,7 +7,7 @@
     ]">
       <!-- Logo -->
       <button @click="$emit('logo-click'); navigateTo('home')" class="w-7 h-7 mb-5 flex items-center justify-center">
-        <img src="/optimonk_logo.svg" alt="OptiMonk" class="w-full h-full" />
+        <img src="/icons/optimonk-logo.svg" alt="OptiMonk" class="w-full h-full" />
       </button>
 
       <!-- Navigation Menu -->

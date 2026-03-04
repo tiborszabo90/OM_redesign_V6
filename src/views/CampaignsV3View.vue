@@ -20,7 +20,7 @@
             >
               <template #icon>
                 <div class="w-6 h-6 rounded-full overflow-hidden">
-                  <img src="/telekom.png" alt="Telekom" class="w-full h-full object-cover" />
+                  <img src="/demos/telekom/logo.png" alt="Telekom" class="w-full h-full object-cover" />
                 </div>
               </template>
             </Dropdown>
@@ -152,7 +152,7 @@ const campaigns = reactive([
     id: 'campaign1',
     name: 'Smart Discount Popup',
     domain: 'domain.com',
-    image: '/SmartDiscountPopup.png',
+    image: '/campaigns/smart-discount-popup.png',
     active: true,
     selected: false,
     lastUpdated: '14 days ago',
@@ -167,7 +167,7 @@ const campaigns = reactive([
     id: 'campaign2',
     name: 'Lucky Wheel',
     domain: 'domain.com',
-    image: '/LuckyWheel.png',
+    image: '/campaigns/lucky-wheel.png',
     active: true,
     selected: false,
     lastUpdated: '14 days ago',
@@ -187,7 +187,7 @@ const campaigns = reactive([
     id: 'campaign3',
     name: 'Cart Abandonment Stopper',
     domain: 'domain.com',
-    image: '/CartAbandonmentStopper.png',
+    image: '/campaigns/cart-abandonment-stopper.png',
     active: true,
     selected: false,
     lastUpdated: '14 days ago',
@@ -207,7 +207,7 @@ const campaigns = reactive([
     id: 'campaign4',
     name: 'Feedback Survey',
     domain: 'domain.com',
-    image: '/FeedbackSurvey.png',
+    image: '/campaigns/feedback-survey.png',
     active: true,
     selected: false,
     lastUpdated: '14 days ago',

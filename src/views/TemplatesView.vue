@@ -97,27 +97,27 @@
             <!-- Popup Types -->
             <div class="popup-types">
               <div class="popup-type-box">
-                <img src="/type_popup.svg" alt="Popup" class="popup-type-icon" />
+                <img src="/templates/type-popup.svg" alt="Popup" class="popup-type-icon" />
                 <span class="popup-type-label">Popup</span>
               </div>
               <div class="popup-type-box">
-                <img src="/type_wheel.svg" alt="Gamification" class="popup-type-icon" />
+                <img src="/templates/type-wheel.svg" alt="Gamification" class="popup-type-icon" />
                 <span class="popup-type-label">Gamification</span>
               </div>
               <div class="popup-type-box">
-                <img src="/type_stickybar.svg" alt="Sticky Bar" class="popup-type-icon" />
+                <img src="/templates/type-stickybar.svg" alt="Sticky Bar" class="popup-type-icon" />
                 <span class="popup-type-label">Sticky Bar</span>
               </div>
               <div class="popup-type-box">
-                <img src="/type_side.svg" alt="Sidemessage" class="popup-type-icon" />
+                <img src="/templates/type-side.svg" alt="Sidemessage" class="popup-type-icon" />
                 <span class="popup-type-label">Sidemessage</span>
               </div>
               <div class="popup-type-box">
-                <img src="/type_embedded.svg" alt="Embedded" class="popup-type-icon" />
+                <img src="/templates/type-embedded.svg" alt="Embedded" class="popup-type-icon" />
                 <span class="popup-type-label">Embedded</span>
               </div>
               <div class="popup-type-box">
-                <img src="/type_new.svg" alt="Image popup" class="popup-type-icon" />
+                <img src="/templates/type-new.svg" alt="Image popup" class="popup-type-icon" />
                 <span class="popup-type-label">Image popup</span>
               </div>
             </div>
@@ -135,13 +135,13 @@
                 </button>
                 <div class="families-carousel" ref="carouselRef" @scroll="handleFamilyScroll">
                   <div class="family-item">
-                    <img src="/family_essential.png" alt="Family Essential" class="family-image" />
+                    <img src="/templates/family-essential.png" alt="Family Essential" class="family-image" />
                   </div>
                   <div class="family-item">
-                    <img src="/family_black.png" alt="Family Black" class="family-image" />
+                    <img src="/templates/family-black.png" alt="Family Black" class="family-image" />
                   </div>
                   <div class="family-item">
-                    <img src="/family_midnight.png" alt="Family Midnight" class="family-image" />
+                    <img src="/templates/family-midnight.png" alt="Family Midnight" class="family-image" />
                   </div>
                 </div>
                 <button class="carousel-nav-button carousel-nav-right" @click="scrollCarouselRight">
@@ -163,13 +163,13 @@
                 </button>
                 <div class="seasons-carousel" ref="seasonsCarouselRef" @scroll="handleSeasonsScroll">
                   <div class="season-item">
-                    <img src="/season_1.png" alt="Season 1" class="season-image" />
+                    <img src="/templates/season-1.png" alt="Season 1" class="season-image" />
                   </div>
                   <div class="season-item">
-                    <img src="/season_2.png" alt="Season 2" class="season-image" />
+                    <img src="/templates/season-2.png" alt="Season 2" class="season-image" />
                   </div>
                   <div class="season-item">
-                    <img src="/season_3.png" alt="Season 3" class="season-image" />
+                    <img src="/templates/season-3.png" alt="Season 3" class="season-image" />
                   </div>
                 </div>
                 <button class="seasons-nav-button seasons-nav-right" @click="scrollSeasonsCarouselRight">
@@ -184,21 +184,21 @@
               <div class="usecases-grid">
                 <div class="usecase-card">
                   <div class="usecase-image-wrapper">
-                    <img src="/usecase_1.png" alt="Use Case 1" class="usecase-image" />
+                    <img src="/templates/usecase-1.png" alt="Use Case 1" class="usecase-image" />
                   </div>
                   <h3 class="usecase-title">Use Case Title 1</h3>
                   <p class="usecase-subtext">Description for use case 1</p>
                 </div>
                 <div class="usecase-card">
                   <div class="usecase-image-wrapper">
-                    <img src="/usecase_2.png" alt="Use Case 2" class="usecase-image" />
+                    <img src="/templates/usecase-2.png" alt="Use Case 2" class="usecase-image" />
                   </div>
                   <h3 class="usecase-title">Use Case Title 2</h3>
                   <p class="usecase-subtext">Description for use case 2</p>
                 </div>
                 <div class="usecase-card">
                   <div class="usecase-image-wrapper">
-                    <img src="/usecase_3.png" alt="Use Case 3" class="usecase-image" />
+                    <img src="/templates/usecase-3.png" alt="Use Case 3" class="usecase-image" />
                   </div>
                   <h3 class="usecase-title">Use Case Title 3</h3>
                   <p class="usecase-subtext">Description for use case 3</p>

@@ -24,7 +24,7 @@
           >
             <template #icon>
               <div class="w-5 h-5 rounded-full overflow-hidden">
-                <img src="/telekom.png" alt="Domain" class="w-full h-full object-cover" />
+                <img src="/demos/telekom/logo.png" alt="Domain" class="w-full h-full object-cover" />
               </div>
             </template>
           </Dropdown>

@@ -19,7 +19,7 @@
               <Dropdown v-model="selectedDomain" :options="domains">
                 <template #icon>
                   <div class="w-6 h-6 rounded-full overflow-hidden">
-                    <img src="/telekom.png" alt="Telekom" class="w-full h-full object-cover" />
+                    <img src="/demos/telekom/logo.png" alt="Telekom" class="w-full h-full object-cover" />
                   </div>
                 </template>
               </Dropdown>
@@ -106,12 +106,12 @@
               @mouseenter="hoveredImage = 'campaign1'"
               @mouseleave="hoveredImage = null"
             >
-              <img src="/SmartDiscountPopup.png" alt="Campaign preview" class="w-full h-full object-cover" />
+              <img src="/campaigns/smart-discount-popup.png" alt="Campaign preview" class="w-full h-full object-cover" />
               <!-- Tooltip -->
               <transition name="fade">
                 <div v-if="hoveredImage === 'campaign1'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
                   <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-                    <img src="/SmartDiscountPopup.png" alt="Campaign preview large" class="w-96 h-auto rounded-lg" />
+                    <img src="/campaigns/smart-discount-popup.png" alt="Campaign preview large" class="w-96 h-auto rounded-lg" />
                   </div>
                 </div>
               </transition>
@@ -189,12 +189,12 @@
               @mouseenter="hoveredImage = 'campaign2'"
               @mouseleave="hoveredImage = null"
             >
-              <img src="/LuckyWheel.png" alt="Campaign preview" class="w-full h-full object-cover" />
+              <img src="/campaigns/lucky-wheel.png" alt="Campaign preview" class="w-full h-full object-cover" />
               <!-- Tooltip -->
               <transition name="fade">
                 <div v-if="hoveredImage === 'campaign2'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
                   <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-                    <img src="/LuckyWheel.png" alt="Campaign preview large" class="w-96 h-auto rounded-lg" />
+                    <img src="/campaigns/lucky-wheel.png" alt="Campaign preview large" class="w-96 h-auto rounded-lg" />
                   </div>
                 </div>
               </transition>
@@ -266,12 +266,12 @@
               @mouseenter="hoveredImage = 'campaign3'"
               @mouseleave="hoveredImage = null"
             >
-              <img src="/CartAbandonmentStopper.png" alt="Campaign preview" class="w-full h-full object-cover" />
+              <img src="/campaigns/cart-abandonment-stopper.png" alt="Campaign preview" class="w-full h-full object-cover" />
               <!-- Tooltip -->
               <transition name="fade">
                 <div v-if="hoveredImage === 'campaign3'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
                   <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-                    <img src="/CartAbandonmentStopper.png" alt="Campaign preview large" class="w-96 h-auto rounded-lg" />
+                    <img src="/campaigns/cart-abandonment-stopper.png" alt="Campaign preview large" class="w-96 h-auto rounded-lg" />
                   </div>
                 </div>
               </transition>
@@ -343,12 +343,12 @@
               @mouseenter="hoveredImage = 'campaign4'"
               @mouseleave="hoveredImage = null"
             >
-              <img src="/FeedbackSurvey.png" alt="Campaign preview" class="w-full h-full object-cover" />
+              <img src="/campaigns/feedback-survey.png" alt="Campaign preview" class="w-full h-full object-cover" />
               <!-- Tooltip -->
               <transition name="fade">
                 <div v-if="hoveredImage === 'campaign4'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
                   <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-                    <img src="/FeedbackSurvey.png" alt="Campaign preview large" class="w-96 h-auto rounded-lg" />
+                    <img src="/campaigns/feedback-survey.png" alt="Campaign preview large" class="w-96 h-auto rounded-lg" />
                   </div>
                 </div>
               </transition>
@@ -418,12 +418,12 @@
                 @mouseenter="hoveredImage = 'campaign1'"
                 @mouseleave="hoveredImage = null"
               >
-                <img src="/SmartDiscountPopup.png" alt="Campaign preview" class="w-full h-full object-cover" />
+                <img src="/campaigns/smart-discount-popup.png" alt="Campaign preview" class="w-full h-full object-cover" />
                 <!-- Tooltip -->
                 <transition name="fade">
                   <div v-if="hoveredImage === 'campaign1'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
                     <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-                      <img src="/SmartDiscountPopup.png" alt="Campaign preview large" class="w-96 h-auto rounded-lg" />
+                      <img src="/campaigns/smart-discount-popup.png" alt="Campaign preview large" class="w-96 h-auto rounded-lg" />
                     </div>
                   </div>
                 </transition>
@@ -498,11 +498,11 @@
                 @mouseenter="hoveredImage = 'campaign2'"
                 @mouseleave="hoveredImage = null"
               >
-                <img src="/LuckyWheel.png" alt="Campaign preview" class="w-full h-full object-cover" />
+                <img src="/campaigns/lucky-wheel.png" alt="Campaign preview" class="w-full h-full object-cover" />
                 <transition name="fade">
                   <div v-if="hoveredImage === 'campaign2'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
                     <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-                      <img src="/LuckyWheel.png" alt="Campaign preview large" class="w-96 h-auto rounded-lg" />
+                      <img src="/campaigns/lucky-wheel.png" alt="Campaign preview large" class="w-96 h-auto rounded-lg" />
                     </div>
                   </div>
                 </transition>
@@ -574,11 +574,11 @@
                 @mouseenter="hoveredImage = 'campaign3'"
                 @mouseleave="hoveredImage = null"
               >
-                <img src="/CartAbandonmentStopper.png" alt="Campaign preview" class="w-full h-full object-cover" />
+                <img src="/campaigns/cart-abandonment-stopper.png" alt="Campaign preview" class="w-full h-full object-cover" />
                 <transition name="fade">
                   <div v-if="hoveredImage === 'campaign3'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
                     <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-                      <img src="/CartAbandonmentStopper.png" alt="Campaign preview large" class="w-96 h-auto rounded-lg" />
+                      <img src="/campaigns/cart-abandonment-stopper.png" alt="Campaign preview large" class="w-96 h-auto rounded-lg" />
                     </div>
                   </div>
                 </transition>
@@ -650,11 +650,11 @@
                 @mouseenter="hoveredImage = 'campaign4'"
                 @mouseleave="hoveredImage = null"
               >
-                <img src="/FeedbackSurvey.png" alt="Campaign preview" class="w-full h-full object-cover" />
+                <img src="/campaigns/feedback-survey.png" alt="Campaign preview" class="w-full h-full object-cover" />
                 <transition name="fade">
                   <div v-if="hoveredImage === 'campaign4'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
                     <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-                      <img src="/FeedbackSurvey.png" alt="Campaign preview large" class="w-96 h-auto rounded-lg" />
+                      <img src="/campaigns/feedback-survey.png" alt="Campaign preview large" class="w-96 h-auto rounded-lg" />
                     </div>
                   </div>
                 </transition>

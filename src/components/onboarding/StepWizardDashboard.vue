@@ -210,7 +210,7 @@
             <div class="w-full h-full bg-[#F9FAFB] rounded-2xl overflow-hidden flex items-center justify-center">
               <!-- Placeholder image -->
               <img
-                src="/telekom_img1.png"
+                src="/demos/telekom/img1.png"
                 alt="Telekom"
                 class="w-full h-full object-cover"
               />
@@ -282,12 +282,12 @@
               <div class="flex gap-3 shrink-0 items-center">
                 <!-- Desktop Preview -->
                 <div class="w-[284px] lg:w-[370px] xl:w-[455px] 2xl:w-[512px] 3xl:w-[569px]">
-                  <img src="/image-with-badge1.jpg" alt="Product Value Spotlight" class="w-full h-auto rounded-lg border border-om-gray-200" />
+                  <img src="/image-with-badge/image-1.jpg" alt="Product Value Spotlight" class="w-full h-auto rounded-lg border border-om-gray-200" />
                 </div>
 
                 <!-- Mobile Preview -->
                 <div class="w-[106px] lg:w-[136px] xl:w-[152px] 2xl:w-[182px] 3xl:w-[212px]">
-                  <img src="/image-with-badge1m.jpg" alt="Product Value Spotlight Mobile" class="w-full h-auto rounded-lg border border-om-gray-200" />
+                  <img src="/image-with-badge/image-1-mobile.jpg" alt="Product Value Spotlight Mobile" class="w-full h-auto rounded-lg border border-om-gray-200" />
                 </div>
               </div>
             </div>
@@ -361,7 +361,7 @@
             <div class="w-full h-full bg-[#F9FAFB] rounded-2xl overflow-hidden flex items-center justify-center">
               <!-- Placeholder image -->
               <img
-                src="/telekom_img1.png"
+                src="/demos/telekom/img1.png"
                 alt="Telekom"
                 class="w-full h-full object-cover"
               />
@@ -491,7 +491,7 @@
                         <template v-if="useCases[currentDeckCard].id === 'newsletter'">
                           <div class="flex w-full h-full">
                             <div class="flex-1 p-3 flex flex-col justify-center">
-                              <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-6 h-6 object-contain mb-1" />
                               <h4 class="text-xs font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].title }}
                               </h4>
@@ -521,7 +521,7 @@
                         <template v-else-if="useCases[currentDeckCard].id === 'cart-abandonment'">
                           <div class="flex w-full h-full">
                             <div class="flex-1 p-3 flex flex-col justify-center text-center">
-                              <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1 mx-auto" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-6 h-6 object-contain mb-1 mx-auto" />
                               <h4 class="text-sm font-bold mb-0.5" :style="{ fontFamily: brandSettings.primaryFont, color: brandSettings.colors[brandSettings.selectedColorIndex] }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].title }}
                               </h4>
@@ -549,7 +549,7 @@
                         <template v-else-if="useCases[currentDeckCard].id === 'welcome-discount'">
                           <div class="flex w-full h-full">
                             <div class="flex-1 p-3 flex flex-col justify-center">
-                              <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-6 h-6 object-contain mb-1" />
                               <h4 class="text-xs font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].title }}
                               </h4>
@@ -577,7 +577,7 @@
                         <template v-else-if="useCases[currentDeckCard].id === 'feedback'">
                           <div class="flex w-full h-full">
                             <div class="flex-1 p-3 flex flex-col justify-center text-center">
-                              <img src="/telekom.png" alt="Logo" class="w-6 h-6 object-contain mb-1 mx-auto" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-6 h-6 object-contain mb-1 mx-auto" />
                               <h4 class="text-xs font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].title }}
                               </h4>
@@ -643,7 +643,7 @@
                               </div>
                             </div>
                             <div class="flex-1 p-3 flex flex-col justify-center">
-                              <img src="/telekom.png" alt="Logo" class="w-5 h-5 object-contain mb-1" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-5 h-5 object-contain mb-1" />
                               <h4 class="text-xs font-bold mb-1" :style="{ fontFamily: brandSettings.primaryFont, color: brandSettings.colors[brandSettings.selectedColorIndex] }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].title }}
                               </h4>
@@ -676,7 +676,7 @@
                               <img src="https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=200&h=100&fit=crop" alt="Newsletter" class="w-full h-full object-cover" />
                             </div>
                             <div class="flex-1 p-2 flex flex-col justify-center">
-                              <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5" />
                               <h4 class="text-[7px] font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].title }}
                               </h4>
@@ -704,7 +704,7 @@
                               <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=200&h=100&fit=crop" alt="Shopping cart" class="w-full h-full object-cover" />
                             </div>
                             <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                              <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
                               <h4 class="text-[8px] font-bold mb-0.5" :style="{ fontFamily: brandSettings.primaryFont, color: brandSettings.colors[brandSettings.selectedColorIndex] }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].title }}
                               </h4>
@@ -732,7 +732,7 @@
                               <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=200&h=100&fit=crop" alt="Gift" class="w-full h-full object-cover" />
                             </div>
                             <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                              <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
                               <div class="w-6 h-6 mx-auto rounded flex items-center justify-center text-white text-[5px] font-bold mb-0.5" :style="{ backgroundColor: brandSettings.colors[brandSettings.selectedColorIndex] }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].discount }}
                               </div>
@@ -757,7 +757,7 @@
                               <img src="https://images.unsplash.com/photo-1531973576160-7125cd663d86?w=200&h=100&fit=crop" alt="Feedback" class="w-full h-full object-cover" />
                             </div>
                             <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                              <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
                               <h4 class="text-[6px] font-bold text-om-gray-800 mb-0.5" :style="{ fontFamily: brandSettings.primaryFont }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].rating }}
                               </h4>
@@ -803,7 +803,7 @@
                         <template v-else-if="useCases[currentDeckCard].id === 'spin-wheel'">
                           <div class="flex flex-col w-full h-full">
                             <div class="flex-1 p-2 flex flex-col justify-center text-center">
-                              <img src="/telekom.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
+                              <img src="/demos/telekom/logo.png" alt="Logo" class="w-4 h-4 object-contain mb-0.5 mx-auto" />
                               <h4 class="text-[7px] font-bold mb-0.5" :style="{ color: brandSettings.colors[brandSettings.selectedColorIndex] }">
                                 {{ useCases[currentDeckCard].texts[brandSettings.language].title }}
                               </h4>
@@ -876,7 +876,7 @@
                 <div class="flex">
                   <!-- Left content side -->
                   <div class="w-1/2 p-6 lg:p-8 flex flex-col justify-center">
-                    <img src="/telekom.png" alt="Telekom Logo" class="w-10 h-10 object-contain mb-3" />
+                    <img src="/demos/telekom/logo.png" alt="Telekom Logo" class="w-10 h-10 object-contain mb-3" />
                     <h3 class="text-3xl font-bold text-om-gray-800 leading-tight mb-2" :style="{ fontFamily: brandSettings.primaryFont }">
                       {{ popupTexts[brandSettings.language].title }} {{ popupTexts[brandSettings.language].discount }}
                     </h3>
@@ -925,7 +925,7 @@
                   <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Logo</label>
                   <div class="h-[38px] bg-[repeating-conic-gradient(#E3E5E8_0%_25%,transparent_0%_50%)_50%/12px_12px] rounded-lg flex items-center justify-center border border-om-gray-200">
                     <div class="w-7 h-7 rounded-sm overflow-hidden">
-                      <img src="/telekom.png" alt="Telekom Logo" class="w-full h-full object-contain" />
+                      <img src="/demos/telekom/logo.png" alt="Telekom Logo" class="w-full h-full object-contain" />
                     </div>
                   </div>
                 </div>
@@ -1065,7 +1065,7 @@
                   <p class="text-sm font-medium text-[#23262A]">Logo</p>
                 </div>
                 <div class="w-14 h-14 rounded-lg overflow-hidden bg-white border border-[#E3E5E8] flex items-center justify-center shrink-0">
-                  <img src="/telekom.png" alt="Logo" class="w-full h-full object-cover" />
+                  <img src="/demos/telekom/logo.png" alt="Logo" class="w-full h-full object-cover" />
                 </div>
               </div>
             </transition>
@@ -1172,7 +1172,7 @@
               <div class="flex items-center gap-2">
                 <span>{{ msg.message }}</span>
                 <div class="w-8 h-8 rounded overflow-hidden bg-white border border-[#E3E5E8] flex items-center justify-center shrink-0">
-                  <img src="/telekom.png" alt="Logo" class="w-full h-full object-cover" />
+                  <img src="/demos/telekom/logo.png" alt="Logo" class="w-full h-full object-cover" />
                 </div>
               </div>
             </div>
@@ -1458,12 +1458,12 @@ const discoveredFonts = [
 ]
 
 const popupStyles = [
-  { id: 'modern', name: 'Modern', image: '/om_popup_1.png' },
-  { id: 'classic', name: 'Classic', image: '/om_popup_2.png' },
-  { id: 'minimal', name: 'Minimal', image: '/om_popup_3.png' },
-  { id: 'bold', name: 'Bold', image: '/om_popup_4.png' },
-  { id: 'elegant', name: 'Elegant', image: '/om_popup_5.png' },
-  { id: 'playful', name: 'Playful', image: '/om_popup_6.png' }
+  { id: 'modern', name: 'Modern', image: '/templates/popup-style-1.png' },
+  { id: 'classic', name: 'Classic', image: '/templates/popup-style-2.png' },
+  { id: 'minimal', name: 'Minimal', image: '/templates/popup-style-3.png' },
+  { id: 'bold', name: 'Bold', image: '/templates/popup-style-4.png' },
+  { id: 'elegant', name: 'Elegant', image: '/templates/popup-style-5.png' },
+  { id: 'playful', name: 'Playful', image: '/templates/popup-style-6.png' }
 ]
 
 // Use cases for recommendation page
@@ -1474,7 +1474,7 @@ const useCases = [
     description: 'The most effective list-building popup formula',
     subheadline: 'Grow your list with a two-step popup formula with every tweak for max conversions',
     icon: 'mail',
-    image: '/SmartDiscountPopup.png',
+    image: '/campaigns/smart-discount-popup.png',
     mobileImage: '/SmartDiscountPopup_mobile.png'
   },
   {
@@ -1483,7 +1483,7 @@ const useCases = [
     description: 'Offer a discount for cart abandoners',
     subheadline: 'Decrease cart abandonment rate with a strong discount offer',
     icon: 'cart',
-    image: '/CartAbandonmentStopper.png',
+    image: '/campaigns/cart-abandonment-stopper.png',
     mobileImage: '/CartAbandonmentStopper_mobile.png'
   },
   {
@@ -1492,7 +1492,7 @@ const useCases = [
     description: 'Gamify popups to increase visitor engagement',
     subheadline: 'Capture new visitor attention and increase conversions with spin-to-win lucky wheels',
     icon: 'wheel',
-    image: '/LuckyWheel.png',
+    image: '/campaigns/lucky-wheel.png',
     mobileImage: '/LuckyWheel_mobile.png'
   },
   {
@@ -1501,7 +1501,7 @@ const useCases = [
     description: 'Get real, measurable feedback on anything you want',
     subheadline: 'Find out how much your customers love you easily with a feedback survey',
     icon: 'star',
-    image: '/FeedbackSurvey.png',
+    image: '/campaigns/feedback-survey.png',
     mobileImage: '/FeedbackSurvey_mobile.png'
   }
 ]

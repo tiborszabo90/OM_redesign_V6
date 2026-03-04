@@ -96,7 +96,7 @@
     <template #illustration>
       <div class="w-full h-full">
         <img
-          src="/monk1.png"
+          src="/mascot/monk1.png"
           alt="OptiMonk Mascot"
           class="w-full h-full object-contain"
         />

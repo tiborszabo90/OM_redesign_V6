@@ -105,6 +105,12 @@
               Image with Badge
             </button>
             <button
+              @click="selectFlow('public-wizard')"
+              class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer"
+            >
+              Public Wizard
+            </button>
+            <button
               @click="goToHome"
               class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer border-t border-[#505763]"
             >

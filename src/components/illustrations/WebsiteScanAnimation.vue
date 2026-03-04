@@ -51,7 +51,7 @@
         <!-- Telekom screenshot - visible after 2 seconds -->
         <transition name="fade">
           <div v-if="showScreenshot" class="w-full h-full">
-            <img src="/telekom_screenshot.png" alt="Telekom Website" class="w-full h-full object-cover object-top" />
+            <img src="/demos/telekom/screenshot.png" alt="Telekom Website" class="w-full h-full object-cover object-top" />
           </div>
         </transition>
       </div>
