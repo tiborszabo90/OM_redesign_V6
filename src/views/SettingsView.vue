@@ -71,10 +71,11 @@
 
           <!-- Change email -->
           <template v-else-if="activeSection === 'change-email'">
-            <h1 class="text-xl font-bold text-om-gray-700 mb-8">Change email</h1>
+            <h1 class="text-xl font-bold text-om-gray-700 mb-2">Change email address</h1>
+            <p class="text-sm text-om-gray-500 mb-8">Enter your new email address and we'll send you a verification email to confirm you're the owner.</p>
             <div class="max-w-sm space-y-6">
-              <FormInput v-model="currentEmail" label="Current email" type="email" disabled />
-              <FormInput v-model="newEmail" label="New email" type="email" placeholder="Enter new email" />
+              <FormInput v-model="newEmail" label="New email address" type="email" placeholder="New email address" />
+              <FormInput v-model="confirmEmail" label="Confirm new email address" type="email" placeholder="New email address" />
               <div>
                 <Button variant="primary" @click="handleSave">Save</Button>
               </div>
@@ -123,6 +124,7 @@ const lastName = ref('Szántai')
 const firstName = ref('Tibor')
 const currentEmail = ref('tibor.szabo+62@optimonk.com')
 const newEmail = ref('')
+const confirmEmail = ref('')
 const currentPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')

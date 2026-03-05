@@ -192,7 +192,7 @@
         <div class="mt-8">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold text-om-gray-700">Top campaigns</h2>
-            <Button variant="primary" size="sm" @click="$emit('menu-click', 'wizard')">New campaign</Button>
+            <Button variant="primary" size="sm" @click="$emit('menu-click', 'home-onboarding-wizard')">New campaign</Button>
           </div>
 
           <!-- Skeleton rows -->

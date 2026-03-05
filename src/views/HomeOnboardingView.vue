@@ -44,7 +44,7 @@
                   <h3 class="text-2xl font-bold text-om-gray-700 leading-snug mb-3">Launch the<br>Popup Wizard</h3>
                   <p class="text-base text-om-gray-500 mb-5">Answer a few questions and get<br>personalized campaigns in minutes.</p>
                 </div>
-                <Button variant="primary" size="lg" class="self-start" @click="$emit('menu-click', 'wizard')">Get started</Button>
+                <Button variant="primary" size="lg" class="self-start" @click="$emit('menu-click', 'home-onboarding-wizard')">Get started</Button>
               </div>
 
               <!-- Illustration -->

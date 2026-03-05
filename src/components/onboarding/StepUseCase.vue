@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div class="fixed top-7 right-8 z-50">
+      <Button variant="ghost" size="sm" @click="emit('skip-to-dashboard')">Skip to homepage</Button>
+    </div>
     <div class="mb-12">
       <h1 class="text-5xl font-normal text-om-gray-700 font-headline heading-responsive">Great, now let's create your first campaign 🚀</h1>
     </div>
@@ -48,6 +51,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import Button from '../shared/Button.vue'
 import { Mail, ShoppingCart, ThumbsUp, ArrowUp } from 'lucide-vue-next'
 
 const props = defineProps({
@@ -57,7 +61,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'auto-next'])
+const emit = defineEmits(['update:modelValue', 'auto-next', 'skip-to-dashboard'])
 
 const textareaRef = ref(null)
 const message = ref(props.modelValue?.useCase || '')

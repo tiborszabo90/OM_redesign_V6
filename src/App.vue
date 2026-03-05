@@ -22,6 +22,7 @@ import ImageWithBadgeV3View from './views/ImageWithBadgeV3View.vue'
 import HomeOldView from './views/HomeOldView.vue'
 import HomeOnboardingView from './views/HomeOnboardingView.vue'
 import HomeOnboardingWithRecoView from './views/HomeOnboardingWithRecoView.vue'
+import HomeOnboardingWizardView from './views/HomeOnboardingWizardView.vue'
 import PublicWizardView from './views/PublicWizardView.vue'
 import WizardFlowView from './views/WizardFlowView.vue'
 import OptimizationOpportunityDetailView from './views/OptimizationOpportunityDetailView.vue'
@@ -47,6 +48,7 @@ const onboardingRef = ref(null)
 const taskCreationRef = ref(null)
 const wizardAnalysisRef = ref(null)
 const publicWizardRef = ref(null)
+const homeOnboardingWizardRef = ref(null)
 const wizardFlowRef = ref(null)
 const imageWithBadgeRef = ref(null)
 const createdTasks = ref([])
@@ -158,6 +160,11 @@ const handleDevNavigate = (view) => {
   if (currentView.value === 'wizard-flow' && wizardPhases.includes(view) && wizardFlowRef.value) {
     wizardFlowRef.value.navigateToPhase(view)
     wizardFlowStep.value = view
+    return
+  }
+
+  if (currentView.value === 'home-onboarding-wizard' && wizardPhases.includes(view) && homeOnboardingWizardRef.value) {
+    homeOnboardingWizardRef.value.navigateToPhase(view)
     return
   }
 
@@ -538,7 +545,7 @@ const handleMenuClick = (menuId) => {
   if (menuId === 'campaigns') {
     currentView.value = 'campaigns-v3'
   } else if (menuId === 'home') {
-    if (currentView.value === 'wizard-flow') {
+    if (currentView.value === 'wizard-flow' || currentView.value === 'home-onboarding-wizard') {
       sessionKey.value++
       currentView.value = 'home-onboarding-with-reco'
     } else {
@@ -550,6 +557,20 @@ const handleMenuClick = (menuId) => {
     currentView.value = 'campaign-page-v1'
   } else if (menuId === 'templates' || menuId === 'library') {
     currentView.value = 'templates-v3'
+  } else if (menuId === 'home-onboarding') {
+    sessionKey.value++
+    flowSelected.value = true
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = 'home-onboarding'
+    }, 50)
+  } else if (menuId === 'home-onboarding-wizard') {
+    sessionKey.value++
+    flowSelected.value = true
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = 'home-onboarding-wizard'
+    }, 50)
   } else if (menuId === 'wizard-recommendation') {
     sessionKey.value++
     flowSelected.value = true
@@ -590,7 +611,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="min-h-screen-safe">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-onboarding', 'home-onboarding-with-reco', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaign-page-v1', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all'].includes(currentView)"
+      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaign-page-v1', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all'].includes(currentView)"
       class="pt-8 pl-8"
     >
       <img
@@ -624,6 +645,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :registration-type="registrationType"
         @onboarding-complete="handleOnboardingComplete"
         @go-to-wizard="handleGoToWizard"
+        @skip-to-dashboard="handleMenuClick('home-onboarding')"
       />
       <TaskCreationView
         v-else-if="currentView === 'task-creation'"
@@ -653,6 +675,15 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :key="'home-onboarding-with-reco-' + sessionKey"
         :registration-data="registrationData"
         @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
+      />
+      <HomeOnboardingWizardView
+        v-else-if="currentView === 'home-onboarding-wizard'"
+        ref="homeOnboardingWizardRef"
+        :key="'home-onboarding-wizard-' + sessionKey"
+        :registration-data="registrationData"
+        @task-created="handleTaskCreated"
+        @navigate-to="(view) => handleDevNavigate(view)"
         @menu-click="handleMenuClick"
       />
       <PublicWizardView

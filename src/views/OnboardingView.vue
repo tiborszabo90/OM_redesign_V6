@@ -92,7 +92,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['onboarding-complete', 'go-to-wizard'])
+const emit = defineEmits(['onboarding-complete', 'go-to-wizard', 'skip-to-dashboard'])
 
 const transitionName = ref('slide-up')
 const isScrolling = ref(false)
@@ -199,6 +199,10 @@ const handlePrev = () => {
 
 // Track if we're exiting to wizard (to trigger exit animation)
 const isExitingToWizard = ref(false)
+
+const handleSkipToDashboard = () => {
+  emit('skip-to-dashboard')
+}
 
 const handleAutoNext = () => {
   transitionName.value = 'slide-up'
