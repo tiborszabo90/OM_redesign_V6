@@ -93,6 +93,12 @@
               Shopify Registration
             </button>
             <button
+              @click="selectFlow('public-wizard')"
+              class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer"
+            >
+              Public Wizard
+            </button>
+            <button
               @click="selectFlow('wizard')"
               class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer"
             >
@@ -105,14 +111,14 @@
               Image with Badge
             </button>
             <button
-              @click="selectFlow('public-wizard')"
-              class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer"
+              @click="goToHomeOnboarding"
+              class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer border-t border-[#505763]"
             >
-              Public Wizard
+              Home Onboarding
             </button>
             <button
               @click="goToHome"
-              class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer border-t border-[#505763]"
+              class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer"
             >
               Home
             </button>
@@ -132,62 +138,8 @@
       </span>
 
       <template v-if="flowSelected">
-        <!-- Wizard-only flow -->
-        <template v-if="registrationType === 'wizard'">
-          <button
-            @click="$emit('navigate', 'wizard-analysis')"
-            :class="[
-              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
-              currentView === 'wizard-analysis'
-                ? 'bg-[#ED5A29] text-white'
-                : 'bg-[#505763] hover:bg-[#8F97A4]'
-            ]"
-          >
-            Wizard Analysis
-          </button>
-
-          <button
-            @click="$emit('navigate', 'wizard-style')"
-            :class="[
-              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
-              currentView === 'wizard-style'
-                ? 'bg-[#ED5A29] text-white'
-                : 'bg-[#505763] hover:bg-[#8F97A4]'
-            ]"
-          >
-            Wizard Style
-          </button>
-
-          <button
-            @click="$emit('navigate', 'wizard-quicktune')"
-            :class="[
-              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
-              currentView === 'wizard-quicktune'
-                ? 'bg-[#ED5A29] text-white'
-                : 'bg-[#505763] hover:bg-[#8F97A4]'
-            ]"
-          >
-            Wizard Quicktune
-          </button>
-
-          <!-- Recommendation Button -->
-          <button
-            @click="$emit('navigate', 'wizard-recommendation-v4')"
-            :class="[
-              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
-              currentView === 'wizard-recommendation-v4'
-                ? 'bg-[#ED5A29] text-white'
-                : 'bg-[#505763] hover:bg-[#8F97A4]'
-            ]"
-          >
-            Recommendation
-          </button>
-
-          <span class="text-[#505763] mx-1">|</span>
-        </template>
-
         <!-- Public Wizard flow -->
-        <template v-else-if="registrationType === 'public-wizard'">
+        <template v-if="registrationType === 'public-wizard'">
           <button
             @click="$emit('navigate', 'public-wizard-url')"
             :class="[
@@ -253,6 +205,59 @@
             :class="[
               'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
               publicWizardStep === 'wizard-recommendation-v4'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Recommendation
+          </button>
+
+          <span class="text-[#505763] mx-1">|</span>
+        </template>
+
+        <!-- Wizard flow -->
+        <template v-else-if="registrationType === 'wizard'">
+          <button
+            @click="$emit('navigate', 'wizard-analysis')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              wizardFlowStep === 'wizard-analysis'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Analysis
+          </button>
+
+          <button
+            @click="$emit('navigate', 'wizard-style')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              wizardFlowStep === 'wizard-style'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Style
+          </button>
+
+          <button
+            @click="$emit('navigate', 'wizard-quicktune')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              wizardFlowStep === 'wizard-quicktune'
+                ? 'bg-[#ED5A29] text-white'
+                : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >
+            Quicktune
+          </button>
+
+          <button
+            @click="$emit('navigate', 'wizard-recommendation-v4')"
+            :class="[
+              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+              wizardFlowStep === 'wizard-recommendation-v4'
                 ? 'bg-[#ED5A29] text-white'
                 : 'bg-[#505763] hover:bg-[#8F97A4]'
             ]"
@@ -379,14 +384,14 @@
           <span class="text-[#505763] mx-1">|</span>
         </template>
 
-        <template v-if="registrationType !== 'image-with-badge' && registrationType !== 'public-wizard'">
+        <template v-if="registrationType !== 'image-with-badge' && registrationType !== 'public-wizard' && registrationType !== 'wizard'">
           <!-- Home Dropdown -->
           <div class="relative">
             <button
               @click="homeDropdownOpen = !homeDropdownOpen"
               :class="[
                 'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
-                ['task-creation', 'home-old'].includes(currentView)
+                ['home-old', 'home-onboarding', 'home-onboarding-with-reco'].includes(currentView)
                   ? 'bg-[#ED5A29] text-white'
                   : 'bg-[#505763] hover:bg-[#8F97A4]'
               ]"
@@ -400,17 +405,6 @@
                 class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-40"
               >
                 <button
-                  @click="selectHome('task-creation')"
-                  :class="[
-                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                    currentView === 'task-creation'
-                      ? 'bg-[#ED5A29] text-white'
-                      : 'hover:bg-[#505763]'
-                  ]"
-                >
-                  Home Agentic
-                </button>
-                <button
                   @click="selectHome('home-old')"
                   :class="[
                     'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
@@ -419,7 +413,29 @@
                       : 'hover:bg-[#505763]'
                   ]"
                 >
-                  Home Old
+                  Home with Active Campaigns
+                </button>
+                <button
+                  @click="selectHome('home-onboarding')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'home-onboarding'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  Home Onboarding
+                </button>
+                <button
+                  @click="selectHome('home-onboarding-with-reco')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'home-onboarding-with-reco'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  Home Onboarding with Reco
                 </button>
               </div>
             </transition>
@@ -561,6 +577,10 @@ const props = defineProps({
   publicWizardStep: {
     type: String,
     default: 'url'
+  },
+  wizardFlowStep: {
+    type: String,
+    default: 'url'
   }
 })
 
@@ -593,6 +613,7 @@ const homeDropdownOpen = ref(false)
 
 // Archive items - add views here that you want to archive
 const archiveItems = ref([
+  { view: 'task-creation', label: 'Home Agentic' },
   { view: 'analytics-v1', label: 'Analytics V1' },
   { view: 'analytics-v2', label: 'Analytics V2' },
   { view: 'templates-v1', label: 'Templates V1' },
@@ -601,6 +622,7 @@ const archiveItems = ref([
   { view: 'wizard-recommendation-v2', label: 'Recommendation V2' },
   { view: 'wizard-recommendation-v3', label: 'Recommendation V3' },
   { view: 'wizard-recommendation-v5', label: 'Recommendation V5' },
+  { view: 'wizard-analysis', label: 'Wizard Flow' },
   { view: 'wizard-analysis-no-chat', label: 'Wizard Flow (no chat)' },
 ])
 
@@ -627,6 +649,11 @@ const selectHome = (view) => {
 const selectImageWithBadge = (view) => {
   emit('navigate', view)
   imageWithBadgeDropdownOpen.value = false
+}
+
+const goToHomeOnboarding = () => {
+  emit('navigate', 'home-onboarding')
+  flowDropdownOpen.value = false
 }
 
 const goToHome = () => {

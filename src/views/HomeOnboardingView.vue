@@ -20,38 +20,91 @@
             </Dropdown>
           </div>
 
-          <!-- Right-aligned filters -->
-          <div class="flex items-center gap-3">
-            <!-- Goal Dropdown -->
-            <div class="w-56">
-              <Dropdown
-                v-model="selectedGoal"
-                :options="goals"
-                placeholder="Select goal"
-              >
-                <template #icon>
-                  <Target :size="20" class="text-om-gray-400" />
-                </template>
-              </Dropdown>
-            </div>
-
-            <!-- Period Dropdown -->
-            <div class="w-56">
-              <Dropdown
-                v-model="selectedPeriod"
-                :options="periods"
-                placeholder="Select period"
-              >
-                <template #icon>
-                  <Calendar :size="20" class="text-om-gray-400" />
-                </template>
-              </Dropdown>
-            </div>
-          </div>
         </div>
 
-        <!-- Trend Chart Section -->
-        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 px-5">
+        <!-- Onboarding Checklist -->
+        <div class="space-y-3 mb-5">
+          <!-- Step 1: Create first campaign -->
+          <Accordion
+            title="Create your first campaign"
+            :open="openStep === 0"
+            @toggle="openStep = openStep === 0 ? null : 0"
+          >
+            <template #icon>
+              <LayoutTemplate :size="20" class="text-om-orange-500" />
+            </template>
+            <template #meta>
+              <span class="text-sm text-om-gray-400">~10 min</span>
+            </template>
+            <!-- Content -->
+            <div class="flex gap-6 pt-2">
+              <!-- Left: wizard launcher -->
+              <div class="flex flex-col justify-between flex-1 min-w-0 pl-13">
+                <div>
+                  <h3 class="text-2xl font-bold text-om-gray-700 leading-snug mb-3">Launch the<br>Popup Wizard</h3>
+                  <p class="text-base text-om-gray-500 mb-5">Answer a few questions and get<br>personalized campaigns in minutes.</p>
+                </div>
+                <Button variant="primary" size="lg" class="self-start" @click="$emit('menu-click', 'wizard')">Get started</Button>
+              </div>
+
+              <!-- Illustration -->
+              <div class="flex items-center justify-center shrink-0 w-56">
+                <img src="/monk-wizard.svg" alt="" class="w-48 h-48 object-contain" />
+              </div>
+
+              <!-- Divider -->
+              <div class="flex flex-col items-center gap-2 self-stretch">
+                <div class="flex-1 w-px bg-om-gray-200"></div>
+                <span class="text-sm text-om-gray-400 italic">or</span>
+                <div class="flex-1 w-px bg-om-gray-200"></div>
+              </div>
+
+              <!-- Right: quick links -->
+              <div class="flex flex-col justify-around flex-1 min-w-0 gap-4">
+                <div class="cursor-pointer group" @click="$emit('menu-click', 'templates')">
+                  <p class="text-sm font-semibold text-om-orange-500 group-hover:underline">Browse templates ›</p>
+                  <p class="text-xs text-om-gray-500 mt-0.5">Browse 300+ ready-made templates tailored to your business goals</p>
+                </div>
+                <div class="border-t border-om-gray-100"></div>
+                <div class="cursor-pointer group" @click="$emit('menu-click', 'ab-test')">
+                  <p class="text-sm font-semibold text-om-orange-500 group-hover:underline">Optimize your website ›</p>
+                  <p class="text-xs text-om-gray-500 mt-0.5">Run A/B tests, personalize, and more</p>
+                </div>
+                <div class="border-t border-om-gray-100"></div>
+                <div class="cursor-pointer group" @click="$emit('menu-click', 'tactics')">
+                  <p class="text-sm font-semibold text-om-orange-500 group-hover:underline">Pick a proven Tactic ›</p>
+                  <p class="text-xs text-om-gray-500 mt-0.5">Get inspired by 50+ proven tactics!</p>
+                </div>
+              </div>
+            </div>
+          </Accordion>
+
+          <!-- Step 2: Install OptiMonk -->
+          <Accordion
+            title="Install OptiMonk"
+            :open="openStep === 1"
+            @toggle="openStep = openStep === 1 ? null : 1"
+          >
+            <template #icon>
+              <Plug :size="20" class="text-om-orange-500" />
+            </template>
+            <template #meta>
+              <span class="text-sm text-om-gray-400">~2 min</span>
+            </template>
+            <div class="flex items-stretch gap-6">
+              <div class="pl-13 flex-1 py-2 pr-96">
+                <p class="text-base text-om-gray-500 mb-5">Connect your website to OptiMonk and let us make the most of your online presence.</p>
+                <Button variant="primary" size="lg" class="self-start">Connect my website</Button>
+              </div>
+              <div class="absolute top-10 right-0 bottom-10 flex items-stretch -translate-x-20">
+                <MeditatingPersonSvg class="h-full w-auto" />
+              </div>
+            </div>
+          </Accordion>
+        </div>
+
+        <!-- Trend Chart Section (hidden) -->
+        <div v-if="false" class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 px-5">
           <div class="trend-chart-tabs">
             <div
               v-for="tab in trendTabs"
@@ -114,32 +167,111 @@
           </div>
         </div>
 
+        <!-- Trend Chart Section (empty state) -->
+        <div class="relative bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 overflow-hidden">
+          <!-- Skeleton chart background -->
+          <svg viewBox="-40 0 880 220" xmlns="http://www.w3.org/2000/svg" class="w-full opacity-80">
+            <defs>
+              <linearGradient id="skeletonGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#E5E7EB" stop-opacity="0.6"/>
+                <stop offset="100%" stop-color="#E5E7EB" stop-opacity="0.05"/>
+              </linearGradient>
+            </defs>
+            <!-- Y-axis label placeholders -->
+            <rect x="8" y="22" width="36" height="8" rx="4" fill="#E5E7EB"/>
+            <rect x="8" y="67" width="36" height="8" rx="4" fill="#E5E7EB"/>
+            <rect x="8" y="112" width="36" height="8" rx="4" fill="#E5E7EB"/>
+            <rect x="8" y="157" width="36" height="8" rx="4" fill="#E5E7EB"/>
+            <!-- Grid lines -->
+            <line x1="54" y1="26" x2="792" y2="26" stroke="#E5E7EB" stroke-width="1.5"/>
+            <line x1="54" y1="71" x2="792" y2="71" stroke="#E5E7EB" stroke-width="1.5"/>
+            <line x1="54" y1="116" x2="792" y2="116" stroke="#E5E7EB" stroke-width="1.5"/>
+            <line x1="54" y1="161" x2="792" y2="161" stroke="#E5E7EB" stroke-width="1.5"/>
+            <!-- Area fill -->
+            <path
+              d="M54,161 L54,120 C120,120 150,60 200,75 C250,90 280,45 330,55 C380,65 420,100 470,85 C520,70 560,35 610,50 C660,65 700,90 750,80 L792,75 L792,161 Z"
+              fill="url(#skeletonGrad)"
+            />
+            <!-- Line -->
+            <path
+              d="M54,120 C120,120 150,60 200,75 C250,90 280,45 330,55 C380,65 420,100 470,85 C520,70 560,35 610,50 C660,65 700,90 750,80 L792,75"
+              fill="none"
+              stroke="#E5E7EB"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <!-- X-axis label placeholders -->
+            <rect x="54"  y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
+            <rect x="120" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
+            <rect x="186" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
+            <rect x="252" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
+            <rect x="318" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
+            <rect x="384" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
+            <rect x="450" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
+            <rect x="516" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
+            <rect x="582" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
+            <rect x="648" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
+            <rect x="714" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
+            <rect x="754" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
+          </svg>
+          <!-- Empty state overlay -->
+          <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white/60">
+            <LineChart :size="40" class="text-om-gray-300" />
+            <p class="text-sm text-om-gray-400 text-center">You'll see your campaign statistics here<br>once you've set up OptiMonk.</p>
+          </div>
+        </div>
+
         <!-- Top Campaigns Section -->
         <div class="mt-8">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold text-om-gray-700">Top campaigns</h2>
-            <div class="flex items-center gap-2">
-              <Button variant="ghost" size="sm">All campaigns</Button>
-              <Button variant="primary" size="sm">New campaign</Button>
-            </div>
+            <Button variant="primary" size="sm" @click="$emit('menu-click', 'wizard')">New campaign</Button>
           </div>
 
-          <div class="space-y-4">
-            <CampaignCard
-              v-for="campaign in homeCampaigns"
-              :key="campaign.id"
-              :name="campaign.name"
-              :domain="campaign.domain"
-              :image="campaign.image"
-              :active="campaign.active"
-              @update:active="campaign.active = $event"
-              :selected="campaign.selected"
-              @update:selected="campaign.selected = $event"
-              :metrics="campaign.metrics"
-              :last-updated="campaign.lastUpdated"
-              variant="list"
-              @click="$emit('menu-click', 'campaigns')"
-            />
+          <!-- Skeleton rows -->
+          <div class="relative bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] overflow-hidden">
+            <svg viewBox="0 0 800 220" xmlns="http://www.w3.org/2000/svg" class="w-full opacity-80">
+              <!-- Row 1 -->
+              <rect x="16" y="20" width="40" height="40" rx="8" fill="#E5E7EB"/>
+              <rect x="68" y="24" width="160" height="10" rx="5" fill="#E5E7EB"/>
+              <rect x="68" y="42" width="100" height="8" rx="4" fill="#F3F4F6"/>
+              <rect x="340" y="24" width="80" height="10" rx="5" fill="#E5E7EB"/>
+              <rect x="340" y="42" width="50" height="8" rx="4" fill="#F3F4F6"/>
+              <rect x="500" y="24" width="80" height="10" rx="5" fill="#E5E7EB"/>
+              <rect x="500" y="42" width="50" height="8" rx="4" fill="#F3F4F6"/>
+              <rect x="680" y="26" width="60" height="16" rx="8" fill="#E5E7EB"/>
+              <rect x="752" y="26" width="32" height="16" rx="8" fill="#F3F4F6"/>
+              <!-- Divider -->
+              <line x1="16" y1="74" x2="784" y2="74" stroke="#F3F4F6" stroke-width="1"/>
+              <!-- Row 2 -->
+              <rect x="16" y="83" width="40" height="40" rx="8" fill="#E5E7EB"/>
+              <rect x="68" y="87" width="140" height="10" rx="5" fill="#E5E7EB"/>
+              <rect x="68" y="105" width="110" height="8" rx="4" fill="#F3F4F6"/>
+              <rect x="340" y="87" width="80" height="10" rx="5" fill="#E5E7EB"/>
+              <rect x="340" y="105" width="50" height="8" rx="4" fill="#F3F4F6"/>
+              <rect x="500" y="87" width="80" height="10" rx="5" fill="#E5E7EB"/>
+              <rect x="500" y="105" width="50" height="8" rx="4" fill="#F3F4F6"/>
+              <rect x="680" y="89" width="60" height="16" rx="8" fill="#E5E7EB"/>
+              <rect x="752" y="89" width="32" height="16" rx="8" fill="#F3F4F6"/>
+              <!-- Divider -->
+              <line x1="16" y1="137" x2="784" y2="137" stroke="#F3F4F6" stroke-width="1"/>
+              <!-- Row 3 -->
+              <rect x="16" y="146" width="40" height="40" rx="8" fill="#E5E7EB"/>
+              <rect x="68" y="150" width="180" height="10" rx="5" fill="#E5E7EB"/>
+              <rect x="68" y="168" width="90" height="8" rx="4" fill="#F3F4F6"/>
+              <rect x="340" y="150" width="80" height="10" rx="5" fill="#E5E7EB"/>
+              <rect x="340" y="168" width="50" height="8" rx="4" fill="#F3F4F6"/>
+              <rect x="500" y="150" width="80" height="10" rx="5" fill="#E5E7EB"/>
+              <rect x="500" y="168" width="50" height="8" rx="4" fill="#F3F4F6"/>
+              <rect x="680" y="152" width="60" height="16" rx="8" fill="#E5E7EB"/>
+              <rect x="752" y="152" width="32" height="16" rx="8" fill="#F3F4F6"/>
+            </svg>
+            <!-- Empty state overlay -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white/60">
+              <LayoutGrid :size="40" class="text-om-gray-300" />
+              <p class="text-sm text-om-gray-400 text-center">Your campaigns will appear here<br>once you've created your first one.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -152,14 +284,16 @@
 
 <script setup>
 import { ref, computed, reactive } from 'vue'
-import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X } from 'lucide-vue-next'
+import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X, LayoutTemplate, LayoutGrid, Zap, Plug, LineChart } from 'lucide-vue-next'
 import VueApexCharts from 'vue3-apexcharts'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+import Accordion from '../components/shared/Accordion.vue'
 import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
 import CampaignCard from '../components/shared/CampaignCard.vue'
+import MeditatingPersonSvg from '../components/illustrations/MeditatingPersonSvg.vue'
 
 defineProps({
   registrationData: {
@@ -177,18 +311,20 @@ const handleLogoClick = () => {
 const isChatOpen = ref(true)
 
 const chatSuggestions = [
-  'How is my account performing?',
-  'Which campaigns need attention?',
-  'How can I improve my conversion rate?',
-  'Show me my top performing campaigns',
+  'What campaign should I create first?',
+  'How do I install OptiMonk?',
+  'What results can I expect?',
+  'Help me choose a use case',
 ]
 
 const chatAiResponses = {
-  'How is my account performing?': 'Your account is performing well overall. Conversion rate is at **5.2%**, which is above your **3.2% average**. Impressions are up **12%** compared to last month.',
-  'Which campaigns need attention?': 'Based on recent data, **2 campaigns** have below-average conversion rates and may benefit from optimization:\n\n- **Summer Sale 2025** — 1.8% CVR (avg: 3.2%)\n- **Exit Intent Popup** — 2.1% CVR\n\nWould you like suggestions for improving these?',
-  'How can I improve my conversion rate?': 'Here are the top opportunities based on your current data:\n\n1. **A/B test your headlines** — campaigns with personalized headlines convert 2–3x better\n2. **Add exit intent triggers** to recover abandoning visitors\n3. **Optimize for mobile** — your mobile CVR is 40% lower than desktop',
-  'Show me my top performing campaigns': 'Your top 3 campaigns this month:\n\n1. **Smart Discount** — 8.37% CVR\n2. **Black Friday 2025** — 5.2% CVR\n3. **Welcome Popup** — 4.1% CVR\n\nSmart Discount is significantly outperforming. Consider applying similar targeting to other campaigns.',
+  'What campaign should I create first?': 'Great question! The best first campaign depends on your goal:\n\n- **Grow your email list** → try a Welcome Popup with a discount or lead magnet\n- **Reduce cart abandonment** → an Exit Intent popup works great\n- **Collect feedback** → a simple survey popup\n\nWould you like me to launch the campaign wizard for any of these?',
+  'How do I install OptiMonk?': 'Installing OptiMonk takes about 2 minutes:\n\n1. **Copy your unique script** from the Install page\n2. **Paste it** into the `<head>` of your website\n3. Or use one of our **CMS plugins** (WordPress, Shopify, Wix, etc.)\n\nOnce installed, your campaigns will go live instantly. Want me to guide you to the install page?',
+  'What results can I expect?': 'OptiMonk customers typically see:\n\n- **3–8% conversion rate** on email list building campaigns\n- **10–15% cart recovery** with exit intent popups\n- **2–5x ROI** within the first month\n\nResults vary by industry and traffic, but most users see their first conversions within 24 hours of launching their first campaign.',
+  'Help me choose a use case': 'Here are the most popular use cases to start with:\n\n1. **Email list building** — capture leads with a discount or free resource\n2. **Cart abandonment** — recover visitors before they leave\n3. **Product promotion** — highlight offers to the right audience\n4. **Customer feedback** — learn what visitors think\n\nWhich one sounds most relevant to your business?',
 }
+
+const openStep = ref(0)
 
 const showInviteBlock = ref(true)
 const showConsultBlock = ref(true)

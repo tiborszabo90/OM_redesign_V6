@@ -37,6 +37,14 @@
         <Button
           variant="outline"
           size="lg"
+          @click="$emit('go-home-onboarding')"
+        >
+          Home Onboarding
+        </Button>
+
+        <Button
+          variant="outline"
+          size="lg"
           @click="$emit('go-home')"
         >
           Home
@@ -65,5 +73,5 @@
 <script setup>
 import Button from '../components/shared/Button.vue'
 
-defineEmits(['select', 'go-home', 'go-public-wizard', 'go-design-guide', 'go-image-with-badge'])
+defineEmits(['select', 'go-home', 'go-home-onboarding', 'go-public-wizard', 'go-design-guide', 'go-image-with-badge'])
 </script>

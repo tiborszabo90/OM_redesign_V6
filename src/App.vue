@@ -20,15 +20,18 @@ import ImageWithBadgeView from './views/ImageWithBadgeView.vue'
 import ImageWithBadgeV2View from './views/ImageWithBadgeV2View.vue'
 import ImageWithBadgeV3View from './views/ImageWithBadgeV3View.vue'
 import HomeOldView from './views/HomeOldView.vue'
+import HomeOnboardingView from './views/HomeOnboardingView.vue'
+import HomeOnboardingWithRecoView from './views/HomeOnboardingWithRecoView.vue'
 import PublicWizardView from './views/PublicWizardView.vue'
+import WizardFlowView from './views/WizardFlowView.vue'
 import OptimizationOpportunityDetailView from './views/OptimizationOpportunityDetailView.vue'
 import OptimizationOpportunitiesAllView from './views/OptimizationOpportunitiesAllView.vue'
 import SettingsView from './views/SettingsView.vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
 
 // URL slug <-> view name mapping
-const viewToSlug = { 'task-creation': 'home', 'campaign-page-v1': 'campaign-detail', 'opportunity-detail': 'opportunity-detail' }
-const slugToView = { 'home': 'task-creation', 'campaign-detail': 'campaign-page-v1', 'opportunity-detail': 'opportunity-detail' }
+const viewToSlug = { 'home-old': 'home', 'task-creation': 'task-creation', 'campaign-page-v1': 'campaign-detail', 'opportunity-detail': 'opportunity-detail' }
+const slugToView = { 'home': 'home-old', 'task-creation': 'task-creation', 'campaign-detail': 'campaign-page-v1', 'opportunity-detail': 'opportunity-detail' }
 
 const getViewFromHash = () => {
   const hash = window.location.hash.replace('#/', '').replace('#', '')
@@ -44,11 +47,13 @@ const onboardingRef = ref(null)
 const taskCreationRef = ref(null)
 const wizardAnalysisRef = ref(null)
 const publicWizardRef = ref(null)
+const wizardFlowRef = ref(null)
 const imageWithBadgeRef = ref(null)
 const createdTasks = ref([])
 const flowSelected = ref(false)
 const registrationType = ref('email')
 const publicWizardStep = ref('url')
+const wizardFlowStep = ref('url')
 const selectedOpportunityId = ref(1)
 const sessionKey = ref(0)
 const devNavOpen = ref(true)
@@ -78,19 +83,34 @@ const handleRegistrationComplete = (data) => {
 }
 
 const handleOnboardingComplete = () => {
-  // After onboarding, go directly to task creation
-  currentView.value = 'task-creation'
-}
-
-const handleGoToWizard = (useCaseMessage = '') => {
-  // After onboarding, go directly to wizard analysis with the use case message
-  wizardMessage.value = useCaseMessage || 'Demo website analysis'
+  // After onboarding, go to wizard flow
   sessionKey.value++
-  // Set to null first to unmount onboarding, then show wizard
   currentView.value = null
   setTimeout(() => {
-    currentView.value = 'wizard-analysis'
-  }, 16) // One frame delay - minimal but necessary for Vue
+    currentView.value = 'wizard-flow'
+  }, 50)
+}
+
+const handleGoToWizard = () => {
+  // After onboarding, go to wizard flow
+  sessionKey.value++
+  currentView.value = null
+  setTimeout(() => {
+    currentView.value = 'wizard-flow'
+  }, 50)
+}
+
+const handlePublicWizardRegistrationCompleted = () => {
+  sessionKey.value++
+  currentView.value = null
+  setTimeout(() => {
+    currentView.value = 'wizard-flow'
+    // Wait for component to mount, then navigate to recommendation
+    setTimeout(() => {
+      wizardFlowRef.value?.navigateToPhase('wizard-recommendation-v4')
+      wizardFlowStep.value = 'wizard-recommendation-v4'
+    }, 200)
+  }, 50)
 }
 
 // Wizard phases that can be navigated to internally without remounting
@@ -120,6 +140,24 @@ const handleDevNavigate = (view) => {
   if (currentView.value === 'public-wizard' && wizardPhases.includes(view) && publicWizardRef.value) {
     publicWizardRef.value.navigateToPhase(view)
     publicWizardStep.value = view
+    return
+  }
+
+  if (view === 'wizard-flow-url') {
+    wizardFlowStep.value = 'url'
+    wizardFlowRef.value?.navigateToStep('url')
+    return
+  }
+
+  if (view === 'wizard-flow-chat') {
+    wizardFlowStep.value = 'chat'
+    wizardFlowRef.value?.navigateToStep('chat')
+    return
+  }
+
+  if (currentView.value === 'wizard-flow' && wizardPhases.includes(view) && wizardFlowRef.value) {
+    wizardFlowRef.value.navigateToPhase(view)
+    wizardFlowStep.value = view
     return
   }
 
@@ -157,6 +195,14 @@ const handleDevNavigate = (view) => {
     setTimeout(() => {
       currentView.value = 'home-old'
     }, 50)
+  } else if (view === 'home-onboarding') {
+    sessionKey.value++
+    flowSelected.value = true
+    wizardMessage.value = ''
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = 'home-onboarding'
+    }, 50)
   } else if (view === 'public-wizard') {
     sessionKey.value++
     flowSelected.value = true
@@ -166,6 +212,16 @@ const handleDevNavigate = (view) => {
     currentView.value = null
     setTimeout(() => {
       currentView.value = 'public-wizard'
+    }, 50)
+  } else if (view === 'wizard-flow') {
+    sessionKey.value++
+    flowSelected.value = true
+    registrationType.value = 'wizard'
+    wizardFlowStep.value = 'url'
+    wizardMessage.value = ''
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = 'wizard-flow'
     }, 50)
   } else if (view === 'design-guide') {
     // Design guide is a standalone view
@@ -326,9 +382,9 @@ const handleDevStartSelect = (type) => {
   // Then mount the new view after a brief delay
   setTimeout(() => {
     if (type === 'wizard') {
-      // Wizard flow goes directly to wizard-analysis
-      wizardMessage.value = 'Demo website analysis'
-      currentView.value = 'wizard-analysis'
+      // Wizard flow uses the new WizardFlowView
+      wizardFlowStep.value = 'url'
+      currentView.value = 'wizard-flow'
     } else if (type === 'image-with-badge') {
       // Image with Badge flow goes directly to image-with-badge V1
       registrationType.value = 'image-with-badge'
@@ -435,7 +491,14 @@ const handleGoHome = () => {
   sessionKey.value++
   flowSelected.value = true
   wizardMessage.value = '' // Clear wizard message
-  currentView.value = 'task-creation'
+  currentView.value = 'home-old'
+}
+
+const handleGoHomeOnboarding = () => {
+  sessionKey.value++
+  flowSelected.value = true
+  wizardMessage.value = ''
+  currentView.value = 'home-onboarding'
 }
 
 const handleGoDesignGuide = () => {
@@ -475,13 +538,29 @@ const handleMenuClick = (menuId) => {
   if (menuId === 'campaigns') {
     currentView.value = 'campaigns-v3'
   } else if (menuId === 'home') {
-    currentView.value = 'task-creation'
+    if (currentView.value === 'wizard-flow') {
+      sessionKey.value++
+      currentView.value = 'home-onboarding-with-reco'
+    } else {
+      currentView.value = 'home-old'
+    }
   } else if (menuId === 'insights') {
     currentView.value = 'analytics-v3'
   } else if (menuId === 'campaign-page') {
     currentView.value = 'campaign-page-v1'
   } else if (menuId === 'templates' || menuId === 'library') {
     currentView.value = 'templates-v3'
+  } else if (menuId === 'wizard-recommendation') {
+    sessionKey.value++
+    flowSelected.value = true
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = 'wizard-flow'
+      setTimeout(() => {
+        wizardFlowRef.value?.navigateToPhase('wizard-recommendation-v4')
+        wizardFlowStep.value = 'wizard-recommendation-v4'
+      }, 200)
+    }, 50)
   }
   // Add other menu items as needed
 }
@@ -511,7 +590,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="min-h-screen-safe">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'public-wizard', 'campaigns', 'campaigns-v3', 'campaign-page-v1', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all'].includes(currentView)"
+      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-onboarding', 'home-onboarding-with-reco', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaign-page-v1', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all'].includes(currentView)"
       class="pt-8 pl-8"
     >
       <img
@@ -526,6 +605,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         v-if="currentView === 'dev-start'"
         @select="handleDevStartSelect"
         @go-home="handleGoHome"
+        @go-home-onboarding="handleGoHomeOnboarding"
         @go-public-wizard="handleGoPublicWizard"
         @go-design-guide="handleGoDesignGuide"
         @go-image-with-badge="handleGoImageWithBadge"
@@ -561,12 +641,36 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         @task-created="handleTaskCreated"
         @menu-click="handleMenuClick"
       />
+      <HomeOnboardingView
+        v-else-if="currentView === 'home-onboarding'"
+        :key="'home-onboarding-' + sessionKey"
+        :registration-data="registrationData"
+        @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
+      />
+      <HomeOnboardingWithRecoView
+        v-else-if="currentView === 'home-onboarding-with-reco'"
+        :key="'home-onboarding-with-reco-' + sessionKey"
+        :registration-data="registrationData"
+        @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
+      />
       <PublicWizardView
         v-else-if="currentView === 'public-wizard'"
         ref="publicWizardRef"
         :key="'public-wizard-' + sessionKey"
         :registration-data="registrationData"
         :initial-message="wizardMessage"
+        @task-created="handleTaskCreated"
+        @navigate-to="(view) => handleDevNavigate(view)"
+        @menu-click="handleMenuClick"
+        @registration-completed="handlePublicWizardRegistrationCompleted"
+      />
+      <WizardFlowView
+        v-else-if="currentView === 'wizard-flow'"
+        ref="wizardFlowRef"
+        :key="'wizard-flow-' + sessionKey"
+        :registration-data="registrationData"
         @task-created="handleTaskCreated"
         @navigate-to="(view) => handleDevNavigate(view)"
         @menu-click="handleMenuClick"
@@ -740,6 +844,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
     :flow-selected="flowSelected"
     :registration-type="registrationType"
     :public-wizard-step="publicWizardStep"
+    :wizard-flow-step="wizardFlowStep"
     @navigate="handleDevNavigate"
     @go-to-step="handleDevGoToStep"
     @go-to-image-step="handleImageWithBadgeGoToStep"

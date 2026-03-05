@@ -858,9 +858,9 @@
     <!-- Quicktune screen -->
     <transition v-else-if="showQuicktune" name="fade" appear>
       <div class="min-h-screen-safe bg-white overflow-y-auto" :class="{ 'mr-90': props.showChat }">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-12 pb-8 lg:pb-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-6 pb-8 lg:pb-12">
           <!-- Header -->
-          <div class="text-left mb-12 lg:mb-20">
+          <div class="text-center mb-12 lg:mb-20">
             <h2 class="text-2xl sm:text-3xl font-semibold text-om-gray-700 mb-2">Quick-tune your brand settings</h2>
             <p class="text-om-gray-500">Don't worry—all settings can be customized later in the editor.</p>
           </div>
@@ -1003,15 +1003,15 @@
     <!-- Style selection screen -->
     <transition v-else-if="showStyleSelection" name="fade" appear>
       <div class="min-h-screen-safe bg-om-gray-50 overflow-y-auto" :class="{ 'mr-90': props.showChat }">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pt-12 pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pt-6 pb-12">
           <!-- Header -->
-          <div class="mb-[52px]">
+          <div class="text-center mb-[52px]">
             <h2 class="text-2xl sm:text-3xl font-semibold text-om-gray-700 mb-2">Which style do you like the most?</h2>
             <p class="text-om-gray-500">You can customize colors, fonts, and other style settings in the next step.</p>
           </div>
 
-          <!-- Popup grid - 2 columns -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <!-- Popup grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
             <button
               v-for="(style, index) in popupStyles"
               :key="style.id"
@@ -1050,7 +1050,7 @@
         </div>
 
         <!-- Right side - Discovered items list (only when chat is OFF) -->
-        <div v-if="!props.showChat" class="flex-1 w-full md:w-auto md:min-w-72 lg:min-w-80 xl:max-w-72 2xl:max-w-80">
+        <div v-if="!props.showChat" class="flex-1 w-full md:w-auto md:min-w-72 lg:min-w-80 xl:max-w-72 2xl:max-w-80 md:-mt-6">
           <!-- Title -->
           <div class="mb-6 text-center md:text-left">
             <h2 class="text-xl sm:text-2xl font-semibold text-[#23262A]">Analyzing your website</h2>
@@ -1119,6 +1119,18 @@
               <div v-if="currentlyAnalyzing" class="flex items-center gap-2 py-2">
                 <div class="w-4 h-4 border-2 border-om-gray-500 border-t-transparent rounded-full animate-spin shrink-0"></div>
                 <p class="text-sm text-om-gray-500">{{ analyzingMessages[currentlyAnalyzing] }}</p>
+              </div>
+            </transition>
+
+            <!-- Analysis successful - shows after all discoveries are done -->
+            <transition name="slide-in">
+              <div v-if="!currentlyAnalyzing && discoveries.language" class="bg-[#F9FAFB] rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-[#23262A]">Analysis successful</p>
+                </div>
+                <div class="w-6 h-6 rounded-full bg-[#239E77] flex items-center justify-center shrink-0">
+                  <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
               </div>
             </transition>
           </div>
@@ -1624,7 +1636,7 @@ const runAnalysis = () => {
   }, 11500)
 
   if (props.showChat) {
-    // With chat: skip success screen, go directly to style selection
+    // With chat: skip success screen, go directly to style selection (3s after analysis successful)
     setTimeout(() => {
       showAnalysisContent.value = false
       showStyleSelection.value = true
@@ -1642,19 +1654,19 @@ const runAnalysis = () => {
         })
         scrollChatToBottom()
       }, 500)
-    }, 12000)
+    }, 14500)
   } else {
-    // Without chat: show success message screen first
+    // Without chat: show success message screen first (3s after analysis successful)
     setTimeout(() => {
       showAnalysisContent.value = false
       showSuccessMessage.value = true
-    }, 12000)
+    }, 14500)
 
     setTimeout(() => {
       showSuccessMessage.value = false
       showStyleSelection.value = true
       emit('phase-changed', 'wizard-style')
-    }, 14000)
+    }, 16500)
   }
 }
 

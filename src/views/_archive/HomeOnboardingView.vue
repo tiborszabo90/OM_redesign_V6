@@ -50,6 +50,82 @@
           </div>
         </div>
 
+        <!-- Onboarding Checklist -->
+        <div class="space-y-3 mb-5">
+          <!-- Step 1: Create first campaign -->
+          <Accordion
+            title="Create your first campaign"
+            :open="openStep === 0"
+            @toggle="openStep = openStep === 0 ? null : 0"
+          >
+            <template #icon>
+              <LayoutGrid :size="20" class="text-om-orange-500" />
+            </template>
+            <template #meta>
+              <span class="text-sm text-om-gray-400">~10 min</span>
+            </template>
+            <!-- Content -->
+            <div class="flex gap-6 pt-2">
+              <!-- Left: wizard launcher -->
+              <div class="flex flex-col justify-between flex-1 min-w-0 pl-13">
+                <div>
+                  <h3 class="text-2xl font-bold text-om-gray-700 leading-snug mb-3">Launch the<br>Popup Wizard</h3>
+                  <p class="text-sm text-om-gray-500 mb-5">Answer a few questions and get personalized campaigns in minutes.</p>
+                </div>
+                <Button variant="primary" size="md" class="self-start" @click="$emit('menu-click', 'wizard')">Get started</Button>
+              </div>
+
+              <!-- Illustration -->
+              <div class="flex items-center justify-center shrink-0 w-40">
+                <img src="https://static.optimonk.com/static/usa/img/public/misc/om-wizard.svg" alt="" class="w-32 h-32 object-contain" />
+              </div>
+
+              <!-- Divider -->
+              <div class="flex flex-col items-center gap-2 self-stretch">
+                <div class="flex-1 w-px bg-om-gray-200"></div>
+                <span class="text-sm text-om-gray-400 italic">or</span>
+                <div class="flex-1 w-px bg-om-gray-200"></div>
+              </div>
+
+              <!-- Right: quick links -->
+              <div class="flex flex-col justify-around flex-1 min-w-0 gap-4">
+                <div class="cursor-pointer group" @click="$emit('menu-click', 'templates')">
+                  <p class="text-sm font-semibold text-om-orange-500 group-hover:underline">Browse templates ›</p>
+                  <p class="text-xs text-om-gray-500 mt-0.5">Browse 300+ ready-made templates tailored to your business goals</p>
+                </div>
+                <div class="border-t border-om-gray-100"></div>
+                <div class="cursor-pointer group" @click="$emit('menu-click', 'ab-test')">
+                  <p class="text-sm font-semibold text-om-orange-500 group-hover:underline">Optimize your website ›</p>
+                  <p class="text-xs text-om-gray-500 mt-0.5">Run A/B tests, personalize, and more</p>
+                </div>
+                <div class="border-t border-om-gray-100"></div>
+                <div class="cursor-pointer group" @click="$emit('menu-click', 'tactics')">
+                  <p class="text-sm font-semibold text-om-orange-500 group-hover:underline">Pick a proven Tactic ›</p>
+                  <p class="text-xs text-om-gray-500 mt-0.5">Get inspired by 50+ proven tactics!</p>
+                </div>
+              </div>
+            </div>
+          </Accordion>
+
+          <!-- Step 2: Install OptiMonk -->
+          <Accordion
+            title="Install OptiMonk"
+            :open="openStep === 1"
+            @toggle="openStep = openStep === 1 ? null : 1"
+          >
+            <template #icon>
+              <Zap :size="20" class="text-om-orange-500" />
+            </template>
+            <template #meta>
+              <span class="text-sm text-om-gray-400">~2 min</span>
+            </template>
+            <div class="pl-13">
+              <p class="text-sm text-om-gray-500 mb-5">Connect your website to OptiMonk and let us make the most of your online presence.</p>
+              <Button variant="primary" size="md">Connect my website</Button>
+            </div>
+          </Accordion>
+        </div>
+
         <!-- Trend Chart Section -->
         <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 px-5">
           <div class="trend-chart-tabs">
@@ -119,8 +195,8 @@
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold text-om-gray-700">Top campaigns</h2>
             <div class="flex items-center gap-2">
-              <Button variant="ghost" size="sm">All campaigns</Button>
-              <Button variant="primary" size="sm">New campaign</Button>
+              <Button variant="ghost" size="md">All campaigns</Button>
+              <Button variant="primary" size="md">New campaign</Button>
             </div>
           </div>
 
@@ -152,9 +228,10 @@
 
 <script setup>
 import { ref, computed, reactive } from 'vue'
-import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X } from 'lucide-vue-next'
+import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X, LayoutGrid, Zap } from 'lucide-vue-next'
 import VueApexCharts from 'vue3-apexcharts'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+import Accordion from '../components/shared/Accordion.vue'
 import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
@@ -189,6 +266,8 @@ const chatAiResponses = {
   'How can I improve my conversion rate?': 'Here are the top opportunities based on your current data:\n\n1. **A/B test your headlines** — campaigns with personalized headlines convert 2–3x better\n2. **Add exit intent triggers** to recover abandoning visitors\n3. **Optimize for mobile** — your mobile CVR is 40% lower than desktop',
   'Show me my top performing campaigns': 'Your top 3 campaigns this month:\n\n1. **Smart Discount** — 8.37% CVR\n2. **Black Friday 2025** — 5.2% CVR\n3. **Welcome Popup** — 4.1% CVR\n\nSmart Discount is significantly outperforming. Consider applying similar targeting to other campaigns.',
 }
+
+const openStep = ref(0)
 
 const showInviteBlock = ref(true)
 const showConsultBlock = ref(true)

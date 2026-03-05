@@ -99,7 +99,7 @@
   </div>
 
   <!-- Step 3: Wizard (with sidebar only on recommendation) -->
-  <DashboardLayout v-else no-content-padding background-color="#FFFFFF" :hide-sidebar="!isRecommendationPhase" @menu-click="handleMenuClick">
+  <DashboardLayout v-else no-content-padding background-color="#FFFFFF" hide-sidebar @menu-click="handleMenuClick">
     <template #content>
       <PublicStepWizardDashboard
         ref="stepWizardDashboardRef"
@@ -110,6 +110,7 @@
         @task-created="(task) => emit('task-created', task)"
         @navigate-to="(view) => emit('navigate-to', view)"
         @phase-changed="(view) => { currentPhase.value = view; emit('phase-changed', view) }"
+        @registration-completed="emit('registration-completed')"
       />
     </template>
   </DashboardLayout>
@@ -128,13 +129,12 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['task-created', 'navigate-to', 'phase-changed', 'menu-click'])
+const emit = defineEmits(['task-created', 'navigate-to', 'phase-changed', 'menu-click', 'registration-completed'])
 
 const stepWizardDashboardRef = ref(null)
 const formData = ref({})
 const textareaRef = ref(null)
 const currentPhase = ref('wizard-analysis')
-const isRecommendationPhase = computed(() => currentPhase.value.includes('recommendation'))
 
 const step = ref('url')
 const url = ref('')
