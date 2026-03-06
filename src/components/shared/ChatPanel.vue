@@ -11,17 +11,58 @@
   <!-- Chat panel (flow element, wide column) -->
   <div
     v-if="modelValue"
-    class="w-90 shrink-0 flex flex-col bg-white border-l border-[#E3E5E8] p-4 pt-6 pb-4"
+    :style="{ width: panelWidth + 'px' }"
+    class="shrink-0 flex flex-col bg-white border-l border-[#E3E5E8] p-4 pt-6 pb-4 relative"
   >
+    <!-- Resize handle -->
+    <div
+      @mousedown="startResize"
+      class="resize-handle absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-om-orange-300 transition-colors z-10"
+    ></div>
     <!-- Header with close button -->
     <div class="flex items-center justify-between mb-4">
-      <span class="text-sm font-semibold text-[#23262A]">Ask OptiMonk</span>
+      <Button variant="ghost" size="sm" @click="openConversationsModal">New conversation</Button>
       <button
         @click="emit('update:modelValue', false)"
         class="w-8 h-8 rounded-lg flex items-center justify-center text-[#8F97A4] hover:text-[#505763] hover:bg-[#F1F2F4] transition-colors cursor-pointer"
       >
         <X :size="16" />
       </button>
+    </div>
+
+    <!-- Conversations modal overlay -->
+    <div
+      v-if="showConversationsModal"
+      class="absolute inset-0 z-10 bg-white flex flex-col p-4 pt-6"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-sm font-semibold text-om-gray-700">Conversations</span>
+        <button
+          @click="showConversationsModal = false"
+          class="w-8 h-8 rounded-lg flex items-center justify-center text-[#8F97A4] hover:text-[#505763] hover:bg-[#F1F2F4] transition-colors cursor-pointer"
+        >
+          <X :size="16" />
+        </button>
+      </div>
+
+      <div class="mb-3">
+        <Button variant="primary" size="sm" @click="startNewConversation" class="w-full">New conversation</Button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto chat-panel-scroll">
+        <div v-if="savedConversations.length === 0" class="text-sm text-om-gray-400 text-center pt-8">
+          No recent conversations
+        </div>
+        <div
+          v-for="(conv, index) in savedConversations"
+          :key="index"
+          @click="loadConversation(conv)"
+          class="px-3 py-2.5 rounded-lg hover:bg-om-gray-100 cursor-pointer mb-1 transition-colors"
+        >
+          <div class="text-sm font-medium text-om-gray-700 truncate">{{ conv.title }}</div>
+          <div class="text-xs text-om-gray-400 mt-0.5">{{ conv.messageCount }} messages</div>
+        </div>
+      </div>
     </div>
 
     <!-- Empty state (outside overflow container so scale hover is not clipped) -->
@@ -136,8 +177,9 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, onUnmounted } from 'vue'
 import { ArrowUp, X, Check, Paperclip } from 'lucide-vue-next'
+import Button from './Button.vue'
 
 const props = defineProps({
   modelValue: {
@@ -171,13 +213,112 @@ const emit = defineEmits(['update:modelValue'])
 const chatMessage = ref('')
 const messages = ref([])
 const isTyping = ref(false)
+const showConversationsModal = ref(false)
+const currentConversationSaved = ref(false)
+const savedConversations = ref([
+  {
+    title: 'Which campaign has the best conversion rate?',
+    messageCount: 4,
+    messages: [
+      { type: 'user', message: 'Which campaign has the best conversion rate?' },
+      { type: 'ai', message: 'Your **Smart Discount Popup** is leading with an **8.37% submit rate** and **84.23% conversion uplift**. It\'s significantly outperforming your other active campaigns.\n\nWould you like tips on how to replicate this success across your other campaigns?' },
+      { type: 'user', message: 'Yes, show me the tips' },
+      { type: 'ai', message: 'Great! The key factors behind its success are:\n\n**1. Exit-intent trigger** — catches visitors before they leave\n**2. Personalized headline** — uses the visitor\'s browsing category\n**3. Single CTA** — one clear action reduces decision fatigue\n\nApplying these to your other campaigns could boost their performance significantly.' },
+    ]
+  },
+  {
+    title: 'How can I reduce cart abandonment?',
+    messageCount: 2,
+    messages: [
+      { type: 'user', message: 'How can I reduce cart abandonment?' },
+      { type: 'ai', message: 'Your **Cart Abandonment Stopper** campaign is already active. To improve it further:\n\n**1. Trigger earlier** — Show at 70% scroll on the cart page, not just on exit.\n**2. Offer a stronger incentive** — Free shipping converts better than % discounts.\n**3. Add urgency** — "Only 3 left in stock" messaging.\n\nWould you like me to suggest a specific template?' },
+    ]
+  },
+  {
+    title: 'Show me campaigns with low impressions',
+    messageCount: 2,
+    messages: [
+      { type: 'user', message: 'Show me campaigns with low impressions' },
+      { type: 'ai', message: 'Based on your current data, **Feedback Survey** has the lowest impressions with only **1,456 visitors** reached.\n\nThis is likely due to a narrow audience targeting rule. I\'d recommend reviewing the trigger settings and expanding the target URL conditions.' },
+    ]
+  },
+])
 
 const chatMessagesContainer = ref(null)
 const chatTextareaRef = ref(null)
 
+// Resize logic
+const panelWidth = ref(360)
+const MIN_WIDTH = 280
+const MAX_WIDTH = 640
+
+const startResize = (e) => {
+  e.preventDefault()
+  const startX = e.clientX
+  const startWidth = panelWidth.value
+
+  const onMouseMove = (e) => {
+    const delta = startX - e.clientX
+    panelWidth.value = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth + delta))
+  }
+
+  const onMouseUp = () => {
+    document.removeEventListener('mousemove', onMouseMove)
+    document.removeEventListener('mouseup', onMouseUp)
+    document.body.style.cursor = ''
+    document.body.style.userSelect = ''
+  }
+
+  document.body.style.cursor = 'ew-resize'
+  document.body.style.userSelect = 'none'
+  document.addEventListener('mousemove', onMouseMove)
+  document.addEventListener('mouseup', onMouseUp)
+}
+
+onUnmounted(() => {
+  document.body.style.cursor = ''
+  document.body.style.userSelect = ''
+})
+
 const formatChatMessage = (text) => {
   if (!text) return ''
   return text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+}
+
+const saveCurrentConversation = () => {
+  if (messages.value.length === 0 || currentConversationSaved.value) return
+  const firstUserMsg = messages.value.find(m => m.type === 'user')
+  const title = firstUserMsg ? firstUserMsg.message : 'Conversation'
+  savedConversations.value.unshift({
+    title,
+    messageCount: messages.value.length,
+    messages: [...messages.value]
+  })
+  currentConversationSaved.value = true
+}
+
+const openConversationsModal = () => {
+  saveCurrentConversation()
+  showConversationsModal.value = true
+}
+
+const startNewConversation = () => {
+  messages.value = []
+  chatMessage.value = ''
+  currentConversationSaved.value = false
+  showConversationsModal.value = false
+}
+
+const loadConversation = (conv) => {
+  messages.value = [...conv.messages]
+  chatMessage.value = ''
+  currentConversationSaved.value = true
+  showConversationsModal.value = false
+}
+
+const resetConversation = () => {
+  messages.value = []
+  chatMessage.value = ''
 }
 
 const scrollToBottom = () => {
@@ -230,6 +371,15 @@ const handleChatSubmit = () => {
 </script>
 
 <style scoped>
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: 0;
+  bottom: 0;
+  width: 7px;
+}
+
 /* Scrollbar styles matching wizard */
 .chat-panel-scroll {
   scrollbar-gutter: stable;

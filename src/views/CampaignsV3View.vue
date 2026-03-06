@@ -3,13 +3,13 @@
     <template #content>
       <div class="w-full max-w-[1400px] mx-auto -mt-3">
         <!-- Header -->
-        <div class="flex items-center justify-between mb-5">
-          <h1 class="text-2xl font-semibold text-om-gray-700">Campaigns (32)</h1>
+        <div class="flex items-center justify-between mb-5 max-960:flex-col max-960:items-start max-960:gap-3">
+          <h1 class="text-2xl max-960:text-xl font-semibold text-om-gray-700">Campaigns (32)</h1>
           <Button variant="primary" size="sm">New Campaign</Button>
         </div>
 
         <!-- Filters and Controls -->
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center justify-between mb-4 max-960:flex-col max-960:items-start max-960:gap-3">
           <!-- Left: Domain dropdown and Tab filters -->
           <div class="flex items-center gap-3">
             <!-- Domain dropdown -->

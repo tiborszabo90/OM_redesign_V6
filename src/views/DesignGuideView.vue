@@ -121,6 +121,33 @@
           </div>
         </div>
 
+        <!-- Peach Palette -->
+        <div class="mb-8">
+          <h3 class="text-base font-medium text-om-gray-600 mb-4">Secondary - Peach</h3>
+          <div class="grid grid-cols-5 md:grid-cols-10 gap-2">
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-om-peach-50 border border-om-gray-200"></div>
+              <p class="text-xs text-om-gray-500">50</p>
+              <p class="text-xs text-om-gray-400 font-mono">#FFF7F2</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-om-peach-100 border border-om-gray-200"></div>
+              <p class="text-xs text-om-gray-500">100</p>
+              <p class="text-xs text-om-gray-400 font-mono">#FFEFE5</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-om-peach-200"></div>
+              <p class="text-xs text-om-gray-500">200</p>
+              <p class="text-xs text-om-gray-400 font-mono">#FFE0CC</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-om-peach-300"></div>
+              <p class="text-xs text-om-gray-500">300</p>
+              <p class="text-xs text-om-gray-400 font-mono">#FFC199</p>
+            </div>
+          </div>
+        </div>
+
         <!-- Green Palette -->
         <div class="mb-8">
           <h3 class="text-base font-medium text-om-gray-600 mb-4">Complementary - Green</h3>

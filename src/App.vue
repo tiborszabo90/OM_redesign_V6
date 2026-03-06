@@ -13,6 +13,7 @@ import CampaignPageV1View from './views/CampaignPageV1View.vue'
 import AnalyticsV1View from './views/AnalyticsV1View.vue'
 import AnalyticsV2View from './views/AnalyticsV2View.vue'
 import AnalyticsV3View from './views/AnalyticsV3View.vue'
+import AnalyticsEmptyView from './views/AnalyticsEmptyView.vue'
 import TemplatesViewV1 from './views/TemplatesViewV1.vue'
 import TemplatesViewV2 from './views/TemplatesViewV2.vue'
 import TemplatesViewV3 from './views/TemplatesViewV3.vue'
@@ -24,6 +25,7 @@ import HomeOnboardingView from './views/HomeOnboardingView.vue'
 import HomeOnboardingWithRecoView from './views/HomeOnboardingWithRecoView.vue'
 import HomeOnboardingWizardView from './views/HomeOnboardingWizardView.vue'
 import PublicWizardView from './views/PublicWizardView.vue'
+import CampaignsEmptyView from './views/CampaignsEmptyView.vue'
 import WizardFlowView from './views/WizardFlowView.vue'
 import OptimizationOpportunityDetailView from './views/OptimizationOpportunityDetailView.vue'
 import OptimizationOpportunitiesAllView from './views/OptimizationOpportunitiesAllView.vue'
@@ -329,8 +331,7 @@ const handleDevNavigate = (view) => {
     setTimeout(() => {
       currentView.value = view
     }, 50)
-  } else if (view === 'campaigns-v3') {
-    // Campaigns list view
+  } else if (view === 'campaigns-v3' || view === 'campaigns-empty') {
     currentView.value = view
   } else if (view === 'campaign-page-v1') {
     // Campaign Page view
@@ -543,16 +544,21 @@ const handleNavigateToOpportunities = () => {
 
 const handleMenuClick = (menuId) => {
   if (menuId === 'campaigns') {
-    currentView.value = 'campaigns-v3'
+    const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'wizard-flow']
+    currentView.value = onboardingViews.includes(currentView.value) ? 'campaigns-empty' : 'campaigns-v3'
   } else if (menuId === 'home') {
     if (currentView.value === 'wizard-flow' || currentView.value === 'home-onboarding-wizard') {
       sessionKey.value++
       currentView.value = 'home-onboarding-with-reco'
+    } else if (currentView.value === 'campaigns-empty' || currentView.value === 'analytics-empty') {
+      sessionKey.value++
+      currentView.value = 'home-onboarding'
     } else {
       currentView.value = 'home-old'
     }
   } else if (menuId === 'insights') {
-    currentView.value = 'analytics-v3'
+    const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'wizard-flow', 'campaigns-empty', 'analytics-empty']
+    currentView.value = onboardingViews.includes(currentView.value) ? 'analytics-empty' : 'analytics-v3'
   } else if (menuId === 'campaign-page') {
     currentView.value = 'campaign-page-v1'
   } else if (menuId === 'templates' || menuId === 'library') {
@@ -608,11 +614,11 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
 </script>
 
 <template>
-  <div class="min-h-screen-safe">
+  <div class="h-screen-safe flex flex-col">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaign-page-v1', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all'].includes(currentView)"
-      class="pt-8 pl-8"
+      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaigns-empty', 'campaign-page-v1', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all'].includes(currentView)"
+      class="pt-8 pl-8 shrink-0"
     >
       <img
         src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
@@ -621,6 +627,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       />
     </div>
 
+    <div class="flex-1 min-h-0">
     <transition name="fade" mode="out-in">
       <DevStartView
         v-if="currentView === 'dev-start'"
@@ -715,6 +722,10 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         @menu-click="handleMenuClick"
         @navigate-to-campaign="currentView = 'campaign-page-v1'"
       />
+      <CampaignsEmptyView
+        v-else-if="currentView === 'campaigns-empty'"
+        @menu-click="handleMenuClick"
+      />
       <CampaignPageV1View
         v-else-if="currentView === 'campaign-page-v1'"
         @menu-click="handleMenuClick"
@@ -732,6 +743,10 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         @menu-click="handleMenuClick"
         @navigate-to-opportunity="handleNavigateToOpportunity"
         @navigate-to-opportunities="handleNavigateToOpportunities"
+      />
+      <AnalyticsEmptyView
+        v-else-if="currentView === 'analytics-empty'"
+        @menu-click="handleMenuClick"
       />
       <OptimizationOpportunityDetailView
         v-else-if="currentView === 'opportunity-detail'"
@@ -863,6 +878,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         @submit="handleWizardSubmit"
       />
     </transition>
+    </div>
   </div>
 
   <DevNavBar

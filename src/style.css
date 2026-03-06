@@ -2,6 +2,7 @@
 
 @theme {
   --breakpoint-3xl: 1920px;
+  --breakpoint-960: 960px;
 
   --text-5xl: 2.5rem;
   --text-5xl--line-height: 1.2;
@@ -17,6 +18,12 @@
   --color-om-orange-700: #B33810;
   --color-om-orange-800: #952E0D;
   --color-om-orange-900: #7A260B;
+
+  /* OptiMonk Peach Color Palette */
+  --color-om-peach-50: #FFF7F2;
+  --color-om-peach-100: #FFEFE5;
+  --color-om-peach-200: #FFE0CC;
+  --color-om-peach-300: #FFC199;
 
   /* OptiMonk Gray Color Palette */
   --color-om-gray-50: #F9FAFB;

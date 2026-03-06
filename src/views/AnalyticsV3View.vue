@@ -7,8 +7,8 @@
     <template #content>
       <div class="w-full max-w-[1400px] mx-auto -mt-3" :class="{ 'chat-open': isChatOpen }">
         <!-- Header Section -->
-        <div class="flex items-center justify-between mb-5">
-          <h1 class="text-2xl font-semibold text-om-gray-700">Analytics</h1>
+        <div class="flex items-center justify-between mb-5 max-960:flex-col max-960:items-start max-960:gap-3">
+          <h1 class="text-2xl max-960:text-xl font-semibold text-om-gray-700">Analytics</h1>
           <div class="status-badge">
             <RefreshCw :size="16" class="status-badge-icon" />
             <p class="status-text">Freshly loaded data</p>
@@ -1814,6 +1814,28 @@ const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
   gap: 1rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
+}
+
+@media (max-width: 960px) {
+  .filters-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .filters-right {
+    flex-wrap: wrap;
+    margin-left: 0;
+  }
+  .filters-right > .relative {
+    width: auto;
+    flex: 1;
+    min-width: 160px;
+  }
+  .trend-chart-tabs {
+    flex-wrap: wrap;
+  }
+  .trend-chart-tab {
+    min-width: calc(50% - 0.25rem);
+  }
 }
 
 .filters-right {

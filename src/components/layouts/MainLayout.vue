@@ -1,7 +1,7 @@
 <template>
-  <div class="h-screen-safe bg-white flex flex-col relative overflow-hidden">
+  <div class="h-full bg-white flex flex-col relative overflow-hidden">
     <!-- Main content area -->
-    <div :class="['w-full h-full max-w-7xl mx-auto flex flex-col md:flex-row', reducedGap ? 'md:gap-8' : 'md:gap-16 lg:gap-32 xl:gap-32']">
+    <div :class="['w-full h-full min-h-0 max-w-7xl mx-auto flex flex-col md:flex-row', reducedGap ? 'md:gap-8' : 'md:gap-16 lg:gap-32 xl:gap-32']">
       <!-- Left Side - Content Area -->
       <div :class="['w-full h-full md:w-129 xl:w-150 flex items-center justify-center md:justify-start px-8 lg:pl-16 lg:pr-0 pt-8 overflow-hidden', hasProgress ? 'pb-32' : 'pb-8']">
         <div class="w-full max-w-[516px] md:max-w-none">
@@ -10,8 +10,8 @@
       </div>
 
       <!-- Right Side - Illustration Area -->
-      <div :class="['hidden md:flex flex-1 pt-8 pr-8 lg:pr-16', hasProgress ? 'pb-28' : 'pb-8', isExiting ? 'exit-animation' : '']">
-        <div :class="['w-full rounded-[40px] flex items-center justify-center overflow-hidden mb-8 transition-colors duration-500', transparentIllustration ? 'bg-transparent' : 'bg-[#FFEFE5]', reducedGap ? '' : 'max-w-xl']">
+      <div :class="['hidden md:flex flex-1 pt-8 pr-8 lg:pr-16', hasProgress ? 'pb-28' : 'pb-4', isExiting ? 'exit-animation' : '']">
+        <div :class="['w-full rounded-[40px] flex items-center justify-center overflow-hidden transition-colors duration-500', transparentIllustration ? 'bg-transparent' : 'bg-[#FFEFE5]', reducedGap ? '' : 'max-w-xl']">
           <slot name="illustration">
             <!-- Default placeholder -->
             <div class="flex items-center justify-center">

@@ -158,7 +158,7 @@
 
     <!-- Main Content Area -->
     <main class="w-full flex overflow-hidden" :class="{ 'ml-19': !hideSidebar }">
-      <div ref="contentDivRef" class="flex-1 overflow-y-auto min-w-0 transition-all duration-300" :class="noContentPadding ? '' : ['py-8 pl-12', rightPanelCollapsed ? 'pr-10' : 'pr-12']">
+      <div ref="contentDivRef" class="flex-1 overflow-y-auto min-w-0 transition-all duration-300 max-960:text-sm" :class="noContentPadding ? '' : ['py-8 max-960:py-4 pl-12 max-960:pl-6', rightPanelCollapsed ? 'pr-10 max-960:pr-4' : 'pr-12 max-960:pr-4']">
         <slot name="content"></slot>
       </div>
       <slot name="right-panel"></slot>

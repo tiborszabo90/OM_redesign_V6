@@ -6,7 +6,7 @@
         <h1 class="text-2xl font-semibold text-om-gray-700 mb-5">Hi Csaba</h1>
 
         <!-- Filters Section -->
-        <div class="flex items-center justify-between mb-5 gap-4">
+        <div class="flex items-center justify-between mb-5 gap-4 max-960:flex-col max-960:items-start">
           <!-- Domain Selector -->
           <div class="w-56">
             <Dropdown

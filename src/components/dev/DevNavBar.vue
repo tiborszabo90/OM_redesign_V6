@@ -441,18 +441,50 @@
             </transition>
           </div>
 
-          <!-- Campaigns List Button -->
-          <button
-            @click="$emit('navigate', 'campaigns-v3')"
-            :class="[
-              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
-              currentView === 'campaigns-v3'
-                ? 'bg-[#ED5A29] text-white'
-                : 'bg-[#505763] hover:bg-[#8F97A4]'
-            ]"
-          >
-            Campaigns List
-          </button>
+          <!-- Campaigns List Dropdown -->
+          <div class="relative">
+            <button
+              @click="campaignsDropdownOpen = !campaignsDropdownOpen"
+              :class="[
+                'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
+                ['campaigns-v3', 'campaigns-empty'].includes(currentView)
+                  ? 'bg-[#ED5A29] text-white'
+                  : 'bg-[#505763] hover:bg-[#8F97A4]'
+              ]"
+            >
+              Campaigns List
+              <ChevronUp :size="12" :class="{ 'rotate-180': campaignsDropdownOpen }" />
+            </button>
+            <transition name="fade">
+              <div
+                v-if="campaignsDropdownOpen"
+                class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-40"
+              >
+                <button
+                  @click="selectCampaigns('campaigns-v3')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'campaigns-v3'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  With Campaigns
+                </button>
+                <button
+                  @click="selectCampaigns('campaigns-empty')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'campaigns-empty'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  Empty State
+                </button>
+              </div>
+            </transition>
+          </div>
 
           <!-- Campaign Page Button -->
           <button
@@ -467,18 +499,50 @@
             Campaign Page
           </button>
 
-          <!-- Analytics Button -->
-          <button
-            @click="$emit('navigate', 'analytics-v3')"
-            :class="[
-              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
-              currentView === 'analytics-v3'
-                ? 'bg-[#ED5A29] text-white'
-                : 'bg-[#505763] hover:bg-[#8F97A4]'
-            ]"
-          >
-            Analytics
-          </button>
+          <!-- Analytics Dropdown -->
+          <div class="relative">
+            <button
+              @click="analyticsDropdownOpen = !analyticsDropdownOpen"
+              :class="[
+                'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
+                ['analytics-v3', 'analytics-empty'].includes(currentView)
+                  ? 'bg-om-orange-500 text-white'
+                  : 'bg-om-gray-600 hover:bg-om-gray-500'
+              ]"
+            >
+              Analytics
+              <ChevronUp :size="12" :class="{ 'rotate-180': analyticsDropdownOpen }" />
+            </button>
+            <transition name="fade">
+              <div
+                v-if="analyticsDropdownOpen"
+                class="absolute bottom-full left-0 mb-2 bg-om-gray-700 border border-om-gray-600 rounded-lg shadow-lg overflow-hidden min-w-40"
+              >
+                <button
+                  @click="selectAnalytics('analytics-v3')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'analytics-v3'
+                      ? 'bg-om-orange-500 text-white'
+                      : 'hover:bg-om-gray-600'
+                  ]"
+                >
+                  With Data
+                </button>
+                <button
+                  @click="selectAnalytics('analytics-empty')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'analytics-empty'
+                      ? 'bg-om-orange-500 text-white'
+                      : 'hover:bg-om-gray-600'
+                  ]"
+                >
+                  Empty State
+                </button>
+              </div>
+            </transition>
+          </div>
 
           <!-- Templates Button -->
           <button
@@ -610,6 +674,7 @@ const flowDropdownOpen = ref(false)
 const imageWithBadgeDropdownOpen = ref(false)
 const archiveDropdownOpen = ref(false)
 const homeDropdownOpen = ref(false)
+const campaignsDropdownOpen = ref(false)
 
 // Archive items - add views here that you want to archive
 const archiveItems = ref([
@@ -644,6 +709,18 @@ const selectFlow = (type) => {
 const selectHome = (view) => {
   emit('navigate', view)
   homeDropdownOpen.value = false
+}
+
+const selectCampaigns = (view) => {
+  emit('navigate', view)
+  campaignsDropdownOpen.value = false
+}
+
+const analyticsDropdownOpen = ref(false)
+
+const selectAnalytics = (view) => {
+  emit('navigate', view)
+  analyticsDropdownOpen.value = false
 }
 
 const selectImageWithBadge = (view) => {
