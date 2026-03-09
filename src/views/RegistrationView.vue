@@ -1,5 +1,5 @@
 <template>
-  <MainLayout>
+  <MainLayout :illustration-extra-bottom="props.registrationType === 'email'">
     <template #content>
       <div class="w-full xl:pr-16">
         <!-- Header -->
@@ -94,12 +94,10 @@
     </template>
 
     <template #illustration>
-      <div class="w-full h-full">
-        <img
-          src="/mascot/monk1.png"
-          alt="OptiMonk Mascot"
-          class="w-full h-full object-contain"
-        />
+      <div class="w-full h-full relative">
+        <img src="/bamboo.svg" alt="" class="absolute inset-0 object-contain illus-bamboo" />
+        <img src="/monk-shadow.svg" alt="" class="absolute w-2/5 object-contain monk-shadow-pulse illus-shadow" />
+        <img src="/monk-medit.2.svg" alt="" class="absolute object-contain monk-float illus-monk" />
       </div>
     </template>
   </MainLayout>
@@ -172,3 +170,73 @@ const handleSubmit = () => {
   emit('complete', formData.value)
 }
 </script>
+
+<style scoped>
+@keyframes float {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-16px); }
+}
+
+@keyframes shadow-pulse {
+  0%, 100% { transform: translateX(-50%) scale(1.1); }
+  50% { transform: translateX(-50%) scale(0.9); }
+}
+
+.monk-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.monk-shadow-pulse {
+  transform-origin: center;
+  animation: shadow-pulse 4s ease-in-out infinite;
+}
+
+.illus-bamboo {
+  left: 10px;
+  width: 88%;
+  height: 88%;
+}
+
+.illus-shadow {
+  bottom: 20px;
+  left: calc(50% + 50px);
+}
+
+.illus-monk {
+  width: 70%;
+  bottom: calc(25% - 40px);
+  left: calc(50% + 40px);
+  transform: translateX(-50%);
+}
+
+@media (max-height: 680px) {
+  .illus-bamboo {
+    width: 83%;
+    height: 83%;
+  }
+  .illus-monk {
+    width: 56%;
+  }
+}
+
+@media (min-height: 840px) {
+  .illus-bamboo {
+    top: 20px;
+  }
+  .illus-shadow {
+    bottom: 70px;
+  }
+  .illus-monk {
+    bottom: calc(25% - 20px);
+  }
+}
+
+@media (min-height: 940px) {
+  .illus-shadow {
+    bottom: 110px;
+  }
+  .illus-monk {
+    bottom: calc(25%);
+  }
+}
+</style>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="fixed top-7 right-8 z-50">
-      <Button variant="ghost" size="sm" @click="emit('skip-to-dashboard')">Skip to homepage</Button>
+      <Button variant="ghost" size="sm" @click="emit('skip-to-dashboard')">{{ skipLabel }}</Button>
     </div>
     <div class="mb-12">
       <h1 class="text-5xl font-normal text-om-gray-700 font-headline heading-responsive">Great, now let's create your first campaign 🚀</h1>
@@ -58,6 +58,10 @@ const props = defineProps({
   modelValue: {
     type: Object,
     default: () => ({})
+  },
+  skipLabel: {
+    type: String,
+    default: 'Skip to homepage'
   }
 })
 

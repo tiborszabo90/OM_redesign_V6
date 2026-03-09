@@ -39,16 +39,16 @@
   </div>
 
   <!-- Step 2: Chat input (like home page) -->
-  <div v-else-if="step === 'chat'" class="h-screen-safe bg-white flex flex-col items-center justify-center px-4">
+  <div v-else-if="step === 'chat'" class="h-screen-safe bg-white relative flex flex-col items-center justify-center px-4">
+    <!-- Logo top-left -->
+    <div class="absolute top-8 left-8">
+      <img
+        src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
+        alt="OptiMonk"
+        class="h-8"
+      />
+    </div>
     <div class="w-full max-w-2xl">
-      <!-- Logo -->
-      <div class="flex justify-center mb-10">
-        <img
-          src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
-          alt="OptiMonk"
-          class="h-8"
-        />
-      </div>
 
       <!-- Heading -->
       <div class="mb-8 text-center">

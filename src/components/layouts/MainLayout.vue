@@ -10,7 +10,7 @@
       </div>
 
       <!-- Right Side - Illustration Area -->
-      <div :class="['hidden md:flex flex-1 pt-8 pr-8 lg:pr-16', hasProgress ? 'pb-28' : 'pb-4', isExiting ? 'exit-animation' : '']">
+      <div :class="['hidden md:flex flex-1 pr-8 lg:pr-16', illustrationBottomLg ? 'pt-25 pb-25' : 'pt-8', hasProgress ? 'pb-28' : illustrationBottomLg ? '' : illustrationExtraBottom ? 'pb-14' : 'pb-4', isExiting ? 'exit-animation' : '']">
         <div :class="['w-full rounded-[40px] flex items-center justify-center overflow-hidden transition-colors duration-500', transparentIllustration ? 'bg-transparent' : 'bg-[#FFEFE5]', reducedGap ? '' : 'max-w-xl']">
           <slot name="illustration">
             <!-- Default placeholder -->
@@ -55,6 +55,14 @@ defineProps({
     default: false
   },
   isExiting: {
+    type: Boolean,
+    default: false
+  },
+  illustrationExtraBottom: {
+    type: Boolean,
+    default: false
+  },
+  illustrationBottomLg: {
     type: Boolean,
     default: false
   }
