@@ -18,7 +18,7 @@
     <div
       v-if="variant === 'list'"
       @click="$emit('click')"
-      class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pr-4 flex items-center gap-4 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow relative"
+      class="list-card bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pr-4 flex items-center gap-3 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow relative"
     >
       <!-- Hover zone for checkbox trigger -->
       <div
@@ -29,7 +29,7 @@
 
       <!-- Thumbnail -->
       <div
-        class="w-36 h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200 relative"
+        class="list-thumb w-36 h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200 relative"
         @mouseenter="isImageHovered = true"
         @mouseleave="isImageHovered = false"
       >
@@ -43,27 +43,30 @@
         </transition>
       </div>
 
-      <!-- Info -->
-      <div class="flex-1 min-w-0">
-        <h3 class="text-base font-semibold text-om-gray-700 mb-1">{{ name }}</h3>
-        <p class="text-xs text-om-gray-400">{{ domain }}</p>
-      </div>
+      <!-- Right column (info + metrics) -->
+      <div class="list-right flex-1 flex items-center gap-3 min-w-0">
+        <!-- Info -->
+        <div class="list-info flex-1 min-w-0">
+          <h3 class="list-name text-base font-semibold text-om-gray-700 mb-1">{{ name }}</h3>
+          <p class="text-xs text-om-gray-400">{{ domain }}</p>
+        </div>
 
-      <!-- Metrics (4 fixed-width slots) -->
-      <div class="flex items-center gap-5 shrink-0">
-        <div v-for="(slot, i) in metricSlots" :key="i" :class="listSlotWidths[i]">
-          <template v-if="slot">
-            <p class="text-xs text-om-gray-400 mb-1">{{ slot.label }}</p>
-            <p class="text-base font-semibold text-om-gray-700 flex items-center gap-1">
-              {{ slot.value }}
-              <TrendingUp v-if="slot.trend" :size="16" class="text-[#2CC896]" />
-            </p>
-          </template>
+        <!-- Metrics (4 fixed-width slots) -->
+        <div class="list-metrics flex items-center gap-3 shrink-0">
+          <div v-for="(slot, i) in metricSlots" :key="i" :class="['list-metric-slot', listSlotWidths[i]]">
+            <template v-if="slot">
+              <p class="text-xs text-om-gray-400 mb-1">{{ slot.label }}</p>
+              <p class="list-metric-value text-base font-semibold text-om-gray-700 flex items-center gap-1">
+                {{ slot.value }}
+                <TrendingUp v-if="slot.trend" :size="16" class="text-[#2CC896]" />
+              </p>
+            </template>
+          </div>
         </div>
       </div>
 
-      <!-- Toggle + Last updated -->
-      <div class="flex items-center gap-4 shrink-0">
+      <!-- Toggle + Last updated (always right column) -->
+      <div class="list-footer flex flex-col items-end gap-1.5 shrink-0">
         <ToggleSwitch :model-value="active" @update:model-value="$emit('update:active', $event)" @click.stop />
         <p class="text-xs text-om-gray-400 whitespace-nowrap text-right">Last updated<br/>{{ lastUpdated }}</p>
       </div>
@@ -179,5 +182,27 @@ onUnmounted(() => document.removeEventListener('mousemove', handleMouseMove))
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.list-card {
+  container-type: inline-size;
+}
+
+
+@container (max-width: 880px) {
+  .list-right {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  .list-metrics {
+    align-items: flex-start;
+  }
+  .list-name {
+    font-size: 0.875rem;
+  }
+  .list-metric-value {
+    font-size: 0.875rem;
+  }
 }
 </style>
