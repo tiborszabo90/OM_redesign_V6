@@ -5,7 +5,7 @@
     :right-panel-collapsed="!isChatOpen"
   >
     <template #content>
-      <div class="w-full max-w-[1400px] mx-auto -mt-3" :class="{ 'chat-open': isChatOpen }">
+      <div class="analytics-outer w-full max-w-[1400px] mx-auto -mt-3" :class="{ 'chat-open': isChatOpen }">
         <!-- Header Section -->
         <div class="flex items-center justify-between mb-5 max-960:flex-col max-960:items-start max-960:gap-3">
           <h1 class="text-2xl max-960:text-xl font-semibold text-om-gray-700">Analytics</h1>
@@ -30,17 +30,6 @@
 
           <!-- Right-aligned filters -->
           <div class="filters-right">
-            <!-- Devices Dropdown -->
-            <Dropdown
-              v-model="selectedDevice"
-              :options="devices"
-              placeholder="Select device"
-            >
-              <template #icon>
-                <Monitor :size="20" class="text-om-gray-400" />
-              </template>
-            </Dropdown>
-
             <!-- Goal Dropdown -->
             <Dropdown
               v-model="selectedGoal"
@@ -148,10 +137,10 @@
               <div class="header-cell">Campaign</div>
             </div>
             <div class="campaign-metrics-header">
-              <div class="header-cell numeric">Unique Visitors</div>
+              <div class="header-cell numeric">Visitors</div>
               <div class="header-cell numeric">Impressions</div>
-              <div class="header-cell numeric">Conversions</div>
-              <div class="header-cell numeric">Conversion Rate</div>
+              <div class="header-cell numeric">Submits</div>
+              <div class="header-cell numeric">Submit Rate</div>
             </div>
           </div>
 
@@ -224,7 +213,7 @@
                   >
                     <div class="metric-cell">{{ campaign.visitors.toLocaleString() }}</div>
                     <div class="metric-cell">{{ campaign.impressions.toLocaleString() }}</div>
-                    <div class="metric-cell">{{ campaign.conversions }}</div>
+                    <div class="metric-cell">{{ campaign.submits }}</div>
                     <div class="metric-cell">{{ campaign.conversionRate }}%</div>
                   </div>
                   <template v-if="campaign.variants && expandedCampaigns.has(campaign.id)">
@@ -235,11 +224,249 @@
                     >
                       <div class="metric-cell">{{ variant.visitors.toLocaleString() }}</div>
                       <div class="metric-cell">{{ variant.impressions.toLocaleString() }}</div>
-                      <div class="metric-cell">{{ variant.conversions }}</div>
+                      <div class="metric-cell">{{ variant.submits }}</div>
                       <div class="metric-cell">{{ variant.conversionRate }}%</div>
                     </div>
                   </template>
                 </template>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Devices + Traffic Source Row -->
+        <div class="devices-traffic-row">
+          <!-- Devices Section -->
+          <div class="devices-card bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 pr-8 min-w-0 overflow-hidden">
+            <h2 class="section-title">Devices</h2>
+            <div class="devices-content">
+              <!-- Devices Table -->
+              <div class="devices-table-wrap">
+                <div class="campaign-headers-row">
+                  <div class="campaign-list-header">
+                    <div class="header-cell">Device Type</div>
+                  </div>
+                  <div class="campaign-metrics-header">
+                    <div class="header-cell numeric">Visitors</div>
+                    <div class="header-cell numeric">Submits</div>
+                    <div class="header-cell numeric"><span class="sr-full">Submit Rate</span><span class="sr-short">Sub. R.</span></div>
+                  </div>
+                </div>
+                <div class="campaign-performance-layout">
+                  <div class="campaign-list-column">
+                    <div class="campaign-table-body">
+                      <div
+                        v-for="row in devicesTableData"
+                        :key="row.type"
+                        class="campaign-row"
+                        :class="{ 'is-hovered': hoveredDevicesRow === row.type }"
+                        @mouseenter="hoveredDevicesRow = row.type"
+                        @mouseleave="hoveredDevicesRow = null"
+                        @click="toggleDevicesRow(row.type)"
+                      >
+                        <Checkbox
+                          :model-value="isDevicesRowSelected(row.type)"
+                          size="sm"
+                          class="custom-checkbox"
+                          @click.stop
+                          @update:model-value="toggleDevicesRow(row.type)"
+                        />
+                        <div class="campaign-name-wrapper">
+                          <div class="campaign-name">{{ row.type }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="campaign-metrics-column">
+                    <div class="campaign-table-body">
+                      <div
+                        v-for="row in devicesTableData"
+                        :key="row.type"
+                        class="campaign-metrics-row"
+                        :class="{ 'is-hovered': hoveredDevicesRow === row.type }"
+                        @mouseenter="hoveredDevicesRow = row.type"
+                        @mouseleave="hoveredDevicesRow = null"
+                      >
+                        <div class="metric-cell">{{ row.visitors.toLocaleString() }}</div>
+                        <div class="metric-cell">{{ row.submits.toLocaleString() }}</div>
+                        <div class="metric-cell">{{ row.submitRate }}%</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Devices Chart -->
+              <div class="devices-chart-wrap">
+                <VueApexCharts
+                  type="bar"
+                  height="200"
+                  :options="devicesChartOptions"
+                  :series="devicesChartSeries"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 pr-8 min-w-0 overflow-hidden">
+          <div class="section-header" style="padding-left: 32px; padding-right: 32px; margin-bottom: 1.25rem;">
+            <h2 class="section-title" style="padding: 0; margin-bottom: 0;">Traffic Sources</h2>
+            <button class="view-all-btn" @click="showModal('traffic-sources')">View All</button>
+          </div>
+          <div class="traffic-plain-layout">
+            <div class="traffic-plain-table">
+              <div class="campaign-headers-row">
+                <div class="campaign-list-header">
+                  <div class="header-cell">Referrer</div>
+                </div>
+                <div class="campaign-metrics-header">
+                  <div class="header-cell numeric">Visitors</div>
+                  <div class="header-cell numeric">Submits</div>
+                  <div class="header-cell numeric"><span class="sr-full">Submit Rate</span><span class="sr-short">Sub. R.</span></div>
+                </div>
+              </div>
+              <div class="campaign-performance-layout">
+                <div class="campaign-list-column">
+                  <div class="campaign-table-body">
+                    <div
+                      v-for="row in trafficSourceData"
+                      :key="row.referrer"
+                      class="campaign-row"
+                      :class="{ 'is-hovered': hoveredTrafficRow2 === row.referrer }"
+                      @mouseenter="hoveredTrafficRow2 = row.referrer"
+                      @mouseleave="hoveredTrafficRow2 = null"
+                      @click="toggleTrafficRow2(row.referrer)"
+                    >
+                      <Checkbox
+                        :model-value="isTrafficRow2Selected(row.referrer)"
+                        size="sm"
+                        class="custom-checkbox"
+                        @click.stop
+                        @update:model-value="toggleTrafficRow2(row.referrer)"
+                      />
+                      <div class="campaign-name-wrapper">
+                        <div class="campaign-name" style="display:flex;align-items:center;gap:6px;">
+                          <span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;" :style="{ background: trafficPieColors[trafficPieReferrerIndex[row.referrer] ?? 5] }" />
+                          {{ row.referrer }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="campaign-metrics-column">
+                  <div class="campaign-table-body">
+                    <div
+                      v-for="row in trafficSourceData"
+                      :key="row.referrer"
+                      class="campaign-metrics-row"
+                      :class="{ 'is-hovered': hoveredTrafficRow2 === row.referrer }"
+                      @mouseenter="hoveredTrafficRow2 = row.referrer"
+                      @mouseleave="hoveredTrafficRow2 = null"
+                    >
+                      <div class="metric-cell">{{ row.visitors.toLocaleString() }}</div>
+                      <div class="metric-cell">{{ row.submits !== null ? row.submits.toLocaleString() : '–' }}</div>
+                      <div class="metric-cell">{{ row.submitRate !== null ? row.submitRate + '%' : '–' }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="traffic-pie-chart">
+              <VueApexCharts
+                type="donut"
+                height="240"
+                width="240"
+                :options="trafficSubmitsPieOptions"
+                :series="trafficSubmitsPieSeries"
+              />
+            </div>
+          </div>
+          </div>
+        </div>
+        <!-- /Devices + Traffic Source Row -->
+
+        <!-- Countries Section -->
+        <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] mb-6 pt-5 pb-5">
+          <div class="section-header" style="padding-left: 32px; padding-right: 32px; margin-bottom: 1.25rem;">
+            <h2 class="section-title" style="padding: 0; margin-bottom: 0;">Countries</h2>
+            <button class="view-all-btn" @click="showModal('countries')">View All</button>
+          </div>
+
+          <div class="countries-content">
+            <div class="countries-table-side">
+              <div class="campaign-headers-row">
+                <div class="campaign-list-header">
+                  <div class="header-cell">Country</div>
+                </div>
+                <div class="campaign-metrics-header">
+                  <div class="header-cell numeric">Visitors</div>
+                  <div class="header-cell numeric">Submits</div>
+                  <div class="header-cell numeric">Submit Rate</div>
+                </div>
+              </div>
+
+              <div class="campaign-performance-layout">
+                <div class="campaign-list-column">
+                  <div class="campaign-table-body">
+                    <div
+                      v-for="row in countriesData"
+                      :key="row.country"
+                      class="campaign-row"
+                      :class="{ 'is-hovered': hoveredCountriesRow === row.country }"
+                      @mouseenter="hoveredCountriesRow = row.country"
+                      @mouseleave="hoveredCountriesRow = null"
+                      @click="toggleCountriesRow(row.country)"
+                    >
+                      <Checkbox
+                        :model-value="isCountriesRowSelected(row.country)"
+                        size="sm"
+                        class="custom-checkbox"
+                        @click.stop
+                        @update:model-value="toggleCountriesRow(row.country)"
+                      />
+                      <div class="campaign-name-wrapper">
+                        <div class="campaign-name">{{ row.country }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="campaign-metrics-column">
+                  <div class="campaign-table-body">
+                    <div
+                      v-for="row in countriesData"
+                      :key="row.country"
+                      class="campaign-metrics-row"
+                      :class="{ 'is-hovered': hoveredCountriesRow === row.country }"
+                      @mouseenter="hoveredCountriesRow = row.country"
+                      @mouseleave="hoveredCountriesRow = null"
+                    >
+                      <div class="metric-cell">{{ row.visitors.toLocaleString() }}</div>
+                      <div class="metric-cell">{{ row.submits !== null ? row.submits.toLocaleString() : '–' }}</div>
+                      <div class="metric-cell">{{ row.submitRate !== null ? row.submitRate + '%' : '–' }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="countries-chart-side">
+              <div class="countries-bar-header"></div>
+              <div class="countries-bar-body">
+                <div
+                  v-for="row in countriesData"
+                  :key="row.country"
+                  class="countries-bar-row"
+                  :class="{ 'is-hovered': hoveredCountriesRow === row.country }"
+                  @mouseenter="hoveredCountriesRow = row.country"
+                  @mouseleave="hoveredCountriesRow = null"
+                >
+                  <div class="countries-bar-track">
+                    <div
+                      class="countries-bar-fill"
+                      :style="{ width: ((row.submits ?? 0) / maxCountrySubmits * 100) + '%' }"
+                    ></div>
+                  </div>
+
+                </div>
               </div>
             </div>
           </div>
@@ -274,9 +501,9 @@
             </div>
             <div class="campaign-metrics-header">
               <div class="header-cell numeric">Page Views</div>
-              <div class="header-cell numeric">Unique Visitors</div>
-              <div class="header-cell numeric">Conversions</div>
-              <div class="header-cell numeric">Conversion Rate</div>
+              <div class="header-cell numeric">Visitors</div>
+              <div class="header-cell numeric">Submits</div>
+              <div class="header-cell numeric">Submit Rate</div>
             </div>
           </div>
 
@@ -326,7 +553,7 @@
                 >
                   <div class="metric-cell">{{ page.pageViews.toLocaleString() }}</div>
                   <div class="metric-cell">{{ page.visitors.toLocaleString() }}</div>
-                  <div class="metric-cell">{{ page.conversions }}</div>
+                  <div class="metric-cell">{{ page.submits }}</div>
                   <div class="metric-cell">{{ page.conversionRate }}%</div>
                 </div>
               </div>
@@ -364,9 +591,9 @@
                 <div class="header-cell">Landing Page</div>
               </div>
               <div class="breakdown-module-metrics-header">
-                <div class="header-cell numeric">Unique Visitors</div>
-                <div class="header-cell numeric">Conversions</div>
-                <div class="header-cell numeric">Conv. Rate</div>
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">Submits</div>
+                <div class="header-cell numeric">Submit Rate</div>
               </div>
             </div>
 
@@ -415,7 +642,7 @@
                     :class="{ 'is-hovered': hoveredLandingPageUrl === page.url }"
                   >
                     <div class="metric-cell">{{ page.visitors.toLocaleString() }}</div>
-                    <div class="metric-cell">{{ page.conversions }}</div>
+                    <div class="metric-cell">{{ page.submits }}</div>
                     <div class="metric-cell">{{ page.conversionRate }}%</div>
                   </div>
                 </div>
@@ -451,9 +678,9 @@
                 <div class="header-cell">Language</div>
               </div>
               <div class="breakdown-module-metrics-header">
-                <div class="header-cell numeric">Unique Visitors</div>
-                <div class="header-cell numeric">Conversions</div>
-                <div class="header-cell numeric">Conv. Rate</div>
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">Submits</div>
+                <div class="header-cell numeric">Submit Rate</div>
               </div>
             </div>
 
@@ -496,7 +723,7 @@
                     :class="{ 'is-hovered': hoveredBrowserLanguageCode === lang.code }"
                   >
                     <div class="metric-cell">{{ lang.visitors.toLocaleString() }}</div>
-                    <div class="metric-cell">{{ lang.conversions }}</div>
+                    <div class="metric-cell">{{ lang.submits }}</div>
                     <div class="metric-cell">{{ lang.conversionRate }}%</div>
                   </div>
                 </div>
@@ -535,9 +762,9 @@
                 <div class="header-cell">Campaign</div>
               </div>
               <div class="breakdown-module-metrics-header">
-                <div class="header-cell numeric">Unique Visitors</div>
-                <div class="header-cell numeric">Conversions</div>
-                <div class="header-cell numeric">Conv. Rate</div>
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">Submits</div>
+                <div class="header-cell numeric">Submit Rate</div>
               </div>
             </div>
 
@@ -580,7 +807,7 @@
                     :class="{ 'is-hovered': hoveredUtmCampaignName === campaign.name }"
                   >
                     <div class="metric-cell">{{ campaign.visitors.toLocaleString() }}</div>
-                    <div class="metric-cell">{{ campaign.conversions }}</div>
+                    <div class="metric-cell">{{ campaign.submits }}</div>
                     <div class="metric-cell">{{ campaign.conversionRate }}%</div>
                   </div>
                 </div>
@@ -616,9 +843,9 @@
                 <div class="header-cell">Source</div>
               </div>
               <div class="breakdown-module-metrics-header">
-                <div class="header-cell numeric">Unique Visitors</div>
-                <div class="header-cell numeric">Conversions</div>
-                <div class="header-cell numeric">Conv. Rate</div>
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">Submits</div>
+                <div class="header-cell numeric">Submit Rate</div>
               </div>
             </div>
 
@@ -661,7 +888,7 @@
                     :class="{ 'is-hovered': hoveredUtmSourceName === source.name }"
                   >
                     <div class="metric-cell">{{ source.visitors.toLocaleString() }}</div>
-                    <div class="metric-cell">{{ source.conversions }}</div>
+                    <div class="metric-cell">{{ source.submits }}</div>
                     <div class="metric-cell">{{ source.conversionRate }}%</div>
                   </div>
                 </div>
@@ -687,9 +914,9 @@
                 <div class="breakdown-header">
                   <div class="breakdown-header-cell" style="flex: 2">Page URL</div>
                   <div class="breakdown-header-cell numeric">Page Views</div>
-                  <div class="breakdown-header-cell numeric">Unique Visitors</div>
-                  <div class="breakdown-header-cell numeric">Conversions</div>
-                  <div class="breakdown-header-cell numeric">Conversion Rate</div>
+                  <div class="breakdown-header-cell numeric">Visitors</div>
+                  <div class="breakdown-header-cell numeric">Submits</div>
+                  <div class="breakdown-header-cell numeric">Submit Rate</div>
                 </div>
                 <div class="breakdown-body">
                   <div
@@ -705,7 +932,7 @@
                     </div>
                     <div class="breakdown-cell numeric">{{ page.pageViews.toLocaleString() }}</div>
                     <div class="breakdown-cell numeric">{{ page.visitors.toLocaleString() }}</div>
-                    <div class="breakdown-cell numeric">{{ page.conversions }}</div>
+                    <div class="breakdown-cell numeric">{{ page.submits }}</div>
                     <div class="breakdown-cell numeric">{{ page.conversionRate }}%</div>
                   </div>
                 </div>
@@ -715,9 +942,9 @@
               <div v-if="modalType === 'landing-pages'" class="breakdown-table">
                 <div class="breakdown-header">
                   <div class="breakdown-header-cell" style="flex: 2">Landing Page</div>
-                  <div class="breakdown-header-cell numeric">Unique Visitors</div>
-                  <div class="breakdown-header-cell numeric">Conversions</div>
-                  <div class="breakdown-header-cell numeric">Conversion Rate</div>
+                  <div class="breakdown-header-cell numeric">Visitors</div>
+                  <div class="breakdown-header-cell numeric">Submits</div>
+                  <div class="breakdown-header-cell numeric">Submit Rate</div>
                 </div>
                 <div class="breakdown-body">
                   <div
@@ -732,7 +959,7 @@
                       </a>
                     </div>
                     <div class="breakdown-cell numeric">{{ page.visitors.toLocaleString() }}</div>
-                    <div class="breakdown-cell numeric">{{ page.conversions }}</div>
+                    <div class="breakdown-cell numeric">{{ page.submits }}</div>
                     <div class="breakdown-cell numeric">{{ page.conversionRate }}%</div>
                   </div>
                 </div>
@@ -742,9 +969,9 @@
               <div v-if="modalType === 'browser-languages'" class="breakdown-table">
                 <div class="breakdown-header">
                   <div class="breakdown-header-cell" style="flex: 2">Language</div>
-                  <div class="breakdown-header-cell numeric">Unique Visitors</div>
-                  <div class="breakdown-header-cell numeric">Conversions</div>
-                  <div class="breakdown-header-cell numeric">Conversion Rate</div>
+                  <div class="breakdown-header-cell numeric">Visitors</div>
+                  <div class="breakdown-header-cell numeric">Submits</div>
+                  <div class="breakdown-header-cell numeric">Submit Rate</div>
                 </div>
                 <div class="breakdown-body">
                   <div
@@ -754,7 +981,7 @@
                   >
                     <div class="breakdown-cell" style="flex: 2">{{ lang.code }}</div>
                     <div class="breakdown-cell numeric">{{ lang.visitors.toLocaleString() }}</div>
-                    <div class="breakdown-cell numeric">{{ lang.conversions }}</div>
+                    <div class="breakdown-cell numeric">{{ lang.submits }}</div>
                     <div class="breakdown-cell numeric">{{ lang.conversionRate }}%</div>
                   </div>
                 </div>
@@ -764,9 +991,9 @@
               <div v-if="modalType === 'utm-campaigns'" class="breakdown-table">
                 <div class="breakdown-header">
                   <div class="breakdown-header-cell" style="flex: 2">Campaign</div>
-                  <div class="breakdown-header-cell numeric">Unique Visitors</div>
-                  <div class="breakdown-header-cell numeric">Conversions</div>
-                  <div class="breakdown-header-cell numeric">Conversion Rate</div>
+                  <div class="breakdown-header-cell numeric">Visitors</div>
+                  <div class="breakdown-header-cell numeric">Submits</div>
+                  <div class="breakdown-header-cell numeric">Submit Rate</div>
                 </div>
                 <div class="breakdown-body">
                   <div
@@ -776,7 +1003,7 @@
                   >
                     <div class="breakdown-cell" style="flex: 2">{{ campaign.name }}</div>
                     <div class="breakdown-cell numeric">{{ campaign.visitors.toLocaleString() }}</div>
-                    <div class="breakdown-cell numeric">{{ campaign.conversions }}</div>
+                    <div class="breakdown-cell numeric">{{ campaign.submits }}</div>
                     <div class="breakdown-cell numeric">{{ campaign.conversionRate }}%</div>
                   </div>
                 </div>
@@ -786,9 +1013,9 @@
               <div v-if="modalType === 'utm-sources'" class="breakdown-table">
                 <div class="breakdown-header">
                   <div class="breakdown-header-cell" style="flex: 2">Source</div>
-                  <div class="breakdown-header-cell numeric">Unique Visitors</div>
-                  <div class="breakdown-header-cell numeric">Conversions</div>
-                  <div class="breakdown-header-cell numeric">Conversion Rate</div>
+                  <div class="breakdown-header-cell numeric">Visitors</div>
+                  <div class="breakdown-header-cell numeric">Submits</div>
+                  <div class="breakdown-header-cell numeric">Submit Rate</div>
                 </div>
                 <div class="breakdown-body">
                   <div
@@ -798,7 +1025,7 @@
                   >
                     <div class="breakdown-cell" style="flex: 2">{{ source.name }}</div>
                     <div class="breakdown-cell numeric">{{ source.visitors.toLocaleString() }}</div>
-                    <div class="breakdown-cell numeric">{{ source.conversions }}</div>
+                    <div class="breakdown-cell numeric">{{ source.submits }}</div>
                     <div class="breakdown-cell numeric">{{ source.conversionRate }}%</div>
                   </div>
                 </div>
@@ -809,14 +1036,14 @@
       </transition>
     </template>
     <template #right-panel>
-      <ChatPanel v-model="isChatOpen" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
+      <ChatPanel v-model="isChatOpen" :fab="true" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
     </template>
   </DashboardLayout>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
-import { ExternalLink, ChevronDown, ChevronRight, Monitor, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X } from 'lucide-vue-next'
+import { ExternalLink, ChevronDown, ChevronRight, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
@@ -825,7 +1052,7 @@ import ChatPanel from '../components/shared/ChatPanel.vue'
 
 const emit = defineEmits(['menu-click', 'navigate-to-opportunity', 'navigate-to-opportunities'])
 
-const isChatOpen = ref(true)
+const isChatOpen = ref(false)
 
 const chatSuggestions = [
   'What drove the conversion rate change this week?',
@@ -840,7 +1067,7 @@ const chatAiResponses = {
   'Which page has the highest drop-off rate?': 'Based on your visited pages data, **/checkout** has the highest drop-off rate at **78%** — meaning only 22% of visitors who land there complete a purchase.\n\nThe second highest is **/cart** at **64%**. I\'d recommend deploying a cart abandonment popup on both pages to recover some of these visitors.',
   'How can I improve my supported revenue?': 'Your current supported revenue is **8,494,963 HUF**, up 15.8% month-over-month. To accelerate growth:\n\n**1. Upsell campaigns** — Add a post-purchase upsell popup to your thank-you page.\n**2. Expand to email captures** — Visitors who opt in convert at 3× the rate of anonymous traffic.\n**3. Increase campaign frequency** — Your current campaigns reach only 34% of your visitors.',
   'What are my top performing campaigns?': 'Your top 3 campaigns by conversion rate this period:\n\n**1. Smart Discount Popup** — 8.37% conversion rate, +84% uplift\n**2. Black Friday 2025** — 5.2% conversion rate, +56% uplift\n**3. Exit Intent Offer** — 4.8% conversion rate, +41% uplift\n\nAll three are active and performing above your account average of 3.2%.',
-  'Show me trends for the last 30 days': 'Over the last 30 days:\n\n- **Impressions:** +12% (↑ trending)\n- **Conversion rate:** +0.57% (↑ trending)\n- **Conversions:** +18% (↑ trending)\n- **Supported revenue:** +15.8% (↑ trending)\n\nAll key metrics are trending positively. The biggest growth driver is your Black Friday campaign which launched 2 weeks ago.',
+  'Show me trends for the last 30 days': 'Over the last 30 days:\n\n- **Impressions:** +12% (↑ trending)\n- **Conversion rate:** +0.57% (↑ trending)\n- **Submits:** +18% (↑ trending)\n- **Supported revenue:** +15.8% (↑ trending)\n\nAll key metrics are trending positively. The biggest growth driver is your Black Friday campaign which launched 2 weeks ago.',
 }
 
 const optimizationOpportunities = ref([
@@ -860,7 +1087,7 @@ const optimizationOpportunities = ref([
   },
   {
     id: 3,
-    name: 'Scale the Winning Email Subscription Variant',
+    name: 'Scale the Winning Other Subscription Variant',
     description: 'A/B test winner outperforms loser by 70.7% — yet the losing variant still receives 50% of traffic.',
     value: '+945K Ft/month',
     level: 'medium',
@@ -892,18 +1119,10 @@ const domains = ref([
   'demo.optimonk.com'
 ])
 
-// Devices dropdown
-const selectedDevice = ref('PC and Mobile')
-const devices = ref([
-  'PC and Mobile',
-  'PC only',
-  'Mobile only'
-])
-
 // Goal dropdown
-const selectedGoal = ref('Conversions (default)')
+const selectedGoal = ref('Submits (default)')
 const goals = ref([
-  'Conversions (default)',
+  'Submits (default)',
   'browserTabReturn',
   'Buyers with cart under 100k HUF',
   'Add to cart',
@@ -929,7 +1148,7 @@ const conversionRateData = [
   0.62, 0.59, 0.57, 0.61, 0.63, 0.60, 0.58, 0.61, 0.59, 0.57
 ]
 
-const conversionsData = [
+const submitsData = [
   62, 58, 65, 59, 68, 61, 57, 64, 71, 69,
   65, 68, 74, 79, 76, 81, 85, 80, 77, 84,
   88, 82, 79, 86, 91, 85, 81, 87, 83, 80
@@ -958,6 +1177,59 @@ const supportedRevenueData = [
   265432, 279876, 298765, 312345, 301234, 323456, 345678, 321234, 298765, 334567,
   356789, 329876, 309876, 339876, 367890, 345678, 323456, 351234, 338765, 321234
 ]
+
+// Devices chart
+const devicesTableData = [
+  { type: 'Mobile',  visitors: 104367, submits: 1707, submitRate: 1.64 },
+  { type: 'Desktop', visitors: 32733,  submits: 797,  submitRate: 2.43 },
+]
+
+const devicesChartSeries = [
+  {
+    name: 'Submits',
+    data: [797, 1707],
+  }
+]
+
+const devicesChartOptions = {
+  chart: {
+    type: 'bar',
+    toolbar: { show: false },
+    fontFamily: 'inherit',
+  },
+  plotOptions: {
+    bar: {
+      borderRadius: 6,
+      columnWidth: '40%',
+      distributed: true,
+    },
+  },
+  colors: ['#FF6A45', '#FF9E89'],
+  dataLabels: { enabled: false },
+  legend: { show: false },
+  xaxis: {
+    categories: ['Desktop', 'Mobile'],
+    axisBorder: { show: false },
+    axisTicks: { show: false },
+    labels: {
+      style: { colors: '#6B7280', fontSize: '13px' },
+    },
+  },
+  yaxis: {
+    labels: {
+      style: { colors: '#9CA3AF', fontSize: '12px' },
+      formatter: (val) => val.toLocaleString(),
+    },
+  },
+  grid: {
+    borderColor: '#F3F4F6',
+    strokeDashArray: 4,
+    xaxis: { lines: { show: false } },
+  },
+  tooltip: {
+    y: { formatter: (val) => val.toLocaleString() },
+  },
+}
 
 // Full dates array for tooltip
 const chartDates = [
@@ -1012,15 +1284,15 @@ const getChartConfig = () => {
   const configs = {
     'conversion-rate': {
       data: conversionRateData,
-      name: 'Conversion Rate',
+      name: 'Submit Rate',
       ...calculateRange(conversionRateData, 15),
       formatter: (value) => `${value.toFixed(1)}%`,
       tooltipFormatter: (value) => `${value.toFixed(2)}%`
     },
-    'conversions': {
-      data: conversionsData,
-      name: 'Conversions',
-      ...calculateRange(conversionsData, 15),
+    'submits': {
+      data: submitsData,
+      name: 'Submits',
+      ...calculateRange(submitsData, 15),
       formatter: (value) => Math.round(value),
       tooltipFormatter: (value) => Math.round(value)
     },
@@ -1033,7 +1305,7 @@ const getChartConfig = () => {
     },
     'unique-visitors': {
       data: uniqueVisitorsData,
-      name: 'Unique Visitors',
+      name: 'Visitors',
       ...calculateRange(uniqueVisitorsData, 15),
       formatter: (value) => `${(value / 1000).toFixed(1)}K`,
       tooltipFormatter: (value) => value.toLocaleString()
@@ -1178,10 +1450,10 @@ const getActiveTabTitle = () => {
 }
 
 const trendTabs = ref([
-  { id: 'conversion-rate', title: 'Conversion Rate', value: '0.57%', change: '+14.0%', isPositive: true },
-  { id: 'conversions', title: 'Conversions', value: '2.2K', change: '+8.3%', isPositive: true },
+  { id: 'conversion-rate', title: 'Submit Rate', value: '0.57%', change: '+14.0%', isPositive: true },
+  { id: 'submits', title: 'Submits', value: '2.2K', change: '+8.3%', isPositive: true },
   { id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true },
-  { id: 'unique-visitors', title: 'Unique Visitors', value: '168.2K', change: '+6.7%', isPositive: true },
+  { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true },
   { id: 'supported-orders', title: 'Supported Orders', value: '286', change: '-4.2%', isPositive: false },
   { id: 'supported-revenue', title: 'Supported Rev. (HUF)', value: '8,494,963', change: '+15.8%', isPositive: true }
 ])
@@ -1605,11 +1877,11 @@ const campaignData = ref([
     name: 'Campaign #1108',
     visitors: 72543,
     impressions: 124567,
-    conversions: 456,
+    submits: 456,
     conversionRate: 0.63,
     variants: [
-      { name: 'Control Variant', visitors: 36000, impressions: 62000, conversions: 228, conversionRate: 0.63 },
-      { name: 'Variant A', visitors: 36543, impressions: 62567, conversions: 228, conversionRate: 0.62 }
+      { name: 'Control Variant', visitors: 36000, impressions: 62000, submits: 228, conversionRate: 0.63 },
+      { name: 'Variant A', visitors: 36543, impressions: 62567, submits: 228, conversionRate: 0.62 }
     ]
   },
   {
@@ -1617,166 +1889,166 @@ const campaignData = ref([
     name: 'Limited package shipping from January 5',
     visitors: 45678,
     impressions: 98234,
-    conversions: 234,
+    submits: 234,
     conversionRate: 0.51,
     variants: [
-      { name: 'Control Variant', visitors: 22839, impressions: 49117, conversions: 117, conversionRate: 0.51 },
-      { name: 'Variant A', visitors: 22839, impressions: 49117, conversions: 117, conversionRate: 0.51 }
+      { name: 'Control Variant', visitors: 22839, impressions: 49117, submits: 117, conversionRate: 0.51 },
+      { name: 'Variant A', visitors: 22839, impressions: 49117, submits: 117, conversionRate: 0.51 }
     ]
   },
-  { id: 3, name: 'Order confidently copy', visitors: 38902, impressions: 87456, conversions: 189, conversionRate: 0.49 },
-  { id: 4, name: 'PX_01_Subscriber popup_gift_Reflexshop', visitors: 32145, impressions: 76543, conversions: 167, conversionRate: 0.52 },
-  { id: 5, name: 'Service AI - Smart Product Page Optimizer v4 🎉 Winner', visitors: 28567, impressions: 65432, conversions: 145, conversionRate: 0.51 },
-  { id: 6, name: 'Jungo traffic redirector', visitors: 24890, impressions: 54321, conversions: 128, conversionRate: 0.51 },
-  { id: 7, name: 'PC Service Smart Abandonment Stopper - Winner', visitors: 21456, impressions: 48765, conversions: 112, conversionRate: 0.52 },
-  { id: 8, name: 'Dynamic Content Visitor/Impression Ratio Test', visitors: 18234, impressions: 42345, conversions: 98, conversionRate: 0.54 },
-  { id: 9, name: 'Funko upsell', visitors: 15678, impressions: 38765, conversions: 87, conversionRate: 0.55 },
-  { id: 10, name: '18+ verification', visitors: 12345, impressions: 32456, conversions: 72, conversionRate: 0.58 }
+  { id: 3, name: 'Order confidently copy', visitors: 38902, impressions: 87456, submits: 189, conversionRate: 0.49 },
+  { id: 4, name: 'PX_01_Subscriber popup_gift_Reflexshop', visitors: 32145, impressions: 76543, submits: 167, conversionRate: 0.52 },
+  { id: 5, name: 'Service AI - Smart Product Page Optimizer v4 🎉 Winner', visitors: 28567, impressions: 65432, submits: 145, conversionRate: 0.51 },
+  { id: 6, name: 'Jungo traffic redirector', visitors: 24890, impressions: 54321, submits: 128, conversionRate: 0.51 },
+  { id: 7, name: 'PC Service Smart Abandonment Stopper - Winner', visitors: 21456, impressions: 48765, submits: 112, conversionRate: 0.52 },
+  { id: 8, name: 'Dynamic Content Visitor/Impression Ratio Test', visitors: 18234, impressions: 42345, submits: 98, conversionRate: 0.54 },
+  { id: 9, name: 'Funko upsell', visitors: 15678, impressions: 38765, submits: 87, conversionRate: 0.55 },
+  { id: 10, name: '18+ verification', visitors: 12345, impressions: 32456, submits: 72, conversionRate: 0.58 }
 ])
 
 const visitedPages = ref([
-  { url: 'https://reflexshop.hu/shop_search.php', pageViews: 45678, visitors: 32145, conversions: 234, conversionRate: 0.73 },
-  { url: 'https://reflexshop.hu', pageViews: 38902, visitors: 28567, conversions: 189, conversionRate: 0.66 },
-  { url: 'https://reflexshop.hu/shop_cart.php', pageViews: 32145, visitors: 24890, conversions: 167, conversionRate: 0.67 },
-  { url: 'https://reflexshop.hu/Tarsasjatekok', pageViews: 28567, visitors: 21456, conversions: 145, conversionRate: 0.68 },
-  { url: 'https://reflexshop.hu/shop_artspec.php', pageViews: 24890, visitors: 18234, conversions: 128, conversionRate: 0.70 },
-  { url: 'https://reflexshop.hu/shop_login.php', pageViews: 21456, visitors: 15678, conversions: 112, conversionRate: 0.71 },
-  { url: 'https://reflexshop.hu/akcios-termekek', pageViews: 18234, visitors: 12345, conversions: 98, conversionRate: 0.79 },
-  { url: 'https://reflexshop.hu/Funko/Funko-POP-figurak', pageViews: 15678, visitors: 10234, conversions: 87, conversionRate: 0.85 },
-  { url: 'https://reflexshop.hu/shop_reg.php', pageViews: 12345, visitors: 8765, conversions: 72, conversionRate: 0.82 },
-  { url: 'https://reflexshop.hu/Funko', pageViews: 10234, visitors: 7456, conversions: 65, conversionRate: 0.87 },
-  { url: 'https://reflexshop.hu/LEGO', pageViews: 9876, visitors: 6834, conversions: 58, conversionRate: 0.85 },
-  { url: 'https://reflexshop.hu/shop_wishlist.php', pageViews: 8765, visitors: 5923, conversions: 52, conversionRate: 0.88 },
-  { url: 'https://reflexshop.hu/Konyv', pageViews: 8234, visitors: 5467, conversions: 48, conversionRate: 0.88 },
-  { url: 'https://reflexshop.hu/Puzzle', pageViews: 7654, visitors: 4989, conversions: 43, conversionRate: 0.86 },
-  { url: 'https://reflexshop.hu/Filmek-sorozatok', pageViews: 7123, visitors: 4567, conversions: 39, conversionRate: 0.85 },
-  { url: 'https://reflexshop.hu/shop_about.php', pageViews: 6789, visitors: 4234, conversions: 36, conversionRate: 0.85 },
-  { url: 'https://reflexshop.hu/Kulfold', pageViews: 6234, visitors: 3876, conversions: 32, conversionRate: 0.83 },
-  { url: 'https://reflexshop.hu/Magic-the-Gathering', pageViews: 5876, visitors: 3567, conversions: 29, conversionRate: 0.81 },
-  { url: 'https://reflexshop.hu/Pokemon', pageViews: 5432, visitors: 3234, conversions: 26, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/shop_contact.php', pageViews: 5123, visitors: 2987, conversions: 24, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Gyerekjatekok', pageViews: 4876, visitors: 2765, conversions: 22, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Yu-Gi-Oh', pageViews: 4567, visitors: 2543, conversions: 20, conversionRate: 0.79 },
-  { url: 'https://reflexshop.hu/Warhammer', pageViews: 4234, visitors: 2345, conversions: 18, conversionRate: 0.77 },
-  { url: 'https://reflexshop.hu/Strategiai-jatekok', pageViews: 3987, visitors: 2156, conversions: 17, conversionRate: 0.79 },
-  { url: 'https://reflexshop.hu/Keszlet-jatekok', pageViews: 3765, visitors: 1987, conversions: 15, conversionRate: 0.76 },
-  { url: 'https://reflexshop.hu/shop_faq.php', pageViews: 3543, visitors: 1834, conversions: 14, conversionRate: 0.76 },
-  { url: 'https://reflexshop.hu/Kaland-jatekok', pageViews: 3321, visitors: 1687, conversions: 13, conversionRate: 0.77 },
-  { url: 'https://reflexshop.hu/Party-jatekok', pageViews: 3123, visitors: 1543, conversions: 12, conversionRate: 0.78 },
-  { url: 'https://reflexshop.hu/Csaladi-jatekok', pageViews: 2987, visitors: 1432, conversions: 11, conversionRate: 0.77 },
-  { url: 'https://reflexshop.hu/shop_privacy.php', pageViews: 2765, visitors: 1321, conversions: 10, conversionRate: 0.76 }
+  { url: 'https://reflexshop.hu/shop_search.php', pageViews: 45678, visitors: 32145, submits: 234, conversionRate: 0.73 },
+  { url: 'https://reflexshop.hu', pageViews: 38902, visitors: 28567, submits: 189, conversionRate: 0.66 },
+  { url: 'https://reflexshop.hu/shop_cart.php', pageViews: 32145, visitors: 24890, submits: 167, conversionRate: 0.67 },
+  { url: 'https://reflexshop.hu/Tarsasjatekok', pageViews: 28567, visitors: 21456, submits: 145, conversionRate: 0.68 },
+  { url: 'https://reflexshop.hu/shop_artspec.php', pageViews: 24890, visitors: 18234, submits: 128, conversionRate: 0.70 },
+  { url: 'https://reflexshop.hu/shop_login.php', pageViews: 21456, visitors: 15678, submits: 112, conversionRate: 0.71 },
+  { url: 'https://reflexshop.hu/akcios-termekek', pageViews: 18234, visitors: 12345, submits: 98, conversionRate: 0.79 },
+  { url: 'https://reflexshop.hu/Funko/Funko-POP-figurak', pageViews: 15678, visitors: 10234, submits: 87, conversionRate: 0.85 },
+  { url: 'https://reflexshop.hu/shop_reg.php', pageViews: 12345, visitors: 8765, submits: 72, conversionRate: 0.82 },
+  { url: 'https://reflexshop.hu/Funko', pageViews: 10234, visitors: 7456, submits: 65, conversionRate: 0.87 },
+  { url: 'https://reflexshop.hu/LEGO', pageViews: 9876, visitors: 6834, submits: 58, conversionRate: 0.85 },
+  { url: 'https://reflexshop.hu/shop_wishlist.php', pageViews: 8765, visitors: 5923, submits: 52, conversionRate: 0.88 },
+  { url: 'https://reflexshop.hu/Konyv', pageViews: 8234, visitors: 5467, submits: 48, conversionRate: 0.88 },
+  { url: 'https://reflexshop.hu/Puzzle', pageViews: 7654, visitors: 4989, submits: 43, conversionRate: 0.86 },
+  { url: 'https://reflexshop.hu/Filmek-sorozatok', pageViews: 7123, visitors: 4567, submits: 39, conversionRate: 0.85 },
+  { url: 'https://reflexshop.hu/shop_about.php', pageViews: 6789, visitors: 4234, submits: 36, conversionRate: 0.85 },
+  { url: 'https://reflexshop.hu/Kulfold', pageViews: 6234, visitors: 3876, submits: 32, conversionRate: 0.83 },
+  { url: 'https://reflexshop.hu/Magic-the-Gathering', pageViews: 5876, visitors: 3567, submits: 29, conversionRate: 0.81 },
+  { url: 'https://reflexshop.hu/Pokemon', pageViews: 5432, visitors: 3234, submits: 26, conversionRate: 0.80 },
+  { url: 'https://reflexshop.hu/shop_contact.php', pageViews: 5123, visitors: 2987, submits: 24, conversionRate: 0.80 },
+  { url: 'https://reflexshop.hu/Gyerekjatekok', pageViews: 4876, visitors: 2765, submits: 22, conversionRate: 0.80 },
+  { url: 'https://reflexshop.hu/Yu-Gi-Oh', pageViews: 4567, visitors: 2543, submits: 20, conversionRate: 0.79 },
+  { url: 'https://reflexshop.hu/Warhammer', pageViews: 4234, visitors: 2345, submits: 18, conversionRate: 0.77 },
+  { url: 'https://reflexshop.hu/Strategiai-jatekok', pageViews: 3987, visitors: 2156, submits: 17, conversionRate: 0.79 },
+  { url: 'https://reflexshop.hu/Keszlet-jatekok', pageViews: 3765, visitors: 1987, submits: 15, conversionRate: 0.76 },
+  { url: 'https://reflexshop.hu/shop_faq.php', pageViews: 3543, visitors: 1834, submits: 14, conversionRate: 0.76 },
+  { url: 'https://reflexshop.hu/Kaland-jatekok', pageViews: 3321, visitors: 1687, submits: 13, conversionRate: 0.77 },
+  { url: 'https://reflexshop.hu/Party-jatekok', pageViews: 3123, visitors: 1543, submits: 12, conversionRate: 0.78 },
+  { url: 'https://reflexshop.hu/Csaladi-jatekok', pageViews: 2987, visitors: 1432, submits: 11, conversionRate: 0.77 },
+  { url: 'https://reflexshop.hu/shop_privacy.php', pageViews: 2765, visitors: 1321, submits: 10, conversionRate: 0.76 }
 ])
 
 const landingPages = ref([
-  { url: 'https://reflexshop.hu', visitors: 120143, conversions: 812, conversionRate: 0.68 },
-  { url: 'https://reflexshop.hu/Tarsasjatekok', visitors: 45678, conversions: 345, conversionRate: 0.76 },
-  { url: 'https://reflexshop.hu/shop_search.php', visitors: 38902, conversions: 289, conversionRate: 0.74 },
-  { url: 'https://reflexshop.hu/akcios-termekek', visitors: 32145, conversions: 256, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Funko/Funko-POP-figurak', visitors: 28567, conversions: 234, conversionRate: 0.82 },
-  { url: 'https://reflexshop.hu/shop_artspec.php', visitors: 24890, conversions: 198, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Funko', visitors: 21456, conversions: 178, conversionRate: 0.83 },
-  { url: 'https://reflexshop.hu/shop_cart.php', visitors: 18234, conversions: 145, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/shop_login.php', visitors: 15678, conversions: 123, conversionRate: 0.78 },
-  { url: 'https://reflexshop.hu/shop_reg.php', visitors: 12345, conversions: 98, conversionRate: 0.79 },
-  { url: 'https://reflexshop.hu/LEGO', visitors: 11234, conversions: 89, conversionRate: 0.79 },
-  { url: 'https://reflexshop.hu/Konyv', visitors: 10876, conversions: 85, conversionRate: 0.78 },
-  { url: 'https://reflexshop.hu/Puzzle', visitors: 9765, conversions: 78, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Filmek-sorozatok', visitors: 8943, conversions: 72, conversionRate: 0.81 },
-  { url: 'https://reflexshop.hu/Kulfold', visitors: 8234, conversions: 67, conversionRate: 0.81 },
-  { url: 'https://reflexshop.hu/Magic-the-Gathering', visitors: 7654, conversions: 61, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Pokemon', visitors: 7123, conversions: 58, conversionRate: 0.81 },
-  { url: 'https://reflexshop.hu/Gyerekjatekok', visitors: 6789, conversions: 54, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Yu-Gi-Oh', visitors: 6321, conversions: 51, conversionRate: 0.81 },
-  { url: 'https://reflexshop.hu/Warhammer', visitors: 5987, conversions: 48, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Strategiai-jatekok', visitors: 5543, conversions: 45, conversionRate: 0.81 },
-  { url: 'https://reflexshop.hu/Keszlet-jatekok', visitors: 5234, conversions: 42, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Kaland-jatekok', visitors: 4876, conversions: 39, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Party-jatekok', visitors: 4543, conversions: 37, conversionRate: 0.81 },
-  { url: 'https://reflexshop.hu/Csaladi-jatekok', visitors: 4234, conversions: 34, conversionRate: 0.80 }
+  { url: 'https://reflexshop.hu', visitors: 120143, submits: 812, conversionRate: 0.68 },
+  { url: 'https://reflexshop.hu/Tarsasjatekok', visitors: 45678, submits: 345, conversionRate: 0.76 },
+  { url: 'https://reflexshop.hu/shop_search.php', visitors: 38902, submits: 289, conversionRate: 0.74 },
+  { url: 'https://reflexshop.hu/akcios-termekek', visitors: 32145, submits: 256, conversionRate: 0.80 },
+  { url: 'https://reflexshop.hu/Funko/Funko-POP-figurak', visitors: 28567, submits: 234, conversionRate: 0.82 },
+  { url: 'https://reflexshop.hu/shop_artspec.php', visitors: 24890, submits: 198, conversionRate: 0.80 },
+  { url: 'https://reflexshop.hu/Funko', visitors: 21456, submits: 178, conversionRate: 0.83 },
+  { url: 'https://reflexshop.hu/shop_cart.php', visitors: 18234, submits: 145, conversionRate: 0.80 },
+  { url: 'https://reflexshop.hu/shop_login.php', visitors: 15678, submits: 123, conversionRate: 0.78 },
+  { url: 'https://reflexshop.hu/shop_reg.php', visitors: 12345, submits: 98, conversionRate: 0.79 },
+  { url: 'https://reflexshop.hu/LEGO', visitors: 11234, submits: 89, conversionRate: 0.79 },
+  { url: 'https://reflexshop.hu/Konyv', visitors: 10876, submits: 85, conversionRate: 0.78 },
+  { url: 'https://reflexshop.hu/Puzzle', visitors: 9765, submits: 78, conversionRate: 0.80 },
+  { url: 'https://reflexshop.hu/Filmek-sorozatok', visitors: 8943, submits: 72, conversionRate: 0.81 },
+  { url: 'https://reflexshop.hu/Kulfold', visitors: 8234, submits: 67, conversionRate: 0.81 },
+  { url: 'https://reflexshop.hu/Magic-the-Gathering', visitors: 7654, submits: 61, conversionRate: 0.80 },
+  { url: 'https://reflexshop.hu/Pokemon', visitors: 7123, submits: 58, conversionRate: 0.81 },
+  { url: 'https://reflexshop.hu/Gyerekjatekok', visitors: 6789, submits: 54, conversionRate: 0.80 },
+  { url: 'https://reflexshop.hu/Yu-Gi-Oh', visitors: 6321, submits: 51, conversionRate: 0.81 },
+  { url: 'https://reflexshop.hu/Warhammer', visitors: 5987, submits: 48, conversionRate: 0.80 },
+  { url: 'https://reflexshop.hu/Strategiai-jatekok', visitors: 5543, submits: 45, conversionRate: 0.81 },
+  { url: 'https://reflexshop.hu/Keszlet-jatekok', visitors: 5234, submits: 42, conversionRate: 0.80 },
+  { url: 'https://reflexshop.hu/Kaland-jatekok', visitors: 4876, submits: 39, conversionRate: 0.80 },
+  { url: 'https://reflexshop.hu/Party-jatekok', visitors: 4543, submits: 37, conversionRate: 0.81 },
+  { url: 'https://reflexshop.hu/Csaladi-jatekok', visitors: 4234, submits: 34, conversionRate: 0.80 }
 ])
 
 const browserLanguages = ref([
-  { code: 'hu-HU', visitors: 120143, conversions: 812, conversionRate: 0.68 },
-  { code: 'en-US', visitors: 21480, conversions: 156, conversionRate: 0.73 },
-  { code: 'en-GB', visitors: 9748, conversions: 72, conversionRate: 0.74 },
-  { code: 'hu', visitors: 8612, conversions: 65, conversionRate: 0.75 },
-  { code: 'en', visitors: 4734, conversions: 38, conversionRate: 0.80 },
-  { code: 'zh-CN', visitors: 913, conversions: 8, conversionRate: 0.88 },
-  { code: 'de-DE', visitors: 393, conversions: 3, conversionRate: 0.76 },
-  { code: 'en-HU', visitors: 300, conversions: 2, conversionRate: 0.67 },
-  { code: 'ru-RU', visitors: 148, conversions: 1, conversionRate: 0.68 },
-  { code: 'es-ES', visitors: 117, conversions: 1, conversionRate: 0.85 },
-  { code: 'fr-FR', visitors: 234, conversions: 2, conversionRate: 0.85 },
-  { code: 'it-IT', visitors: 198, conversions: 2, conversionRate: 1.01 },
-  { code: 'pl-PL', visitors: 176, conversions: 1, conversionRate: 0.57 },
-  { code: 'pt-PT', visitors: 143, conversions: 1, conversionRate: 0.70 },
-  { code: 'nl-NL', visitors: 128, conversions: 1, conversionRate: 0.78 },
-  { code: 'ro-RO', visitors: 112, conversions: 1, conversionRate: 0.89 },
-  { code: 'cs-CZ', visitors: 98, conversions: 1, conversionRate: 1.02 },
-  { code: 'sk-SK', visitors: 87, conversions: 1, conversionRate: 1.15 },
-  { code: 'bg-BG', visitors: 76, conversions: 0, conversionRate: 0.00 },
-  { code: 'hr-HR', visitors: 65, conversions: 1, conversionRate: 1.54 },
-  { code: 'sr-RS', visitors: 54, conversions: 0, conversionRate: 0.00 },
-  { code: 'sl-SI', visitors: 43, conversions: 0, conversionRate: 0.00 },
-  { code: 'uk-UA', visitors: 38, conversions: 0, conversionRate: 0.00 },
-  { code: 'sv-SE', visitors: 32, conversions: 0, conversionRate: 0.00 },
-  { code: 'da-DK', visitors: 27, conversions: 0, conversionRate: 0.00 }
+  { code: 'hu-HU', visitors: 120143, submits: 812, conversionRate: 0.68 },
+  { code: 'en-US', visitors: 21480, submits: 156, conversionRate: 0.73 },
+  { code: 'en-GB', visitors: 9748, submits: 72, conversionRate: 0.74 },
+  { code: 'hu', visitors: 8612, submits: 65, conversionRate: 0.75 },
+  { code: 'en', visitors: 4734, submits: 38, conversionRate: 0.80 },
+  { code: 'zh-CN', visitors: 913, submits: 8, conversionRate: 0.88 },
+  { code: 'de-DE', visitors: 393, submits: 3, conversionRate: 0.76 },
+  { code: 'en-HU', visitors: 300, submits: 2, conversionRate: 0.67 },
+  { code: 'ru-RU', visitors: 148, submits: 1, conversionRate: 0.68 },
+  { code: 'es-ES', visitors: 117, submits: 1, conversionRate: 0.85 },
+  { code: 'fr-FR', visitors: 234, submits: 2, conversionRate: 0.85 },
+  { code: 'it-IT', visitors: 198, submits: 2, conversionRate: 1.01 },
+  { code: 'pl-PL', visitors: 176, submits: 1, conversionRate: 0.57 },
+  { code: 'pt-PT', visitors: 143, submits: 1, conversionRate: 0.70 },
+  { code: 'nl-NL', visitors: 128, submits: 1, conversionRate: 0.78 },
+  { code: 'ro-RO', visitors: 112, submits: 1, conversionRate: 0.89 },
+  { code: 'cs-CZ', visitors: 98, submits: 1, conversionRate: 1.02 },
+  { code: 'sk-SK', visitors: 87, submits: 1, conversionRate: 1.15 },
+  { code: 'bg-BG', visitors: 76, submits: 0, conversionRate: 0.00 },
+  { code: 'hr-HR', visitors: 65, submits: 1, conversionRate: 1.54 },
+  { code: 'sr-RS', visitors: 54, submits: 0, conversionRate: 0.00 },
+  { code: 'sl-SI', visitors: 43, submits: 0, conversionRate: 0.00 },
+  { code: 'uk-UA', visitors: 38, submits: 0, conversionRate: 0.00 },
+  { code: 'sv-SE', visitors: 32, submits: 0, conversionRate: 0.00 },
+  { code: 'da-DK', visitors: 27, submits: 0, conversionRate: 0.00 }
 ])
 
 const utmCampaigns = ref([
-  { name: 'olcsobbat_shopping_reflexshop', visitors: 45678, conversions: 345, conversionRate: 0.76 },
-  { name: 'surfaces_across_google', visitors: 38902, conversions: 289, conversionRate: 0.74 },
-  { name: 'KA-Konv-Kiemelt játékok', visitors: 32145, conversions: 256, conversionRate: 0.80 },
-  { name: 'reflexshop_google_shopping', visitors: 28567, conversions: 234, conversionRate: 0.82 },
-  { name: 'facebook_retargeting_q4', visitors: 24890, conversions: 198, conversionRate: 0.80 },
-  { name: 'email_newsletter_december', visitors: 21456, conversions: 178, conversionRate: 0.83 },
-  { name: 'instagram_stories_campaign', visitors: 18234, conversions: 145, conversionRate: 0.80 },
-  { name: 'youtube_video_ads', visitors: 15678, conversions: 123, conversionRate: 0.78 },
-  { name: 'google_search_brand', visitors: 12345, conversions: 98, conversionRate: 0.79 },
-  { name: 'tiktok_influencer_collab', visitors: 10234, conversions: 87, conversionRate: 0.85 },
-  { name: 'spring_sale_2026', visitors: 9876, conversions: 82, conversionRate: 0.83 },
-  { name: 'black_friday_early_access', visitors: 8765, conversions: 73, conversionRate: 0.83 },
-  { name: 'christmas_gift_guide', visitors: 7654, conversions: 64, conversionRate: 0.84 },
-  { name: 'new_year_promotion', visitors: 6789, conversions: 57, conversionRate: 0.84 },
-  { name: 'valentine_special', visitors: 5987, conversions: 51, conversionRate: 0.85 },
-  { name: 'summer_clearance', visitors: 5432, conversions: 46, conversionRate: 0.85 },
-  { name: 'back_to_school', visitors: 4876, conversions: 42, conversionRate: 0.86 },
-  { name: 'halloween_treats', visitors: 4321, conversions: 37, conversionRate: 0.86 },
-  { name: 'cyber_monday_deals', visitors: 3987, conversions: 34, conversionRate: 0.85 },
-  { name: 'easter_egg_hunt', visitors: 3654, conversions: 31, conversionRate: 0.85 },
-  { name: 'winter_wonderland', visitors: 3321, conversions: 28, conversionRate: 0.84 },
-  { name: 'spring_cleaning_sale', visitors: 2987, conversions: 26, conversionRate: 0.87 },
-  { name: 'mothers_day_gifts', visitors: 2765, conversions: 24, conversionRate: 0.87 },
-  { name: 'fathers_day_deals', visitors: 2543, conversions: 22, conversionRate: 0.87 },
-  { name: 'loyalty_program_bonus', visitors: 2321, conversions: 20, conversionRate: 0.86 }
+  { name: 'olcsobbat_shopping_reflexshop', visitors: 45678, submits: 345, conversionRate: 0.76 },
+  { name: 'surfaces_across_google', visitors: 38902, submits: 289, conversionRate: 0.74 },
+  { name: 'KA-Konv-Kiemelt játékok', visitors: 32145, submits: 256, conversionRate: 0.80 },
+  { name: 'reflexshop_google_shopping', visitors: 28567, submits: 234, conversionRate: 0.82 },
+  { name: 'facebook_retargeting_q4', visitors: 24890, submits: 198, conversionRate: 0.80 },
+  { name: 'email_newsletter_december', visitors: 21456, submits: 178, conversionRate: 0.83 },
+  { name: 'instagram_stories_campaign', visitors: 18234, submits: 145, conversionRate: 0.80 },
+  { name: 'youtube_video_ads', visitors: 15678, submits: 123, conversionRate: 0.78 },
+  { name: 'google_search_brand', visitors: 12345, submits: 98, conversionRate: 0.79 },
+  { name: 'tiktok_influencer_collab', visitors: 10234, submits: 87, conversionRate: 0.85 },
+  { name: 'spring_sale_2026', visitors: 9876, submits: 82, conversionRate: 0.83 },
+  { name: 'black_friday_early_access', visitors: 8765, submits: 73, conversionRate: 0.83 },
+  { name: 'christmas_gift_guide', visitors: 7654, submits: 64, conversionRate: 0.84 },
+  { name: 'new_year_promotion', visitors: 6789, submits: 57, conversionRate: 0.84 },
+  { name: 'valentine_special', visitors: 5987, submits: 51, conversionRate: 0.85 },
+  { name: 'summer_clearance', visitors: 5432, submits: 46, conversionRate: 0.85 },
+  { name: 'back_to_school', visitors: 4876, submits: 42, conversionRate: 0.86 },
+  { name: 'halloween_treats', visitors: 4321, submits: 37, conversionRate: 0.86 },
+  { name: 'cyber_monday_deals', visitors: 3987, submits: 34, conversionRate: 0.85 },
+  { name: 'easter_egg_hunt', visitors: 3654, submits: 31, conversionRate: 0.85 },
+  { name: 'winter_wonderland', visitors: 3321, submits: 28, conversionRate: 0.84 },
+  { name: 'spring_cleaning_sale', visitors: 2987, submits: 26, conversionRate: 0.87 },
+  { name: 'mothers_day_gifts', visitors: 2765, submits: 24, conversionRate: 0.87 },
+  { name: 'fathers_day_deals', visitors: 2543, submits: 22, conversionRate: 0.87 },
+  { name: 'loyalty_program_bonus', visitors: 2321, submits: 20, conversionRate: 0.86 }
 ])
 
 const utmSources = ref([
-  { name: 'facebook', visitors: 45678, conversions: 345, conversionRate: 0.76 },
-  { name: 'olcsobbat', visitors: 38902, conversions: 289, conversionRate: 0.74 },
-  { name: 'google', visitors: 32145, conversions: 256, conversionRate: 0.80 },
-  { name: 'CJ', visitors: 28567, conversions: 234, conversionRate: 0.82 },
-  { name: 'tarsasjatekok.com', visitors: 24890, conversions: 198, conversionRate: 0.80 },
-  { name: 'TheMarketer', visitors: 21456, conversions: 178, conversionRate: 0.83 },
-  { name: 'fb', visitors: 18234, conversions: 145, conversionRate: 0.80 },
-  { name: 'ActiveCampaign', visitors: 15678, conversions: 123, conversionRate: 0.78 },
-  { name: 'google_shopping', visitors: 12345, conversions: 98, conversionRate: 0.79 },
-  { name: 'chatgpt.com', visitors: 10234, conversions: 87, conversionRate: 0.85 },
-  { name: 'instagram', visitors: 9876, conversions: 82, conversionRate: 0.83 },
-  { name: 'youtube', visitors: 8765, conversions: 73, conversionRate: 0.83 },
-  { name: 'tiktok', visitors: 7654, conversions: 64, conversionRate: 0.84 },
-  { name: 'pinterest', visitors: 6789, conversions: 57, conversionRate: 0.84 },
-  { name: 'twitter', visitors: 5987, conversions: 51, conversionRate: 0.85 },
-  { name: 'linkedin', visitors: 5432, conversions: 46, conversionRate: 0.85 },
-  { name: 'reddit', visitors: 4876, conversions: 42, conversionRate: 0.86 },
-  { name: 'newsletter', visitors: 4321, conversions: 37, conversionRate: 0.86 },
-  { name: 'partner_site', visitors: 3987, conversions: 34, conversionRate: 0.85 },
-  { name: 'affiliate_network', visitors: 3654, conversions: 31, conversionRate: 0.85 },
-  { name: 'review_site', visitors: 3321, conversions: 28, conversionRate: 0.84 },
-  { name: 'blog_post', visitors: 2987, conversions: 26, conversionRate: 0.87 },
-  { name: 'podcast_sponsor', visitors: 2765, conversions: 24, conversionRate: 0.87 },
-  { name: 'forum_post', visitors: 2543, conversions: 22, conversionRate: 0.87 },
-  { name: 'mobile_app', visitors: 2321, conversions: 20, conversionRate: 0.86 }
+  { name: 'facebook', visitors: 45678, submits: 345, conversionRate: 0.76 },
+  { name: 'olcsobbat', visitors: 38902, submits: 289, conversionRate: 0.74 },
+  { name: 'google', visitors: 32145, submits: 256, conversionRate: 0.80 },
+  { name: 'CJ', visitors: 28567, submits: 234, conversionRate: 0.82 },
+  { name: 'tarsasjatekok.com', visitors: 24890, submits: 198, conversionRate: 0.80 },
+  { name: 'TheMarketer', visitors: 21456, submits: 178, conversionRate: 0.83 },
+  { name: 'fb', visitors: 18234, submits: 145, conversionRate: 0.80 },
+  { name: 'ActiveCampaign', visitors: 15678, submits: 123, conversionRate: 0.78 },
+  { name: 'google_shopping', visitors: 12345, submits: 98, conversionRate: 0.79 },
+  { name: 'chatgpt.com', visitors: 10234, submits: 87, conversionRate: 0.85 },
+  { name: 'instagram', visitors: 9876, submits: 82, conversionRate: 0.83 },
+  { name: 'youtube', visitors: 8765, submits: 73, conversionRate: 0.83 },
+  { name: 'tiktok', visitors: 7654, submits: 64, conversionRate: 0.84 },
+  { name: 'pinterest', visitors: 6789, submits: 57, conversionRate: 0.84 },
+  { name: 'twitter', visitors: 5987, submits: 51, conversionRate: 0.85 },
+  { name: 'linkedin', visitors: 5432, submits: 46, conversionRate: 0.85 },
+  { name: 'reddit', visitors: 4876, submits: 42, conversionRate: 0.86 },
+  { name: 'newsletter', visitors: 4321, submits: 37, conversionRate: 0.86 },
+  { name: 'partner_site', visitors: 3987, submits: 34, conversionRate: 0.85 },
+  { name: 'affiliate_network', visitors: 3654, submits: 31, conversionRate: 0.85 },
+  { name: 'review_site', visitors: 3321, submits: 28, conversionRate: 0.84 },
+  { name: 'blog_post', visitors: 2987, submits: 26, conversionRate: 0.87 },
+  { name: 'podcast_sponsor', visitors: 2765, submits: 24, conversionRate: 0.87 },
+  { name: 'forum_post', visitors: 2543, submits: 22, conversionRate: 0.87 },
+  { name: 'mobile_app', visitors: 2321, submits: 20, conversionRate: 0.86 }
 ])
 
 // Computed properties for display (only first 5 rows)
@@ -1785,6 +2057,89 @@ const landingPagesDisplay = computed(() => landingPages.value.slice(0, 5))
 const browserLanguagesDisplay = computed(() => browserLanguages.value.slice(0, 5))
 const utmCampaignsDisplay = computed(() => utmCampaigns.value.slice(0, 5))
 const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
+
+// Devices table selection
+const hoveredDevicesRow = ref(null)
+const selectedDevicesRows = ref(new Set())
+const toggleDevicesRow = (type) => {
+  const s = new Set(selectedDevicesRows.value)
+  s.has(type) ? s.delete(type) : s.add(type)
+  selectedDevicesRows.value = s
+}
+const isDevicesRowSelected = (type) => selectedDevicesRows.value.has(type)
+
+// Traffic source table selection
+const hoveredTrafficRow2 = ref(null)
+const selectedTrafficRows2 = ref(new Set())
+const toggleTrafficRow2 = (referrer) => {
+  const s = new Set(selectedTrafficRows2.value)
+  s.has(referrer) ? s.delete(referrer) : s.add(referrer)
+  selectedTrafficRows2.value = s
+}
+const isTrafficRow2Selected = (referrer) => selectedTrafficRows2.value.has(referrer)
+
+// Countries table
+const countriesData = [
+  { country: 'Hungary',        visitors: 12427,  submits: 148,  submitRate: 1.19 },
+  { country: 'United States',  visitors: 6086,   submits: 3,    submitRate: 0.05 },
+  { country: 'Austria',        visitors: 1161,   submits: 42,   submitRate: 3.62 },
+  { country: 'Germany',        visitors: 858,    submits: 14,   submitRate: 1.63 },
+  { country: 'Singapore',      visitors: 768,    submits: null, submitRate: null },
+  { country: 'United Kingdom', visitors: 560,    submits: 8,    submitRate: 1.43 },
+  { country: 'Romania',        visitors: 496,    submits: 15,   submitRate: 3.02 },
+  { country: 'Slovakia',       visitors: 336,    submits: 15,   submitRate: 4.46 },
+  { country: 'Netherlands',    visitors: 262,    submits: 3,    submitRate: 1.15 },
+  { country: 'Sweden',         visitors: 253,    submits: 1,    submitRate: 0.40 },
+]
+const hoveredCountriesRow = ref(null)
+const selectedCountriesRows = ref(new Set())
+const toggleCountriesRow = (country) => {
+  const s = new Set(selectedCountriesRows.value)
+  s.has(country) ? s.delete(country) : s.add(country)
+  selectedCountriesRows.value = s
+}
+const isCountriesRowSelected = (country) => selectedCountriesRows.value.has(country)
+
+// Pie chart — only sources with submits
+// Top 5 by submits: Organic Search (1634), Facebook (378), Direct (272), Árukeresó (51), tarsasjatekok.com (32)
+// Other: Paid Search (13) + Instagram (9) + YouTube (5) + telex.hu (4) = 31
+// Series matches table row order (top 5) + Other
+// Organic Search, Direct, Facebook, Árukeresó, TikTok(0), Other(32+9+5+13+4=63)
+const trafficSubmitsPieSeries = [883, 673, 402, 164, 43, 0, 39]
+const trafficPieLabels = ['Paid Search', 'Organic Search', 'Facebook', 'Direct', 'Árukereső', 'TikTok', 'Other']
+const trafficPieColors = ['#FF6A45', '#FF8A6A', '#FFA48E', '#FFBFB2', '#FFD9D4', '#E5E7EB', '#D1D5DB']
+
+const trafficPieReferrerIndex = {
+  'Paid Search': 0, 'Organic Search': 1, 'Facebook': 2, 'Direct': 3,
+  'Árukereső': 4, 'TikTok': 5, 'Other': 6,
+}
+
+const hoveredChartIndex = computed(() =>
+  hoveredTrafficRow2.value !== null ? (trafficPieReferrerIndex[hoveredTrafficRow2.value] ?? null) : null
+)
+
+const maxCountrySubmits = Math.max(...countriesData.map(r => r.submits ?? 0))
+
+const trafficSubmitsPieOptions = computed(() => ({
+  chart: { type: 'donut', toolbar: { show: false }, fontFamily: 'inherit', animations: { dynamicAnimation: { enabled: false } } },
+  labels: trafficPieLabels,
+  colors: hoveredChartIndex.value !== null
+    ? trafficPieColors.map((c, i) => i === hoveredChartIndex.value ? c : c + '30')
+    : trafficPieColors,
+  dataLabels: { enabled: false },
+  legend: { show: false },
+  stroke: { width: 2, colors: ['#fff'] },
+  tooltip: { y: { formatter: (val) => val.toLocaleString() } },
+}))
+const trafficSourceData = [
+  { referrer: 'Paid Search',    visitors: 40552, submits: 883,  submitRate: 2.18 },
+  { referrer: 'Organic Search', visitors: 32037, submits: 673,  submitRate: 2.10 },
+  { referrer: 'Facebook',       visitors: 26453, submits: 402,  submitRate: 1.52 },
+  { referrer: 'Direct',         visitors: 23473, submits: 164,  submitRate: 0.70 },
+  { referrer: 'Árukereső',      visitors: 1617,  submits: 43,   submitRate: 2.66 },
+  { referrer: 'TikTok',         visitors: 1336,  submits: null, submitRate: null },
+  { referrer: 'Other',          visitors: 878,   submits: 39,   submitRate: 4.44 },
+]
 </script>
 
 <style scoped>
@@ -1978,6 +2333,59 @@ const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
   margin-bottom: 0;
 }
 
+.countries-content {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.countries-table-side {
+  flex: 1;
+  min-width: 0;
+}
+
+.countries-chart-side {
+  width: 260px;
+  flex-shrink: 0;
+}
+
+.countries-bar-header {
+  height: 40px;
+}
+
+.countries-bar-row {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 40px 0 8px;
+  transition: background 0.2s ease;
+}
+
+
+.countries-bar-track {
+  flex: 1;
+  height: 10px;
+  background: rgb(243, 244, 246);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.countries-bar-fill {
+  height: 100%;
+  background: var(--color-om-orange-500);
+  border-radius: 0 5px 5px 0;
+  transition: width 0.3s ease;
+}
+
+.countries-bar-value {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #505763;
+  min-width: 28px;
+  text-align: right;
+}
+
 .campaign-performance-layout {
   display: flex;
   gap: 0;
@@ -1995,25 +2403,35 @@ const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
 
 /* Smaller columns for breakdown module tables */
 .breakdown-module-list-column {
-  flex: 0 0 300px;
+  flex: 0 0 40%;
+  min-width: 0;
 }
 
 .breakdown-module-metrics-column {
-  flex: 1;
-  min-width: 280px;
+  flex: 0 0 60%;
+  min-width: 0;
 }
 
 .breakdown-module-list-header {
-  flex: 0 0 300px;
+  flex: 0 0 40%;
+  min-width: 0;
   display: flex;
   align-items: center;
 }
 
 .breakdown-module-metrics-header {
-  flex: 1;
-  min-width: 280px;
+  flex: 0 0 60%;
+  min-width: 0;
   display: flex;
   align-items: center;
+}
+
+.breakdown-module-metrics-header .header-cell:nth-child(2) {
+  flex: 1.5;
+}
+
+.breakdown-module-metrics-header .header-cell:last-child {
+  padding-right: 32px;
 }
 
 .breakdown-module-list-header .header-cell {
@@ -2200,7 +2618,7 @@ const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
   padding-right: 32px;
 }
 
-/* Make Unique Visitors column wider in breakdown tables */
+/* Make Visitors column wider in breakdown tables */
 .campaign-metrics-row .metric-cell:nth-child(2) {
   flex: 1.5;
 }
@@ -2376,12 +2794,12 @@ const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
 /* Breakdown Modules Row */
 .breakdown-modules-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 2rem;
   margin-bottom: 2rem;
 }
 
-@media (max-width: 1439px) {
+@media (max-width: 1199px) {
   .breakdown-modules-row {
     grid-template-columns: 1fr;
   }
@@ -2706,5 +3124,271 @@ const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
 .view-all-btn:hover {
   color: #23262A;
   background: #F1F2F4;
+}
+
+/* Devices + Traffic Source Row */
+.analytics-outer {
+  container-type: inline-size;
+}
+
+.devices-card {
+  container-type: inline-size;
+}
+
+.devices-traffic-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  align-items: start;
+}
+
+@container (min-width: 1200px) {
+  .devices-traffic-row {
+    grid-template-columns: 2fr 3fr;
+    align-items: stretch;
+  }
+}
+
+/* Traffic Source Table */
+.traffic-table {
+  padding: 0 20px;
+}
+
+.traffic-header {
+  display: flex;
+  align-items: center;
+  padding: 0 0 8px 0;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.traffic-header-cell {
+  font-size: 11px;
+  font-weight: 500;
+  color: #9CA3AF;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.traffic-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #F9FAFB;
+}
+
+.traffic-row:last-child {
+  border-bottom: none;
+}
+
+.traffic-cell {
+  font-size: 13px;
+  color: #374151;
+}
+
+.traffic-referrer-col {
+  flex: 2;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 12px;
+}
+
+.traffic-visitors-col {
+  flex: 3;
+  padding-right: 16px;
+}
+
+.traffic-visitors-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.traffic-visitors-value {
+  font-size: 13px;
+  color: #374151;
+  white-space: nowrap;
+  width: 56px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.traffic-num-col {
+  flex: 1;
+  text-align: right;
+  color: #6B7280;
+}
+
+.traffic-progress-track {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: #F3F4F6;
+  overflow: hidden;
+}
+
+.traffic-progress-bar {
+  height: 100%;
+  border-radius: 2px;
+  background: #FF6A45;
+}
+
+.traffic-plain-layout {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.devices-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.devices-chart-wrap {
+  padding: 0 20px;
+}
+
+@container (min-width: 600px) {
+  .devices-content {
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
+    overflow: hidden;
+  }
+  .devices-table-wrap {
+    flex: 1 1 0;
+    min-width: 0;
+    width: 0;
+  }
+  .devices-chart-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 280px;
+    height: 280px;
+    padding: 0;
+  }
+}
+
+.devices-table-wrap {
+  min-width: 0;
+}
+
+.devices-table-wrap .campaign-performance-layout {
+  overflow-x: hidden;
+}
+
+.devices-table-wrap .campaign-list-header,
+.devices-table-wrap .campaign-list-column {
+  flex: 0 0 40%;
+  min-width: 0;
+  max-width: 40%;
+}
+
+.devices-table-wrap .campaign-metrics-header,
+.devices-table-wrap .campaign-metrics-column {
+  flex: 0 0 60%;
+  min-width: 0;
+  max-width: 60%;
+}
+
+.devices-table-wrap .campaign-metrics-header .header-cell:last-child {
+  padding-right: 32px;
+}
+
+.devices-table-wrap .campaign-metrics-header,
+.traffic-plain-table .campaign-metrics-header {
+  container-type: inline-size;
+}
+
+.sr-short { display: none; }
+
+@container (max-width: 400px) {
+  .sr-full { display: none; }
+  .sr-short { display: inline; }
+}
+
+.traffic-plain-layout .traffic-table,
+.traffic-plain-table {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 0;
+  padding: 0;
+}
+
+.traffic-plain-table .campaign-performance-layout {
+  overflow-x: hidden;
+}
+
+.traffic-plain-table .campaign-list-column {
+  flex: 0 0 40%;
+  min-width: 0;
+  max-width: 40%;
+}
+
+.traffic-plain-table .campaign-list-header {
+  flex: 0 0 40%;
+  min-width: 0;
+  max-width: 40%;
+}
+
+.traffic-plain-table .campaign-metrics-column {
+  flex: 0 0 60%;
+  min-width: 0;
+  max-width: 60%;
+}
+
+.traffic-plain-table .campaign-metrics-header {
+  flex: 0 0 60%;
+  min-width: 0;
+  max-width: 60%;
+}
+
+.traffic-plain-table .campaign-metrics-header .header-cell:nth-child(2) {
+  flex: 1.5;
+}
+
+.traffic-plain-table .campaign-metrics-header .header-cell:last-child {
+  padding-right: 32px;
+}
+
+.traffic-pie-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 240px;
+  height: 240px;
+}
+
+.traffic-pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.traffic-pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.traffic-pie-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.traffic-pie-legend-label {
+  font-size: 12px;
+  color: #6B7280;
 }
 </style>
