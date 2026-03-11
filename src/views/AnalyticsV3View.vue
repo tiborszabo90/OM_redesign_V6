@@ -307,7 +307,7 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 pr-8 min-w-0 overflow-hidden">
+          <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 min-w-0 overflow-hidden">
           <div class="section-header" style="padding-left: 32px; padding-right: 32px; margin-bottom: 1.25rem;">
             <h2 class="section-title" style="padding: 0; margin-bottom: 0;">Traffic Sources</h2>
             <button class="view-all-btn" @click="showModal('traffic-sources')">View All</button>
@@ -3129,6 +3129,7 @@ const trafficSourceData = [
 /* Devices + Traffic Source Row */
 .analytics-outer {
   container-type: inline-size;
+  container-name: analytics-outer;
 }
 
 .devices-card {
@@ -3271,10 +3272,10 @@ const trafficSourceData = [
     justify-content: center;
     flex-shrink: 0;
     width: 280px;
-    height: 280px;
     padding: 0;
   }
 }
+
 
 .devices-table-wrap {
   min-width: 0;
@@ -3365,6 +3366,7 @@ const trafficSourceData = [
   flex-shrink: 0;
   width: 240px;
   height: 240px;
+  padding-right: 2rem;
 }
 
 .traffic-pie-legend {
