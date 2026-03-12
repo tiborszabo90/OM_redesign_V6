@@ -45,7 +45,7 @@
     </template>
 
     <template #right-panel>
-      <ChatPanel v-model="isChatOpen" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
+      <ChatPanel v-model="isChatOpen" :fab="true" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
     </template>
   </DashboardLayout>
 </template>
@@ -58,7 +58,7 @@ import ChatPanel from '../components/shared/ChatPanel.vue'
 
 defineEmits(['menu-click', 'go-back', 'navigate-to-opportunity'])
 
-const isChatOpen = ref(true)
+const isChatOpen = ref(false)
 
 const chatSuggestions = [
   'Which opportunity has the highest revenue impact?',

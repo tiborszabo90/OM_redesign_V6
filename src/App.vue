@@ -6,10 +6,13 @@ import OnboardingView from './views/OnboardingView.vue'
 import TaskCreationView from './views/TaskCreationView.vue'
 import WizardAnalysisView from './views/WizardAnalysisView.vue'
 import DesignGuideView from './views/DesignGuideView.vue'
+import EditorView from './views/EditorView.vue'
 import WizardView from './views/WizardView.vue'
 import CampaignsView from './views/CampaignsView.vue'
 import CampaignsV3View from './views/CampaignsV3View.vue'
 import CampaignPageV1View from './views/CampaignPageV1View.vue'
+import CampaignPageWithReviewView from './views/CampaignPageWithReviewView.vue'
+import CampaignReviewView from './views/CampaignReviewView.vue'
 import AnalyticsV1View from './views/AnalyticsV1View.vue'
 import AnalyticsV2View from './views/AnalyticsV2View.vue'
 import AnalyticsV3View from './views/AnalyticsV3View.vue'
@@ -21,6 +24,10 @@ import ImageWithBadgeView from './views/ImageWithBadgeView.vue'
 import ImageWithBadgeV2View from './views/ImageWithBadgeV2View.vue'
 import ImageWithBadgeV3View from './views/ImageWithBadgeV3View.vue'
 import HomeOldView from './views/HomeOldView.vue'
+import HomeOldV2View from './views/HomeOldV2View.vue'
+import HomeWithReviewView from './views/HomeWithReviewView.vue'
+import HomeChatVersionsView from './views/HomeChatVersionsView.vue'
+import HomeChatLeftView from './views/HomeChatLeftView.vue'
 import HomeOnboardingView from './views/HomeOnboardingView.vue'
 import HomeOnboardingWithRecoView from './views/HomeOnboardingWithRecoView.vue'
 import HomeOnboardingWizardView from './views/HomeOnboardingWizardView.vue'
@@ -203,6 +210,14 @@ const handleDevNavigate = (view) => {
     currentView.value = null
     setTimeout(() => {
       currentView.value = 'home-old'
+    }, 50)
+  } else if (view === 'home-with-review') {
+    sessionKey.value++
+    flowSelected.value = true
+    wizardMessage.value = ''
+    currentView.value = null
+    setTimeout(() => {
+      currentView.value = 'home-with-review'
     }, 50)
   } else if (view === 'home-onboarding') {
     sessionKey.value++
@@ -519,6 +534,18 @@ const handleGoImageWithBadge = () => {
   currentView.value = 'image-with-badge'
 }
 
+const handleGoChatVersions = () => {
+  currentView.value = 'home-chat-versions'
+}
+
+const handleGoEditor = () => {
+  currentView.value = 'editor'
+}
+
+const handleGoChatLeft = () => {
+  currentView.value = 'home-chat-left'
+}
+
 const handleGoPublicWizard = () => {
   sessionKey.value++
   flowSelected.value = true
@@ -617,7 +644,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="h-screen-safe flex flex-col">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaigns-empty', 'campaign-page-v1', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all'].includes(currentView)"
+      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaigns-empty', 'campaign-page-v1', 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor'].includes(currentView)"
       class="pt-8 pl-8 shrink-0"
     >
       <img
@@ -637,6 +664,8 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         @go-public-wizard="handleGoPublicWizard"
         @go-design-guide="handleGoDesignGuide"
         @go-image-with-badge="handleGoImageWithBadge"
+        @go-chat-versions="handleGoChatVersions"
+        @go-editor="handleGoEditor"
       />
       <RegistrationView
         v-else-if="currentView === 'registration'"
@@ -666,6 +695,35 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       <HomeOldView
         v-else-if="currentView === 'home-old'"
         :key="'home-old-' + sessionKey"
+        :registration-data="registrationData"
+        @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
+      />
+      <HomeOldV2View
+        v-else-if="currentView === 'home-old-v2'"
+        :key="'home-old-v2-' + sessionKey"
+        :registration-data="registrationData"
+        @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
+      />
+      <HomeWithReviewView
+        v-else-if="currentView === 'home-with-review'"
+        :key="'home-with-review-' + sessionKey"
+        :registration-data="registrationData"
+        @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
+        @navigate-to-review="currentView = 'campaign-review'"
+      />
+      <HomeChatVersionsView
+        v-else-if="currentView === 'home-chat-versions'"
+        :key="'home-chat-versions-' + sessionKey"
+        :registration-data="registrationData"
+        @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
+      />
+      <HomeChatLeftView
+        v-else-if="currentView === 'home-chat-left'"
+        :key="'home-chat-left-' + sessionKey"
         :registration-data="registrationData"
         @task-created="handleTaskCreated"
         @menu-click="handleMenuClick"
@@ -729,6 +787,16 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       <CampaignPageV1View
         v-else-if="currentView === 'campaign-page-v1'"
         @menu-click="handleMenuClick"
+      />
+      <CampaignPageWithReviewView
+        v-else-if="currentView === 'campaign-page-with-review'"
+        @menu-click="handleMenuClick"
+        @navigate-to-review="currentView = 'campaign-review'"
+      />
+      <CampaignReviewView
+        v-else-if="currentView === 'campaign-review'"
+        @menu-click="handleMenuClick"
+        @go-back="currentView = 'campaign-page-with-review'"
       />
       <AnalyticsV1View
         v-else-if="currentView === 'analytics-v1'"
@@ -849,6 +917,10 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :start-at-recommendation-v5="true"
         @task-created="handleTaskCreated"
         @menu-click="handleMenuClick"
+      />
+      <EditorView
+        v-else-if="currentView === 'editor'"
+        @go-back="handleDevNavigate('dev-start')"
       />
       <DesignGuideView
         v-else-if="currentView === 'design-guide'"

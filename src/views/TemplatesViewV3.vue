@@ -225,7 +225,7 @@
         </div>
       </template>
       <template #right-panel>
-        <ChatPanel v-model="isChatOpen" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
+        <ChatPanel v-model="isChatOpen" :fab="true" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
       </template>
     </DashboardLayout>
   </div>
@@ -241,7 +241,7 @@ import ChatPanel from '../components/shared/ChatPanel.vue'
 
 const emit = defineEmits(['menu-click'])
 
-const isChatOpen = ref(true)
+const isChatOpen = ref(false)
 
 const chatSuggestions = [
   'What are the best templates for Black Friday?',

@@ -60,7 +60,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { Mail, ShoppingCart, ThumbsUp, ArrowUp } from 'lucide-vue-next'
+import { Mail, ShoppingCart, TrendingUp, ArrowUp } from 'lucide-vue-next'
 
 const emit = defineEmits(['submit'])
 
@@ -130,9 +130,9 @@ const examples = [
     iconComponent: ShoppingCart
   },
   {
-    label: 'Collect feedback',
-    prompt: 'I want to collect feedback from my visitors',
-    iconComponent: ThumbsUp
+    label: 'Increase sales',
+    prompt: 'I want to increase my sales and revenue',
+    iconComponent: TrendingUp
   }
 ]
 

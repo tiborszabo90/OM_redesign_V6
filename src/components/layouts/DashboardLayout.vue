@@ -47,6 +47,23 @@
 
       <!-- Bottom section -->
       <div class="flex flex-col items-center gap-3 mt-auto pb-4">
+        <!-- AI Chat button (optional) -->
+        <button
+          v-if="showAiButton"
+          @click="$emit('ai-click')"
+          class="w-10 h-10 rounded-full flex items-center justify-center text-om-gray-500 hover:text-om-gray-600 hover:bg-[#F3F4F6] transition-colors cursor-pointer"
+        >
+          <svg width="24" height="24" viewBox="0 0 26 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6">
+            <rect x="5" y="4" width="16" height="16" rx="3.85714" stroke="currentColor" stroke-width="2"/>
+            <circle cx="9.71484" cy="13" r="1" stroke="currentColor" stroke-width="2"/>
+            <circle cx="16.2852" cy="13" r="1" stroke="currentColor" stroke-width="2"/>
+            <path d="M4 10H2.14286C1.51167 10 1 10.5117 1 11.1429V13.8571C1 14.4883 1.51167 15 2.14286 15H4" stroke="currentColor" stroke-width="2"/>
+            <path d="M22 15L23.8571 15C24.4883 15 25 14.4883 25 13.8571L25 11.1429C25 10.5117 24.4883 10 23.8571 10L22 10" stroke="currentColor" stroke-width="2"/>
+            <line x1="2" y1="10.4297" x2="2" y2="3.00112" stroke="currentColor" stroke-width="2"/>
+            <line x1="24" y1="10.4297" x2="24" y2="3.00112" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </button>
+
         <!-- Notifications -->
         <button class="w-10 h-10 rounded-full flex items-center justify-center text-om-gray-500 hover:text-om-gray-600 hover:bg-[#F3F4F6] transition-colors cursor-pointer">
           <Bell :size="24" />
@@ -158,7 +175,8 @@
 
     <!-- Main Content Area -->
     <main class="w-full flex overflow-hidden" :class="{ 'ml-19': !hideSidebar }">
-      <div ref="contentDivRef" class="flex-1 overflow-y-auto min-w-0 transition-all duration-300 max-960:text-sm" :class="noContentPadding ? '' : ['py-8 max-960:py-4 pl-12 max-960:pl-6', rightPanelCollapsed ? 'pr-10 max-960:pr-4' : 'pr-12 max-960:pr-4']">
+      <slot name="left-panel"></slot>
+      <div ref="contentDivRef" class="flex-1 overflow-y-auto min-w-0 transition-all duration-300 max-960:text-sm" :class="noContentPadding ? '' : ['py-8 max-960:py-4', leftPanelOpen ? 'pl-6 max-960:pl-4' : 'pl-12 max-960:pl-6', rightPanelCollapsed ? 'pr-10 max-960:pr-4' : 'pr-12 max-960:pr-4']">
         <slot name="content"></slot>
       </div>
       <slot name="right-panel"></slot>
@@ -206,10 +224,18 @@ const props = defineProps({
   hideSidebar: {
     type: Boolean,
     default: false
+  },
+  showAiButton: {
+    type: Boolean,
+    default: false
+  },
+  leftPanelOpen: {
+    type: Boolean,
+    default: false
   }
 })
 
-const emit = defineEmits(['logo-click', 'menu-click'])
+const emit = defineEmits(['logo-click', 'menu-click', 'ai-click'])
 
 const activeItem = ref(props.activeMenuItem)
 

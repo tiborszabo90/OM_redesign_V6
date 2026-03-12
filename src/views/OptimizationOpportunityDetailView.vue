@@ -46,7 +46,7 @@
     </template>
 
     <template #right-panel>
-      <ChatPanel v-model="isChatOpen" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
+      <ChatPanel v-model="isChatOpen" :fab="true" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
     </template>
   </DashboardLayout>
 </template>
@@ -67,7 +67,7 @@ const props = defineProps({
 
 defineEmits(['menu-click', 'go-back'])
 
-const isChatOpen = ref(true)
+const isChatOpen = ref(false)
 
 const chatSuggestions = [
   'How do I implement this on mobile?',

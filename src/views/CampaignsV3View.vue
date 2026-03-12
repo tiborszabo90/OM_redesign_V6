@@ -111,7 +111,7 @@
       </div>
     </template>
     <template #right-panel>
-      <ChatPanel v-model="isChatOpen" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
+      <ChatPanel v-model="isChatOpen" :fab="true" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
     </template>
   </DashboardLayout>
 </template>
@@ -127,7 +127,7 @@ import CampaignCard from '../components/shared/CampaignCard.vue'
 
 const emit = defineEmits(['menu-click', 'navigate-to-campaign'])
 
-const isChatOpen = ref(true)
+const isChatOpen = ref(false)
 
 const chatSuggestions = [
   'Which campaign has the best conversion rate?',

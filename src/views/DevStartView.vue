@@ -65,6 +65,22 @@
         >
           Image with Badge
         </Button>
+
+        <Button
+          variant="outline"
+          size="lg"
+          @click="$emit('go-chat-versions')"
+        >
+          Chat Versions
+        </Button>
+
+        <Button
+          variant="outline"
+          size="lg"
+          @click="$emit('go-editor')"
+        >
+          Editor
+        </Button>
       </div>
     </div>
   </div>
@@ -73,5 +89,5 @@
 <script setup>
 import Button from '../components/shared/Button.vue'
 
-defineEmits(['select', 'go-home', 'go-home-onboarding', 'go-public-wizard', 'go-design-guide', 'go-image-with-badge'])
+defineEmits(['select', 'go-home', 'go-home-onboarding', 'go-public-wizard', 'go-design-guide', 'go-image-with-badge', 'go-chat-versions', 'go-editor'])
 </script>

@@ -25,6 +25,18 @@
   --color-om-peach-200: #FFE0CC;
   --color-om-peach-300: #FFC199;
 
+  /* OptiMonk Yellow Color Palette */
+  --color-om-yellow-50: #FFFBE6;
+  --color-om-yellow-100: #FEF3A3;
+  --color-om-yellow-200: #FDED6A;
+  --color-om-yellow-300: #F5DC2A;
+  --color-om-yellow-400: #F0C920;
+  --color-om-yellow-500: #D4AF1A;
+  --color-om-yellow-600: #B89414;
+  --color-om-yellow-700: #9C7A0F;
+  --color-om-yellow-800: #7F620A;
+  --color-om-yellow-900: #634C07;
+
   /* OptiMonk Gray Color Palette */
   --color-om-gray-50: #F9FAFB;
   --color-om-gray-100: #F1F2F4;

@@ -1,7 +1,38 @@
 <template>
+  <!-- FAB variant with hover options -->
+  <div
+    v-if="!modelValue && fab"
+    class="fixed bottom-16 right-6 z-20 flex flex-col items-end gap-3 group"
+  >
+    <!-- Options panel (appear above FAB on hover) -->
+    <div class="flex flex-col items-stretch gap-2
+                opacity-0 group-hover:opacity-100
+                translate-y-2 group-hover:translate-y-0
+                pointer-events-none group-hover:pointer-events-auto
+                transition-all duration-200 ease-out">
+      <button
+        @click="emit('update:modelValue', true)"
+        class="bg-om-orange-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-lg hover:bg-[#E54D1F] transition-colors cursor-pointer whitespace-nowrap"
+      >
+        AI assistant
+      </button>
+      <button
+        class="bg-om-orange-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-lg hover:bg-[#E54D1F] transition-colors cursor-pointer whitespace-nowrap"
+      >
+        Customer support
+      </button>
+    </div>
+    <!-- FAB button -->
+    <button
+      class="w-14 h-14 bg-om-orange-500 rounded-full shadow-lg flex items-center justify-center text-white hover:bg-[#E54D1F] transition-colors cursor-pointer"
+    >
+      <img src="/icons/optibot24.svg" alt="OptiBot" class="w-7 h-7" />
+    </button>
+  </div>
+
   <!-- Collapsed tab (fixed to viewport right edge, no layout space taken) -->
   <button
-    v-if="!modelValue"
+    v-else-if="!modelValue && !fab && side === 'right'"
     @click="emit('update:modelValue', true)"
     class="chat-tab fixed top-4 right-0 z-20 w-9 h-12 bg-om-orange-500 border border-r-0 border-transparent rounded-l-xl shadow-sm flex items-center justify-center text-white hover:bg-[#E54D1F] transition-colors cursor-pointer"
   >
@@ -9,24 +40,28 @@
   </button>
 
   <!-- Chat panel (flow element, wide column) -->
+  <transition :name="side === 'left' ? 'panel-slide-left' : 'panel-slide-right'">
   <div
     v-if="modelValue"
     :style="{ width: panelWidth + 'px' }"
-    class="shrink-0 flex flex-col bg-white border-l border-[#E3E5E8] p-4 pt-6 pb-4 relative"
+    :class="['shrink-0 flex flex-col bg-white p-4 pt-6 pb-4 relative', side === 'left' ? 'border-r border-[#E3E5E8]' : 'border-l border-[#E3E5E8]']"
   >
     <!-- Resize handle -->
     <div
       @mousedown="startResize"
-      class="resize-handle absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-om-orange-300 transition-colors z-10"
+      :class="['resize-handle absolute top-0 bottom-0 w-1 cursor-ew-resize hover:bg-om-orange-300 transition-colors z-10', side === 'left' ? 'right-0' : 'left-0']"
     ></div>
     <!-- Header with close button -->
     <div class="flex items-center justify-between mb-4">
-      <Button variant="ghost" size="sm" @click="openConversationsModal">New conversation</Button>
+      <Button variant="ghost" size="sm" @click="openConversationsModal">
+        <span class="flex items-center gap-1">{{ conversationTitle }}<ChevronDown :size="14" /></span>
+      </Button>
       <button
         @click="emit('update:modelValue', false)"
         class="w-8 h-8 rounded-lg flex items-center justify-center text-[#8F97A4] hover:text-[#505763] hover:bg-[#F1F2F4] transition-colors cursor-pointer"
       >
-        <X :size="16" />
+        <PanelLeftClose v-if="side === 'left'" :size="16" />
+        <PanelRightClose v-else :size="16" />
       </button>
     </div>
 
@@ -76,7 +111,7 @@
         <h3 class="text-base font-semibold text-om-gray-700 mb-1 text-center">How can I help you?</h3>
       </div>
       <!-- Suggestions at the bottom -->
-      <div class="mt-auto pb-2">
+      <div class="mt-auto pb-2 suggestions-fade-in">
         <p class="text-xs text-om-gray-500 mb-3">Try with an example:</p>
         <div class="flex flex-col gap-2">
           <button
@@ -174,17 +209,26 @@
       </button>
     </div>
   </div>
+  </transition>
 </template>
 
 <script setup>
-import { ref, nextTick, onUnmounted } from 'vue'
-import { ArrowUp, X, Check, Paperclip } from 'lucide-vue-next'
+import { ref, computed, nextTick, onUnmounted } from 'vue'
+import { ArrowUp, X, Check, Paperclip, ChevronDown, PanelRightClose, PanelLeftClose } from 'lucide-vue-next'
 import Button from './Button.vue'
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
     default: true
+  },
+  fab: {
+    type: Boolean,
+    default: false
+  },
+  side: {
+    type: String,
+    default: 'right' // 'right' | 'left'
   },
   suggestions: {
     type: Array,
@@ -244,6 +288,14 @@ const savedConversations = ref([
   },
 ])
 
+const conversationTitle = computed(() => {
+  const typed = chatMessage.value?.trim()
+  if (typed) return typed.length > 28 ? typed.slice(0, 28) + '…' : typed
+  const firstUser = messages.value.find(m => m.type === 'user')
+  if (firstUser) return firstUser.message.length > 28 ? firstUser.message.slice(0, 28) + '…' : firstUser.message
+  return 'New conversation'
+})
+
 const chatMessagesContainer = ref(null)
 const chatTextareaRef = ref(null)
 
@@ -258,7 +310,7 @@ const startResize = (e) => {
   const startWidth = panelWidth.value
 
   const onMouseMove = (e) => {
-    const delta = startX - e.clientX
+    const delta = props.side === 'left' ? e.clientX - startX : startX - e.clientX
     panelWidth.value = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth + delta))
   }
 
@@ -371,6 +423,48 @@ const handleChatSubmit = () => {
 </script>
 
 <style scoped>
+/* Suggestions fade in after panel opens */
+.suggestions-fade-in {
+  animation: suggestionsFadeIn 0.35s ease forwards;
+  animation-delay: 0.3s;
+  opacity: 0;
+}
+
+@keyframes suggestionsFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Left panel slide animation */
+.panel-slide-left-enter-active,
+.panel-slide-left-leave-active {
+  transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease;
+  overflow: hidden;
+}
+.panel-slide-left-enter-from,
+.panel-slide-left-leave-to {
+  width: 0 !important;
+  opacity: 0;
+}
+
+/* Right panel slide animation */
+.panel-slide-right-enter-active,
+.panel-slide-right-leave-active {
+  transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease;
+  overflow: hidden;
+}
+.panel-slide-right-enter-from,
+.panel-slide-right-leave-to {
+  width: 0 !important;
+  opacity: 0;
+}
+
 .resize-handle::after {
   content: '';
   position: absolute;

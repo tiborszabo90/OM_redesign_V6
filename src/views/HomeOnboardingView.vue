@@ -145,10 +145,12 @@
               <p class="text-sm font-semibold text-om-gray-700">Invite your teammates</p>
               <p class="text-xs text-om-gray-400 mt-0.5">Get more out of OptiMonk by inviting your team for free</p>
             </div>
-            <Button variant="outline" size="sm">Invite your team</Button>
-            <button @click="showInviteBlock = false" class="text-om-gray-400 hover:text-om-gray-600 transition-colors cursor-pointer shrink-0">
-              <X :size="16" />
-            </button>
+            <div class="flex items-center gap-1 shrink-0">
+              <Button variant="outline" size="sm">Invite your team</Button>
+              <Button variant="ghost" size="sm" icon-only @click="showInviteBlock = false">
+                <template #icon><X :size="16" /></template>
+              </Button>
+            </div>
           </div>
 
           <!-- Consultation block -->
@@ -160,65 +162,12 @@
               <p class="text-sm font-semibold text-om-gray-700">Free consultation / demo</p>
               <p class="text-xs text-om-gray-400 mt-0.5">Discover OptiMonk with expert guidance</p>
             </div>
-            <Button variant="outline" size="sm">Book now</Button>
-            <button @click="showConsultBlock = false" class="text-om-gray-400 hover:text-om-gray-600 transition-colors cursor-pointer shrink-0">
-              <X :size="16" />
-            </button>
-          </div>
-        </div>
-
-        <!-- Trend Chart Section (empty state) -->
-        <div class="relative bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 overflow-hidden">
-          <!-- Skeleton chart background -->
-          <svg viewBox="-40 0 880 220" xmlns="http://www.w3.org/2000/svg" class="w-full opacity-80">
-            <defs>
-              <linearGradient id="skeletonGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#E5E7EB" stop-opacity="0.6"/>
-                <stop offset="100%" stop-color="#E5E7EB" stop-opacity="0.05"/>
-              </linearGradient>
-            </defs>
-            <!-- Y-axis label placeholders -->
-            <rect x="8" y="22" width="36" height="8" rx="4" fill="#E5E7EB"/>
-            <rect x="8" y="67" width="36" height="8" rx="4" fill="#E5E7EB"/>
-            <rect x="8" y="112" width="36" height="8" rx="4" fill="#E5E7EB"/>
-            <rect x="8" y="157" width="36" height="8" rx="4" fill="#E5E7EB"/>
-            <!-- Grid lines -->
-            <line x1="54" y1="26" x2="792" y2="26" stroke="#E5E7EB" stroke-width="1.5"/>
-            <line x1="54" y1="71" x2="792" y2="71" stroke="#E5E7EB" stroke-width="1.5"/>
-            <line x1="54" y1="116" x2="792" y2="116" stroke="#E5E7EB" stroke-width="1.5"/>
-            <line x1="54" y1="161" x2="792" y2="161" stroke="#E5E7EB" stroke-width="1.5"/>
-            <!-- Area fill -->
-            <path
-              d="M54,161 L54,120 C120,120 150,60 200,75 C250,90 280,45 330,55 C380,65 420,100 470,85 C520,70 560,35 610,50 C660,65 700,90 750,80 L792,75 L792,161 Z"
-              fill="url(#skeletonGrad)"
-            />
-            <!-- Line -->
-            <path
-              d="M54,120 C120,120 150,60 200,75 C250,90 280,45 330,55 C380,65 420,100 470,85 C520,70 560,35 610,50 C660,65 700,90 750,80 L792,75"
-              fill="none"
-              stroke="#E5E7EB"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <!-- X-axis label placeholders -->
-            <rect x="54"  y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
-            <rect x="120" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
-            <rect x="186" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
-            <rect x="252" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
-            <rect x="318" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
-            <rect x="384" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
-            <rect x="450" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
-            <rect x="516" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
-            <rect x="582" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
-            <rect x="648" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
-            <rect x="714" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
-            <rect x="754" y="172" width="38" height="8" rx="4" fill="#E5E7EB"/>
-          </svg>
-          <!-- Empty state overlay -->
-          <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white/60">
-            <LineChart :size="40" class="text-om-gray-300" />
-            <p class="text-sm text-om-gray-400 text-center">You'll see your campaign statistics here<br>once you've set up OptiMonk.</p>
+            <div class="flex items-center gap-1 shrink-0">
+              <Button variant="outline" size="sm">Book now</Button>
+              <Button variant="ghost" size="sm" icon-only @click="showConsultBlock = false">
+                <template #icon><X :size="16" /></template>
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -277,14 +226,14 @@
       </div>
     </template>
     <template #right-panel>
-      <ChatPanel v-model="isChatOpen" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
+      <ChatPanel v-model="isChatOpen" :fab="true" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
     </template>
   </DashboardLayout>
 </template>
 
 <script setup>
 import { ref, computed, reactive } from 'vue'
-import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X, LayoutTemplate, LayoutGrid, Zap, Plug, LineChart } from 'lucide-vue-next'
+import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X, LayoutTemplate, LayoutGrid, Zap, Plug } from 'lucide-vue-next'
 import VueApexCharts from 'vue3-apexcharts'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Accordion from '../components/shared/Accordion.vue'
@@ -308,7 +257,7 @@ const handleLogoClick = () => {
   // No-op for now
 }
 
-const isChatOpen = ref(true)
+const isChatOpen = ref(false)
 
 const chatSuggestions = [
   'What campaign should I create first?',

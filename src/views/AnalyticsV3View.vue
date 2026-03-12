@@ -24,7 +24,9 @@
             placeholder="Select domain"
           >
             <template #icon>
-              <img src="/demos/telekom/logo.png" alt="Domain" class="w-5 h-5 rounded-full object-cover" />
+              <div class="w-5 h-5 rounded-full bg-[#7AAF8A] flex items-center justify-center shrink-0">
+                <Dice5 :size="12" class="text-white" />
+              </div>
             </template>
           </Dropdown>
 
@@ -1043,7 +1045,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { ExternalLink, ChevronDown, ChevronRight, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X } from 'lucide-vue-next'
+import { ExternalLink, ChevronDown, ChevronRight, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X, Dice5 } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
@@ -1065,7 +1067,7 @@ const chatSuggestions = [
 const chatAiResponses = {
   'What drove the conversion rate change this week?': 'Your conversion rate increased by **+0.12%** this week, driven mainly by two factors:\n\n**1. Smart Discount Popup** — updated CTA copy boosted its submit rate from 7.1% to 8.4%\n\n**2. Mobile traffic share** — down 8% this week, which raises the overall rate since desktop converts significantly better.\n\nWould you like a breakdown by device or campaign?',
   'Which page has the highest drop-off rate?': 'Based on your visited pages data, **/checkout** has the highest drop-off rate at **78%** — meaning only 22% of visitors who land there complete a purchase.\n\nThe second highest is **/cart** at **64%**. I\'d recommend deploying a cart abandonment popup on both pages to recover some of these visitors.',
-  'How can I improve my supported revenue?': 'Your current supported revenue is **8,494,963 HUF**, up 15.8% month-over-month. To accelerate growth:\n\n**1. Upsell campaigns** — Add a post-purchase upsell popup to your thank-you page.\n**2. Expand to email captures** — Visitors who opt in convert at 3× the rate of anonymous traffic.\n**3. Increase campaign frequency** — Your current campaigns reach only 34% of your visitors.',
+  'How can I improve my supported revenue?': 'Your current supported revenue is **$23,274**, up 15.8% month-over-month. To accelerate growth:\n\n**1. Upsell campaigns** — Add a post-purchase upsell popup to your thank-you page.\n**2. Expand to email captures** — Visitors who opt in convert at 3× the rate of anonymous traffic.\n**3. Increase campaign frequency** — Your current campaigns reach only 34% of your visitors.',
   'What are my top performing campaigns?': 'Your top 3 campaigns by conversion rate this period:\n\n**1. Smart Discount Popup** — 8.37% conversion rate, +84% uplift\n**2. Black Friday 2025** — 5.2% conversion rate, +56% uplift\n**3. Exit Intent Offer** — 4.8% conversion rate, +41% uplift\n\nAll three are active and performing above your account average of 3.2%.',
   'Show me trends for the last 30 days': 'Over the last 30 days:\n\n- **Impressions:** +12% (↑ trending)\n- **Conversion rate:** +0.57% (↑ trending)\n- **Submits:** +18% (↑ trending)\n- **Supported revenue:** +15.8% (↑ trending)\n\nAll key metrics are trending positively. The biggest growth driver is your Black Friday campaign which launched 2 weeks ago.',
 }
@@ -1075,35 +1077,35 @@ const optimizationOpportunities = ref([
     id: 1,
     name: 'Deploy Smart Abandonment Stopper on Mobile',
     description: 'Top-performing campaign (7.67% purchase rate) runs on desktop only — 130K mobile visitors are completely untouched.',
-    value: '+2.5M Ft/month',
+    value: '+$6,800/month',
     level: 'high',
   },
   {
     id: 2,
     name: 'Fix the Facebook Traffic Conversion Gap',
     description: 'Facebook is the #1 traffic source (34,811 visitors) but converts at just 0.72%, far below the 2.17% site average.',
-    value: '+3.7M Ft/month',
+    value: '+$10,100/month',
     level: 'high',
   },
   {
     id: 3,
     name: 'Scale the Winning Other Subscription Variant',
     description: 'A/B test winner outperforms loser by 70.7% — yet the losing variant still receives 50% of traffic.',
-    value: '+945K Ft/month',
+    value: '+$2,590/month',
     level: 'medium',
   },
   {
     id: 4,
     name: 'Replace Zero-Converting Dynamic Content Campaign',
     description: '57K visitors, 261K impressions, zero purchases — the most-shown campaign generates no measurable value.',
-    value: '+2.3M Ft/month',
+    value: '+$6,300/month',
     level: 'high',
   },
   {
     id: 5,
     name: 'Build a Mobile-First Cart Abandonment Flow',
     description: '61% of cart visitors leave without buying, with no recovery mechanism for mobile users (76% of all traffic).',
-    value: '+3.0M Ft/month',
+    value: '+$8,200/month',
     level: 'high',
   }
 ])
@@ -1111,9 +1113,9 @@ const optimizationOpportunities = ref([
 const activeTab = ref('conversion-rate')
 
 // Domain selector
-const selectedDomain = ref('reflexshop.hu')
+const selectedDomain = ref('tabletopshop.com')
 const domains = ref([
-  'reflexshop.hu',
+  'tabletopshop.com',
   'telekom.hu',
   'shop.telekom.hu',
   'demo.optimonk.com'
@@ -1124,7 +1126,7 @@ const selectedGoal = ref('Submits (default)')
 const goals = ref([
   'Submits (default)',
   'browserTabReturn',
-  'Buyers with cart under 100k HUF',
+  'Buyers with cart under $280',
   'Add to cart',
   'Purchase'
 ])
@@ -1173,9 +1175,9 @@ const supportedOrdersData = [
 ]
 
 const supportedRevenueData = [
-  234567, 223456, 256789, 218765, 267890, 239876, 215678, 248765, 289765, 278654,
-  265432, 279876, 298765, 312345, 301234, 323456, 345678, 321234, 298765, 334567,
-  356789, 329876, 309876, 339876, 367890, 345678, 323456, 351234, 338765, 321234
+  642, 612, 703, 599, 734, 657, 591, 681, 794, 763,
+  727, 767, 819, 856, 825, 886, 947, 880, 819, 916,
+  977, 904, 849, 931, 1008, 947, 886, 962, 928, 880
 ]
 
 // Devices chart
@@ -1321,8 +1323,8 @@ const getChartConfig = () => {
       data: supportedRevenueData,
       name: 'Supported Revenue',
       ...calculateRange(supportedRevenueData, 15),
-      formatter: (value) => `HUF ${(value / 1000).toFixed(0)}K`,
-      tooltipFormatter: (value) => `HUF ${value.toLocaleString()}`
+      formatter: (value) => `$${value.toFixed(0)}`,
+      tooltipFormatter: (value) => `$${value.toLocaleString()}`
     }
   }
   return configs[activeTab.value] || configs['conversion-rate']
@@ -1455,7 +1457,7 @@ const trendTabs = ref([
   { id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true },
   { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true },
   { id: 'supported-orders', title: 'Supported Orders', value: '286', change: '-4.2%', isPositive: false },
-  { id: 'supported-revenue', title: 'Supported Rev. (HUF)', value: '8,494,963', change: '+15.8%', isPositive: true }
+  { id: 'supported-revenue', title: 'Supported Rev. (USD)', value: '$23,274', change: '+15.8%', isPositive: true }
 ])
 
 const expandedCampaigns = ref(new Set())
@@ -1907,64 +1909,64 @@ const campaignData = ref([
 ])
 
 const visitedPages = ref([
-  { url: 'https://reflexshop.hu/shop_search.php', pageViews: 45678, visitors: 32145, submits: 234, conversionRate: 0.73 },
-  { url: 'https://reflexshop.hu', pageViews: 38902, visitors: 28567, submits: 189, conversionRate: 0.66 },
-  { url: 'https://reflexshop.hu/shop_cart.php', pageViews: 32145, visitors: 24890, submits: 167, conversionRate: 0.67 },
-  { url: 'https://reflexshop.hu/Tarsasjatekok', pageViews: 28567, visitors: 21456, submits: 145, conversionRate: 0.68 },
-  { url: 'https://reflexshop.hu/shop_artspec.php', pageViews: 24890, visitors: 18234, submits: 128, conversionRate: 0.70 },
-  { url: 'https://reflexshop.hu/shop_login.php', pageViews: 21456, visitors: 15678, submits: 112, conversionRate: 0.71 },
-  { url: 'https://reflexshop.hu/akcios-termekek', pageViews: 18234, visitors: 12345, submits: 98, conversionRate: 0.79 },
-  { url: 'https://reflexshop.hu/Funko/Funko-POP-figurak', pageViews: 15678, visitors: 10234, submits: 87, conversionRate: 0.85 },
-  { url: 'https://reflexshop.hu/shop_reg.php', pageViews: 12345, visitors: 8765, submits: 72, conversionRate: 0.82 },
-  { url: 'https://reflexshop.hu/Funko', pageViews: 10234, visitors: 7456, submits: 65, conversionRate: 0.87 },
-  { url: 'https://reflexshop.hu/LEGO', pageViews: 9876, visitors: 6834, submits: 58, conversionRate: 0.85 },
-  { url: 'https://reflexshop.hu/shop_wishlist.php', pageViews: 8765, visitors: 5923, submits: 52, conversionRate: 0.88 },
-  { url: 'https://reflexshop.hu/Konyv', pageViews: 8234, visitors: 5467, submits: 48, conversionRate: 0.88 },
-  { url: 'https://reflexshop.hu/Puzzle', pageViews: 7654, visitors: 4989, submits: 43, conversionRate: 0.86 },
-  { url: 'https://reflexshop.hu/Filmek-sorozatok', pageViews: 7123, visitors: 4567, submits: 39, conversionRate: 0.85 },
-  { url: 'https://reflexshop.hu/shop_about.php', pageViews: 6789, visitors: 4234, submits: 36, conversionRate: 0.85 },
-  { url: 'https://reflexshop.hu/Kulfold', pageViews: 6234, visitors: 3876, submits: 32, conversionRate: 0.83 },
-  { url: 'https://reflexshop.hu/Magic-the-Gathering', pageViews: 5876, visitors: 3567, submits: 29, conversionRate: 0.81 },
-  { url: 'https://reflexshop.hu/Pokemon', pageViews: 5432, visitors: 3234, submits: 26, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/shop_contact.php', pageViews: 5123, visitors: 2987, submits: 24, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Gyerekjatekok', pageViews: 4876, visitors: 2765, submits: 22, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Yu-Gi-Oh', pageViews: 4567, visitors: 2543, submits: 20, conversionRate: 0.79 },
-  { url: 'https://reflexshop.hu/Warhammer', pageViews: 4234, visitors: 2345, submits: 18, conversionRate: 0.77 },
-  { url: 'https://reflexshop.hu/Strategiai-jatekok', pageViews: 3987, visitors: 2156, submits: 17, conversionRate: 0.79 },
-  { url: 'https://reflexshop.hu/Keszlet-jatekok', pageViews: 3765, visitors: 1987, submits: 15, conversionRate: 0.76 },
-  { url: 'https://reflexshop.hu/shop_faq.php', pageViews: 3543, visitors: 1834, submits: 14, conversionRate: 0.76 },
-  { url: 'https://reflexshop.hu/Kaland-jatekok', pageViews: 3321, visitors: 1687, submits: 13, conversionRate: 0.77 },
-  { url: 'https://reflexshop.hu/Party-jatekok', pageViews: 3123, visitors: 1543, submits: 12, conversionRate: 0.78 },
-  { url: 'https://reflexshop.hu/Csaladi-jatekok', pageViews: 2987, visitors: 1432, submits: 11, conversionRate: 0.77 },
-  { url: 'https://reflexshop.hu/shop_privacy.php', pageViews: 2765, visitors: 1321, submits: 10, conversionRate: 0.76 }
+  { url: 'https://tabletopshop.com/shop_search.php', pageViews: 45678, visitors: 32145, submits: 234, conversionRate: 0.73 },
+  { url: 'https://tabletopshop.com', pageViews: 38902, visitors: 28567, submits: 189, conversionRate: 0.66 },
+  { url: 'https://tabletopshop.com/shop_cart.php', pageViews: 32145, visitors: 24890, submits: 167, conversionRate: 0.67 },
+  { url: 'https://tabletopshop.com/Tarsasjatekok', pageViews: 28567, visitors: 21456, submits: 145, conversionRate: 0.68 },
+  { url: 'https://tabletopshop.com/shop_artspec.php', pageViews: 24890, visitors: 18234, submits: 128, conversionRate: 0.70 },
+  { url: 'https://tabletopshop.com/shop_login.php', pageViews: 21456, visitors: 15678, submits: 112, conversionRate: 0.71 },
+  { url: 'https://tabletopshop.com/akcios-termekek', pageViews: 18234, visitors: 12345, submits: 98, conversionRate: 0.79 },
+  { url: 'https://tabletopshop.com/Funko/Funko-POP-figurak', pageViews: 15678, visitors: 10234, submits: 87, conversionRate: 0.85 },
+  { url: 'https://tabletopshop.com/shop_reg.php', pageViews: 12345, visitors: 8765, submits: 72, conversionRate: 0.82 },
+  { url: 'https://tabletopshop.com/Funko', pageViews: 10234, visitors: 7456, submits: 65, conversionRate: 0.87 },
+  { url: 'https://tabletopshop.com/LEGO', pageViews: 9876, visitors: 6834, submits: 58, conversionRate: 0.85 },
+  { url: 'https://tabletopshop.com/shop_wishlist.php', pageViews: 8765, visitors: 5923, submits: 52, conversionRate: 0.88 },
+  { url: 'https://tabletopshop.com/Konyv', pageViews: 8234, visitors: 5467, submits: 48, conversionRate: 0.88 },
+  { url: 'https://tabletopshop.com/Puzzle', pageViews: 7654, visitors: 4989, submits: 43, conversionRate: 0.86 },
+  { url: 'https://tabletopshop.com/Filmek-sorozatok', pageViews: 7123, visitors: 4567, submits: 39, conversionRate: 0.85 },
+  { url: 'https://tabletopshop.com/shop_about.php', pageViews: 6789, visitors: 4234, submits: 36, conversionRate: 0.85 },
+  { url: 'https://tabletopshop.com/Kulfold', pageViews: 6234, visitors: 3876, submits: 32, conversionRate: 0.83 },
+  { url: 'https://tabletopshop.com/Magic-the-Gathering', pageViews: 5876, visitors: 3567, submits: 29, conversionRate: 0.81 },
+  { url: 'https://tabletopshop.com/Pokemon', pageViews: 5432, visitors: 3234, submits: 26, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/shop_contact.php', pageViews: 5123, visitors: 2987, submits: 24, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Gyerekjatekok', pageViews: 4876, visitors: 2765, submits: 22, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Yu-Gi-Oh', pageViews: 4567, visitors: 2543, submits: 20, conversionRate: 0.79 },
+  { url: 'https://tabletopshop.com/Warhammer', pageViews: 4234, visitors: 2345, submits: 18, conversionRate: 0.77 },
+  { url: 'https://tabletopshop.com/Strategiai-jatekok', pageViews: 3987, visitors: 2156, submits: 17, conversionRate: 0.79 },
+  { url: 'https://tabletopshop.com/Keszlet-jatekok', pageViews: 3765, visitors: 1987, submits: 15, conversionRate: 0.76 },
+  { url: 'https://tabletopshop.com/shop_faq.php', pageViews: 3543, visitors: 1834, submits: 14, conversionRate: 0.76 },
+  { url: 'https://tabletopshop.com/Kaland-jatekok', pageViews: 3321, visitors: 1687, submits: 13, conversionRate: 0.77 },
+  { url: 'https://tabletopshop.com/Party-jatekok', pageViews: 3123, visitors: 1543, submits: 12, conversionRate: 0.78 },
+  { url: 'https://tabletopshop.com/Csaladi-jatekok', pageViews: 2987, visitors: 1432, submits: 11, conversionRate: 0.77 },
+  { url: 'https://tabletopshop.com/shop_privacy.php', pageViews: 2765, visitors: 1321, submits: 10, conversionRate: 0.76 }
 ])
 
 const landingPages = ref([
-  { url: 'https://reflexshop.hu', visitors: 120143, submits: 812, conversionRate: 0.68 },
-  { url: 'https://reflexshop.hu/Tarsasjatekok', visitors: 45678, submits: 345, conversionRate: 0.76 },
-  { url: 'https://reflexshop.hu/shop_search.php', visitors: 38902, submits: 289, conversionRate: 0.74 },
-  { url: 'https://reflexshop.hu/akcios-termekek', visitors: 32145, submits: 256, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Funko/Funko-POP-figurak', visitors: 28567, submits: 234, conversionRate: 0.82 },
-  { url: 'https://reflexshop.hu/shop_artspec.php', visitors: 24890, submits: 198, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Funko', visitors: 21456, submits: 178, conversionRate: 0.83 },
-  { url: 'https://reflexshop.hu/shop_cart.php', visitors: 18234, submits: 145, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/shop_login.php', visitors: 15678, submits: 123, conversionRate: 0.78 },
-  { url: 'https://reflexshop.hu/shop_reg.php', visitors: 12345, submits: 98, conversionRate: 0.79 },
-  { url: 'https://reflexshop.hu/LEGO', visitors: 11234, submits: 89, conversionRate: 0.79 },
-  { url: 'https://reflexshop.hu/Konyv', visitors: 10876, submits: 85, conversionRate: 0.78 },
-  { url: 'https://reflexshop.hu/Puzzle', visitors: 9765, submits: 78, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Filmek-sorozatok', visitors: 8943, submits: 72, conversionRate: 0.81 },
-  { url: 'https://reflexshop.hu/Kulfold', visitors: 8234, submits: 67, conversionRate: 0.81 },
-  { url: 'https://reflexshop.hu/Magic-the-Gathering', visitors: 7654, submits: 61, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Pokemon', visitors: 7123, submits: 58, conversionRate: 0.81 },
-  { url: 'https://reflexshop.hu/Gyerekjatekok', visitors: 6789, submits: 54, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Yu-Gi-Oh', visitors: 6321, submits: 51, conversionRate: 0.81 },
-  { url: 'https://reflexshop.hu/Warhammer', visitors: 5987, submits: 48, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Strategiai-jatekok', visitors: 5543, submits: 45, conversionRate: 0.81 },
-  { url: 'https://reflexshop.hu/Keszlet-jatekok', visitors: 5234, submits: 42, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Kaland-jatekok', visitors: 4876, submits: 39, conversionRate: 0.80 },
-  { url: 'https://reflexshop.hu/Party-jatekok', visitors: 4543, submits: 37, conversionRate: 0.81 },
-  { url: 'https://reflexshop.hu/Csaladi-jatekok', visitors: 4234, submits: 34, conversionRate: 0.80 }
+  { url: 'https://tabletopshop.com', visitors: 120143, submits: 812, conversionRate: 0.68 },
+  { url: 'https://tabletopshop.com/Tarsasjatekok', visitors: 45678, submits: 345, conversionRate: 0.76 },
+  { url: 'https://tabletopshop.com/shop_search.php', visitors: 38902, submits: 289, conversionRate: 0.74 },
+  { url: 'https://tabletopshop.com/akcios-termekek', visitors: 32145, submits: 256, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Funko/Funko-POP-figurak', visitors: 28567, submits: 234, conversionRate: 0.82 },
+  { url: 'https://tabletopshop.com/shop_artspec.php', visitors: 24890, submits: 198, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Funko', visitors: 21456, submits: 178, conversionRate: 0.83 },
+  { url: 'https://tabletopshop.com/shop_cart.php', visitors: 18234, submits: 145, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/shop_login.php', visitors: 15678, submits: 123, conversionRate: 0.78 },
+  { url: 'https://tabletopshop.com/shop_reg.php', visitors: 12345, submits: 98, conversionRate: 0.79 },
+  { url: 'https://tabletopshop.com/LEGO', visitors: 11234, submits: 89, conversionRate: 0.79 },
+  { url: 'https://tabletopshop.com/Konyv', visitors: 10876, submits: 85, conversionRate: 0.78 },
+  { url: 'https://tabletopshop.com/Puzzle', visitors: 9765, submits: 78, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Filmek-sorozatok', visitors: 8943, submits: 72, conversionRate: 0.81 },
+  { url: 'https://tabletopshop.com/Kulfold', visitors: 8234, submits: 67, conversionRate: 0.81 },
+  { url: 'https://tabletopshop.com/Magic-the-Gathering', visitors: 7654, submits: 61, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Pokemon', visitors: 7123, submits: 58, conversionRate: 0.81 },
+  { url: 'https://tabletopshop.com/Gyerekjatekok', visitors: 6789, submits: 54, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Yu-Gi-Oh', visitors: 6321, submits: 51, conversionRate: 0.81 },
+  { url: 'https://tabletopshop.com/Warhammer', visitors: 5987, submits: 48, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Strategiai-jatekok', visitors: 5543, submits: 45, conversionRate: 0.81 },
+  { url: 'https://tabletopshop.com/Keszlet-jatekok', visitors: 5234, submits: 42, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Kaland-jatekok', visitors: 4876, submits: 39, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Party-jatekok', visitors: 4543, submits: 37, conversionRate: 0.81 },
+  { url: 'https://tabletopshop.com/Csaladi-jatekok', visitors: 4234, submits: 34, conversionRate: 0.80 }
 ])
 
 const browserLanguages = ref([

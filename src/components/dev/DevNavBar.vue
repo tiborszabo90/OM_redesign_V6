@@ -66,72 +66,6 @@
         </transition>
       </div>
 
-      <!-- Select Flow Dropdown -->
-      <div class="relative">
-        <button
-          @click="flowDropdownOpen = !flowDropdownOpen"
-          class="px-3 py-1 text-sm rounded transition-colors cursor-pointer bg-[#505763] hover:bg-[#8F97A4] flex items-center gap-1"
-        >
-          Select flow
-          <ChevronUp :size="12" :class="{ 'rotate-180': flowDropdownOpen }" />
-        </button>
-        <transition name="fade">
-          <div
-            v-if="flowDropdownOpen"
-            class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-40"
-          >
-            <button
-              @click="selectFlow('email')"
-              class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer"
-            >
-              Email Registration
-            </button>
-            <button
-              @click="selectFlow('shopify')"
-              class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer"
-            >
-              Shopify Registration
-            </button>
-            <button
-              @click="selectFlow('public-wizard')"
-              class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer"
-            >
-              Public Wizard
-            </button>
-            <button
-              @click="selectFlow('wizard')"
-              class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer"
-            >
-              Wizard
-            </button>
-            <button
-              @click="selectFlow('image-with-badge')"
-              class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer"
-            >
-              Image with Badge
-            </button>
-            <button
-              @click="goToHomeOnboarding"
-              class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer border-t border-[#505763]"
-            >
-              Home Onboarding
-            </button>
-            <button
-              @click="goToHome"
-              class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer"
-            >
-              Home
-            </button>
-            <button
-              @click="goToDesignGuide"
-              class="w-full px-4 py-2 text-sm text-left hover:bg-[#505763] transition-colors cursor-pointer border-t border-[#505763]"
-            >
-              Design Guide
-            </button>
-          </div>
-        </transition>
-      </div>
-
       <!-- Flow type indicator -->
       <span v-if="flowSelected" class="text-xs text-[#8F97A4] capitalize">
         {{ registrationType }}:
@@ -391,7 +325,7 @@
               @click="homeDropdownOpen = !homeDropdownOpen"
               :class="[
                 'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
-                ['home-old', 'home-onboarding', 'home-onboarding-with-reco'].includes(currentView)
+                ['home-old', 'home-with-review', 'home-onboarding', 'home-onboarding-with-reco'].includes(currentView)
                   ? 'bg-[#ED5A29] text-white'
                   : 'bg-[#505763] hover:bg-[#8F97A4]'
               ]"
@@ -414,6 +348,17 @@
                   ]"
                 >
                   Home with Active Campaigns
+                </button>
+                <button
+                  @click="selectHome('home-with-review')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'home-with-review'
+                      ? 'bg-[#ED5A29] text-white'
+                      : 'hover:bg-[#505763]'
+                  ]"
+                >
+                  Home with Review
                 </button>
                 <button
                   @click="selectHome('home-onboarding')"
@@ -486,18 +431,50 @@
             </transition>
           </div>
 
-          <!-- Campaign Page Button -->
-          <button
-            @click="$emit('navigate', 'campaign-page-v1')"
-            :class="[
-              'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
-              currentView === 'campaign-page-v1'
-                ? 'bg-[#ED5A29] text-white'
-                : 'bg-[#505763] hover:bg-[#8F97A4]'
-            ]"
-          >
-            Campaign Page
-          </button>
+          <!-- Campaign Page Dropdown -->
+          <div class="relative">
+            <button
+              @click="campaignPageDropdownOpen = !campaignPageDropdownOpen"
+              :class="[
+                'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
+                ['campaign-page-v1', 'campaign-page-with-review'].includes(currentView)
+                  ? 'bg-om-orange-500 text-white'
+                  : 'bg-om-gray-600 hover:bg-om-gray-500'
+              ]"
+            >
+              Campaign Page
+              <ChevronUp :size="12" :class="{ 'rotate-180': campaignPageDropdownOpen }" />
+            </button>
+            <transition name="fade">
+              <div
+                v-if="campaignPageDropdownOpen"
+                class="absolute bottom-full left-0 mb-2 bg-om-gray-700 border border-om-gray-600 rounded-lg shadow-lg overflow-hidden min-w-40"
+              >
+                <button
+                  @click="selectCampaignPage('campaign-page-v1')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'campaign-page-v1'
+                      ? 'bg-om-orange-500 text-white'
+                      : 'hover:bg-om-gray-600'
+                  ]"
+                >
+                  Campaign Page
+                </button>
+                <button
+                  @click="selectCampaignPage('campaign-page-with-review')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView === 'campaign-page-with-review'
+                      ? 'bg-om-orange-500 text-white'
+                      : 'hover:bg-om-gray-600'
+                  ]"
+                >
+                  With Review
+                </button>
+              </div>
+            </transition>
+          </div>
 
           <!-- Analytics Dropdown -->
           <div class="relative">
@@ -669,8 +646,6 @@ const toggleOpen = (value) => {
   emit('update:isOpen', value)
 }
 const flowDropdownOpen = ref(false)
-
-
 const imageWithBadgeDropdownOpen = ref(false)
 const archiveDropdownOpen = ref(false)
 const homeDropdownOpen = ref(false)
@@ -678,6 +653,9 @@ const campaignsDropdownOpen = ref(false)
 
 // Archive items - add views here that you want to archive
 const archiveItems = ref([
+  { view: 'home-old-v2', label: 'Home Old' },
+  { view: 'home-chat-versions', label: 'Chat Versions' },
+  { view: 'home-chat-left', label: 'Chat Left' },
   { view: 'task-creation', label: 'Home Agentic' },
   { view: 'analytics-v1', label: 'Analytics V1' },
   { view: 'analytics-v2', label: 'Analytics V2' },
@@ -698,13 +676,6 @@ const selectArchive = (view) => {
   archiveDropdownOpen.value = false
 }
 
-const selectFlow = (type) => {
-  emit('select-flow', type)
-  flowDropdownOpen.value = false
-}
-
-
-
 
 const selectHome = (view) => {
   emit('navigate', view)
@@ -714,6 +685,13 @@ const selectHome = (view) => {
 const selectCampaigns = (view) => {
   emit('navigate', view)
   campaignsDropdownOpen.value = false
+}
+
+const campaignPageDropdownOpen = ref(false)
+
+const selectCampaignPage = (view) => {
+  emit('navigate', view)
+  campaignPageDropdownOpen.value = false
 }
 
 const analyticsDropdownOpen = ref(false)
@@ -726,16 +704,6 @@ const selectAnalytics = (view) => {
 const selectImageWithBadge = (view) => {
   emit('navigate', view)
   imageWithBadgeDropdownOpen.value = false
-}
-
-const goToHomeOnboarding = () => {
-  emit('navigate', 'home-onboarding')
-  flowDropdownOpen.value = false
-}
-
-const goToHome = () => {
-  emit('navigate', 'task-creation')
-  flowDropdownOpen.value = false
 }
 
 const goToDesignGuide = () => {
