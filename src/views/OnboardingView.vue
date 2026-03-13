@@ -3,18 +3,17 @@
   <MainLayout :has-progress="true" :is-exiting="isExitingToWizard">
     <template #content>
       <div class="w-full" @wheel="handleWheel">
-        <transition name="back-btn">
-          <button
-            v-if="currentStep > 1"
-            @click="handlePrev"
-            class="flex items-center gap-1.5 text-sm text-[#8F97A4] hover:text-[#23262A] transition-colors mb-6"
-          >
-            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-            Back
-          </button>
-        </transition>
         <transition :name="transitionName" mode="out-in">
           <div :key="currentStep" :class="['w-full', isExitingToWizard ? 'exit-animation' : '']">
+            <!-- Back button -->
+            <button
+              v-if="currentStep > 1"
+              @click="handlePrev"
+              class="flex items-center gap-1.5 text-sm text-[#8F97A4] hover:text-[#23262A] transition-colors mb-6"
+            >
+              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              Back
+            </button>
             <!-- Content -->
             <div :class="showButtons ? 'mb-4' : ''">
               <component
@@ -423,15 +422,6 @@ const handleWheel = (event) => {
 </script>
 
 <style scoped>
-.back-btn-enter-active,
-.back-btn-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.back-btn-enter-from,
-.back-btn-leave-to {
-  opacity: 0;
-  transform: translateY(4px);
-}
 
 .icons-fade-enter-active,
 .icons-fade-leave-active {

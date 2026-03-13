@@ -4,7 +4,7 @@
       <div class="flex flex-col gap-4">
         <Button
           variant="outline"
-          size="lg"
+          size="sm"
           @click="$emit('select', 'email')"
         >
           Email Registration
@@ -12,7 +12,7 @@
 
         <Button
           variant="outline"
-          size="lg"
+          size="sm"
           @click="$emit('select', 'shopify')"
         >
           Shopify Registration
@@ -20,7 +20,7 @@
 
         <Button
           variant="outline"
-          size="lg"
+          size="sm"
           @click="$emit('select', 'wizard')"
         >
           Wizard
@@ -28,7 +28,7 @@
 
         <Button
           variant="outline"
-          size="lg"
+          size="sm"
           @click="$emit('go-public-wizard')"
         >
           Public Wizard
@@ -36,7 +36,7 @@
 
         <Button
           variant="outline"
-          size="lg"
+          size="sm"
           @click="$emit('go-home-onboarding')"
         >
           Home Onboarding
@@ -44,7 +44,7 @@
 
         <Button
           variant="outline"
-          size="lg"
+          size="sm"
           @click="$emit('go-home')"
         >
           Home
@@ -52,7 +52,7 @@
 
         <Button
           variant="outline"
-          size="lg"
+          size="sm"
           @click="$emit('go-design-guide')"
         >
           Design Guide
@@ -60,7 +60,7 @@
 
         <Button
           variant="outline"
-          size="lg"
+          size="sm"
           @click="$emit('go-image-with-badge')"
         >
           Image with Badge
@@ -68,7 +68,7 @@
 
         <Button
           variant="outline"
-          size="lg"
+          size="sm"
           @click="$emit('go-chat-versions')"
         >
           Chat Versions
@@ -76,7 +76,7 @@
 
         <Button
           variant="outline"
-          size="lg"
+          size="sm"
           @click="$emit('go-editor')"
         >
           Editor
