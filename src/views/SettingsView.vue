@@ -1,10 +1,10 @@
 <template>
-  <DashboardLayout active-menu-item="" background-color="#ffffff" @menu-click="$emit('menu-click', $event)">
+  <DashboardLayout active-menu-item="" background-color="#F9FAFB" :no-content-padding="true" @menu-click="$emit('menu-click', $event)">
     <template #content>
-      <div class="flex gap-12 -mt-3">
+      <div class="flex gap-12 min-h-full">
         <!-- Settings Sidebar -->
-        <aside class="w-48 shrink-0">
-          <h2 class="text-2xl font-bold text-om-gray-700 mb-6">Settings</h2>
+        <aside class="w-48 shrink-0 bg-white p-4 border-r border-[#E5E7EB]">
+          <h2 class="text-xl font-bold text-om-gray-700 mb-6 ml-1">Settings</h2>
 
           <!-- Contact information -->
           <div class="mb-5">
@@ -13,7 +13,7 @@
               <button
                 v-for="item in contactItems"
                 :key="item.id"
-                @click="activeSection = item.id"
+                @click="handleSectionClick(item.id)"
                 :class="navItemClass(item.id)"
               >{{ item.label }}</button>
             </nav>
@@ -26,7 +26,20 @@
               <button
                 v-for="item in billingItems"
                 :key="item.id"
-                @click="activeSection = item.id"
+                @click="handleSectionClick(item.id)"
+                :class="navItemClass(item.id)"
+              >{{ item.label }}</button>
+            </nav>
+          </div>
+
+          <!-- Products -->
+          <div class="mb-5">
+            <p class="text-sm font-semibold text-om-gray-700 mb-1 px-2">Products</p>
+            <nav class="flex flex-col">
+              <button
+                v-for="item in productsItems"
+                :key="item.id"
+                @click="handleSectionClick(item.id)"
                 :class="navItemClass(item.id)"
               >{{ item.label }}</button>
             </nav>
@@ -39,7 +52,7 @@
               <button
                 v-for="item in accountItems"
                 :key="item.id"
-                @click="activeSection = item.id"
+                @click="handleSectionClick(item.id)"
                 :class="navItemClass(item.id)"
               >{{ item.label }}</button>
             </nav>
@@ -47,7 +60,7 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0 py-8 pr-12">
           <!-- Personal details -->
           <template v-if="activeSection === 'personal-details'">
             <h1 class="text-xl font-bold text-om-gray-700 mb-8">Personal details</h1>
@@ -95,6 +108,15 @@
             </div>
           </template>
 
+          <!-- AI Texts & Images embedded -->
+          <template v-else-if="activeSection === 'products-ai-texts-images'">
+            <AiTextsImagesView
+              :screen="embeddedScreen"
+              :embedded="true"
+              @navigate="handleEmbeddedNavigate"
+            />
+          </template>
+
           <!-- Placeholder for all other sections -->
           <template v-else>
             <h1 class="text-xl font-bold text-om-gray-700 mb-8">{{ currentSectionTitle }}</h1>
@@ -107,15 +129,24 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import FormInput from '../components/shared/FormInput.vue'
 import Button from '../components/shared/Button.vue'
 import RadioButton from '../components/shared/RadioButton.vue'
+import AiTextsImagesView from './AiTextsImagesView.vue'
 
-defineEmits(['menu-click'])
+const props = defineProps({
+  initialSection: { type: String, default: 'personal-details' },
+  initialScreen: { type: String, default: 'list' },
+})
 
-const activeSection = ref('personal-details')
+const emit = defineEmits(['menu-click', 'navigate'])
+
+const activeSection = ref(props.initialSection)
+
+watch(() => props.initialSection, (val) => { activeSection.value = val })
+watch(() => props.initialScreen, (val) => { embeddedScreen.value = val })
 
 // Form values
 const accountLanguage = ref('EN')
@@ -141,6 +172,12 @@ const billingItems = [
   { id: 'invoice-history', label: 'Invoice history' },
 ]
 
+const productsItems = [
+  { id: 'products-ai-texts-images', label: 'AI Texts & Images' },
+  { id: 'products-product-catalog', label: 'Product catalog' },
+  { id: 'products-ai-recommendations', label: 'AI recommendations' },
+]
+
 const accountItems = [
   { id: 'domains', label: 'Domains' },
   { id: 'email-notifications', label: 'Email notifications' },
@@ -151,7 +188,7 @@ const accountItems = [
   { id: 'labs', label: 'Labs' },
 ]
 
-const allItems = [...contactItems, ...billingItems, ...accountItems]
+const allItems = [...contactItems, ...billingItems, ...productsItems, ...accountItems]
 
 const currentSectionTitle = computed(() => {
   return allItems.find(i => i.id === activeSection.value)?.label || ''
@@ -167,6 +204,36 @@ const navItemClass = (id) => {
 
 const handleSave = () => {
   // no-op for prototype
+}
+
+const sectionRouteMap = {
+  'products-ai-texts-images': 'settings-ai-texts-images',
+}
+
+const handleSectionClick = (id) => {
+  activeSection.value = id
+  if (id === 'products-ai-texts-images') {
+    embeddedScreen.value = 'list'
+  }
+  if (sectionRouteMap[id]) {
+    emit('navigate', sectionRouteMap[id])
+  }
+}
+
+// Embedded AI Texts & Images navigation
+const embeddedScreen = ref(props.initialScreen)
+const screenMap = {
+  'ai-texts-images': 'list',
+  'ai-texts-images-new': 'new',
+  'ai-texts-images-presets': 'image-presets',
+  'ai-texts-images-preview': 'image-preview',
+  'ai-texts-images-choose-products': 'choose-products',
+  'ai-texts-images-generation': 'generation',
+  'ai-texts-images-add-products': 'add-products',
+}
+const handleEmbeddedNavigate = (route) => {
+  embeddedScreen.value = screenMap[route] ?? 'list'
+  emit('navigate', 'settings-' + route)
 }
 </script>
 

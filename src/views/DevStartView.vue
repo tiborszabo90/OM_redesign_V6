@@ -81,6 +81,14 @@
         >
           Editor
         </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          @click="$emit('go-ai-texts-images')"
+        >
+          AI Texts &amp; Images
+        </Button>
       </div>
     </div>
   </div>
@@ -89,5 +97,5 @@
 <script setup>
 import Button from '../components/shared/Button.vue'
 
-defineEmits(['select', 'go-home', 'go-home-onboarding', 'go-public-wizard', 'go-design-guide', 'go-image-with-badge', 'go-chat-versions', 'go-editor'])
+defineEmits(['select', 'go-home', 'go-home-onboarding', 'go-public-wizard', 'go-design-guide', 'go-image-with-badge', 'go-chat-versions', 'go-editor', 'go-ai-texts-images'])
 </script>

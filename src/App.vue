@@ -37,6 +37,7 @@ import WizardFlowView from './views/WizardFlowView.vue'
 import OptimizationOpportunityDetailView from './views/OptimizationOpportunityDetailView.vue'
 import OptimizationOpportunitiesAllView from './views/OptimizationOpportunitiesAllView.vue'
 import SettingsView from './views/SettingsView.vue'
+import AiTextsImagesView from './views/AiTextsImagesView.vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
 
 // URL slug <-> view name mapping
@@ -542,6 +543,28 @@ const handleGoEditor = () => {
   currentView.value = 'editor'
 }
 
+const handleGoAiTextsImages = () => {
+  currentView.value = 'ai-texts-images'
+}
+
+const settingsInitialSection = computed(() => {
+  if (currentView.value?.startsWith('settings-ai')) return 'products-ai-texts-images'
+  return 'personal-details'
+})
+
+const settingsInitialScreen = computed(() => {
+  const map = {
+    'settings-ai-texts-images': 'list',
+    'settings-ai-texts-images-new': 'new',
+    'settings-ai-texts-images-presets': 'image-presets',
+    'settings-ai-texts-images-preview': 'image-preview',
+    'settings-ai-texts-images-choose-products': 'choose-products',
+    'settings-ai-texts-images-generation': 'generation',
+    'settings-ai-texts-images-add-products': 'add-products',
+  }
+  return map[currentView.value] || 'list'
+})
+
 const handleGoChatLeft = () => {
   currentView.value = 'home-chat-left'
 }
@@ -644,7 +667,8 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="h-screen-safe flex flex-col">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaigns-empty', 'campaign-page-v1', 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor'].includes(currentView)"
+      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaigns-empty', 'campaign-page-v1', 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor', 'ai-texts-images', 'ai-texts-images-new', 'ai-texts-images-presets', 'ai-texts-images-preview', 'ai-texts-images-choose-products', 'ai-texts-images-generation', 'ai-texts-images-add-products',
+        'settings-ai-texts-images', 'settings-ai-texts-images-new', 'settings-ai-texts-images-presets', 'settings-ai-texts-images-preview', 'settings-ai-texts-images-choose-products', 'settings-ai-texts-images-generation', 'settings-ai-texts-images-add-products'].includes(currentView)"
       class="pt-8 pl-8 shrink-0"
     >
       <img
@@ -666,6 +690,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         @go-image-with-badge="handleGoImageWithBadge"
         @go-chat-versions="handleGoChatVersions"
         @go-editor="handleGoEditor"
+        @go-ai-texts-images="handleGoAiTextsImages"
       />
       <RegistrationView
         v-else-if="currentView === 'registration'"
@@ -926,8 +951,17 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         v-else-if="currentView === 'design-guide'"
       />
       <SettingsView
-        v-else-if="currentView === 'settings'"
+        v-else-if="currentView === 'settings' || currentView?.startsWith('settings-ai')"
+        :initial-section="settingsInitialSection"
+        :initial-screen="settingsInitialScreen"
         @menu-click="handleMenuClick"
+        @navigate="handleDevNavigate"
+      />
+      <AiTextsImagesView
+        v-else-if="currentView === 'ai-texts-images' || currentView === 'ai-texts-images-new' || currentView === 'ai-texts-images-presets' || currentView === 'ai-texts-images-preview' || currentView === 'ai-texts-images-choose-products' || currentView === 'ai-texts-images-generation' || currentView === 'ai-texts-images-add-products'"
+        :screen="currentView === 'ai-texts-images-new' ? 'new' : currentView === 'ai-texts-images-presets' ? 'image-presets' : currentView === 'ai-texts-images-preview' ? 'image-preview' : currentView === 'ai-texts-images-choose-products' ? 'choose-products' : currentView === 'ai-texts-images-generation' ? 'generation' : currentView === 'ai-texts-images-add-products' ? 'add-products' : 'list'"
+        @menu-click="handleMenuClick"
+        @navigate="handleDevNavigate"
       />
       <ImageWithBadgeView
         v-else-if="currentView === 'image-with-badge'"

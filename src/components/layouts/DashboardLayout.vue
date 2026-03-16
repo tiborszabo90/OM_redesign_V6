@@ -1,5 +1,6 @@
 <template>
-  <div class="h-screen-safe flex overflow-hidden relative" :style="{ backgroundColor: backgroundColor }">
+  <slot v-if="passthrough" name="content"></slot>
+  <div v-else class="h-screen-safe flex overflow-hidden relative" :style="{ backgroundColor: backgroundColor }">
     <!-- Left Sidebar - Always visible -->
     <aside v-show="!hideSidebar" :class="[
       'fixed left-0 top-0 h-screen-safe w-19 bg-white flex flex-col items-center pt-6 pb-4 z-30',
@@ -230,6 +231,10 @@ const props = defineProps({
     default: false
   },
   leftPanelOpen: {
+    type: Boolean,
+    default: false
+  },
+  passthrough: {
     type: Boolean,
     default: false
   }
