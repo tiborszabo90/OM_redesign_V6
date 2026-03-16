@@ -230,6 +230,8 @@ const screenMap = {
   'ai-texts-images-choose-products': 'choose-products',
   'ai-texts-images-generation': 'generation',
   'ai-texts-images-add-products': 'add-products',
+  'ai-texts-images-text-presets': 'text-presets',
+  'ai-texts-images-text-generation': 'text-generation',
 }
 const handleEmbeddedNavigate = (route) => {
   embeddedScreen.value = screenMap[route] ?? 'list'

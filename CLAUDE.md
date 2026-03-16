@@ -2,7 +2,7 @@
 
 ## Component Reuse Rule
 
-**Before writing any button, input, dropdown, checkbox, toggle, accordion, multi-select, time-picker, or chat panel from raw HTML/Tailwind, always check `src/components/shared/` first and use the matching shared component.**
+**Before writing any button, input, dropdown, checkbox, toggle, accordion, multi-select, time-picker, chat panel, or tag/badge from raw HTML/Tailwind, always check `src/components/shared/` first and use the matching shared component.**
 
 If a suitable shared component does not exist, create it in `src/components/shared/` so it can be reused by future work.
 
@@ -21,6 +21,7 @@ If a suitable shared component does not exist, create it in `src/components/shar
 | `ToggleSwitch` | `@/components/shared/ToggleSwitch.vue` | On/off toggle switch | `Boolean` |
 | `ChatPanel` | `@/components/shared/ChatPanel.vue` | AI chat interface panel | `Boolean` (visibility) |
 | `ScrollTimePicker` | `@/components/shared/ScrollTimePicker.vue` | Scrollable HH:MM time picker | `String` ('HH:MM') |
+| `Tag` | `@/components/shared/Tag.vue` | Informational badge/tag pill | — |
 
 ---
 
@@ -128,3 +129,17 @@ If a suitable shared component does not exist, create it in `src/components/shar
 - `v-model`: `String` in `'HH:MM'` format (24h)
 - Scrollable hours (00–23) and minutes (00–59) columns
 - **Always use for time input fields**
+
+---
+
+### `Tag`
+```vue
+<Tag variant="gray">Label</Tag>
+<Tag variant="green">
+  <template #icon><CheckIcon :size="12" /></template>
+  Ready to use
+</Tag>
+```
+- `variant`: `gray` (default) | `gray-muted` | `orange` | `green` | `outlined`
+- Slot `icon`: optional leading icon
+- **Always use instead of raw `<span>` pill badges**

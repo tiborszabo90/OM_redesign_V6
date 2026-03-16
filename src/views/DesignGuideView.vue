@@ -524,6 +524,38 @@
         </div>
       </section>
 
+      <!-- Tag Section -->
+      <section class="mb-12">
+        <h2 class="text-xl font-semibold text-om-gray-700 mb-6">Tag</h2>
+        <div class="flex flex-wrap gap-3 mb-6">
+          <!-- Text only variants -->
+          <Tag>Gray</Tag>
+          <Tag variant="gray-muted">Gray muted</Tag>
+          <Tag variant="orange">Orange</Tag>
+          <Tag variant="green">Green</Tag>
+          <Tag variant="outlined">Outlined</Tag>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <!-- With icon variants -->
+          <Tag>
+            <template #icon><Check :size="12" /></template>
+            Gray with icon
+          </Tag>
+          <Tag variant="gray-muted">
+            <template #icon><Clock :size="12" /></template>
+            Queued
+          </Tag>
+          <Tag variant="orange">
+            <template #icon><ShoppingCart :size="12" /></template>
+            Orange with icon
+          </Tag>
+          <Tag variant="green">
+            <template #icon><Check :size="12" /></template>
+            Ready to use
+          </Tag>
+        </div>
+      </section>
+
       <!-- Accordion Section -->
       <section class="mb-12">
         <h2 class="text-xl font-semibold text-om-gray-700 mb-6">Accordion</h2>
@@ -958,6 +990,7 @@ import RadioButton from '../components/shared/RadioButton.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import MultiSelect from '../components/shared/MultiSelect.vue'
 import Button from '../components/shared/Button.vue'
+import Tag from '../components/shared/Tag.vue'
 import OptimizationPlanCard from '../components/onboarding/OptimizationPlanCard.vue'
 import CampaignCard from '../components/shared/CampaignCard.vue'
 
