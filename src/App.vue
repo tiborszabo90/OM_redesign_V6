@@ -544,7 +544,7 @@ const handleGoEditor = () => {
 }
 
 const handleGoAiTextsImages = () => {
-  currentView.value = 'ai-texts-images'
+  currentView.value = 'settings-ai-texts-images'
 }
 
 const settingsInitialSection = computed(() => {
