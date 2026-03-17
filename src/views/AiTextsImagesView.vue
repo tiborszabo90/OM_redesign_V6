@@ -562,21 +562,18 @@
             class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6"
             @click.self="showProductModal = false"
           >
-            <div class="bg-om-gray-50 rounded-2xl w-full max-w-[1200px] max-h-[88vh] overflow-y-auto shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
+            <div class="bg-om-gray-50 rounded-2xl w-full max-w-300 max-h-[88vh] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
               <!-- Modal header -->
-              <div class="flex items-center justify-between px-6 pt-6 pb-4">
+              <div class="flex items-center justify-between px-6 pt-4 pb-3 shrink-0 bg-om-gray-50 rounded-t-2xl transition-shadow" :class="modalScrolled ? 'shadow-[0_2px_8px_rgba(0,0,0,0.08)]' : ''">
                 <div>
                   <h2 class="text-xl font-bold text-om-gray-800">{{ selectedProduct.name }}</h2>
                 </div>
-                <button
-                  class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-om-gray-100 transition-colors text-om-gray-400 hover:text-om-gray-600"
-                  @click="showProductModal = false"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                </button>
+                <Button variant="ghost" size="sm" icon-only @click="showProductModal = false">
+                  <template #icon><X :size="16" /></template>
+                </Button>
               </div>
 
-              <div class="px-6 pb-6">
+              <div class="px-6 pb-6 overflow-y-auto" @scroll="modalScrolled = $event.target.scrollTop > 0">
                 <!-- Two columns -->
                 <div class="grid grid-cols-[340px_1fr] gap-4 mb-4 items-stretch" style="height: 440px;">
                   <!-- Left: Original Product -->
@@ -1354,7 +1351,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { Search, ArrowLeft, ArrowRight, Sparkles, Image as ImageIcon, Cpu, Maximize2, Coins, Wand2, ExternalLink, Type, ArrowUpDown, SlidersHorizontal, Upload } from 'lucide-vue-next'
+import { Search, ArrowLeft, ArrowRight, Sparkles, Image as ImageIcon, Cpu, Maximize2, Coins, Wand2, ExternalLink, Type, ArrowUpDown, SlidersHorizontal, Upload, X } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
@@ -1429,6 +1426,7 @@ const genProducts = ref([
 
 const selectedProduct = ref(null)
 const showProductModal = ref(false)
+const modalScrolled = ref(false)
 
 const modalOriginalPrompt = ref('')
 
