@@ -815,6 +815,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       <CampaignPageV1View
         v-else-if="currentView === 'campaign-page-v1'"
         @menu-click="handleMenuClick"
+        @navigate="handleDevNavigate"
       />
       <CampaignPageWithReviewView
         v-else-if="currentView === 'campaign-page-with-review'"
@@ -948,7 +949,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       />
       <EditorView
         v-else-if="currentView === 'editor'"
-        @go-back="handleDevNavigate('dev-start')"
+        @go-back="handleDevNavigate('campaign-page-v1')"
       />
       <DesignGuideView
         v-else-if="currentView === 'design-guide'"

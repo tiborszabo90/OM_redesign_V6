@@ -758,6 +758,7 @@
         </div>
       </div>
     </div>
+    <AddDomainModal v-model="showAddDomainModal" @add="handleNewDomain" />
   </div>
 </template>
 
@@ -767,6 +768,7 @@ import { Monitor, Smartphone, X, Check, ArrowUp, Paperclip, Lightbulb, Plus, Fla
 import WebsiteScanAnimation from '../illustrations/WebsiteScanAnimation.vue'
 import Dropdown from '../shared/Dropdown.vue'
 import Button from '../shared/Button.vue'
+import AddDomainModal from '../shared/AddDomainModal.vue'
 
 const props = defineProps({
   modelValue: {
@@ -794,7 +796,19 @@ const isTyping = ref(true)
 let typingTimeout = null
 
 const selectedDomain = ref('telekom.hu')
-const domains = ['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com']
+const domains = ref(['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com', '+ Add new domain'])
+const showAddDomainModal = ref(false)
+watch(selectedDomain, (val) => {
+  if (val === '+ Add new domain') {
+    selectedDomain.value = domains.value[0]
+    showAddDomainModal.value = true
+  }
+})
+const handleNewDomain = (newDomain) => {
+  const insertIdx = domains.value.indexOf('+ Add new domain')
+  domains.value.splice(insertIdx, 0, newDomain)
+  selectedDomain.value = newDomain
+}
 const aiMessages = ref([])
 const currentMessageIndex = ref(0)
 const isDiscovering = ref(false)

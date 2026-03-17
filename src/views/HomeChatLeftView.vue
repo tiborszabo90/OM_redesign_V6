@@ -67,19 +67,6 @@
 
           <!-- Right-aligned filters -->
           <div class="flex items-center gap-3">
-            <!-- Goal Dropdown -->
-            <div class="w-56">
-              <Dropdown
-                v-model="selectedGoal"
-                :options="goals"
-                placeholder="Select goal"
-              >
-                <template #icon>
-                  <Target :size="20" class="text-om-gray-400" />
-                </template>
-              </Dropdown>
-            </div>
-
             <!-- Period Dropdown -->
             <div class="w-56">
               <Dropdown
@@ -196,11 +183,12 @@
     <template #left-panel>
       <ChatPanel v-model="isChatOpen" side="left" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
     </template>
+    <AddDomainModal v-model="showAddDomainModal" @add="handleNewDomain" />
   </DashboardLayout>
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, watch } from 'vue'
 import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X } from 'lucide-vue-next'
 import VueApexCharts from 'vue3-apexcharts'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
@@ -209,6 +197,7 @@ import Dropdown from '../components/shared/Dropdown.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
 import CampaignCard from '../components/shared/CampaignCard.vue'
+import AddDomainModal from '../components/shared/AddDomainModal.vue'
 
 defineProps({
   registrationData: {
@@ -252,8 +241,21 @@ const domains = ref([
   'reflexshop.hu',
   'telekom.hu',
   'shop.telekom.hu',
-  'demo.optimonk.com'
+  'demo.optimonk.com',
+  '+ Add new domain'
 ])
+const showAddDomainModal = ref(false)
+watch(selectedDomain, (val) => {
+  if (val === '+ Add new domain') {
+    selectedDomain.value = domains.value[0]
+    showAddDomainModal.value = true
+  }
+})
+const handleNewDomain = (newDomain) => {
+  const insertIdx = domains.value.indexOf('+ Add new domain')
+  domains.value.splice(insertIdx, 0, newDomain)
+  selectedDomain.value = newDomain
+}
 
 // Goal dropdown
 const selectedGoal = ref('Conversions (default)')

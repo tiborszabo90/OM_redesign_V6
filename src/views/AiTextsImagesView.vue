@@ -1065,7 +1065,7 @@
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <div class="relative">
-              <Search :size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-400" />
+              <Search :size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-700" />
               <input v-model="cpSearch" type="text" placeholder="Search products..." class="pl-9 pr-4 py-1.5 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 w-44" />
             </div>
             <div class="relative">
@@ -1094,11 +1094,26 @@
               Import CSV
             </Button>
           </div>
-          <div class="flex items-center gap-2">
-            <Button variant="secondary" size="sm">
+          <div class="relative flex items-center gap-2">
+            <Button variant="ghost" size="sm" icon-only :class="cpSortOpen ? '!bg-[#E3E5E8]' : ''" @click="cpSortOpen = !cpSortOpen">
               <template #icon><ArrowUpDown :size="15" /></template>
-              Sort by name
             </Button>
+            <div v-if="cpSortOpen" class="fixed inset-0 z-10" @click="cpSortOpen = false" />
+            <div
+              v-if="cpSortOpen"
+              class="absolute right-0 top-full mt-1 z-20 bg-white border border-[#D5D8DD] rounded-lg shadow-lg overflow-hidden min-w-[180px]"
+            >
+              <button
+                v-for="opt in cpSortOptions"
+                :key="opt.value"
+                @click="cpSortBy = opt.value; cpSortOpen = false"
+                class="w-full text-left text-sm text-[#23262A] px-3 py-1.5 hover:bg-[#F9FAFB] transition-colors cursor-pointer flex items-center justify-between"
+                :class="cpSortBy === opt.value ? 'bg-[#F1F2F4] font-medium' : ''"
+              >
+                {{ opt.label }}
+                <Check v-if="cpSortBy === opt.value" :size="16" class="text-om-gray-500 shrink-0" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1119,10 +1134,10 @@
 
           <!-- Rows -->
           <div
-            v-for="(product, index) in cpProducts"
+            v-for="(product, index) in cpSortedProducts"
             :key="product.id"
             class="grid grid-cols-[48px_1fr_160px_120px_160px_140px_40px] px-6 py-2.5 items-center cursor-pointer hover:bg-om-gray-50 transition-colors"
-            :class="index < cpProducts.length - 1 ? 'border-b border-om-gray-100' : ''"
+            :class="index < cpSortedProducts.length - 1 ? 'border-b border-om-gray-100' : ''"
             @click="cpSelected.includes(product.id) ? cpSelected.splice(cpSelected.indexOf(product.id), 1) : cpSelected.push(product.id)"
           >
             <div class="flex items-center" @click.stop>
@@ -1179,7 +1194,7 @@
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <div class="relative">
-              <Search :size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-400" />
+              <Search :size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-700" />
               <input v-model="cpSearch" type="text" placeholder="Search products..." class="pl-9 pr-4 py-1.5 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 w-44" />
             </div>
             <div class="relative">
@@ -1208,11 +1223,26 @@
               Import CSV
             </Button>
           </div>
-          <div class="flex items-center gap-2">
-            <Button variant="secondary" size="sm">
+          <div class="relative flex items-center gap-2">
+            <Button variant="ghost" size="sm" icon-only :class="cpSortOpen ? '!bg-[#E3E5E8]' : ''" @click="cpSortOpen = !cpSortOpen">
               <template #icon><ArrowUpDown :size="15" /></template>
-              Sort by name
             </Button>
+            <div v-if="cpSortOpen" class="fixed inset-0 z-10" @click="cpSortOpen = false" />
+            <div
+              v-if="cpSortOpen"
+              class="absolute right-0 top-full mt-1 z-20 bg-white border border-[#D5D8DD] rounded-lg shadow-lg overflow-hidden min-w-[180px]"
+            >
+              <button
+                v-for="opt in cpSortOptions"
+                :key="opt.value"
+                @click="cpSortBy = opt.value; cpSortOpen = false"
+                class="w-full text-left text-sm text-[#23262A] px-3 py-1.5 hover:bg-[#F9FAFB] transition-colors cursor-pointer flex items-center justify-between"
+                :class="cpSortBy === opt.value ? 'bg-[#F1F2F4] font-medium' : ''"
+              >
+                {{ opt.label }}
+                <Check v-if="cpSortBy === opt.value" :size="16" class="text-om-gray-500 shrink-0" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1231,10 +1261,10 @@
           </div>
 
           <div
-            v-for="(product, index) in cpProducts"
+            v-for="(product, index) in cpSortedProducts"
             :key="product.id"
             class="grid grid-cols-[48px_1fr_160px_120px_160px_140px_40px] px-6 py-2.5 items-center cursor-pointer hover:bg-om-gray-50 transition-colors"
-            :class="index < cpProducts.length - 1 ? 'border-b border-om-gray-100' : ''"
+            :class="index < cpSortedProducts.length - 1 ? 'border-b border-om-gray-100' : ''"
             @click="cpSelected.includes(product.id) ? cpSelected.splice(cpSelected.indexOf(product.id), 1) : cpSelected.push(product.id)"
           >
             <div class="flex items-center" @click.stop>
@@ -1292,10 +1322,10 @@
               <button
                 v-for="tab in tabs"
                 :key="tab.value"
-                class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer"
+                class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-out cursor-pointer"
                 :class="activeTab === tab.value
                   ? 'bg-om-gray-200 text-om-gray-700'
-                  : 'bg-transparent text-om-gray-500 hover:bg-om-gray-100'"
+                  : 'bg-om-gray-100 text-om-gray-700 hover:bg-om-gray-200'"
                 @click="activeTab = tab.value"
               >
                 {{ tab.label }}
@@ -1304,7 +1334,7 @@
           </div>
 
           <div class="relative">
-            <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-400" />
+            <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-700" />
             <input
               v-model="search"
               type="text"
@@ -1346,12 +1376,13 @@
 
       </div>
     </template>
+    <AddDomainModal v-model="showAddDomainModal" @add="handleNewDomain" />
   </DashboardLayout>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { Search, ArrowLeft, ArrowRight, Sparkles, Image as ImageIcon, Cpu, Maximize2, Coins, Wand2, ExternalLink, Type, ArrowUpDown, SlidersHorizontal, Upload, X } from 'lucide-vue-next'
+import { Search, ArrowLeft, ArrowRight, Sparkles, Image as ImageIcon, Cpu, Maximize2, Coins, Wand2, ExternalLink, Type, ArrowUpDown, SlidersHorizontal, Upload, X, Check } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
@@ -1359,6 +1390,7 @@ import Dropdown from '../components/shared/Dropdown.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import RadioButton from '../components/shared/RadioButton.vue'
 import Tag from '../components/shared/Tag.vue'
+import AddDomainModal from '../components/shared/AddDomainModal.vue'
 
 const props = defineProps({
   screen: { type: String, default: 'list' },
@@ -1461,6 +1493,18 @@ const triggerGenerate = () => {
 }
 
 // Choose Products state
+const cpSortBy = ref('popularity-desc')
+const cpSortOpen = ref(false)
+const cpSortOptions = [
+  { value: 'popularity-desc', label: 'Popularity ↓' },
+  { value: 'popularity-asc',  label: 'Popularity ↑' },
+  { value: 'name-asc',        label: 'Name A–Z' },
+  { value: 'name-desc',       label: 'Name Z–A' },
+  { value: 'price-asc',       label: 'Price ↑' },
+  { value: 'price-desc',      label: 'Price ↓' },
+  { value: 'updated-desc',    label: 'Last Updated ↓' },
+  { value: 'updated-asc',     label: 'Last Updated ↑' },
+]
 const cpSearch = ref('')
 const cpCategoryIs = ref('All categories')
 const cpCategoryIsNot = ref('All categories')
@@ -1503,13 +1547,53 @@ const cpProducts = [
   { id: 20, name: 'Hardcover Notebook A5', sku: 'NTB-HC-A5B', price: '$18.00', popularity: '189 views', lastUpdated: '2 weeks ago' },
 ]
 
+const cpSortedProducts = computed(() => {
+  const list = [...cpProducts]
+  const parts = cpSortBy.value.split('-')
+  const field = parts[0]
+  const dir = parts[1]
+  const asc = dir === 'asc'
+
+  return list.sort((a, b) => {
+    if (field === 'name') {
+      const valA = a.name.toLowerCase()
+      const valB = b.name.toLowerCase()
+      return asc ? valA.localeCompare(valB) : valB.localeCompare(valA)
+    }
+    if (field === 'updated') {
+      return asc ? a.lastUpdated.localeCompare(b.lastUpdated) : b.lastUpdated.localeCompare(a.lastUpdated)
+    }
+    let valA, valB
+    if (field === 'price') {
+      valA = parseFloat(a.price.replace(/[^0-9.]/g, ''))
+      valB = parseFloat(b.price.replace(/[^0-9.]/g, ''))
+    } else if (field === 'popularity') {
+      valA = parseInt(a.popularity.replace(/[^0-9]/g, ''))
+      valB = parseInt(b.popularity.replace(/[^0-9]/g, ''))
+    }
+    return asc ? valA - valB : valB - valA
+  })
+})
+
 const cpAllSelected = computed(() => cpSelected.value.length === cpProducts.length)
 const toggleAllCp = () => {
   cpSelected.value = cpAllSelected.value ? [] : cpProducts.map(p => p.id)
 }
 
 const selectedDomain = ref('telekom.hu')
-const domains = ['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com']
+const domains = ref(['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com', '+ Add new domain'])
+const showAddDomainModal = ref(false)
+watch(selectedDomain, (val) => {
+  if (val === '+ Add new domain') {
+    selectedDomain.value = domains.value[0]
+    showAddDomainModal.value = true
+  }
+})
+const handleNewDomain = (newDomain) => {
+  const insertIdx = domains.value.indexOf('+ Add new domain')
+  domains.value.splice(insertIdx, 0, newDomain)
+  selectedDomain.value = newDomain
+}
 
 const activeTab = ref('all')
 const search = ref('')

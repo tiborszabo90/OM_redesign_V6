@@ -229,7 +229,7 @@
             </div>
 
             <!-- Variant Row 1 -->
-            <div class="grid grid-cols-12 gap-1 items-center py-3 border-b border-om-gray-100 group">
+            <div class="grid grid-cols-12 gap-1 items-center py-3 border-b border-om-gray-100 group cursor-pointer" @click="emit('navigate', 'editor')">
               <div class="col-span-5 flex items-center gap-2.5">
                 <div
                   class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
@@ -248,7 +248,7 @@
                 </div>
                 <span class="text-sm font-medium text-om-gray-700">Klaviyo Popup</span>
               </div>
-              <div class="col-span-1">
+              <div class="col-span-1" @click.stop>
                 <ToggleSwitch v-model="variant1Active" />
               </div>
               <div class="col-span-1 text-base font-semibold text-om-gray-700 text-right">12,593</div>
@@ -266,7 +266,7 @@
             </div>
 
             <!-- Variant Row 2 -->
-            <div class="grid grid-cols-12 gap-1 items-center py-3 group">
+            <div class="grid grid-cols-12 gap-1 items-center py-3 group cursor-pointer" @click="emit('navigate', 'editor')">
               <div class="col-span-5 flex items-center gap-2.5">
                 <div
                   class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
@@ -285,7 +285,7 @@
                 </div>
                 <span class="text-sm font-medium text-om-gray-700">AI Variant</span>
               </div>
-              <div class="col-span-1">
+              <div class="col-span-1" @click.stop>
                 <ToggleSwitch v-model="variant2Active" />
               </div>
               <div class="col-span-1 text-base font-semibold text-om-gray-700 text-right">12,593</div>
@@ -800,7 +800,7 @@ import '@vuepic/vue-datepicker/dist/main.css'
 import ScrollTimePicker from '../components/shared/ScrollTimePicker.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
 
-defineEmits(['menu-click'])
+const emit = defineEmits(['menu-click', 'navigate'])
 
 const isChatOpen = ref(false)
 

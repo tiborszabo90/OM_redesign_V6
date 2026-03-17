@@ -113,17 +113,19 @@
     <template #right-panel>
       <ChatPanel v-model="isChatOpen" :fab="true" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
     </template>
+    <AddDomainModal v-model="showAddDomainModal" @add="handleNewDomain" />
   </DashboardLayout>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import { Plus, LayoutGrid, Search, Calendar, ArrowUpDown } from 'lucide-vue-next'
 import Dropdown from '../components/shared/Dropdown.vue'
 import Button from '../components/shared/Button.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
 import CampaignCard from '../components/shared/CampaignCard.vue'
+import AddDomainModal from '../components/shared/AddDomainModal.vue'
 
 const emit = defineEmits(['menu-click', 'navigate-to-campaign'])
 
@@ -218,7 +220,19 @@ const campaigns = reactive([
 ])
 
 const selectedDomain = ref('telekom.hu')
-const domains = ['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com']
+const domains = ref(['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com', '+ Add new domain'])
+const showAddDomainModal = ref(false)
+watch(selectedDomain, (val) => {
+  if (val === '+ Add new domain') {
+    selectedDomain.value = domains.value[0]
+    showAddDomainModal.value = true
+  }
+})
+const handleNewDomain = (newDomain) => {
+  const insertIdx = domains.value.indexOf('+ Add new domain')
+  domains.value.splice(insertIdx, 0, newDomain)
+  selectedDomain.value = newDomain
+}
 
 const timeFilterOptions = [
   { value: 'week', label: 'Last week' },

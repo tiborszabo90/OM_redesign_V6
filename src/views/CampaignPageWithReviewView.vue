@@ -120,7 +120,7 @@
             <p class="text-sm font-semibold text-om-gray-700">Your first campaign is live!</p>
             <p class="text-sm text-om-gray-500">You've successfully launched your first campaign. Let us know if there's anything you need help with.</p>
           </div>
-          <div class="flex items-center gap-1 shrink-0">
+          <div class="flex items-center gap-2 shrink-0">
             <Button variant="outline" size="sm">Contact support</Button>
             <Button variant="primary" size="sm" @click="$emit('navigate-to-review')">Everything's great</Button>
             <Button variant="ghost" size="sm" icon-only @click="showSuccessBox = false">

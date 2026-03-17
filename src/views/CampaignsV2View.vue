@@ -695,16 +695,18 @@
       </div>
       </div>
     </template>
+    <AddDomainModal v-model="showAddDomainModal" @add="handleNewDomain" />
   </DashboardLayout>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import { Plus, LayoutGrid, Search, TrendingUp, Check, Calendar, ArrowUpDown } from 'lucide-vue-next'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import Button from '../components/shared/Button.vue'
+import AddDomainModal from '../components/shared/AddDomainModal.vue'
 
 const emit = defineEmits(['menu-click', 'navigate-to-campaign'])
 
@@ -745,7 +747,19 @@ const handleMouseMove = (event) => {
 
 // Domain dropdown
 const selectedDomain = ref('telekom.hu')
-const domains = ['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com']
+const domains = ref(['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com', '+ Add new domain'])
+const showAddDomainModal = ref(false)
+watch(selectedDomain, (val) => {
+  if (val === '+ Add new domain') {
+    selectedDomain.value = domains.value[0]
+    showAddDomainModal.value = true
+  }
+})
+const handleNewDomain = (newDomain) => {
+  const insertIdx = domains.value.indexOf('+ Add new domain')
+  domains.value.splice(insertIdx, 0, newDomain)
+  selectedDomain.value = newDomain
+}
 
 // Time filter dropdown
 const timeFilterOptions = [

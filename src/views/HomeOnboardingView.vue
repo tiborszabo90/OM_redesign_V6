@@ -228,11 +228,12 @@
     <template #right-panel>
       <ChatPanel v-model="isChatOpen" :fab="true" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
     </template>
+    <AddDomainModal v-model="showAddDomainModal" @add="handleNewDomain" />
   </DashboardLayout>
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, watch } from 'vue'
 import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X, LayoutTemplate, LayoutGrid, Zap, Plug } from 'lucide-vue-next'
 import VueApexCharts from 'vue3-apexcharts'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
@@ -243,6 +244,7 @@ import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
 import CampaignCard from '../components/shared/CampaignCard.vue'
 import MeditatingPersonSvg from '../components/illustrations/MeditatingPersonSvg.vue'
+import AddDomainModal from '../components/shared/AddDomainModal.vue'
 
 defineProps({
   registrationData: {
@@ -284,8 +286,21 @@ const domains = ref([
   'reflexshop.hu',
   'telekom.hu',
   'shop.telekom.hu',
-  'demo.optimonk.com'
+  'demo.optimonk.com',
+  '+ Add new domain'
 ])
+const showAddDomainModal = ref(false)
+watch(selectedDomain, (val) => {
+  if (val === '+ Add new domain') {
+    selectedDomain.value = domains.value[0]
+    showAddDomainModal.value = true
+  }
+})
+const handleNewDomain = (newDomain) => {
+  const insertIdx = domains.value.indexOf('+ Add new domain')
+  domains.value.splice(insertIdx, 0, newDomain)
+  selectedDomain.value = newDomain
+}
 
 // Goal dropdown
 const selectedGoal = ref('Conversions (default)')

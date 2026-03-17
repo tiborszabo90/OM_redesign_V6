@@ -3,8 +3,8 @@
     <template #content>
       <div class="flex gap-12 min-h-full">
         <!-- Settings Sidebar -->
-        <aside class="w-48 shrink-0 bg-white p-4 border-r border-[#E5E7EB]">
-          <h2 class="text-xl font-bold text-om-gray-700 mb-6 ml-1">Settings</h2>
+        <aside class="w-48 shrink-0 bg-white px-4 pb-4 pt-6 border-r border-[#E5E7EB]">
+          <h2 class="text-2xl font-semibold text-om-gray-700 mb-6 ml-1">Settings</h2>
 
           <!-- Contact information -->
           <div class="mb-5">

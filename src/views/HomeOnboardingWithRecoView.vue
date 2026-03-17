@@ -194,11 +194,12 @@
     <template #right-panel>
       <ChatPanel v-model="isChatOpen" :fab="true" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
     </template>
+    <AddDomainModal v-model="showAddDomainModal" @add="handleNewDomain" />
   </DashboardLayout>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { UserPlus, Signpost, X, LayoutTemplate, LayoutGrid, Plug } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Accordion from '../components/shared/Accordion.vue'
@@ -206,6 +207,7 @@ import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
 import MeditatingPersonSvg from '../components/illustrations/MeditatingPersonSvg.vue'
+import AddDomainModal from '../components/shared/AddDomainModal.vue'
 
 defineProps({
   registrationData: {
@@ -244,6 +246,19 @@ const domains = ref([
   'reflexshop.hu',
   'telekom.hu',
   'shop.telekom.hu',
-  'demo.optimonk.com'
+  'demo.optimonk.com',
+  '+ Add new domain'
 ])
+const showAddDomainModal = ref(false)
+watch(selectedDomain, (val) => {
+  if (val === '+ Add new domain') {
+    selectedDomain.value = domains.value[0]
+    showAddDomainModal.value = true
+  }
+})
+const handleNewDomain = (newDomain) => {
+  const insertIdx = domains.value.indexOf('+ Add new domain')
+  domains.value.splice(insertIdx, 0, newDomain)
+  selectedDomain.value = newDomain
+}
 </script>

@@ -2,7 +2,7 @@
   <div class="flex h-screen-safe bg-white overflow-hidden">
 
     <!-- Left sidebar -->
-    <div class="w-19 border-r border-om-gray-200 flex flex-col items-center pt-6 pb-4 shrink-0 bg-white">
+    <div class="sidebar-enter w-19 border-r border-om-gray-200 flex flex-col items-center pt-3 pb-4 shrink-0 bg-white">
       <div class="w-7 h-7 mb-5 flex items-center justify-center shrink-0">
         <img src="/icons/optimonk-logo.svg" alt="OptiMonk" class="w-full h-full" />
       </div>

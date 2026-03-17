@@ -805,16 +805,18 @@
         </div>
       </transition>
     </template>
+    <AddDomainModal v-model="showAddDomainModal" @add="handleNewDomain" />
   </DashboardLayout>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { ExternalLink, ChevronDown, Monitor, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, Check, X } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import VueApexCharts from 'vue3-apexcharts'
+import AddDomainModal from '../components/shared/AddDomainModal.vue'
 
 const emit = defineEmits(['menu-click'])
 
@@ -826,8 +828,21 @@ const domains = ref([
   'reflexshop.hu',
   'telekom.hu',
   'shop.telekom.hu',
-  'demo.optimonk.com'
+  'demo.optimonk.com',
+  '+ Add new domain'
 ])
+const showAddDomainModal = ref(false)
+watch(selectedDomain, (val) => {
+  if (val === '+ Add new domain') {
+    selectedDomain.value = domains.value[0]
+    showAddDomainModal.value = true
+  }
+})
+const handleNewDomain = (newDomain) => {
+  const insertIdx = domains.value.indexOf('+ Add new domain')
+  domains.value.splice(insertIdx, 0, newDomain)
+  selectedDomain.value = newDomain
+}
 
 // Devices dropdown
 const selectedDevice = ref('PC and Mobile')
