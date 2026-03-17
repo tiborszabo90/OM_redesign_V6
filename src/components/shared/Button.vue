@@ -63,14 +63,14 @@ const buttonClasses = computed(() => {
 
   const variantBase = {
     primary: 'bg-[#ED5A29] text-white focus:ring-[#ED5A29]',
-    secondary: 'bg-[#E3E5E8] text-[#505763] focus:ring-[#8F97A4]',
+    secondary: 'bg-white border border-[#D5D8DD] text-[#505763] focus:ring-[#8F97A4]',
     outline: 'border border-[#D5D8DD] text-[#505763] focus:ring-[#ED5A29]',
     ghost: 'bg-transparent text-[#505763] focus:ring-[#ED5A29]'
   }
 
   const variantInteractive = {
     primary: 'hover:bg-[#E54D1F] active:bg-[#B33810]',
-    secondary: 'hover:bg-[#D5D8DD] active:bg-[#B9BEC6]',
+    secondary: 'hover:bg-[#F9FAFB] active:bg-[#E3E5E8]',
     outline: 'hover:bg-[#F9FAFB] active:bg-[#E3E5E8] active:border-[#B9BEC6]',
     ghost: 'hover:bg-[#F1F2F4] active:bg-[#E3E5E8]'
   }

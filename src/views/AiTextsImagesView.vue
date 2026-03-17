@@ -1057,8 +1057,9 @@
             </Button>
             <h1 class="text-2xl font-semibold text-om-gray-700">Choose Products</h1>
           </div>
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3">
             <span class="text-sm text-om-gray-400">{{ cpSelected.length }} products selected</span>
+            <Button variant="secondary" size="md">Export CSV</Button>
             <Button variant="primary" size="md" @click="emit('navigate', cpFromText ? 'ai-texts-images-text-generation' : 'ai-texts-images-generation')">Generation Preview</Button>
           </div>
         </div>
@@ -1148,8 +1149,9 @@
             </Button>
             <h1 class="text-2xl font-semibold text-om-gray-700">Add Products</h1>
           </div>
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3">
             <span class="text-sm text-om-gray-400">{{ cpSelected.length }} products selected</span>
+            <Button variant="secondary" size="md">Export CSV</Button>
             <Button variant="primary" size="md" @click="emit('navigate', 'ai-texts-images-generation')">Select products</Button>
           </div>
         </div>
@@ -1235,18 +1237,27 @@
 
         <!-- Filters + Search -->
         <div class="flex items-center justify-between mb-5">
-          <div class="flex items-center gap-2">
-            <button
-              v-for="tab in tabs"
-              :key="tab.value"
-              class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer"
-              :class="activeTab === tab.value
-                ? 'bg-om-gray-200 text-om-gray-700'
-                : 'bg-transparent text-om-gray-500 hover:bg-om-gray-100'"
-              @click="activeTab = tab.value"
-            >
-              {{ tab.label }}
-            </button>
+          <div class="flex items-center gap-3">
+            <Dropdown v-model="selectedDomain" :options="domains" class="w-55">
+              <template #icon>
+                <div class="w-6 h-6 rounded-full overflow-hidden">
+                  <img src="/demos/telekom/logo.png" alt="Domain" class="w-full h-full object-cover" />
+                </div>
+              </template>
+            </Dropdown>
+            <div class="flex items-center gap-2">
+              <button
+                v-for="tab in tabs"
+                :key="tab.value"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer"
+                :class="activeTab === tab.value
+                  ? 'bg-om-gray-200 text-om-gray-700'
+                  : 'bg-transparent text-om-gray-500 hover:bg-om-gray-100'"
+                @click="activeTab = tab.value"
+              >
+                {{ tab.label }}
+              </button>
+            </div>
           </div>
 
           <div class="relative">
@@ -1447,6 +1458,9 @@ const cpAllSelected = computed(() => cpSelected.value.length === cpProducts.leng
 const toggleAllCp = () => {
   cpSelected.value = cpAllSelected.value ? [] : cpProducts.map(p => p.id)
 }
+
+const selectedDomain = ref('telekom.hu')
+const domains = ['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com']
 
 const activeTab = ref('all')
 const search = ref('')
