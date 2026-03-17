@@ -491,8 +491,8 @@
           </div>
           <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5">
             <div class="flex items-center justify-between mb-4">
-              <p class="text-sm text-om-gray-500">Edit the prompt to customize the generation output. Save it as a new variable, or overwrite the already generated images with the updated settings.</p>
-              <div class="flex items-center gap-2">
+              <p class="text-sm text-om-gray-500 mr-[50px]">Edit the prompt to customize the generation output. Save it as a new variable, or overwrite the already generated images with the updated settings.</p>
+              <div class="flex items-center gap-2 shrink-0">
                 <Dropdown v-model="promptModel" :options="modelOptions" size="sm">
                   <template #selected="{ label }"><span class="whitespace-nowrap">Model: {{ label }}</span></template>
                 </Dropdown>
@@ -1059,7 +1059,6 @@
           </div>
           <div class="flex items-center gap-3">
             <span class="text-sm text-om-gray-400">{{ cpSelected.length }} products selected</span>
-            <Button variant="secondary" size="md">Export CSV</Button>
             <Button variant="primary" size="md" @click="emit('navigate', cpFromText ? 'ai-texts-images-text-generation' : 'ai-texts-images-generation')">Generation Preview</Button>
           </div>
         </div>
@@ -1068,17 +1067,41 @@
         <!-- Filters -->
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
-            <div class="flex items-center gap-2 border border-om-gray-200 rounded-lg px-3 py-2 bg-white w-64">
-              <Search :size="15" class="text-om-gray-400 shrink-0" />
-              <input v-model="cpSearch" type="text" placeholder="Search products..." class="text-sm text-om-gray-700 outline-none w-full placeholder:text-om-gray-400" />
+            <div class="relative">
+              <Search :size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-400" />
+              <input v-model="cpSearch" type="text" placeholder="Search products..." class="pl-9 pr-4 py-1.5 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 w-44" />
             </div>
-            <Dropdown v-model="cpCategory" :options="cpCategoryOptions" size="sm" />
-            <Dropdown v-model="cpStockStatus" :options="cpStockOptions" size="sm" />
-            <Dropdown v-model="cpPopularity" :options="cpPopularityOptions" size="sm" />
+            <div class="relative">
+              <Button variant="secondary" size="sm" @click="cpShowFilters = !cpShowFilters">
+                <template #icon><SlidersHorizontal :size="15" /></template>
+                Filters
+                <span v-if="cpActiveFilterCount > 0" class="ml-0.5 bg-om-orange-500 text-white text-[10px] font-semibold rounded-full w-3.5 h-3.5 flex items-center justify-center leading-none">{{ cpActiveFilterCount }}</span>
+              </Button>
+              <div v-if="cpShowFilters" class="absolute top-full left-0 mt-2 bg-white border border-om-gray-200 rounded-xl shadow-lg p-4 z-20 flex flex-col gap-4 w-80">
+                <div class="flex flex-col gap-1">
+                  <span class="text-xs text-om-gray-500">Category is</span>
+                  <Dropdown v-model="cpCategoryIs" :options="cpCategoryOptions" size="sm" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <span class="text-xs text-om-gray-500">Category is not</span>
+                  <Dropdown v-model="cpCategoryIsNot" :options="cpCategoryOptions" size="sm" />
+                </div>
+                <div class="flex flex-col gap-5">
+                  <Checkbox v-model="cpOnlyInStock" label="Only in stock" />
+                  <Checkbox v-model="cpOnlyWithTraffic" label="Only products with traffic" />
+                </div>
+              </div>
+            </div>
+            <Button variant="secondary" size="sm">
+              <template #icon><Upload :size="15" /></template>
+              Import CSV
+            </Button>
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-sm text-om-gray-500">Sort by:</span>
-            <Dropdown v-model="cpSortBy" :options="cpSortOptions" size="sm" />
+            <Button variant="secondary" size="sm">
+              <template #icon><ArrowUpDown :size="15" /></template>
+              Sort by name
+            </Button>
           </div>
         </div>
 
@@ -1151,7 +1174,6 @@
           </div>
           <div class="flex items-center gap-3">
             <span class="text-sm text-om-gray-400">{{ cpSelected.length }} products selected</span>
-            <Button variant="secondary" size="md">Export CSV</Button>
             <Button variant="primary" size="md" @click="emit('navigate', 'ai-texts-images-generation')">Select products</Button>
           </div>
         </div>
@@ -1159,17 +1181,41 @@
         <!-- Filters -->
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
-            <div class="flex items-center gap-2 border border-om-gray-200 rounded-lg px-3 py-2 bg-white w-64">
-              <Search :size="15" class="text-om-gray-400 shrink-0" />
-              <input v-model="cpSearch" type="text" placeholder="Search products..." class="text-sm text-om-gray-700 outline-none w-full placeholder:text-om-gray-400" />
+            <div class="relative">
+              <Search :size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-400" />
+              <input v-model="cpSearch" type="text" placeholder="Search products..." class="pl-9 pr-4 py-1.5 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 w-44" />
             </div>
-            <Dropdown v-model="cpCategory" :options="cpCategoryOptions" size="sm" />
-            <Dropdown v-model="cpStockStatus" :options="cpStockOptions" size="sm" />
-            <Dropdown v-model="cpPopularity" :options="cpPopularityOptions" size="sm" />
+            <div class="relative">
+              <Button variant="secondary" size="sm" @click="cpShowFilters = !cpShowFilters">
+                <template #icon><SlidersHorizontal :size="15" /></template>
+                Filters
+                <span v-if="cpActiveFilterCount > 0" class="ml-0.5 bg-om-orange-500 text-white text-[10px] font-semibold rounded-full w-3.5 h-3.5 flex items-center justify-center leading-none">{{ cpActiveFilterCount }}</span>
+              </Button>
+              <div v-if="cpShowFilters" class="absolute top-full left-0 mt-2 bg-white border border-om-gray-200 rounded-xl shadow-lg p-4 z-20 flex flex-col gap-4 w-80">
+                <div class="flex flex-col gap-1">
+                  <span class="text-xs text-om-gray-500">Category is</span>
+                  <Dropdown v-model="cpCategoryIs" :options="cpCategoryOptions" size="sm" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <span class="text-xs text-om-gray-500">Category is not</span>
+                  <Dropdown v-model="cpCategoryIsNot" :options="cpCategoryOptions" size="sm" />
+                </div>
+                <div class="flex flex-col gap-5">
+                  <Checkbox v-model="cpOnlyInStock" label="Only in stock" />
+                  <Checkbox v-model="cpOnlyWithTraffic" label="Only products with traffic" />
+                </div>
+              </div>
+            </div>
+            <Button variant="secondary" size="sm">
+              <template #icon><Upload :size="15" /></template>
+              Import CSV
+            </Button>
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-sm text-om-gray-500">Sort by:</span>
-            <Dropdown v-model="cpSortBy" :options="cpSortOptions" size="sm" />
+            <Button variant="secondary" size="sm">
+              <template #icon><ArrowUpDown :size="15" /></template>
+              Sort by name
+            </Button>
           </div>
         </div>
 
@@ -1308,7 +1354,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { Search, ArrowLeft, ArrowRight, Sparkles, Image as ImageIcon, Cpu, Maximize2, Coins, Wand2, ExternalLink, List, Zap, Type, FileText, Layers } from 'lucide-vue-next'
+import { Search, ArrowLeft, ArrowRight, Sparkles, Image as ImageIcon, Cpu, Maximize2, Coins, Wand2, ExternalLink, Type, ArrowUpDown, SlidersHorizontal, Upload } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
@@ -1418,18 +1464,23 @@ const triggerGenerate = () => {
 
 // Choose Products state
 const cpSearch = ref('')
-const cpCategory = ref('Category')
-const cpStockStatus = ref('Stock Status')
-const cpPopularity = ref('Popularity')
-const cpSortBy = ref('Most popular')
+const cpCategoryIs = ref('All categories')
+const cpCategoryIsNot = ref('All categories')
+const cpOnlyInStock = ref(false)
+const cpOnlyWithTraffic = ref(false)
+const cpShowFilters = ref(false)
+const cpActiveFilterCount = computed(() => {
+  let count = 0
+  if (cpCategoryIs.value !== 'All categories') count++
+  if (cpCategoryIsNot.value !== 'All categories') count++
+  if (cpOnlyInStock.value) count++
+  if (cpOnlyWithTraffic.value) count++
+  return count
+})
 const cpFromText = ref(false)
 const cpSelected = ref([])
-const cpCurrentPage = ref(1)
 const cpTotalPages = 55
-const cpCategoryOptions = ['Category', 'Electronics', 'Home & Kitchen', 'Clothing', 'Sports']
-const cpStockOptions = ['Stock Status', 'In Stock', 'Out of Stock', 'Low Stock']
-const cpPopularityOptions = ['Popularity', 'Most viewed', 'Least viewed']
-const cpSortOptions = ['Most popular', 'Newest', 'Price: Low to High', 'Price: High to Low']
+const cpCategoryOptions = ['All categories', 'Electronics', 'Home & Kitchen', 'Clothing', 'Sports']
 
 const cpProducts = [
   { id: 1, name: 'Premium Wireless Headphones', sku: 'WH-1000XM5', price: '$349.99', popularity: '1,245 views', lastUpdated: '2 hours ago' },
