@@ -187,22 +187,18 @@
         <p class="text-sm text-om-gray-500 mb-8">Select a starting point for your AI generation.</p>
 
         <!-- Preset cards grid -->
-        <div class="grid grid-cols-3 min-[1440px]:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 gap-4">
           <div
             v-for="preset in imagePresets"
             :key="preset.id"
-            class="bg-white rounded-xl border-2 border-om-gray-200 p-5 cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] transition-all duration-200 flex flex-col"
+            class="bg-white rounded-xl border-2 border-om-gray-200 p-5 cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] transition-all duration-200 flex gap-4"
             @click="handlePresetClick(preset)"
           >
-            <div class="flex items-center justify-center gap-3 mb-4">
-              <div class="flex-1 aspect-square rounded-lg bg-om-gray-100 border border-om-gray-200" />
-              <ArrowRight :size="18" class="text-om-gray-400 shrink-0" />
-              <div class="flex-1 aspect-square rounded-lg bg-om-gray-100 border border-om-gray-200" />
-            </div>
+            <div class="w-32 h-32 shrink-0 rounded-lg bg-om-gray-100 border border-om-gray-200" />
+            <div class="flex flex-col flex-1 min-w-0">
             <h2 class="text-base font-semibold text-om-gray-700 mb-2">{{ preset.name }}</h2>
             <p class="text-sm text-om-gray-500 flex-1 mb-3">{{ preset.description }}</p>
-            <div class="flex flex-col gap-2 mt-auto">
-              <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 mt-auto flex-wrap">
                 <Tag>
                   <template #icon><Cpu :size="14" class="text-om-gray-400" /></template>
                   {{ preset.model }}
@@ -211,11 +207,11 @@
                   <template #icon><Maximize2 :size="14" class="text-om-gray-400" /></template>
                   {{ preset.ratio }}
                 </Tag>
-              </div>
-              <div class="flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded-full bg-om-orange-100 text-om-orange-600 text-sm font-semibold">
-                <Coins :size="15" class="text-om-orange-400 shrink-0" />
+              <Tag variant="orange" class="ml-auto">
+                <template #icon><Coins :size="14" class="text-om-orange-400" /></template>
                 {{ preset.credits }} credits/image
-              </div>
+              </Tag>
+            </div>
             </div>
           </div>
         </div>
@@ -248,21 +244,15 @@
           >
             <h2 class="text-base font-semibold text-om-gray-700 mb-2">{{ preset.name }}</h2>
             <p class="text-sm text-om-gray-500 flex-1 mb-3">{{ preset.description }}</p>
-            <div class="flex flex-col gap-2 mt-auto">
-              <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex items-center gap-2 mt-auto flex-wrap">
                 <Tag>
                   <template #icon><Cpu :size="14" class="text-om-gray-400" /></template>
                   {{ preset.model }}
                 </Tag>
-                <Tag v-if="preset.isPaired">
-                  <template #icon><Type :size="14" class="text-om-gray-400" /></template>
-                  Paired output
-                </Tag>
-              </div>
-              <div class="flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded-full bg-om-orange-100 text-om-orange-600 text-sm font-semibold">
-                <Coins :size="15" class="text-om-orange-400 shrink-0" />
+              <Tag variant="orange" class="ml-auto">
+                <template #icon><Coins :size="14" class="text-om-orange-400" /></template>
                 {{ preset.credits }} credits/image
-              </div>
+              </Tag>
             </div>
           </div>
         </div>
