@@ -721,11 +721,29 @@
                     class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
                   />
                   <!-- {{ showAdvanced ? 'Basic Settings' : 'Advanced Settings' }} panel -->
-                  <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-4">
+                  <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-6">
                     <!-- Model + Ratio -->
                     <div class="flex items-center gap-2">
                       <Tag>Model: {{ promptModel }}</Tag>
                       <Tag>Ratio: {{ promptRatio }}</Tag>
+                    </div>
+                    <!-- Source images -->
+                    <div>
+                      <p class="text-xs text-om-gray-700 mb-2">Source images</p>
+                      <div class="flex gap-2 flex-wrap">
+                        <div
+                          v-for="img in availableSourceImages"
+                          :key="img.id"
+                          class="relative w-16 h-16 rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-150 shrink-0"
+                          :class="sourceImageSelected(img.id) ? 'border-om-orange-500 shadow-[0_0_0_2px_#FBD9CE]' : 'border-om-gray-200 hover:border-om-gray-300'"
+                          @click="toggleSourceImage(img)"
+                        >
+                          <img :src="img.src" class="w-full h-full object-cover" />
+                          <div v-if="sourceImageSelected(img.id)" class="absolute top-1 right-1 w-4 h-4 rounded-full bg-om-orange-500 flex items-center justify-center">
+                            <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                     <div class="flex items-center gap-6">
                       <RadioButton v-model="pageType" value="product" label="Product page" />
@@ -758,6 +776,7 @@
                   </div>
                 </div>
         </div>
+
       </div>
 
       <!-- Text Preview screen -->
@@ -1671,6 +1690,26 @@ const genGeneratedTotalPages = computed(() => Math.ceil(genProductsGenerated.val
 watch(genTab, () => { genPage.value = 1; genGeneratedPage.value = 1 })
 
 const selectedProduct = ref(null)
+
+// Source images
+const availableSourceImages = [
+  { id: 1, src: '/product1.jpg', label: 'Front view' },
+  { id: 2, src: '/product2.png', label: 'Side view' },
+  { id: 3, src: '/product1.jpg', label: 'Back view' },
+  { id: 4, src: '/product2.png', label: 'Detail shot' },
+  { id: 5, src: '/product1.jpg', label: 'Lifestyle 1' },
+  { id: 6, src: '/product2.png', label: 'Lifestyle 2' },
+  { id: 7, src: '/product1.jpg', label: 'Packaging' },
+  { id: 8, src: '/product2.png', label: 'In use' },
+]
+const selectedSourceImages = ref([availableSourceImages[0]])
+
+const sourceImageSelected = (id) => selectedSourceImages.value.some(img => img.id === id)
+const toggleSourceImage = (img) => {
+  const idx = selectedSourceImages.value.findIndex(i => i.id === img.id)
+  if (idx >= 0) selectedSourceImages.value.splice(idx, 1)
+  else selectedSourceImages.value.push(img)
+}
 
 const modalOriginalPrompt = ref('')
 const modalOriginalSettings = ref(null)
