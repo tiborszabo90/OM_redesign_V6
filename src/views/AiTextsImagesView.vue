@@ -104,62 +104,61 @@
           </div>
 
           <!-- Advanced Settings panel -->
-          <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-4">
+          <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-3">
 
-            <!-- Model + Ratio -->
-            <div class="flex items-center gap-2">
-              <div class="w-48">
-                <Dropdown v-model="promptModel" :options="modelOptions" size="sm">
-                  <template #selected="{ label }"><span class="whitespace-nowrap">Model: {{ label }}</span></template>
-                </Dropdown>
+            <!-- 2 columns -->
+            <div class="grid grid-cols-2 gap-3 items-stretch">
+
+              <!-- Col 1: Model + Ratio -->
+              <div class="bg-om-gray-50 rounded-xl px-4 py-3 min-w-0 flex items-end gap-3">
+                <div class="flex flex-col gap-1 flex-1 min-w-0">
+                  <p class="text-xs text-om-gray-500">Model</p>
+                  <Dropdown v-model="promptModel" :options="modelOptions" size="sm" />
+                </div>
+                <div class="flex flex-col gap-1 flex-1 min-w-0">
+                  <p class="text-xs text-om-gray-500">Ratio</p>
+                  <Dropdown v-model="promptRatio" :options="ratioOptions" size="sm" />
+                </div>
               </div>
-              <div class="w-32">
-                <Dropdown v-model="promptRatio" :options="ratioOptions" size="sm">
-                  <template #selected="{ label }"><span class="whitespace-nowrap">Ratio: {{ label }}</span></template>
-                </Dropdown>
+
+              <!-- Col 2: Usage location -->
+              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                <p class="text-xs text-om-gray-500">Usage location</p>
+                <div class="grid grid-cols-2 mt-0.5">
+                  <RadioButton v-model="pageType" value="product" label="Product page" />
+                  <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Available data sources: full width -->
+            <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+              <p class="text-xs text-om-gray-500">Available data sources</p>
+              <div class="flex flex-wrap gap-1.5">
+                <Tag v-for="src in dataSources" :key="src" variant="orange">{{ src }}</Tag>
               </div>
             </div>
 
-            <!-- Page type -->
-            <div class="flex items-center gap-6">
-              <RadioButton v-model="pageType" value="product" label="Product page" />
-              <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
-            </div>
-
-            <!-- Available data sources -->
-            <div>
-              <p class="text-xs text-om-gray-700 mb-2">Available data sources</p>
-              <div class="flex flex-wrap gap-2">
-                <Tag v-for="src in dataSources" :key="src" variant="orange" class="cursor-pointer">{{ src }}</Tag>
-              </div>
-            </div>
-
-            <!-- Recommender + toggles side by side -->
+            <!-- Data quality: full width below, 3 cols -->
             <div class="grid grid-cols-3 gap-3">
-
-              <!-- Auto generate -->
-              <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                <span class="text-xs text-om-gray-700">Auto-generate prompt variables for products with missing data</span>
+              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                <span class="text-xs text-om-gray-500">Auto-generate prompt variables for products with missing data</span>
                 <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
               </div>
-
-              <!-- Min description length -->
-              <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                <span class="text-xs text-om-gray-700">Minimum description length (character)</span>
+              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                <span class="text-xs text-om-gray-500">Minimum description length (character)</span>
                 <input
                   v-model="minDescLength"
                   type="number"
                   min="0"
-                  class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white"
+                  class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white shrink-0"
                 />
               </div>
-
-              <!-- Use product image -->
-              <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                <span class="text-xs text-om-gray-700">Use product image as context</span>
+              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                <span class="text-xs text-om-gray-500">Use product image as context</span>
                 <ToggleSwitch v-model="useProductImage" class="shrink-0" />
               </div>
-
             </div>
 
             <div class="flex justify-end">
@@ -573,52 +572,43 @@
             </div>
 
             <!-- Advanced Settings panel -->
-            <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-4">
-              <!-- Model + Ratio -->
-              <div class="flex items-center gap-2">
-                <div class="w-48">
-                  <Dropdown v-model="promptModel" :options="modelOptions" size="sm">
-                    <template #selected="{ label }"><span class="whitespace-nowrap">Model: {{ label }}</span></template>
-                  </Dropdown>
+            <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-3">
+              <div class="grid grid-cols-2 gap-3 items-stretch">
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 min-w-0 flex items-end gap-3">
+                  <div class="flex flex-col gap-1 flex-1 min-w-0">
+                    <p class="text-xs text-om-gray-500">Model</p>
+                    <Dropdown v-model="promptModel" :options="modelOptions" size="sm" />
+                  </div>
+                  <div class="flex flex-col gap-1 flex-1 min-w-0">
+                    <p class="text-xs text-om-gray-500">Ratio</p>
+                    <Dropdown v-model="promptRatio" :options="ratioOptions" size="sm" />
+                  </div>
                 </div>
-                <div class="w-32">
-                  <Dropdown v-model="promptRatio" :options="ratioOptions" size="sm">
-                    <template #selected="{ label }"><span class="whitespace-nowrap">Ratio: {{ label }}</span></template>
-                  </Dropdown>
-                </div>
-              </div>
-
-              <!-- Page type -->
-              <div class="flex items-center gap-6">
-                <RadioButton v-model="pageType" value="product" label="Product page" />
-                <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
-              </div>
-
-              <!-- Available data sources -->
-              <div>
-                <p class="text-xs text-om-gray-700 mb-2">Available data sources</p>
-                <div class="flex flex-wrap gap-2">
-                  <Tag v-for="src in dataSources" :key="src" variant="orange" class="cursor-pointer">{{ src }}</Tag>
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                  <p class="text-xs text-om-gray-500">Usage location</p>
+                  <div class="grid grid-cols-2 mt-0.5">
+                    <RadioButton v-model="pageType" value="product" label="Product page" />
+                    <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
+                  </div>
                 </div>
               </div>
-
-              <!-- Recommender + toggles side by side -->
+              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                <p class="text-xs text-om-gray-500">Available data sources</p>
+                <div class="flex flex-wrap gap-1.5">
+                  <Tag v-for="src in dataSources" :key="src" variant="orange">{{ src }}</Tag>
+                </div>
+              </div>
               <div class="grid grid-cols-3 gap-3">
-                <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                  <span class="text-xs text-om-gray-700">Auto-generate prompt variables for products with missing data</span>
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                  <span class="text-xs text-om-gray-500">Auto-generate prompt variables for products with missing data</span>
                   <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
                 </div>
-                <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                  <span class="text-xs text-om-gray-700">Minimum description length (character)</span>
-                  <input
-                    v-model="minDescLength"
-                    type="number"
-                    min="0"
-                    class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white"
-                  />
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                  <span class="text-xs text-om-gray-500">Minimum description length (character)</span>
+                  <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white shrink-0" />
                 </div>
-                <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                  <span class="text-xs text-om-gray-700">Use product image as context</span>
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                  <span class="text-xs text-om-gray-500">Use product image as context</span>
                   <ToggleSwitch v-model="useProductImage" class="shrink-0" />
                 </div>
               </div>
@@ -711,20 +701,52 @@
                     class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
                   />
                   <!-- {{ showAdvanced ? 'Basic Settings' : 'Advanced Settings' }} panel -->
-                  <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-6">
-                    <!-- Model + Ratio -->
-                    <div class="flex items-center gap-2">
-                      <Tag>Model: {{ promptModel }}</Tag>
-                      <Tag>Ratio: {{ promptRatio }}</Tag>
+                  <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-3">
+                    <div class="grid grid-cols-2 gap-3 items-stretch">
+                      <!-- Col 1: Model + Ratio tags -->
+                      <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                          <Tag>Model: {{ promptModel }}</Tag>
+                          <Tag>Ratio: {{ promptRatio }}</Tag>
+                        </div>
+                      </div>
+                      <!-- Col 2: Usage location -->
+                      <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                        <p class="text-xs text-om-gray-500">Usage location</p>
+                        <div class="grid grid-cols-2 mt-0.5">
+                          <RadioButton v-model="pageType" value="product" label="Product page" />
+                          <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
+                        </div>
+                      </div>
                     </div>
-                    <!-- Source images -->
-                    <div>
-                      <p class="text-xs text-om-gray-700 mb-2">Source images</p>
+                    <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                      <p class="text-xs text-om-gray-500">Available data sources</p>
+                      <div class="flex flex-wrap gap-1.5">
+                        <Tag v-for="src in dataSources" :key="src" variant="orange">{{ src }}</Tag>
+                      </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                      <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                        <span class="text-xs text-om-gray-500">Auto-generate prompt variables for products with missing data</span>
+                        <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
+                      </div>
+                      <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                        <span class="text-xs text-om-gray-500">Minimum description length (character)</span>
+                        <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white shrink-0" />
+                      </div>
+                      <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                        <span class="text-xs text-om-gray-500">Use product image as context</span>
+                        <ToggleSwitch v-model="useProductImage" class="shrink-0" />
+                      </div>
+                    </div>
+                    <!-- Source images: separate block at bottom -->
+                    <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                      <p class="text-xs text-om-gray-500">Source images</p>
                       <div class="flex gap-2 flex-wrap">
                         <div
                           v-for="img in availableSourceImages"
                           :key="img.id"
-                          class="relative w-16 h-16 rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-150 shrink-0"
+                          class="relative w-14 h-14 rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-150 shrink-0"
                           :class="sourceImageSelected(img.id) ? 'border-om-orange-500 shadow-[0_0_0_2px_#FBD9CE]' : 'border-om-gray-200 hover:border-om-gray-300'"
                           @click="toggleSourceImage(img)"
                         >
@@ -733,30 +755,6 @@
                             <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-6">
-                      <RadioButton v-model="pageType" value="product" label="Product page" />
-                      <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
-                    </div>
-                    <div>
-                      <p class="text-xs text-om-gray-700 mb-2">Available data sources</p>
-                      <div class="flex flex-wrap gap-2">
-                        <Tag v-for="src in dataSources" :key="src" variant="orange" class="cursor-pointer">{{ src }}</Tag>
-                      </div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-3">
-                      <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                        <span class="text-xs text-om-gray-700">Auto-generate prompt variables for products with missing data</span>
-                        <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
-                      </div>
-                      <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                        <span class="text-xs text-om-gray-700">Minimum description length (character)</span>
-                        <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white" />
-                      </div>
-                      <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                        <span class="text-xs text-om-gray-700">Use product image as context</span>
-                        <ToggleSwitch v-model="useProductImage" class="shrink-0" />
                       </div>
                     </div>
                   </div>
@@ -904,36 +902,39 @@
             <Button v-if="!showAdvanced" variant="ghost" size="sm" class="shrink-0 ml-4" @click="showAdvanced = true">Advanced Settings <ChevronDown :size="14" /></Button>
           </div>
           <!-- Advanced Settings panel -->
-          <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-4">
-            <!-- Model -->
-            <div class="flex items-center gap-2">
-              <div class="w-48">
-                <Dropdown v-model="promptModel" :options="modelOptions" size="sm">
-                  <template #selected="{ label }"><span class="whitespace-nowrap">Model: {{ label }}</span></template>
-                </Dropdown>
+          <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-3">
+            <div class="grid grid-cols-2 gap-3 items-stretch">
+              <div class="bg-om-gray-50 rounded-xl px-4 py-3 min-w-0">
+                <div class="flex flex-col gap-1">
+                  <p class="text-xs text-om-gray-500">Model</p>
+                  <Dropdown v-model="promptModel" :options="modelOptions" size="sm" />
+                </div>
+              </div>
+              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                <p class="text-xs text-om-gray-500">Usage location</p>
+                <div class="grid grid-cols-2 mt-0.5">
+                  <RadioButton v-model="pageType" value="product" label="Product page" />
+                  <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
+                </div>
               </div>
             </div>
-            <div class="flex items-center gap-6">
-              <RadioButton v-model="pageType" value="product" label="Product page" />
-              <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
-            </div>
-            <div>
-              <p class="text-xs text-om-gray-700 mb-2">Available data sources</p>
-              <div class="flex flex-wrap gap-2">
-                <Tag v-for="src in dataSources" :key="src" variant="orange" class="cursor-pointer">{{ src }}</Tag>
+            <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+              <p class="text-xs text-om-gray-500">Available data sources</p>
+              <div class="flex flex-wrap gap-1.5">
+                <Tag v-for="src in dataSources" :key="src" variant="orange">{{ src }}</Tag>
               </div>
             </div>
             <div class="grid grid-cols-3 gap-3">
-              <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                <span class="text-xs text-om-gray-700">Auto-generate prompt variables for products with missing data</span>
+              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                <span class="text-xs text-om-gray-500">Auto-generate prompt variables for products with missing data</span>
                 <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
               </div>
-              <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                <span class="text-xs text-om-gray-700">Minimum description length (character)</span>
-                <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white" />
+              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                <span class="text-xs text-om-gray-500">Minimum description length (character)</span>
+                <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white shrink-0" />
               </div>
-              <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                <span class="text-xs text-om-gray-700">Use product image as context</span>
+              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                <span class="text-xs text-om-gray-500">Use product image as context</span>
                 <ToggleSwitch v-model="useProductImage" class="shrink-0" />
               </div>
             </div>
@@ -1170,39 +1171,39 @@
               </Button>
             </div>
             <!-- Advanced Settings panel -->
-            <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-4">
-              <!-- Model -->
-              <div class="flex items-center gap-2">
-                <div class="w-48">
-                  <Dropdown v-model="promptModel" :options="modelOptions" size="sm">
-                    <template #selected="{ label }"><span class="whitespace-nowrap">Model: {{ label }}</span></template>
-                  </Dropdown>
+            <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-3">
+              <div class="grid grid-cols-2 gap-3 items-stretch">
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 min-w-0">
+                  <div class="flex flex-col gap-1">
+                    <p class="text-xs text-om-gray-500">Model</p>
+                    <Dropdown v-model="promptModel" :options="modelOptions" size="sm" />
+                  </div>
+                </div>
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                  <p class="text-xs text-om-gray-500">Usage location</p>
+                  <div class="grid grid-cols-2 mt-0.5">
+                    <RadioButton v-model="pageType" value="product" label="Product page" />
+                    <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
+                  </div>
                 </div>
               </div>
-              <!-- Page type -->
-              <div class="flex items-center gap-6">
-                <RadioButton v-model="pageType" value="product" label="Product page" />
-                <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
-              </div>
-              <!-- Available data sources -->
-              <div>
-                <p class="text-xs text-om-gray-700 mb-2">Available data sources</p>
-                <div class="flex flex-wrap gap-2">
-                  <Tag v-for="src in dataSources" :key="src" variant="orange" class="cursor-pointer">{{ src }}</Tag>
+              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                <p class="text-xs text-om-gray-500">Available data sources</p>
+                <div class="flex flex-wrap gap-1.5">
+                  <Tag v-for="src in dataSources" :key="src" variant="orange">{{ src }}</Tag>
                 </div>
               </div>
-              <!-- Toggles -->
               <div class="grid grid-cols-3 gap-3">
-                <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                  <span class="text-xs text-om-gray-700">Auto-generate prompt variables for products with missing data</span>
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                  <span class="text-xs text-om-gray-500">Auto-generate prompt variables for products with missing data</span>
                   <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
                 </div>
-                <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                  <span class="text-xs text-om-gray-700">Minimum description length (character)</span>
-                  <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white" />
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                  <span class="text-xs text-om-gray-500">Minimum description length (character)</span>
+                  <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white shrink-0" />
                 </div>
-                <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                  <span class="text-xs text-om-gray-700">Use product image as context</span>
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                  <span class="text-xs text-om-gray-500">Use product image as context</span>
                   <ToggleSwitch v-model="useProductImage" class="shrink-0" />
                 </div>
               </div>
@@ -1585,6 +1586,9 @@ watch(() => props.screen, (s) => {
   if (s === 'text-preview') {
     textGenerating.value = false
     textGenerated.value = false
+  }
+  if (s === 'generation-product') {
+    useProductImage.value = true
   }
 })
 

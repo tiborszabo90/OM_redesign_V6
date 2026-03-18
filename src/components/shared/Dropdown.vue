@@ -157,14 +157,23 @@ const handleClickOutside = (event) => {
   }
 }
 
+let resizeObserver = null
+
 onMounted(() => {
   if (dropdownRef.value) {
     lockedWidth.value = dropdownRef.value.offsetWidth + 'px'
+    resizeObserver = new ResizeObserver(() => {
+      if (dropdownRef.value && !isOpen.value) {
+        lockedWidth.value = dropdownRef.value.offsetWidth + 'px'
+      }
+    })
+    resizeObserver.observe(dropdownRef.value)
   }
   document.addEventListener('click', handleClickOutside)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  resizeObserver?.disconnect()
 })
 </script>
