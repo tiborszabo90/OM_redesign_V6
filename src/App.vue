@@ -548,6 +548,7 @@ const handleGoAiTextsImages = () => {
 }
 
 const settingsInitialSection = computed(() => {
+  if (currentView.value?.startsWith('settings-ai-texts-images-v1')) return 'products-ai-texts-images-v1'
   if (currentView.value?.startsWith('settings-ai')) return 'products-ai-texts-images'
   return 'personal-details'
 })
@@ -560,10 +561,21 @@ const settingsInitialScreen = computed(() => {
     'settings-ai-texts-images-preview': 'image-preview',
     'settings-ai-texts-images-choose-products': 'choose-products',
     'settings-ai-texts-images-generation': 'generation',
+    'settings-ai-texts-images-generation-product': 'generation-product',
     'settings-ai-texts-images-add-products': 'add-products',
     'settings-ai-texts-images-text-presets': 'text-presets',
     'settings-ai-texts-images-text-preview': 'text-preview',
     'settings-ai-texts-images-text-generation': 'text-generation',
+    'settings-ai-texts-images-v1': 'list',
+    'settings-ai-texts-images-v1-new': 'new',
+    'settings-ai-texts-images-v1-presets': 'image-presets',
+    'settings-ai-texts-images-v1-preview': 'image-preview',
+    'settings-ai-texts-images-v1-choose-products': 'choose-products',
+    'settings-ai-texts-images-v1-generation': 'generation',
+    'settings-ai-texts-images-v1-add-products': 'add-products',
+    'settings-ai-texts-images-v1-text-presets': 'text-presets',
+    'settings-ai-texts-images-v1-text-preview': 'text-preview',
+    'settings-ai-texts-images-v1-text-generation': 'text-generation',
   }
   return map[currentView.value] || 'list'
 })
@@ -671,7 +683,8 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
       v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaigns-empty', 'campaign-page-v1', 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor', 'ai-texts-images', 'ai-texts-images-new', 'ai-texts-images-presets', 'ai-texts-images-preview', 'ai-texts-images-choose-products', 'ai-texts-images-generation', 'ai-texts-images-add-products', 'ai-texts-images-text-presets', 'ai-texts-images-text-preview', 'ai-texts-images-text-generation',
-        'settings-ai-texts-images', 'settings-ai-texts-images-new', 'settings-ai-texts-images-presets', 'settings-ai-texts-images-preview', 'settings-ai-texts-images-choose-products', 'settings-ai-texts-images-generation', 'settings-ai-texts-images-add-products', 'settings-ai-texts-images-text-presets', 'settings-ai-texts-images-text-preview', 'settings-ai-texts-images-text-generation'].includes(currentView)"
+        'settings-ai-texts-images', 'settings-ai-texts-images-new', 'settings-ai-texts-images-presets', 'settings-ai-texts-images-preview', 'settings-ai-texts-images-choose-products', 'settings-ai-texts-images-generation', 'settings-ai-texts-images-generation-product', 'settings-ai-texts-images-add-products', 'settings-ai-texts-images-text-presets', 'settings-ai-texts-images-text-preview', 'settings-ai-texts-images-text-generation',
+        'settings-ai-texts-images-v1', 'settings-ai-texts-images-v1-new', 'settings-ai-texts-images-v1-presets', 'settings-ai-texts-images-v1-preview', 'settings-ai-texts-images-v1-choose-products', 'settings-ai-texts-images-v1-generation', 'settings-ai-texts-images-v1-add-products', 'settings-ai-texts-images-v1-text-presets', 'settings-ai-texts-images-v1-text-preview', 'settings-ai-texts-images-v1-text-generation'].includes(currentView)"
       class="pt-8 pl-8 shrink-0"
     >
       <img

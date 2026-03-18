@@ -117,6 +117,15 @@
             />
           </template>
 
+          <!-- AI Texts & Images V1 embedded -->
+          <template v-else-if="activeSection === 'products-ai-texts-images-v1'">
+            <AiTextsImagesV1View
+              :screen="embeddedScreen"
+              :embedded="true"
+              @navigate="handleEmbeddedNavigateV1"
+            />
+          </template>
+
           <!-- Placeholder for all other sections -->
           <template v-else>
             <h1 class="text-xl font-bold text-om-gray-700 mb-8">{{ currentSectionTitle }}</h1>
@@ -135,6 +144,7 @@ import FormInput from '../components/shared/FormInput.vue'
 import Button from '../components/shared/Button.vue'
 import RadioButton from '../components/shared/RadioButton.vue'
 import AiTextsImagesView from './AiTextsImagesView.vue'
+import AiTextsImagesV1View from './AiTextsImagesV1View.vue'
 
 const props = defineProps({
   initialSection: { type: String, default: 'personal-details' },
@@ -229,12 +239,29 @@ const screenMap = {
   'ai-texts-images-preview': 'image-preview',
   'ai-texts-images-choose-products': 'choose-products',
   'ai-texts-images-generation': 'generation',
+  'ai-texts-images-generation-product': 'generation-product',
   'ai-texts-images-add-products': 'add-products',
   'ai-texts-images-text-presets': 'text-presets',
   'ai-texts-images-text-generation': 'text-generation',
 }
 const handleEmbeddedNavigate = (route) => {
   embeddedScreen.value = screenMap[route] ?? 'list'
+  emit('navigate', 'settings-' + route)
+}
+
+const screenMapV1 = {
+  'ai-texts-images-v1': 'list',
+  'ai-texts-images-v1-new': 'new',
+  'ai-texts-images-v1-presets': 'image-presets',
+  'ai-texts-images-v1-preview': 'image-preview',
+  'ai-texts-images-v1-choose-products': 'choose-products',
+  'ai-texts-images-v1-generation': 'generation',
+  'ai-texts-images-v1-add-products': 'add-products',
+  'ai-texts-images-v1-text-presets': 'text-presets',
+  'ai-texts-images-v1-text-generation': 'text-generation',
+}
+const handleEmbeddedNavigateV1 = (route) => {
+  embeddedScreen.value = screenMapV1[route] ?? 'list'
   emit('navigate', 'settings-' + route)
 }
 </script>

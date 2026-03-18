@@ -667,6 +667,7 @@ const archiveItems = ref([
   { view: 'wizard-recommendation-v5', label: 'Recommendation V5' },
   { view: 'wizard-analysis', label: 'Wizard Flow' },
   { view: 'wizard-analysis-no-chat', label: 'Wizard Flow (no chat)' },
+  { view: 'settings-ai-texts-images-v1', label: 'AI Texts & Images V1' },
 ])
 
 const archiveViews = computed(() => archiveItems.value.map(item => item.view))

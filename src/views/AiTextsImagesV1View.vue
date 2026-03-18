@@ -5,25 +5,17 @@
 
       <!-- Preview Generation screen -->
       <div v-if="showPreview" class="w-full max-w-[1400px] mx-auto -mt-3">
-        <!-- Back + pathway -->
-        <div class="flex items-center gap-2 mb-2">
-          <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-presets')">
-            <template #icon><ArrowLeft :size="16" /></template>
-          </Button>
-          <nav class="flex items-center gap-1.5 text-sm text-om-gray-400">
-<span>New Variable</span>
-            <span class="text-om-gray-300">›</span>
-            <span>Preset</span>
-            <span class="text-om-gray-300">›</span>
-            <span class="text-om-gray-600 font-medium">Preview</span>
-          </nav>
-        </div>
-        <!-- Title + action -->
+        <!-- Back + title + action -->
         <div class="flex items-center justify-between mb-1">
-          <h1 class="text-2xl font-semibold text-om-gray-700">Preview Generation</h1>
-          <Button variant="primary" size="md" @click="emit('navigate', 'ai-texts-images-choose-products')">Choose Products</Button>
+          <div class="flex items-center gap-3">
+            <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-v1-presets')">
+              <template #icon><ArrowLeft :size="16" /></template>
+            </Button>
+            <h1 class="text-2xl font-semibold text-om-gray-700">Preview Generation</h1>
+          </div>
+          <Button variant="primary" size="md" @click="emit('navigate', 'ai-texts-images-v1-choose-products')">Choose Products</Button>
         </div>
-        <p class="text-sm text-om-gray-500 mb-6">Test your selected preset and adjust the prompt before applying to your catalogue.</p>
+        <p class="text-sm text-om-gray-500 mb-6 ml-11">Test your selected preset and adjust the prompt before applying to your catalogue.</p>
 
         <!-- Two columns -->
         <div class="grid grid-cols-[380px_1fr] gap-4 mb-4 items-stretch" style="height: 500px;">
@@ -61,9 +53,9 @@
                   <template #icon><Sparkles :size="14" /></template>
                   Generate Preview
                 </Button>
-                <div class="flex items-center gap-1.5 mt-3 text-sm font-medium text-om-orange-500">
-                  <Coins :size="16" />
-                  Costs {{ selectedImagePreset?.credits ?? 15 }} credits
+                <div class="flex items-center gap-1.5 mt-3 text-xs text-om-gray-400">
+                  <Coins :size="13" />
+                  Costs 20 credits
                 </div>
               </template>
               <template v-else-if="generating">
@@ -92,6 +84,14 @@
         <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-sm font-semibold text-om-gray-700">Prompt Editor</h3>
+            <div class="flex items-center gap-2">
+              <Dropdown v-model="promptModel" :options="modelOptions" size="sm">
+                <template #selected="{ label }"><span class="whitespace-nowrap">Model: {{ label }}</span></template>
+              </Dropdown>
+              <Dropdown v-model="promptRatio" :options="ratioOptions" size="sm">
+                <template #selected="{ label }"><span class="whitespace-nowrap">Ratio: {{ label }}</span></template>
+              </Dropdown>
+            </div>
           </div>
           <textarea
             v-model="promptText"
@@ -100,25 +100,11 @@
           />
           <div class="flex items-center justify-between mt-2">
             <p class="text-xs text-om-gray-400">Edit the prompt above to customize the generation. Changes will require regenerating the preview.</p>
-            <Button v-if="!showAdvanced" variant="ghost" size="sm" class="shrink-0 ml-4" @click="showAdvanced = true">Advanced Settings <ChevronDown :size="14" /></Button>
+            <Button variant="ghost" size="sm" class="shrink-0 ml-4" @click="showAdvanced = !showAdvanced">Advanced Settings</Button>
           </div>
 
           <!-- Advanced Settings panel -->
           <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-4">
-
-            <!-- Model + Ratio -->
-            <div class="flex items-center gap-2">
-              <div class="w-48">
-                <Dropdown v-model="promptModel" :options="modelOptions" size="sm">
-                  <template #selected="{ label }"><span class="whitespace-nowrap">Model: {{ label }}</span></template>
-                </Dropdown>
-              </div>
-              <div class="w-32">
-                <Dropdown v-model="promptRatio" :options="ratioOptions" size="sm">
-                  <template #selected="{ label }"><span class="whitespace-nowrap">Ratio: {{ label }}</span></template>
-                </Dropdown>
-              </div>
-            </div>
 
             <!-- Page type -->
             <div class="flex items-center gap-6">
@@ -135,7 +121,13 @@
             </div>
 
             <!-- Recommender + toggles side by side -->
-            <div class="grid grid-cols-3 gap-3">
+            <div class="grid grid-cols-4 gap-3">
+
+              <!-- Ajánló -->
+              <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
+                <span class="text-xs text-om-gray-700 shrink-0">Ajánló</span>
+                <Dropdown v-model="recommender" :options="recommenderOptions" size="sm" />
+              </div>
 
               <!-- Auto generate -->
               <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
@@ -162,29 +154,20 @@
 
             </div>
 
-            <div class="flex justify-end">
-              <Button variant="ghost" size="sm" @click="showAdvanced = false">Basic Settings <ChevronUp :size="14" /></Button>
-            </div>
-
           </div>
         </div>
       </div>
 
       <!-- Image Presets screen -->
       <div v-else-if="showImagePresets" class="w-full max-w-[1400px] mx-auto -mt-3">
-        <!-- Back + pathway -->
-        <div class="flex items-center gap-2 mb-2">
-          <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-new')">
+        <!-- Back + title -->
+        <div class="flex items-center gap-3 mb-1">
+          <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-v1-new')">
             <template #icon><ArrowLeft :size="16" /></template>
           </Button>
-          <nav class="flex items-center gap-1.5 text-sm text-om-gray-400">
-<span>New Variable</span>
-            <span class="text-om-gray-300">›</span>
-            <span class="text-om-gray-600 font-medium">Preset</span>
-          </nav>
+          <h1 class="text-2xl font-semibold text-om-gray-700">Choose a Preset</h1>
         </div>
-        <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Choose a Preset</h1>
-        <p class="text-sm text-om-gray-500 mb-8">Select a starting point for your AI generation.</p>
+        <p class="text-sm text-om-gray-500 mb-8 ml-11">Select a starting point for your AI generation.</p>
 
         <!-- Preset cards grid -->
         <div class="grid grid-cols-3 min-[1440px]:grid-cols-4 gap-4">
@@ -223,19 +206,14 @@
 
       <!-- Text Presets screen -->
       <div v-else-if="showTextPresets" class="w-full max-w-[1400px] mx-auto -mt-3">
-        <!-- Back + pathway -->
-        <div class="flex items-center gap-2 mb-2">
-          <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-new')">
+        <!-- Back + title -->
+        <div class="flex items-center gap-3 mb-1">
+          <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-v1-new')">
             <template #icon><ArrowLeft :size="16" /></template>
           </Button>
-          <nav class="flex items-center gap-1.5 text-sm text-om-gray-400">
-<span>New Variable</span>
-            <span class="text-om-gray-300">›</span>
-            <span class="text-om-gray-600 font-medium">Preset</span>
-          </nav>
+          <h1 class="text-2xl font-semibold text-om-gray-700">Choose a Text Type</h1>
         </div>
-        <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Choose a Preset</h1>
-        <p class="text-sm text-om-gray-500 mb-8">Select the type of text content you want to generate for your products.</p>
+        <p class="text-sm text-om-gray-500 mb-8 ml-11">Select the type of text content you want to generate for your products.</p>
 
         <!-- Text type cards grid -->
         <div class="grid grid-cols-3 gap-4">
@@ -270,22 +248,19 @@
 
       <!-- Create New Variable screen -->
       <div v-else-if="showCreate" class="w-full max-w-[1400px] mx-auto -mt-3">
-        <!-- Back + pathway -->
-        <div class="flex items-center gap-2 mb-2">
+        <!-- Back + title -->
+        <div class="flex items-center gap-3 mb-1">
           <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images')">
             <template #icon><ArrowLeft :size="16" /></template>
           </Button>
-          <nav class="flex items-center gap-1.5 text-sm text-om-gray-400">
-<span class="text-om-gray-600 font-medium">New Variable</span>
-          </nav>
+          <h1 class="text-2xl font-semibold text-om-gray-700">Create New Variable</h1>
         </div>
-        <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Create New Variable</h1>
-        <p class="text-sm text-om-gray-500 mb-10">What type of content do you want to generate?</p>
+        <p class="text-sm text-om-gray-500 mb-10 ml-11">What type of content do you want to generate?</p>
 
         <!-- Type cards -->
         <div class="flex gap-6 justify-center items-center min-h-[50vh]">
           <!-- AI Text -->
-          <div class="group bg-white rounded-xl border-2 border-om-gray-200 p-6 w-80 cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03] transition-all duration-200 flex flex-col" @click="emit('navigate', 'ai-texts-images-text-presets')">
+          <div class="group bg-white rounded-xl border-2 border-om-gray-200 p-6 w-80 cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03] transition-all duration-200 flex flex-col" @click="emit('navigate', 'ai-texts-images-v1-text-presets')">
             <div class="w-10 h-10 rounded-full bg-om-orange-100 flex items-center justify-center mb-4">
               <Sparkles :size="18" class="text-om-orange-500" />
             </div>
@@ -299,7 +274,7 @@
           <!-- AI Image -->
           <div
             class="group bg-white rounded-xl border-2 border-om-gray-200 p-6 w-80 cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03] transition-all duration-200 flex flex-col"
-            @click="emit('navigate', 'ai-texts-images-presets')"
+            @click="emit('navigate', 'ai-texts-images-v1-presets')"
           >
             <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mb-4">
               <ImageIcon :size="18" class="text-blue-400" />
@@ -334,6 +309,12 @@
         <!-- Title -->
         <h1 class="text-2xl font-bold text-om-gray-800 mb-4">AI lifestyle image 1</h1>
 
+        <!-- Meta badges -->
+        <div class="flex items-center gap-2 mb-5">
+          <Tag>Image</Tag>
+          <Tag>Gemini Nano Banana Pro</Tag>
+          <Tag>16:9</Tag>
+        </div>
 
         <!-- Tabs -->
         <div class="flex items-center border-b border-om-gray-200 mb-6">
@@ -354,10 +335,11 @@
           <!-- Sub-header -->
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-              <span class="text-sm font-semibold text-om-gray-700">{{ genProducts.length }} products</span>
+              <span class="text-sm font-semibold text-om-gray-700">Selected Products</span>
+              <span class="text-sm text-om-gray-400">{{ genProducts.length }} products selected</span>
             </div>
             <div class="flex items-center gap-2">
-            <Button variant="outline" size="md" @click="emit('navigate', 'ai-texts-images-add-products')">Add more products</Button>
+            <Button variant="outline" size="md" @click="emit('navigate', 'ai-texts-images-v1-add-products')">Add more products</Button>
             <div class="relative">
               <Button variant="primary" size="md" @click.stop="showGenMenu = !showGenMenu">
                 Generate
@@ -367,19 +349,6 @@
                 v-if="showGenMenu"
                 class="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-50 min-w-[360px] overflow-hidden"
               >
-                <!-- Generate for selected -->
-                <button
-                  class="w-full flex items-center justify-between px-4 py-3 text-sm border-b border-om-gray-100 transition-colors"
-                  :class="genSelected.length > 0 ? 'hover:bg-om-gray-50 cursor-pointer' : 'opacity-40 cursor-not-allowed'"
-                  :disabled="genSelected.length === 0"
-                  @click="genSelected.length > 0 && triggerGenerate()"
-                >
-                  <span class="text-om-gray-700 text-left">Generate for selected ({{ genSelected.length }})</span>
-                  <span class="flex items-center gap-1.5 font-medium ml-8 tabular-nums whitespace-nowrap" :class="genSelected.length > 0 ? 'text-om-orange-500' : 'text-om-gray-400'">
-                    <Coins :size="13" />
-                    {{ genSelectedCredits }}
-                  </span>
-                </button>
                 <button
                   v-for="opt in genMenuOptions"
                   :key="opt.count"
@@ -388,8 +357,8 @@
                   @click="triggerGenerate"
                 >
                   <span class="text-om-gray-700 text-left">Generate for {{ opt.count }} products</span>
-                  <span class="flex items-center gap-1.5 text-om-orange-500 font-medium ml-8 tabular-nums whitespace-nowrap">
-                    <Coins :size="13" />
+                  <span class="flex items-center gap-1.5 text-om-gray-400 font-medium ml-8 tabular-nums whitespace-nowrap">
+                    <Coins :size="13" class="text-om-gray-400" />
                     {{ opt.credits }}
                   </span>
                 </button>
@@ -401,15 +370,11 @@
           <!-- Product cards -->
           <div class="flex flex-col gap-3">
             <div
-              v-for="product in genProductsPaged"
+              v-for="product in genProducts"
               :key="product.id"
               class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 flex items-stretch gap-0 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow"
               @click="openProductModal(product)"
             >
-              <!-- Checkbox -->
-              <div class="flex items-center pr-3 shrink-0" @click.stop>
-                <Checkbox :model-value="genSelected.includes(product.id)" @update:model-value="v => v ? genSelected.push(product.id) : genSelected.splice(genSelected.indexOf(product.id), 1)" />
-              </div>
               <!-- Left half: product thumbnail + info -->
               <div class="flex items-center gap-3 w-1/2 pr-4">
                 <div class="aspect-square h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
@@ -459,18 +424,6 @@
               </div>
             </div>
           </div>
-          <!-- Pagination -->
-          <div class="flex items-center justify-between px-1 py-4 mt-2 border-t border-om-gray-100">
-            <span class="text-sm text-om-gray-400">Showing {{ (genPage - 1) * genPerPage + 1 }} to {{ Math.min(genPage * genPerPage, genProducts.length) }} of {{ genProducts.length }} entries</span>
-            <div class="flex items-center gap-1">
-              <Button variant="ghost" size="sm" :disabled="genPage === 1" @click="genPage--">Previous</Button>
-              <template v-for="p in genTotalPages" :key="p">
-                <Button v-if="p <= 3 || p === genTotalPages" variant="ghost" size="sm" :active="p === genPage" @click="genPage = p">{{ p }}</Button>
-                <span v-else-if="p === 4 && genTotalPages > 4" class="px-2 text-sm text-om-gray-400">...</span>
-              </template>
-              <Button variant="ghost" size="sm" :disabled="genPage === genTotalPages" @click="genPage++">Next</Button>
-            </div>
-          </div>
         </div>
 
         <!-- Generated tab content -->
@@ -484,15 +437,11 @@
 
           <div class="flex flex-col gap-3">
             <div
-              v-for="product in genProductsGeneratedPaged"
+              v-for="product in genProducts.filter(p => p.status === 'generated')"
               :key="product.id"
               class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 flex items-stretch gap-0 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow"
               @click="openProductModal(product)"
             >
-              <!-- Checkbox -->
-              <div class="flex items-center pr-3 shrink-0" @click.stop>
-                <Checkbox :model-value="genSelected.includes(product.id)" @update:model-value="v => v ? genSelected.push(product.id) : genSelected.splice(genSelected.indexOf(product.id), 1)" />
-              </div>
               <!-- Left half: product thumbnail + info -->
               <div class="flex items-center gap-3 w-1/2 pr-4">
                 <div class="aspect-square h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
@@ -523,18 +472,6 @@
               </div>
             </div>
           </div>
-          <!-- Pagination -->
-          <div class="flex items-center justify-between px-1 py-4 mt-2 border-t border-om-gray-100">
-            <span class="text-sm text-om-gray-400">Showing {{ (genGeneratedPage - 1) * genPerPage + 1 }} to {{ Math.min(genGeneratedPage * genPerPage, genProductsGenerated.length) }} of {{ genProductsGenerated.length }} entries</span>
-            <div class="flex items-center gap-1">
-              <Button variant="ghost" size="sm" :disabled="genGeneratedPage === 1" @click="genGeneratedPage--">Previous</Button>
-              <template v-for="p in genGeneratedTotalPages" :key="p">
-                <Button v-if="p <= 3 || p === genGeneratedTotalPages" variant="ghost" size="sm" :active="p === genGeneratedPage" @click="genGeneratedPage = p">{{ p }}</Button>
-                <span v-else-if="p === 4 && genGeneratedTotalPages > 4" class="px-2 text-sm text-om-gray-400">...</span>
-              </template>
-              <Button variant="ghost" size="sm" :disabled="genGeneratedPage === genGeneratedTotalPages" @click="genGeneratedPage++">Next</Button>
-            </div>
-          </div>
         </div>
 
         <!-- Settings tab content -->
@@ -555,21 +492,23 @@
                   @click="showSaveMenu = false"
                 >Save as new</button>
                 <button
-                  class="w-full flex items-center justify-between px-4 py-3 text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                  class="w-full flex items-center px-4 py-3 text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
                   @click="showSaveMenu = false"
-                >
-                  <span>Save &amp; regenerate 1 product</span>
-                  <span class="flex items-center gap-1.5 text-om-orange-500 font-medium ml-8 tabular-nums whitespace-nowrap">
-                    <Coins :size="13" />
-                    20 credits
-                  </span>
-                </button>
+                >Save &amp; regenerate 1 product</button>
               </div>
             </div>
           </div>
           <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5">
             <div class="flex items-center justify-between mb-4">
-              <p class="text-sm text-om-gray-500">Edit the prompt to customize the generation output. Save it as a new variable, or overwrite the already generated images with the updated settings.</p>
+              <p class="text-sm text-om-gray-500 mr-[50px]">Edit the prompt to customize the generation output. Save it as a new variable, or overwrite the already generated images with the updated settings.</p>
+              <div class="flex items-center gap-2 shrink-0">
+                <Dropdown v-model="promptModel" :options="modelOptions" size="sm">
+                  <template #selected="{ label }"><span class="whitespace-nowrap">Model: {{ label }}</span></template>
+                </Dropdown>
+                <Dropdown v-model="promptRatio" :options="ratioOptions" size="sm">
+                  <template #selected="{ label }"><span class="whitespace-nowrap">Ratio: {{ label }}</span></template>
+                </Dropdown>
+              </div>
             </div>
             <textarea
               v-model="promptText"
@@ -577,27 +516,11 @@
               class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
             />
             <div class="flex justify-end mt-2">
-              <Button v-if="!showAdvanced" variant="ghost" size="sm" @click="showAdvanced = true">
-                Advanced Settings <ChevronDown :size="14" />
-              </Button>
+              <Button variant="ghost" size="sm" @click="showAdvanced = !showAdvanced">Advanced Settings</Button>
             </div>
 
             <!-- Advanced Settings panel -->
             <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-4">
-              <!-- Model + Ratio -->
-              <div class="flex items-center gap-2">
-                <div class="w-48">
-                  <Dropdown v-model="promptModel" :options="modelOptions" size="sm">
-                    <template #selected="{ label }"><span class="whitespace-nowrap">Model: {{ label }}</span></template>
-                  </Dropdown>
-                </div>
-                <div class="w-32">
-                  <Dropdown v-model="promptRatio" :options="ratioOptions" size="sm">
-                    <template #selected="{ label }"><span class="whitespace-nowrap">Ratio: {{ label }}</span></template>
-                  </Dropdown>
-                </div>
-              </div>
-
               <!-- Page type -->
               <div class="flex items-center gap-6">
                 <RadioButton v-model="pageType" value="product" label="Product page" />
@@ -613,7 +536,11 @@
               </div>
 
               <!-- Recommender + toggles side by side -->
-              <div class="grid grid-cols-3 gap-3">
+              <div class="grid grid-cols-4 gap-3">
+                <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
+                  <span class="text-xs text-om-gray-700 shrink-0">Ajánló</span>
+                  <Dropdown v-model="recommender" :options="recommenderOptions" size="sm" />
+                </div>
                 <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
                   <span class="text-xs text-om-gray-700">Auto-generate prompt variables for products with missing data</span>
                   <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
@@ -632,24 +559,30 @@
                   <ToggleSwitch v-model="useProductImage" class="shrink-0" />
                 </div>
               </div>
-              <div class="flex justify-end">
-                <Button variant="ghost" size="sm" @click="showAdvanced = false">Basic Settings <ChevronUp :size="14" /></Button>
-              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Generation Product screen -->
-      <div v-else-if="showGenerationProduct && selectedProduct" class="w-full max-w-[1400px] mx-auto -mt-3">
-        <!-- Back -->
-        <div class="flex items-center gap-2 mb-2">
-          <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-generation')">
-            <template #icon><ArrowLeft :size="16" /></template>
-          </Button>
-        </div>
-        <h1 class="text-2xl font-semibold text-om-gray-700 mb-4">{{ selectedProduct.name }}</h1>
-        <div>
+      <!-- Product Generation Modal -->
+      <Teleport to="body">
+        <Transition name="modal-fade">
+          <div
+            v-if="showProductModal && selectedProduct"
+            class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6"
+            @click.self="showProductModal = false"
+          >
+            <div class="bg-om-gray-50 rounded-2xl w-full max-w-300 max-h-[88vh] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
+              <!-- Modal header -->
+              <div class="flex items-center justify-between px-6 pt-4 pb-3 shrink-0 bg-om-gray-50 rounded-t-2xl transition-shadow" :class="modalScrolled ? 'shadow-[0_2px_8px_rgba(0,0,0,0.08)]' : ''">
+                <div>
+                  <h2 class="text-xl font-bold text-om-gray-800">{{ selectedProduct.name }}</h2>
+                </div>
+                <Button variant="ghost" size="sm" icon-only @click="showProductModal = false">
+                  <template #icon><X :size="16" /></template>
+                </Button>
+              </div>
+
+              <div class="px-6 pb-6 overflow-y-auto" @scroll="modalScrolled = $event.target.scrollTop > 0">
                 <!-- Two columns -->
                 <div class="grid grid-cols-[340px_1fr] gap-4 mb-4 items-stretch" style="height: 440px;">
                   <!-- Left: Original Product -->
@@ -710,23 +643,18 @@
                 <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5">
                   <div class="flex items-center justify-between mb-4">
                     <h3 class="text-sm font-semibold text-om-gray-700">Edit the prompt to customize the generation for this product.</h3>
-                    <Button variant="primary" size="sm" @click="regenerateProduct">
-                      <template #icon><Sparkles :size="13" /></template>
-                      Regenerate
-                    </Button>
+                    <div class="flex items-center gap-2">
+                      <Tag>Model: {{ promptModel }}</Tag>
+                      <Tag>Ratio: {{ promptRatio }}</Tag>
+                    </div>
                   </div>
                   <textarea
                     v-model="promptText"
                     rows="3"
                     class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
                   />
-                  <!-- {{ showAdvanced ? 'Basic Settings' : 'Advanced Settings' }} panel -->
+                  <!-- Advanced Settings panel -->
                   <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-4">
-                    <!-- Model + Ratio -->
-                    <div class="flex items-center gap-2">
-                      <Tag>Model: {{ promptModel }}</Tag>
-                      <Tag>Ratio: {{ promptRatio }}</Tag>
-                    </div>
                     <div class="flex items-center gap-6">
                       <RadioButton v-model="pageType" value="product" label="Product page" />
                       <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
@@ -737,7 +665,11 @@
                         <Tag v-for="src in dataSources" :key="src" variant="orange" class="cursor-pointer">{{ src }}</Tag>
                       </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-3">
+                    <div class="grid grid-cols-4 gap-3">
+                      <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
+                        <span class="text-xs text-om-gray-700 shrink-0">Ajánló</span>
+                        <Dropdown v-model="recommender" :options="recommenderOptions" size="sm" />
+                      </div>
                       <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
                         <span class="text-xs text-om-gray-700">Auto-generate prompt variables for products with missing data</span>
                         <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
@@ -754,33 +686,30 @@
                   </div>
 
                   <div class="flex items-center justify-end mt-3">
-                    <Button variant="ghost" size="sm" @click="showAdvanced = !showAdvanced">{{ showAdvanced ? 'Basic Settings' : 'Advanced Settings' }} <component :is="showAdvanced ? ChevronUp : ChevronDown" :size="14" /></Button>
+                    <Button variant="ghost" size="sm" @click="showAdvanced = !showAdvanced">Advanced Settings</Button>
                   </div>
                 </div>
-        </div>
+              </div>
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
+
       </div>
 
       <!-- Text Preview screen -->
       <div v-else-if="showTextPreview" class="w-full max-w-[1400px] mx-auto -mt-3">
-        <!-- Back + pathway -->
-        <div class="flex items-center gap-2 mb-2">
-          <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-text-presets')">
-            <template #icon><ArrowLeft :size="16" /></template>
-          </Button>
-          <nav class="flex items-center gap-1.5 text-sm text-om-gray-400">
-<span>New Variable</span>
-            <span class="text-om-gray-300">›</span>
-            <span>Preset</span>
-            <span class="text-om-gray-300">›</span>
-            <span class="text-om-gray-600 font-medium">Preview</span>
-          </nav>
-        </div>
-        <!-- Title + action -->
+        <!-- Back + title + action -->
         <div class="flex items-center justify-between mb-1">
-          <h1 class="text-2xl font-semibold text-om-gray-700">Preview Generation</h1>
-          <Button variant="primary" size="md" @click="() => { cpFromText = true; emit('navigate', 'ai-texts-images-choose-products') }">Next</Button>
+          <div class="flex items-center gap-3">
+            <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-v1-text-presets')">
+              <template #icon><ArrowLeft :size="16" /></template>
+            </Button>
+            <h1 class="text-2xl font-semibold text-om-gray-700">Preview Generation</h1>
+          </div>
+          <Button variant="primary" size="md" @click="() => { cpFromText = true; emit('navigate', 'ai-texts-images-v1-choose-products') }">Choose Products</Button>
         </div>
-        <p class="text-sm text-om-gray-500 mb-6">Test your selected text type and adjust the prompt before applying to your catalogue.</p>
+        <p class="text-sm text-om-gray-500 mb-6 ml-11">Test your selected text type and adjust the prompt before applying to your catalogue.</p>
 
         <!-- Two columns -->
         <div class="grid grid-cols-[240px_1fr] gap-4 mb-4 items-stretch" style="height: 360px;">
@@ -820,8 +749,8 @@
                     <template #icon><Sparkles :size="14" /></template>
                     Generate Preview
                   </Button>
-                  <div class="flex items-center gap-1.5 mt-3 text-sm font-medium text-om-orange-500">
-                    <Coins :size="16" />
+                  <div class="flex items-center gap-1.5 mt-3 text-xs text-om-gray-400">
+                    <Coins :size="13" />
                     Costs {{ selectedTextPreset?.credits ?? 1 }} credits
                   </div>
                 </div>
@@ -884,6 +813,11 @@
         <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-sm font-semibold text-om-gray-700">Prompt Editor</h3>
+            <div class="flex items-center gap-2">
+              <Dropdown v-model="promptModel" :options="modelOptions" size="sm">
+                <template #selected="{ label }"><span class="whitespace-nowrap">Model: {{ label }}</span></template>
+              </Dropdown>
+            </div>
           </div>
           <textarea
             v-model="textPromptText"
@@ -892,18 +826,10 @@
           />
           <div class="flex items-center justify-between mt-2">
             <p class="text-xs text-om-gray-400">Edit the prompt above to customize the generation. Changes will require regenerating the preview.</p>
-            <Button v-if="!showAdvanced" variant="ghost" size="sm" class="shrink-0 ml-4" @click="showAdvanced = true">Advanced Settings <ChevronDown :size="14" /></Button>
+            <Button variant="ghost" size="sm" class="shrink-0 ml-4" @click="showAdvanced = !showAdvanced">Advanced Settings</Button>
           </div>
           <!-- Advanced Settings panel -->
           <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-4">
-            <!-- Model -->
-            <div class="flex items-center gap-2">
-              <div class="w-48">
-                <Dropdown v-model="promptModel" :options="modelOptions" size="sm">
-                  <template #selected="{ label }"><span class="whitespace-nowrap">Model: {{ label }}</span></template>
-                </Dropdown>
-              </div>
-            </div>
             <div class="flex items-center gap-6">
               <RadioButton v-model="pageType" value="product" label="Product page" />
               <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
@@ -914,7 +840,11 @@
                 <Tag v-for="src in dataSources" :key="src" variant="orange" class="cursor-pointer">{{ src }}</Tag>
               </div>
             </div>
-            <div class="grid grid-cols-3 gap-3">
+            <div class="grid grid-cols-4 gap-3">
+              <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
+                <span class="text-xs text-om-gray-700 shrink-0">Ajánló</span>
+                <Dropdown v-model="recommender" :options="recommenderOptions" size="sm" />
+              </div>
               <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
                 <span class="text-xs text-om-gray-700">Auto-generate prompt variables for products with missing data</span>
                 <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
@@ -928,16 +858,22 @@
                 <ToggleSwitch v-model="useProductImage" class="shrink-0" />
               </div>
             </div>
-            <div class="flex justify-end">
-              <Button variant="ghost" size="sm" @click="showAdvanced = false">Basic Settings <ChevronUp :size="14" /></Button>
-            </div>
           </div>
         </div>
       </div>
 
       <!-- Text Generation screen -->
       <div v-else-if="showTextGeneration" class="w-full max-w-[1400px] mx-auto -mt-3">
-        <h1 class="text-2xl font-semibold text-om-gray-700 mb-4">{{ selectedTextPreset?.name ?? 'Text Generation' }}</h1>
+        <!-- Back + title -->
+        <div class="flex items-center justify-between mb-1">
+          <div class="flex items-center gap-3">
+            <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-v1-text-presets')">
+              <template #icon><ArrowLeft :size="16" /></template>
+            </Button>
+            <h1 class="text-2xl font-semibold text-om-gray-700">{{ selectedTextPreset?.name ?? 'Text Generation' }}</h1>
+          </div>
+        </div>
+        <p class="text-sm text-om-gray-500 mb-6 ml-11">Generate AI text for your selected products using the chosen template.</p>
 
         <!-- Tabs -->
         <div class="flex items-center border-b border-om-gray-200 mb-6">
@@ -957,29 +893,17 @@
         <div v-if="textGenTab === 'selected'">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-              <span class="text-sm font-semibold text-om-gray-700">{{ textGenProducts.length }} products</span>
+              <span class="text-sm font-semibold text-om-gray-700">Selected Products</span>
+              <span class="text-sm text-om-gray-400">{{ textGenProducts.length }} products selected</span>
             </div>
             <div class="flex items-center gap-2">
-              <Button variant="outline" size="md" @click="emit('navigate', 'ai-texts-images-add-products')">Add more products</Button>
+              <Button variant="outline" size="md">Add more products</Button>
               <div class="relative">
                 <Button variant="primary" size="md" @click.stop="showTextGenMenu = !showTextGenMenu">
                   Generate
                   <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
                 </Button>
                 <div v-if="showTextGenMenu" class="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-50 min-w-[360px] overflow-hidden">
-                  <!-- Generate for selected -->
-                  <button
-                    class="w-full flex items-center justify-between px-4 py-3 text-sm border-b border-om-gray-100 transition-colors"
-                    :class="textGenSelected.length > 0 ? 'hover:bg-om-gray-50 cursor-pointer' : 'opacity-40 cursor-not-allowed'"
-                    :disabled="textGenSelected.length === 0"
-                    @click="textGenSelected.length > 0 && triggerTextGenerate()"
-                  >
-                    <span class="text-om-gray-700 text-left">Generate for selected ({{ textGenSelected.length }})</span>
-                    <span class="flex items-center gap-1.5 font-medium ml-8 tabular-nums whitespace-nowrap" :class="textGenSelected.length > 0 ? 'text-om-orange-500' : 'text-om-gray-400'">
-                      <Coins :size="13" />
-                      {{ textGenSelectedCredits }}
-                    </span>
-                  </button>
                   <button
                     v-for="opt in textGenMenuOptions"
                     :key="opt.count"
@@ -988,8 +912,8 @@
                     @click="triggerTextGenerate"
                   >
                     <span class="text-om-gray-700 text-left">Generate for {{ opt.count }} products</span>
-                    <span class="flex items-center gap-1.5 text-om-orange-500 font-medium ml-8 tabular-nums whitespace-nowrap">
-                      <Coins :size="13" />
+                    <span class="flex items-center gap-1.5 text-om-gray-400 font-medium ml-8 tabular-nums whitespace-nowrap">
+                      <Coins :size="13" class="text-om-gray-400" />
                       {{ opt.credits }}
                     </span>
                   </button>
@@ -1000,14 +924,10 @@
 
           <div class="flex flex-col gap-3">
             <div
-              v-for="product in textGenProductsPaged"
+              v-for="product in textGenProducts"
               :key="product.id"
               class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 flex items-stretch gap-0 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow"
             >
-              <!-- Checkbox -->
-              <div class="flex items-center pr-3 shrink-0" @click.stop>
-                <Checkbox :model-value="textGenSelected.includes(product.id)" @update:model-value="v => v ? textGenSelected.push(product.id) : textGenSelected.splice(textGenSelected.indexOf(product.id), 1)" />
-              </div>
               <!-- Left: product info -->
               <div class="flex items-center gap-3 w-1/2 pr-4">
                 <div class="aspect-square h-16 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
@@ -1051,18 +971,6 @@
               </div>
             </div>
           </div>
-          <!-- Pagination -->
-          <div class="flex items-center justify-between px-1 py-4 mt-2 border-t border-om-gray-100">
-            <span class="text-sm text-om-gray-400">Showing {{ (textGenPage - 1) * textGenPerPage + 1 }} to {{ Math.min(textGenPage * textGenPerPage, textGenProducts.length) }} of {{ textGenProducts.length }} entries</span>
-            <div class="flex items-center gap-1">
-              <Button variant="ghost" size="sm" :disabled="textGenPage === 1" @click="textGenPage--">Previous</Button>
-              <template v-for="p in textGenTotalPages" :key="p">
-                <Button v-if="p <= 3 || p === textGenTotalPages" variant="ghost" size="sm" :active="p === textGenPage" @click="textGenPage = p">{{ p }}</Button>
-                <span v-else-if="p === 4 && textGenTotalPages > 4" class="px-2 text-sm text-om-gray-400">...</span>
-              </template>
-              <Button variant="ghost" size="sm" :disabled="textGenPage === textGenTotalPages" @click="textGenPage++">Next</Button>
-            </div>
-          </div>
         </div>
 
         <!-- Generated tab -->
@@ -1075,14 +983,10 @@
           </div>
           <div class="flex flex-col gap-3">
             <div
-              v-for="product in textGenProductsGeneratedPaged"
+              v-for="product in textGenProducts.filter(p => p.status === 'generated')"
               :key="product.id"
               class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 flex items-stretch gap-0"
             >
-              <!-- Checkbox -->
-              <div class="flex items-center pr-3 shrink-0" @click.stop>
-                <Checkbox :model-value="textGenSelected.includes(product.id)" @update:model-value="v => v ? textGenSelected.push(product.id) : textGenSelected.splice(textGenSelected.indexOf(product.id), 1)" />
-              </div>
               <div class="flex items-center gap-3 w-1/2 pr-4">
                 <div class="aspect-square h-16 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
                   <img src="/product1.jpg" class="w-full h-full object-cover" />
@@ -1110,18 +1014,6 @@
               </div>
             </div>
           </div>
-          <!-- Pagination -->
-          <div class="flex items-center justify-between px-1 py-4 mt-2 border-t border-om-gray-100">
-            <span class="text-sm text-om-gray-400">Showing {{ (textGenGeneratedPage - 1) * textGenPerPage + 1 }} to {{ Math.min(textGenGeneratedPage * textGenPerPage, textGenProductsGenerated.length) }} of {{ textGenProductsGenerated.length }} entries</span>
-            <div class="flex items-center gap-1">
-              <Button variant="ghost" size="sm" :disabled="textGenGeneratedPage === 1" @click="textGenGeneratedPage--">Previous</Button>
-              <template v-for="p in textGenGeneratedTotalPages" :key="p">
-                <Button v-if="p <= 3 || p === textGenGeneratedTotalPages" variant="ghost" size="sm" :active="p === textGenGeneratedPage" @click="textGenGeneratedPage = p">{{ p }}</Button>
-                <span v-else-if="p === 4 && textGenGeneratedTotalPages > 4" class="px-2 text-sm text-om-gray-400">...</span>
-              </template>
-              <Button variant="ghost" size="sm" :disabled="textGenGeneratedPage === textGenGeneratedTotalPages" @click="textGenGeneratedPage++">Next</Button>
-            </div>
-          </div>
         </div>
 
         <!-- Settings tab -->
@@ -1135,19 +1027,18 @@
               </Button>
               <div v-if="showTextSaveMenu" class="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-50 min-w-[260px] overflow-hidden">
                 <button class="w-full flex items-center px-4 py-3 text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer border-b border-om-gray-100" @click="showTextSaveMenu = false">Save as new</button>
-                <button class="w-full flex items-center justify-between px-4 py-3 text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer" @click="showTextSaveMenu = false">
-                  <span>Save &amp; regenerate 1 product</span>
-                  <span class="flex items-center gap-1.5 text-om-orange-500 font-medium ml-8 tabular-nums whitespace-nowrap">
-                    <Coins :size="13" />
-                    2 credits
-                  </span>
-                </button>
+                <button class="w-full flex items-center px-4 py-3 text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer" @click="showTextSaveMenu = false">Save &amp; regenerate 1 product</button>
               </div>
             </div>
           </div>
           <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5">
             <div class="flex items-center justify-between mb-4">
               <p class="text-sm text-om-gray-500">Edit the prompt to customize the text generation output. Save it as a new variable, or overwrite the already generated texts with the updated settings.</p>
+              <div class="w-44 shrink-0">
+                <Dropdown v-model="promptModel" :options="modelOptions" size="sm">
+                  <template #selected="{ label }"><span class="whitespace-nowrap">Model: {{ label }}</span></template>
+                </Dropdown>
+              </div>
             </div>
             <textarea
               v-model="promptText"
@@ -1156,50 +1047,7 @@
               placeholder="Write a benefit list for the following product: {product_name}. Focus on {product_description}."
             />
             <div class="flex justify-end mt-2">
-              <Button v-if="!showAdvanced" variant="ghost" size="sm" @click="showAdvanced = true">
-                Advanced Settings <ChevronDown :size="14" />
-              </Button>
-            </div>
-            <!-- Advanced Settings panel -->
-            <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-4">
-              <!-- Model -->
-              <div class="flex items-center gap-2">
-                <div class="w-48">
-                  <Dropdown v-model="promptModel" :options="modelOptions" size="sm">
-                    <template #selected="{ label }"><span class="whitespace-nowrap">Model: {{ label }}</span></template>
-                  </Dropdown>
-                </div>
-              </div>
-              <!-- Page type -->
-              <div class="flex items-center gap-6">
-                <RadioButton v-model="pageType" value="product" label="Product page" />
-                <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
-              </div>
-              <!-- Available data sources -->
-              <div>
-                <p class="text-xs text-om-gray-700 mb-2">Available data sources</p>
-                <div class="flex flex-wrap gap-2">
-                  <Tag v-for="src in dataSources" :key="src" variant="orange" class="cursor-pointer">{{ src }}</Tag>
-                </div>
-              </div>
-              <!-- Toggles -->
-              <div class="grid grid-cols-3 gap-3">
-                <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                  <span class="text-xs text-om-gray-700">Auto-generate prompt variables for products with missing data</span>
-                  <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
-                </div>
-                <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                  <span class="text-xs text-om-gray-700">Minimum description length (character)</span>
-                  <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white" />
-                </div>
-                <div class="bg-om-gray-50 rounded-xl px-4 py-2.5 flex items-center gap-3">
-                  <span class="text-xs text-om-gray-700">Use product image as context</span>
-                  <ToggleSwitch v-model="useProductImage" class="shrink-0" />
-                </div>
-              </div>
-              <div class="flex justify-end">
-                <Button variant="ghost" size="sm" @click="showAdvanced = false">Basic Settings <ChevronUp :size="14" /></Button>
-              </div>
+              <Button variant="ghost" size="sm">Advanced Settings</Button>
             </div>
           </div>
         </div>
@@ -1207,27 +1055,17 @@
 
       <!-- Choose Products screen -->
       <div v-else-if="showChooseProducts" class="w-full max-w-[1400px] mx-auto -mt-3">
-        <!-- Back + pathway -->
-        <div class="flex items-center gap-2 mb-2">
-          <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', cpFromText ? 'ai-texts-images-text-preview' : 'ai-texts-images-preview')">
-            <template #icon><ArrowLeft :size="16" /></template>
-          </Button>
-          <nav class="flex items-center gap-1.5 text-sm text-om-gray-400">
-            <span>New Variable</span>
-            <span class="text-om-gray-300">›</span>
-            <span>Preset</span>
-            <span class="text-om-gray-300">›</span>
-            <span>Preview</span>
-            <span class="text-om-gray-300">›</span>
-            <span class="text-om-gray-600 font-medium">Choose Products</span>
-          </nav>
-        </div>
-        <!-- Title + action -->
+        <!-- Back + title + action -->
         <div class="flex items-center justify-between mb-6">
-          <h1 class="text-2xl font-semibold text-om-gray-700">Choose Products</h1>
           <div class="flex items-center gap-3">
-            <span class="text-sm text-om-gray-400">{{ cpSortedProducts.length }} products selected</span>
-            <Button variant="primary" size="md" @click="triggerGenBanner(); emit('navigate', cpFromText ? 'ai-texts-images-text-generation' : 'ai-texts-images-generation')">Save Variable</Button>
+            <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', cpFromText ? 'ai-texts-images-text-preview' : 'ai-texts-images-preview')">
+              <template #icon><ArrowLeft :size="16" /></template>
+            </Button>
+            <h1 class="text-2xl font-semibold text-om-gray-700">Choose Products</h1>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-om-gray-400">{{ cpSelected.length }} products selected</span>
+            <Button variant="primary" size="md" @click="emit('navigate', cpFromText ? 'ai-texts-images-text-generation' : 'ai-texts-images-generation')">Generation Preview</Button>
           </div>
         </div>
 
@@ -1248,11 +1086,11 @@
               <div v-if="cpShowFilters" class="absolute top-full left-0 mt-2 bg-white border border-om-gray-200 rounded-xl shadow-lg p-4 z-20 flex flex-col gap-4 w-80">
                 <div class="flex flex-col gap-1">
                   <span class="text-xs text-om-gray-500">Category is</span>
-                  <MultiSelect v-model="cpCategoryIs" :options="cpCategoryOptions" placeholder="All categories" />
+                  <Dropdown v-model="cpCategoryIs" :options="cpCategoryOptions" size="sm" />
                 </div>
                 <div class="flex flex-col gap-1">
                   <span class="text-xs text-om-gray-500">Category is not</span>
-                  <MultiSelect v-model="cpCategoryIsNot" :options="cpCategoryOptions" placeholder="All categories" />
+                  <Dropdown v-model="cpCategoryIsNot" :options="cpCategoryOptions" size="sm" />
                 </div>
                 <div class="flex flex-col gap-5">
                   <Checkbox v-model="cpOnlyInStock" label="Only in stock" />
@@ -1291,7 +1129,10 @@
         <!-- Table -->
         <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden">
           <!-- Table header -->
-          <div class="grid grid-cols-[1fr_160px_120px_160px_140px_40px] px-6 h-10 items-center border-b border-[#e3e5e8]">
+          <div class="grid grid-cols-[48px_1fr_160px_120px_160px_140px_40px] px-6 h-10 items-center border-b border-[#e3e5e8]">
+            <div class="flex items-center">
+              <Checkbox :model-value="cpAllSelected" @update:model-value="toggleAllCp" />
+            </div>
             <span class="text-[13px] font-normal text-om-gray-500">Product</span>
             <span class="text-[13px] font-normal text-om-gray-500">SKU</span>
             <span class="text-[13px] font-normal text-om-gray-500">Price</span>
@@ -1304,9 +1145,13 @@
           <div
             v-for="(product, index) in cpSortedProducts"
             :key="product.id"
-            class="grid grid-cols-[1fr_160px_120px_160px_140px_40px] px-6 py-2.5 items-center hover:bg-om-gray-50 transition-colors"
+            class="grid grid-cols-[48px_1fr_160px_120px_160px_140px_40px] px-6 py-2.5 items-center cursor-pointer hover:bg-om-gray-50 transition-colors"
             :class="index < cpSortedProducts.length - 1 ? 'border-b border-om-gray-100' : ''"
+            @click="cpSelected.includes(product.id) ? cpSelected.splice(cpSelected.indexOf(product.id), 1) : cpSelected.push(product.id)"
           >
+            <div class="flex items-center" @click.stop>
+              <Checkbox :model-value="cpSelected.includes(product.id)" @update:model-value="v => v ? cpSelected.push(product.id) : cpSelected.splice(cpSelected.indexOf(product.id), 1)" />
+            </div>
             <div class="flex items-center gap-3 pr-4">
               <div class="w-10 h-10 rounded-lg bg-om-gray-100 shrink-0 overflow-hidden">
                 <img src="/product1.jpg" class="w-full h-full object-cover" />
@@ -1324,7 +1169,7 @@
 
           <!-- Footer -->
           <div class="flex items-center justify-between px-6 py-4 border-t border-om-gray-100">
-            <span class="text-sm text-om-gray-400">Showing 1 to {{ cpSortedProducts.length }} of {{ cpSortedProducts.length }} entries</span>
+            <span class="text-sm text-om-gray-400">Showing 1 to 25 of 1,356 entries</span>
             <div class="flex items-center gap-1">
               <Button variant="ghost" size="sm">Previous</Button>
               <Button variant="ghost" size="sm" :active="true">1</Button>
@@ -1340,23 +1185,17 @@
 
       <!-- Add Products screen (from generation page) -->
       <div v-else-if="showAddProducts" class="w-full max-w-[1400px] mx-auto -mt-3">
-        <!-- Back + pathway -->
-        <div class="flex items-center gap-2 mb-2">
-          <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-generation')">
-            <template #icon><ArrowLeft :size="16" /></template>
-          </Button>
-          <nav class="flex items-center gap-1.5 text-sm text-om-gray-400">
-<span>Generation</span>
-            <span class="text-om-gray-300">›</span>
-            <span class="text-om-gray-600 font-medium">Add Products</span>
-          </nav>
-        </div>
-        <!-- Title + Done -->
+        <!-- Back + title + Done -->
         <div class="flex items-center justify-between mb-6">
-          <h1 class="text-2xl font-semibold text-om-gray-700">Add Products</h1>
           <div class="flex items-center gap-3">
-            <span class="text-sm text-om-gray-400">{{ cpSortedProducts.length }} products selected</span>
-            <Button variant="primary" size="md" @click="emit('navigate', 'ai-texts-images-generation')">Select products</Button>
+            <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-v1-generation')">
+              <template #icon><ArrowLeft :size="16" /></template>
+            </Button>
+            <h1 class="text-2xl font-semibold text-om-gray-700">Add Products</h1>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-om-gray-400">{{ cpSelected.length }} products selected</span>
+            <Button variant="primary" size="md" @click="emit('navigate', 'ai-texts-images-v1-generation')">Select products</Button>
           </div>
         </div>
 
@@ -1376,11 +1215,11 @@
               <div v-if="cpShowFilters" class="absolute top-full left-0 mt-2 bg-white border border-om-gray-200 rounded-xl shadow-lg p-4 z-20 flex flex-col gap-4 w-80">
                 <div class="flex flex-col gap-1">
                   <span class="text-xs text-om-gray-500">Category is</span>
-                  <MultiSelect v-model="cpCategoryIs" :options="cpCategoryOptions" placeholder="All categories" />
+                  <Dropdown v-model="cpCategoryIs" :options="cpCategoryOptions" size="sm" />
                 </div>
                 <div class="flex flex-col gap-1">
                   <span class="text-xs text-om-gray-500">Category is not</span>
-                  <MultiSelect v-model="cpCategoryIsNot" :options="cpCategoryOptions" placeholder="All categories" />
+                  <Dropdown v-model="cpCategoryIsNot" :options="cpCategoryOptions" size="sm" />
                 </div>
                 <div class="flex flex-col gap-5">
                   <Checkbox v-model="cpOnlyInStock" label="Only in stock" />
@@ -1418,7 +1257,10 @@
 
         <!-- Table -->
         <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden">
-          <div class="grid grid-cols-[1fr_160px_120px_160px_140px_40px] px-6 h-10 items-center border-b border-[#e3e5e8]">
+          <div class="grid grid-cols-[48px_1fr_160px_120px_160px_140px_40px] px-6 h-10 items-center border-b border-[#e3e5e8]">
+            <div class="flex items-center">
+              <Checkbox :model-value="cpAllSelected" @update:model-value="toggleAllCp" />
+            </div>
             <span class="text-[13px] font-normal text-om-gray-500">Product</span>
             <span class="text-[13px] font-normal text-om-gray-500">SKU</span>
             <span class="text-[13px] font-normal text-om-gray-500">Price</span>
@@ -1428,11 +1270,15 @@
           </div>
 
           <div
-            v-for="(product, index) in cpSortedProductsPaged"
+            v-for="(product, index) in cpSortedProducts"
             :key="product.id"
-            class="grid grid-cols-[1fr_160px_120px_160px_140px_40px] px-6 py-2.5 items-center hover:bg-om-gray-50 transition-colors"
-            :class="index < cpSortedProductsPaged.length - 1 ? 'border-b border-om-gray-100' : ''"
+            class="grid grid-cols-[48px_1fr_160px_120px_160px_140px_40px] px-6 py-2.5 items-center cursor-pointer hover:bg-om-gray-50 transition-colors"
+            :class="index < cpSortedProducts.length - 1 ? 'border-b border-om-gray-100' : ''"
+            @click="cpSelected.includes(product.id) ? cpSelected.splice(cpSelected.indexOf(product.id), 1) : cpSelected.push(product.id)"
           >
+            <div class="flex items-center" @click.stop>
+              <Checkbox :model-value="cpSelected.includes(product.id)" @update:model-value="v => v ? cpSelected.push(product.id) : cpSelected.splice(cpSelected.indexOf(product.id), 1)" />
+            </div>
             <div class="flex items-center gap-3 pr-4">
               <div class="w-10 h-10 rounded-lg bg-om-gray-100 shrink-0 overflow-hidden">
                 <img src="/product1.jpg" class="w-full h-full object-cover" />
@@ -1449,14 +1295,15 @@
           </div>
 
           <div class="flex items-center justify-between px-6 py-4 border-t border-om-gray-100">
-            <span class="text-sm text-om-gray-400">Showing {{ (cpPage - 1) * cpPerPage + 1 }} to {{ Math.min(cpPage * cpPerPage, cpSortedProducts.length) }} of {{ cpSortedProducts.length }} entries</span>
+            <span class="text-sm text-om-gray-400">Showing 1 to 25 of 1,356 entries</span>
             <div class="flex items-center gap-1">
-              <Button variant="ghost" size="sm" :disabled="cpPage === 1" @click="cpPage--">Previous</Button>
-              <template v-for="p in cpTotalPages" :key="p">
-                <Button v-if="p <= 3 || p === cpTotalPages" variant="ghost" size="sm" :active="p === cpPage" @click="cpPage = p">{{ p }}</Button>
-                <span v-else-if="p === 4 && cpTotalPages > 4" class="px-2 text-sm text-om-gray-400">...</span>
-              </template>
-              <Button variant="ghost" size="sm" :disabled="cpPage === cpTotalPages" @click="cpPage++">Next</Button>
+              <Button variant="ghost" size="sm">Previous</Button>
+              <Button variant="ghost" size="sm" :active="true">1</Button>
+              <Button variant="ghost" size="sm">2</Button>
+              <Button variant="ghost" size="sm">3</Button>
+              <span class="px-2 text-sm text-om-gray-400">...</span>
+              <Button variant="ghost" size="sm">{{ cpTotalPages }}</Button>
+              <Button variant="ghost" size="sm">Next</Button>
             </div>
           </div>
         </div>
@@ -1467,7 +1314,7 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-5">
           <h1 class="text-2xl font-semibold text-om-gray-700">AI Texts &amp; Images</h1>
-          <Button variant="primary" size="md" @click="emit('navigate', 'ai-texts-images-new')">New Variable</Button>
+          <Button variant="primary" size="md" @click="emit('navigate', 'ai-texts-images-v1-new')">New Variable</Button>
         </div>
 
         <!-- Filters + Search -->
@@ -1521,7 +1368,7 @@
             :key="item.id"
             class="grid grid-cols-[1fr_140px_160px_180px_160px] px-6 py-4 items-center cursor-pointer hover:bg-om-gray-50 transition-colors duration-150"
             :class="index < filteredItems.length - 1 ? 'border-b border-om-gray-100' : ''"
-            @click="item.id === 0 ? emit('navigate', 'ai-texts-images-generation') : item.id === 8 ? (selectedTextPreset = textPresets.find(p => p.id === 'headline-subheadline'), emit('navigate', 'ai-texts-images-text-generation')) : null"
+            @click="item.id === 0 ? emit('navigate', 'ai-texts-images-v1-generation') : item.id === 8 ? (selectedTextPreset = textPresets.find(p => p.id === 'headline-subheadline'), emit('navigate', 'ai-texts-images-v1-text-generation')) : null"
           >
             <span class="text-sm font-medium text-om-orange-500 truncate pr-4">{{ item.name }}</span>
             <Tag variant="outlined">{{ item.type }}</Tag>
@@ -1544,12 +1391,11 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { Search, ArrowLeft, ArrowRight, Sparkles, Image as ImageIcon, Cpu, Maximize2, Coins, Wand2, ExternalLink, Type, ArrowUpDown, SlidersHorizontal, Upload, X, Check, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { Search, ArrowLeft, ArrowRight, Sparkles, Image as ImageIcon, Cpu, Maximize2, Coins, Wand2, ExternalLink, Type, ArrowUpDown, SlidersHorizontal, Upload, X, Check } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
-import MultiSelect from '../components/shared/MultiSelect.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import RadioButton from '../components/shared/RadioButton.vue'
 import Tag from '../components/shared/Tag.vue'
@@ -1566,7 +1412,6 @@ const showImagePresets = computed(() => props.screen === 'image-presets')
 const showPreview = computed(() => props.screen === 'image-preview')
 const showChooseProducts = computed(() => props.screen === 'choose-products')
 const showGeneration = computed(() => props.screen === 'generation')
-const showGenerationProduct = computed(() => props.screen === 'generation-product')
 const showAddProducts = computed(() => props.screen === 'add-products')
 const showTextPresets = computed(() => props.screen === 'text-presets')
 const showTextPreview = computed(() => props.screen === 'text-preview')
@@ -1589,19 +1434,18 @@ const genTabs = [
 const showGenMenu = ref(false)
 const showSaveMenu = ref(false)
 const showGenBanner = ref(false)
-const triggerGenBanner = () => {
-  showGenBanner.value = true
-  setTimeout(() => { showGenBanner.value = false }, 5000)
-}
+watch(showGeneration, (val) => {
+  if (val) {
+    showGenBanner.value = true
+    setTimeout(() => { showGenBanner.value = false }, 5000)
+  }
+})
 const genMenuOptions = [
   { count: 10, credits: '200 credits' },
   { count: 25, credits: '500 credits' },
   { count: 100, credits: '2,000 credits' },
   { count: 1, credits: '20 credits' },
 ]
-
-const genSelected = ref([])
-const genSelectedCredits = computed(() => (genSelected.value.length * 20).toLocaleString() + ' credits')
 
 const genProducts = ref([
   { id: 1, name: 'Premium Wireless Headphones', desc: 'Noise-cancelling over-ear headphones with 30-hour battery life.', status: 'generated' },
@@ -1610,117 +1454,30 @@ const genProducts = ref([
   { id: 4, name: 'Smart Fitness Watch', desc: 'Heart rate monitor, GPS, and water-resistant design.', status: 'queued' },
   { id: 5, name: 'Organic Cotton T-Shirt', desc: '100% organic cotton, ethically sourced and manufactured.', status: 'queued' },
   { id: 6, name: 'Noise-Cancelling Earbuds', desc: 'True wireless earbuds with active noise cancellation.', status: 'queued' },
-  { id: 7, name: 'Bamboo Cutting Board', desc: 'Eco-friendly bamboo cutting board with juice groove.', status: 'queued' },
-  { id: 8, name: 'Stainless Steel Water Bottle', desc: 'Double-walled insulated bottle, keeps drinks cold 24h.', status: 'queued' },
-  { id: 9, name: 'Leather Wallet', desc: 'Slim bifold wallet crafted from genuine full-grain leather.', status: 'queued' },
-  { id: 10, name: 'Portable Bluetooth Speaker', desc: 'Waterproof speaker with 360° sound and 12-hour battery.', status: 'queued' },
-  { id: 11, name: 'Yoga Mat Pro', desc: 'Non-slip 6mm thick mat with alignment lines.', status: 'queued' },
-  { id: 12, name: 'Scented Soy Candle Set', desc: 'Set of 3 hand-poured soy candles, 40-hour burn time each.', status: 'queued' },
-  { id: 13, name: 'Mechanical Keyboard', desc: 'Compact TKL layout with Cherry MX switches.', status: 'queued' },
-  { id: 14, name: 'Ceramic Plant Pot', desc: 'Handmade ceramic pot with drainage hole, 15cm diameter.', status: 'queued' },
-  { id: 15, name: 'Merino Wool Beanie', desc: 'Super-soft 100% merino wool, one size fits all.', status: 'queued' },
-  { id: 16, name: 'Wooden Desk Organizer', desc: 'Modular bamboo organizer with removable dividers.', status: 'queued' },
-  { id: 17, name: 'Glass Food Storage Set', desc: 'Set of 5 borosilicate glass containers with locking lids.', status: 'queued' },
-  { id: 18, name: 'Running Shoes', desc: 'Lightweight mesh upper with responsive foam midsole.', status: 'queued' },
-  { id: 19, name: 'Aromatherapy Diffuser', desc: 'Ultrasonic diffuser with 7-color LED and timer.', status: 'queued' },
-  { id: 20, name: 'Cast Iron Skillet', desc: '10-inch pre-seasoned cast iron pan for stovetop and oven.', status: 'queued' },
-  { id: 21, name: 'Foldable Laptop Stand', desc: 'Adjustable aluminium stand, compatible with all laptops.', status: 'queued' },
-  { id: 22, name: 'Reusable Beeswax Wraps', desc: 'Set of 3 natural beeswax food wraps in assorted sizes.', status: 'queued' },
-  { id: 23, name: 'Weighted Blanket', desc: '7kg weighted blanket with removable washable cover.', status: 'queued' },
-  { id: 24, name: 'Copper Tongue Scraper', desc: 'Ayurvedic pure copper tongue cleaner, pack of 2.', status: 'queued' },
-  { id: 25, name: 'Resistance Band Set', desc: '5 levels of resistance bands with door anchor and handles.', status: 'queued' },
-  { id: 26, name: 'Linen Throw Pillow', desc: 'Stonewashed linen cover with feather insert, 50×50cm.', status: 'queued' },
-  { id: 27, name: 'Pour-Over Coffee Maker', desc: 'Borosilicate glass dripper with wooden collar and lid.', status: 'queued' },
-  { id: 28, name: 'Electric Toothbrush', desc: 'Sonic vibration, 3 modes, 30-day battery life.', status: 'queued' },
-  { id: 29, name: 'Silk Sleep Mask', desc: '100% mulberry silk mask with adjustable strap.', status: 'queued' },
-  { id: 30, name: 'Wooden Chess Set', desc: 'Hand-carved wooden pieces with folding board and storage.', status: 'queued' },
-  { id: 31, name: 'Stainless Meal Prep Containers', desc: 'Set of 5 leak-proof containers with locking lids.', status: 'queued' },
-  { id: 32, name: 'Foam Roller', desc: 'High-density EVA foam roller, 45cm for muscle recovery.', status: 'queued' },
-  { id: 33, name: 'Seed Germination Kit', desc: 'Complete indoor herb garden starter kit with 10 seed varieties.', status: 'queued' },
-  { id: 34, name: 'Bamboo Toothbrush Set', desc: 'Pack of 4 biodegradable toothbrushes with charcoal bristles.', status: 'queued' },
-  { id: 35, name: 'Smart Plug', desc: 'Wi-Fi enabled outlet with energy monitoring and voice control.', status: 'queued' },
-  { id: 36, name: 'Travel Compression Bags', desc: 'Set of 6 roll-up vacuum storage bags for luggage.', status: 'queued' },
-  { id: 37, name: 'Marble Phone Stand', desc: 'Natural marble base desktop stand for all smartphones.', status: 'queued' },
-  { id: 38, name: 'Cork Yoga Blocks', desc: 'Set of 2 natural cork blocks for alignment and support.', status: 'queued' },
-  { id: 39, name: 'Cold Brew Coffee Maker', desc: '1L glass pitcher with mesh filter for smooth cold brew.', status: 'queued' },
-  { id: 40, name: 'Blackout Curtains', desc: 'Thermal insulated blackout panels, 140×260cm per panel.', status: 'queued' },
-  { id: 41, name: 'Wooden Serving Board', desc: 'Acacia wood charcuterie board with handle, 40×25cm.', status: 'queued' },
-  { id: 42, name: 'Portable Charger 20000mAh', desc: 'Slim power bank with USB-C PD fast charging.', status: 'queued' },
-  { id: 43, name: 'Linen Apron', desc: 'Natural stonewashed linen apron with adjustable straps.', status: 'queued' },
-  { id: 44, name: 'Macramé Wall Hanging', desc: 'Handmade cotton rope wall décor, 60cm wide.', status: 'queued' },
-  { id: 45, name: 'Silicone Baking Mat Set', desc: 'Set of 2 non-stick reusable baking sheets.', status: 'queued' },
-  { id: 46, name: 'Essential Oil Set', desc: '10 pure essential oils in a bamboo gift box.', status: 'queued' },
-  { id: 47, name: 'Adjustable Dumbbell', desc: 'Quick-select 5–25kg adjustable dumbbell, single unit.', status: 'queued' },
-  { id: 48, name: 'Ceramic Spice Jars', desc: 'Set of 12 stackable ceramic jars with bamboo lids.', status: 'queued' },
-  { id: 49, name: 'Portable Espresso Maker', desc: 'Manual hand-pump espresso for travel, no electricity needed.', status: 'queued' },
-  { id: 50, name: 'Knitted Storage Basket', desc: 'Large chunky-knit cotton basket for blankets and toys.', status: 'queued' },
-  { id: 51, name: 'UV Sanitiser Box', desc: 'Phone and small item UV-C steriliser with wireless charging.', status: 'queued' },
-  { id: 52, name: 'Beeswax Polish', desc: 'Natural beeswax furniture polish with lavender scent.', status: 'queued' },
-  { id: 53, name: 'Foldable Tote Bag', desc: 'Ripstop nylon packable tote, 20L capacity.', status: 'queued' },
-  { id: 54, name: 'Wooden Laptop Desk', desc: 'Lap desk with cushion and phone slot for sofa use.', status: 'queued' },
 ])
 
-const genPerPage = 10
-const genPage = ref(1)
-const genGeneratedPage = ref(1)
-const genProductsPaged = computed(() => genProducts.value.slice((genPage.value - 1) * genPerPage, genPage.value * genPerPage))
-const genProductsGenerated = computed(() => genProducts.value.filter(p => p.status === 'generated'))
-const genProductsGeneratedPaged = computed(() => genProductsGenerated.value.slice((genGeneratedPage.value - 1) * genPerPage, genGeneratedPage.value * genPerPage))
-const genTotalPages = computed(() => Math.ceil(genProducts.value.length / genPerPage))
-const genGeneratedTotalPages = computed(() => Math.ceil(genProductsGenerated.value.length / genPerPage))
-watch(genTab, () => { genPage.value = 1; genGeneratedPage.value = 1 })
-
 const selectedProduct = ref(null)
+const showProductModal = ref(false)
+const modalScrolled = ref(false)
 
 const modalOriginalPrompt = ref('')
-const modalOriginalSettings = ref(null)
 
 const openProductModal = (product) => {
   if (product.status !== 'generated') return
   selectedProduct.value = product
   modalOriginalPrompt.value = promptText.value
-  modalOriginalSettings.value = {
-    promptModel: promptModel.value,
-    promptRatio: promptRatio.value,
-    pageType: pageType.value,
-    autoGenerate: autoGenerate.value,
-    minDescLength: minDescLength.value,
-    useProductImage: useProductImage.value,
-  }
-  emit('navigate', 'ai-texts-images-generation-product')
+  showProductModal.value = true
 }
 
-const promptChanged = computed(() => {
-  if (promptText.value !== modalOriginalPrompt.value) return true
-  if (!modalOriginalSettings.value) return false
-  const s = modalOriginalSettings.value
-  return (
-    promptModel.value !== s.promptModel ||
-    promptRatio.value !== s.promptRatio ||
-    pageType.value !== s.pageType ||
-    autoGenerate.value !== s.autoGenerate ||
-    minDescLength.value !== s.minDescLength ||
-    useProductImage.value !== s.useProductImage
-  )
-})
+const promptChanged = computed(() => promptText.value !== modalOriginalPrompt.value)
 
 const regenerateProduct = () => {
   if (!selectedProduct.value) return
   const id = selectedProduct.value.id
-  modalOriginalPrompt.value = promptText.value
-  modalOriginalSettings.value = {
-    promptModel: promptModel.value,
-    promptRatio: promptRatio.value,
-    pageType: pageType.value,
-    autoGenerate: autoGenerate.value,
-    minDescLength: minDescLength.value,
-    useProductImage: useProductImage.value,
-  }
+  showProductModal.value = false
   genProducts.value = genProducts.value.map(p => p.id === id ? { ...p, status: 'generating' } : p)
-  selectedProduct.value = { ...selectedProduct.value, status: 'generating' }
   setTimeout(() => {
     genProducts.value = genProducts.value.map(p => p.id === id ? { ...p, status: 'generated' } : p)
-    selectedProduct.value = { ...selectedProduct.value, status: 'generated' }
   }, 2000)
 }
 
@@ -1749,24 +1506,23 @@ const cpSortOptions = [
   { value: 'updated-asc',     label: 'Last Updated ↑' },
 ]
 const cpSearch = ref('')
-const cpCategoryIs = ref([])
-const cpCategoryIsNot = ref([])
+const cpCategoryIs = ref('All categories')
+const cpCategoryIsNot = ref('All categories')
 const cpOnlyInStock = ref(false)
 const cpOnlyWithTraffic = ref(false)
 const cpShowFilters = ref(false)
 const cpActiveFilterCount = computed(() => {
   let count = 0
-  if (cpCategoryIs.value.length > 0) count++
-  if (cpCategoryIsNot.value.length > 0) count++
+  if (cpCategoryIs.value !== 'All categories') count++
+  if (cpCategoryIsNot.value !== 'All categories') count++
   if (cpOnlyInStock.value) count++
   if (cpOnlyWithTraffic.value) count++
   return count
 })
 const cpFromText = ref(false)
 const cpSelected = ref([])
+const cpTotalPages = 55
 const cpCategoryOptions = ['All categories', 'Electronics', 'Home & Kitchen', 'Clothing', 'Sports']
-const cpPage = ref(1)
-const cpPerPage = 20
 
 const cpProducts = [
   { id: 1, name: 'Premium Wireless Headphones', sku: 'WH-1000XM5', price: '$349.99', popularity: '1,245 views', lastUpdated: '2 hours ago' },
@@ -1789,40 +1545,6 @@ const cpProducts = [
   { id: 18, name: 'Ceramic Plant Pot Set', sku: 'POT-CRM-S3', price: '$44.00', popularity: '218 views', lastUpdated: '12 days ago' },
   { id: 19, name: 'Sunglasses Polarized', sku: 'SGL-POL-UV', price: '$95.00', popularity: '204 views', lastUpdated: '2 weeks ago' },
   { id: 20, name: 'Hardcover Notebook A5', sku: 'NTB-HC-A5B', price: '$18.00', popularity: '189 views', lastUpdated: '2 weeks ago' },
-  { id: 21, name: 'Aromatherapy Diffuser', sku: 'DIF-ARO-U7', price: '$39.99', popularity: '175 views', lastUpdated: '2 weeks ago' },
-  { id: 22, name: 'Cast Iron Skillet', sku: 'SKL-CST-10', price: '$45.00', popularity: '163 views', lastUpdated: '2 weeks ago' },
-  { id: 23, name: 'Foldable Laptop Stand', sku: 'STD-LPT-AL', price: '$34.00', popularity: '152 views', lastUpdated: '3 weeks ago' },
-  { id: 24, name: 'Reusable Beeswax Wraps', sku: 'WRP-BWX-S3', price: '$16.00', popularity: '141 views', lastUpdated: '3 weeks ago' },
-  { id: 25, name: 'Weighted Blanket 7kg', sku: 'BLK-WGT-7K', price: '$89.00', popularity: '138 views', lastUpdated: '3 weeks ago' },
-  { id: 26, name: 'Copper Tongue Scraper', sku: 'SCR-CPR-P2', price: '$12.00', popularity: '127 views', lastUpdated: '3 weeks ago' },
-  { id: 27, name: 'Resistance Band Set', sku: 'BND-RES-5L', price: '$28.00', popularity: '119 views', lastUpdated: '3 weeks ago' },
-  { id: 28, name: 'Linen Throw Pillow', sku: 'PIL-LIN-50', price: '$55.00', popularity: '114 views', lastUpdated: '4 weeks ago' },
-  { id: 29, name: 'Pour-Over Coffee Maker', sku: 'COF-PVO-GL', price: '$42.00', popularity: '108 views', lastUpdated: '4 weeks ago' },
-  { id: 30, name: 'Electric Toothbrush', sku: 'TBR-ELC-S3', price: '$59.99', popularity: '103 views', lastUpdated: '4 weeks ago' },
-  { id: 31, name: 'Silk Sleep Mask', sku: 'MSK-SLK-BL', price: '$22.00', popularity: '98 views', lastUpdated: '1 month ago' },
-  { id: 32, name: 'Wooden Chess Set', sku: 'CHE-WOD-FC', price: '$75.00', popularity: '94 views', lastUpdated: '1 month ago' },
-  { id: 33, name: 'Stainless Meal Prep Containers', sku: 'CNT-SS-5PK', price: '$48.00', popularity: '91 views', lastUpdated: '1 month ago' },
-  { id: 34, name: 'Foam Roller 45cm', sku: 'FOM-RLR-45', price: '$25.00', popularity: '88 views', lastUpdated: '1 month ago' },
-  { id: 35, name: 'Seed Germination Kit', sku: 'GRD-SED-10', price: '$32.00', popularity: '85 views', lastUpdated: '1 month ago' },
-  { id: 36, name: 'Bamboo Toothbrush Set', sku: 'TBR-BMB-4P', price: '$14.00', popularity: '82 views', lastUpdated: '1 month ago' },
-  { id: 37, name: 'Smart Plug Wi-Fi', sku: 'PLG-SMT-W1', price: '$19.99', popularity: '79 views', lastUpdated: '1 month ago' },
-  { id: 38, name: 'Travel Compression Bags', sku: 'BAG-CMP-6P', price: '$21.00', popularity: '76 views', lastUpdated: '1 month ago' },
-  { id: 39, name: 'Marble Phone Stand', sku: 'STD-MRB-PH', price: '$29.00', popularity: '73 views', lastUpdated: '5 weeks ago' },
-  { id: 40, name: 'Cork Yoga Blocks', sku: 'YGA-BLK-CK', price: '$24.00', popularity: '70 views', lastUpdated: '5 weeks ago' },
-  { id: 41, name: 'Cold Brew Coffee Maker', sku: 'COF-CBR-1L', price: '$36.00', popularity: '68 views', lastUpdated: '5 weeks ago' },
-  { id: 42, name: 'Blackout Curtains', sku: 'CRT-BLK-14', price: '$64.00', popularity: '65 views', lastUpdated: '5 weeks ago' },
-  { id: 43, name: 'Wooden Serving Board', sku: 'BRD-ACA-40', price: '$38.00', popularity: '62 views', lastUpdated: '6 weeks ago' },
-  { id: 44, name: 'Portable Charger 20000mAh', sku: 'CHG-PRT-20', price: '$45.00', popularity: '59 views', lastUpdated: '6 weeks ago' },
-  { id: 45, name: 'Linen Apron', sku: 'APR-LIN-NB', price: '$33.00', popularity: '57 views', lastUpdated: '6 weeks ago' },
-  { id: 46, name: 'Macramé Wall Hanging', sku: 'DCR-MAC-60', price: '$41.00', popularity: '54 views', lastUpdated: '6 weeks ago' },
-  { id: 47, name: 'Silicone Baking Mat Set', sku: 'BAK-SLC-2P', price: '$18.00', popularity: '52 views', lastUpdated: '7 weeks ago' },
-  { id: 48, name: 'Essential Oil Set', sku: 'OIL-ESS-10', price: '$37.00', popularity: '49 views', lastUpdated: '7 weeks ago' },
-  { id: 49, name: 'Adjustable Dumbbell', sku: 'DUM-ADJ-25', price: '$189.00', popularity: '47 views', lastUpdated: '7 weeks ago' },
-  { id: 50, name: 'Ceramic Spice Jars', sku: 'JAR-CRM-12', price: '$44.00', popularity: '45 views', lastUpdated: '7 weeks ago' },
-  { id: 51, name: 'Portable Espresso Maker', sku: 'ESP-PRT-MN', price: '$29.99', popularity: '43 views', lastUpdated: '8 weeks ago' },
-  { id: 52, name: 'Knitted Storage Basket', sku: 'BSK-KNT-LG', price: '$52.00', popularity: '41 views', lastUpdated: '8 weeks ago' },
-  { id: 53, name: 'UV Sanitiser Box', sku: 'SAN-UV-WC', price: '$49.00', popularity: '39 views', lastUpdated: '8 weeks ago' },
-  { id: 54, name: 'Wooden Laptop Desk', sku: 'DSK-WOD-LP', price: '$57.00', popularity: '37 views', lastUpdated: '8 weeks ago' },
 ]
 
 const cpSortedProducts = computed(() => {
@@ -1853,8 +1575,6 @@ const cpSortedProducts = computed(() => {
   })
 })
 
-const cpTotalPages = computed(() => Math.ceil(cpSortedProducts.value.length / cpPerPage))
-const cpSortedProductsPaged = computed(() => cpSortedProducts.value.slice((cpPage.value - 1) * cpPerPage, cpPage.value * cpPerPage))
 const cpAllSelected = computed(() => cpSelected.value.length === cpProducts.length)
 const toggleAllCp = () => {
   cpSelected.value = cpAllSelected.value ? [] : cpProducts.map(p => p.id)
@@ -1897,46 +1617,22 @@ const minDescLength = ref(0)
 const useProductImage = ref(false)
 
 const previewGeneratedPrompt = ref('')
-const previewGeneratedSettings = ref(null)
 
-const previewPromptChanged = computed(() => {
-  if (!generated.value) return false
-  if (promptText.value !== previewGeneratedPrompt.value) return true
-  if (!previewGeneratedSettings.value) return false
-  const s = previewGeneratedSettings.value
-  return (
-    promptModel.value !== s.promptModel ||
-    promptRatio.value !== s.promptRatio ||
-    pageType.value !== s.pageType ||
-    autoGenerate.value !== s.autoGenerate ||
-    minDescLength.value !== s.minDescLength ||
-    useProductImage.value !== s.useProductImage
-  )
-})
+const previewPromptChanged = computed(() => generated.value && promptText.value !== previewGeneratedPrompt.value)
 
 const startGeneration = () => {
   generating.value = true
   previewGeneratedPrompt.value = promptText.value
-  previewGeneratedSettings.value = {
-    promptModel: promptModel.value,
-    promptRatio: promptRatio.value,
-    pageType: pageType.value,
-    autoGenerate: autoGenerate.value,
-    minDescLength: minDescLength.value,
-    useProductImage: useProductImage.value,
-  }
   setTimeout(() => {
     generating.value = false
     generated.value = true
   }, 2000)
 }
 
-const selectedImagePreset = ref(null)
 const handlePresetClick = (preset) => {
-  selectedImagePreset.value = preset
   promptModel.value = preset.model
   promptRatio.value = preset.ratio
-  emit('navigate', 'ai-texts-images-preview')
+  emit('navigate', 'ai-texts-images-v1-preview')
 }
 
 const tabs = [
@@ -1960,7 +1656,7 @@ const selectedTextPreset = ref(null)
 
 const handleTextPresetClick = (preset) => {
   selectedTextPreset.value = preset
-  emit('navigate', 'ai-texts-images-text-preview')
+  emit('navigate', 'ai-texts-images-v1-text-preview')
 }
 
 const textGenerating = ref(false)
@@ -1985,9 +1681,6 @@ const textGenTabs = [
   { value: 'settings', label: 'Settings' },
 ]
 
-const textGenSelected = ref([])
-const textGenSelectedCredits = computed(() => (textGenSelected.value.length * 2).toLocaleString() + ' credits')
-
 const textGenProducts = ref([
   { id: 1, name: 'Premium Wireless Headphones', desc: 'Noise-cancelling over-ear headphones with 30-hour battery life.', status: 'generated',
     text: { headline: 'Crystal Clear Sound, Zero Distractions', sub: 'Industry-leading noise cancellation meets 30-hour playtime.', body: '• 30-hour battery life\n• Active noise cancellation\n• Premium sound quality\n• Foldable design for travel' } },
@@ -1996,65 +1689,7 @@ const textGenProducts = ref([
   { id: 4, name: 'Smart Fitness Watch', desc: 'Heart rate monitor, GPS, and water-resistant design.', status: 'queued', text: null },
   { id: 5, name: 'Organic Cotton T-Shirt', desc: '100% organic cotton, ethically sourced and manufactured.', status: 'queued', text: null },
   { id: 6, name: 'Noise-Cancelling Earbuds', desc: 'True wireless earbuds with active noise cancellation.', status: 'queued', text: null },
-  { id: 7, name: 'Bamboo Cutting Board', desc: 'Eco-friendly bamboo cutting board with juice groove.', status: 'queued', text: null },
-  { id: 8, name: 'Stainless Steel Water Bottle', desc: 'Double-walled insulated bottle, keeps drinks cold 24h.', status: 'queued', text: null },
-  { id: 9, name: 'Leather Wallet', desc: 'Slim bifold wallet crafted from genuine full-grain leather.', status: 'queued', text: null },
-  { id: 10, name: 'Portable Bluetooth Speaker', desc: 'Waterproof speaker with 360° sound and 12-hour battery.', status: 'queued', text: null },
-  { id: 11, name: 'Yoga Mat Pro', desc: 'Non-slip 6mm thick mat with alignment lines.', status: 'queued', text: null },
-  { id: 12, name: 'Scented Soy Candle Set', desc: 'Set of 3 hand-poured soy candles, 40-hour burn time each.', status: 'queued', text: null },
-  { id: 13, name: 'Mechanical Keyboard', desc: 'Compact TKL layout with Cherry MX switches.', status: 'queued', text: null },
-  { id: 14, name: 'Ceramic Plant Pot', desc: 'Handmade ceramic pot with drainage hole, 15cm diameter.', status: 'queued', text: null },
-  { id: 15, name: 'Merino Wool Beanie', desc: 'Super-soft 100% merino wool, one size fits all.', status: 'queued', text: null },
-  { id: 16, name: 'Wooden Desk Organizer', desc: 'Modular bamboo organizer with removable dividers.', status: 'queued', text: null },
-  { id: 17, name: 'Glass Food Storage Set', desc: 'Set of 5 borosilicate glass containers with locking lids.', status: 'queued', text: null },
-  { id: 18, name: 'Running Shoes', desc: 'Lightweight mesh upper with responsive foam midsole.', status: 'queued', text: null },
-  { id: 19, name: 'Aromatherapy Diffuser', desc: 'Ultrasonic diffuser with 7-color LED and timer.', status: 'queued', text: null },
-  { id: 20, name: 'Cast Iron Skillet', desc: '10-inch pre-seasoned cast iron pan for stovetop and oven.', status: 'queued', text: null },
-  { id: 21, name: 'Foldable Laptop Stand', desc: 'Adjustable aluminium stand, compatible with all laptops.', status: 'queued', text: null },
-  { id: 22, name: 'Reusable Beeswax Wraps', desc: 'Set of 3 natural beeswax food wraps in assorted sizes.', status: 'queued', text: null },
-  { id: 23, name: 'Weighted Blanket', desc: '7kg weighted blanket with removable washable cover.', status: 'queued', text: null },
-  { id: 24, name: 'Copper Tongue Scraper', desc: 'Ayurvedic pure copper tongue cleaner, pack of 2.', status: 'queued', text: null },
-  { id: 25, name: 'Resistance Band Set', desc: '5 levels of resistance bands with door anchor and handles.', status: 'queued', text: null },
-  { id: 26, name: 'Linen Throw Pillow', desc: 'Stonewashed linen cover with feather insert, 50×50cm.', status: 'queued', text: null },
-  { id: 27, name: 'Pour-Over Coffee Maker', desc: 'Borosilicate glass dripper with wooden collar and lid.', status: 'queued', text: null },
-  { id: 28, name: 'Electric Toothbrush', desc: 'Sonic vibration, 3 modes, 30-day battery life.', status: 'queued', text: null },
-  { id: 29, name: 'Silk Sleep Mask', desc: '100% mulberry silk mask with adjustable strap.', status: 'queued', text: null },
-  { id: 30, name: 'Wooden Chess Set', desc: 'Hand-carved wooden pieces with folding board and storage.', status: 'queued', text: null },
-  { id: 31, name: 'Stainless Meal Prep Containers', desc: 'Set of 5 leak-proof containers with locking lids.', status: 'queued', text: null },
-  { id: 32, name: 'Foam Roller', desc: 'High-density EVA foam roller, 45cm for muscle recovery.', status: 'queued', text: null },
-  { id: 33, name: 'Seed Germination Kit', desc: 'Complete indoor herb garden starter kit with 10 seed varieties.', status: 'queued', text: null },
-  { id: 34, name: 'Bamboo Toothbrush Set', desc: 'Pack of 4 biodegradable toothbrushes with charcoal bristles.', status: 'queued', text: null },
-  { id: 35, name: 'Smart Plug', desc: 'Wi-Fi enabled outlet with energy monitoring and voice control.', status: 'queued', text: null },
-  { id: 36, name: 'Travel Compression Bags', desc: 'Set of 6 roll-up vacuum storage bags for luggage.', status: 'queued', text: null },
-  { id: 37, name: 'Marble Phone Stand', desc: 'Natural marble base desktop stand for all smartphones.', status: 'queued', text: null },
-  { id: 38, name: 'Cork Yoga Blocks', desc: 'Set of 2 natural cork blocks for alignment and support.', status: 'queued', text: null },
-  { id: 39, name: 'Cold Brew Coffee Maker', desc: '1L glass pitcher with mesh filter for smooth cold brew.', status: 'queued', text: null },
-  { id: 40, name: 'Blackout Curtains', desc: 'Thermal insulated blackout panels, 140×260cm per panel.', status: 'queued', text: null },
-  { id: 41, name: 'Wooden Serving Board', desc: 'Acacia wood charcuterie board with handle, 40×25cm.', status: 'queued', text: null },
-  { id: 42, name: 'Portable Charger 20000mAh', desc: 'Slim power bank with USB-C PD fast charging.', status: 'queued', text: null },
-  { id: 43, name: 'Linen Apron', desc: 'Natural stonewashed linen apron with adjustable straps.', status: 'queued', text: null },
-  { id: 44, name: 'Macramé Wall Hanging', desc: 'Handmade cotton rope wall décor, 60cm wide.', status: 'queued', text: null },
-  { id: 45, name: 'Silicone Baking Mat Set', desc: 'Set of 2 non-stick reusable baking sheets.', status: 'queued', text: null },
-  { id: 46, name: 'Essential Oil Set', desc: '10 pure essential oils in a bamboo gift box.', status: 'queued', text: null },
-  { id: 47, name: 'Adjustable Dumbbell', desc: 'Quick-select 5–25kg adjustable dumbbell, single unit.', status: 'queued', text: null },
-  { id: 48, name: 'Ceramic Spice Jars', desc: 'Set of 12 stackable ceramic jars with bamboo lids.', status: 'queued', text: null },
-  { id: 49, name: 'Portable Espresso Maker', desc: 'Manual hand-pump espresso for travel, no electricity needed.', status: 'queued', text: null },
-  { id: 50, name: 'Knitted Storage Basket', desc: 'Large chunky-knit cotton basket for blankets and toys.', status: 'queued', text: null },
-  { id: 51, name: 'UV Sanitiser Box', desc: 'Phone and small item UV-C steriliser with wireless charging.', status: 'queued', text: null },
-  { id: 52, name: 'Beeswax Polish', desc: 'Natural beeswax furniture polish with lavender scent.', status: 'queued', text: null },
-  { id: 53, name: 'Foldable Tote Bag', desc: 'Ripstop nylon packable tote, 20L capacity.', status: 'queued', text: null },
-  { id: 54, name: 'Wooden Laptop Desk', desc: 'Lap desk with cushion and phone slot for sofa use.', status: 'queued', text: null },
 ])
-
-const textGenPerPage = 10
-const textGenPage = ref(1)
-const textGenGeneratedPage = ref(1)
-const textGenProductsPaged = computed(() => textGenProducts.value.slice((textGenPage.value - 1) * textGenPerPage, textGenPage.value * textGenPerPage))
-const textGenProductsGenerated = computed(() => textGenProducts.value.filter(p => p.status === 'generated'))
-const textGenProductsGeneratedPaged = computed(() => textGenProductsGenerated.value.slice((textGenGeneratedPage.value - 1) * textGenPerPage, textGenGeneratedPage.value * textGenPerPage))
-const textGenTotalPages = computed(() => Math.ceil(textGenProducts.value.length / textGenPerPage))
-const textGenGeneratedTotalPages = computed(() => Math.ceil(textGenProductsGenerated.value.length / textGenPerPage))
-watch(textGenTab, () => { textGenPage.value = 1; textGenGeneratedPage.value = 1 })
 
 const textGenMenuOptions = [
   { count: 10, credits: '20 credits' },
