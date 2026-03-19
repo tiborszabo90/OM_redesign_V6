@@ -159,9 +159,11 @@
             </div>
             <div class="campaign-metrics-header">
               <div class="header-cell numeric">Visitors</div>
-              <div class="header-cell numeric">Impressions</div>
-              <div class="header-cell numeric">Submits</div>
-              <div class="header-cell numeric">Submit Rate</div>
+              <div v-if="!isPurchase && !isAddToCart" class="header-cell numeric">Impressions</div>
+              <div class="header-cell numeric">{{ labelSubmits }}</div>
+              <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              <div v-if="isSubmit" class="header-cell numeric">Assisted Orders</div>
+              <div v-if="isSubmit" class="header-cell numeric">Assisted Rev.</div>
             </div>
           </div>
 
@@ -169,7 +171,7 @@
             <!-- Left Column: Campaign List -->
             <div class="campaign-list-column">
               <div class="campaign-table-body">
-                <template v-for="campaign in campaignData" :key="campaign.id">
+                <template v-for="campaign in campaignDataDisplay" :key="campaign.id">
                   <div
                     class="campaign-row"
                     @mouseenter="setHoveredCampaign(campaign.id)"
@@ -225,7 +227,7 @@
             <!-- Right Column: Metrics -->
             <div class="campaign-metrics-column">
               <div class="campaign-table-body">
-                <template v-for="campaign in campaignData" :key="campaign.id">
+                <template v-for="campaign in campaignDataDisplay" :key="campaign.id">
                   <div
                     class="campaign-metrics-row"
                     @mouseenter="setHoveredCampaign(campaign.id)"
@@ -233,9 +235,11 @@
                     :class="{ 'is-hovered': hoveredCampaignId === campaign.id }"
                   >
                     <div class="metric-cell">{{ campaign.visitors.toLocaleString() }}</div>
-                    <div class="metric-cell">{{ campaign.impressions.toLocaleString() }}</div>
+                    <div v-if="!isPurchase && !isAddToCart" class="metric-cell">{{ campaign.impressions.toLocaleString() }}</div>
                     <div class="metric-cell">{{ campaign.submits }}</div>
                     <div class="metric-cell">{{ campaign.conversionRate }}%</div>
+                    <div v-if="isSubmit" class="metric-cell">{{ campaign.assistedOrders }}</div>
+                    <div v-if="isSubmit" class="metric-cell">${{ campaign.assistedRevenue?.toLocaleString() }}</div>
                   </div>
                   <template v-if="campaign.variants && expandedCampaigns.has(campaign.id)">
                     <div
@@ -244,9 +248,11 @@
                       class="campaign-variant-metrics-row"
                     >
                       <div class="metric-cell">{{ variant.visitors.toLocaleString() }}</div>
-                      <div class="metric-cell">{{ variant.impressions.toLocaleString() }}</div>
+                      <div v-if="!isPurchase && !isAddToCart" class="metric-cell">{{ variant.impressions.toLocaleString() }}</div>
                       <div class="metric-cell">{{ variant.submits }}</div>
                       <div class="metric-cell">{{ variant.conversionRate }}%</div>
+                      <div v-if="isSubmit" class="metric-cell">{{ variant.assistedOrders ?? '–' }}</div>
+                      <div v-if="isSubmit" class="metric-cell">{{ variant.assistedRevenue ? '$' + variant.assistedRevenue.toLocaleString() : '–' }}</div>
                     </div>
                   </template>
                 </template>
@@ -280,15 +286,15 @@
                   </div>
                   <div class="campaign-metrics-header">
                     <div class="header-cell numeric">Visitors</div>
-                    <div class="header-cell numeric">Submits</div>
-                    <div class="header-cell numeric"><span class="sr-full">Submit Rate</span><span class="sr-short">Sub. R.</span></div>
+                    <div class="header-cell numeric">{{ labelSubmits }}</div>
+                    <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
                   </div>
                 </div>
                 <div class="campaign-performance-layout">
                   <div class="campaign-list-column">
                     <div class="campaign-table-body">
                       <div
-                        v-for="row in devicesTableData"
+                        v-for="row in devicesDisplay"
                         :key="row.type"
                         class="campaign-row"
                         :class="{ 'is-hovered': hoveredDevicesRow === row.type }"
@@ -312,7 +318,7 @@
                   <div class="campaign-metrics-column">
                     <div class="campaign-table-body">
                       <div
-                        v-for="row in devicesTableData"
+                        v-for="row in devicesDisplay"
                         :key="row.type"
                         class="campaign-metrics-row"
                         :class="{ 'is-hovered': hoveredDevicesRow === row.type }"
@@ -331,7 +337,7 @@
               <div class="devices-chart-wrap">
                 <VueApexCharts
                   type="bar"
-                  height="200"
+                  height="120"
                   :options="devicesChartOptions"
                   :series="devicesChartSeries"
                 />
@@ -363,15 +369,15 @@
                 </div>
                 <div class="campaign-metrics-header">
                   <div class="header-cell numeric">Visitors</div>
-                  <div class="header-cell numeric">Submits</div>
-                  <div class="header-cell numeric"><span class="sr-full">Submit Rate</span><span class="sr-short">Sub. R.</span></div>
+                  <div class="header-cell numeric">{{ labelSubmits }}</div>
+                  <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
                 </div>
               </div>
               <div class="campaign-performance-layout">
                 <div class="campaign-list-column">
                   <div class="campaign-table-body">
                     <div
-                      v-for="row in trafficSourceData"
+                      v-for="row in trafficDisplay"
                       :key="row.referrer"
                       class="campaign-row"
                       :class="{ 'is-hovered': hoveredTrafficRow2 === row.referrer }"
@@ -398,7 +404,7 @@
                 <div class="campaign-metrics-column">
                   <div class="campaign-table-body">
                     <div
-                      v-for="row in trafficSourceData"
+                      v-for="row in trafficDisplay"
                       :key="row.referrer"
                       class="campaign-metrics-row"
                       :class="{ 'is-hovered': hoveredTrafficRow2 === row.referrer }"
@@ -427,96 +433,186 @@
         </div>
         <!-- /Devices + Traffic Source Row -->
 
-        <!-- Countries Section -->
-        <div v-if="!sectionHasActiveFilters('countries')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] mb-6 pt-5 pb-5">
-          <div class="section-header" style="padding-left: 32px; padding-right: 32px; margin-bottom: 1.25rem;">
-            <h2 class="section-title" style="padding: 0; margin-bottom: 0;">Countries</h2>
-            <button class="view-all-btn" @click="openSubPage('countries')">View All</button>
-          </div>
-
-          <div class="countries-content">
-            <div class="countries-table-side">
-              <div v-if="hasCountriesSelection" class="campaign-filter-bar">
-                <Checkbox
-                  :model-value="allCountriesSelected"
-                  :indeterminate="isCountriesIndeterminate"
-                  size="sm"
-                  class="custom-checkbox"
-                  @update:model-value="toggleSelectAllCountries"
-                />
-                <span class="selection-count">{{ countriesSelectionCount }} selected</span>
-                <button class="filter-btn" @click="applyCountriesFilter">Filter</button>
+        <!-- Countries + Landing Pages Row -->
+        <div :class="['breakdown-modules-row', { 'single-column': sectionHasActiveFilters('countries') || sectionHasActiveFilters('landingPages') }]">
+          <!-- Countries -->
+          <div v-if="!sectionHasActiveFilters('countries')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
+            <div class="section-header">
+              <h2 class="section-title">Countries</h2>
+              <button class="view-all-btn" @click="openSubPage('countries')">View All</button>
+            </div>
+            <div v-if="hasCountriesSelection" class="campaign-filter-bar">
+              <Checkbox :model-value="allCountriesSelected" :indeterminate="isCountriesIndeterminate" size="sm" class="custom-checkbox" @update:model-value="toggleSelectAllCountries" />
+              <span class="selection-count">{{ countriesSelectionCount }} selected</span>
+              <button class="filter-btn" @click="applyCountriesFilter">Filter</button>
+            </div>
+            <div v-if="!hasCountriesSelection" class="campaign-headers-row">
+              <div class="breakdown-module-list-header"><div class="header-cell">Country</div></div>
+              <div class="breakdown-module-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
               </div>
-              <div v-if="!hasCountriesSelection" class="campaign-headers-row">
-                <div class="campaign-list-header">
-                  <div class="header-cell">Country</div>
-                </div>
-                <div class="campaign-metrics-header">
-                  <div class="header-cell numeric">Visitors</div>
-                  <div class="header-cell numeric">Submits</div>
-                  <div class="header-cell numeric">Submit Rate</div>
-                </div>
-              </div>
-
-              <div class="campaign-performance-layout">
-                <div class="campaign-list-column">
-                  <div class="campaign-table-body">
-                    <div
-                      v-for="row in countriesData"
-                      :key="row.country"
-                      class="campaign-row"
-                      :class="{ 'is-hovered': hoveredCountriesRow === row.country }"
-                      @mouseenter="hoveredCountriesRow = row.country"
-                      @mouseleave="hoveredCountriesRow = null"
-                      @click="toggleCountriesRow(row.country)"
-                    >
-                      <Checkbox
-                        :model-value="isCountriesRowSelected(row.country)"
-                        size="sm"
-                        class="custom-checkbox"
-                        @click.stop
-                        @update:model-value="toggleCountriesRow(row.country)"
-                      />
-                      <div class="campaign-name-wrapper">
-                        <div class="flex items-center gap-2">
-                          <img
-                            v-if="getFlagUrl(row.country)"
-                            :src="getFlagUrl(row.country)"
-                            :alt="row.country"
-                            class="w-5 h-5 rounded-full object-cover shrink-0 ring-1 ring-om-gray-200"
-                          />
-                          <div class="campaign-name">{{ row.country }}</div>
-                        </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="breakdown-module-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="row in countriesDisplay" :key="row.country" class="campaign-row" :class="{ 'is-hovered': hoveredCountriesRow === row.country }" @mouseenter="hoveredCountriesRow = row.country" @mouseleave="hoveredCountriesRow = null" @click="toggleCountriesRow(row.country)">
+                    <Checkbox :model-value="isCountriesRowSelected(row.country)" size="sm" class="custom-checkbox" @click.stop @update:model-value="toggleCountriesRow(row.country)" />
+                    <div class="campaign-name-wrapper">
+                      <div class="flex items-center gap-2">
+                        <img v-if="getFlagUrl(row.country)" :src="getFlagUrl(row.country)" :alt="row.country" class="w-5 h-5 rounded-full object-cover shrink-0 ring-1 ring-om-gray-200" />
+                        <div class="campaign-name">{{ row.country }}</div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="campaign-metrics-column">
-                  <div class="campaign-table-body">
-                    <div
-                      v-for="row in countriesData"
-                      :key="row.country"
-                      class="campaign-metrics-row"
-                      :class="{ 'is-hovered': hoveredCountriesRow === row.country }"
-                      @mouseenter="hoveredCountriesRow = row.country"
-                      @mouseleave="hoveredCountriesRow = null"
-                    >
-                      <div class="metric-cell">{{ row.visitors.toLocaleString() }}</div>
-                      <div class="metric-cell">{{ row.submits !== null ? row.submits.toLocaleString() : '–' }}</div>
-                      <div class="metric-cell">{{ row.submitRate !== null ? row.submitRate + '%' : '–' }}</div>
-                    </div>
+              </div>
+              <div class="breakdown-module-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="row in countriesDisplay" :key="row.country" class="campaign-metrics-row" :class="{ 'is-hovered': hoveredCountriesRow === row.country }" @mouseenter="hoveredCountriesRow = row.country" @mouseleave="hoveredCountriesRow = null">
+                    <div class="metric-cell">{{ row.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ row.submits !== null ? row.submits.toLocaleString() : '–' }}</div>
+                    <div class="metric-cell">{{ row.submitRate !== null ? row.submitRate + '%' : '–' }}</div>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
+          <!-- Landing Pages -->
+          <div v-if="!sectionHasActiveFilters('landingPages')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
+            <div class="section-header">
+              <h2 class="section-title">Landing Pages</h2>
+              <button class="view-all-btn" @click="openSubPage('landing-pages')">View All</button>
+            </div>
+            <div v-if="hasLandingPagesSelection" class="campaign-filter-bar">
+              <Checkbox :model-value="allLandingPagesSelected" :indeterminate="isLandingPagesIndeterminate" size="sm" class="custom-checkbox" @update:model-value="toggleSelectAllLandingPages" />
+              <span class="selection-count">{{ selectedLandingPagesCount }} selected</span>
+              <button class="filter-btn" @click="applyLandingPagesFilter">Filter</button>
+            </div>
+            <div v-if="!hasLandingPagesSelection" class="campaign-headers-row">
+              <div class="breakdown-module-list-header"><div class="header-cell">Landing Page</div></div>
+              <div class="breakdown-module-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="breakdown-module-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="page in landingPagesDisplay" :key="page.url" class="campaign-row" @mouseenter="setHoveredLandingPage(page.url)" @mouseleave="clearHoveredLandingPage()" :class="{ 'is-hovered': hoveredLandingPageUrl === page.url }" @click="toggleLandingPageSelection(page.url)">
+                    <Checkbox :model-value="isLandingPageSelected(page.url)" size="sm" class="custom-checkbox" @click.stop @update:model-value="toggleLandingPageSelection(page.url)" />
+                    <div class="campaign-name-wrapper">
+                      <a :href="page.url" target="_blank" class="campaign-name-with-icon" @click.stop>
+                        <div class="campaign-name">{{ page.url }}</div>
+                        <ExternalLink :size="14" class="campaign-link-icon" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="breakdown-module-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="page in landingPagesDisplay" :key="page.url" class="campaign-metrics-row" @mouseenter="setHoveredLandingPage(page.url)" @mouseleave="clearHoveredLandingPage()" :class="{ 'is-hovered': hoveredLandingPageUrl === page.url }">
+                    <div class="metric-cell">{{ page.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ page.submits }}</div>
+                    <div class="metric-cell">{{ page.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Visited Pages Section -->
-        <div v-if="!sectionHasActiveFilters('visitedPages')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] mb-6 pt-5 pb-5">
+        <!-- Browser Languages + Operating Systems Row -->
+        <div :class="['breakdown-modules-row', { 'single-column': sectionHasActiveFilters('browserLanguages') }]">
+          <!-- Browser Languages -->
+          <div v-if="!sectionHasActiveFilters('browserLanguages')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
+            <div class="section-header">
+              <h2 class="section-title">Browser Languages</h2>
+              <button class="view-all-btn" @click="openSubPage('browser-languages')">View All</button>
+            </div>
+            <div v-if="hasBrowserLanguagesSelection" class="campaign-filter-bar">
+              <Checkbox :model-value="allBrowserLanguagesSelected" :indeterminate="isBrowserLanguagesIndeterminate" size="sm" class="custom-checkbox" @update:model-value="toggleSelectAllBrowserLanguages" />
+              <span class="selection-count">{{ selectedBrowserLanguagesCount }} selected</span>
+              <button class="filter-btn" @click="applyBrowserLanguagesFilter">Filter</button>
+            </div>
+            <div v-if="!hasBrowserLanguagesSelection" class="campaign-headers-row">
+              <div class="breakdown-module-list-header"><div class="header-cell">Language</div></div>
+              <div class="breakdown-module-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="breakdown-module-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="lang in browserLanguagesDisplay" :key="lang.code" class="campaign-row" @mouseenter="setHoveredBrowserLanguage(lang.code)" @mouseleave="clearHoveredBrowserLanguage()" :class="{ 'is-hovered': hoveredBrowserLanguageCode === lang.code }" @click="toggleBrowserLanguageSelection(lang.code)">
+                    <Checkbox :model-value="isBrowserLanguageSelected(lang.code)" size="sm" class="custom-checkbox" @click.stop @update:model-value="toggleBrowserLanguageSelection(lang.code)" />
+                    <div class="campaign-name-wrapper"><div class="campaign-name">{{ lang.code }}</div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="breakdown-module-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="lang in browserLanguagesDisplay" :key="lang.code" class="campaign-metrics-row" @mouseenter="setHoveredBrowserLanguage(lang.code)" @mouseleave="clearHoveredBrowserLanguage()" :class="{ 'is-hovered': hoveredBrowserLanguageCode === lang.code }">
+                    <div class="metric-cell">{{ lang.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ lang.submits }}</div>
+                    <div class="metric-cell">{{ lang.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Operating Systems -->
+          <div v-if="!sectionHasActiveFilters('operatingSystems')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
+            <div class="section-header">
+              <h2 class="section-title">Operating Systems</h2>
+            </div>
+            <div v-if="hasOsSelection" class="campaign-filter-bar">
+              <Checkbox :model-value="allOsSelected" :indeterminate="isOsIndeterminate" size="sm" class="custom-checkbox" @update:model-value="toggleSelectAllOs" />
+              <span class="selection-count">{{ selectedOsCount }} selected</span>
+              <button class="filter-btn" @click="applyOperatingSystemsFilter">Filter</button>
+            </div>
+            <div v-if="!hasOsSelection" class="campaign-headers-row">
+              <div class="breakdown-module-list-header"><div class="header-cell">OS</div></div>
+              <div class="breakdown-module-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="breakdown-module-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="os in operatingSystemsDisplay" :key="os.name" class="campaign-row has-selection" :class="{ 'is-hovered': hoveredOsName === os.name }" @mouseenter="hoveredOsName = os.name" @mouseleave="hoveredOsName = null" @click="toggleOsSelection(os.name)">
+                    <Checkbox :model-value="isOsSelected(os.name)" size="sm" class="custom-checkbox" @click.stop @update:model-value="toggleOsSelection(os.name)" />
+                    <div class="campaign-name-wrapper"><div class="campaign-name">{{ os.name }}</div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="breakdown-module-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="os in operatingSystemsDisplay" :key="os.name" class="campaign-metrics-row" :class="{ 'is-hovered': hoveredOsName === os.name }" @mouseenter="hoveredOsName = os.name" @mouseleave="hoveredOsName = null">
+                    <div class="metric-cell">{{ os.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ os.submits.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ os.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Pages + Referring Sites Row -->
+        <div :class="['breakdown-modules-row top-pages-row', { 'single-column': sectionHasActiveFilters('visitedPages') || sectionHasActiveFilters('referringSites') }]">
+        <div v-if="!sectionHasActiveFilters('visitedPages')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
           <div class="section-header">
-            <h2 class="section-title">Visited Pages</h2>
+            <h2 class="section-title">Top Pages</h2>
             <button class="view-all-btn" @click="openSubPage('visited-pages')">View All</button>
           </div>
 
@@ -543,8 +639,8 @@
             <div class="campaign-metrics-header">
               <div class="header-cell numeric">Page Views</div>
               <div class="header-cell numeric">Visitors</div>
-              <div class="header-cell numeric">Submits</div>
-              <div class="header-cell numeric">Submit Rate</div>
+              <div class="header-cell numeric">{{ labelSubmits }}</div>
+              <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
             </div>
           </div>
 
@@ -602,170 +698,39 @@
           </div>
         </div>
 
-        <!-- Breakdown Modules Row -->
-        <div :class="['breakdown-modules-row', { 'single-column': sectionHasActiveFilters('landingPages') || sectionHasActiveFilters('browserLanguages') }]">
-          <!-- Landing Pages -->
-          <div v-if="!sectionHasActiveFilters('landingPages')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
+          <!-- Referring Sites -->
+          <div v-if="!sectionHasActiveFilters('referringSites')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
             <div class="section-header">
-              <h2 class="section-title">Landing Pages</h2>
-              <button class="view-all-btn" @click="openSubPage('landing-pages')">View All</button>
+              <h2 class="section-title">Referring Sites</h2>
             </div>
-
-            <!-- Filter Bar - Full Width -->
-            <div v-if="hasLandingPagesSelection" class="campaign-filter-bar">
-              <Checkbox
-                :model-value="allLandingPagesSelected"
-                :indeterminate="isLandingPagesIndeterminate"
-                size="sm"
-                class="custom-checkbox"
-                @update:model-value="toggleSelectAllLandingPages"
-              />
-              <span class="selection-count">{{ selectedLandingPagesCount }} selected</span>
-              <button class="filter-btn" @click="applyLandingPagesFilter">
-                Filter
-              </button>
+            <div v-if="hasReferringSitesSelection" class="campaign-filter-bar">
+              <Checkbox :model-value="allReferringSitesSelected" :indeterminate="isReferringSitesIndeterminate" size="sm" class="custom-checkbox" @update:model-value="toggleSelectAllReferringSites" />
+              <span class="selection-count">{{ selectedReferringSitesCount }} selected</span>
+              <button class="filter-btn" @click="applyReferringSitesFilter">Filter</button>
             </div>
-
-            <!-- Table Headers -->
-            <div v-if="!hasLandingPagesSelection" class="campaign-headers-row">
-              <div class="breakdown-module-list-header">
-                <div class="header-cell">Landing Page</div>
-              </div>
-              <div class="breakdown-module-metrics-header">
+            <div v-if="!hasReferringSitesSelection" class="campaign-headers-row">
+              <div class="campaign-list-header"><div class="header-cell">Site</div></div>
+              <div class="campaign-metrics-header">
                 <div class="header-cell numeric">Visitors</div>
-                <div class="header-cell numeric">Submits</div>
-                <div class="header-cell numeric">Submit Rate</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
               </div>
             </div>
-
             <div class="campaign-performance-layout">
-              <!-- Left Column: Landing Page URLs -->
-              <div class="breakdown-module-list-column">
+              <div class="campaign-list-column">
                 <div class="campaign-table-body">
-                  <div
-                    v-for="page in landingPagesDisplay"
-                    :key="page.url"
-                    class="campaign-row"
-                    @mouseenter="setHoveredLandingPage(page.url)"
-                    @mouseleave="clearHoveredLandingPage()"
-                    :class="{ 'is-hovered': hoveredLandingPageUrl === page.url }"
-                    @click="toggleLandingPageSelection(page.url)"
-                  >
-                    <Checkbox
-                      :model-value="isLandingPageSelected(page.url)"
-                      size="sm"
-                      class="custom-checkbox"
-                      @click.stop
-                      @update:model-value="toggleLandingPageSelection(page.url)"
-                    />
-                    <div class="campaign-name-wrapper">
-                      <a :href="page.url" target="_blank" class="campaign-name-with-icon" @click.stop>
-                        <div class="campaign-name">{{ page.url }}</div>
-                        <ExternalLink
-                          :size="14"
-                          class="campaign-link-icon"
-                        />
-                      </a>
-                    </div>
+                  <div v-for="site in referringSitesDisplay" :key="site.site" class="campaign-row" :class="{ 'is-hovered': hoveredReferringSiteRow === site.site }" @mouseenter="hoveredReferringSiteRow = site.site" @mouseleave="hoveredReferringSiteRow = null" @click="toggleReferringSiteSelection(site.site)">
+                    <Checkbox :model-value="isReferringSiteSelected(site.site)" size="sm" class="custom-checkbox" @click.stop @update:model-value="toggleReferringSiteSelection(site.site)" />
+                    <div class="campaign-name-wrapper"><div class="campaign-name">{{ site.site }}</div></div>
                   </div>
                 </div>
               </div>
-
-              <!-- Right Column: Metrics -->
-              <div class="breakdown-module-metrics-column">
+              <div class="campaign-metrics-column">
                 <div class="campaign-table-body">
-                  <div
-                    v-for="page in landingPagesDisplay"
-                    :key="page.url"
-                    class="campaign-metrics-row"
-                    @mouseenter="setHoveredLandingPage(page.url)"
-                    @mouseleave="clearHoveredLandingPage()"
-                    :class="{ 'is-hovered': hoveredLandingPageUrl === page.url }"
-                  >
-                    <div class="metric-cell">{{ page.visitors.toLocaleString() }}</div>
-                    <div class="metric-cell">{{ page.submits }}</div>
-                    <div class="metric-cell">{{ page.conversionRate }}%</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Browser Languages -->
-          <div v-if="!sectionHasActiveFilters('browserLanguages')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
-            <div class="section-header">
-              <h2 class="section-title">Browser Languages</h2>
-              <button class="view-all-btn" @click="openSubPage('browser-languages')">View All</button>
-            </div>
-
-            <!-- Filter Bar - Full Width -->
-            <div v-if="hasBrowserLanguagesSelection" class="campaign-filter-bar">
-              <Checkbox
-                :model-value="allBrowserLanguagesSelected"
-                :indeterminate="isBrowserLanguagesIndeterminate"
-                size="sm"
-                class="custom-checkbox"
-                @update:model-value="toggleSelectAllBrowserLanguages"
-              />
-              <span class="selection-count">{{ selectedBrowserLanguagesCount }} selected</span>
-              <button class="filter-btn" @click="applyBrowserLanguagesFilter">
-                Filter
-              </button>
-            </div>
-
-            <!-- Table Headers -->
-            <div v-if="!hasBrowserLanguagesSelection" class="campaign-headers-row">
-              <div class="breakdown-module-list-header">
-                <div class="header-cell">Language</div>
-              </div>
-              <div class="breakdown-module-metrics-header">
-                <div class="header-cell numeric">Visitors</div>
-                <div class="header-cell numeric">Submits</div>
-                <div class="header-cell numeric">Submit Rate</div>
-              </div>
-            </div>
-
-            <div class="campaign-performance-layout">
-              <!-- Left Column: Languages -->
-              <div class="breakdown-module-list-column">
-                <div class="campaign-table-body">
-                  <div
-                    v-for="lang in browserLanguagesDisplay"
-                    :key="lang.code"
-                    class="campaign-row"
-                    @mouseenter="setHoveredBrowserLanguage(lang.code)"
-                    @mouseleave="clearHoveredBrowserLanguage()"
-                    :class="{ 'is-hovered': hoveredBrowserLanguageCode === lang.code }"
-                    @click="toggleBrowserLanguageSelection(lang.code)"
-                  >
-                    <Checkbox
-                      :model-value="isBrowserLanguageSelected(lang.code)"
-                      size="sm"
-                      class="custom-checkbox"
-                      @click.stop
-                      @update:model-value="toggleBrowserLanguageSelection(lang.code)"
-                    />
-                    <div class="campaign-name-wrapper">
-                      <div class="campaign-name">{{ lang.code }}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Right Column: Metrics -->
-              <div class="breakdown-module-metrics-column">
-                <div class="campaign-table-body">
-                  <div
-                    v-for="lang in browserLanguagesDisplay"
-                    :key="lang.code"
-                    class="campaign-metrics-row"
-                    @mouseenter="setHoveredBrowserLanguage(lang.code)"
-                    @mouseleave="clearHoveredBrowserLanguage()"
-                    :class="{ 'is-hovered': hoveredBrowserLanguageCode === lang.code }"
-                  >
-                    <div class="metric-cell">{{ lang.visitors.toLocaleString() }}</div>
-                    <div class="metric-cell">{{ lang.submits }}</div>
-                    <div class="metric-cell">{{ lang.conversionRate }}%</div>
+                  <div v-for="site in referringSitesDisplay" :key="site.site" class="campaign-metrics-row" :class="{ 'is-hovered': hoveredReferringSiteRow === site.site }" @mouseenter="hoveredReferringSiteRow = site.site" @mouseleave="hoveredReferringSiteRow = null">
+                    <div class="metric-cell">{{ site.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ site.submits.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ site.conversionRate }}%</div>
                   </div>
                 </div>
               </div>
@@ -804,8 +769,8 @@
               </div>
               <div class="breakdown-module-metrics-header">
                 <div class="header-cell numeric">Visitors</div>
-                <div class="header-cell numeric">Submits</div>
-                <div class="header-cell numeric">Submit Rate</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
               </div>
             </div>
 
@@ -885,8 +850,8 @@
               </div>
               <div class="breakdown-module-metrics-header">
                 <div class="header-cell numeric">Visitors</div>
-                <div class="header-cell numeric">Submits</div>
-                <div class="header-cell numeric">Submit Rate</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
               </div>
             </div>
 
@@ -999,7 +964,7 @@
             </div>
           </div>
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
-            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Submits</div>
+            <div class="text-xs text-om-gray-400 font-medium mb-2">{{ labelTotalSubmits }}</div>
             <div class="flex items-baseline gap-2">
               <div class="text-xl font-semibold text-om-gray-700">2,299</div>
               <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +11.4%</div>
@@ -1031,7 +996,7 @@
             </div>
           </div>
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
-            <div class="text-xs text-om-gray-400 font-medium mb-2">Avg Submit Rate</div>
+            <div class="text-xs text-om-gray-400 font-medium mb-2">{{ labelAvgSubmitRate }}</div>
             <div class="flex items-baseline gap-2">
               <div class="text-xl font-semibold text-om-gray-700">1.87%</div>
               <div class="flex items-center gap-0.5 text-xs font-medium text-[#E4252D]"><TrendingDown :size="12" /> -0.4%</div>
@@ -1096,7 +1061,7 @@
             </div>
           </div>
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
-            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Submits</div>
+            <div class="text-xs text-om-gray-400 font-medium mb-2">{{ labelTotalSubmits }}</div>
             <div class="flex items-baseline gap-2">
               <div class="text-xl font-semibold text-om-gray-700">2,184</div>
               <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +8.7%</div>
@@ -1128,7 +1093,7 @@
             </div>
           </div>
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
-            <div class="text-xs text-om-gray-400 font-medium mb-2">Avg Submit Rate</div>
+            <div class="text-xs text-om-gray-400 font-medium mb-2">{{ labelAvgSubmitRate }}</div>
             <div class="flex items-baseline gap-2">
               <div class="text-xl font-semibold text-om-gray-700">0.71%</div>
               <div class="flex items-center gap-0.5 text-xs font-medium text-[#E4252D]"><TrendingDown :size="12" /> -0.3%</div>
@@ -1160,7 +1125,7 @@
             </div>
           </div>
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
-            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Submits</div>
+            <div class="text-xs text-om-gray-400 font-medium mb-2">{{ labelTotalSubmits }}</div>
             <div class="flex items-baseline gap-2">
               <div class="text-xl font-semibold text-om-gray-700">1,947</div>
               <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +9.8%</div>
@@ -1192,7 +1157,7 @@
             </div>
           </div>
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
-            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Submits</div>
+            <div class="text-xs text-om-gray-400 font-medium mb-2">{{ labelTotalSubmits }}</div>
             <div class="flex items-baseline gap-2">
               <div class="text-xl font-semibold text-om-gray-700">1,823</div>
               <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +8.3%</div>
@@ -1234,8 +1199,8 @@
               <div class="campaign-list-header"><div class="header-cell">Source</div></div>
               <div class="campaign-metrics-header">
                 <div class="header-cell numeric">Visitors</div>
-                <div class="header-cell numeric">Submits</div>
-                <div class="header-cell numeric">Submit Rate</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
               </div>
             </div>
             <div class="campaign-performance-layout">
@@ -1268,8 +1233,8 @@
               </div>
               <div class="campaign-metrics-header">
                 <div class="header-cell numeric">Visitors</div>
-                <div class="header-cell numeric">Submits</div>
-                <div class="header-cell numeric">Submit Rate</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
               </div>
             </div>
             <div class="campaign-performance-layout">
@@ -1323,8 +1288,8 @@
               <div class="campaign-metrics-header">
                 <div class="header-cell numeric">Page Views</div>
                 <div class="header-cell numeric">Visitors</div>
-                <div class="header-cell numeric">Submits</div>
-                <div class="header-cell numeric">Submit Rate</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
               </div>
             </div>
             <div class="campaign-performance-layout">
@@ -1359,8 +1324,8 @@
               <div class="campaign-list-header"><div class="header-cell">Landing Page</div></div>
               <div class="campaign-metrics-header">
                 <div class="header-cell numeric">Visitors</div>
-                <div class="header-cell numeric">Submits</div>
-                <div class="header-cell numeric">Submit Rate</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
               </div>
             </div>
             <div class="campaign-performance-layout">
@@ -1394,8 +1359,8 @@
               <div class="campaign-list-header"><div class="header-cell">Language</div></div>
               <div class="campaign-metrics-header">
                 <div class="header-cell numeric">Visitors</div>
-                <div class="header-cell numeric">Submits</div>
-                <div class="header-cell numeric">Submit Rate</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
               </div>
             </div>
             <div class="campaign-performance-layout">
@@ -1426,8 +1391,8 @@
               <div class="campaign-list-header"><div class="header-cell">Campaign</div></div>
               <div class="campaign-metrics-header">
                 <div class="header-cell numeric">Visitors</div>
-                <div class="header-cell numeric">Submits</div>
-                <div class="header-cell numeric">Submit Rate</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
               </div>
             </div>
             <div class="campaign-performance-layout">
@@ -1458,8 +1423,8 @@
               <div class="campaign-list-header"><div class="header-cell">Source</div></div>
               <div class="campaign-metrics-header">
                 <div class="header-cell numeric">Visitors</div>
-                <div class="header-cell numeric">Submits</div>
-                <div class="header-cell numeric">Submit Rate</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
               </div>
             </div>
             <div class="campaign-performance-layout">
@@ -1519,7 +1484,7 @@ const isChatOpen = ref(false)
 const chatSuggestions = [
   'What drove the conversion rate change this week?',
   'Which page has the highest drop-off rate?',
-  'How can I improve my supported revenue?',
+  'How can I improve my assisted revenue?',
   'What are my top performing campaigns?',
   'Show me trends for the last 30 days',
 ]
@@ -1527,7 +1492,7 @@ const chatSuggestions = [
 const chatAiResponses = {
   'What drove the conversion rate change this week?': 'Your conversion rate increased by **+0.12%** this week, driven mainly by two factors:\n\n**1. Smart Discount Popup** — updated CTA copy boosted its submit rate from 7.1% to 8.4%\n\n**2. Mobile traffic share** — down 8% this week, which raises the overall rate since desktop converts significantly better.\n\nWould you like a breakdown by device or campaign?',
   'Which page has the highest drop-off rate?': 'Based on your visited pages data, **/checkout** has the highest drop-off rate at **78%** — meaning only 22% of visitors who land there complete a purchase.\n\nThe second highest is **/cart** at **64%**. I\'d recommend deploying a cart abandonment popup on both pages to recover some of these visitors.',
-  'How can I improve my supported revenue?': 'Your current supported revenue is **$23,274**, up 15.8% month-over-month. To accelerate growth:\n\n**1. Upsell campaigns** — Add a post-purchase upsell popup to your thank-you page.\n**2. Expand to email captures** — Visitors who opt in convert at 3× the rate of anonymous traffic.\n**3. Increase campaign frequency** — Your current campaigns reach only 34% of your visitors.',
+  'How can I improve my assisted revenue?': 'Your current assisted revenue is **$23,274**, up 15.8% month-over-month. To accelerate growth:\n\n**1. Upsell campaigns** — Add a post-purchase upsell popup to your thank-you page.\n**2. Expand to email captures** — Visitors who opt in convert at 3× the rate of anonymous traffic.\n**3. Increase campaign frequency** — Your current campaigns reach only 34% of your visitors.',
   'What are my top performing campaigns?': 'Your top 3 campaigns by conversion rate this period:\n\n**1. Smart Discount Popup** — 8.37% conversion rate, +84% uplift\n**2. Black Friday 2025** — 5.2% conversion rate, +56% uplift\n**3. Exit Intent Offer** — 4.8% conversion rate, +41% uplift\n\nAll three are active and performing above your account average of 3.2%.',
   'Show me trends for the last 30 days': 'Over the last 30 days:\n\n- **Impressions:** +12% (↑ trending)\n- **Conversion rate:** +0.57% (↑ trending)\n- **Submits:** +18% (↑ trending)\n- **Supported revenue:** +15.8% (↑ trending)\n\nAll key metrics are trending positively. The biggest growth driver is your Black Friday campaign which launched 2 weeks ago.',
 }
@@ -1594,18 +1559,30 @@ const handleNewDomain = (newDomain) => {
   selectedDomain.value = newDomain
 }
 
+// Goal-specific labels
+const isPurchase = props.goal === 'purchase'
+const isAddToCart = props.goal === 'add-to-cart'
+const isEmailCapture = props.goal === 'email-capture'
+const isPhoneCapture = props.goal === 'phone-capture'
+const isSubmit = !isPurchase && !isAddToCart && !isEmailCapture && !isPhoneCapture
+const labelSubmits = isPurchase ? 'Orders' : isAddToCart ? 'Add to carts' : isEmailCapture ? 'Email capture' : isPhoneCapture ? 'Phone capture' : 'Submits'
+const labelSubmitRate = isPurchase ? 'Conversion Rate' : isAddToCart ? 'Add to cart Rate' : isEmailCapture ? 'Email capture rate' : isPhoneCapture ? 'Phone capture rate' : 'Submit Rate'
+const labelSubmitRateShort = isPurchase ? 'Conv. R.' : isAddToCart ? 'ATC Rate' : isEmailCapture ? 'ECR' : isPhoneCapture ? 'PCR' : 'Sub. R.'
+const labelTotalSubmits = isPurchase ? 'Total Orders' : isAddToCart ? 'Total Add to carts' : isEmailCapture ? 'Total Email captures' : isPhoneCapture ? 'Total Phone captures' : 'Total Submits'
+const labelAvgSubmitRate = isPurchase ? 'Avg Conversion Rate' : isAddToCart ? 'Avg ATC Rate' : isEmailCapture ? 'Avg Email capture rate' : isPhoneCapture ? 'Avg Phone capture rate' : 'Avg Submit Rate'
+
 // Goal dropdown
 const goalRouteMap = {
-  'Submits (default)': 'submits',
-  'Purchase': 'purchase',
-  'Add to Cart': 'add-to-cart',
+  'Submit': 'submits',
+  'Order': 'purchase',
+  'Add to cart': 'add-to-cart',
   'Email capture': 'email-capture',
   'Phone capture': 'phone-capture',
 }
 const goalLabelMap = Object.fromEntries(Object.entries(goalRouteMap).map(([k, v]) => [v, k]))
 
 const goals = ref(Object.keys(goalRouteMap))
-const selectedGoal = ref(goalLabelMap[props.goal] ?? 'Submits (default)')
+const selectedGoal = ref(goalLabelMap[props.goal] ?? 'Submit')
 
 watch(selectedGoal, (label) => {
   const route = goalRouteMap[label]
@@ -1661,6 +1638,42 @@ const supportedRevenueData = [
   977, 904, 849, 931, 1008, 947, 886, 962, 928, 880
 ]
 
+const addToCartsData = [
+  312, 298, 334, 287, 356, 321, 305, 341, 378, 362,
+  348, 371, 389, 402, 385, 418, 437, 412, 395, 423,
+  445, 421, 408, 431, 458, 439, 417, 448, 433, 421
+]
+
+const addToCartRateData = [
+  3.1, 2.9, 3.3, 2.8, 3.5, 3.2, 3.0, 3.4, 3.7, 3.6,
+  3.4, 3.6, 3.8, 4.0, 3.8, 4.1, 4.3, 4.0, 3.9, 4.2,
+  4.4, 4.1, 4.0, 4.2, 4.5, 4.3, 4.1, 4.4, 4.2, 4.1
+]
+
+const emailCaptureData = [
+  421, 398, 445, 378, 463, 432, 411, 452, 487, 471,
+  459, 478, 502, 518, 494, 531, 557, 523, 508, 541,
+  563, 537, 519, 548, 574, 552, 531, 561, 544, 528
+]
+
+const emailCaptureRateData = [
+  2.4, 2.2, 2.6, 2.1, 2.7, 2.5, 2.3, 2.6, 2.9, 2.8,
+  2.7, 2.8, 3.0, 3.1, 2.9, 3.2, 3.3, 3.1, 3.0, 3.2,
+  3.4, 3.2, 3.1, 3.3, 3.5, 3.3, 3.2, 3.4, 3.3, 3.2
+]
+
+const phoneCaptureData = [
+  187, 172, 198, 163, 211, 193, 178, 204, 223, 215,
+  208, 219, 234, 241, 228, 251, 263, 247, 238, 256,
+  271, 254, 243, 261, 278, 265, 251, 268, 257, 248
+]
+
+const phoneCaptureRateData = [
+  1.1, 1.0, 1.2, 0.9, 1.3, 1.1, 1.0, 1.2, 1.4, 1.3,
+  1.2, 1.3, 1.4, 1.5, 1.4, 1.6, 1.6, 1.5, 1.4, 1.6,
+  1.7, 1.6, 1.5, 1.6, 1.7, 1.6, 1.5, 1.7, 1.6, 1.5
+]
+
 // Devices chart
 const devicesTableData = [
   { type: 'Mobile',  visitors: 104367, submits: 1707, submitRate: 1.64 },
@@ -1683,8 +1696,9 @@ const devicesChartOptions = {
   plotOptions: {
     bar: {
       borderRadius: 6,
-      columnWidth: '40%',
+      barHeight: '60%',
       distributed: true,
+      horizontal: true,
     },
   },
   colors: ['#FF6A45', '#FF9E89'],
@@ -1695,22 +1709,32 @@ const devicesChartOptions = {
     axisBorder: { show: false },
     axisTicks: { show: false },
     labels: {
-      style: { colors: '#6B7280', fontSize: '13px' },
+      style: { colors: '#9CA3AF', fontSize: '12px' },
+      formatter: (val) => val >= 1000 ? `${(val / 1000).toFixed(0)}K` : val,
     },
   },
   yaxis: {
     labels: {
-      style: { colors: '#9CA3AF', fontSize: '12px' },
-      formatter: (val) => val.toLocaleString(),
+      show: true,
+      style: { colors: '#6B7280', fontSize: '13px' },
     },
   },
   grid: {
     borderColor: '#F3F4F6',
     strokeDashArray: 4,
-    xaxis: { lines: { show: false } },
+    yaxis: { lines: { show: false } },
   },
   tooltip: {
-    y: { formatter: (val) => val.toLocaleString() },
+    custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+      const value = series[seriesIndex][dataPointIndex]
+      const label = w.globals.labels[dataPointIndex]
+      return `<div style="padding: 8px 12px; background: white; border: 1px solid #e3e5e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="width: 8px; height: 8px; background: #ed5a29; border-radius: 50%; display: inline-block;"></span>
+          <span style="color: #505763; font-weight: 500;">${label}: ${value.toLocaleString()}</span>
+        </div>
+      </div>`
+    }
   },
 }
 
@@ -1795,17 +1819,59 @@ const getChartConfig = () => {
     },
     'supported-orders': {
       data: supportedOrdersData,
-      name: 'Supported Orders',
+      name: 'Assisted Orders',
       ...calculateRange(supportedOrdersData, 15),
       formatter: (value) => Math.round(value),
       tooltipFormatter: (value) => Math.round(value)
     },
     'supported-revenue': {
       data: supportedRevenueData,
-      name: 'Supported Revenue',
+      name: 'Assisted Revenue',
       ...calculateRange(supportedRevenueData, 15),
       formatter: (value) => `$${value.toFixed(0)}`,
       tooltipFormatter: (value) => `$${value.toLocaleString()}`
+    },
+    'add-to-carts': {
+      data: addToCartsData,
+      name: 'Add to carts',
+      ...calculateRange(addToCartsData, 15),
+      formatter: (value) => Math.round(value),
+      tooltipFormatter: (value) => Math.round(value)
+    },
+    'add-to-cart-rate': {
+      data: addToCartRateData,
+      name: 'Add to cart Rate',
+      ...calculateRange(addToCartRateData, 15),
+      formatter: (value) => `${value.toFixed(1)}%`,
+      tooltipFormatter: (value) => `${value.toFixed(2)}%`
+    },
+    'email-capture': {
+      data: emailCaptureData,
+      name: 'Email capture',
+      ...calculateRange(emailCaptureData, 15),
+      formatter: (value) => Math.round(value),
+      tooltipFormatter: (value) => Math.round(value)
+    },
+    'email-capture-rate': {
+      data: emailCaptureRateData,
+      name: 'Email capture rate',
+      ...calculateRange(emailCaptureRateData, 15),
+      formatter: (value) => `${value.toFixed(1)}%`,
+      tooltipFormatter: (value) => `${value.toFixed(2)}%`
+    },
+    'phone-capture': {
+      data: phoneCaptureData,
+      name: 'Phone capture',
+      ...calculateRange(phoneCaptureData, 15),
+      formatter: (value) => Math.round(value),
+      tooltipFormatter: (value) => Math.round(value)
+    },
+    'phone-capture-rate': {
+      data: phoneCaptureRateData,
+      name: 'Phone capture rate',
+      ...calculateRange(phoneCaptureRateData, 15),
+      formatter: (value) => `${value.toFixed(1)}%`,
+      tooltipFormatter: (value) => `${value.toFixed(2)}%`
     }
   }
   return configs[activeTab.value] || configs['conversion-rate']
@@ -1932,14 +1998,37 @@ const getActiveTabTitle = () => {
   return tab ? tab.title : ''
 }
 
-const trendTabs = ref([
-  { id: 'conversion-rate', title: 'Submit Rate', value: '0.57%', change: '+14.0%', isPositive: true },
-  { id: 'submits', title: 'Submits', value: '2.2K', change: '+8.3%', isPositive: true },
-  { id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true },
-  { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true },
-  { id: 'supported-orders', title: 'Supported Orders', value: '286', change: '-4.2%', isPositive: false },
-  { id: 'supported-revenue', title: 'Supported Rev. (USD)', value: '$23,274', change: '+15.8%', isPositive: true }
-])
+const trendTabs = ref(
+  props.goal === 'add-to-cart'
+    ? [
+        { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true },
+        { id: 'add-to-carts', title: 'Add to carts', value: '4.3K', change: '+11.2%', isPositive: true },
+        { id: 'add-to-cart-rate', title: 'Add to cart rate', value: '4.1%', change: '+9.3%', isPositive: true },
+      ]
+    : props.goal === 'email-capture'
+    ? [
+        { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true },
+        { id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true },
+        { id: 'email-capture', title: 'Email capture', value: '3.1K', change: '+9.8%', isPositive: true },
+        { id: 'email-capture-rate', title: 'Email capture rate', value: '3.2%', change: '+7.4%', isPositive: true },
+      ]
+    : props.goal === 'phone-capture'
+    ? [
+        { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true },
+        { id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true },
+        { id: 'phone-capture', title: 'Phone capture', value: '1.8K', change: '+5.3%', isPositive: true },
+        { id: 'phone-capture-rate', title: 'Phone capture rate', value: '1.6%', change: '+4.1%', isPositive: true },
+      ]
+    : [
+        { id: 'conversion-rate', title: isPurchase ? 'Conversion Rate' : 'Submit Rate', value: '0.57%', change: '+14.0%', isPositive: true },
+        { id: 'submits', title: isPurchase ? 'Orders' : 'Submits', value: '2.2K', change: '+8.3%', isPositive: true },
+        ...(!isPurchase ? [{ id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true }] : []),
+        { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true },
+        ...(!isPurchase ? [{ id: 'supported-orders', title: 'Assisted Orders', value: '286', change: '-4.2%', isPositive: false }] : []),
+        { id: 'supported-revenue', title: isPurchase ? 'Total Rev. (USD)' : 'Assisted Rev. (USD)', value: '$23,274', change: '+15.8%', isPositive: true },
+        ...(isPurchase ? [{ id: 'aov', title: 'AOV', value: '$81.4', change: '-6.3%', isPositive: false }] : []),
+      ]
+)
 
 const expandedCampaigns = ref(new Set())
 const hoveredCampaignId = ref(null)
@@ -2218,6 +2307,96 @@ const toggleSelectAllBrowserLanguages = () => {
   browserLanguagesSelectionTrigger.value++
 }
 
+const hoveredOsName = ref(null)
+const selectedOperatingSystems = ref(new Set())
+const osSelectionTrigger = ref(0)
+
+const isOsSelected = (name) => {
+  osSelectionTrigger.value
+  return selectedOperatingSystems.value.has(name)
+}
+
+const toggleOsSelection = (name) => {
+  const newSet = new Set(selectedOperatingSystems.value)
+  if (newSet.has(name)) newSet.delete(name)
+  else newSet.add(name)
+  selectedOperatingSystems.value = newSet
+  osSelectionTrigger.value++
+}
+
+const selectedOsCount = computed(() => {
+  osSelectionTrigger.value
+  return selectedOperatingSystems.value.size
+})
+
+const hasOsSelection = computed(() => selectedOsCount.value > 0)
+
+const allOsSelected = computed(() => {
+  osSelectionTrigger.value
+  return operatingSystems.value.length > 0 && operatingSystems.value.every(os => selectedOperatingSystems.value.has(os.name))
+})
+
+const isOsIndeterminate = computed(() => selectedOsCount.value > 0 && !allOsSelected.value)
+
+const toggleSelectAllOs = () => {
+  if (allOsSelected.value) {
+    selectedOperatingSystems.value = new Set()
+  } else {
+    selectedOperatingSystems.value = new Set(operatingSystems.value.map(os => os.name))
+  }
+  osSelectionTrigger.value++
+}
+
+const clearOperatingSystemsSelections = () => {
+  selectedOperatingSystems.value = new Set()
+  osSelectionTrigger.value++
+}
+
+const hoveredReferringSiteRow = ref(null)
+const selectedReferringSites = ref(new Set())
+const referringSitesTrigger = ref(0)
+
+const isReferringSiteSelected = (site) => {
+  referringSitesTrigger.value
+  return selectedReferringSites.value.has(site)
+}
+
+const toggleReferringSiteSelection = (site) => {
+  const newSet = new Set(selectedReferringSites.value)
+  if (newSet.has(site)) newSet.delete(site)
+  else newSet.add(site)
+  selectedReferringSites.value = newSet
+  referringSitesTrigger.value++
+}
+
+const selectedReferringSitesCount = computed(() => {
+  referringSitesTrigger.value
+  return selectedReferringSites.value.size
+})
+
+const hasReferringSitesSelection = computed(() => selectedReferringSitesCount.value > 0)
+
+const allReferringSitesSelected = computed(() => {
+  referringSitesTrigger.value
+  return referringSites.value.length > 0 && referringSites.value.every(s => selectedReferringSites.value.has(s.site))
+})
+
+const isReferringSitesIndeterminate = computed(() => selectedReferringSitesCount.value > 0 && !allReferringSitesSelected.value)
+
+const toggleSelectAllReferringSites = () => {
+  if (allReferringSitesSelected.value) {
+    selectedReferringSites.value = new Set()
+  } else {
+    selectedReferringSites.value = new Set(referringSites.value.map(s => s.site))
+  }
+  referringSitesTrigger.value++
+}
+
+const clearReferringSitesSelections = () => {
+  selectedReferringSites.value = new Set()
+  referringSitesTrigger.value++
+}
+
 const clearBrowserLanguagesSelections = () => {
   selectedBrowserLanguages.value = new Set()
   browserLanguagesSelectionTrigger.value++
@@ -2405,6 +2584,16 @@ const applyBrowserLanguagesFilter = () => {
   clearBrowserLanguagesSelections()
 }
 
+const applyOperatingSystemsFilter = () => {
+  applyFilterFromSelection('operatingSystems', selectedOperatingSystems.value, name => name)
+  clearOperatingSystemsSelections()
+}
+
+const applyReferringSitesFilter = () => {
+  applyFilterFromSelection('referringSites', selectedReferringSites.value, site => site)
+  clearReferringSitesSelections()
+}
+
 const applyUtmCampaignsFilter = () => {
   applyFilterFromSelection('utmCampaigns', selectedUtmCampaigns.value, name => name)
   clearUtmCampaignsSelections()
@@ -2452,9 +2641,11 @@ const campaignData = ref([
     impressions: 124567,
     submits: 456,
     conversionRate: 0.63,
+    assistedOrders: 38,
+    assistedRevenue: 3124,
     variants: [
-      { name: 'Control Variant', visitors: 36000, impressions: 62000, submits: 228, conversionRate: 0.63 },
-      { name: 'Variant A', visitors: 36543, impressions: 62567, submits: 228, conversionRate: 0.62 }
+      { name: 'Control Variant', visitors: 36000, impressions: 62000, submits: 228, conversionRate: 0.63, assistedOrders: 19, assistedRevenue: 1562 },
+      { name: 'Variant A', visitors: 36543, impressions: 62567, submits: 228, conversionRate: 0.62, assistedOrders: 19, assistedRevenue: 1562 }
     ]
   },
   {
@@ -2464,19 +2655,21 @@ const campaignData = ref([
     impressions: 98234,
     submits: 234,
     conversionRate: 0.51,
+    assistedOrders: 24,
+    assistedRevenue: 1876,
     variants: [
-      { name: 'Control Variant', visitors: 22839, impressions: 49117, submits: 117, conversionRate: 0.51 },
-      { name: 'Variant A', visitors: 22839, impressions: 49117, submits: 117, conversionRate: 0.51 }
+      { name: 'Control Variant', visitors: 22839, impressions: 49117, submits: 117, conversionRate: 0.51, assistedOrders: 12, assistedRevenue: 938 },
+      { name: 'Variant A', visitors: 22839, impressions: 49117, submits: 117, conversionRate: 0.51, assistedOrders: 12, assistedRevenue: 938 }
     ]
   },
-  { id: 3, name: 'Order confidently copy', visitors: 38902, impressions: 87456, submits: 189, conversionRate: 0.49 },
-  { id: 4, name: 'PX_01_Subscriber popup_gift_Reflexshop', visitors: 32145, impressions: 76543, submits: 167, conversionRate: 0.52 },
-  { id: 5, name: 'Service AI - Smart Product Page Optimizer v4 🎉 Winner', visitors: 28567, impressions: 65432, submits: 145, conversionRate: 0.51 },
-  { id: 6, name: 'Jungo traffic redirector', visitors: 24890, impressions: 54321, submits: 128, conversionRate: 0.51 },
-  { id: 7, name: 'PC Service Smart Abandonment Stopper - Winner', visitors: 21456, impressions: 48765, submits: 112, conversionRate: 0.52 },
-  { id: 8, name: 'Dynamic Content Visitor/Impression Ratio Test', visitors: 18234, impressions: 42345, submits: 98, conversionRate: 0.54 },
-  { id: 9, name: 'Funko upsell', visitors: 15678, impressions: 38765, submits: 87, conversionRate: 0.55 },
-  { id: 10, name: '18+ verification', visitors: 12345, impressions: 32456, submits: 72, conversionRate: 0.58 }
+  { id: 3, name: 'Order confidently copy', visitors: 38902, impressions: 87456, submits: 189, conversionRate: 0.49, assistedOrders: 21, assistedRevenue: 1543 },
+  { id: 4, name: 'PX_01_Subscriber popup_gift_Reflexshop', visitors: 32145, impressions: 76543, submits: 167, conversionRate: 0.52, assistedOrders: 18, assistedRevenue: 1287 },
+  { id: 5, name: 'Service AI - Smart Product Page Optimizer v4 🎉 Winner', visitors: 28567, impressions: 65432, submits: 145, conversionRate: 0.51, assistedOrders: 15, assistedRevenue: 1124 },
+  { id: 6, name: 'Jungo traffic redirector', visitors: 24890, impressions: 54321, submits: 128, conversionRate: 0.51, assistedOrders: 13, assistedRevenue: 987 },
+  { id: 7, name: 'PC Service Smart Abandonment Stopper - Winner', visitors: 21456, impressions: 48765, submits: 112, conversionRate: 0.52, assistedOrders: 11, assistedRevenue: 834 },
+  { id: 8, name: 'Dynamic Content Visitor/Impression Ratio Test', visitors: 18234, impressions: 42345, submits: 98, conversionRate: 0.54, assistedOrders: 9, assistedRevenue: 712 },
+  { id: 9, name: 'Funko upsell', visitors: 15678, impressions: 38765, submits: 87, conversionRate: 0.55, assistedOrders: 8, assistedRevenue: 623 },
+  { id: 10, name: '18+ verification', visitors: 12345, impressions: 32456, submits: 72, conversionRate: 0.58, assistedOrders: 6, assistedRevenue: 498 }
 ])
 
 const visitedPages = ref([
@@ -2626,10 +2819,33 @@ const utmSources = ref([
 
 // Computed properties for display (only first 5 rows)
 const visitedPagesDisplay = computed(() => visitedPages.value.slice(0, 5))
+
+const referringSites = ref([
+  { site: 'google.com', visitors: 38452, submits: 721, conversionRate: 1.88 },
+  { site: 'facebook.com', visitors: 21340, submits: 312, conversionRate: 1.46 },
+  { site: 'instagram.com', visitors: 14782, submits: 198, conversionRate: 1.34 },
+  { site: 't.co', visitors: 8923, submits: 143, conversionRate: 1.60 },
+  { site: 'bing.com', visitors: 5614, submits: 98, conversionRate: 1.75 },
+])
+const referringSitesDisplay = computed(() => referringSites.value.slice(0, 5))
+const hoveredReferringSite = ref(null)
 const landingPagesDisplay = computed(() => landingPages.value.slice(0, 5))
 const browserLanguagesDisplay = computed(() => browserLanguages.value.slice(0, 5))
+
+const operatingSystems = ref([
+  { name: 'Windows', visitors: 89234, submits: 1124, conversionRate: 1.26 },
+  { name: 'Android', visitors: 72145, submits: 876, conversionRate: 1.21 },
+  { name: 'iOS', visitors: 43567, submits: 534, conversionRate: 1.23 },
+  { name: 'macOS', visitors: 28903, submits: 398, conversionRate: 1.38 },
+  { name: 'Linux', visitors: 4789, submits: 72, conversionRate: 1.50 },
+])
+const operatingSystemsDisplay = computed(() => operatingSystems.value.slice(0, 5))
 const utmCampaignsDisplay = computed(() => utmCampaigns.value.slice(0, 5))
 const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
+const campaignDataDisplay = computed(() => campaignData.value.slice(0, 5))
+const devicesDisplay = devicesTableData.slice(0, 5)
+const trafficDisplay = computed(() => trafficSourceData.slice(0, 5))
+const countriesDisplay = computed(() => countriesData.slice(0, 5))
 
 // Devices table selection
 const hoveredDevicesRow = ref(null)
@@ -2812,7 +3028,18 @@ const trafficSubmitsPieOptions = computed(() => ({
   dataLabels: { enabled: false },
   legend: { show: false },
   stroke: { width: 2, colors: ['#fff'] },
-  tooltip: { y: { formatter: (val) => val.toLocaleString() } },
+  tooltip: {
+    custom: ({ series, seriesIndex, w }) => {
+      const value = series[seriesIndex]
+      const label = w.globals.labels[seriesIndex]
+      return `<div style="padding: 8px 12px; background: white; border: 1px solid #e3e5e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="width: 8px; height: 8px; background: ${w.globals.colors[seriesIndex]}; border-radius: 50%; display: inline-block;"></span>
+          <span style="color: #505763; font-weight: 500;">${label}: ${value.toLocaleString()}</span>
+        </div>
+      </div>`
+    }
+  },
 }))
 const trafficSourceData = [
   { referrer: 'Paid Search',    visitors: 40552, submits: 883,  submitRate: 2.18 },
@@ -3166,6 +3393,7 @@ const allTrafficSources = [
   font-weight: 400;
   color: #8F97A4;
   flex: 1;
+  container-type: inline-size;
 }
 
 .campaign-list-column .header-cell {
@@ -3513,6 +3741,52 @@ const allTrafficSources = [
 
 .breakdown-modules-row.single-column {
   grid-template-columns: 1fr;
+}
+
+.top-pages-row > * {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.top-pages-row .campaign-list-header {
+  flex: 0 0 35%;
+  min-width: 0;
+}
+
+.top-pages-row .campaign-list-column {
+  flex: 0 0 35%;
+  min-width: 0;
+}
+
+.top-pages-row .campaign-metrics-header {
+  flex: 0 0 65%;
+  min-width: 0;
+}
+
+.top-pages-row .campaign-metrics-column {
+  flex: 0 0 65%;
+  min-width: 0;
+}
+
+.top-pages-row .campaign-performance-layout {
+  overflow-x: hidden;
+}
+
+/* Equal-width metric columns in top-pages-row (override global nth-child flex:1.5) */
+.top-pages-row .campaign-metrics-header .header-cell:nth-child(2),
+.top-pages-row .campaign-metrics-row .metric-cell:nth-child(2) {
+  flex: 1;
+}
+
+/* Single-line ellipsis for URLs in Top Pages */
+.top-pages-row .campaign-name {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: none;
+  -webkit-line-clamp: unset;
+  -webkit-box-orient: unset;
 }
 
 /* Modal */
@@ -4029,7 +4303,7 @@ const allTrafficSources = [
 
 .sr-short { display: none; }
 
-@container (max-width: 400px) {
+@container (max-width: 140px) {
   .sr-full { display: none; }
   .sr-short { display: inline; }
 }
