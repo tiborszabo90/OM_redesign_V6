@@ -482,7 +482,7 @@
               @click="analyticsDropdownOpen = !analyticsDropdownOpen"
               :class="[
                 'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
-                ['analytics-v3', 'analytics-empty'].includes(currentView)
+                ['analytics-v4', 'analytics-empty'].includes(currentView)
                   ? 'bg-om-orange-500 text-white'
                   : 'bg-om-gray-600 hover:bg-om-gray-500'
               ]"
@@ -496,10 +496,10 @@
                 class="absolute bottom-full left-0 mb-2 bg-om-gray-700 border border-om-gray-600 rounded-lg shadow-lg overflow-hidden min-w-40"
               >
                 <button
-                  @click="selectAnalytics('analytics-v3')"
+                  @click="selectAnalytics('analytics-v4')"
                   :class="[
                     'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
-                    currentView === 'analytics-v3'
+                    currentView === 'analytics-v4'
                       ? 'bg-om-orange-500 text-white'
                       : 'hover:bg-om-gray-600'
                   ]"
@@ -659,6 +659,7 @@ const archiveItems = ref([
   { view: 'task-creation', label: 'Home Agentic' },
   { view: 'analytics-v1', label: 'Analytics V1' },
   { view: 'analytics-v2', label: 'Analytics V2' },
+  { view: 'analytics-v3', label: 'Analytics V3' },
   { view: 'templates-v1', label: 'Templates V1' },
   { view: 'templates-v2', label: 'Templates V2' },
   { view: 'wizard-recommendation', label: 'Recommendation V1' },

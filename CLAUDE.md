@@ -9,8 +9,22 @@ Before using any component or icon, verify it is already imported. If not, add t
 
 ## Archive Rule
 
-**NEVER read, edit, or modify any file located in an `archive/` folder or subfolder.**
-These files are kept for historical reference only and must not be touched under any circumstances.
+**NEVER read, edit, or modify any view file that corresponds to an entry in the `archiveItems` array in `src/components/dev/DevNavBar.vue`, or any file in an `_archive/` folder.**
+These are frozen historical versions kept for reference only. When in doubt, check the `archiveItems` list in DevNavBar.vue — that is the single source of truth.
+
+Currently archived view files (do not touch):
+- `src/views/HomeOldV2View.vue`
+- `src/views/HomeChatVersionsView.vue`
+- `src/views/HomeChatLeftView.vue`
+- `src/views/TaskCreationView.vue`
+- `src/views/AnalyticsV1View.vue`
+- `src/views/AnalyticsV2View.vue`
+- `src/views/AnalyticsV3View.vue`
+- `src/views/TemplatesViewV1.vue`
+- `src/views/TemplatesViewV2.vue`
+- `src/views/WizardAnalysisView.vue`
+- `src/views/AiTextsImagesV1View.vue`
+- `src/views/_archive/` (entire folder)
 
 ---
 

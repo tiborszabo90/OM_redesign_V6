@@ -16,6 +16,7 @@ import CampaignReviewView from './views/CampaignReviewView.vue'
 import AnalyticsV1View from './views/AnalyticsV1View.vue'
 import AnalyticsV2View from './views/AnalyticsV2View.vue'
 import AnalyticsV3View from './views/AnalyticsV3View.vue'
+import AnalyticsV4View from './views/AnalyticsV4View.vue'
 import AnalyticsEmptyView from './views/AnalyticsEmptyView.vue'
 import TemplatesViewV1 from './views/TemplatesViewV1.vue'
 import TemplatesViewV2 from './views/TemplatesViewV2.vue'
@@ -354,7 +355,9 @@ const handleDevNavigate = (view) => {
     currentView.value = view
   } else if (view === 'opportunity-detail' || view === 'opportunities-all') {
     currentView.value = view
-  } else if (view === 'analytics-v1' || view === 'analytics-v2' || view === 'analytics-v3') {
+  } else if (view === 'analytics-v1' || view === 'analytics-v2' || view === 'analytics-v3' || view === 'analytics-v4'
+    || view === 'analytics-v4-purchase' || view === 'analytics-v4-add-to-cart'
+    || view === 'analytics-v4-email-capture' || view === 'analytics-v4-phone-capture') {
     // Analytics views
     currentView.value = view
   } else if (view === 'templates-v1' || view === 'templates-v2' || view === 'templates-v3') {
@@ -623,7 +626,7 @@ const handleMenuClick = (menuId) => {
     }
   } else if (menuId === 'insights') {
     const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'wizard-flow', 'campaigns-empty', 'analytics-empty']
-    currentView.value = onboardingViews.includes(currentView.value) ? 'analytics-empty' : 'analytics-v3'
+    currentView.value = onboardingViews.includes(currentView.value) ? 'analytics-empty' : 'analytics-v4'
   } else if (menuId === 'campaign-page') {
     currentView.value = 'campaign-page-v1'
   } else if (menuId === 'templates' || menuId === 'library') {
@@ -682,7 +685,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="h-screen-safe flex flex-col">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaigns-empty', 'campaign-page-v1', 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor', 'ai-texts-images', 'ai-texts-images-new', 'ai-texts-images-presets', 'ai-texts-images-preview', 'ai-texts-images-choose-products', 'ai-texts-images-generation', 'ai-texts-images-add-products', 'ai-texts-images-text-presets', 'ai-texts-images-text-preview', 'ai-texts-images-text-generation',
+      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaigns-empty', 'campaign-page-v1', 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-v4', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor', 'ai-texts-images', 'ai-texts-images-new', 'ai-texts-images-presets', 'ai-texts-images-preview', 'ai-texts-images-choose-products', 'ai-texts-images-generation', 'ai-texts-images-add-products', 'ai-texts-images-text-presets', 'ai-texts-images-text-preview', 'ai-texts-images-text-generation',
         'settings-ai-texts-images', 'settings-ai-texts-images-new', 'settings-ai-texts-images-presets', 'settings-ai-texts-images-preview', 'settings-ai-texts-images-choose-products', 'settings-ai-texts-images-generation', 'settings-ai-texts-images-generation-product', 'settings-ai-texts-images-add-products', 'settings-ai-texts-images-text-presets', 'settings-ai-texts-images-text-preview', 'settings-ai-texts-images-text-generation',
         'settings-ai-texts-images-v1', 'settings-ai-texts-images-v1-new', 'settings-ai-texts-images-v1-presets', 'settings-ai-texts-images-v1-preview', 'settings-ai-texts-images-v1-choose-products', 'settings-ai-texts-images-v1-generation', 'settings-ai-texts-images-v1-add-products', 'settings-ai-texts-images-v1-text-presets', 'settings-ai-texts-images-v1-text-preview', 'settings-ai-texts-images-v1-text-generation'].includes(currentView)"
       class="pt-8 pl-8 shrink-0"
@@ -854,6 +857,46 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         @navigate-to-opportunity="handleNavigateToOpportunity"
         @navigate-to-opportunities="handleNavigateToOpportunities"
       />
+      <AnalyticsV4View
+        v-else-if="currentView === 'analytics-v4'"
+        goal="submits"
+        @menu-click="handleMenuClick"
+        @navigate-to-opportunity="handleNavigateToOpportunity"
+        @navigate-to-opportunities="handleNavigateToOpportunities"
+        @navigate-to-goal="(g) => handleDevNavigate('analytics-v4' + (g === 'submits' ? '' : '-' + g))"
+      />
+      <AnalyticsV4View
+        v-else-if="currentView === 'analytics-v4-purchase'"
+        goal="purchase"
+        @menu-click="handleMenuClick"
+        @navigate-to-opportunity="handleNavigateToOpportunity"
+        @navigate-to-opportunities="handleNavigateToOpportunities"
+        @navigate-to-goal="(g) => handleDevNavigate('analytics-v4' + (g === 'submits' ? '' : '-' + g))"
+      />
+      <AnalyticsV4View
+        v-else-if="currentView === 'analytics-v4-add-to-cart'"
+        goal="add-to-cart"
+        @menu-click="handleMenuClick"
+        @navigate-to-opportunity="handleNavigateToOpportunity"
+        @navigate-to-opportunities="handleNavigateToOpportunities"
+        @navigate-to-goal="(g) => handleDevNavigate('analytics-v4' + (g === 'submits' ? '' : '-' + g))"
+      />
+      <AnalyticsV4View
+        v-else-if="currentView === 'analytics-v4-email-capture'"
+        goal="email-capture"
+        @menu-click="handleMenuClick"
+        @navigate-to-opportunity="handleNavigateToOpportunity"
+        @navigate-to-opportunities="handleNavigateToOpportunities"
+        @navigate-to-goal="(g) => handleDevNavigate('analytics-v4' + (g === 'submits' ? '' : '-' + g))"
+      />
+      <AnalyticsV4View
+        v-else-if="currentView === 'analytics-v4-phone-capture'"
+        goal="phone-capture"
+        @menu-click="handleMenuClick"
+        @navigate-to-opportunity="handleNavigateToOpportunity"
+        @navigate-to-opportunities="handleNavigateToOpportunities"
+        @navigate-to-goal="(g) => handleDevNavigate('analytics-v4' + (g === 'submits' ? '' : '-' + g))"
+      />
       <AnalyticsEmptyView
         v-else-if="currentView === 'analytics-empty'"
         @menu-click="handleMenuClick"
@@ -862,12 +905,12 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         v-else-if="currentView === 'opportunity-detail'"
         :opportunity-id="selectedOpportunityId"
         @menu-click="handleMenuClick"
-        @go-back="handleDevNavigate('analytics-v3')"
+        @go-back="handleDevNavigate('analytics-v4')"
       />
       <OptimizationOpportunitiesAllView
         v-else-if="currentView === 'opportunities-all'"
         @menu-click="handleMenuClick"
-        @go-back="handleDevNavigate('analytics-v3')"
+        @go-back="handleDevNavigate('analytics-v4')"
         @navigate-to-opportunity="handleNavigateToOpportunity"
       />
       <TemplatesViewV1

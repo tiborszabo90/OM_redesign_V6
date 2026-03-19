@@ -1505,7 +1505,14 @@ import VueApexCharts from 'vue3-apexcharts'
 import ChatPanel from '../components/shared/ChatPanel.vue'
 import AddDomainModal from '../components/shared/AddDomainModal.vue'
 
-const emit = defineEmits(['menu-click', 'navigate-to-opportunity', 'navigate-to-opportunities'])
+const props = defineProps({
+  goal: {
+    type: String,
+    default: 'submits'
+  }
+})
+
+const emit = defineEmits(['menu-click', 'navigate-to-opportunity', 'navigate-to-opportunities', 'navigate-to-goal'])
 
 const isChatOpen = ref(false)
 
@@ -1588,14 +1595,22 @@ const handleNewDomain = (newDomain) => {
 }
 
 // Goal dropdown
-const selectedGoal = ref('Submits (default)')
-const goals = ref([
-  'Submits (default)',
-  'browserTabReturn',
-  'Buyers with cart under $280',
-  'Add to cart',
-  'Purchase'
-])
+const goalRouteMap = {
+  'Submits (default)': 'submits',
+  'Purchase': 'purchase',
+  'Add to Cart': 'add-to-cart',
+  'Email capture': 'email-capture',
+  'Phone capture': 'phone-capture',
+}
+const goalLabelMap = Object.fromEntries(Object.entries(goalRouteMap).map(([k, v]) => [v, k]))
+
+const goals = ref(Object.keys(goalRouteMap))
+const selectedGoal = ref(goalLabelMap[props.goal] ?? 'Submits (default)')
+
+watch(selectedGoal, (label) => {
+  const route = goalRouteMap[label]
+  if (route) emit('navigate-to-goal', route)
+})
 
 // Period dropdown
 const selectedPeriod = ref('Last 30 days')
