@@ -1,5 +1,19 @@
 # Claude Code — Project Guidelines
 
+## Import Rule
+
+**Every component, icon, or utility used in a file MUST be explicitly imported in that file's `<script setup>` block.**
+Before using any component or icon, verify it is already imported. If not, add the import immediately — never assume global registration.
+
+---
+
+## Archive Rule
+
+**NEVER read, edit, or modify any file located in an `archive/` folder or subfolder.**
+These files are kept for historical reference only and must not be touched under any circumstances.
+
+---
+
 ## Component Reuse Rule
 
 **Before writing any button, input, dropdown, checkbox, toggle, accordion, multi-select, time-picker, chat panel, or tag/badge from raw HTML/Tailwind, always check `src/components/shared/` first and use the matching shared component.**

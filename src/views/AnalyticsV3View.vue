@@ -5,7 +5,7 @@
     :right-panel-collapsed="!isChatOpen"
   >
     <template #content>
-      <div class="analytics-outer w-full max-w-[1400px] mx-auto -mt-3" :class="{ 'chat-open': isChatOpen }">
+      <div v-if="!currentSubPage" class="analytics-outer w-full max-w-[1400px] mx-auto -mt-3" :class="{ 'chat-open': isChatOpen }">
         <!-- Header Section -->
         <div class="flex items-center justify-between mb-5 max-960:flex-col max-960:items-start max-960:gap-3">
           <h1 class="text-2xl max-960:text-xl font-semibold text-om-gray-700">Analytics</h1>
@@ -17,18 +17,41 @@
 
         <!-- Filters Section -->
         <div class="filters-section">
-          <!-- Domain Selector -->
-          <Dropdown
-            v-model="selectedDomain"
-            :options="domains"
-            placeholder="Select domain"
-          >
-            <template #icon>
-              <div class="w-5 h-5 rounded-full bg-[#7AAF8A] flex items-center justify-center shrink-0">
-                <Dice5 :size="12" class="text-white" />
-              </div>
-            </template>
-          </Dropdown>
+          <!-- Domain Selector + Tab filters -->
+          <div class="flex items-center gap-3">
+            <div class="shrink-0" style="width:200px">
+            <Dropdown
+              v-model="selectedDomain"
+              :options="domains"
+              placeholder="Select domain"
+            >
+              <template #icon>
+                <div class="w-5 h-5 rounded-full bg-[#7AAF8A] flex items-center justify-center shrink-0">
+                  <Dice5 :size="12" class="text-white" />
+                </div>
+              </template>
+            </Dropdown>
+            </div>
+
+            <!-- Tab filters -->
+            <div class="flex items-center gap-2">
+              <button class="chip px-3 py-2 rounded-lg bg-om-gray-100 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:bg-om-gray-200">
+                All visitors
+              </button>
+              <button class="chip px-3 py-2 rounded-lg bg-om-gray-100 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:bg-om-gray-200">
+                Mobile users
+              </button>
+              <button class="chip px-3 py-2 rounded-lg bg-om-gray-100 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:bg-om-gray-200">
+                High-value customers
+              </button>
+              <button class="chip px-3 py-2 rounded-lg bg-om-gray-100 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:bg-om-gray-200">
+                Facebook traffic
+              </button>
+              <button class="chip w-9 h-9 flex items-center justify-center bg-om-gray-100 text-om-gray-700 rounded-lg cursor-pointer transition-all duration-200 ease-out hover:bg-om-gray-200">
+                <Plus :size="16" />
+              </button>
+            </div>
+          </div>
 
           <!-- Right-aligned filters -->
           <div class="filters-right">
@@ -54,6 +77,20 @@
               </template>
             </Dropdown>
           </div>
+        </div>
+
+        <!-- Active Filter Chips -->
+        <div v-if="activeFilterChips.length > 0" class="flex items-center gap-2 mb-5 flex-wrap">
+          <span class="text-xs text-om-gray-400 font-medium">Active filters:</span>
+          <button
+            v-for="chip in activeFilterChips"
+            :key="chip.key"
+            @click="removeFilterChip(chip.key)"
+            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-om-orange-100 text-om-orange-600 text-xs font-medium cursor-pointer hover:bg-om-orange-200 transition-colors"
+          >
+            <span class="max-w-[200px] truncate">{{ chip.label }}</span>
+            <X :size="12" class="shrink-0" />
+          </button>
         </div>
 
         <!-- Trend Chart Section -->
@@ -115,7 +152,7 @@
         </div>
 
         <!-- Campaign Performance Section -->
-        <div :class="['bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] mb-6 pt-5 pb-5', { 'has-selection': hasSelection }]">
+        <div v-if="!sectionHasActiveFilters('campaigns')" :class="['bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] mb-6 pt-5 pb-5', { 'has-selection': hasSelection }]">
           <h2 class="section-title">Campaign Performance</h2>
 
           <!-- Filter Bar - Full Width -->
@@ -128,7 +165,7 @@
               @update:model-value="toggleSelectAll"
             />
             <span class="selection-count">{{ selectedCount }} selected</span>
-            <button class="filter-btn">
+            <button class="filter-btn" @click="applyCampaignFilter">
               Filter
             </button>
           </div>
@@ -237,14 +274,25 @@
         </div>
 
         <!-- Devices + Traffic Source Row -->
-        <div class="devices-traffic-row">
+        <div :class="['devices-traffic-row', { 'single-column': sectionHasActiveFilters('devices') || sectionHasActiveFilters('traffic') }]">
           <!-- Devices Section -->
-          <div class="devices-card bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 pr-8 min-w-0 overflow-hidden">
+          <div v-if="!sectionHasActiveFilters('devices')" class="devices-card bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 pr-8 min-w-0 overflow-hidden">
             <h2 class="section-title">Devices</h2>
             <div class="devices-content">
               <!-- Devices Table -->
               <div class="devices-table-wrap">
-                <div class="campaign-headers-row">
+                <div v-if="hasDevicesSelection" class="campaign-filter-bar">
+                  <Checkbox
+                    :model-value="allDevicesSelected"
+                    :indeterminate="isDevicesIndeterminate"
+                    size="sm"
+                    class="custom-checkbox"
+                    @update:model-value="toggleSelectAllDevices"
+                  />
+                  <span class="selection-count">{{ devicesSelectionCount }} selected</span>
+                  <button class="filter-btn" @click="applyDevicesFilter">Filter</button>
+                </div>
+                <div v-if="!hasDevicesSelection" class="campaign-headers-row">
                   <div class="campaign-list-header">
                     <div class="header-cell">Device Type</div>
                   </div>
@@ -309,14 +357,25 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 min-w-0 overflow-hidden">
+          <div v-if="!sectionHasActiveFilters('traffic')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 min-w-0 overflow-hidden">
           <div class="section-header" style="padding-left: 32px; padding-right: 32px; margin-bottom: 1.25rem;">
             <h2 class="section-title" style="padding: 0; margin-bottom: 0;">Traffic Sources</h2>
-            <button class="view-all-btn" @click="showModal('traffic-sources')">View All</button>
+            <button class="view-all-btn" @click="openSubPage('traffic-sources')">View All</button>
           </div>
           <div class="traffic-plain-layout">
             <div class="traffic-plain-table">
-              <div class="campaign-headers-row">
+              <div v-if="hasTrafficSelection" class="campaign-filter-bar">
+                <Checkbox
+                  :model-value="allTrafficSelected"
+                  :indeterminate="isTrafficIndeterminate"
+                  size="sm"
+                  class="custom-checkbox"
+                  @update:model-value="toggleSelectAllTraffic"
+                />
+                <span class="selection-count">{{ trafficSelectionCount }} selected</span>
+                <button class="filter-btn" @click="applyTrafficFilter">Filter</button>
+              </div>
+              <div v-if="!hasTrafficSelection" class="campaign-headers-row">
                 <div class="campaign-list-header">
                   <div class="header-cell">Referrer</div>
                 </div>
@@ -387,15 +446,26 @@
         <!-- /Devices + Traffic Source Row -->
 
         <!-- Countries Section -->
-        <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] mb-6 pt-5 pb-5">
+        <div v-if="!sectionHasActiveFilters('countries')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] mb-6 pt-5 pb-5">
           <div class="section-header" style="padding-left: 32px; padding-right: 32px; margin-bottom: 1.25rem;">
             <h2 class="section-title" style="padding: 0; margin-bottom: 0;">Countries</h2>
-            <button class="view-all-btn" @click="showModal('countries')">View All</button>
+            <button class="view-all-btn" @click="openSubPage('countries')">View All</button>
           </div>
 
           <div class="countries-content">
             <div class="countries-table-side">
-              <div class="campaign-headers-row">
+              <div v-if="hasCountriesSelection" class="campaign-filter-bar">
+                <Checkbox
+                  :model-value="allCountriesSelected"
+                  :indeterminate="isCountriesIndeterminate"
+                  size="sm"
+                  class="custom-checkbox"
+                  @update:model-value="toggleSelectAllCountries"
+                />
+                <span class="selection-count">{{ countriesSelectionCount }} selected</span>
+                <button class="filter-btn" @click="applyCountriesFilter">Filter</button>
+              </div>
+              <div v-if="!hasCountriesSelection" class="campaign-headers-row">
                 <div class="campaign-list-header">
                   <div class="header-cell">Country</div>
                 </div>
@@ -426,7 +496,15 @@
                         @update:model-value="toggleCountriesRow(row.country)"
                       />
                       <div class="campaign-name-wrapper">
-                        <div class="campaign-name">{{ row.country }}</div>
+                        <div class="flex items-center gap-2">
+                          <img
+                            v-if="getFlagUrl(row.country)"
+                            :src="getFlagUrl(row.country)"
+                            :alt="row.country"
+                            class="w-5 h-5 rounded-full object-cover shrink-0 ring-1 ring-om-gray-200"
+                          />
+                          <div class="campaign-name">{{ row.country }}</div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -450,35 +528,14 @@
               </div>
             </div>
 
-            <div class="countries-chart-side">
-              <div class="countries-bar-header"></div>
-              <div class="countries-bar-body">
-                <div
-                  v-for="row in countriesData"
-                  :key="row.country"
-                  class="countries-bar-row"
-                  :class="{ 'is-hovered': hoveredCountriesRow === row.country }"
-                  @mouseenter="hoveredCountriesRow = row.country"
-                  @mouseleave="hoveredCountriesRow = null"
-                >
-                  <div class="countries-bar-track">
-                    <div
-                      class="countries-bar-fill"
-                      :style="{ width: ((row.submits ?? 0) / maxCountrySubmits * 100) + '%' }"
-                    ></div>
-                  </div>
-
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
         <!-- Visited Pages Section -->
-        <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] mb-6 pt-5 pb-5">
+        <div v-if="!sectionHasActiveFilters('visitedPages')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] mb-6 pt-5 pb-5">
           <div class="section-header">
             <h2 class="section-title">Visited Pages</h2>
-            <button class="view-all-btn" @click="showModal('visited-pages')">View All</button>
+            <button class="view-all-btn" @click="openSubPage('visited-pages')">View All</button>
           </div>
 
           <!-- Filter Bar - Full Width -->
@@ -491,7 +548,7 @@
               @update:model-value="toggleSelectAllVisitedPages"
             />
             <span class="selection-count">{{ selectedVisitedPagesCount }} selected</span>
-            <button class="filter-btn">
+            <button class="filter-btn" @click="applyVisitedPagesFilter">
               Filter
             </button>
           </div>
@@ -564,12 +621,12 @@
         </div>
 
         <!-- Breakdown Modules Row -->
-        <div class="breakdown-modules-row">
+        <div :class="['breakdown-modules-row', { 'single-column': sectionHasActiveFilters('landingPages') || sectionHasActiveFilters('browserLanguages') }]">
           <!-- Landing Pages -->
-          <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
+          <div v-if="!sectionHasActiveFilters('landingPages')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
             <div class="section-header">
               <h2 class="section-title">Landing Pages</h2>
-              <button class="view-all-btn" @click="showModal('landing-pages')">View All</button>
+              <button class="view-all-btn" @click="openSubPage('landing-pages')">View All</button>
             </div>
 
             <!-- Filter Bar - Full Width -->
@@ -582,7 +639,7 @@
                 @update:model-value="toggleSelectAllLandingPages"
               />
               <span class="selection-count">{{ selectedLandingPagesCount }} selected</span>
-              <button class="filter-btn">
+              <button class="filter-btn" @click="applyLandingPagesFilter">
                 Filter
               </button>
             </div>
@@ -653,10 +710,10 @@
           </div>
 
           <!-- Browser Languages -->
-          <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
+          <div v-if="!sectionHasActiveFilters('browserLanguages')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
             <div class="section-header">
               <h2 class="section-title">Browser Languages</h2>
-              <button class="view-all-btn" @click="showModal('browser-languages')">View All</button>
+              <button class="view-all-btn" @click="openSubPage('browser-languages')">View All</button>
             </div>
 
             <!-- Filter Bar - Full Width -->
@@ -669,7 +726,7 @@
                 @update:model-value="toggleSelectAllBrowserLanguages"
               />
               <span class="selection-count">{{ selectedBrowserLanguagesCount }} selected</span>
-              <button class="filter-btn">
+              <button class="filter-btn" @click="applyBrowserLanguagesFilter">
                 Filter
               </button>
             </div>
@@ -735,12 +792,12 @@
         </div>
 
         <!-- UTM Modules Row -->
-        <div class="breakdown-modules-row">
+        <div :class="['breakdown-modules-row', { 'single-column': sectionHasActiveFilters('utmCampaigns') || sectionHasActiveFilters('utmSources') }]">
           <!-- UTM Campaigns -->
-          <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
+          <div v-if="!sectionHasActiveFilters('utmCampaigns')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
             <div class="section-header">
               <h2 class="section-title">UTM Campaigns</h2>
-              <button class="view-all-btn" @click="showModal('utm-campaigns')">View All</button>
+              <button class="view-all-btn" @click="openSubPage('utm-campaigns')">View All</button>
             </div>
 
             <!-- Filter Bar - Full Width -->
@@ -753,7 +810,7 @@
                 @update:model-value="toggleSelectAllUtmCampaigns"
               />
               <span class="selection-count">{{ selectedUtmCampaignsCount }} selected</span>
-              <button class="filter-btn">
+              <button class="filter-btn" @click="applyUtmCampaignsFilter">
                 Filter
               </button>
             </div>
@@ -818,10 +875,10 @@
           </div>
 
           <!-- UTM Sources -->
-          <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
+          <div v-if="!sectionHasActiveFilters('utmSources')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
             <div class="section-header">
               <h2 class="section-title">UTM Sources</h2>
-              <button class="view-all-btn" @click="showModal('utm-sources')">View All</button>
+              <button class="view-all-btn" @click="openSubPage('utm-sources')">View All</button>
             </div>
 
             <!-- Filter Bar - Full Width -->
@@ -834,7 +891,7 @@
                 @update:model-value="toggleSelectAllUtmSources"
               />
               <span class="selection-count">{{ selectedUtmSourcesCount }} selected</span>
-              <button class="filter-btn">
+              <button class="filter-btn" @click="applyUtmSourcesFilter">
                 Filter
               </button>
             </div>
@@ -900,142 +957,562 @@
         </div>
       </div>
 
-      <!-- Modal -->
-      <transition name="modal-fade">
-        <div v-if="modalVisible" class="modal-overlay" @click="closeModal">
-          <div class="modal-container" @click.stop>
-            <div class="modal-header">
-              <h2 class="modal-title">{{ modalTitle }}</h2>
-              <button class="modal-close-btn" @click="closeModal">
-                <X :size="20" />
+      <!-- Sub-page view -->
+      <div v-else class="analytics-outer w-full max-w-[1400px] mx-auto -mt-3">
+        <!-- Sub-page: Header -->
+        <div class="flex items-center justify-between mb-5 max-960:flex-col max-960:items-start max-960:gap-3">
+          <div class="flex items-center gap-3">
+            <button
+              @click="currentSubPage = null"
+              class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-om-gray-100 text-om-gray-500 hover:text-om-gray-700 transition-colors"
+            >
+              <ChevronLeft :size="20" />
+            </button>
+            <h1 class="text-2xl max-960:text-xl font-semibold text-om-gray-700">{{ subPageTitle }}</h1>
+          </div>
+          <div class="status-badge">
+            <RefreshCw :size="16" class="status-badge-icon" />
+            <p class="status-text">Freshly loaded data</p>
+          </div>
+        </div>
+
+        <!-- Sub-page: Filters -->
+        <div class="filters-section mb-6">
+          <div class="flex items-center gap-3">
+            <div class="shrink-0" style="width:200px">
+              <Dropdown v-model="selectedDomain" :options="domains" placeholder="Select domain">
+                <template #icon>
+                  <div class="w-5 h-5 rounded-full bg-[#7AAF8A] flex items-center justify-center shrink-0">
+                    <Dice5 :size="12" class="text-white" />
+                  </div>
+                </template>
+              </Dropdown>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="chip px-3 py-2 rounded-lg bg-om-gray-100 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:bg-om-gray-200">All visitors</button>
+              <button class="chip px-3 py-2 rounded-lg bg-om-gray-100 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:bg-om-gray-200">Mobile users</button>
+              <button class="chip px-3 py-2 rounded-lg bg-om-gray-100 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:bg-om-gray-200">High-value customers</button>
+              <button class="chip px-3 py-2 rounded-lg bg-om-gray-100 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:bg-om-gray-200">Facebook traffic</button>
+              <button class="chip w-9 h-9 flex items-center justify-center bg-om-gray-100 text-om-gray-700 rounded-lg cursor-pointer transition-all duration-200 ease-out hover:bg-om-gray-200">
+                <Plus :size="16" />
               </button>
             </div>
-            <div class="modal-body">
-              <!-- Visited Pages -->
-              <div v-if="modalType === 'visited-pages'" class="breakdown-table">
-                <div class="breakdown-header">
-                  <div class="breakdown-header-cell" style="flex: 2">Page URL</div>
-                  <div class="breakdown-header-cell numeric">Page Views</div>
-                  <div class="breakdown-header-cell numeric">Visitors</div>
-                  <div class="breakdown-header-cell numeric">Submits</div>
-                  <div class="breakdown-header-cell numeric">Submit Rate</div>
-                </div>
-                <div class="breakdown-body">
-                  <div
-                    v-for="page in visitedPages"
-                    :key="page.url"
-                    class="breakdown-row"
-                  >
-                    <div class="breakdown-cell url-cell" style="flex: 2">
-                      <a :href="page.url" target="_blank" class="url-link">
-                        {{ page.url }}
-                        <ExternalLink :size="14" class="external-icon" />
-                      </a>
+          </div>
+          <div class="filters-right">
+            <Dropdown v-model="selectedGoal" :options="goals" placeholder="Select goal">
+              <template #icon><Target :size="20" class="text-om-gray-400" /></template>
+            </Dropdown>
+            <Dropdown v-model="selectedPeriod" :options="periods" placeholder="Select period">
+              <template #icon><Calendar :size="20" class="text-om-gray-400" /></template>
+            </Dropdown>
+          </div>
+        </div>
+
+
+        <!-- Traffic Sources KPI summary -->
+        <div v-if="currentSubPage === 'traffic-sources'" class="grid grid-cols-4 gap-4 mb-4">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Sources</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">20</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +3</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Visitors</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">127,446</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +8.2%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Submits</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">2,299</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +11.4%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Top Source</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">Paid Search</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +2.18%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Countries KPI summary -->
+        <div v-if="currentSubPage === 'countries'" class="grid grid-cols-4 gap-4 mb-4">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Countries</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">24</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +2</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Visitors</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">26,002</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +12.5%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Avg Submit Rate</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">1.87%</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#E4252D]"><TrendingDown :size="12" /> -0.4%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Top Country</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">Hungary</div>
+              <div class="text-xs text-om-gray-400">(12,427 visitors)</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +5.2%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visited Pages KPI summary -->
+        <div v-if="currentSubPage === 'visited-pages'" class="grid grid-cols-4 gap-4 mb-4">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Pages</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">30</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +5</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Page Views</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">486,231</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +9.3%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Visitors</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">348,904</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +7.1%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Top Page</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700 truncate">/shop_search.php</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77] shrink-0"><TrendingUp :size="12" /> +14.2%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Landing Pages KPI summary -->
+        <div v-if="currentSubPage === 'landing-pages'" class="grid grid-cols-4 gap-4 mb-4">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Landing Pages</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">25</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +3</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Visitors</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">312,547</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +12.1%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Submits</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">2,184</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +8.7%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Top Landing Page</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700 truncate">tabletopshop.com</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77] shrink-0"><TrendingUp :size="12" /> +6.8%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Browser Languages KPI summary -->
+        <div v-if="currentSubPage === 'browser-languages'" class="grid grid-cols-4 gap-4 mb-4">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Languages</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">25</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +2</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Visitors</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">218,604</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +6.4%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Avg Submit Rate</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">0.71%</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#E4252D]"><TrendingDown :size="12" /> -0.3%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Top Language</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">hu-HU</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +5.1%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- UTM Campaigns KPI summary -->
+        <div v-if="currentSubPage === 'utm-campaigns'" class="grid grid-cols-4 gap-4 mb-4">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Campaigns</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">25</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +4</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Visitors</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">284,319</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +14.2%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Submits</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">1,947</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +9.8%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Top Campaign</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700 truncate">olcsobbat_shopping</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77] shrink-0"><TrendingUp :size="12" /> +18.3%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- UTM Sources KPI summary -->
+        <div v-if="currentSubPage === 'utm-sources'" class="grid grid-cols-4 gap-4 mb-4">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Sources</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">25</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +3</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Visitors</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">261,874</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +11.7%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Submits</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">1,823</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +8.3%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Top Source</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">facebook</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +22.1%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-page content card -->
+        <div class="subpage-table bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden">
+
+          <!-- Search bar -->
+          <div class="px-6 py-3 border-b border-om-gray-100 flex items-center justify-between">
+            <div class="relative">
+              <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-700 pointer-events-none" />
+              <input
+                v-model="subPageSearch"
+                type="text"
+                :placeholder="`Search ${subPageTitle}...`"
+                class="pl-9 pr-4 py-2 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 w-56"
+              />
+            </div>
+            <Button variant="outline" size="sm">
+              <template #icon><Download :size="15" /></template>
+              Export
+            </Button>
+          </div>
+
+
+          <!-- Traffic Sources sub-page -->
+          <div v-if="currentSubPage === 'traffic-sources'">
+            <div class="campaign-headers-row">
+              <div class="campaign-list-header"><div class="header-cell">Source</div></div>
+              <div class="campaign-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">Submits</div>
+                <div class="header-cell numeric">Submit Rate</div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="campaign-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="row in filteredTrafficSources" :key="row.referrer" class="campaign-row">
+                    <div class="campaign-name-wrapper">
+                      <div class="campaign-name">{{ row.referrer }}</div>
                     </div>
-                    <div class="breakdown-cell numeric">{{ page.pageViews.toLocaleString() }}</div>
-                    <div class="breakdown-cell numeric">{{ page.visitors.toLocaleString() }}</div>
-                    <div class="breakdown-cell numeric">{{ page.submits }}</div>
-                    <div class="breakdown-cell numeric">{{ page.conversionRate }}%</div>
                   </div>
                 </div>
               </div>
-
-              <!-- Landing Pages -->
-              <div v-if="modalType === 'landing-pages'" class="breakdown-table">
-                <div class="breakdown-header">
-                  <div class="breakdown-header-cell" style="flex: 2">Landing Page</div>
-                  <div class="breakdown-header-cell numeric">Visitors</div>
-                  <div class="breakdown-header-cell numeric">Submits</div>
-                  <div class="breakdown-header-cell numeric">Submit Rate</div>
-                </div>
-                <div class="breakdown-body">
-                  <div
-                    v-for="page in landingPages"
-                    :key="page.url"
-                    class="breakdown-row"
-                  >
-                    <div class="breakdown-cell url-cell" style="flex: 2">
-                      <a :href="page.url" target="_blank" class="url-link">
-                        {{ page.url }}
-                        <ExternalLink :size="14" class="external-icon" />
-                      </a>
-                    </div>
-                    <div class="breakdown-cell numeric">{{ page.visitors.toLocaleString() }}</div>
-                    <div class="breakdown-cell numeric">{{ page.submits }}</div>
-                    <div class="breakdown-cell numeric">{{ page.conversionRate }}%</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Browser Languages -->
-              <div v-if="modalType === 'browser-languages'" class="breakdown-table">
-                <div class="breakdown-header">
-                  <div class="breakdown-header-cell" style="flex: 2">Language</div>
-                  <div class="breakdown-header-cell numeric">Visitors</div>
-                  <div class="breakdown-header-cell numeric">Submits</div>
-                  <div class="breakdown-header-cell numeric">Submit Rate</div>
-                </div>
-                <div class="breakdown-body">
-                  <div
-                    v-for="lang in browserLanguages"
-                    :key="lang.code"
-                    class="breakdown-row"
-                  >
-                    <div class="breakdown-cell" style="flex: 2">{{ lang.code }}</div>
-                    <div class="breakdown-cell numeric">{{ lang.visitors.toLocaleString() }}</div>
-                    <div class="breakdown-cell numeric">{{ lang.submits }}</div>
-                    <div class="breakdown-cell numeric">{{ lang.conversionRate }}%</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- UTM Campaigns -->
-              <div v-if="modalType === 'utm-campaigns'" class="breakdown-table">
-                <div class="breakdown-header">
-                  <div class="breakdown-header-cell" style="flex: 2">Campaign</div>
-                  <div class="breakdown-header-cell numeric">Visitors</div>
-                  <div class="breakdown-header-cell numeric">Submits</div>
-                  <div class="breakdown-header-cell numeric">Submit Rate</div>
-                </div>
-                <div class="breakdown-body">
-                  <div
-                    v-for="campaign in utmCampaigns"
-                    :key="campaign.name"
-                    class="breakdown-row"
-                  >
-                    <div class="breakdown-cell" style="flex: 2">{{ campaign.name }}</div>
-                    <div class="breakdown-cell numeric">{{ campaign.visitors.toLocaleString() }}</div>
-                    <div class="breakdown-cell numeric">{{ campaign.submits }}</div>
-                    <div class="breakdown-cell numeric">{{ campaign.conversionRate }}%</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- UTM Sources -->
-              <div v-if="modalType === 'utm-sources'" class="breakdown-table">
-                <div class="breakdown-header">
-                  <div class="breakdown-header-cell" style="flex: 2">Source</div>
-                  <div class="breakdown-header-cell numeric">Visitors</div>
-                  <div class="breakdown-header-cell numeric">Submits</div>
-                  <div class="breakdown-header-cell numeric">Submit Rate</div>
-                </div>
-                <div class="breakdown-body">
-                  <div
-                    v-for="source in utmSources"
-                    :key="source.name"
-                    class="breakdown-row"
-                  >
-                    <div class="breakdown-cell" style="flex: 2">{{ source.name }}</div>
-                    <div class="breakdown-cell numeric">{{ source.visitors.toLocaleString() }}</div>
-                    <div class="breakdown-cell numeric">{{ source.submits }}</div>
-                    <div class="breakdown-cell numeric">{{ source.conversionRate }}%</div>
+              <div class="campaign-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="row in filteredTrafficSources" :key="row.referrer" class="campaign-metrics-row">
+                    <div class="metric-cell">{{ row.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ row.submits !== null ? row.submits.toLocaleString() : '–' }}</div>
+                    <div class="metric-cell">{{ row.submitRate !== null ? row.submitRate + '%' : '–' }}</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+
+          <!-- Countries sub-page -->
+          <div v-else-if="currentSubPage === 'countries'">
+            <div class="campaign-headers-row">
+              <div class="campaign-list-header">
+                <div class="header-cell">Country</div>
+              </div>
+              <div class="campaign-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">Submits</div>
+                <div class="header-cell numeric">Submit Rate</div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="campaign-list-column">
+                <div class="campaign-table-body">
+                  <div
+                    v-for="row in filteredCountries"
+                    :key="row.country"
+                    class="campaign-row"
+                    :class="{ 'is-hovered': hoveredCountriesRow === row.country }"
+                    @mouseenter="hoveredCountriesRow = row.country"
+                    @mouseleave="hoveredCountriesRow = null"
+                  >
+                    <div class="campaign-name-wrapper">
+                      <div class="flex items-center gap-2">
+                        <img
+                          v-if="getFlagUrl(row.country)"
+                          :src="getFlagUrl(row.country)"
+                          :alt="row.country"
+                          class="w-5 h-5 rounded-full object-cover shrink-0 ring-1 ring-om-gray-200"
+                        />
+                        <div class="campaign-name">{{ row.country }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="campaign-metrics-column">
+                <div class="campaign-table-body">
+                  <div
+                    v-for="row in filteredCountries"
+                    :key="row.country"
+                    class="campaign-metrics-row"
+                    :class="{ 'is-hovered': hoveredCountriesRow === row.country }"
+                    @mouseenter="hoveredCountriesRow = row.country"
+                    @mouseleave="hoveredCountriesRow = null"
+                  >
+                    <div class="metric-cell">{{ row.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ row.submits !== null ? row.submits.toLocaleString() : '–' }}</div>
+                    <div class="metric-cell">{{ row.submitRate !== null ? row.submitRate + '%' : '–' }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Visited Pages sub-page -->
+          <div v-else-if="currentSubPage === 'visited-pages'">
+            <div class="campaign-headers-row">
+              <div class="campaign-list-header"><div class="header-cell">Page URL</div></div>
+              <div class="campaign-metrics-header">
+                <div class="header-cell numeric">Page Views</div>
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">Submits</div>
+                <div class="header-cell numeric">Submit Rate</div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="campaign-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="page in filteredVisitedPages" :key="page.url" class="campaign-row">
+                    <div class="campaign-name-wrapper">
+                      <a :href="page.url" target="_blank" class="campaign-name-with-icon" @click.stop>
+                        <div class="campaign-name">{{ page.url }}</div>
+                        <ExternalLink :size="14" class="campaign-link-icon" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="campaign-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="page in filteredVisitedPages" :key="page.url" class="campaign-metrics-row">
+                    <div class="metric-cell">{{ page.pageViews.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ page.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ page.submits }}</div>
+                    <div class="metric-cell">{{ page.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Landing Pages sub-page -->
+          <div v-else-if="currentSubPage === 'landing-pages'">
+            <div class="campaign-headers-row">
+              <div class="campaign-list-header"><div class="header-cell">Landing Page</div></div>
+              <div class="campaign-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">Submits</div>
+                <div class="header-cell numeric">Submit Rate</div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="campaign-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="page in filteredLandingPages" :key="page.url" class="campaign-row">
+                    <div class="campaign-name-wrapper">
+                      <a :href="page.url" target="_blank" class="campaign-name-with-icon" @click.stop>
+                        <div class="campaign-name">{{ page.url }}</div>
+                        <ExternalLink :size="14" class="campaign-link-icon" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="campaign-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="page in filteredLandingPages" :key="page.url" class="campaign-metrics-row">
+                    <div class="metric-cell">{{ page.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ page.submits }}</div>
+                    <div class="metric-cell">{{ page.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Browser Languages sub-page -->
+          <div v-else-if="currentSubPage === 'browser-languages'">
+            <div class="campaign-headers-row">
+              <div class="campaign-list-header"><div class="header-cell">Language</div></div>
+              <div class="campaign-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">Submits</div>
+                <div class="header-cell numeric">Submit Rate</div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="campaign-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="lang in filteredBrowserLanguages" :key="lang.code" class="campaign-row">
+                    <div class="campaign-name-wrapper">
+                      <div class="campaign-name">{{ lang.code }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="campaign-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="lang in filteredBrowserLanguages" :key="lang.code" class="campaign-metrics-row">
+                    <div class="metric-cell">{{ lang.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ lang.submits }}</div>
+                    <div class="metric-cell">{{ lang.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- UTM Campaigns sub-page -->
+          <div v-else-if="currentSubPage === 'utm-campaigns'">
+            <div class="campaign-headers-row">
+              <div class="campaign-list-header"><div class="header-cell">Campaign</div></div>
+              <div class="campaign-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">Submits</div>
+                <div class="header-cell numeric">Submit Rate</div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="campaign-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="campaign in filteredUtmCampaigns" :key="campaign.name" class="campaign-row">
+                    <div class="campaign-name-wrapper">
+                      <div class="campaign-name">{{ campaign.name }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="campaign-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="campaign in filteredUtmCampaigns" :key="campaign.name" class="campaign-metrics-row">
+                    <div class="metric-cell">{{ campaign.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ campaign.submits }}</div>
+                    <div class="metric-cell">{{ campaign.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- UTM Sources sub-page -->
+          <div v-else-if="currentSubPage === 'utm-sources'">
+            <div class="campaign-headers-row">
+              <div class="campaign-list-header"><div class="header-cell">Source</div></div>
+              <div class="campaign-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">Submits</div>
+                <div class="header-cell numeric">Submit Rate</div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="campaign-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="source in filteredUtmSources" :key="source.name" class="campaign-row">
+                    <div class="campaign-name-wrapper">
+                      <div class="campaign-name">{{ source.name }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="campaign-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="source in filteredUtmSources" :key="source.name" class="campaign-metrics-row">
+                    <div class="metric-cell">{{ source.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ source.submits }}</div>
+                    <div class="metric-cell">{{ source.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
-      </transition>
+      </div>
     </template>
     <template #right-panel>
       <ChatPanel v-model="isChatOpen" :fab="true" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
@@ -1045,9 +1522,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { ExternalLink, ChevronDown, ChevronRight, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X, Dice5 } from 'lucide-vue-next'
+import { ref, computed, watch, nextTick } from 'vue'
+import { ExternalLink, ChevronDown, ChevronRight, ChevronLeft, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X, Dice5, Plus, Search, Download } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+import Button from '../components/shared/Button.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import VueApexCharts from 'vue3-apexcharts'
@@ -1863,30 +2341,120 @@ const clearUtmSourcesSelections = () => {
   utmSourcesSelectionTrigger.value++
 }
 
-// Modal state
-const modalVisible = ref(false)
-const modalType = ref('')
-const modalTitle = ref('')
-
-const showModal = (type) => {
-  modalType.value = type
-  modalVisible.value = true
-
-  // Set modal title based on type
-  const titles = {
-    'visited-pages': 'Visited Pages',
-    'landing-pages': 'Landing Pages',
-    'browser-languages': 'Browser Languages',
-    'utm-campaigns': 'UTM Campaigns',
-    'utm-sources': 'UTM Sources'
-  }
-  modalTitle.value = titles[type]
+// Sub-page state
+const currentSubPage = ref(null)
+const openSubPage = (page) => {
+  currentSubPage.value = page
+  nextTick(() => {
+    const el = document.querySelector('.overflow-y-auto')
+    if (el) el.scrollTop = 0
+  })
 }
 
-const closeModal = () => {
-  modalVisible.value = false
-  modalType.value = ''
+const subPageTitles = {
+  'traffic-sources': 'Traffic Sources',
+  'countries': 'Countries',
+  'visited-pages': 'Visited Pages',
+  'landing-pages': 'Landing Pages',
+  'browser-languages': 'Browser Languages',
+  'utm-campaigns': 'UTM Campaigns',
+  'utm-sources': 'UTM Sources',
 }
+
+const subPageTitle = computed(() => subPageTitles[currentSubPage.value] ?? '')
+
+const subPageSearch = ref('')
+watch(currentSubPage, () => { subPageSearch.value = '' })
+
+// ============================================
+// Active Filter Chips
+// ============================================
+const activeFilterChips = ref([])
+
+const applyFilterFromSelection = (section, selectedSet, getLabel) => {
+  const newChips = [...selectedSet].map(id => ({
+    key: `${section}-${id}`,
+    label: getLabel(id),
+    section,
+    id,
+  }))
+  activeFilterChips.value = [
+    ...activeFilterChips.value.filter(c => c.section !== section),
+    ...newChips,
+  ]
+}
+
+const removeFilterChip = (key) => {
+  activeFilterChips.value = activeFilterChips.value.filter(c => c.key !== key)
+}
+
+const sectionHasActiveFilters = (section) => {
+  return activeFilterChips.value.some(c => c.section === section)
+}
+
+const applyCampaignFilter = () => {
+  applyFilterFromSelection('campaigns', selectedCampaigns.value,
+    id => campaignData.value.find(c => c.id === id)?.name ?? String(id))
+  clearAllSelections()
+}
+
+const applyVisitedPagesFilter = () => {
+  applyFilterFromSelection('visitedPages', selectedVisitedPages.value, url => {
+    try { return new URL(url).pathname } catch { return url }
+  })
+  clearVisitedPagesSelections()
+}
+
+const applyLandingPagesFilter = () => {
+  applyFilterFromSelection('landingPages', selectedLandingPages.value, url => {
+    try { return new URL(url).pathname } catch { return url }
+  })
+  clearLandingPagesSelections()
+}
+
+const applyBrowserLanguagesFilter = () => {
+  applyFilterFromSelection('browserLanguages', selectedBrowserLanguages.value, code => code)
+  clearBrowserLanguagesSelections()
+}
+
+const applyUtmCampaignsFilter = () => {
+  applyFilterFromSelection('utmCampaigns', selectedUtmCampaigns.value, name => name)
+  clearUtmCampaignsSelections()
+}
+
+const applyUtmSourcesFilter = () => {
+  applyFilterFromSelection('utmSources', selectedUtmSources.value, name => name)
+  clearUtmSourcesSelections()
+}
+
+const filteredTrafficSources = computed(() => {
+  const q = subPageSearch.value.toLowerCase()
+  return q ? allTrafficSources.filter(r => r.referrer.toLowerCase().includes(q)) : allTrafficSources
+})
+const filteredCountries = computed(() => {
+  const q = subPageSearch.value.toLowerCase()
+  return q ? allCountries.filter(r => r.country.toLowerCase().includes(q)) : allCountries
+})
+const filteredVisitedPages = computed(() => {
+  const q = subPageSearch.value.toLowerCase()
+  return q ? visitedPages.value.filter(r => r.url.toLowerCase().includes(q)) : visitedPages.value
+})
+const filteredLandingPages = computed(() => {
+  const q = subPageSearch.value.toLowerCase()
+  return q ? landingPages.value.filter(r => r.url.toLowerCase().includes(q)) : landingPages.value
+})
+const filteredBrowserLanguages = computed(() => {
+  const q = subPageSearch.value.toLowerCase()
+  return q ? browserLanguages.value.filter(r => r.code.toLowerCase().includes(q)) : browserLanguages.value
+})
+const filteredUtmCampaigns = computed(() => {
+  const q = subPageSearch.value.toLowerCase()
+  return q ? utmCampaigns.value.filter(r => r.name.toLowerCase().includes(q)) : utmCampaigns.value
+})
+const filteredUtmSources = computed(() => {
+  const q = subPageSearch.value.toLowerCase()
+  return q ? utmSources.value.filter(r => r.name.toLowerCase().includes(q)) : utmSources.value
+})
 
 const campaignData = ref([
   {
@@ -2096,6 +2664,43 @@ const toggleTrafficRow2 = (referrer) => {
 const isTrafficRow2Selected = (referrer) => selectedTrafficRows2.value.has(referrer)
 
 // Countries table
+const countryCodeMap = {
+  'Hungary': 'HU',
+  'United States': 'US',
+  'Austria': 'AT',
+  'Germany': 'DE',
+  'Singapore': 'SG',
+  'United Kingdom': 'GB',
+  'Romania': 'RO',
+  'Slovakia': 'SK',
+  'Netherlands': 'NL',
+  'Sweden': 'SE',
+  'France': 'FR',
+  'Poland': 'PL',
+  'Czech Republic': 'CZ',
+  'Italy': 'IT',
+  'Spain': 'ES',
+  'Switzerland': 'CH',
+  'Belgium': 'BE',
+  'Norway': 'NO',
+  'Denmark': 'DK',
+  'Finland': 'FI',
+  'Portugal': 'PT',
+  'Greece': 'GR',
+  'Canada': 'CA',
+  'Australia': 'AU',
+  'Croatia': 'HR',
+  'Ukraine': 'UA',
+  'Serbia': 'RS',
+  'Bulgaria': 'BG',
+  'Turkey': 'TR',
+  'Japan': 'JP',
+}
+const getFlagUrl = (country) => {
+  const code = countryCodeMap[country]
+  return code ? `https://flagcdn.com/w40/${code.toLowerCase()}.png` : null
+}
+
 const countriesData = [
   { country: 'Hungary',        visitors: 12427,  submits: 148,  submitRate: 1.19 },
   { country: 'United States',  visitors: 6086,   submits: 3,    submitRate: 0.05 },
@@ -2108,6 +2713,40 @@ const countriesData = [
   { country: 'Netherlands',    visitors: 262,    submits: 3,    submitRate: 1.15 },
   { country: 'Sweden',         visitors: 253,    submits: 1,    submitRate: 0.40 },
 ]
+
+const allCountries = [
+  { country: 'Hungary',        visitors: 12427,  submits: 148,  submitRate: 1.19 },
+  { country: 'United States',  visitors: 6086,   submits: 3,    submitRate: 0.05 },
+  { country: 'Austria',        visitors: 1161,   submits: 42,   submitRate: 3.62 },
+  { country: 'Germany',        visitors: 858,    submits: 14,   submitRate: 1.63 },
+  { country: 'Singapore',      visitors: 768,    submits: null, submitRate: null },
+  { country: 'United Kingdom', visitors: 560,    submits: 8,    submitRate: 1.43 },
+  { country: 'Romania',        visitors: 496,    submits: 15,   submitRate: 3.02 },
+  { country: 'Slovakia',       visitors: 336,    submits: 15,   submitRate: 4.46 },
+  { country: 'Netherlands',    visitors: 262,    submits: 3,    submitRate: 1.15 },
+  { country: 'Sweden',         visitors: 253,    submits: 1,    submitRate: 0.40 },
+  { country: 'France',         visitors: 214,    submits: 6,    submitRate: 2.80 },
+  { country: 'Poland',         visitors: 198,    submits: 4,    submitRate: 2.02 },
+  { country: 'Czech Republic', visitors: 187,    submits: 9,    submitRate: 4.81 },
+  { country: 'Italy',          visitors: 163,    submits: 2,    submitRate: 1.23 },
+  { country: 'Spain',          visitors: 142,    submits: 3,    submitRate: 2.11 },
+  { country: 'Switzerland',    visitors: 118,    submits: 5,    submitRate: 4.24 },
+  { country: 'Belgium',        visitors: 97,     submits: 2,    submitRate: 2.06 },
+  { country: 'Norway',         visitors: 88,     submits: 1,    submitRate: 1.14 },
+  { country: 'Denmark',        visitors: 79,     submits: 2,    submitRate: 2.53 },
+  { country: 'Finland',        visitors: 71,     submits: null, submitRate: null },
+  { country: 'Portugal',       visitors: 64,     submits: 1,    submitRate: 1.56 },
+  { country: 'Greece',         visitors: 58,     submits: null, submitRate: null },
+  { country: 'Canada',         visitors: 52,     submits: 1,    submitRate: 1.92 },
+  { country: 'Australia',      visitors: 47,     submits: null, submitRate: null },
+  { country: 'Croatia',        visitors: 43,     submits: 2,    submitRate: 4.65 },
+  { country: 'Ukraine',        visitors: 38,     submits: null, submitRate: null },
+  { country: 'Serbia',         visitors: 34,     submits: 1,    submitRate: 2.94 },
+  { country: 'Bulgaria',       visitors: 29,     submits: null, submitRate: null },
+  { country: 'Turkey',         visitors: 24,     submits: null, submitRate: null },
+  { country: 'Japan',          visitors: 19,     submits: null, submitRate: null },
+]
+
 const hoveredCountriesRow = ref(null)
 const selectedCountriesRows = ref(new Set())
 const toggleCountriesRow = (country) => {
@@ -2116,6 +2755,45 @@ const toggleCountriesRow = (country) => {
   selectedCountriesRows.value = s
 }
 const isCountriesRowSelected = (country) => selectedCountriesRows.value.has(country)
+
+const hasDevicesSelection = computed(() => selectedDevicesRows.value.size > 0)
+const devicesSelectionCount = computed(() => selectedDevicesRows.value.size)
+const allDevicesSelected = computed(() => devicesTableData.length > 0 && devicesTableData.every(r => selectedDevicesRows.value.has(r.type)))
+const isDevicesIndeterminate = computed(() => hasDevicesSelection.value && !allDevicesSelected.value)
+const toggleSelectAllDevices = () => {
+  selectedDevicesRows.value = allDevicesSelected.value ? new Set() : new Set(devicesTableData.map(r => r.type))
+}
+const clearDevicesRows = () => { selectedDevicesRows.value = new Set() }
+const applyDevicesFilter = () => {
+  applyFilterFromSelection('devices', selectedDevicesRows.value, type => type)
+  clearDevicesRows()
+}
+
+const hasTrafficSelection = computed(() => selectedTrafficRows2.value.size > 0)
+const trafficSelectionCount = computed(() => selectedTrafficRows2.value.size)
+const allTrafficSelected = computed(() => trafficSourceData.length > 0 && trafficSourceData.every(r => selectedTrafficRows2.value.has(r.referrer)))
+const isTrafficIndeterminate = computed(() => hasTrafficSelection.value && !allTrafficSelected.value)
+const toggleSelectAllTraffic = () => {
+  selectedTrafficRows2.value = allTrafficSelected.value ? new Set() : new Set(trafficSourceData.map(r => r.referrer))
+}
+const clearTrafficRows = () => { selectedTrafficRows2.value = new Set() }
+const applyTrafficFilter = () => {
+  applyFilterFromSelection('traffic', selectedTrafficRows2.value, referrer => referrer)
+  clearTrafficRows()
+}
+
+const hasCountriesSelection = computed(() => selectedCountriesRows.value.size > 0)
+const countriesSelectionCount = computed(() => selectedCountriesRows.value.size)
+const allCountriesSelected = computed(() => countriesData.length > 0 && countriesData.every(r => selectedCountriesRows.value.has(r.country)))
+const isCountriesIndeterminate = computed(() => hasCountriesSelection.value && !allCountriesSelected.value)
+const toggleSelectAllCountries = () => {
+  selectedCountriesRows.value = allCountriesSelected.value ? new Set() : new Set(countriesData.map(r => r.country))
+}
+const clearCountriesRows = () => { selectedCountriesRows.value = new Set() }
+const applyCountriesFilter = () => {
+  applyFilterFromSelection('countries', selectedCountriesRows.value, country => country)
+  clearCountriesRows()
+}
 
 // Pie chart — only sources with submits
 // Top 5 by submits: Organic Search (1634), Facebook (378), Direct (272), Árukeresó (51), tarsasjatekok.com (32)
@@ -2156,6 +2834,29 @@ const trafficSourceData = [
   { referrer: 'Árukereső',      visitors: 1617,  submits: 43,   submitRate: 2.66 },
   { referrer: 'TikTok',         visitors: 1336,  submits: null, submitRate: null },
   { referrer: 'Other',          visitors: 878,   submits: 39,   submitRate: 4.44 },
+]
+
+const allTrafficSources = [
+  { referrer: 'Paid Search',      visitors: 40552, submits: 883,  submitRate: 2.18 },
+  { referrer: 'Organic Search',   visitors: 32037, submits: 673,  submitRate: 2.10 },
+  { referrer: 'Facebook',         visitors: 26453, submits: 402,  submitRate: 1.52 },
+  { referrer: 'Direct',           visitors: 23473, submits: 164,  submitRate: 0.70 },
+  { referrer: 'Árukereső',        visitors: 1617,  submits: 43,   submitRate: 2.66 },
+  { referrer: 'TikTok',           visitors: 1336,  submits: null, submitRate: null },
+  { referrer: 'Other',            visitors: 878,   submits: 39,   submitRate: 4.44 },
+  { referrer: 'Instagram',        visitors: 642,   submits: 12,   submitRate: 1.87 },
+  { referrer: 'YouTube',          visitors: 487,   submits: 8,    submitRate: 1.64 },
+  { referrer: 'Email',            visitors: 398,   submits: 22,   submitRate: 5.53 },
+  { referrer: 'LinkedIn',         visitors: 287,   submits: 5,    submitRate: 1.74 },
+  { referrer: 'Pinterest',        visitors: 214,   submits: 3,    submitRate: 1.40 },
+  { referrer: 'Twitter/X',        visitors: 178,   submits: 2,    submitRate: 1.12 },
+  { referrer: 'telex.hu',         visitors: 143,   submits: 4,    submitRate: 2.80 },
+  { referrer: 'index.hu',         visitors: 118,   submits: 3,    submitRate: 2.54 },
+  { referrer: 'Google Shopping',  visitors: 97,    submits: 6,    submitRate: 6.19 },
+  { referrer: 'Bing',             visitors: 84,    submits: 2,    submitRate: 2.38 },
+  { referrer: 'Reddit',           visitors: 62,    submits: null, submitRate: null },
+  { referrer: 'Affiliate',        visitors: 48,    submits: 3,    submitRate: 6.25 },
+  { referrer: 'QR Code',          visitors: 31,    submits: 1,    submitRate: 3.23 },
 ]
 </script>
 
@@ -2822,6 +3523,10 @@ const trafficSourceData = [
   }
 }
 
+.breakdown-modules-row.single-column {
+  grid-template-columns: 1fr;
+}
+
 /* Modal */
 .modal-overlay {
   position: fixed;
@@ -2927,6 +3632,11 @@ const trafficSourceData = [
 .campaign-row.is-hovered .custom-checkbox,
 .campaign-variant-row:hover .custom-checkbox,
 .has-selection .custom-checkbox {
+  opacity: 1;
+}
+
+/* Show checkbox when it's in checked/indeterminate state */
+.custom-checkbox:has(button.bg-om-orange-500) {
   opacity: 1;
 }
 
@@ -3165,6 +3875,10 @@ const trafficSourceData = [
   .devices-traffic-row {
     grid-template-columns: 2fr 3fr;
     align-items: stretch;
+  }
+
+  .devices-traffic-row.single-column {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -3409,5 +4123,58 @@ const trafficSourceData = [
 .traffic-pie-legend-label {
   font-size: 12px;
   color: #6B7280;
+}
+
+.subpage-table .campaign-row {
+  padding-left: calc(1rem + 16px);
+}
+
+.subpage-table-header {
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  height: 40px;
+  background: white;
+  border-bottom: 1px solid rgb(243, 244, 246);
+}
+
+.subpage-header-cell {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #23262A;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.subpage-header-cell.numeric {
+  text-align: right;
+  min-width: 100px;
+}
+
+.subpage-table-row {
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  height: 48px;
+  border-bottom: 1px solid rgb(249, 250, 251);
+  transition: background 0.15s ease;
+}
+
+.subpage-table-row:last-child {
+  border-bottom: none;
+}
+
+.subpage-table-row:hover {
+  background: rgb(249, 250, 251);
+}
+
+.subpage-cell {
+  font-size: 0.8125rem;
+  color: #505763;
+}
+
+.subpage-cell.numeric {
+  text-align: right;
+  min-width: 100px;
 }
 </style>

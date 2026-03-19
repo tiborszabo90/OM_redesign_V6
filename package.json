@@ -12,6 +12,7 @@
     "@lottiefiles/dotlottie-vue": "^0.10.13",
     "@vuepic/vue-datepicker": "^12.1.0",
     "apexcharts": "^5.3.6",
+    "country-flag-icons": "^1.6.15",
     "gsap": "^3.14.2",
     "lucide-vue-next": "^0.563.0",
     "primevue": "^4.5.4",

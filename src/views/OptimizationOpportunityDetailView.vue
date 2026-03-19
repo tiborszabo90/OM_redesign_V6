@@ -4,19 +4,17 @@
       <div class="w-full max-w-[1400px] mx-auto -mt-3">
 
         <!-- Header -->
-        <div class="flex items-center gap-3 mb-6">
-          <button class="back-btn" @click="$emit('go-back')">
-            <ChevronLeft :size="18" />
-            Back
-          </button>
-          <span class="text-om-gray-300">/</span>
-          <span class="text-sm text-om-gray-400">Optimization Opportunities</span>
-        </div>
-
-        <!-- Title row -->
-        <div class="flex items-center gap-3 mb-8">
-          <h1 class="text-2xl font-semibold text-om-gray-700">{{ opportunity.name }}</h1>
-          <div :class="['value-badge', `badge-${opportunity.level}`]">{{ opportunity.value }}</div>
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-3">
+            <button
+              @click="$emit('go-back')"
+              class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-om-gray-100 text-om-gray-500 hover:text-om-gray-700 transition-colors"
+            >
+              <ChevronLeft :size="20" />
+            </button>
+            <h1 class="text-2xl font-semibold text-om-gray-700">{{ opportunity.name }}</h1>
+            <div :class="['value-badge', `badge-${opportunity.level}`]">{{ opportunity.value }}</div>
+          </div>
         </div>
 
         <!-- Content -->
