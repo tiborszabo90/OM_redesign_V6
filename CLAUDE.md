@@ -28,6 +28,13 @@ Currently archived view files (do not touch):
 
 ---
 
+## Deployment Rule
+
+**Deploy using Vercel, not Netlify.**
+Run `vercel --prod` to deploy to production.
+
+---
+
 ## Component Reuse Rule
 
 **Before writing any button, input, dropdown, checkbox, toggle, accordion, multi-select, time-picker, chat panel, or tag/badge from raw HTML/Tailwind, always check `src/components/shared/` first and use the matching shared component.**
