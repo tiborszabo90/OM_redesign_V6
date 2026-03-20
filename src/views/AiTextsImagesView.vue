@@ -193,27 +193,23 @@
             class="bg-white rounded-xl border-2 border-om-gray-200 p-5 cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] transition-all duration-200 flex gap-4"
             @click="handlePresetClick(preset)"
           >
-            <div class="w-32 h-32 shrink-0 rounded-lg bg-om-gray-100 border border-om-gray-200" />
+            <div class="w-44 h-44 shrink-0 rounded-lg bg-om-gray-100 border border-om-gray-200" />
             <div class="flex flex-col flex-1 min-w-0">
             <h2 class="text-base font-semibold text-om-gray-700 mb-2">{{ preset.name }}</h2>
             <p class="text-sm text-om-gray-500 flex-1 mb-3">{{ preset.description }}</p>
-            <div class="flex flex-col gap-2 mt-auto">
-              <div class="flex items-center gap-2 flex-wrap">
-                <Tag>
-                  <template #icon><Cpu :size="14" class="text-om-gray-400" /></template>
-                  {{ preset.model }}
-                </Tag>
-                <Tag>
-                  <template #icon><Maximize2 :size="14" class="text-om-gray-400" /></template>
-                  {{ preset.ratio }}
-                </Tag>
-              </div>
-              <div class="flex justify-end">
-                <Tag variant="orange">
-                  <template #icon><Coins :size="14" class="text-om-orange-400" /></template>
-                  {{ preset.credits }} credits/image
-                </Tag>
-              </div>
+            <div class="flex flex-col gap-1.5 mt-auto">
+              <Tag class="self-start">
+                <template #icon><Cpu :size="14" class="text-om-gray-400" /></template>
+                {{ preset.model }}
+              </Tag>
+              <Tag class="self-start">
+                <template #icon><Maximize2 :size="14" class="text-om-gray-400" /></template>
+                {{ preset.ratio }}
+              </Tag>
+              <Tag variant="orange" class="self-start">
+                <template #icon><Coins :size="14" class="text-om-orange-400" /></template>
+                {{ preset.credits }} credits/image
+              </Tag>
             </div>
             </div>
           </div>
@@ -247,12 +243,12 @@
           >
             <h2 class="text-base font-semibold text-om-gray-700 mb-2">{{ preset.name }}</h2>
             <p class="text-sm text-om-gray-500 flex-1 mb-3">{{ preset.description }}</p>
-            <div class="flex items-center gap-2 mt-auto flex-wrap">
-                <Tag>
-                  <template #icon><Cpu :size="14" class="text-om-gray-400" /></template>
-                  {{ preset.model }}
-                </Tag>
-              <Tag variant="orange" class="ml-auto">
+            <div class="flex flex-col gap-1.5 mt-auto items-start">
+              <Tag>
+                <template #icon><Cpu :size="14" class="text-om-gray-400" /></template>
+                {{ preset.model }}
+              </Tag>
+              <Tag variant="orange">
                 <template #icon><Coins :size="14" class="text-om-orange-400" /></template>
                 {{ preset.credits }} credits/image
               </Tag>
@@ -365,7 +361,7 @@
                   class="w-full flex items-center justify-between px-4 py-3 text-sm border-b border-om-gray-100 transition-colors"
                   :class="genSelected.length > 0 ? 'hover:bg-om-gray-50 cursor-pointer' : 'opacity-40 cursor-not-allowed'"
                   :disabled="genSelected.length === 0"
-                  @click="genSelected.length > 0 && triggerGenerate()"
+                  @click="genSelected.length > 0 && triggerGenerate([...genSelected])"
                 >
                   <span class="text-om-gray-700 text-left">Generate for selected ({{ genSelected.length }})</span>
                   <span class="flex items-center gap-1.5 font-medium ml-8 tabular-nums whitespace-nowrap" :class="genSelected.length > 0 ? 'text-om-orange-500' : 'text-om-gray-400'">
@@ -482,10 +478,6 @@
               class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 flex items-stretch gap-0 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow"
               @click="openProductModal(product)"
             >
-              <!-- Checkbox -->
-              <div class="flex items-center pr-3 shrink-0" @click.stop>
-                <Checkbox :model-value="genSelected.includes(product.id)" @update:model-value="v => v ? genSelected.push(product.id) : genSelected.splice(genSelected.indexOf(product.id), 1)" />
-              </div>
               <!-- Left half: product thumbnail + info -->
               <div class="flex items-center gap-3 w-1/2 pr-4">
                 <div class="aspect-square h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
@@ -517,7 +509,7 @@
             </div>
           </div>
           <!-- Pagination -->
-          <div class="flex items-center justify-between px-1 py-4 mt-2 border-t border-om-gray-100">
+          <div v-if="genGeneratedTotalPages > 1" class="flex items-center justify-between px-1 py-4 mt-2 border-t border-om-gray-100">
             <span class="text-sm text-om-gray-400">Showing {{ (genGeneratedPage - 1) * genPerPage + 1 }} to {{ Math.min(genGeneratedPage * genPerPage, genProductsGenerated.length) }} of {{ genProductsGenerated.length }} entries</span>
             <div class="flex items-center gap-1">
               <Button variant="ghost" size="sm" :disabled="genGeneratedPage === 1" @click="genGeneratedPage--">Previous</Button>
@@ -551,8 +543,8 @@
                   class="w-full flex items-center justify-between px-4 py-3 text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
                   @click="showSaveMenu = false"
                 >
-                  <span>Save &amp; regenerate 1 product</span>
-                  <span class="flex items-center gap-1.5 text-om-orange-500 font-medium ml-8 tabular-nums whitespace-nowrap">
+                  <span class="whitespace-nowrap">Save &amp; regenerate 1 product</span>
+                  <span class="flex items-center gap-1.5 text-om-orange-500 font-medium ml-4 tabular-nums whitespace-nowrap">
                     <Coins :size="13" />
                     20 credits
                   </span>
@@ -1093,10 +1085,6 @@
               :key="product.id"
               class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 flex items-stretch gap-0"
             >
-              <!-- Checkbox -->
-              <div class="flex items-center pr-3 shrink-0" @click.stop>
-                <Checkbox :model-value="textGenSelected.includes(product.id)" @update:model-value="v => v ? textGenSelected.push(product.id) : textGenSelected.splice(textGenSelected.indexOf(product.id), 1)" />
-              </div>
               <div class="flex items-center gap-3 w-1/2 pr-4">
                 <div class="aspect-square h-16 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
                   <img src="/product1.jpg" class="w-full h-full object-cover" />
@@ -1125,7 +1113,7 @@
             </div>
           </div>
           <!-- Pagination -->
-          <div class="flex items-center justify-between px-1 py-4 mt-2 border-t border-om-gray-100">
+          <div v-if="textGenGeneratedTotalPages > 1" class="flex items-center justify-between px-1 py-4 mt-2 border-t border-om-gray-100">
             <span class="text-sm text-om-gray-400">Showing {{ (textGenGeneratedPage - 1) * textGenPerPage + 1 }} to {{ Math.min(textGenGeneratedPage * textGenPerPage, textGenProductsGenerated.length) }} of {{ textGenProductsGenerated.length }} entries</span>
             <div class="flex items-center gap-1">
               <Button variant="ghost" size="sm" :disabled="textGenGeneratedPage === 1" @click="textGenGeneratedPage--">Previous</Button>
@@ -1150,8 +1138,8 @@
               <div v-if="showTextSaveMenu" class="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-50 min-w-[260px] overflow-hidden">
                 <button class="w-full flex items-center px-4 py-3 text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer border-b border-om-gray-100" @click="showTextSaveMenu = false">Save as new</button>
                 <button class="w-full flex items-center justify-between px-4 py-3 text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer" @click="showTextSaveMenu = false">
-                  <span>Save &amp; regenerate 1 product</span>
-                  <span class="flex items-center gap-1.5 text-om-orange-500 font-medium ml-8 tabular-nums whitespace-nowrap">
+                  <span class="whitespace-nowrap">Save &amp; regenerate 1 product</span>
+                  <span class="flex items-center gap-1.5 text-om-orange-500 font-medium ml-4 tabular-nums whitespace-nowrap">
                     <Coins :size="13" />
                     2 credits
                   </span>
@@ -1761,11 +1749,13 @@ const regenerateProduct = () => {
   }, 2000)
 }
 
-const triggerGenerate = () => {
+const triggerGenerate = (ids) => {
   showGenMenu.value = false
-  const queued = genProducts.value.filter(p => p.status === 'queued').map(p => p.id)
-  genProducts.value = genProducts.value.map(p => p.status === 'queued' ? { ...p, status: 'generating' } : p)
-  queued.forEach((id, i) => {
+  const toGenerate = ids
+    ? genProducts.value.filter(p => ids.includes(p.id)).map(p => p.id)
+    : genProducts.value.filter(p => p.status === 'queued').map(p => p.id)
+  genProducts.value = genProducts.value.map(p => toGenerate.includes(p.id) ? { ...p, status: 'generating' } : p)
+  toGenerate.forEach((id, i) => {
     setTimeout(() => {
       genProducts.value = genProducts.value.map(p => p.id === id ? { ...p, status: 'generated' } : p)
     }, (i + 1) * 2000)
