@@ -197,7 +197,8 @@
             <div class="flex flex-col flex-1 min-w-0">
             <h2 class="text-base font-semibold text-om-gray-700 mb-2">{{ preset.name }}</h2>
             <p class="text-sm text-om-gray-500 flex-1 mb-3">{{ preset.description }}</p>
-            <div class="flex items-center gap-2 mt-auto flex-wrap">
+            <div class="flex flex-col gap-2 mt-auto">
+              <div class="flex items-center gap-2 flex-wrap">
                 <Tag>
                   <template #icon><Cpu :size="14" class="text-om-gray-400" /></template>
                   {{ preset.model }}
@@ -206,10 +207,13 @@
                   <template #icon><Maximize2 :size="14" class="text-om-gray-400" /></template>
                   {{ preset.ratio }}
                 </Tag>
-              <Tag variant="orange" class="ml-auto">
-                <template #icon><Coins :size="14" class="text-om-orange-400" /></template>
-                {{ preset.credits }} credits/image
-              </Tag>
+              </div>
+              <div class="flex justify-end">
+                <Tag variant="orange">
+                  <template #icon><Coins :size="14" class="text-om-orange-400" /></template>
+                  {{ preset.credits }} credits/image
+                </Tag>
+              </div>
             </div>
             </div>
           </div>
