@@ -182,6 +182,7 @@
       </div>
       <slot name="right-panel"></slot>
     </main>
+    <slot />
   </div>
 </template>
 
