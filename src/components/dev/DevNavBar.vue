@@ -523,10 +523,10 @@
 
           <!-- Templates Button -->
           <button
-            @click="$emit('navigate', 'templates-v3')"
+            @click="$emit('navigate', 'templates-v2')"
             :class="[
               'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
-              currentView === 'templates-v3'
+              currentView === 'templates-v2' || currentView === 'templates-v2-essential-theme' || currentView === 'templates-v2-branding'
                 ? 'bg-[#ED5A29] text-white'
                 : 'bg-[#505763] hover:bg-[#8F97A4]'
             ]"
@@ -706,7 +706,7 @@ const archiveItems = ref([
   { view: 'analytics-v2', label: 'Analytics V2' },
   { view: 'analytics-v3', label: 'Analytics V3' },
   { view: 'templates-v1', label: 'Templates V1' },
-  { view: 'templates-v2', label: 'Templates V2' },
+  { view: 'templates-v3', label: 'Templates V3' },
   { view: 'wizard-recommendation', label: 'Recommendation V1' },
   { view: 'wizard-recommendation-v2', label: 'Recommendation V2' },
   { view: 'wizard-recommendation-v3', label: 'Recommendation V3' },

@@ -8,21 +8,6 @@
     >
       <template #content>
         <div class="w-full max-w-[1400px] mx-auto">
-        <!-- Header -->
-        <div class="templates-header">
-          <h1>What will you create today?</h1>
-          <div class="language-selector-wrapper">
-            <label class="language-label">Template Language</label>
-            <div class="language-selector w-[240px]">
-              <Dropdown
-                v-model="selectedLanguage"
-                :options="languageOptions"
-                size="sm"
-              />
-            </div>
-          </div>
-        </div>
-
         <div class="templates-layout">
           <!-- Left Sidebar -->
           <aside class="templates-sidebar">
@@ -323,6 +308,42 @@
 
           <!-- Main Content -->
           <main class="templates-main">
+            <!-- Header -->
+            <div class="templates-header">
+              <template v-if="selectedFamily === 'essential'">
+                <div class="flex items-center gap-3">
+                  <button @click="goBack" class="text-om-gray-400 hover:text-om-gray-700 transition-colors cursor-pointer">
+                    <ChevronRight :size="20" style="transform: rotate(180deg);" />
+                  </button>
+                  <h1>Essential theme</h1>
+                </div>
+              </template>
+              <template v-else>
+                <h1>What will you create today?</h1>
+              </template>
+              <div class="language-selector-wrapper">
+                <label class="language-label">Template Language</label>
+                <div class="language-selector w-[240px]">
+                  <Dropdown
+                    v-model="selectedLanguage"
+                    :options="languageOptions"
+                    size="sm"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Essential theme listing -->
+            <div v-if="selectedFamily === 'essential'" class="my-theme-telekom">
+              <div class="telekom-grid">
+                <div class="telekom-card" v-for="n in 9" :key="n" style="cursor:pointer" @click="emit('navigate', 'templates-v2-branding')">
+                  <div class="telekom-image-wrapper"></div>
+                  <h3 class="telekom-title">Essential Template {{ n }}</h3>
+                </div>
+              </div>
+            </div>
+
+            <template v-else>
             <!-- Popup Types -->
             <div class="popup-types">
               <div class="popup-type-box">
@@ -363,7 +384,7 @@
                   <ChevronRight :size="24" style="transform: rotate(180deg);" />
                 </button>
                 <div class="families-carousel" ref="carouselRef" @scroll="handleFamilyScroll">
-                  <div class="family-item">
+                  <div class="family-item" style="cursor:pointer" @click="selectFamily('essential')">
                     <img src="/templates/family-essential.png" alt="Family Essential" class="family-image" />
                   </div>
                   <div class="family-item">
@@ -436,7 +457,7 @@
             </div>
 
             <!-- My Theme Telekom Section -->
-            <div class="my-theme-telekom">
+            <div v-if="!selectedFamily" class="my-theme-telekom">
               <h2 class="my-theme-telekom-title">My theme Telekom</h2>
               <div class="telekom-grid">
                 <div class="telekom-card">
@@ -454,10 +475,7 @@
               </div>
             </div>
 
-            <!-- Content will go here -->
-            <div class="templates-content">
-              <!-- Templates will be added in next step -->
-            </div>
+            </template>
           </main>
         </div>
         </div>
@@ -467,12 +485,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Check, ChevronRight, Home, Paintbrush, FolderOpen, Edit, Search } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 
-const emit = defineEmits(['menu-click'])
+const props = defineProps({
+  initialFamily: { type: String, default: null },
+})
+
+const emit = defineEmits(['menu-click', 'navigate'])
 
 const handleMenuClick = (menuId) => {
   emit('menu-click', menuId)
@@ -508,6 +530,18 @@ const messageType = ref({
   popup: false,
   sidemessage: false
 })
+
+// Family selection
+const selectedFamily = ref(props.initialFamily)
+
+watch(() => props.initialFamily, (val) => { selectedFamily.value = val })
+
+const selectFamily = (family) => {
+  selectedFamily.value = family
+  emit('navigate', family ? `templates-v2-${family}-theme` : 'templates-v2')
+}
+
+const goBack = () => selectFamily(null)
 
 // Language dropdown state
 const languageOptions = [
@@ -588,7 +622,7 @@ const handleSeasonsScroll = () => {
 /* Left Sidebar */
 .templates-sidebar {
   width: 340px;
-  padding: calc(1rem + 20px) 1rem 1.5rem 3rem;
+  padding: 1rem 1rem 1.5rem 3rem;
   overflow-y: auto;
   flex-shrink: 0;
 }
@@ -773,7 +807,7 @@ const handleSeasonsScroll = () => {
 }
 
 .featured-families-title {
-  font-size: 1.5rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: #111827;
   margin-bottom: 1.5rem;
@@ -858,7 +892,7 @@ const handleSeasonsScroll = () => {
 }
 
 .upcoming-seasons-title {
-  font-size: 1.5rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: #111827;
   margin-bottom: 1.5rem;
@@ -943,7 +977,7 @@ const handleSeasonsScroll = () => {
 }
 
 .recommended-usecases-title {
-  font-size: 1.5rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: #111827;
   margin-bottom: 1.5rem;
@@ -971,7 +1005,7 @@ const handleSeasonsScroll = () => {
   aspect-ratio: 3 / 2;
   border-radius: 12px;
   overflow: hidden;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -987,7 +1021,7 @@ const handleSeasonsScroll = () => {
 }
 
 .usecase-title {
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: #111827;
   margin-bottom: 0.5rem;
@@ -1005,7 +1039,7 @@ const handleSeasonsScroll = () => {
 }
 
 .my-theme-telekom-title {
-  font-size: 1.5rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: #111827;
   margin-bottom: 1.5rem;
@@ -1032,7 +1066,7 @@ const handleSeasonsScroll = () => {
   aspect-ratio: 16 / 9;
   border-radius: 12px;
   overflow: hidden;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1048,7 +1082,7 @@ const handleSeasonsScroll = () => {
 }
 
 .telekom-title {
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: #111827;
 }

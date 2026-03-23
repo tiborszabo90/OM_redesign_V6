@@ -21,6 +21,8 @@ import AnalyticsEmptyView from './views/AnalyticsEmptyView.vue'
 import TemplatesViewV1 from './views/TemplatesViewV1.vue'
 import TemplatesViewV2 from './views/TemplatesViewV2.vue'
 import TemplatesViewV3 from './views/TemplatesViewV3.vue'
+import TemplatesV2BrandingView from './views/TemplatesV2BrandingView.vue'
+import TemplatesV2QuicktuneView from './views/TemplatesV2QuicktuneView.vue'
 import ImageWithBadgeView from './views/ImageWithBadgeView.vue'
 import ImageWithBadgeV2View from './views/ImageWithBadgeV2View.vue'
 import ImageWithBadgeV3View from './views/ImageWithBadgeV3View.vue'
@@ -361,7 +363,7 @@ const handleDevNavigate = (view) => {
     || view === 'analytics-v4-email-capture' || view === 'analytics-v4-phone-capture') {
     // Analytics views
     currentView.value = view
-  } else if (view === 'templates-v1' || view === 'templates-v2' || view === 'templates-v3') {
+  } else if (view === 'templates-v1' || view === 'templates-v2' || view === 'templates-v2-essential-theme' || view === 'templates-v2-branding' || view === 'templates-v3') {
     // Templates views
     currentView.value = view
   } else if (view === 'registration' || view === 'onboarding' || view === 'wizard') {
@@ -547,6 +549,14 @@ const handleGoEditor = () => {
   currentView.value = 'editor'
 }
 
+const handleQuicktuneContinue = (view) => {
+  if (view === 'wizard-recommendation-v4') {
+    currentView.value = 'editor'
+  } else {
+    handleDevNavigate(view)
+  }
+}
+
 const handleGoAiTextsImages = () => {
   currentView.value = 'ai-texts-images'
 }
@@ -646,7 +656,7 @@ const handleMenuClick = (menuId) => {
   } else if (menuId === 'campaign-page') {
     currentView.value = 'campaign-page-v1'
   } else if (menuId === 'templates' || menuId === 'library') {
-    currentView.value = 'templates-v3'
+    currentView.value = 'templates-v2'
   } else if (menuId === 'home-onboarding') {
     sessionKey.value++
     flowSelected.value = true
@@ -701,7 +711,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="h-screen-safe flex flex-col">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaigns-empty', 'campaign-page-v1', 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-v4', 'analytics-v4-purchase', 'analytics-v4-add-to-cart', 'analytics-v4-email-capture', 'analytics-v4-phone-capture', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor', 'ai-texts-images', 'ai-texts-images-new', 'ai-texts-images-presets', 'ai-texts-images-preview', 'ai-texts-images-choose-products', 'ai-texts-images-generation', 'ai-texts-images-add-products', 'ai-texts-images-text-presets', 'ai-texts-images-text-preview', 'ai-texts-images-text-generation',
+      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaigns-empty', 'campaign-page-v1', 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-v4', 'analytics-v4-purchase', 'analytics-v4-add-to-cart', 'analytics-v4-email-capture', 'analytics-v4-phone-capture', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v2-essential-theme', 'templates-v2-branding', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor', 'ai-texts-images', 'ai-texts-images-new', 'ai-texts-images-presets', 'ai-texts-images-preview', 'ai-texts-images-choose-products', 'ai-texts-images-generation', 'ai-texts-images-add-products', 'ai-texts-images-text-presets', 'ai-texts-images-text-preview', 'ai-texts-images-text-generation',
         'settings-ai-texts-images', 'settings-ai-texts-images-new', 'settings-ai-texts-images-presets', 'settings-ai-texts-images-preview', 'settings-ai-texts-images-choose-products', 'settings-ai-texts-images-generation', 'settings-ai-texts-images-generation-product', 'settings-ai-texts-images-add-products', 'settings-ai-texts-images-text-presets', 'settings-ai-texts-images-text-preview', 'settings-ai-texts-images-text-generation',
         'settings-ai-texts-images-v1', 'settings-ai-texts-images-v1-new', 'settings-ai-texts-images-v1-presets', 'settings-ai-texts-images-v1-preview', 'settings-ai-texts-images-v1-choose-products', 'settings-ai-texts-images-v1-generation', 'settings-ai-texts-images-v1-add-products', 'settings-ai-texts-images-v1-text-presets', 'settings-ai-texts-images-v1-text-preview', 'settings-ai-texts-images-v1-text-generation',
         'settings-ai-texts-images-v2', 'settings-ai-texts-images-v2-new', 'settings-ai-texts-images-v2-presets', 'settings-ai-texts-images-v2-preview', 'settings-ai-texts-images-v2-choose-products', 'settings-ai-texts-images-v2-generation', 'settings-ai-texts-images-v2-generation-product', 'settings-ai-texts-images-v2-add-products', 'settings-ai-texts-images-v2-text-presets', 'settings-ai-texts-images-v2-text-preview', 'settings-ai-texts-images-v2-text-generation',
@@ -937,8 +947,14 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         @menu-click="handleMenuClick"
       />
       <TemplatesViewV2
-        v-else-if="currentView === 'templates-v2'"
+        v-else-if="currentView === 'templates-v2' || currentView === 'templates-v2-essential-theme'"
+        :initial-family="currentView === 'templates-v2-essential-theme' ? 'essential' : null"
         @menu-click="handleMenuClick"
+        @navigate="handleDevNavigate"
+      />
+      <TemplatesV2BrandingView
+        v-else-if="currentView === 'templates-v2-branding'"
+        @navigate="handleDevNavigate"
       />
       <TemplatesViewV3
         v-else-if="currentView === 'templates-v3'"
@@ -973,14 +989,10 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         @task-created="handleTaskCreated"
         @menu-click="handleMenuClick"
       />
-      <WizardAnalysisView
+      <TemplatesV2QuicktuneView
         v-else-if="currentView === 'wizard-quicktune'"
         :key="'wizard-quicktune-' + sessionKey"
-        :registration-data="registrationData"
-        :start-at-quicktune="true"
-        @task-created="handleTaskCreated"
-        @navigate-to="handleDevNavigate"
-        @menu-click="handleMenuClick"
+        @navigate="handleDevNavigate"
       />
       <WizardAnalysisView
         v-else-if="currentView === 'wizard-recommendation'"

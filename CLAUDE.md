@@ -21,10 +21,17 @@ Currently archived view files (do not touch):
 - `src/views/AnalyticsV2View.vue`
 - `src/views/AnalyticsV3View.vue`
 - `src/views/TemplatesViewV1.vue`
-- `src/views/TemplatesViewV2.vue`
+- `src/views/TemplatesViewV3.vue`
 - `src/views/WizardAnalysisView.vue`
 - `src/views/AiTextsImagesV1View.vue`
 - `src/views/_archive/` (entire folder)
+
+---
+
+## Commit Rule
+
+**NEVER commit or push unless the user explicitly asks.**
+Do not run `git commit`, `git push`, or `vercel --prod` unless the user specifically requests it in their message.
 
 ---
 
@@ -57,6 +64,7 @@ If a suitable shared component does not exist, create it in `src/components/shar
 | `ChatPanel` | `@/components/shared/ChatPanel.vue` | AI chat interface panel | `Boolean` (visibility) |
 | `ScrollTimePicker` | `@/components/shared/ScrollTimePicker.vue` | Scrollable HH:MM time picker | `String` ('HH:MM') |
 | `Tag` | `@/components/shared/Tag.vue` | Informational badge/tag pill | — |
+| `Chip` | `@/components/shared/Chip.vue` | Selectable onboarding chip (rounded-xl) | — |
 
 ---
 
