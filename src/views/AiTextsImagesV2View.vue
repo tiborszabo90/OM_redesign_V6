@@ -372,17 +372,14 @@
                 <template #icon><Upload :size="15" /></template>
                 Import CSV
               </Button>
-            </div>
-            <!-- Right: sort + generate -->
-            <div class="flex items-center gap-2">
               <div class="relative">
-                <Button variant="ghost" size="sm" icon-only :class="cpSortOpen ? '!bg-[#E3E5E8]' : ''" @click="cpSortOpen = !cpSortOpen">
-                  <template #icon><ArrowUpDown :size="15" /></template>
+                <Button variant="secondary" size="sm" @click="cpSortOpen = !cpSortOpen">
+                  {{ cpSortOptions.find(o => o.value === cpSortBy)?.label }}
                 </Button>
                 <div v-if="cpSortOpen" class="fixed inset-0 z-10" @click="cpSortOpen = false" />
                 <div
                   v-if="cpSortOpen"
-                  class="absolute right-0 top-full mt-1 z-20 bg-white border border-[#D5D8DD] rounded-lg shadow-lg overflow-hidden min-w-[180px]"
+                  class="absolute left-0 top-full mt-1 z-20 bg-white border border-[#D5D8DD] rounded-lg shadow-lg overflow-hidden min-w-[180px]"
                 >
                   <button
                     v-for="opt in cpSortOptions"
@@ -396,6 +393,9 @@
                   </button>
                 </div>
               </div>
+            </div>
+            <!-- Right: generate -->
+            <div class="flex items-center gap-2">
               <div class="relative">
                 <Button variant="primary" size="md" @click.stop="showGenMenu = !showGenMenu">
                   Generate
@@ -1818,14 +1818,14 @@ const triggerGenerate = (ids) => {
 const cpSortBy = ref('popularity-desc')
 const cpSortOpen = ref(false)
 const cpSortOptions = [
-  { value: 'popularity-desc', label: 'Popularity ↓' },
-  { value: 'popularity-asc',  label: 'Popularity ↑' },
-  { value: 'name-asc',        label: 'Name A–Z' },
-  { value: 'name-desc',       label: 'Name Z–A' },
-  { value: 'price-asc',       label: 'Price ↑' },
-  { value: 'price-desc',      label: 'Price ↓' },
-  { value: 'updated-desc',    label: 'Last Updated ↓' },
-  { value: 'updated-asc',     label: 'Last Updated ↑' },
+  { value: 'popularity-desc', label: '↓ Popularity' },
+  { value: 'popularity-asc',  label: '↑ Popularity' },
+  { value: 'name-asc',        label: '↓ Name A–Z' },
+  { value: 'name-desc',       label: '↑ Name Z–A' },
+  { value: 'price-asc',       label: '↑ Price' },
+  { value: 'price-desc',      label: '↓ Price' },
+  { value: 'updated-desc',    label: '↓ Last Updated' },
+  { value: 'updated-asc',     label: '↑ Last Updated' },
 ]
 const cpSearch = ref('')
 const cpCategoryIs = ref([])
