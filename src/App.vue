@@ -39,6 +39,7 @@ import OptimizationOpportunityDetailView from './views/OptimizationOpportunityDe
 import OptimizationOpportunitiesAllView from './views/OptimizationOpportunitiesAllView.vue'
 import SettingsView from './views/SettingsView.vue'
 import AiTextsImagesView from './views/AiTextsImagesView.vue'
+import AiTextsImagesV2View from './views/AiTextsImagesV2View.vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
 
 // URL slug <-> view name mapping
@@ -547,12 +548,16 @@ const handleGoEditor = () => {
 }
 
 const handleGoAiTextsImages = () => {
-  currentView.value = 'settings-ai-texts-images'
+  currentView.value = 'ai-texts-images'
+}
+
+const handleGoAiTextsImagesV2 = () => {
+  currentView.value = 'settings-ai-texts-images-v2'
 }
 
 const settingsInitialSection = computed(() => {
+  if (currentView.value?.startsWith('settings-ai-texts-images-v2')) return 'products-ai-texts-images-v2'
   if (currentView.value?.startsWith('settings-ai-texts-images-v1')) return 'products-ai-texts-images-v1'
-  if (currentView.value?.startsWith('settings-ai')) return 'products-ai-texts-images'
   return 'personal-details'
 })
 
@@ -579,6 +584,17 @@ const settingsInitialScreen = computed(() => {
     'settings-ai-texts-images-v1-text-presets': 'text-presets',
     'settings-ai-texts-images-v1-text-preview': 'text-preview',
     'settings-ai-texts-images-v1-text-generation': 'text-generation',
+    'settings-ai-texts-images-v2': 'list',
+    'settings-ai-texts-images-v2-new': 'new',
+    'settings-ai-texts-images-v2-presets': 'image-presets',
+    'settings-ai-texts-images-v2-preview': 'image-preview',
+    'settings-ai-texts-images-v2-choose-products': 'choose-products',
+    'settings-ai-texts-images-v2-generation': 'generation',
+    'settings-ai-texts-images-v2-generation-product': 'generation-product',
+    'settings-ai-texts-images-v2-add-products': 'add-products',
+    'settings-ai-texts-images-v2-text-presets': 'text-presets',
+    'settings-ai-texts-images-v2-text-preview': 'text-preview',
+    'settings-ai-texts-images-v2-text-generation': 'text-generation',
   }
   return map[currentView.value] || 'list'
 })
@@ -687,7 +703,9 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
     <div
       v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaigns-empty', 'campaign-page-v1', 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-v4', 'analytics-v4-purchase', 'analytics-v4-add-to-cart', 'analytics-v4-email-capture', 'analytics-v4-phone-capture', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor', 'ai-texts-images', 'ai-texts-images-new', 'ai-texts-images-presets', 'ai-texts-images-preview', 'ai-texts-images-choose-products', 'ai-texts-images-generation', 'ai-texts-images-add-products', 'ai-texts-images-text-presets', 'ai-texts-images-text-preview', 'ai-texts-images-text-generation',
         'settings-ai-texts-images', 'settings-ai-texts-images-new', 'settings-ai-texts-images-presets', 'settings-ai-texts-images-preview', 'settings-ai-texts-images-choose-products', 'settings-ai-texts-images-generation', 'settings-ai-texts-images-generation-product', 'settings-ai-texts-images-add-products', 'settings-ai-texts-images-text-presets', 'settings-ai-texts-images-text-preview', 'settings-ai-texts-images-text-generation',
-        'settings-ai-texts-images-v1', 'settings-ai-texts-images-v1-new', 'settings-ai-texts-images-v1-presets', 'settings-ai-texts-images-v1-preview', 'settings-ai-texts-images-v1-choose-products', 'settings-ai-texts-images-v1-generation', 'settings-ai-texts-images-v1-add-products', 'settings-ai-texts-images-v1-text-presets', 'settings-ai-texts-images-v1-text-preview', 'settings-ai-texts-images-v1-text-generation'].includes(currentView)"
+        'settings-ai-texts-images-v1', 'settings-ai-texts-images-v1-new', 'settings-ai-texts-images-v1-presets', 'settings-ai-texts-images-v1-preview', 'settings-ai-texts-images-v1-choose-products', 'settings-ai-texts-images-v1-generation', 'settings-ai-texts-images-v1-add-products', 'settings-ai-texts-images-v1-text-presets', 'settings-ai-texts-images-v1-text-preview', 'settings-ai-texts-images-v1-text-generation',
+        'settings-ai-texts-images-v2', 'settings-ai-texts-images-v2-new', 'settings-ai-texts-images-v2-presets', 'settings-ai-texts-images-v2-preview', 'settings-ai-texts-images-v2-choose-products', 'settings-ai-texts-images-v2-generation', 'settings-ai-texts-images-v2-generation-product', 'settings-ai-texts-images-v2-add-products', 'settings-ai-texts-images-v2-text-presets', 'settings-ai-texts-images-v2-text-preview', 'settings-ai-texts-images-v2-text-generation',
+        'ai-texts-images-v2', 'ai-texts-images-v2-new', 'ai-texts-images-v2-presets', 'ai-texts-images-v2-preview', 'ai-texts-images-v2-choose-products', 'ai-texts-images-v2-generation', 'ai-texts-images-v2-generation-product', 'ai-texts-images-v2-add-products', 'ai-texts-images-v2-text-presets', 'ai-texts-images-v2-text-preview', 'ai-texts-images-v2-text-generation'].includes(currentView)"
       class="pt-8 pl-8 shrink-0"
     >
       <img
@@ -710,6 +728,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         @go-chat-versions="handleGoChatVersions"
         @go-editor="handleGoEditor"
         @go-ai-texts-images="handleGoAiTextsImages"
+        @go-ai-texts-images-v2="handleGoAiTextsImagesV2"
       />
       <RegistrationView
         v-else-if="currentView === 'registration'"
@@ -1020,6 +1039,12 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       <AiTextsImagesView
         v-else-if="currentView === 'ai-texts-images' || currentView === 'ai-texts-images-new' || currentView === 'ai-texts-images-presets' || currentView === 'ai-texts-images-preview' || currentView === 'ai-texts-images-choose-products' || currentView === 'ai-texts-images-generation' || currentView === 'ai-texts-images-add-products' || currentView === 'ai-texts-images-text-presets' || currentView === 'ai-texts-images-text-preview' || currentView === 'ai-texts-images-text-generation'"
         :screen="currentView === 'ai-texts-images-new' ? 'new' : currentView === 'ai-texts-images-presets' ? 'image-presets' : currentView === 'ai-texts-images-preview' ? 'image-preview' : currentView === 'ai-texts-images-choose-products' ? 'choose-products' : currentView === 'ai-texts-images-generation' ? 'generation' : currentView === 'ai-texts-images-add-products' ? 'add-products' : currentView === 'ai-texts-images-text-presets' ? 'text-presets' : currentView === 'ai-texts-images-text-preview' ? 'text-preview' : currentView === 'ai-texts-images-text-generation' ? 'text-generation' : 'list'"
+        @menu-click="handleMenuClick"
+        @navigate="handleDevNavigate"
+      />
+      <AiTextsImagesV2View
+        v-else-if="currentView === 'ai-texts-images-v2' || currentView === 'ai-texts-images-v2-new' || currentView === 'ai-texts-images-v2-presets' || currentView === 'ai-texts-images-v2-preview' || currentView === 'ai-texts-images-v2-choose-products' || currentView === 'ai-texts-images-v2-generation' || currentView === 'ai-texts-images-v2-generation-product' || currentView === 'ai-texts-images-v2-add-products' || currentView === 'ai-texts-images-v2-text-presets' || currentView === 'ai-texts-images-v2-text-preview' || currentView === 'ai-texts-images-v2-text-generation'"
+        :screen="currentView === 'ai-texts-images-v2-new' ? 'new' : currentView === 'ai-texts-images-v2-presets' ? 'image-presets' : currentView === 'ai-texts-images-v2-preview' ? 'image-preview' : currentView === 'ai-texts-images-v2-choose-products' ? 'choose-products' : currentView === 'ai-texts-images-v2-generation' ? 'generation' : currentView === 'ai-texts-images-v2-generation-product' ? 'generation-product' : currentView === 'ai-texts-images-v2-add-products' ? 'add-products' : currentView === 'ai-texts-images-v2-text-presets' ? 'text-presets' : currentView === 'ai-texts-images-v2-text-preview' ? 'text-preview' : currentView === 'ai-texts-images-v2-text-generation' ? 'text-generation' : 'list'"
         @menu-click="handleMenuClick"
         @navigate="handleDevNavigate"
       />

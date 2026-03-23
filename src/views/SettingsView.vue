@@ -108,21 +108,21 @@
             </div>
           </template>
 
-          <!-- AI Texts & Images embedded -->
-          <template v-else-if="activeSection === 'products-ai-texts-images'">
-            <AiTextsImagesView
-              :screen="embeddedScreen"
-              :embedded="true"
-              @navigate="handleEmbeddedNavigate"
-            />
-          </template>
-
           <!-- AI Texts & Images V1 embedded -->
           <template v-else-if="activeSection === 'products-ai-texts-images-v1'">
             <AiTextsImagesV1View
               :screen="embeddedScreen"
               :embedded="true"
               @navigate="handleEmbeddedNavigateV1"
+            />
+          </template>
+
+          <!-- AI Texts & Images V2 embedded -->
+          <template v-else-if="activeSection === 'products-ai-texts-images-v2'">
+            <AiTextsImagesV2View
+              :screen="embeddedScreen"
+              :embedded="true"
+              @navigate="handleEmbeddedNavigateV2"
             />
           </template>
 
@@ -145,6 +145,7 @@ import Button from '../components/shared/Button.vue'
 import RadioButton from '../components/shared/RadioButton.vue'
 import AiTextsImagesView from './AiTextsImagesView.vue'
 import AiTextsImagesV1View from './AiTextsImagesV1View.vue'
+import AiTextsImagesV2View from './AiTextsImagesV2View.vue'
 
 const props = defineProps({
   initialSection: { type: String, default: 'personal-details' },
@@ -183,7 +184,7 @@ const billingItems = [
 ]
 
 const productsItems = [
-  { id: 'products-ai-texts-images', label: 'AI Texts & Images' },
+  { id: 'products-ai-texts-images-v2', label: 'AI Texts & Images' },
   { id: 'products-product-catalog', label: 'Product catalog' },
   { id: 'products-ai-recommendations', label: 'AI recommendations' },
 ]
@@ -217,12 +218,12 @@ const handleSave = () => {
 }
 
 const sectionRouteMap = {
-  'products-ai-texts-images': 'settings-ai-texts-images',
+  'products-ai-texts-images-v2': 'settings-ai-texts-images-v2',
 }
 
 const handleSectionClick = (id) => {
   activeSection.value = id
-  if (id === 'products-ai-texts-images') {
+  if (id === 'products-ai-texts-images-v2') {
     embeddedScreen.value = 'list'
   }
   if (sectionRouteMap[id]) {
@@ -262,6 +263,24 @@ const screenMapV1 = {
 }
 const handleEmbeddedNavigateV1 = (route) => {
   embeddedScreen.value = screenMapV1[route] ?? 'list'
+  emit('navigate', 'settings-' + route)
+}
+
+const screenMapV2 = {
+  'ai-texts-images-v2': 'list',
+  'ai-texts-images-v2-new': 'new',
+  'ai-texts-images-v2-presets': 'image-presets',
+  'ai-texts-images-v2-preview': 'image-preview',
+  'ai-texts-images-v2-choose-products': 'choose-products',
+  'ai-texts-images-v2-generation': 'generation',
+  'ai-texts-images-v2-generation-product': 'generation-product',
+  'ai-texts-images-v2-add-products': 'add-products',
+  'ai-texts-images-v2-text-presets': 'text-presets',
+  'ai-texts-images-v2-text-preview': 'text-preview',
+  'ai-texts-images-v2-text-generation': 'text-generation',
+}
+const handleEmbeddedNavigateV2 = (route) => {
+  embeddedScreen.value = screenMapV2[route] ?? 'list'
   emit('navigate', 'settings-' + route)
 }
 </script>

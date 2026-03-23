@@ -534,6 +534,51 @@
             Templates
           </button>
 
+          <!-- AI Texts & Images Dropdown -->
+          <div class="relative">
+            <button
+              @click="aiTextsImagesDropdownOpen = !aiTextsImagesDropdownOpen"
+              :class="[
+                'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
+                currentView?.startsWith('ai-texts-images')
+                  ? 'bg-om-orange-500 text-white'
+                  : 'bg-om-gray-600 hover:bg-om-gray-500'
+              ]"
+            >
+              AI Texts & Images
+              <ChevronUp :size="12" :class="{ 'rotate-180': aiTextsImagesDropdownOpen }" />
+            </button>
+            <transition name="fade">
+              <div
+                v-if="aiTextsImagesDropdownOpen"
+                class="absolute bottom-full left-0 mb-2 bg-om-gray-700 border border-om-gray-600 rounded-lg shadow-lg overflow-hidden min-w-40"
+              >
+                <button
+                  @click="selectAiTextsImages('ai-texts-images')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView?.startsWith('ai-texts-images') && !currentView?.startsWith('ai-texts-images-v2')
+                      ? 'bg-om-orange-500 text-white'
+                      : 'hover:bg-om-gray-600'
+                  ]"
+                >
+                  AI Texts & Images V1
+                </button>
+                <button
+                  @click="selectAiTextsImages('ai-texts-images-v2')"
+                  :class="[
+                    'w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer',
+                    currentView?.startsWith('ai-texts-images-v2')
+                      ? 'bg-om-orange-500 text-white'
+                      : 'hover:bg-om-gray-600'
+                  ]"
+                >
+                  AI Texts & Images V2
+                </button>
+              </div>
+            </transition>
+          </div>
+
           <template v-if="createdTasks.length > 0">
             <span class="text-[#505763] mx-1">|</span>
 
@@ -706,6 +751,13 @@ const selectAnalytics = (view) => {
 const selectImageWithBadge = (view) => {
   emit('navigate', view)
   imageWithBadgeDropdownOpen.value = false
+}
+
+const aiTextsImagesDropdownOpen = ref(false)
+
+const selectAiTextsImages = (view) => {
+  emit('navigate', view)
+  aiTextsImagesDropdownOpen.value = false
 }
 
 const goToDesignGuide = () => {
