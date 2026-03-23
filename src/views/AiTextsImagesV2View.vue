@@ -1650,10 +1650,10 @@ const triggerGenBanner = () => {
   setTimeout(() => { showGenBanner.value = false }, 5000)
 }
 const genMenuOptions = [
+  { count: 1, credits: '20 credits' },
   { count: 10, credits: '200 credits' },
   { count: 25, credits: '500 credits' },
   { count: 100, credits: '2,000 credits' },
-  { count: 1, credits: '20 credits' },
 ]
 
 const genSelected = ref([])
@@ -1803,7 +1803,7 @@ const regenerateProduct = () => {
 
 const triggerGenerate = (ids) => {
   showGenMenu.value = false
-  const toGenerate = ids
+  const toGenerate = Array.isArray(ids)
     ? genProducts.value.filter(p => ids.includes(p.id)).map(p => p.id)
     : genProducts.value.filter(p => p.status === 'queued').map(p => p.id)
   genProducts.value = genProducts.value.map(p => toGenerate.includes(p.id) ? { ...p, status: 'generating' } : p)
