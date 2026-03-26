@@ -579,6 +579,41 @@
             </transition>
           </div>
 
+          <!-- Image with Badge Dropdown -->
+          <div class="relative">
+            <button
+              @click="imageWithBadgeDropdownOpen = !imageWithBadgeDropdownOpen"
+              :class="[
+                'px-3 py-1 text-sm rounded transition-colors cursor-pointer flex items-center gap-1',
+                ['image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3'].includes(currentView)
+                  ? 'bg-om-orange-500 text-white'
+                  : 'bg-om-gray-600 hover:bg-om-gray-500'
+              ]"
+            >
+              Image with Badge
+              <ChevronUp :size="12" :class="{ 'rotate-180': imageWithBadgeDropdownOpen }" />
+            </button>
+            <transition name="fade">
+              <div
+                v-if="imageWithBadgeDropdownOpen"
+                class="absolute bottom-full left-0 mb-2 bg-om-gray-700 border border-om-gray-600 rounded-lg shadow-lg overflow-hidden min-w-40"
+              >
+                <button
+                  @click="selectImageWithBadge('image-with-badge')"
+                  :class="['w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer', currentView === 'image-with-badge' ? 'bg-om-orange-500 text-white' : 'hover:bg-om-gray-600']"
+                >V1</button>
+                <button
+                  @click="selectImageWithBadge('image-with-badge-v2')"
+                  :class="['w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer', currentView === 'image-with-badge-v2' ? 'bg-om-orange-500 text-white' : 'hover:bg-om-gray-600']"
+                >V2</button>
+                <button
+                  @click="selectImageWithBadge('image-with-badge-v3')"
+                  :class="['w-full px-4 py-2 text-sm text-left transition-colors cursor-pointer', currentView === 'image-with-badge-v3' ? 'bg-om-orange-500 text-white' : 'hover:bg-om-gray-600']"
+                >V3</button>
+              </div>
+            </transition>
+          </div>
+
           <template v-if="createdTasks.length > 0">
             <span class="text-[#505763] mx-1">|</span>
 

@@ -5,7 +5,7 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-5 max-960:flex-col max-960:items-start max-960:gap-3">
           <h1 class="text-2xl max-960:text-xl font-semibold text-om-gray-700">Campaigns (32)</h1>
-          <Button variant="primary" size="sm">New Campaign</Button>
+          <Button variant="primary" size="sm" @click="$emit('new-campaign')">New Campaign</Button>
         </div>
 
         <!-- Filters and Controls -->
@@ -79,6 +79,7 @@
             :name="campaign.name"
             :domain="campaign.domain"
             :image="campaign.image"
+            :image-position="campaign.imagePosition || 'center'"
             :active="campaign.active"
             @update:active="campaign.active = $event"
             :selected="campaign.selected"
@@ -86,7 +87,7 @@
             :metrics="campaign.metrics"
             :last-updated="campaign.lastUpdated"
             variant="list"
-            @click="handleCampaignClick"
+            @click="handleCampaignClick(campaign.id)"
           />
         </div>
 
@@ -98,6 +99,7 @@
             :name="campaign.name"
             :domain="campaign.domain"
             :image="campaign.image"
+            :image-position="campaign.imagePosition || 'center'"
             :active="campaign.active"
             @update:active="campaign.active = $event"
             :selected="campaign.selected"
@@ -105,7 +107,7 @@
             :metrics="campaign.gridMetrics || campaign.metrics"
             :last-updated="campaign.lastUpdated"
             variant="grid"
-            @click="handleCampaignClick"
+            @click="handleCampaignClick(campaign.id)"
           />
         </div>
       </div>
@@ -127,7 +129,7 @@ import ChatPanel from '../components/shared/ChatPanel.vue'
 import CampaignCard from '../components/shared/CampaignCard.vue'
 import AddDomainModal from '../components/shared/AddDomainModal.vue'
 
-const emit = defineEmits(['menu-click', 'navigate-to-campaign'])
+const emit = defineEmits(['menu-click', 'navigate-to-campaign', 'navigate-to-ppo-detail'])
 
 const isChatOpen = ref(false)
 
@@ -162,7 +164,23 @@ const campaigns = reactive([
       { label: 'Impressions', value: '1,456' },
       { label: 'Submits', value: '125' },
       { label: 'Submit rate', value: '8.37%' },
-      { label: 'Conversion uplift', value: '84.23%', trend: true },
+      { label: 'Conv. uplift', value: '84.23%', trend: true },
+    ],
+  },
+  {
+    id: 'campaign-ppo',
+    name: 'Product Page Optimizer',
+    domain: 'domain.com',
+    image: '/image-with-badge/preview-1.png',
+    imagePosition: 'top',
+    active: true,
+    selected: false,
+    lastUpdated: '3 days ago',
+    metrics: [
+      { label: 'Visitors', value: '3,812' },
+      { label: 'Add to cart', value: '294' },
+      { label: 'ATC rate', value: '7.71%' },
+      { label: 'Conv. uplift', value: '62.50%', trend: true },
     ],
   },
   {
@@ -245,8 +263,12 @@ const handleLogoClick = () => {
   window.location.reload()
 }
 
-const handleCampaignClick = () => {
-  emit('navigate-to-campaign')
+const handleCampaignClick = (campaignId) => {
+  if (campaignId === 'campaign-ppo') {
+    emit('navigate-to-ppo-detail')
+  } else {
+    emit('navigate-to-campaign')
+  }
 }
 </script>
 

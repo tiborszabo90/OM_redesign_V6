@@ -33,7 +33,7 @@
         @mouseenter="isImageHovered = true"
         @mouseleave="isImageHovered = false"
       >
-        <img :src="image" :alt="name" class="w-full h-full object-cover" />
+        <img :src="image" :alt="name" class="w-full h-full object-cover" :style="{ objectPosition: imagePosition }" />
         <transition name="fade">
           <div v-if="isImageHovered" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
             <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
@@ -91,7 +91,7 @@
         @mouseenter="isImageHovered = true"
         @mouseleave="isImageHovered = false"
       >
-        <img :src="image" :alt="name" class="w-full h-full object-cover" />
+        <img :src="image" :alt="name" class="w-full h-full object-cover" :style="{ objectPosition: imagePosition }" />
         <transition name="fade">
           <div v-if="isImageHovered" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
             <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
@@ -138,6 +138,7 @@ const props = defineProps({
   name: { type: String, required: true },
   domain: { type: String, default: '' },
   image: { type: String, required: true },
+  imagePosition: { type: String, default: 'center' },
   active: { type: Boolean, default: true },
   selected: { type: Boolean, default: false },
   metrics: { type: Array, default: () => [] },

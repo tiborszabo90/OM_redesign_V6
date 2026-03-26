@@ -76,11 +76,15 @@
               <template v-else>
                 <img src="/product2.png" class="max-h-full w-auto object-contain transition-all duration-300" :class="previewPromptChanged ? 'blur-sm scale-105' : ''" />
                 <Transition name="modal-fade">
-                  <div v-if="previewPromptChanged" class="absolute inset-0 bg-black/20 flex items-center justify-center">
+                  <div v-if="previewPromptChanged" class="absolute inset-0 bg-black/20 flex flex-col items-center justify-center">
                     <Button variant="primary" size="md" @click="startGeneration">
                       <template #icon><Sparkles :size="14" /></template>
                       Regenerate
                     </Button>
+                    <div class="flex items-center gap-1.5 mt-3 text-sm font-medium text-white">
+                      <Coins :size="16" />
+                      Costs {{ selectedImagePreset?.credits ?? 15 }} credits
+                    </div>
                   </div>
                 </Transition>
               </template>
@@ -140,8 +144,8 @@
               </div>
             </div>
 
-            <!-- Data quality: full width below, 3 cols -->
-            <div class="grid grid-cols-3 gap-3">
+            <!-- Data quality: full width below -->
+            <div class="grid grid-cols-2 gap-3 items-stretch">
               <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
                 <span class="text-xs text-om-gray-500">Auto-generate prompt variables for products with missing data</span>
                 <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
@@ -154,10 +158,6 @@
                   min="0"
                   class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white shrink-0"
                 />
-              </div>
-              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
-                <span class="text-xs text-om-gray-500">Use product image as context</span>
-                <ToggleSwitch v-model="useProductImage" class="shrink-0" />
               </div>
             </div>
 
@@ -517,8 +517,7 @@
         <div v-else-if="genTab === 'generated'">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-              <span class="text-sm font-semibold text-om-gray-700">Generated Products</span>
-              <span class="text-sm text-om-gray-400">{{ genProducts.filter(p => p.status === 'generated').length }} products</span>
+              <span class="text-sm font-semibold text-om-gray-700">Generated image available for: {{ genProducts.filter(p => p.status === 'generated').length }} products</span>
             </div>
           </div>
 
@@ -645,7 +644,7 @@
                   <Tag v-for="src in dataSources" :key="src" variant="orange">{{ src }}</Tag>
                 </div>
               </div>
-              <div class="grid grid-cols-3 gap-3">
+              <div class="grid grid-cols-2 gap-3 items-stretch">
                 <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
                   <span class="text-xs text-om-gray-500">Auto-generate prompt variables for products with missing data</span>
                   <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
@@ -653,10 +652,6 @@
                 <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
                   <span class="text-xs text-om-gray-500">Minimum description length (character)</span>
                   <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white shrink-0" />
-                </div>
-                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
-                  <span class="text-xs text-om-gray-500">Use product image as context</span>
-                  <ToggleSwitch v-model="useProductImage" class="shrink-0" />
                 </div>
               </div>
               <div class="flex justify-end">
@@ -706,11 +701,15 @@
                       <template v-if="selectedProduct.status === 'generated'">
                         <img src="/product2.png" class="w-full h-full object-contain transition-all duration-300" :class="promptChanged ? 'blur-sm scale-105' : ''" />
                         <Transition name="modal-fade">
-                          <div v-if="promptChanged" class="absolute inset-0 bg-black/20 flex items-center justify-center">
+                          <div v-if="promptChanged" class="absolute inset-0 bg-black/20 flex flex-col items-center justify-center">
                             <Button variant="primary" size="md" @click="regenerateProduct">
                               <template #icon><Sparkles :size="14" /></template>
                               Regenerate
                             </Button>
+                            <div class="flex items-center gap-1.5 mt-3 text-sm font-medium text-white">
+                              <Coins :size="16" />
+                              Costs {{ selectedImagePreset?.credits ?? 15 }} credits
+                            </div>
                           </div>
                         </Transition>
                       </template>
@@ -772,7 +771,7 @@
                         <Tag v-for="src in dataSources" :key="src" variant="orange">{{ src }}</Tag>
                       </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-3">
+                    <div class="grid grid-cols-2 gap-3 items-stretch">
                       <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
                         <span class="text-xs text-om-gray-500">Auto-generate prompt variables for products with missing data</span>
                         <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
@@ -780,10 +779,6 @@
                       <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
                         <span class="text-xs text-om-gray-500">Minimum description length (character)</span>
                         <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white shrink-0" />
-                      </div>
-                      <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
-                        <span class="text-xs text-om-gray-500">Use product image as context</span>
-                        <ToggleSwitch v-model="useProductImage" class="shrink-0" />
                       </div>
                     </div>
                     <!-- Source images: separate block at bottom -->
@@ -1638,8 +1633,8 @@ watch(() => props.screen, (s) => {
 // Generation page state
 const genTab = ref('selected')
 const genTabs = [
-  { value: 'selected', label: 'Selected' },
-  { value: 'generated', label: 'Generated' },
+  { value: 'selected', label: 'Choose products' },
+  { value: 'generated', label: 'Review' },
   { value: 'settings', label: 'Settings' },
 ]
 const showGenMenu = ref(false)

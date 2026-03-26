@@ -95,7 +95,7 @@
             <h2 class="text-lg font-semibold text-om-gray-700">Top campaigns</h2>
             <div class="flex items-center gap-2">
               <Button variant="ghost" size="sm">All campaigns</Button>
-              <Button variant="primary" size="sm">New campaign</Button>
+              <Button variant="primary" size="sm" @click="$emit('new-campaign')">New campaign</Button>
             </div>
           </div>
 

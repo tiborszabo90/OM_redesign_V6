@@ -42,21 +42,45 @@ import OptimizationOpportunitiesAllView from './views/OptimizationOpportunitiesA
 import SettingsView from './views/SettingsView.vue'
 import AiTextsImagesView from './views/AiTextsImagesView.vue'
 import AiTextsImagesV2View from './views/AiTextsImagesV2View.vue'
+import NewCampaignView from './views/NewCampaignView.vue'
+import OptimizeWebsiteView from './views/OptimizeWebsiteView.vue'
+import ProductPageOptimizerView from './views/ProductPageOptimizerView.vue'
+import PpoCampaignDetailView from './views/PpoCampaignDetailView.vue'
+import PpoVariantDetailView from './views/PpoVariantDetailView.vue'
+import PpoVariableSetupView from './views/PpoVariableSetupView.vue'
+import PpoGenerationView from './views/PpoGenerationView.vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
 
 // URL slug <-> view name mapping
-const viewToSlug = { 'home-old': 'home', 'task-creation': 'task-creation', 'campaign-page-v1': 'campaign-detail', 'opportunity-detail': 'opportunity-detail' }
-const slugToView = { 'home': 'home-old', 'task-creation': 'task-creation', 'campaign-detail': 'campaign-page-v1', 'opportunity-detail': 'opportunity-detail' }
+const viewToSlug = { 'home-old': 'home', 'task-creation': 'task-creation', 'campaign-page-v1': 'campaign-detail', 'ppo-campaign-detail': 'ppo-campaign-detail', 'ppo-variable-setup': 'ppo-variable-setup', 'ppo-generation': 'ppo-generation', 'opportunity-detail': 'opportunity-detail' }
+const slugToView = { 'home': 'home-old', 'task-creation': 'task-creation', 'campaign-detail': 'campaign-page-v1', 'ppo-campaign-detail': 'ppo-campaign-detail', 'ppo-variable-setup': 'ppo-variable-setup', 'ppo-generation': 'ppo-generation', 'opportunity-detail': 'opportunity-detail' }
+
+// PPO wizard state
+const ppoWizardState = ref({ selectedTypes: [], variableConfigs: {} })
 
 const getViewFromHash = () => {
   const hash = window.location.hash.replace('#/', '').replace('#', '')
   if (!hash) return null
-  return slugToView[hash] || hash
+  // Try exact match first, then progressively strip trailing /segments
+  if (slugToView[hash]) return slugToView[hash]
+  const parts = hash.split('/')
+  for (let len = parts.length - 1; len > 0; len--) {
+    const candidate = parts.slice(0, len).join('/')
+    if (slugToView[candidate]) return slugToView[candidate]
+    // Also check as direct view name
+    if (candidate === hash) continue
+  }
+  return hash.split('/')[0] || hash
 }
 
 const viewToHash = (view) => viewToSlug[view] || view
 
 const currentView = ref(getViewFromHash() || 'dev-start')
+const previousView = ref(null)
+
+watch(currentView, (newView, oldView) => {
+  if (newView === 'new-campaign') previousView.value = oldView
+})
 const registrationData = ref(null)
 const onboardingRef = ref(null)
 const taskCreationRef = ref(null)
@@ -83,8 +107,12 @@ const displayView = computed(() => wizardPhase.value || currentView.value || '')
 let skipHashChange = false
 watch(displayView, (view) => {
   if (view && view !== 'null') {
+    const currentHash = window.location.hash.replace('#/', '').replace('#', '')
+    const targetSlug = viewToSlug[view] || view
+    // Don't overwrite sub-paths (e.g. ppo-campaign-detail/variable/0)
+    if (currentHash.startsWith(targetSlug + '/') || currentHash === targetSlug) return
     skipHashChange = true
-    window.location.hash = '/' + viewToHash(view)
+    window.location.hash = '/' + targetSlug
     skipHashChange = false
   }
 })
@@ -261,17 +289,23 @@ const handleDevNavigate = (view) => {
     // Image with badge flow
     flowSelected.value = true
     registrationType.value = 'image-with-badge'
-    currentView.value = 'image-with-badge'
+    sessionKey.value++
+    currentView.value = null
+    setTimeout(() => { currentView.value = 'image-with-badge' }, 50)
   } else if (view === 'image-with-badge-v2') {
     // Image with badge V2 flow
     flowSelected.value = true
     registrationType.value = 'image-with-badge'
-    currentView.value = 'image-with-badge-v2'
+    sessionKey.value++
+    currentView.value = null
+    setTimeout(() => { currentView.value = 'image-with-badge-v2' }, 50)
   } else if (view === 'image-with-badge-v3') {
     // Image with badge V3 flow
     flowSelected.value = true
     registrationType.value = 'image-with-badge'
-    currentView.value = 'image-with-badge-v3'
+    sessionKey.value++
+    currentView.value = null
+    setTimeout(() => { currentView.value = 'image-with-badge-v3' }, 50)
   } else if (view === 'wizard-analysis') {
     // Wizard analysis - set default message to auto-start
     flowSelected.value = true
@@ -353,7 +387,7 @@ const handleDevNavigate = (view) => {
     }, 50)
   } else if (view === 'campaigns-v3' || view === 'campaigns-empty') {
     currentView.value = view
-  } else if (view === 'campaign-page-v1') {
+  } else if (view === 'campaign-page-v1' || view === 'ppo-campaign-detail' || view === 'ppo-variant-detail-v1' || view === 'ppo-variant-detail-v2') {
     // Campaign Page view
     currentView.value = view
   } else if (view === 'opportunity-detail' || view === 'opportunities-all') {
@@ -711,7 +745,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="h-screen-safe flex flex-col">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaigns-empty', 'campaign-page-v1', 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-v4', 'analytics-v4-purchase', 'analytics-v4-add-to-cart', 'analytics-v4-email-capture', 'analytics-v4-phone-capture', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v2-essential-theme', 'templates-v2-branding', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor', 'ai-texts-images', 'ai-texts-images-new', 'ai-texts-images-presets', 'ai-texts-images-preview', 'ai-texts-images-choose-products', 'ai-texts-images-generation', 'ai-texts-images-add-products', 'ai-texts-images-text-presets', 'ai-texts-images-text-preview', 'ai-texts-images-text-generation',
+      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaigns-empty', 'new-campaign', 'optimize-website', 'product-page-optimizer', 'campaign-page-v1', 'ppo-campaign-detail', 'ppo-variant-detail-v1', 'ppo-variant-detail-v2', 'ppo-variable-setup', 'ppo-generation', 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-v4', 'analytics-v4-purchase', 'analytics-v4-add-to-cart', 'analytics-v4-email-capture', 'analytics-v4-phone-capture', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v2-essential-theme', 'templates-v2-branding', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor', 'ai-texts-images', 'ai-texts-images-new', 'ai-texts-images-presets', 'ai-texts-images-preview', 'ai-texts-images-choose-products', 'ai-texts-images-generation', 'ai-texts-images-add-products', 'ai-texts-images-text-presets', 'ai-texts-images-text-preview', 'ai-texts-images-text-generation',
         'settings-ai-texts-images', 'settings-ai-texts-images-new', 'settings-ai-texts-images-presets', 'settings-ai-texts-images-preview', 'settings-ai-texts-images-choose-products', 'settings-ai-texts-images-generation', 'settings-ai-texts-images-generation-product', 'settings-ai-texts-images-add-products', 'settings-ai-texts-images-text-presets', 'settings-ai-texts-images-text-preview', 'settings-ai-texts-images-text-generation',
         'settings-ai-texts-images-v1', 'settings-ai-texts-images-v1-new', 'settings-ai-texts-images-v1-presets', 'settings-ai-texts-images-v1-preview', 'settings-ai-texts-images-v1-choose-products', 'settings-ai-texts-images-v1-generation', 'settings-ai-texts-images-v1-add-products', 'settings-ai-texts-images-v1-text-presets', 'settings-ai-texts-images-v1-text-preview', 'settings-ai-texts-images-v1-text-generation',
         'settings-ai-texts-images-v2', 'settings-ai-texts-images-v2-new', 'settings-ai-texts-images-v2-presets', 'settings-ai-texts-images-v2-preview', 'settings-ai-texts-images-v2-choose-products', 'settings-ai-texts-images-v2-generation', 'settings-ai-texts-images-v2-generation-product', 'settings-ai-texts-images-v2-add-products', 'settings-ai-texts-images-v2-text-presets', 'settings-ai-texts-images-v2-text-preview', 'settings-ai-texts-images-v2-text-generation',
@@ -771,6 +805,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :registration-data="registrationData"
         @task-created="handleTaskCreated"
         @menu-click="handleMenuClick"
+        @new-campaign="currentView = 'new-campaign'"
       />
       <HomeOldV2View
         v-else-if="currentView === 'home-old-v2'"
@@ -852,6 +887,40 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         v-else-if="currentView === 'campaigns-v3'"
         @menu-click="handleMenuClick"
         @navigate-to-campaign="currentView = 'campaign-page-v1'"
+        @navigate-to-ppo-detail="currentView = 'ppo-campaign-detail'"
+        @new-campaign="currentView = 'new-campaign'"
+      />
+      <NewCampaignView
+        v-else-if="currentView === 'new-campaign'"
+        @menu-click="handleMenuClick"
+        @back="currentView = previousView || 'campaigns-v3'"
+        @navigate="handleDevNavigate"
+      />
+      <OptimizeWebsiteView
+        v-else-if="currentView === 'optimize-website'"
+        @menu-click="handleMenuClick"
+        @back="currentView = 'new-campaign'"
+        @navigate="handleDevNavigate"
+      />
+      <ProductPageOptimizerView
+        v-else-if="currentView === 'product-page-optimizer'"
+        @menu-click="handleMenuClick"
+        @back="currentView = 'optimize-website'"
+        @next="(types) => { ppoWizardState.selectedTypes = types; currentView = 'ppo-variable-setup' }"
+      />
+      <PpoVariableSetupView
+        v-else-if="currentView === 'ppo-variable-setup'"
+        :selected-types="ppoWizardState.selectedTypes"
+        @menu-click="handleMenuClick"
+        @back="currentView = 'product-page-optimizer'"
+        @next="(configs) => { ppoWizardState.variableConfigs = configs; currentView = 'ppo-generation' }"
+      />
+      <PpoGenerationView
+        v-else-if="currentView === 'ppo-generation'"
+        :selected-types="ppoWizardState.selectedTypes"
+        @menu-click="handleMenuClick"
+        @back="currentView = 'ppo-variable-setup'"
+        @create="currentView = 'ppo-campaign-detail'"
       />
       <CampaignsEmptyView
         v-else-if="currentView === 'campaigns-empty'"
@@ -860,6 +929,25 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       <CampaignPageV1View
         v-else-if="currentView === 'campaign-page-v1'"
         @menu-click="handleMenuClick"
+        @navigate="handleDevNavigate"
+      />
+      <PpoCampaignDetailView
+        v-else-if="currentView === 'ppo-campaign-detail'"
+        @menu-click="handleMenuClick"
+        @navigate="handleDevNavigate"
+      />
+      <PpoVariantDetailView
+        v-else-if="currentView === 'ppo-variant-detail-v1'"
+        variant="variant1"
+        @menu-click="handleMenuClick"
+        @back="currentView = 'ppo-campaign-detail'"
+        @navigate="handleDevNavigate"
+      />
+      <PpoVariantDetailView
+        v-else-if="currentView === 'ppo-variant-detail-v2'"
+        variant="variant2"
+        @menu-click="handleMenuClick"
+        @back="currentView = 'ppo-campaign-detail'"
         @navigate="handleDevNavigate"
       />
       <CampaignPageWithReviewView

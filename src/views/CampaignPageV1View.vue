@@ -862,7 +862,7 @@ const selectedTimePeriod = ref('Last 30 days')
 const timePeriodOptions = ['Last 7 days', 'Last 30 days', 'Last 90 days', 'Last 12 months']
 
 const selectedGoal = ref('Submit')
-const goalOptions = ['Submit', 'Click', 'View', 'Conversion']
+const goalOptions = ['Submit', 'Order', 'Add to cart', 'Email capture', 'Phone capture']
 
 const handleLogoClick = () => {
   // Navigate back to home

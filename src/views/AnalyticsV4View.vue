@@ -78,9 +78,10 @@
         <!-- Trend Chart Section -->
         <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 px-5">
           <div class="trend-chart-tabs">
-            <div
+            <Tooltip
               v-for="tab in trendTabs"
               :key="tab.id"
+              :text="tab.tooltip"
               :class="['trend-chart-tab', { active: activeTab === tab.id }]"
               @click="activeTab = tab.id"
             >
@@ -93,7 +94,7 @@
                   {{ tab.change }}
                 </div>
               </div>
-            </div>
+            </Tooltip>
           </div>
           <div class="chart-canvas">
             <!-- Dynamic Chart based on active tab -->
@@ -1466,6 +1467,7 @@ import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
+import Tooltip from '../components/shared/Tooltip.vue'
 import VueApexCharts from 'vue3-apexcharts'
 import ChatPanel from '../components/shared/ChatPanel.vue'
 import AddDomainModal from '../components/shared/AddDomainModal.vue'
@@ -2001,32 +2003,32 @@ const getActiveTabTitle = () => {
 const trendTabs = ref(
   props.goal === 'add-to-cart'
     ? [
-        { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true },
-        { id: 'add-to-carts', title: 'Add to carts', value: '4.3K', change: '+11.2%', isPositive: true },
-        { id: 'add-to-cart-rate', title: 'Add to cart rate', value: '4.1%', change: '+9.3%', isPositive: true },
+        { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true, tooltip: 'The number of unique visitors who visited your site during the selected period.' },
+        { id: 'add-to-carts', title: 'Add to carts', value: '4.3K', change: '+11.2%', isPositive: true, tooltip: 'Number of times visitors added a product to their cart during the selected period.' },
+        { id: 'add-to-cart-rate', title: 'Add to cart rate', value: '4.1%', change: '+9.3%', isPositive: true, tooltip: 'Percentage of visitors who added a product to their cart during the selected period.' },
       ]
     : props.goal === 'email-capture'
     ? [
-        { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true },
-        { id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true },
-        { id: 'email-capture', title: 'Email capture', value: '3.1K', change: '+9.8%', isPositive: true },
-        { id: 'email-capture-rate', title: 'Email capture rate', value: '3.2%', change: '+7.4%', isPositive: true },
+        { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true, tooltip: 'The number of unique visitors who visited your site during the selected period.' },
+        { id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true, tooltip: 'Total number of times your campaigns were displayed to visitors during the selected period.' },
+        { id: 'email-capture', title: 'Email capture', value: '3.1K', change: '+9.8%', isPositive: true, tooltip: 'Number of email addresses collected through your campaigns during the selected period.' },
+        { id: 'email-capture-rate', title: 'Email capture rate', value: '3.2%', change: '+7.4%', isPositive: true, tooltip: 'The percentage of email captures divided by impressions during the selected period.' },
       ]
     : props.goal === 'phone-capture'
     ? [
-        { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true },
-        { id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true },
-        { id: 'phone-capture', title: 'Phone capture', value: '1.8K', change: '+5.3%', isPositive: true },
-        { id: 'phone-capture-rate', title: 'Phone capture rate', value: '1.6%', change: '+4.1%', isPositive: true },
+        { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true, tooltip: 'The number of unique visitors who visited your site during the selected period.' },
+        { id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true, tooltip: 'Total number of times your campaigns were displayed to visitors during the selected period.' },
+        { id: 'phone-capture', title: 'Phone capture', value: '1.8K', change: '+5.3%', isPositive: true, tooltip: 'Number of phone numbers collected through your campaigns during the selected period.' },
+        { id: 'phone-capture-rate', title: 'Phone capture rate', value: '1.6%', change: '+4.1%', isPositive: true, tooltip: 'The percentage of phone captures divided by impressions during the selected period.' },
       ]
     : [
-        { id: 'conversion-rate', title: isPurchase ? 'Conversion Rate' : 'Submit Rate', value: '0.57%', change: '+14.0%', isPositive: true },
-        { id: 'submits', title: isPurchase ? 'Orders' : 'Submits', value: '2.2K', change: '+8.3%', isPositive: true },
-        ...(!isPurchase ? [{ id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true }] : []),
-        { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true },
-        ...(!isPurchase ? [{ id: 'supported-orders', title: 'Assisted Orders', value: '286', change: '-4.2%', isPositive: false }] : []),
-        { id: 'supported-revenue', title: isPurchase ? 'Total Rev. (USD)' : 'Assisted Rev. (USD)', value: '$23,274', change: '+15.8%', isPositive: true },
-        ...(isPurchase ? [{ id: 'aov', title: 'AOV', value: '$81.4', change: '-6.3%', isPositive: false }] : []),
+        { id: 'conversion-rate', title: isPurchase ? 'Conversion Rate' : 'Submit Rate', value: '0.57%', change: '+14.0%', isPositive: true, tooltip: isPurchase ? 'Percentage of visitors who completed a purchase during the selected period.' : 'The percentage of submits divided by impressions during the selected period.' },
+        { id: 'submits', title: isPurchase ? 'Orders' : 'Submits', value: '2.2K', change: '+8.3%', isPositive: true, tooltip: isPurchase ? 'Total number of orders placed by visitors during the selected period.' : 'When a visitor fills out a form, clicks a button or performs any action that is considered as a submit in your campaign during the selected period.' },
+        ...(!isPurchase ? [{ id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true, tooltip: 'Total number of times your campaigns were displayed to visitors during the selected period.' }] : []),
+        { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true, tooltip: 'The number of unique visitors who visited your site during the selected period.' },
+        ...(!isPurchase ? [{ id: 'supported-orders', title: 'Assisted Orders', value: '286', change: '-4.2%', isPositive: false, tooltip: 'Number of orders where the customer previously interacted with one of your campaigns during the selected period.' }] : []),
+        { id: 'supported-revenue', title: isPurchase ? 'Total Rev. (USD)' : 'Assisted Rev. (USD)', value: '$23,274', change: '+15.8%', isPositive: true, tooltip: isPurchase ? 'Total revenue generated by visitors during the selected period.' : 'Revenue from orders where the customer previously interacted with one of your campaigns during the selected period.' },
+        ...(isPurchase ? [{ id: 'aov', title: 'AOV', value: '$81.4', change: '-6.3%', isPositive: false, tooltip: 'Average Order Value — the average revenue per order during the selected period.' }] : []),
       ]
 )
 
@@ -3165,7 +3167,7 @@ const allTrafficSources = [
 .trend-chart-tabs {
   display: flex;
   border-bottom: 1px solid rgb(227, 229, 232);
-  overflow-x: auto;
+  overflow: visible;
 }
 
 .trend-chart-tab {
