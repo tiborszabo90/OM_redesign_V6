@@ -52,8 +52,8 @@ import PpoGenerationView from './views/PpoGenerationView.vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
 
 // URL slug <-> view name mapping
-const viewToSlug = { 'home-old': 'home', 'task-creation': 'task-creation', 'campaign-page-v1': 'campaign-detail', 'ppo-campaign-detail': 'ppo-campaign-detail', 'ppo-variable-setup': 'ppo-variable-setup', 'ppo-generation': 'ppo-generation', 'opportunity-detail': 'opportunity-detail' }
-const slugToView = { 'home': 'home-old', 'task-creation': 'task-creation', 'campaign-detail': 'campaign-page-v1', 'ppo-campaign-detail': 'ppo-campaign-detail', 'ppo-variable-setup': 'ppo-variable-setup', 'ppo-generation': 'ppo-generation', 'opportunity-detail': 'opportunity-detail' }
+const viewToSlug = { 'home-old': 'home', 'task-creation': 'task-creation', 'campaign-page-v1': 'campaign-detail', 'ppo-campaign-detail': 'ppo-campaign-detail', 'ppo-placement': 'ppo-placement', 'ppo-variable-setup': 'ppo-variable-setup', 'ppo-generation': 'ppo-generation', 'opportunity-detail': 'opportunity-detail' }
+const slugToView = { 'home': 'home-old', 'task-creation': 'task-creation', 'campaign-detail': 'campaign-page-v1', 'ppo-campaign-detail': 'ppo-campaign-detail', 'ppo-placement': 'ppo-placement', 'ppo-variable-setup': 'ppo-variable-setup', 'ppo-generation': 'ppo-generation', 'opportunity-detail': 'opportunity-detail' }
 
 // PPO wizard state
 const ppoWizardState = ref({ selectedTypes: [], variableConfigs: {} })
@@ -387,7 +387,7 @@ const handleDevNavigate = (view) => {
     }, 50)
   } else if (view === 'campaigns-v3' || view === 'campaigns-empty') {
     currentView.value = view
-  } else if (view === 'campaign-page-v1' || view === 'ppo-campaign-detail' || view === 'ppo-variant-detail-v1' || view === 'ppo-variant-detail-v2') {
+  } else if (view === 'campaign-page-v1' || view === 'ppo-campaign-detail' || view === 'ppo-placement' || view === 'ppo-variant-detail-v1' || view === 'ppo-variant-detail-v2') {
     // Campaign Page view
     currentView.value = view
   } else if (view === 'opportunity-detail' || view === 'opportunities-all') {
@@ -745,7 +745,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="h-screen-safe flex flex-col">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaigns-empty', 'new-campaign', 'optimize-website', 'product-page-optimizer', 'campaign-page-v1', 'ppo-campaign-detail', 'ppo-variant-detail-v1', 'ppo-variant-detail-v2', 'ppo-variable-setup', 'ppo-generation', 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-v4', 'analytics-v4-purchase', 'analytics-v4-add-to-cart', 'analytics-v4-email-capture', 'analytics-v4-phone-capture', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v2-essential-theme', 'templates-v2-branding', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor', 'ai-texts-images', 'ai-texts-images-new', 'ai-texts-images-presets', 'ai-texts-images-preview', 'ai-texts-images-choose-products', 'ai-texts-images-generation', 'ai-texts-images-add-products', 'ai-texts-images-text-presets', 'ai-texts-images-text-preview', 'ai-texts-images-text-generation',
+      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v3', 'campaigns-empty', 'new-campaign', 'optimize-website', 'product-page-optimizer', 'campaign-page-v1', 'ppo-campaign-detail', 'ppo-placement', 'ppo-variant-detail-v1', 'ppo-variant-detail-v2', 'ppo-variable-setup', 'ppo-generation', 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-v4', 'analytics-v4-purchase', 'analytics-v4-add-to-cart', 'analytics-v4-email-capture', 'analytics-v4-phone-capture', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v2-essential-theme', 'templates-v2-branding', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor', 'ai-texts-images', 'ai-texts-images-new', 'ai-texts-images-presets', 'ai-texts-images-preview', 'ai-texts-images-choose-products', 'ai-texts-images-generation', 'ai-texts-images-add-products', 'ai-texts-images-text-presets', 'ai-texts-images-text-preview', 'ai-texts-images-text-generation',
         'settings-ai-texts-images', 'settings-ai-texts-images-new', 'settings-ai-texts-images-presets', 'settings-ai-texts-images-preview', 'settings-ai-texts-images-choose-products', 'settings-ai-texts-images-generation', 'settings-ai-texts-images-generation-product', 'settings-ai-texts-images-add-products', 'settings-ai-texts-images-text-presets', 'settings-ai-texts-images-text-preview', 'settings-ai-texts-images-text-generation',
         'settings-ai-texts-images-v1', 'settings-ai-texts-images-v1-new', 'settings-ai-texts-images-v1-presets', 'settings-ai-texts-images-v1-preview', 'settings-ai-texts-images-v1-choose-products', 'settings-ai-texts-images-v1-generation', 'settings-ai-texts-images-v1-add-products', 'settings-ai-texts-images-v1-text-presets', 'settings-ai-texts-images-v1-text-preview', 'settings-ai-texts-images-v1-text-generation',
         'settings-ai-texts-images-v2', 'settings-ai-texts-images-v2-new', 'settings-ai-texts-images-v2-presets', 'settings-ai-texts-images-v2-preview', 'settings-ai-texts-images-v2-choose-products', 'settings-ai-texts-images-v2-generation', 'settings-ai-texts-images-v2-generation-product', 'settings-ai-texts-images-v2-add-products', 'settings-ai-texts-images-v2-text-presets', 'settings-ai-texts-images-v2-text-preview', 'settings-ai-texts-images-v2-text-generation',
@@ -932,7 +932,8 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         @navigate="handleDevNavigate"
       />
       <PpoCampaignDetailView
-        v-else-if="currentView === 'ppo-campaign-detail'"
+        v-else-if="currentView === 'ppo-campaign-detail' || currentView === 'ppo-placement'"
+        :show-placement="currentView === 'ppo-placement'"
         @menu-click="handleMenuClick"
         @navigate="handleDevNavigate"
       />

@@ -1,12 +1,131 @@
 <template>
   <div>
-  <DashboardLayout active-menu-item="campaigns" @logo-click="handleLogoClick" @menu-click="$emit('menu-click', $event)" :right-panel-collapsed="!isChatOpen">
+  <!-- Variables / Placement view (full screen, no dashboard layout) -->
+  <div v-if="isPreviewOpen" class="h-screen flex flex-col">
+        <!-- Header bar -->
+        <div class="flex items-center border-b border-om-gray-200 shrink-0">
+          <div class="w-[320px] shrink-0 flex items-center gap-3 px-5 py-3 border-r border-om-gray-200">
+            <button @click="closePreview" class="text-om-gray-600 hover:text-om-gray-800 cursor-pointer">
+              <ArrowLeft :size="18" />
+            </button>
+            <div class="h-5 w-px bg-om-gray-200" />
+            <div class="flex flex-col"><span class="font-semibold text-om-gray-700 text-sm">Variables</span><span class="text-xs text-om-gray-400">PPO - Product image and benefit list</span></div>
+          </div>
+          <div class="flex-1 flex items-center justify-between px-6 py-3 gap-8 min-w-0">
+            <Dropdown v-model="selectedProductPage" :options="productPageOptions" size="sm" class="min-w-0" />
+            <Button variant="primary" size="sm" class="shrink-0" @click="closePreview">Save</Button>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="flex flex-1 min-h-0">
+          <!-- Left sidebar: variable list -->
+          <div class="w-[320px] bg-white flex flex-col shrink-0 border-r border-om-gray-200">
+            <div class="flex-1 overflow-y-auto px-3 pt-3">
+              <div class="flex flex-col gap-2">
+              <div
+                v-for="variable in previewVariant?.variables"
+                :key="variable.id"
+                class="rounded-xl border-2 bg-white transition-all cursor-pointer group"
+                :class="selectedVariableId === variable.id ? 'border-om-orange-300 bg-om-orange-50' : 'border-om-gray-200 hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)]'"
+                @click="selectVariable(previewVariant, variable)"
+                @mouseenter="hoveredVariableId = variable.id"
+                @mouseleave="hoveredVariableId = null"
+              >
+                <div class="flex items-center gap-3 px-4 py-3">
+                  <div class="w-9 h-9 rounded-lg bg-om-orange-50 flex items-center justify-center text-om-orange-500 shrink-0">
+                    <ImageIcon v-if="variable.type === 'Image'" :size="18" />
+                    <Type v-else :size="18" />
+                  </div>
+                  <div class="flex-1 min-w-0 flex flex-col">
+                    <span class="text-sm font-medium text-om-gray-700 truncate">{{ variable.name }}</span>
+                    <span class="text-[11px] text-om-gray-400">{{ variable.generated.split(' / ')[0] }} of {{ variable.generated.split(' / ')[1] }} products</span>
+                  </div>
+                  <button class="text-om-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 cursor-pointer" @click.stop="removeVariable(previewVariant, variable.id)">
+                    <Trash2 :size="14" />
+                  </button>
+                </div>
+              </div>
+              </div>
+              <!-- Position selector for benefit list variable -->
+              <div v-if="selectedVariableId !== null" class="px-3 pt-3">
+                <Button variant="outline" size="sm" class="w-full" @click.stop="openVariableModal(previewVariant?.variables.find(v => v.id === selectedVariableId))">
+                  <template #icon><Pencil :size="13" /></template>
+                  Edit variable
+                </Button>
+              </div>
+              <div v-if="selectedVariableId !== null && previewVariant?.variables.some(v => v.id === selectedVariableId && v.name === 'Benefit list')" class="px-4 pt-4 pb-3 border-b border-om-gray-100">
+                <div class="text-sm font-semibold text-om-gray-700 mb-2">Position on page</div>
+                <div class="flex flex-col gap-2">
+                  <button
+                    v-for="pos in benefitPositions"
+                    :key="pos.id"
+                    class="w-full px-3 py-1.5 rounded-lg text-sm text-om-gray-700 cursor-pointer transition-all duration-200 ease-out hover:scale-[1.02] text-left"
+                    :class="benefitPosition === pos.id ? 'bg-om-orange-50 border-2 border-om-orange-500' : 'bg-white border border-om-gray-200'"
+                    @click="benefitPosition = pos.id"
+                  >
+                    {{ pos.label }}
+                  </button>
+                </div>
+                <Button variant="outline" size="sm" class="w-full mt-3">
+                  <template #icon><SquareDashedMousePointer :size="14" /></template>
+                  Select position
+                </Button>
+              </div>
+
+              <!-- Add variable -->
+              <div class="px-4 py-3">
+                <div v-if="showAddVariableList" class="mb-2">
+                  <div
+                    v-for="av in filteredAvailableVariables"
+                    :key="av.id"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-om-gray-50 cursor-pointer transition-colors"
+                    @click="addVariable(previewVariant, av)"
+                  >
+                    <Plus :size="14" class="text-om-orange-500 shrink-0" />
+                    <span class="text-sm text-om-gray-700">{{ av.name }}</span>
+                    <Tag variant="outlined" size="sm">{{ av.type }}</Tag>
+                  </div>
+                  <div v-if="!filteredAvailableVariables.length" class="text-xs text-om-gray-400 px-3 py-2">No more variables available</div>
+                </div>
+                <button class="flex items-center gap-2 text-sm text-om-orange-500 font-medium hover:text-om-orange-600 cursor-pointer" @click="showAddVariableList = !showAddVariableList">
+                  <Plus :size="16" />
+                  Add variable
+                </button>
+              </div>
+            </div>
+            <!-- Coverage summary -->
+            <div v-if="previewVariant?.variables.length" class="px-4 py-3 border-t border-om-gray-200 bg-om-gray-50 shrink-0">
+              <div class="text-xs text-om-gray-400">Coverage</div>
+              <div class="text-sm font-semibold text-om-gray-700">{{ variantCoverage }} of {{ variantTotal }} products</div>
+            </div>
+          </div>
+
+          <!-- Right: Product page preview -->
+          <div class="flex-1 overflow-y-auto p-6 bg-om-gray-200">
+            <ProductPagePreview
+              v-if="previewVariant"
+              :placements="previewVariant.placements"
+              :variables="previewVariant.variables"
+              :active-variable-id="selectedVariableId"
+              :active-variable-type="selectedVariableType"
+              :benefit-position="benefitPosition"
+              :hovered-variable-id="hoveredVariableId"
+              :url="selectedProductPage"
+              @assign="(areaId) => assignVariable(previewVariant, areaId)"
+            />
+          </div>
+        </div>
+      </div>
+
+  <!-- Campaign detail view -->
+  <DashboardLayout v-else active-menu-item="campaigns" @logo-click="handleLogoClick" @menu-click="$emit('menu-click', $event)" :right-panel-collapsed="!isChatOpen">
     <template #content>
       <div class="w-full max-w-[1400px] mx-auto -mt-2">
         <!-- Header -->
         <div class="flex items-start justify-between mb-4">
           <div>
-            <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Product Page Optimizer</h1>
+            <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">PPO - Product image and benefit list</h1>
             <p class="text-xs text-om-gray-400">www.mydomain.com</p>
           </div>
           <div class="flex items-center gap-2.5">
@@ -213,96 +332,62 @@
         </div>
 
         <!-- Variants + Variables Section -->
-        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 overflow-hidden">
+        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 pt-5 pb-5 pl-5 pr-8">
+          <!-- Header -->
+          <div class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_200px_36px] gap-3 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
+            <div>Variants</div>
+            <div>Active</div>
+            <div class="text-right">Visitors</div>
+            <div class="text-right">ATC</div>
+            <div class="text-right">ATC rate</div>
+            <div class="text-right">Uplift</div>
+            <div class="text-right">Chance to win</div>
+            <div></div>
+            <div></div>
+          </div>
+
+          <!-- Variant rows -->
           <div
             v-for="(variant, vi) in variants"
             :key="variant.id"
-            :class="vi < variants.length - 1 ? 'border-b border-om-gray-100' : ''"
           >
-            <!-- Variant header -->
+            <!-- Variant row -->
             <div
-              class="grid grid-cols-[18px_1fr_200px_80px_80px_80px_80px_44px_32px] items-center gap-3 px-5 py-4 transition-colors"
-              :class="variant.variables.length ? 'cursor-pointer' : ''"
-              @click="variant.variables.length && (variant.expanded = !variant.expanded)"
+              class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_200px_36px] gap-3 items-center py-3 group cursor-pointer"
+              :class="vi < variants.length - 1 ? 'border-b border-om-gray-100' : ''"
+              @click="openPreview(variant)"
             >
-              <ChevronRight v-if="variant.variables.length" :size="18" class="text-om-gray-400 transition-transform duration-200" :class="variant.expanded ? 'rotate-90' : ''" />
-              <div v-else></div>
-              <div class="min-w-0">
-                <span class="text-sm font-semibold text-om-gray-700">{{ variant.name }}</span>
-                <div v-if="!variant.expanded && variant.variables.length" class="flex items-center gap-1.5 mt-1">
-                  <Tag v-for="variable in variant.variables" :key="variable.id" variant="outlined" size="sm">{{ variable.type }}: {{ variable.name }}</Tag>
-                </div>
-              </div>
-              <div v-if="variant.variables.length" class="whitespace-nowrap">
-                <Tag variant="green">Ready for {{ readyCount(variant) }} products</Tag>
-              </div>
-              <div class="text-right">
-                <div class="text-xs text-om-gray-400">Visitors</div>
-                <div class="text-sm font-semibold text-om-gray-700">{{ variant.visitors }}</div>
-              </div>
-              <div class="text-right">
-                <div class="text-xs text-om-gray-400">ATC</div>
-                <div class="text-sm font-semibold text-om-gray-700">{{ variant.addToCart }}</div>
-              </div>
-              <div class="text-right">
-                <div class="text-xs text-om-gray-400">ATC rate</div>
-                <div class="text-sm font-semibold text-om-gray-700">{{ variant.atcRate }}</div>
-              </div>
-              <div class="text-right">
-                <div class="text-xs text-om-gray-400">Uplift</div>
-                <div class="text-sm font-semibold flex items-center gap-1 justify-end" :class="variant.uplift.startsWith('+') ? 'text-[#10B981]' : 'text-om-gray-400'">
-                  {{ variant.uplift }}
-                  <TrendingUp v-if="variant.uplift.startsWith('+')" :size="14" class="text-[#2CC896]" />
+              <div class="flex items-center gap-2.5">
+                <div class="min-w-0">
+                  <span class="text-sm font-medium text-om-gray-700">{{ variant.name }}</span>
+                  <div v-if="variant.variables.length" class="flex items-center gap-1.5 mt-1">
+                    <Tag v-for="variable in variant.variables" :key="variable.id" variant="outlined" size="sm">{{ variable.type }}: {{ variable.name }}</Tag>
+                  </div>
                 </div>
               </div>
               <div @click.stop>
                 <ToggleSwitch v-model="variant.active" />
               </div>
-              <div @click.stop>
-                <Button variant="ghost" size="sm" icon-only><template #icon><MoreVertical :size="18" /></template></Button>
+              <div class="text-base font-semibold text-om-gray-700 text-right">{{ variant.visitors }}</div>
+              <div class="text-base font-semibold text-om-gray-700 text-right">{{ variant.addToCart }}</div>
+              <div class="text-base font-semibold text-om-gray-700 text-right">{{ variant.atcRate }}</div>
+              <div class="text-base font-semibold flex items-center gap-1 justify-end" :class="variant.uplift.startsWith('+') ? 'text-[#10B981]' : 'text-om-gray-400'">
+                {{ variant.uplift }}
+                <TrendingUp v-if="variant.uplift.startsWith('+')" :size="16" class="text-[#2CC896]" />
+              </div>
+              <div class="text-base font-semibold text-om-gray-400 text-right">{{ variant.chanceToWin }}</div>
+              <div class="flex items-center justify-end whitespace-nowrap" @click.stop>
+                <Tag v-if="variant.variables.length" variant="green">Ready for {{ readyCount(variant) }} products</Tag>
+              </div>
+              <div class="flex items-center justify-end" @click.stop>
+                <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
               </div>
             </div>
 
-            <!-- Variables (expanded) -->
-            <div v-if="variant.expanded && variant.variables.length" class="border-t border-om-gray-100">
-              <div
-                v-for="(variable, index) in variant.variables"
-                :key="variable.id"
-                class="grid grid-cols-[18px_1fr_200px_80px_80px_80px_80px_44px_32px] items-center gap-3 px-5 py-3 transition-colors cursor-pointer"
-                :class="[
-                  index < variant.variables.length - 1 ? 'border-b border-om-gray-100' : '',
-                  'hover:bg-om-gray-50'
-                ]"
-                @click="openVariableModal(variable)"
-              >
-                <div></div>
-                <div class="flex items-center gap-2 min-w-0">
-                  <span class="text-sm font-medium text-om-orange-500 truncate">{{ variable.name }}</span>
-                  <Tag variant="outlined" size="sm">{{ variable.type }}</Tag>
-                </div>
-                <div class="whitespace-nowrap">
-                  <Tag variant="green-light">Ready for {{ variable.generated.split(' / ')[0] }} products</Tag>
-                </div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-              </div>
-              <div class="px-4 py-2.5 border-t border-om-gray-100 flex items-center justify-end">
-                <Button variant="outline" size="sm" @click.stop="openPreview(variant)">
-                  Placement
-                </Button>
-              </div>
-            </div>
-            <div v-else-if="variant.expanded" class="border-t border-om-gray-100 py-8 text-center text-sm text-om-gray-400">
-              No variables assigned yet.
-            </div>
           </div>
 
           <!-- Add Variant Button -->
-          <div class="border-t border-om-gray-100 px-5 py-3">
+          <div class="mt-4">
             <button class="flex items-center gap-2 text-sm text-om-orange-500 font-medium hover:text-om-orange-600 cursor-pointer">
               <Plus :size="16" />
               Add A/B test variant
@@ -555,63 +640,6 @@
       <ChatPanel v-model="isChatOpen" :fab="true" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
     </template>
   </DashboardLayout>
-
-  <!-- Product Page Preview Overlay -->
-  <transition
-    enter-active-class="transition ease-out duration-200"
-    enter-from-class="opacity-0"
-    enter-to-class="opacity-100"
-    leave-active-class="transition ease-in duration-150"
-    leave-from-class="opacity-100"
-    leave-to-class="opacity-0"
-  >
-    <div v-if="isPreviewOpen" class="fixed inset-0 z-50 flex flex-col bg-white">
-      <!-- Header bar -->
-      <div class="flex items-center gap-3 px-5 py-3 border-b border-om-gray-200 shrink-0">
-        <button @click="isPreviewOpen = false" class="text-om-gray-400 hover:text-om-gray-600 cursor-pointer">
-          <ArrowLeft :size="18" />
-        </button>
-        <div class="h-5 w-px bg-om-gray-200" />
-        <h3 class="text-sm font-semibold text-om-gray-700">Placement</h3>
-      </div>
-
-      <!-- Content -->
-      <div class="flex flex-1 min-h-0">
-        <!-- Left sidebar: variable list -->
-        <div class="w-[320px] bg-white flex flex-col shrink-0 border-r border-om-gray-200">
-          <div class="px-4 py-3 border-b border-om-gray-100">
-            <div class="text-xs font-semibold text-om-gray-400 uppercase tracking-wider">Variables</div>
-          </div>
-          <div class="flex-1 overflow-y-auto">
-            <div
-              v-for="variable in previewVariant?.variables"
-              :key="variable.id"
-              class="flex items-center gap-3 px-4 py-3 border-b border-om-gray-100 transition-colors cursor-pointer"
-              :class="selectedVariableId === variable.id ? 'bg-om-orange-50' : 'hover:bg-om-gray-50'"
-              @click="selectVariable(previewVariant, variable)"
-            >
-              <div class="w-2 h-2 rounded-full shrink-0" :class="hasPlacement(previewVariant, variable.id) ? 'bg-[#2CC896]' : 'bg-om-gray-300'" />
-              <div class="flex-1 min-w-0">
-                <span class="text-sm font-medium text-om-orange-500 flex items-center gap-2 truncate">{{ variable.name }} <Tag variant="outlined" size="sm">{{ variable.type }}</Tag></span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right: Product page preview -->
-        <div class="flex-1 overflow-y-auto p-6 bg-om-gray-50">
-        <ProductPagePreview
-          v-if="previewVariant"
-          :placements="previewVariant.placements"
-          :variables="previewVariant.variables"
-          :active-variable-id="selectedVariableId"
-          :active-variable-type="selectedVariableType"
-          @assign="(areaId) => assignVariable(previewVariant, areaId)"
-        />
-      </div>
-      </div>
-    </div>
-  </transition>
 
   <!-- Variable Generation Modal -->
   <transition name="modal">
@@ -1164,10 +1192,11 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye } from 'lucide-vue-next'
+import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil } from 'lucide-vue-next'
 import Tag from '../components/shared/Tag.vue'
 import ProductPagePreview from '../components/ppo/ProductPagePreview.vue'
 import Button from '../components/shared/Button.vue'
+import Chip from '../components/shared/Chip.vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
@@ -1178,6 +1207,10 @@ import { VueDatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import ScrollTimePicker from '../components/shared/ScrollTimePicker.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
+
+const props = defineProps({
+  showPlacement: { type: Boolean, default: false },
+})
 
 const emit = defineEmits(['menu-click', 'navigate'])
 
@@ -1226,21 +1259,21 @@ const toggleAccordion = (section) => {
 const variants = reactive([
   {
     id: 'v1',
-    name: 'Image, Headline, Subheadline',
+    name: 'Image & Benefit list',
     active: true,
     expanded: true,
     visitors: '12,593',
     addToCart: '650',
     atcRate: '7.25%',
     uplift: '+0.77%',
+    chanceToWin: '91.2%',
     variables: [
       { id: 0, name: 'AI lifestyle image 1', type: 'Image', generated: '128 / 467', status: 'Ready to use', lastUpdated: 'Mar 13, 2026' },
-      { id: 8, name: 'Headline + Subheadline', type: 'Text', generated: '100 / 467', status: 'Ready to use', lastUpdated: 'Mar 16, 2026' },
+      { id: 8, name: 'Benefit list', type: 'Text', generated: '100 / 467', status: 'Ready to use', lastUpdated: 'Mar 16, 2026' },
     ],
     placements: {
       'product-image': 0,
-      'headline': 8,
-      'subheadline': 8,
+      'benefit-list': 8,
     },
   },
   {
@@ -1253,6 +1286,7 @@ const variants = reactive([
     addToCart: '412',
     atcRate: '3.27%',
     uplift: '-',
+    chanceToWin: '-',
     variables: [],
   },
 ])
@@ -1293,12 +1327,11 @@ const generatedPercent = (variant) => {
 // Area type definitions
 const AREA_TYPES = {
   'product-image': 'Image',
-  'image-badge': 'Image',
   'headline': 'Text',
   'subheadline': 'Text',
-  'benefit-list': 'Text',
   'product-sentence': 'Text',
   'summary': 'Text',
+  'benefit-list': 'Text',
   'product-summary': 'Mixed',
 }
 
@@ -1306,13 +1339,77 @@ const AREA_TYPES = {
 const selectedVariableId = ref(null)
 const selectedVariableType = ref(null)
 const selectedVariantId = ref(null)
+const hoveredVariableId = ref(null)
 
-const isPreviewOpen = ref(false)
-const previewVariant = ref(null)
+// Product page selector
+const productPageOptions = [
+  { value: 'https://www.whiskynet.hu/shankys-whip-black-irish-whiskey-likor-07l-33', label: "Shanky's Whip Black Ír whiskeylikőr" },
+  { value: 'https://www.whiskynet.hu/jameson-ír-whiskey-07l-40', label: 'Jameson Ír Whiskey' },
+  { value: 'https://www.whiskynet.hu/jack-daniels-tennessee-whiskey-07l-40', label: "Jack Daniel's Tennessee Whiskey" },
+]
+const selectedProductPage = ref(productPageOptions[0].value)
+
+// Benefit list position
+const benefitPosition = ref('benefit-list-1')
+const benefitPositions = [
+  { id: 'benefit-list-1', label: 'Below product title' },
+  { id: 'benefit-list-2', label: 'Below product details' },
+  { id: 'benefit-list-3', label: 'Below description' },
+]
+
+// Available variables library (not yet assigned to variant)
+const availableVariables = [
+  { id: 10, name: 'AI lifestyle image 2', type: 'Image', generated: '0 / 467', status: 'Not started', lastUpdated: '-' },
+  { id: 11, name: 'Headline v2', type: 'Text', generated: '0 / 467', status: 'Not started', lastUpdated: '-' },
+  { id: 12, name: 'Product description', type: 'Text', generated: '0 / 467', status: 'Not started', lastUpdated: '-' },
+  { id: 13, name: 'Seasonal banner', type: 'Image', generated: '0 / 467', status: 'Not started', lastUpdated: '-' },
+]
+const showAddVariableList = ref(false)
+
+const filteredAvailableVariables = computed(() => {
+  if (!previewVariant.value) return availableVariables
+  const usedIds = new Set(previewVariant.value.variables.map(v => v.id))
+  return availableVariables.filter(v => !usedIds.has(v.id))
+})
+
+const addVariable = (variant, av) => {
+  variant.variables.push({ ...av })
+  showAddVariableList.value = false
+}
+
+const variantCoverage = computed(() => {
+  if (!previewVariant.value?.variables.length) return 0
+  return Math.min(...previewVariant.value.variables.map(v => parseInt(v.generated.split(' / ')[0]) || 0))
+})
+const variantTotal = computed(() => {
+  if (!previewVariant.value?.variables.length) return 0
+  return parseInt(previewVariant.value.variables[0].generated.split(' / ')[1]) || 0
+})
+
+const removeVariable = (variant, variableId) => {
+  variant.variables = variant.variables.filter(v => v.id !== variableId)
+  // Remove placements for this variable
+  for (const [areaId, varId] of Object.entries(variant.placements)) {
+    if (varId === variableId) delete variant.placements[areaId]
+  }
+  if (selectedVariableId.value === variableId) {
+    selectedVariableId.value = null
+    selectedVariableType.value = null
+  }
+}
+
+const isPreviewOpen = ref(props.showPlacement)
+const previewVariant = ref(props.showPlacement ? variants[0] : null)
 
 const openPreview = (variant) => {
   previewVariant.value = variant
   isPreviewOpen.value = true
+  window.location.hash = '/ppo-placement'
+}
+
+const closePreview = () => {
+  isPreviewOpen.value = false
+  window.location.hash = '/ppo-campaign-detail'
 }
 
 const selectVariable = (variant, variable) => {
