@@ -45,32 +45,33 @@
                     <Trash2 :size="14" />
                   </button>
                 </div>
-              </div>
-              </div>
-              <!-- Position selector for benefit list variable -->
-              <div v-if="selectedVariableId !== null" class="px-3 pt-3">
-                <Button variant="outline" size="sm" class="w-full" @click.stop="openVariableModal(previewVariant?.variables.find(v => v.id === selectedVariableId))">
-                  <template #icon><Pencil :size="13" /></template>
-                  Edit variable
-                </Button>
-              </div>
-              <div v-if="selectedVariableId !== null && previewVariant?.variables.some(v => v.id === selectedVariableId && v.name === 'Benefit list')" class="px-4 pt-4 pb-3 border-b border-om-gray-100">
-                <div class="text-sm font-semibold text-om-gray-700 mb-2">Position on page</div>
-                <div class="flex flex-col gap-2">
-                  <button
-                    v-for="pos in benefitPositions"
-                    :key="pos.id"
-                    class="w-full px-3 py-1.5 rounded-lg text-sm text-om-gray-700 cursor-pointer transition-all duration-200 ease-out hover:scale-[1.02] text-left"
-                    :class="benefitPosition === pos.id ? 'bg-om-orange-50 border-2 border-om-orange-500' : 'bg-white border border-om-gray-200'"
-                    @click="benefitPosition = pos.id"
-                  >
-                    {{ pos.label }}
-                  </button>
+                <!-- Selected state content (inside card) -->
+                <div v-if="selectedVariableId === variable.id" class="px-4 pb-3 flex flex-col gap-2">
+                  <Button variant="outline" size="sm" class="w-full" @click.stop="openVariableModal(variable)">
+                    <template #icon><Pencil :size="13" /></template>
+                    Edit variable
+                  </Button>
+                  <!-- Position on page (benefit list only) -->
+                  <div v-if="variable.name === 'Benefit list'" class="pt-2">
+                    <div class="text-sm font-semibold text-om-gray-700 mb-2">Position on page</div>
+                    <div class="flex flex-col gap-2">
+                      <button
+                        v-for="pos in benefitPositions"
+                        :key="pos.id"
+                        class="w-full px-3 py-1.5 rounded-lg text-sm text-om-gray-700 cursor-pointer transition-all duration-200 ease-out hover:scale-[1.02] text-left"
+                        :class="benefitPosition === pos.id ? 'bg-om-orange-50 border-2 border-om-orange-500' : 'bg-white border border-om-gray-200'"
+                        @click.stop="benefitPosition = pos.id"
+                      >
+                        {{ pos.label }}
+                      </button>
+                    </div>
+                    <Button variant="outline" size="sm" class="w-full mt-3" @click.stop>
+                      <template #icon><SquareDashedMousePointer :size="14" /></template>
+                      Select position
+                    </Button>
+                  </div>
                 </div>
-                <Button variant="outline" size="sm" class="w-full mt-3">
-                  <template #icon><SquareDashedMousePointer :size="14" /></template>
-                  Select position
-                </Button>
+              </div>
               </div>
 
               <!-- Add variable -->
