@@ -24,9 +24,11 @@
     </div>
     <!-- FAB button -->
     <button
-      class="w-14 h-14 bg-om-orange-500 rounded-full shadow-lg flex items-center justify-center text-white hover:bg-[#E54D1F] transition-colors cursor-pointer"
+      class="w-14 h-14 bg-om-orange-500 rounded-full shadow-lg flex items-center justify-center text-white hover:bg-[#E54D1F] transition-colors cursor-pointer relative"
     >
-      <img src="/icons/optibot24.svg" alt="OptiBot" class="w-7 h-7" />
+      <!-- Pulse ring -->
+      <span class="absolute inset-0 rounded-full bg-om-orange-500 animate-chat-ping opacity-75"></span>
+      <img src="/monkhead.svg" alt="OptiBot" class="w-9 h-9 relative z-10" />
     </button>
   </div>
 
@@ -36,15 +38,15 @@
     @click="emit('update:modelValue', true)"
     class="chat-tab fixed top-4 right-0 z-20 w-9 h-12 bg-om-orange-500 border border-r-0 border-transparent rounded-l-xl shadow-sm flex items-center justify-center text-white hover:bg-[#E54D1F] transition-colors cursor-pointer"
   >
-    <img src="/icons/optibot24.svg" alt="OptiBot" class="w-6 h-6" />
+    <img src="/monkhead.svg" alt="OptiBot" class="w-7 h-7" />
   </button>
 
   <!-- Chat panel (flow element, wide column) -->
-  <transition :name="side === 'left' ? 'panel-slide-left' : 'panel-slide-right'">
+  <transition :name="panelTransitionName">
   <div
     v-if="modelValue"
     :style="{ width: panelWidth + 'px' }"
-    :class="['shrink-0 flex flex-col bg-white p-4 pt-6 pb-4 relative', side === 'left' ? 'border-r border-[#E3E5E8]' : 'border-l border-[#E3E5E8]']"
+    :class="['shrink-0 flex flex-col bg-white p-4 pt-6 pb-4 relative rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] my-3 mr-3', side === 'left' ? 'ml-3 mr-0' : '']"
   >
     <!-- Resize handle -->
     <div
@@ -57,7 +59,7 @@
         <span class="flex items-center gap-1">{{ conversationTitle }}<ChevronDown :size="14" /></span>
       </Button>
       <button
-        @click="emit('update:modelValue', false)"
+        @click="closePanel"
         class="w-8 h-8 rounded-lg flex items-center justify-center text-[#8F97A4] hover:text-[#505763] hover:bg-[#F1F2F4] transition-colors cursor-pointer"
       >
         <PanelLeftClose v-if="side === 'left'" :size="16" />
@@ -102,13 +104,13 @@
 
     <!-- Empty state (outside overflow container so scale hover is not clipped) -->
     <div v-if="messages.length === 0" class="flex-1 flex flex-col mb-4">
-      <!-- Robot icon in circle -->
-      <div class="flex flex-col items-center pt-6">
-        <div class="w-24 h-24 rounded-full bg-om-gray-100 flex items-center justify-center mb-4">
-          <img src="/icons/optibot64.svg" alt="OptiBot" class="w-16 h-16" />
+      <!-- Floating monk -->
+      <div class="flex-1 flex flex-col items-center justify-center pl-[10%] mt-[5%]">
+        <div class="relative w-56 h-48 mb-4 flex items-end justify-center">
+          <img src="/monk-shadow.svg" alt="" class="absolute -bottom-3 w-36 opacity-60 monk-shadow-pulse" />
+          <img src="/monk-medit.2.svg" alt="OptiMonk" class="relative w-44 h-44 object-contain monk-float" />
+          <img src="/help.svg" alt="" class="absolute -top-22 -left-10 w-40 h-40 monk-bubble" />
         </div>
-        <!-- Headline -->
-        <h3 class="text-base font-semibold text-om-gray-700 mb-1 text-center">How can I help you?</h3>
       </div>
       <!-- Suggestions at the bottom -->
       <div class="mt-auto pb-2 suggestions-fade-in">
@@ -210,6 +212,7 @@
     </div>
   </div>
   </transition>
+
 </template>
 
 <script setup>
@@ -253,6 +256,15 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:modelValue'])
+
+const panelTransitionName = computed(() => {
+  if (props.fab) return 'panel-to-fab'
+  return props.side === 'left' ? 'panel-slide-left' : 'panel-slide-right'
+})
+
+function closePanel() {
+  emit('update:modelValue', false)
+}
 
 const chatMessage = ref('')
 const messages = ref([])
@@ -495,5 +507,80 @@ const handleChatSubmit = () => {
 }
 .chat-panel-scroll:hover::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.2);
+}
+
+/* Chat FAB pulse animation */
+@keyframes chat-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+.animate-chat-ping {
+  animation: chat-ping 2s cubic-bezier(0, 0, 0.2, 1) 3;
+}
+
+/* Floating monk animation */
+@keyframes monk-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.monk-float {
+  animation: monk-float 4s ease-in-out infinite;
+}
+@keyframes monk-shadow-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(0.85); opacity: 0.35; }
+}
+.monk-shadow-pulse {
+  animation: monk-shadow-pulse 4s ease-in-out infinite;
+}
+@keyframes monk-bubble {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-6px) rotate(1deg); }
+}
+.monk-bubble {
+  animation: monk-bubble 3s ease-in-out infinite;
+}
+
+/* Panel collapse-to-FAB transition */
+.panel-to-fab-leave-active {
+  transition: width 0.5s cubic-bezier(0.55, 0, 0.15, 1),
+              transform 0.5s cubic-bezier(0.55, 0, 0.15, 1),
+              opacity 0.35s ease 0.15s,
+              border-radius 0.3s ease;
+  transform-origin: bottom right;
+  overflow: hidden;
+  position: relative;
+  z-index: 10;
+}
+.panel-to-fab-leave-to {
+  width: 0 !important;
+  transform: scale(0.08) translateY(40vh) translateX(20px);
+  opacity: 0;
+  border-radius: 50%;
+}
+/* Enter: expand from FAB position */
+.panel-to-fab-enter-active {
+  transition: width 0.5s cubic-bezier(0.15, 0.85, 0.45, 1),
+              transform 0.5s cubic-bezier(0.15, 0.85, 0.45, 1),
+              opacity 0.3s ease,
+              border-radius 0.3s ease 0.2s;
+  transform-origin: bottom right;
+  overflow: hidden;
+}
+.panel-to-fab-enter-from {
+  width: 0 !important;
+  transform: scale(0.08) translateY(40vh) translateX(20px);
+  opacity: 0;
+  border-radius: 50%;
 }
 </style>
