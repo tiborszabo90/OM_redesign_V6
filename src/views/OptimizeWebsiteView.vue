@@ -27,7 +27,7 @@
               v-for="item in optimizeItems"
               :key="item.title"
               class="flex items-center gap-4 px-6 py-4 bg-white border-2 border-om-gray-200 rounded-xl cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] transition-all duration-200"
-              @click="item.type === 'product-page-optimizer' ? $emit('navigate', 'product-page-optimizer') : $emit('select', item.type)"
+              @click="item.type === 'product-page-optimizer' ? $emit('navigate', 'ppo-campaign-flow') : $emit('select', item.type)"
             >
               <div class="w-12 h-12 rounded-full bg-om-peach-50 flex items-center justify-center shrink-0">
                 <component :is="item.icon" :size="22" class="text-om-orange-500" />

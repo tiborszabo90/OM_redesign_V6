@@ -3,41 +3,57 @@
     <template #content>
       <div class="w-full max-w-[1400px] mx-auto -mt-3">
 
-        <!-- Back + step indicator -->
-        <div class="flex items-center gap-2 mb-2">
+        <!-- Top bar: back + stepper + actions -->
+        <div class="relative flex items-center mb-6">
           <Button variant="ghost" size="sm" :icon-only="true" @click="handleBack">
             <template #icon><ArrowLeft :size="16" /></template>
           </Button>
-          <nav class="flex items-center gap-1.5 text-sm text-om-gray-400">
-            <span>Product Page Optimizer</span>
-            <span class="text-om-gray-300">›</span>
-            <span class="text-om-gray-600 font-medium">{{ currentStep + 1 }} / {{ types.length }} — {{ currentType.label }}</span>
-          </nav>
-        </div>
 
-        <!-- Title + action -->
-        <div class="flex items-center justify-between mb-1">
-          <h1 class="text-2xl font-semibold text-om-gray-700">Preview Generation</h1>
-          <div class="flex items-center gap-2">
-            <Button v-if="currentStep > 0" variant="outline" size="md" @click="currentStep--">Previous</Button>
-            <Button variant="primary" size="md" @click="handleNext">
+          <!-- Stepper (absolutely centered) -->
+          <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div class="flex items-center gap-2 pointer-events-auto">
+              <template v-for="(type, i) in types" :key="type.id">
+                <div
+                  class="flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all cursor-pointer shrink-0"
+                  :class="[
+                    i === currentStep
+                      ? 'border-om-orange-500 bg-om-orange-50 shadow-[0_2px_8px_rgba(237,90,41,0.15)]'
+                      : stepStates[type.id]?.generated
+                        ? 'border-[#2CC896] bg-[#EDFDF7]'
+                        : 'border-om-gray-200 bg-white hover:border-om-gray-300'
+                  ]"
+                  @click="currentStep = i"
+                >
+                  <div
+                    class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[11px] font-bold"
+                    :class="[
+                      i === currentStep
+                        ? 'bg-om-orange-500 text-white'
+                        : stepStates[type.id]?.generated
+                          ? 'bg-[#2CC896] text-white'
+                          : 'bg-om-gray-200 text-om-gray-500'
+                    ]"
+                  >
+                    <CheckIcon v-if="stepStates[type.id]?.generated && i !== currentStep" :size="12" />
+                    <span v-else>{{ i + 1 }}</span>
+                  </div>
+                  <span
+                    class="text-xs font-medium whitespace-nowrap"
+                    :class="i === currentStep ? 'text-om-orange-600' : stepStates[type.id]?.generated ? 'text-[#2CC896]' : 'text-om-gray-500'"
+                  >
+                    {{ type.label }}
+                  </span>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Actions (right-aligned) -->
+          <div class="flex items-center gap-2 ml-auto">
+            <Button v-if="currentStep > 0" variant="outline" size="sm" @click="currentStep--">Previous</Button>
+            <Button variant="primary" size="sm" @click="handleNext">
               {{ isLastStep ? 'Continue to Generation' : 'Next' }}
             </Button>
-          </div>
-        </div>
-        <p class="text-sm text-om-gray-500 mb-6">Test your selected preset and adjust the prompt before applying to your catalogue.</p>
-
-        <!-- Step dots -->
-        <div class="flex items-center gap-2 mb-6">
-          <div
-            v-for="(type, i) in types"
-            :key="type.id"
-            class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer"
-            :class="i === currentStep ? 'bg-om-orange-500 text-white' : i < currentStep ? 'bg-[#D6F5EC] text-[#2CC896]' : 'bg-om-gray-100 text-om-gray-500'"
-            @click="currentStep = i"
-          >
-            <CheckIcon v-if="i < currentStep" :size="12" />
-            {{ type.label }}
           </div>
         </div>
 
@@ -47,21 +63,14 @@
           <div class="flex flex-col min-h-0">
             <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-3">Original Product</p>
             <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden flex-1 flex flex-col">
-              <div v-if="isImageType" class="aspect-square bg-om-gray-100 overflow-hidden">
-                <img src="/product1.jpg" class="w-full h-full object-cover" />
-              </div>
-              <div v-else class="flex-1 bg-om-gray-50 p-5 flex flex-col gap-3">
-                <div class="h-4 bg-om-gray-200 rounded w-4/5" />
-                <div class="h-3 bg-om-gray-200 rounded w-3/5" />
-                <div class="h-3 bg-om-gray-200 rounded w-full" />
-                <div class="h-3 bg-om-gray-200 rounded w-4/5" />
-                <div class="h-3 bg-om-gray-200 rounded w-2/3" />
+              <div class="aspect-square bg-om-gray-100 overflow-hidden">
+                <img src="/whisky.png" class="w-full h-full object-contain" />
               </div>
               <div class="p-4 border-t border-om-gray-100">
-                <h3 class="text-sm font-semibold text-om-gray-700 mb-3">DJI Osmo Mobile 7 mobil gimbal</h3>
+                <h3 class="text-sm font-semibold text-om-gray-700 mb-3">Shanky's Whip Black Ír whiskeylikőr</h3>
                 <div class="flex items-center justify-between">
-                  <span class="text-xs text-om-gray-400">SKU: OM-7-SE</span>
-                  <span class="text-sm font-semibold text-om-gray-700">$159.00</span>
+                  <span class="text-xs text-om-gray-400">SKU: WLI-11588</span>
+                  <span class="text-sm font-semibold text-om-gray-700">10 990 Ft</span>
                 </div>
               </div>
             </div>
@@ -96,7 +105,7 @@
               <template v-else>
                 <!-- Generated preview -->
                 <template v-if="isImageType">
-                  <img src="/product2.png" class="max-h-full w-auto object-contain" />
+                  <img src="/image-with-badge/whisky2.png" class="max-h-full w-auto object-contain" />
                 </template>
                 <template v-else>
                   <div class="p-6 w-full">

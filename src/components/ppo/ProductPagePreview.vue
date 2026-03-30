@@ -3,11 +3,11 @@
 
     <!-- Iframe container (scaled to fit) -->
     <div ref="containerRef" class="relative overflow-hidden" :style="{ height: containerHeight + 'px' }">
-      <div :style="{ width: IFRAME_W + 'px', height: IFRAME_H + 'px', transform: `scale(${scale})`, transformOrigin: 'top left' }">
+      <div :style="{ width: iframeWidth + 'px', height: iframeHeight + 'px', transform: `scale(${scale})`, transformOrigin: 'top left' }">
         <iframe
           ref="iframeRef"
           :src="iframeSrc"
-          :style="{ width: IFRAME_W + 'px', height: IFRAME_H + 'px' }"
+          :style="{ width: iframeWidth + 'px', height: iframeHeight + 'px' }"
           class="border-0 absolute top-0 left-0"
           sandbox="allow-same-origin allow-scripts"
         />
@@ -29,13 +29,21 @@ const props = defineProps({
   url: { type: String, default: 'https://www.whiskynet.hu/shankys-whip-black-irish-whiskey-likor-07l-33' },
   benefitPosition: { type: String, default: 'benefit-list-1' },
   hoveredVariableId: { type: Number, default: null },
+  device: { type: String, default: 'desktop' },
+  highlightAllPlacements: { type: Boolean, default: false },
+  positions: { type: Object, default: () => ({}) },
+  positionMeta: { type: Object, default: () => ({}) },
 })
 
-const emit = defineEmits(['assign'])
+const emit = defineEmits(['assign', 'move'])
 
-// Desktop dimensions for the iframe
-const IFRAME_W = 1280
+// Iframe dimensions per device
+const DESKTOP_W = 1280
+const MOBILE_W = 375
 const IFRAME_H = 4000
+const IFRAME_W = computed(() => props.device === 'mobile' ? MOBILE_W : DESKTOP_W)
+const iframeWidth = IFRAME_W
+const iframeHeight = IFRAME_H
 
 const containerRef = ref(null)
 const containerWidth = ref(400)
@@ -43,16 +51,17 @@ const iframeRef = ref(null)
 const iframeReady = ref(false)
 
 // Dynamic scale based on container width
-const scale = computed(() => containerWidth.value / IFRAME_W)
+const scale = computed(() => containerWidth.value / IFRAME_W.value)
 const containerHeight = computed(() => IFRAME_H * scale.value)
 
 // Use local cached version to avoid age gate and CORS issues
-const iframeSrc = '/demo-product-page.html'
+const iframeSrc = '/demo-product-page.html?v=2'
 const displayUrl = computed(() => props.url)
 
 // Area metadata (no pixel positions — overlays live inside the iframe)
 const AREA_META = [
   { id: 'product-image',    type: 'Image', label: 'Product Image' },
+  { id: 'image-badge',      type: 'Image', label: 'Image Badge' },
   { id: 'headline',         type: 'Text',  label: 'Headline' },
   { id: 'subheadline',      type: 'Text',  label: 'Subheadline' },
   { id: 'product-sentence', type: 'Text',  label: 'Short Description' },
@@ -102,21 +111,18 @@ function computeAreaStates() {
     const isActiveArea = activeAreaIds.has(area.id)
 
     let state = 'hidden'
-    if (assigned && isActiveArea) state = 'assigned'
+    if (props.highlightAllPlacements && assigned) state = 'assigned'
+    else if (assigned && isActiveArea) state = 'assigned'
 
     const varName = getVarName(area.id)
-    const iframeId = area.id === 'benefit-list' ? props.benefitPosition : area.id
+    const meta = props.positionMeta[area.id]
     return {
-      id: iframeId,
+      id: area.id,
       state,
-      label: state === 'assigned' ? (varName || '') : ''
-    }
-  })
-  // Hide inactive benefit list positions
-  const allPositions = ['benefit-list-1', 'benefit-list-2', 'benefit-list-3']
-  allPositions.forEach(posId => {
-    if (posId !== props.benefitPosition) {
-      states.push({ id: posId, state: 'hidden', label: '' })
+      label: state === 'assigned' ? (varName || '') : '',
+      posLabel: meta?.label || null,
+      isFirst: meta?.isFirst || false,
+      isLast: meta?.isLast || false,
     }
   })
   return states
@@ -130,9 +136,19 @@ function sendPositionToIframe() {
   }, '*')
 }
 
+function sendElementPositions() {
+  if (!iframeReady.value || !iframeRef.value) return
+  if (Object.keys(props.positions).length === 0) return
+  iframeRef.value.contentWindow.postMessage({
+    type: 'ppo-position',
+    positions: JSON.parse(JSON.stringify(props.positions))
+  }, '*')
+}
+
 function sendStateToIframe() {
   if (!iframeReady.value || !iframeRef.value) return
   sendPositionToIframe()
+  sendElementPositions()
   iframeRef.value.contentWindow.postMessage({
     type: 'ppo-update',
     areas: computeAreaStates()
@@ -141,7 +157,7 @@ function sendStateToIframe() {
 
 // Watch all relevant props and send state to iframe
 watch(
-  () => [props.placements, props.activeVariableId, props.activeVariableType, props.variables, props.benefitPosition, props.hoveredVariableId],
+  () => [props.placements, props.activeVariableId, props.activeVariableType, props.variables, props.benefitPosition, props.hoveredVariableId, props.highlightAllPlacements, props.positions, props.positionMeta],
   () => sendStateToIframe(),
   { deep: true }
 )
@@ -155,6 +171,9 @@ function onMessage(e) {
   if (e.data?.type === 'ppo-click') {
     const areaId = e.data.areaId.startsWith('benefit-list-') ? 'benefit-list' : e.data.areaId
     emit('assign', areaId)
+  }
+  if (e.data?.type === 'ppo-move') {
+    emit('move', e.data.areaId, e.data.direction)
   }
 }
 

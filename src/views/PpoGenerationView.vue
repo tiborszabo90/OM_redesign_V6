@@ -22,11 +22,6 @@
         </div>
         <p class="text-sm text-om-gray-500 mb-6">Generate AI content for your products. Each row shows the status for all selected variable types.</p>
 
-        <!-- Variable type chips -->
-        <div class="flex items-center gap-2 mb-4">
-          <Tag v-for="type in variableTypes" :key="type.id" variant="outlined">{{ type.label }}</Tag>
-        </div>
-
         <!-- Tabs -->
         <div class="flex items-center border-b border-om-gray-200 mb-6">
           <button
@@ -109,36 +104,109 @@
           <div
             v-for="product in pagedProducts"
             :key="product.id"
-            class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 flex items-center gap-4 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow"
+            class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 flex items-stretch gap-0 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow"
           >
             <!-- Checkbox -->
-            <div @click.stop>
+            <div class="flex items-center pr-3 shrink-0 self-start pt-1" @click.stop>
               <Checkbox :model-value="selectedProducts.includes(product.id)" @update:model-value="v => toggleSelect(product.id, v)" />
             </div>
-
-            <!-- Product info -->
-            <div class="flex items-center gap-3 w-[280px] shrink-0">
-              <div class="w-12 h-12 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
-                <img src="/product1.jpg" class="w-full h-full object-cover" />
+            <!-- Left half: product thumbnail + info -->
+            <div class="flex items-center gap-3 w-1/2 pr-4 self-start">
+              <div class="aspect-square h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
+                <img src="/whisky.png" class="w-full h-full object-contain" />
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-om-gray-700 truncate">{{ product.name }}</p>
-                <p class="text-xs text-om-gray-400 truncate">{{ product.desc }}</p>
+                <p class="text-sm font-semibold text-om-gray-700">{{ product.name }}</p>
+                <p class="text-xs text-om-gray-400 mt-0.5">{{ product.desc }}</p>
               </div>
             </div>
 
-            <!-- Variable columns -->
-            <div class="flex-1 grid gap-3" :style="{ gridTemplateColumns: `repeat(${variableTypes.length}, 1fr)` }">
-              <div v-for="type in variableTypes" :key="type.id" class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full shrink-0" :class="product.variables?.[type.id] === 'generated' ? 'bg-[#2CC896]' : product.variables?.[type.id] === 'generating' ? 'bg-om-orange-400' : 'bg-om-gray-300'" />
-                <span class="text-xs text-om-gray-500 truncate">{{ type.label }}</span>
-                <Tag v-if="product.variables?.[type.id] === 'generated'" variant="green" size="sm">Done</Tag>
-                <Tag v-else-if="product.variables?.[type.id] === 'generating'" variant="orange" size="sm">...</Tag>
-              </div>
-            </div>
+            <!-- Divider -->
+            <div class="w-px bg-om-gray-100 shrink-0 self-stretch"></div>
 
-            <!-- Overall status -->
-            <Tag :variant="productStatus(product)" size="sm" class="shrink-0">{{ productStatusLabel(product) }}</Tag>
+            <!-- Right half: image + texts stacked -->
+            <div class="w-1/2 pl-4 flex flex-col gap-3">
+              <!-- Top: image preview + type list + status -->
+              <div class="flex items-center gap-4">
+                <!-- 16:9 image preview -->
+                <div
+                  class="rounded-lg shrink-0 overflow-hidden"
+                  style="aspect-ratio: 16/9; height: 96px;"
+                  :class="product.status === 'generated' ? '' : 'border-2 border-dashed border-om-gray-200 flex items-center justify-center'"
+                >
+                  <img v-if="product.status === 'generated'" src="/image-with-badge/whisky2.png" class="w-full h-full object-cover" />
+                  <svg v-else class="w-5 h-5 text-om-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                </div>
+
+                <!-- Output info -->
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-0.5">Output</p>
+                  <p v-if="product.status === 'generated'" class="text-sm text-om-gray-600">AI Image</p>
+                  <p v-else class="text-sm text-om-gray-400">Pending generation</p>
+                </div>
+
+                <!-- Status badge -->
+                <Tag v-if="product.status === 'generated'" variant="green" class="shrink-0">
+                  <template #icon><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" /><path stroke-linecap="round" stroke-linejoin="round" d="M8 12l3 3 5-5" /></svg></template>
+                  Ready to use
+                </Tag>
+                <Tag v-else-if="product.status === 'generating'" variant="orange" class="shrink-0">
+                  <template #icon><svg class="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg></template>
+                  Generating
+                </Tag>
+              </div>
+
+              <!-- Text content below image -->
+              <template v-if="hasTextTypes">
+                <div v-for="type in textTypes" :key="type.id" class="border-t border-om-gray-100 pt-2.5 flex flex-col gap-1.5">
+                  <div class="flex items-center gap-1.5">
+                    <Type :size="12" class="text-om-gray-400 shrink-0" />
+                    <span class="text-[11px] font-semibold text-om-gray-400 uppercase tracking-wider">{{ type.label }}</span>
+                  </div>
+                  <!-- Generated content -->
+                  <template v-if="product.status === 'generated'">
+                    <p v-if="type.id === 'product-sentence'" class="text-sm text-om-gray-600 leading-relaxed">
+                      A unique blend of Irish whiskey with vanilla and roasted malt — silky smooth, perfect neat or in cocktails.
+                    </p>
+                    <ul v-else-if="type.id === 'benefit-list'" class="flex flex-col gap-1">
+                      <li class="flex items-start gap-2 text-sm text-om-gray-600">
+                        <span class="mt-1 w-1.5 h-1.5 rounded-full bg-om-gray-400 shrink-0"></span>
+                        Unique Irish whiskey & vanilla blend
+                      </li>
+                      <li class="flex items-start gap-2 text-sm text-om-gray-600">
+                        <span class="mt-1 w-1.5 h-1.5 rounded-full bg-om-gray-400 shrink-0"></span>
+                        Silky smooth, perfect neat or on ice
+                      </li>
+                      <li class="flex items-start gap-2 text-sm text-om-gray-600">
+                        <span class="mt-1 w-1.5 h-1.5 rounded-full bg-om-gray-400 shrink-0"></span>
+                        Award-winning craft liqueur
+                      </li>
+                    </ul>
+                  </template>
+                  <!-- Skeleton -->
+                  <template v-else>
+                    <div v-if="type.id === 'product-sentence'" class="flex flex-col gap-2">
+                      <div class="h-3 bg-om-gray-200 rounded w-full"></div>
+                      <div class="h-3 bg-om-gray-200 rounded w-3/4"></div>
+                    </div>
+                    <div v-else-if="type.id === 'benefit-list'" class="flex flex-col gap-2">
+                      <div class="flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-om-gray-200 shrink-0"></div>
+                        <div class="h-3 bg-om-gray-200 rounded w-4/5"></div>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-om-gray-200 shrink-0"></div>
+                        <div class="h-3 bg-om-gray-200 rounded w-3/5"></div>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-om-gray-200 shrink-0"></div>
+                        <div class="h-3 bg-om-gray-200 rounded w-2/3"></div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </template>
+            </div>
           </div>
         </div>
 
@@ -166,7 +234,7 @@ import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Tag from '../components/shared/Tag.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
-import { ArrowLeft, Search, SlidersHorizontal, Upload, ArrowDownAZ, Coins } from 'lucide-vue-next'
+import { ArrowLeft, Search, SlidersHorizontal, Upload, ArrowDownAZ, Coins, ImageIcon, Type } from 'lucide-vue-next'
 
 const props = defineProps({
   selectedTypes: { type: Array, default: () => [] },
@@ -185,6 +253,10 @@ const allTypes = [
 ]
 
 const variableTypes = computed(() => allTypes.filter(t => props.selectedTypes.includes(t.id)))
+
+const isImageTypeId = (id) => id === 'product-image' || id === 'image-badge'
+const textTypes = computed(() => variableTypes.value.filter(t => !isImageTypeId(t.id)))
+const hasTextTypes = computed(() => textTypes.value.length > 0)
 
 // Tabs
 const activeTab = ref('selected')
