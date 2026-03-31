@@ -98,7 +98,7 @@
                 v-for="tab in ['Top', 'Latest']"
                 :key="tab"
                 @click="campaignTab = tab.toLowerCase()"
-                :class="['px-4 py-2.5 text-sm font-medium transition-colors relative cursor-pointer', campaignTab === tab.toLowerCase() ? 'text-om-orange-500' : 'text-om-gray-500 hover:text-om-gray-700']"
+                :class="['px-4 py-2.5 text-sm font-medium transition-colors relative cursor-pointer', campaignTab === tab.toLowerCase() ? 'text-om-orange-500' : 'text-om-gray-600 hover:text-om-gray-700']"
               >
                 {{ tab }}
                 <span v-if="campaignTab === tab.toLowerCase()" class="absolute bottom-0 left-0 right-0 h-0.5 bg-om-orange-500"></span>
