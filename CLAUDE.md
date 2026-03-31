@@ -25,6 +25,11 @@ Currently archived view files (do not touch):
 - `src/views/WizardAnalysisView.vue`
 - `src/views/AiTextsImagesV1View.vue`
 - `src/views/RegistrationV1View.vue`
+- `src/views/PpoCampaignFlowV1View.vue`
+- `src/views/PpoCampaignDetailV1View.vue`
+- `src/views/PpoVariantDetailV1View.vue`
+- `src/views/PpoVariableSetupV1View.vue`
+- `src/views/PpoGenerationV1View.vue`
 - `src/views/_archive/` (entire folder)
 
 ---

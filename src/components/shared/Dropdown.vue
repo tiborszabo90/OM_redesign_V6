@@ -13,7 +13,7 @@
       :style="buttonStyle"
     >
       <slot name="selected" :option="selectedOption" :label="displayLabel">
-        {{ displayLabel }}
+        <span class="block truncate">{{ displayLabel }}</span>
       </slot>
     </button>
 

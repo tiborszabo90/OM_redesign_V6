@@ -92,7 +92,7 @@
         <!-- Campaign Cards List View -->
         <div v-if="viewMode === 'list'" class="space-y-4">
           <CampaignCard
-            v-for="campaign in campaigns"
+            v-for="campaign in pagedCampaigns"
             :key="campaign.id"
             :name="campaign.name"
             :domain="campaign.domain"
@@ -112,7 +112,7 @@
         <!-- Campaign Cards Grid View -->
         <div v-else class="grid grid-cols-3 gap-4">
           <CampaignCard
-            v-for="campaign in campaigns"
+            v-for="campaign in pagedCampaigns"
             :key="campaign.id + '-grid'"
             :name="campaign.name"
             :domain="campaign.domain"
@@ -128,6 +128,19 @@
             @click="handleCampaignClick(campaign.id)"
           />
         </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-6">
+          <span class="text-sm text-om-gray-400">Showing {{ (page - 1) * perPage + 1 }} to {{ Math.min(page * perPage, campaigns.length) }} of {{ campaigns.length }} campaigns</span>
+          <div class="flex items-center gap-1">
+            <Button variant="ghost" size="sm" :disabled="page === 1" @click="page--">Previous</Button>
+            <template v-for="p in totalPages" :key="p">
+              <Button v-if="p <= 3 || p === totalPages" variant="ghost" size="sm" :active="p === page" @click="page = p">{{ p }}</Button>
+              <span v-else-if="p === 4 && totalPages > 4" class="px-2 text-sm text-om-gray-400">...</span>
+            </template>
+            <Button variant="ghost" size="sm" :disabled="page === totalPages" @click="page++">Next</Button>
+          </div>
+        </div>
       </div>
     </template>
     <template #right-panel>
@@ -138,7 +151,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import { Plus, LayoutGrid, Search, Calendar, ArrowUpDown, Check } from 'lucide-vue-next'
 import Dropdown from '../components/shared/Dropdown.vue'
@@ -267,7 +280,153 @@ const campaigns = reactive([
       { label: 'Visitors', value: '1,456' },
     ],
   },
+  {
+    id: 'campaign5', name: 'Welcome Back Popup', domain: 'domain.com', image: '/campaigns/smart-discount-popup.png',
+    active: true, selected: false, lastUpdated: '7 days ago',
+    metrics: [{ label: 'Impressions', value: '2,891' }, { label: 'Submits', value: '203' }, { label: 'Submit rate', value: '7.02%' }],
+  },
+  {
+    id: 'campaign6', name: 'Exit Intent Offer', domain: 'domain.com', image: '/campaigns/cart-abandonment-stopper.png',
+    active: true, selected: false, lastUpdated: '3 days ago',
+    metrics: [{ label: 'Impressions', value: '4,120' }, { label: 'Submits', value: '298' }, { label: 'Submit rate', value: '7.23%' }],
+  },
+  {
+    id: 'campaign7', name: 'Newsletter Signup', domain: 'domain.com', image: '/campaigns/lucky-wheel.png',
+    active: false, selected: false, lastUpdated: '21 days ago',
+    metrics: [{ label: 'Impressions', value: '890' }, { label: 'Submits', value: '67' }, { label: 'Submit rate', value: '7.53%' }],
+  },
+  {
+    id: 'campaign8', name: 'Free Shipping Bar', domain: 'domain.com', image: '/campaigns/feedback-survey.png',
+    active: true, selected: false, lastUpdated: '1 day ago',
+    metrics: [{ label: 'Impressions', value: '6,234' }, { label: 'Submits', value: '412' }, { label: 'Submit rate', value: '6.61%' }],
+  },
+  {
+    id: 'campaign9', name: 'Black Friday Countdown', domain: 'domain.com', image: '/campaigns/smart-discount-popup.png',
+    active: false, selected: false, lastUpdated: '45 days ago',
+    metrics: [{ label: 'Impressions', value: '12,456' }, { label: 'Submits', value: '1,089' }, { label: 'Submit rate', value: '8.74%' }],
+  },
+  {
+    id: 'campaign10', name: 'Seasonal Sale Banner', domain: 'domain.com', image: '/campaigns/cart-abandonment-stopper.png',
+    active: true, selected: false, lastUpdated: '5 days ago',
+    metrics: [{ label: 'Impressions', value: '3,567' }, { label: 'Submits', value: '245' }, { label: 'Submit rate', value: '6.87%' }],
+  },
+  {
+    id: 'campaign11', name: 'Product Recommendation', domain: 'domain.com', image: '/image-with-badge/preview-1.png', imagePosition: 'top',
+    active: true, selected: false, lastUpdated: '2 days ago',
+    metrics: [{ label: 'Visitors', value: '5,210' }, { label: 'Add to cart', value: '389' }, { label: 'ATC rate', value: '7.47%' }],
+  },
+  {
+    id: 'campaign12', name: 'Social Proof Popup', domain: 'domain.com', image: '/campaigns/lucky-wheel.png',
+    active: true, selected: false, lastUpdated: '10 days ago',
+    metrics: [{ label: 'Impressions', value: '1,890' }, { label: 'Submits', value: '156' }, { label: 'Submit rate', value: '8.25%' }],
+  },
+  {
+    id: 'campaign13', name: 'Loyalty Reward Alert', domain: 'domain.com', image: '/campaigns/feedback-survey.png',
+    active: false, selected: false, lastUpdated: '30 days ago',
+    metrics: [{ label: 'Impressions', value: '756' }, { label: 'Submits', value: '42' }, { label: 'Submit rate', value: '5.56%' }],
+  },
+  {
+    id: 'campaign14', name: 'Bundle Upsell Widget', domain: 'domain.com', image: '/campaigns/smart-discount-popup.png',
+    active: true, selected: false, lastUpdated: '4 days ago',
+    metrics: [{ label: 'Impressions', value: '2,345' }, { label: 'Submits', value: '178' }, { label: 'Submit rate', value: '7.59%' }],
+  },
+  {
+    id: 'campaign15', name: 'Countdown Timer Bar', domain: 'domain.com', image: '/campaigns/cart-abandonment-stopper.png',
+    active: true, selected: false, lastUpdated: '6 days ago',
+    metrics: [{ label: 'Impressions', value: '4,567' }, { label: 'Submits', value: '312' }, { label: 'Submit rate', value: '6.83%' }],
+  },
+  {
+    id: 'campaign16', name: 'Spin the Wheel V2', domain: 'domain.com', image: '/campaigns/lucky-wheel.png',
+    active: true, selected: false, lastUpdated: '8 days ago',
+    metrics: [{ label: 'Impressions', value: '3,210' }, { label: 'Submits', value: '289' }, { label: 'Submit rate', value: '9.00%' }],
+  },
+  {
+    id: 'campaign17', name: 'VIP Early Access', domain: 'domain.com', image: '/campaigns/feedback-survey.png',
+    active: false, selected: false, lastUpdated: '60 days ago',
+    metrics: [{ label: 'Impressions', value: '1,120' }, { label: 'Submits', value: '95' }, { label: 'Submit rate', value: '8.48%' }],
+  },
+  {
+    id: 'campaign18', name: 'Back in Stock Alert', domain: 'domain.com', image: '/campaigns/smart-discount-popup.png',
+    active: true, selected: false, lastUpdated: '2 days ago',
+    metrics: [{ label: 'Impressions', value: '1,789' }, { label: 'Submits', value: '134' }, { label: 'Submit rate', value: '7.49%' }],
+  },
+  {
+    id: 'campaign19', name: 'Post-Purchase Survey', domain: 'domain.com', image: '/campaigns/feedback-survey.png',
+    active: true, selected: false, lastUpdated: '12 days ago',
+    metrics: [{ label: 'Impressions', value: '945' }, { label: 'Submits', value: '78' }, { label: 'Submit rate', value: '8.25%' }],
+  },
+  {
+    id: 'campaign20', name: 'Holiday Gift Guide', domain: 'domain.com', image: '/campaigns/cart-abandonment-stopper.png',
+    active: false, selected: false, lastUpdated: '90 days ago',
+    metrics: [{ label: 'Impressions', value: '8,901' }, { label: 'Submits', value: '645' }, { label: 'Submit rate', value: '7.25%' }],
+  },
+  {
+    id: 'campaign21', name: 'First Purchase Discount', domain: 'domain.com', image: '/campaigns/smart-discount-popup.png',
+    active: true, selected: false, lastUpdated: '1 day ago',
+    metrics: [{ label: 'Impressions', value: '5,678' }, { label: 'Submits', value: '423' }, { label: 'Submit rate', value: '7.45%' }],
+  },
+  {
+    id: 'campaign22', name: 'Referral Program Popup', domain: 'domain.com', image: '/campaigns/lucky-wheel.png',
+    active: true, selected: false, lastUpdated: '9 days ago',
+    metrics: [{ label: 'Impressions', value: '2,100' }, { label: 'Submits', value: '168' }, { label: 'Submit rate', value: '8.00%' }],
+  },
+  {
+    id: 'campaign23', name: 'Student Discount Offer', domain: 'domain.com', image: '/campaigns/feedback-survey.png',
+    active: false, selected: false, lastUpdated: '35 days ago',
+    metrics: [{ label: 'Impressions', value: '1,345' }, { label: 'Submits', value: '98' }, { label: 'Submit rate', value: '7.29%' }],
+  },
+  {
+    id: 'campaign24', name: 'Mobile App Install', domain: 'domain.com', image: '/campaigns/cart-abandonment-stopper.png',
+    active: true, selected: false, lastUpdated: '4 days ago',
+    metrics: [{ label: 'Impressions', value: '3,890' }, { label: 'Submits', value: '267' }, { label: 'Submit rate', value: '6.86%' }],
+  },
+  {
+    id: 'campaign25', name: 'Abandoned Browse Retarget', domain: 'domain.com', image: '/campaigns/smart-discount-popup.png',
+    active: true, selected: false, lastUpdated: '6 days ago',
+    metrics: [{ label: 'Impressions', value: '2,456' }, { label: 'Submits', value: '189' }, { label: 'Submit rate', value: '7.70%' }],
+  },
+  {
+    id: 'campaign26', name: 'Cross-Sell Sidebar', domain: 'domain.com', image: '/image-with-badge/preview-1.png', imagePosition: 'top',
+    active: true, selected: false, lastUpdated: '3 days ago',
+    metrics: [{ label: 'Visitors', value: '4,100' }, { label: 'Add to cart', value: '310' }, { label: 'ATC rate', value: '7.56%' }],
+  },
+  {
+    id: 'campaign27', name: 'Price Drop Notification', domain: 'domain.com', image: '/campaigns/lucky-wheel.png',
+    active: false, selected: false, lastUpdated: '25 days ago',
+    metrics: [{ label: 'Impressions', value: '678' }, { label: 'Submits', value: '51' }, { label: 'Submit rate', value: '7.52%' }],
+  },
+  {
+    id: 'campaign28', name: 'Summer Collection Promo', domain: 'domain.com', image: '/campaigns/cart-abandonment-stopper.png',
+    active: true, selected: false, lastUpdated: '2 days ago',
+    metrics: [{ label: 'Impressions', value: '7,890' }, { label: 'Submits', value: '534' }, { label: 'Submit rate', value: '6.77%' }],
+  },
+  {
+    id: 'campaign29', name: 'Wishlist Reminder', domain: 'domain.com', image: '/campaigns/feedback-survey.png',
+    active: true, selected: false, lastUpdated: '11 days ago',
+    metrics: [{ label: 'Impressions', value: '1,234' }, { label: 'Submits', value: '102' }, { label: 'Submit rate', value: '8.27%' }],
+  },
+  {
+    id: 'campaign30', name: 'New Arrivals Teaser', domain: 'domain.com', image: '/campaigns/smart-discount-popup.png',
+    active: true, selected: false, lastUpdated: '5 days ago',
+    metrics: [{ label: 'Impressions', value: '3,456' }, { label: 'Submits', value: '256' }, { label: 'Submit rate', value: '7.41%' }],
+  },
+  {
+    id: 'campaign31', name: 'Review Request Popup', domain: 'domain.com', image: '/campaigns/feedback-survey.png',
+    active: false, selected: false, lastUpdated: '40 days ago',
+    metrics: [{ label: 'Impressions', value: '890' }, { label: 'Submits', value: '72' }, { label: 'Submit rate', value: '8.09%' }],
+  },
+  {
+    id: 'campaign32', name: 'Flash Sale Announcement', domain: 'domain.com', image: '/campaigns/cart-abandonment-stopper.png',
+    active: true, selected: false, lastUpdated: '1 day ago',
+    metrics: [{ label: 'Impressions', value: '9,012' }, { label: 'Submits', value: '678' }, { label: 'Submit rate', value: '7.52%' }],
+  },
 ])
+
+// Pagination
+const page = ref(1)
+const perPage = 20
+const totalPages = computed(() => Math.ceil(campaigns.length / perPage))
+const pagedCampaigns = computed(() => campaigns.slice((page.value - 1) * perPage, page.value * perPage))
 
 const selectedDomain = ref('telekom.hu')
 const domains = ref(['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com', '+ Add new domain'])

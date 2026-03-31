@@ -51,6 +51,11 @@ import PpoCampaignDetailView from './views/PpoCampaignDetailView.vue'
 import PpoVariantDetailView from './views/PpoVariantDetailView.vue'
 import PpoVariableSetupView from './views/PpoVariableSetupView.vue'
 import PpoGenerationView from './views/PpoGenerationView.vue'
+import PpoCampaignFlowV1View from './views/PpoCampaignFlowV1View.vue'
+import PpoCampaignDetailV1View from './views/PpoCampaignDetailV1View.vue'
+import PpoVariantDetailV1View from './views/PpoVariantDetailV1View.vue'
+import PpoVariableSetupV1View from './views/PpoVariableSetupV1View.vue'
+import PpoGenerationV1View from './views/PpoGenerationV1View.vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
 
 // URL slug <-> view name mapping
@@ -752,7 +757,8 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         'settings-ai-texts-images-v1', 'settings-ai-texts-images-v1-new', 'settings-ai-texts-images-v1-presets', 'settings-ai-texts-images-v1-preview', 'settings-ai-texts-images-v1-choose-products', 'settings-ai-texts-images-v1-generation', 'settings-ai-texts-images-v1-add-products', 'settings-ai-texts-images-v1-text-presets', 'settings-ai-texts-images-v1-text-preview', 'settings-ai-texts-images-v1-text-generation',
         'settings-ai-texts-images-v2', 'settings-ai-texts-images-v2-new', 'settings-ai-texts-images-v2-presets', 'settings-ai-texts-images-v2-preview', 'settings-ai-texts-images-v2-choose-products', 'settings-ai-texts-images-v2-generation', 'settings-ai-texts-images-v2-generation-product', 'settings-ai-texts-images-v2-add-products', 'settings-ai-texts-images-v2-text-presets', 'settings-ai-texts-images-v2-text-preview', 'settings-ai-texts-images-v2-text-generation',
         'ai-texts-images-v2', 'ai-texts-images-v2-new', 'ai-texts-images-v2-presets', 'ai-texts-images-v2-preview', 'ai-texts-images-v2-choose-products', 'ai-texts-images-v2-generation', 'ai-texts-images-v2-generation-product', 'ai-texts-images-v2-add-products', 'ai-texts-images-v2-text-presets', 'ai-texts-images-v2-text-preview', 'ai-texts-images-v2-text-generation',
-        'registration', 'registration-v1'].includes(currentView)"
+        'registration', 'registration-v1',
+        'ppo-v1-campaign-detail', 'ppo-v1-placement', 'ppo-v1-variant-detail-v1', 'ppo-v1-variant-detail-v2', 'ppo-v1-variable-setup', 'ppo-v1-generation', 'ppo-v1-campaign-flow'].includes(currentView)"
       class="pt-8 pl-8 shrink-0"
     >
       <img
@@ -776,6 +782,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         @go-editor="handleGoEditor"
         @go-ai-texts-images="handleGoAiTextsImages"
         @go-ai-texts-images-v2="handleGoAiTextsImagesV2"
+        @navigate="handleDevNavigate"
       />
       <RegistrationView
         v-else-if="currentView === 'registration'"
@@ -962,6 +969,46 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         variant="variant2"
         @menu-click="handleMenuClick"
         @back="currentView = 'ppo-campaign-detail'"
+        @navigate="handleDevNavigate"
+      />
+      <!-- PPO V1 (archived) -->
+      <PpoCampaignFlowV1View
+        v-else-if="currentView === 'ppo-v1-campaign-flow'"
+        @back="currentView = 'dev-start'"
+        @next="(types) => { ppoWizardState.selectedTypes = types; currentView = 'ppo-v1-variable-setup' }"
+      />
+      <PpoVariableSetupV1View
+        v-else-if="currentView === 'ppo-v1-variable-setup'"
+        :selected-types="ppoWizardState.selectedTypes"
+        @menu-click="handleMenuClick"
+        @back="currentView = 'ppo-v1-campaign-flow'"
+        @next="(configs) => { ppoWizardState.variableConfigs = configs; currentView = 'ppo-v1-generation' }"
+      />
+      <PpoGenerationV1View
+        v-else-if="currentView === 'ppo-v1-generation'"
+        :selected-types="ppoWizardState.selectedTypes"
+        @menu-click="handleMenuClick"
+        @back="currentView = 'ppo-v1-variable-setup'"
+        @create="currentView = 'ppo-v1-campaign-detail'"
+      />
+      <PpoCampaignDetailV1View
+        v-else-if="currentView === 'ppo-v1-campaign-detail' || currentView === 'ppo-v1-placement'"
+        :show-placement="currentView === 'ppo-v1-placement'"
+        @menu-click="handleMenuClick"
+        @navigate="handleDevNavigate"
+      />
+      <PpoVariantDetailV1View
+        v-else-if="currentView === 'ppo-v1-variant-detail-v1'"
+        variant="variant1"
+        @menu-click="handleMenuClick"
+        @back="currentView = 'ppo-v1-campaign-detail'"
+        @navigate="handleDevNavigate"
+      />
+      <PpoVariantDetailV1View
+        v-else-if="currentView === 'ppo-v1-variant-detail-v2'"
+        variant="variant2"
+        @menu-click="handleMenuClick"
+        @back="currentView = 'ppo-v1-campaign-detail'"
         @navigate="handleDevNavigate"
       />
       <CampaignPageWithReviewView

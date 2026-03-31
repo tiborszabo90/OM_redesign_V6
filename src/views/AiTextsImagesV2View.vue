@@ -1521,7 +1521,7 @@
         <!-- Filters + Search -->
         <div class="flex items-center justify-between mb-5">
           <div class="flex items-center gap-3">
-            <Dropdown v-model="selectedDomain" :options="domains" class="w-55">
+            <Dropdown v-model="selectedDomain" :options="domains" style="width: 230px">
               <template #icon>
                 <div class="w-6 h-6 rounded-full overflow-hidden">
                   <img src="/demos/telekom/logo.png" alt="Domain" class="w-full h-full object-cover" />
@@ -1935,7 +1935,7 @@ const toggleAllCp = () => {
 }
 
 const selectedDomain = ref('telekom.hu')
-const domains = ref(['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com', '+ Add new domain'])
+const domains = ref(['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com', 'my-very-long-domain-name-webshop.example.com', '+ Add new domain'])
 const showAddDomainModal = ref(false)
 watch(selectedDomain, (val) => {
   if (val === '+ Add new domain') {
