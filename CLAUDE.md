@@ -24,6 +24,7 @@ Currently archived view files (do not touch):
 - `src/views/TemplatesViewV3.vue`
 - `src/views/WizardAnalysisView.vue`
 - `src/views/AiTextsImagesV1View.vue`
+- `src/views/RegistrationV1View.vue`
 - `src/views/_archive/` (entire folder)
 
 ---

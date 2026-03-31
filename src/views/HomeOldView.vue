@@ -89,10 +89,21 @@
           </div>
         </div>
 
-        <!-- Top Campaigns Section -->
+        <!-- Campaigns Section -->
         <div class="mt-8">
+          <h2 class="text-lg font-semibold text-om-gray-700 mb-4">Campaigns</h2>
           <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-om-gray-700">Top campaigns</h2>
+            <div class="flex">
+              <button
+                v-for="tab in ['Top', 'Latest']"
+                :key="tab"
+                @click="campaignTab = tab.toLowerCase()"
+                :class="['px-4 py-2.5 text-sm font-medium transition-colors relative cursor-pointer', campaignTab === tab.toLowerCase() ? 'text-om-orange-500' : 'text-om-gray-500 hover:text-om-gray-700']"
+              >
+                {{ tab }}
+                <span v-if="campaignTab === tab.toLowerCase()" class="absolute bottom-0 left-0 right-0 h-0.5 bg-om-orange-500"></span>
+              </button>
+            </div>
             <div class="flex items-center gap-2">
               <Button variant="ghost" size="sm">All campaigns</Button>
               <Button variant="primary" size="sm" @click="$emit('new-campaign')">New campaign</Button>
@@ -150,6 +161,7 @@ const handleLogoClick = () => {
 }
 
 const isChatOpen = ref(false)
+const campaignTab = ref('top')
 
 const chatSuggestions = [
   'How is my account performing?',

@@ -3,13 +3,13 @@
     <template #content>
       <div class="flex gap-12 min-h-full">
         <!-- Settings Sidebar -->
-        <aside class="w-48 shrink-0 bg-white px-4 pb-4 pt-6 border-r border-[#E5E7EB]">
+        <aside class="w-60 shrink-0 bg-white px-6 pb-4 pt-6 border-r border-[#E5E7EB]">
           <h2 class="text-2xl font-semibold text-om-gray-700 mb-6 ml-1">Settings</h2>
 
           <!-- Contact information -->
           <div class="mb-5">
             <p class="text-sm font-semibold text-om-gray-700 mb-1 px-2">Contact information</p>
-            <nav class="flex flex-col">
+            <nav class="flex flex-col pl-2">
               <button
                 v-for="item in contactItems"
                 :key="item.id"
@@ -22,7 +22,7 @@
           <!-- Billing -->
           <div class="mb-5">
             <p class="text-sm font-semibold text-om-gray-700 mb-1 px-2">Billing</p>
-            <nav class="flex flex-col">
+            <nav class="flex flex-col pl-2">
               <button
                 v-for="item in billingItems"
                 :key="item.id"
@@ -35,7 +35,7 @@
           <!-- Products -->
           <div class="mb-5">
             <p class="text-sm font-semibold text-om-gray-700 mb-1 px-2">Products</p>
-            <nav class="flex flex-col">
+            <nav class="flex flex-col pl-2">
               <button
                 v-for="item in productsItems"
                 :key="item.id"
@@ -48,7 +48,7 @@
           <!-- Account -->
           <div>
             <p class="text-sm font-semibold text-om-gray-700 mb-1 px-2">Account</p>
-            <nav class="flex flex-col">
+            <nav class="flex flex-col pl-2">
               <button
                 v-for="item in accountItems"
                 :key="item.id"
@@ -206,7 +206,7 @@ const currentSectionTitle = computed(() => {
 })
 
 const navItemClass = (id) => {
-  const base = 'text-left text-sm py-1.5 px-2 rounded-lg transition-colors cursor-pointer w-full font-medium'
+  const base = 'text-left text-sm py-1.5 px-3 rounded-lg transition-colors cursor-pointer w-full font-medium'
   if (activeSection.value === id) {
     return `${base} bg-[#FEEFEA] text-[#ED5A29]`
   }

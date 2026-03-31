@@ -46,9 +46,6 @@
           <div class="flex items-center gap-2 shrink-0">
             <Button variant="outline" size="sm">Contact support</Button>
             <Button variant="primary" size="sm" @click="$emit('navigate-to-review')">Everything's great</Button>
-            <Button variant="ghost" size="sm" icon-only @click="showSuccessBox = false">
-              <template #icon><X :size="16" /></template>
-            </Button>
           </div>
         </div>
 

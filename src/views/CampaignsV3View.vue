@@ -56,9 +56,27 @@
             <Button variant="ghost" size="sm" icon-only>
               <template #icon><Search :size="18" /></template>
             </Button>
-            <Button variant="ghost" size="sm" icon-only>
-              <template #icon><ArrowUpDown :size="18" /></template>
-            </Button>
+            <div class="relative">
+              <Button variant="ghost" size="sm" icon-only :class="sortOpen ? '!bg-[#E3E5E8]' : ''" @click="sortOpen = !sortOpen">
+                <template #icon><ArrowUpDown :size="18" /></template>
+              </Button>
+              <div v-if="sortOpen" class="fixed inset-0 z-10" @click="sortOpen = false" />
+              <div
+                v-if="sortOpen"
+                class="absolute right-0 top-full mt-1 z-20 bg-white border border-[#D5D8DD] rounded-lg shadow-lg overflow-hidden min-w-[200px]"
+              >
+                <button
+                  v-for="opt in sortOptions"
+                  :key="opt.value"
+                  @click="sortBy = opt.value; sortOpen = false"
+                  class="w-full text-left text-sm text-[#23262A] px-3 py-1.5 hover:bg-[#F9FAFB] transition-colors cursor-pointer flex items-center justify-between"
+                  :class="sortBy === opt.value ? 'bg-[#F1F2F4] font-medium' : ''"
+                >
+                  {{ opt.label }}
+                  <Check v-if="sortBy === opt.value" :size="16" class="text-om-gray-500 shrink-0" />
+                </button>
+              </div>
+            </div>
             <Dropdown
               v-model="selectedTimeFilter"
               :options="timeFilterOptions"
@@ -122,7 +140,7 @@
 <script setup>
 import { ref, reactive, watch } from 'vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
-import { Plus, LayoutGrid, Search, Calendar, ArrowUpDown } from 'lucide-vue-next'
+import { Plus, LayoutGrid, Search, Calendar, ArrowUpDown, Check } from 'lucide-vue-next'
 import Dropdown from '../components/shared/Dropdown.vue'
 import Button from '../components/shared/Button.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
@@ -132,6 +150,20 @@ import AddDomainModal from '../components/shared/AddDomainModal.vue'
 const emit = defineEmits(['menu-click', 'navigate-to-campaign', 'navigate-to-ppo-detail'])
 
 const isChatOpen = ref(false)
+
+const sortOpen = ref(false)
+const sortBy = ref('conversion-desc')
+const sortOptions = [
+  { value: 'conversion-desc', label: '↓ Conversion rate' },
+  { value: 'conversion-asc',  label: '↑ Conversion rate' },
+  { value: 'impressions-desc', label: '↓ Impressions' },
+  { value: 'impressions-asc',  label: '↑ Impressions' },
+  { value: 'name-asc',         label: '↓ Name A–Z' },
+  { value: 'name-desc',        label: '↑ Name Z–A' },
+  { value: 'newest',           label: '↓ Newest first' },
+  { value: 'oldest',           label: '↑ Oldest first' },
+  { value: 'status',           label: 'Status' },
+]
 
 const chatSuggestions = [
   'Which campaign has the best conversion rate?',
