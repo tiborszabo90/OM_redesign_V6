@@ -1585,8 +1585,8 @@
       </div>
 
       </div>
+      <AddDomainModal v-model="showAddDomainModal" @add="handleNewDomain" />
     </template>
-    <AddDomainModal v-model="showAddDomainModal" @add="handleNewDomain" />
   </DashboardLayout>
 </template>
 
