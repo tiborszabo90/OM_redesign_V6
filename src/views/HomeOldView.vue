@@ -67,10 +67,12 @@
               <p class="text-sm font-semibold text-om-gray-700">Invite your teammates</p>
               <p class="text-xs text-om-gray-400 mt-0.5">Get more out of OptiMonk by inviting your team for free</p>
             </div>
-            <Button variant="outline" size="sm">Invite your team</Button>
-            <button @click="showInviteBlock = false" class="text-om-gray-400 hover:text-om-gray-600 transition-colors cursor-pointer shrink-0">
-              <X :size="16" />
-            </button>
+            <div class="flex items-center gap-1 shrink-0">
+              <Button variant="outline" size="sm">Invite your team</Button>
+              <Button variant="ghost" size="sm" icon-only @click="showInviteBlock = false">
+                <template #icon><X :size="16" /></template>
+              </Button>
+            </div>
           </div>
 
           <!-- Consultation block -->
@@ -82,10 +84,12 @@
               <p class="text-sm font-semibold text-om-gray-700">Free consultation / demo</p>
               <p class="text-xs text-om-gray-400 mt-0.5">Discover OptiMonk with expert guidance</p>
             </div>
-            <Button variant="outline" size="sm">Book now</Button>
-            <button @click="showConsultBlock = false" class="text-om-gray-400 hover:text-om-gray-600 transition-colors cursor-pointer shrink-0">
-              <X :size="16" />
-            </button>
+            <div class="flex items-center gap-1 shrink-0">
+              <Button variant="outline" size="sm">Book now</Button>
+              <Button variant="ghost" size="sm" icon-only @click="showConsultBlock = false">
+                <template #icon><X :size="16" /></template>
+              </Button>
+            </div>
           </div>
         </div>
 
