@@ -62,8 +62,7 @@
         @click="closePanel"
         class="w-8 h-8 rounded-lg flex items-center justify-center text-[#8F97A4] hover:text-[#505763] hover:bg-[#F1F2F4] transition-colors cursor-pointer"
       >
-        <PanelLeftClose v-if="side === 'left'" :size="16" />
-        <PanelRightClose v-else :size="16" />
+        <X :size="16" />
       </button>
     </div>
 
@@ -105,11 +104,10 @@
     <!-- Empty state (outside overflow container so scale hover is not clipped) -->
     <div v-if="messages.length === 0" class="flex-1 flex flex-col mb-4">
       <!-- Floating monk -->
-      <div class="flex-1 flex flex-col items-center justify-center pl-[10%] mt-[5%]">
+      <div class="flex-1 flex flex-col items-center justify-center">
         <div class="relative w-56 h-48 mb-4 flex items-end justify-center">
           <img src="/monk-shadow.svg" alt="" class="absolute -bottom-3 w-36 opacity-60 monk-shadow-pulse" />
           <img src="/monk-medit.2.svg" alt="OptiMonk" class="relative w-44 h-44 object-contain monk-float" />
-          <img src="/help.svg" alt="" class="absolute -top-22 -left-10 w-40 h-40 monk-bubble" />
         </div>
       </div>
       <!-- Suggestions at the bottom -->
@@ -217,7 +215,7 @@
 
 <script setup>
 import { ref, computed, nextTick, onUnmounted } from 'vue'
-import { ArrowUp, X, Check, Paperclip, ChevronDown, PanelRightClose, PanelLeftClose } from 'lucide-vue-next'
+import { ArrowUp, X, Check, Paperclip, ChevronDown } from 'lucide-vue-next'
 import Button from './Button.vue'
 
 const props = defineProps({
@@ -542,13 +540,6 @@ const handleChatSubmit = () => {
 }
 .monk-shadow-pulse {
   animation: monk-shadow-pulse 4s ease-in-out infinite;
-}
-@keyframes monk-bubble {
-  0%, 100% { transform: translateY(0) rotate(-1deg); }
-  50% { transform: translateY(-6px) rotate(1deg); }
-}
-.monk-bubble {
-  animation: monk-bubble 3s ease-in-out infinite;
 }
 
 /* Panel collapse-to-FAB transition */

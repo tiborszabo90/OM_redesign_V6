@@ -294,6 +294,14 @@ const sectionGroups = {
       { view: 'ppo-v1-generation', label: 'Generation' },
     ],
   },
+  registration: {
+    label: 'Registration',
+    views: ['registration', 'registration-v2'],
+    items: [
+      { view: 'registration', label: 'Registration' },
+      { view: 'registration-v2', label: 'Registration V2' },
+    ],
+  },
   aiContent: {
     label: 'AI Content',
     views: null, // uses startsWith matching

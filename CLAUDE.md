@@ -110,6 +110,7 @@ If a suitable shared component does not exist, create it in `src/components/shar
 ```
 - `options`: required — array of strings or `{ value, label }` objects
 - `size`: `default` | `sm`
+- `drop-up`: `Boolean` — opens menu upward (useful for bottom-of-page dropdowns)
 - Slots: `selected` (custom selected display), `icon` (left icon), `option` (custom option row)
 - **Always use instead of custom `<select>` or hand-rolled dropdowns**
 

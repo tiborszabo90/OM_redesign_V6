@@ -3,6 +3,7 @@ import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import DevStartView from './views/DevStartView.vue'
 import RegistrationView from './views/RegistrationView.vue'
 import RegistrationV1View from './views/RegistrationV1View.vue'
+import RegistrationV2View from './views/RegistrationV2View.vue'
 import OnboardingView from './views/OnboardingView.vue'
 import TaskCreationView from './views/TaskCreationView.vue'
 import WizardAnalysisView from './views/WizardAnalysisView.vue'
@@ -410,7 +411,7 @@ const handleDevNavigate = (view) => {
   } else if (view === 'templates-v1' || view === 'templates-v2' || view === 'templates-v2-essential-theme' || view === 'templates-v2-branding' || view === 'templates-v3') {
     // Templates views
     currentView.value = view
-  } else if (view === 'registration' || view === 'onboarding' || view === 'wizard') {
+  } else if (view === 'registration' || view === 'registration-v2' || view === 'onboarding' || view === 'wizard') {
     // Navigating to flow views - ensure flow is selected
     flowSelected.value = true
     sessionKey.value++
@@ -760,7 +761,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         'settings-ai-texts-images-v1', 'settings-ai-texts-images-v1-new', 'settings-ai-texts-images-v1-presets', 'settings-ai-texts-images-v1-preview', 'settings-ai-texts-images-v1-choose-products', 'settings-ai-texts-images-v1-generation', 'settings-ai-texts-images-v1-add-products', 'settings-ai-texts-images-v1-text-presets', 'settings-ai-texts-images-v1-text-preview', 'settings-ai-texts-images-v1-text-generation',
         'settings-ai-texts-images-v2', 'settings-ai-texts-images-v2-new', 'settings-ai-texts-images-v2-presets', 'settings-ai-texts-images-v2-preview', 'settings-ai-texts-images-v2-choose-products', 'settings-ai-texts-images-v2-generation', 'settings-ai-texts-images-v2-generation-product', 'settings-ai-texts-images-v2-add-products', 'settings-ai-texts-images-v2-text-presets', 'settings-ai-texts-images-v2-text-preview', 'settings-ai-texts-images-v2-text-generation',
         'ai-texts-images-v2', 'ai-texts-images-v2-new', 'ai-texts-images-v2-presets', 'ai-texts-images-v2-preview', 'ai-texts-images-v2-choose-products', 'ai-texts-images-v2-generation', 'ai-texts-images-v2-generation-product', 'ai-texts-images-v2-add-products', 'ai-texts-images-v2-text-presets', 'ai-texts-images-v2-text-preview', 'ai-texts-images-v2-text-generation',
-        'registration', 'registration-v1',
+        'registration', 'registration-v1', 'registration-v2',
         'ppo-v1-campaign-detail', 'ppo-v1-placement', 'ppo-v1-variant-detail-v1', 'ppo-v1-variant-detail-v2', 'ppo-v1-variable-setup', 'ppo-v1-generation', 'ppo-v1-campaign-flow'].includes(currentView)"
       class="pt-8 pl-8 shrink-0"
     >
@@ -796,6 +797,11 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         v-else-if="currentView === 'registration-v1'"
         :key="'reg-v1-' + sessionKey"
         :registration-type="registrationType"
+        @complete="handleRegistrationComplete"
+      />
+      <RegistrationV2View
+        v-else-if="currentView === 'registration-v2'"
+        :key="'reg-v2-' + sessionKey"
         @complete="handleRegistrationComplete"
       />
       <OnboardingView
