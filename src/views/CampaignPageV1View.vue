@@ -49,52 +49,36 @@
               >
                 <div
                   v-if="isKebabMenuOpen"
-                  class="absolute right-0 mt-2 w-56 bg-white border border-om-gray-200 rounded-xl shadow-lg overflow-hidden z-10"
+                  class="absolute right-0 mt-2 z-10 bg-white border border-om-gray-200 rounded-lg shadow-lg min-w-[180px]"
                 >
-                  <button
-                    @click="handleDuplicate"
-                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
-                  >
-                    Duplicate
-                  </button>
-                  <button
-                    @click="handlePrioritySettings"
-                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
-                  >
-                    Priority settings
-                  </button>
-                  <button
-                    @click="handleChangeLog"
-                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
-                  >
-                    Change log
-                  </button>
-                  <button
-                    @click="handleArchive"
-                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
-                  >
-                    Archive
-                  </button>
-                  <button
-                    @click="handleEditSchedule"
-                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
-                  >
-                    {{ scheduleSaved ? 'Edit schedule' : 'Add schedule' }}
-                  </button>
-                  <button
-                    v-if="scheduleSaved"
-                    @click="handleDeleteSchedule"
-                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
-                  >
-                    Delete schedule
-                  </button>
-                  <div class="border-t border-om-gray-200"></div>
-                  <button
-                    @click="handleDelete"
-                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
-                  >
-                    Delete
-                  </button>
+                  <button class="w-full text-left text-sm text-om-gray-700 px-4 py-2 hover:bg-om-gray-50 transition-colors cursor-pointer" @click="handleRename">Rename</button>
+                  <button class="w-full text-left text-sm text-om-gray-700 px-4 py-2 hover:bg-om-gray-50 transition-colors cursor-pointer" @click="handleDuplicate">Duplicate</button>
+                  <button class="w-full text-left text-sm text-om-gray-700 px-4 py-2 hover:bg-om-gray-50 transition-colors cursor-pointer" @click="handleEditSchedule">Edit schedule</button>
+                  <!-- Set priority submenu -->
+                  <div class="relative" @mouseenter="isPriorityOpen = true" @mouseleave="isPriorityOpen = false">
+                    <button :class="['w-full text-left text-sm text-om-gray-700 px-4 py-2 hover:bg-om-gray-50 transition-colors cursor-pointer flex items-center justify-between', isPriorityOpen ? 'bg-om-gray-100' : '']">
+                      Set priority
+                      <ChevronRight :size="14" class="text-om-gray-400" />
+                    </button>
+                    <div
+                      v-if="isPriorityOpen"
+                      class="absolute right-full top-0 -mr-px z-30 bg-white border border-om-gray-200 rounded-lg shadow-lg min-w-[150px]"
+                    >
+                      <button class="w-full text-left text-sm text-om-gray-700 px-4 py-2 hover:bg-om-gray-50 transition-colors cursor-pointer flex items-center gap-2" @click="handleSetPriority('high')">
+                        <ChevronsUp :size="14" class="text-om-orange-500" /> High
+                      </button>
+                      <button class="w-full text-left text-sm text-om-gray-700 px-4 py-2 hover:bg-om-gray-50 transition-colors cursor-pointer flex items-center gap-2" @click="handleSetPriority('normal')">
+                        <Minus :size="14" class="text-om-gray-400" /> Normal <Check :size="14" class="text-om-gray-500 ml-auto" />
+                      </button>
+                      <button class="w-full text-left text-sm text-om-gray-700 px-4 py-2 hover:bg-om-gray-50 transition-colors cursor-pointer flex items-center gap-2" @click="handleSetPriority('low')">
+                        <ChevronsDown :size="14" class="text-blue-500" /> Low
+                      </button>
+                    </div>
+                  </div>
+                  <button class="w-full text-left text-sm text-om-gray-700 px-4 py-2 hover:bg-om-gray-50 transition-colors cursor-pointer" @click="handleShare">Share</button>
+                  <div class="border-t border-om-gray-100 my-1"></div>
+                  <button class="w-full text-left text-sm text-om-gray-700 px-4 py-2 hover:bg-om-gray-50 transition-colors cursor-pointer" @click="handleArchive">Archive</button>
+                  <button class="w-full text-left text-sm text-om-gray-700 px-4 py-2 hover:bg-om-gray-50 transition-colors cursor-pointer" @click="handleDelete">Delete</button>
                 </div>
               </transition>
             </div>
@@ -787,7 +771,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { ChevronDown, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X } from 'lucide-vue-next'
+import { ChevronDown, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check } from 'lucide-vue-next'
 import Button from '../components/shared/Button.vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
@@ -871,6 +855,7 @@ const handleLogoClick = () => {
 
 // Kebab menu state
 const isKebabMenuOpen = ref(false)
+const isPriorityOpen = ref(false)
 
 // Schedule Modal states
 const isScheduleModalOpen = ref(false)
@@ -966,18 +951,24 @@ const saveSchedule = () => {
 }
 
 // Kebab menu handlers
+const handleRename = () => {
+  console.log('Rename campaign')
+  isKebabMenuOpen.value = false
+}
+
 const handleDuplicate = () => {
   console.log('Duplicate campaign')
   isKebabMenuOpen.value = false
 }
 
-const handlePrioritySettings = () => {
-  console.log('Open priority settings')
+const handleSetPriority = (level) => {
+  console.log('Set priority:', level)
   isKebabMenuOpen.value = false
+  isPriorityOpen.value = false
 }
 
-const handleChangeLog = () => {
-  console.log('Open change log')
+const handleShare = () => {
+  console.log('Share campaign')
   isKebabMenuOpen.value = false
 }
 
