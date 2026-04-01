@@ -5,8 +5,8 @@
       @click="isOpen = !isOpen"
       :class="[
         'dropdown-select w-full text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 cursor-pointer bg-white text-left transition-colors border border-om-gray-200',
-        hasIcon ? 'pl-9 pr-8 py-2 rounded-lg' : '',
-        !hasIcon && size === 'default' ? 'px-4 pr-8 py-2.5 rounded-lg' : '',
+        hasIcon ? 'pl-9 pr-8 h-10 rounded-lg flex items-center' : '',
+        !hasIcon && size === 'default' ? 'px-4 pr-8 h-10 rounded-lg flex items-center' : '',
         !hasIcon && size === 'sm' ? 'px-3 pr-8 py-1.5 rounded-lg' : '',
         isOpen ? 'border-om-orange-300' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'
       ]"
@@ -43,8 +43,8 @@
       <div
         v-if="isOpen"
         :class="[
-          'absolute z-10 w-full bg-white border border-[#D5D8DD] shadow-lg overflow-hidden',
-          'mt-0 rounded-lg'
+          'absolute z-10 w-full bg-white border border-[#D5D8DD] shadow-lg overflow-hidden rounded-lg',
+          props.dropUp ? 'bottom-full mb-1' : 'mt-0'
         ]"
       >
         <button
@@ -91,6 +91,10 @@ const props = defineProps({
     type: String,
     default: 'default',
     validator: (v) => ['default', 'sm'].includes(v)
+  },
+  dropUp: {
+    type: Boolean,
+    default: false
   }
 })
 

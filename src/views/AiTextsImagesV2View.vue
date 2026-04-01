@@ -1314,7 +1314,7 @@
             </Button>
           </div>
           <div class="relative flex items-center gap-2">
-            <Button variant="ghost" size="sm" icon-only :class="cpSortOpen ? '!bg-[#E3E5E8]' : ''" @click="cpSortOpen = !cpSortOpen">
+            <Button variant="ghost" size="sm" icon-only :class="cpSortOpen ? '!bg-[#505763]/10' : ''" @click="cpSortOpen = !cpSortOpen">
               <template #icon><ArrowUpDown :size="15" /></template>
             </Button>
             <div v-if="cpSortOpen" class="fixed inset-0 z-10" @click="cpSortOpen = false" />
@@ -1442,7 +1442,7 @@
             </Button>
           </div>
           <div class="relative flex items-center gap-2">
-            <Button variant="ghost" size="sm" icon-only :class="cpSortOpen ? '!bg-[#E3E5E8]' : ''" @click="cpSortOpen = !cpSortOpen">
+            <Button variant="ghost" size="sm" icon-only :class="cpSortOpen ? '!bg-[#505763]/10' : ''" @click="cpSortOpen = !cpSortOpen">
               <template #icon><ArrowUpDown :size="15" /></template>
             </Button>
             <div v-if="cpSortOpen" class="fixed inset-0 z-10" @click="cpSortOpen = false" />

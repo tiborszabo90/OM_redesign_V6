@@ -66,5 +66,6 @@ const archiveItems = [
   { view: 'settings-ai-texts-images-v1', label: 'AI Texts & Images V1' },
   { view: 'registration-v1', label: 'Registration V1' },
   { view: 'ppo-v1-campaign-flow', label: 'PPO V1' },
+  { view: 'ppo-campaign-flow-v2', label: 'PPO Campaign Flow (tiles)' },
 ]
 </script>

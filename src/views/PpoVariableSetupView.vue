@@ -52,7 +52,7 @@
           <div class="flex items-center gap-2 ml-auto">
             <Button v-if="currentStep > 0" variant="outline" size="sm" @click="currentStep--">Previous</Button>
             <Button variant="primary" size="sm" @click="handleNext">
-              {{ isLastStep ? 'Continue to Generation' : 'Next' }}
+              {{ isLastStep ? 'Continue to Preview' : 'Next' }}
             </Button>
           </div>
         </div>
@@ -94,6 +94,10 @@
                   <template #icon><Sparkles :size="14" /></template>
                   Generate Preview
                 </Button>
+                <div class="flex items-center gap-1.5 mt-3 text-sm font-medium text-om-orange-500">
+                  <Coins :size="16" />
+                  Costs {{ 20 * props.selectedTypes.length }} credits
+                </div>
               </template>
               <template v-else-if="stepStates[currentType.id]?.generating">
                 <svg class="animate-spin w-10 h-10 text-om-orange-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -105,10 +109,10 @@
               <template v-else>
                 <!-- Generated preview -->
                 <template v-if="isImageType">
-                  <img src="/image-with-badge/whisky2.png" class="max-h-full w-auto object-contain" />
+                  <img src="/image-with-badge/whisky2.png" class="max-h-full w-auto object-contain transition-all duration-300" :class="promptChanged ? 'blur-sm scale-105' : ''" />
                 </template>
                 <template v-else>
-                  <div class="p-6 w-full">
+                  <div class="p-6 w-full transition-all duration-300" :class="promptChanged ? 'blur-sm' : ''">
                     <div v-if="currentType.id === 'headline'" class="text-xl font-bold text-om-gray-700">Transform Your Mobile Videos Into Cinematic Masterpieces</div>
                     <div v-else-if="currentType.id === 'subheadline'" class="text-base text-om-gray-500">Professional-grade stabilization meets intuitive gesture control — capture smooth, stunning footage every time.</div>
                     <div v-else-if="currentType.id === 'benefit-list'" class="space-y-2">
@@ -120,6 +124,19 @@
                     <div v-else class="text-sm text-om-gray-600 leading-relaxed">The DJI Osmo Mobile 7 brings professional-grade stabilization to your smartphone. With 3-axis mechanical stabilization, ActiveTrack 6.0, and gesture control, capturing smooth cinematic footage has never been easier. The compact, foldable design fits in your pocket while delivering up to 12 hours of battery life.</div>
                   </div>
                 </template>
+                <!-- Regenerate overlay -->
+                <Transition name="modal-fade">
+                  <div v-if="promptChanged" class="absolute inset-0 bg-black/20 flex flex-col items-center justify-center">
+                    <Button variant="primary" size="md" @click="startGeneration">
+                      <template #icon><Sparkles :size="14" /></template>
+                      Regenerate
+                    </Button>
+                    <div class="flex items-center gap-1.5 mt-3 text-sm font-medium text-white">
+                      <Coins :size="16" />
+                      Costs {{ 20 * props.selectedTypes.length }} credits
+                    </div>
+                  </div>
+                </Transition>
               </template>
             </div>
           </div>
@@ -211,7 +228,7 @@ import Button from '../components/shared/Button.vue'
 import Tag from '../components/shared/Tag.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
-import { ArrowLeft, ChevronDown, ChevronUp, Wand2, Sparkles, ImageIcon, Type, Check as CheckIcon } from 'lucide-vue-next'
+import { ArrowLeft, ChevronDown, ChevronUp, Wand2, Sparkles, ImageIcon, Type, Check as CheckIcon, Coins } from 'lucide-vue-next'
 
 const props = defineProps({
   selectedTypes: { type: Array, default: () => [] },
@@ -240,7 +257,7 @@ const isImageType = computed(() => currentType.value?.category === 'Image')
 const stepStates = reactive({})
 const initStepState = (id) => {
   if (!stepStates[id]) {
-    stepStates[id] = { generating: false, generated: false, prompt: getDefaultPrompt(id) }
+    stepStates[id] = { generating: false, generated: false, prompt: getDefaultPrompt(id), generatedPrompt: null }
   }
 }
 
@@ -271,14 +288,22 @@ const currentPrompt = computed({
   },
 })
 
+const promptChanged = computed(() => {
+  const id = currentType.value?.id
+  if (!id || !stepStates[id]?.generated) return false
+  return stepStates[id].prompt !== stepStates[id].generatedPrompt
+})
+
 const startGeneration = () => {
   const id = currentType.value.id
   initStepState(id)
   stepStates[id].generating = true
   stepStates[id].generated = false
+  const savedPrompt = stepStates[id].prompt
   setTimeout(() => {
     stepStates[id].generating = false
     stepStates[id].generated = true
+    stepStates[id].generatedPrompt = savedPrompt
   }, 2000)
 }
 

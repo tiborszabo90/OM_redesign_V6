@@ -3,7 +3,7 @@
     <template #content>
       <div class="relative h-full">
         <button
-          class="absolute top-0 left-0 flex items-center gap-1.5 text-sm text-om-gray-500 hover:text-om-gray-700 transition-colors"
+          class="absolute top-0 left-0 z-10 flex items-center gap-1.5 text-sm text-om-gray-500 hover:text-om-gray-700 transition-colors cursor-pointer"
           @click="$emit('back')"
         >
           <ChevronLeft :size="18" />

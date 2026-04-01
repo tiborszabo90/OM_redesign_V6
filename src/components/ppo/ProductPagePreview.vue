@@ -33,6 +33,7 @@ const props = defineProps({
   highlightAllPlacements: { type: Boolean, default: false },
   positions: { type: Object, default: () => ({}) },
   positionMeta: { type: Object, default: () => ({}) },
+  generatedContent: { type: Object, default: () => ({}) },
 })
 
 const emit = defineEmits(['assign', 'move'])
@@ -123,6 +124,7 @@ function computeAreaStates() {
       posLabel: meta?.label || null,
       isFirst: meta?.isFirst || false,
       isLast: meta?.isLast || false,
+      content: props.generatedContent[area.id] || null,
     }
   })
   return states
@@ -157,7 +159,7 @@ function sendStateToIframe() {
 
 // Watch all relevant props and send state to iframe
 watch(
-  () => [props.placements, props.activeVariableId, props.activeVariableType, props.variables, props.benefitPosition, props.hoveredVariableId, props.highlightAllPlacements, props.positions, props.positionMeta],
+  () => [props.placements, props.activeVariableId, props.activeVariableType, props.variables, props.benefitPosition, props.hoveredVariableId, props.highlightAllPlacements, props.positions, props.positionMeta, props.generatedContent],
   () => sendStateToIframe(),
   { deep: true }
 )

@@ -72,7 +72,7 @@ const buttonClasses = computed(() => {
     primary: 'hover:bg-[#E54D1F] active:bg-[#B33810]',
     secondary: 'hover:bg-[#F9FAFB] active:bg-[#E3E5E8]',
     outline: 'hover:bg-[#F9FAFB] active:bg-[#E3E5E8] active:border-[#B9BEC6]',
-    ghost: 'hover:bg-[#F1F2F4] active:bg-[#E3E5E8]'
+    ghost: 'hover:bg-[#505763]/10 active:bg-[#505763]/15'
   }
 
   const sizes = props.iconOnly
@@ -83,7 +83,7 @@ const buttonClasses = computed(() => {
       }
     : {
         sm: 'px-3 py-1.5 text-sm',
-        md: 'px-4 py-2',
+        md: 'px-4 h-10 flex items-center',
         lg: 'px-6 py-3 text-lg'
       }
 

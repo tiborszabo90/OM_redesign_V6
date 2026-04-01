@@ -30,6 +30,8 @@ Currently archived view files (do not touch):
 - `src/views/PpoVariantDetailV1View.vue`
 - `src/views/PpoVariableSetupV1View.vue`
 - `src/views/PpoGenerationV1View.vue`
+- `src/views/PpoCampaignFlowV2View.vue`
+- `src/views/PpoCustomBuildView.vue`
 - `src/views/_archive/` (entire folder)
 
 ---

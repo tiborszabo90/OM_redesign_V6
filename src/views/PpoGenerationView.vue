@@ -70,6 +70,7 @@
                 class="w-full flex items-center justify-between px-4 py-3 text-sm border-b border-om-gray-100 transition-colors"
                 :class="selectedProducts.length > 0 ? 'hover:bg-om-gray-50 cursor-pointer' : 'opacity-40 cursor-not-allowed'"
                 :disabled="selectedProducts.length === 0"
+                @click="generateForIds(selectedProducts)"
               >
                 <span class="text-om-gray-700 text-left">Generate for selected ({{ selectedProducts.length }})</span>
                 <span class="flex items-center gap-1.5 font-medium ml-8 tabular-nums whitespace-nowrap" :class="selectedProducts.length > 0 ? 'text-om-orange-500' : 'text-om-gray-400'">
@@ -81,6 +82,7 @@
                 v-for="opt in genMenuOptions"
                 :key="opt.count"
                 class="w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-om-gray-50 transition-colors cursor-pointer border-b border-om-gray-100 last:border-b-0"
+                @click="generateForCount(opt.count)"
               >
                 <span class="text-om-gray-700 text-left">Generate for {{ opt.count }} products</span>
                 <span class="flex items-center gap-1.5 text-om-orange-500 font-medium ml-8 tabular-nums whitespace-nowrap">
@@ -88,7 +90,9 @@
                   {{ (opt.count * 20 * variableTypes.length).toLocaleString() }} credits
                 </span>
               </button>
-              <button class="w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-om-gray-50 transition-colors cursor-pointer">
+              <button class="w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-om-gray-50 transition-colors cursor-pointer"
+                @click="generateAllRemaining"
+              >
                 <span class="text-om-gray-700 text-left">Generate all remaining ({{ products.filter(p => p.status !== 'generated').length }})</span>
                 <span class="flex items-center gap-1.5 text-om-orange-500 font-medium ml-8 tabular-nums whitespace-nowrap">
                   <Coins :size="13" />
@@ -124,44 +128,46 @@
             <!-- Divider -->
             <div class="w-px bg-om-gray-100 shrink-0 self-stretch"></div>
 
-            <!-- Right half: image + texts stacked -->
+            <!-- Right half: all variable types stacked with individual badges -->
             <div class="w-1/2 pl-4 flex flex-col gap-3">
-              <!-- Top: image preview + type list + status -->
-              <div class="flex items-center gap-4">
-                <!-- 16:9 image preview -->
+              <!-- Image type: Product image -->
+              <div v-if="hasImageType('product-image')" class="flex flex-col gap-1.5">
+                <div class="flex items-center gap-1.5">
+                  <ImageIcon :size="12" class="text-om-gray-400 shrink-0" />
+                  <span class="text-[11px] font-semibold text-om-gray-400 uppercase tracking-wider flex-1">Product image</span>
+                  <span v-if="product.status === 'generated'" class="ready-badge shrink-0 flex items-center justify-center gap-0 bg-[#D6F5EC] text-[#2CC896] rounded-full p-1 cursor-default transition-all duration-200 overflow-hidden">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-width="2" /><path stroke-linecap="round" stroke-linejoin="round" d="M8 12l3 3 5-5" /></svg>
+                    <span class="ready-label text-[11px] font-medium whitespace-nowrap max-w-0 opacity-0 transition-all duration-200">Ready to use</span>
+                  </span>
+                  <Tag v-else-if="product.status === 'generating'" variant="orange" class="shrink-0">
+                    <template #icon><svg class="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg></template>
+                    Generating
+                  </Tag>
+                </div>
                 <div
-                  class="rounded-lg shrink-0 overflow-hidden"
-                  style="aspect-ratio: 16/9; height: 96px;"
+                  class="rounded-lg overflow-hidden"
+                  style="aspect-ratio: 1/1; width: 96px;"
                   :class="product.status === 'generated' ? '' : 'border-2 border-dashed border-om-gray-200 flex items-center justify-center'"
                 >
                   <img v-if="product.status === 'generated'" src="/image-with-badge/whisky2.png" class="w-full h-full object-cover" />
                   <svg v-else class="w-5 h-5 text-om-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 </div>
-
-                <!-- Output info -->
-                <div class="flex-1 min-w-0">
-                  <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-0.5">Output</p>
-                  <p v-if="product.status === 'generated'" class="text-sm text-om-gray-600">AI Image</p>
-                  <p v-else class="text-sm text-om-gray-400">Pending generation</p>
-                </div>
-
-                <!-- Status badge -->
-                <Tag v-if="product.status === 'generated'" variant="green" class="shrink-0">
-                  <template #icon><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" /><path stroke-linecap="round" stroke-linejoin="round" d="M8 12l3 3 5-5" /></svg></template>
-                  Ready to use
-                </Tag>
-                <Tag v-else-if="product.status === 'generating'" variant="orange" class="shrink-0">
-                  <template #icon><svg class="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg></template>
-                  Generating
-                </Tag>
               </div>
 
-              <!-- Text content below image -->
+              <!-- Text types with individual badges -->
               <template v-if="hasTextTypes">
                 <div v-for="type in textTypes" :key="type.id" class="border-t border-om-gray-100 pt-2.5 flex flex-col gap-1.5">
                   <div class="flex items-center gap-1.5">
                     <Type :size="12" class="text-om-gray-400 shrink-0" />
-                    <span class="text-[11px] font-semibold text-om-gray-400 uppercase tracking-wider">{{ type.label }}</span>
+                    <span class="text-[11px] font-semibold text-om-gray-400 uppercase tracking-wider flex-1">{{ type.label }}</span>
+                    <span v-if="product.status === 'generated'" class="ready-badge shrink-0 flex items-center justify-center gap-0 bg-[#D6F5EC] text-[#2CC896] rounded-full p-1 cursor-default transition-all duration-200 overflow-hidden">
+                      <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-width="2" /><path stroke-linecap="round" stroke-linejoin="round" d="M8 12l3 3 5-5" /></svg>
+                      <span class="ready-label text-[11px] font-medium whitespace-nowrap max-w-0 opacity-0 transition-all duration-200">Ready to use</span>
+                    </span>
+                    <Tag v-else-if="product.status === 'generating'" variant="orange" class="shrink-0">
+                      <template #icon><svg class="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg></template>
+                      Generating
+                    </Tag>
                   </div>
                   <!-- Generated content -->
                   <template v-if="product.status === 'generated'">
@@ -206,6 +212,29 @@
                   </template>
                 </div>
               </template>
+
+              <!-- Image badge type -->
+              <div v-if="hasImageType('image-badge')" class="border-t border-om-gray-100 pt-2.5">
+                <div class="flex items-center gap-1.5 mb-1.5">
+                  <ImageIcon :size="12" class="text-om-gray-400 shrink-0" />
+                  <span class="text-[11px] font-semibold text-om-gray-400 uppercase tracking-wider flex-1">Kép badge-el</span>
+                  <span v-if="product.status === 'generated'" class="ready-badge shrink-0 flex items-center justify-center gap-0 bg-[#D6F5EC] text-[#2CC896] rounded-full p-1 cursor-default transition-all duration-200 overflow-hidden">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-width="2" /><path stroke-linecap="round" stroke-linejoin="round" d="M8 12l3 3 5-5" /></svg>
+                    <span class="ready-label text-[11px] font-medium whitespace-nowrap max-w-0 opacity-0 transition-all duration-200">Ready to use</span>
+                  </span>
+                  <Tag v-else-if="product.status === 'generating'" variant="orange" class="shrink-0">
+                    <template #icon><svg class="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg></template>
+                    Generating
+                  </Tag>
+                </div>
+                <div
+                  class="rounded-lg shrink-0 overflow-hidden h-16 w-full"
+                  :class="product.status === 'generated' ? '' : 'border-2 border-dashed border-om-gray-200 flex items-center justify-center'"
+                >
+                  <img v-if="product.status === 'generated'" src="/image-with-badge/whisky2.png" class="w-full h-full object-cover" />
+                  <svg v-else class="w-5 h-5 text-om-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -257,6 +286,13 @@ const variableTypes = computed(() => allTypes.filter(t => props.selectedTypes.in
 const isImageTypeId = (id) => id === 'product-image' || id === 'image-badge'
 const textTypes = computed(() => variableTypes.value.filter(t => !isImageTypeId(t.id)))
 const hasTextTypes = computed(() => textTypes.value.length > 0)
+const hasImageType = (id) => variableTypes.value.some(t => t.id === id)
+
+// Product image aspect ratio — 1:1 square or 16:9 default
+const productImageRatio = computed(() => {
+  const imgType = variableTypes.value.find(t => t.id === 'product-image')
+  return imgType ? '1/1' : '16/9'
+})
 
 // Tabs
 const activeTab = ref('selected')
@@ -336,4 +372,43 @@ const productStatusLabel = (product) => {
   if (product.status === 'generating') return 'Generating'
   return 'Queued'
 }
+
+// Generation logic
+const generateForIds = (ids) => {
+  showGenMenu.value = false
+  const targets = products.value.filter(p => ids.includes(p.id) && p.status !== 'generated')
+  targets.forEach((p, i) => {
+    p.status = 'generating'
+    setTimeout(() => { p.status = 'generated' }, 1500 + i * 800)
+  })
+}
+
+const generateForCount = (count) => {
+  showGenMenu.value = false
+  const targets = products.value.filter(p => p.status !== 'generated').slice(0, count)
+  targets.forEach((p, i) => {
+    p.status = 'generating'
+    setTimeout(() => { p.status = 'generated' }, 1500 + i * 800)
+  })
+}
+
+const generateAllRemaining = () => {
+  showGenMenu.value = false
+  const targets = products.value.filter(p => p.status !== 'generated')
+  targets.forEach((p, i) => {
+    p.status = 'generating'
+    setTimeout(() => { p.status = 'generated' }, 1500 + i * 800)
+  })
+}
 </script>
+
+<style scoped>
+.ready-badge:hover {
+  gap: 4px;
+  padding-right: 8px;
+}
+.ready-badge:hover .ready-label {
+  max-width: 80px;
+  opacity: 1;
+}
+</style>

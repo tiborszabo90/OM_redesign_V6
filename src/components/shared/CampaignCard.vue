@@ -1,41 +1,41 @@
 <template>
   <div class="relative">
-    <!-- Checkbox (shows on hover) -->
-    <transition name="fade">
-      <button
-        v-if="isHovered"
-        @click.stop="$emit('update:selected', !selected)"
-        :class="[
-          'w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-all absolute -left-8 top-1/2 -translate-y-1/2 z-20',
-          selected ? 'bg-om-orange-500 border-om-orange-500' : 'bg-white border-om-gray-300 hover:border-om-orange-500'
-        ]"
-      >
-        <Check v-if="selected" :size="14" class="text-white" stroke-width="3" />
-      </button>
-    </transition>
-
     <!-- LIST VARIANT -->
     <div
       v-if="variant === 'list'"
       @click="$emit('click')"
+      @mouseenter="isHovered = true"
+      @mouseleave="isHovered = false"
       class="list-card bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pr-4 flex items-center gap-3 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow relative"
     >
-      <!-- Hover zone for checkbox trigger -->
-      <div
-        @mouseenter="isHovered = true"
-        @mouseleave="isHovered = false"
-        class="absolute left-0 top-0 w-32 h-full z-10"
-      ></div>
-
       <!-- Thumbnail -->
       <div
         class="list-thumb w-36 h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200 relative"
         @mouseenter="isImageHovered = true"
         @mouseleave="isImageHovered = false"
       >
+        <!-- Checkbox zone (shows on hover, top-left of thumbnail) -->
+        <div
+          v-if="isHovered || selected"
+          class="absolute left-0 top-0 w-8 h-8 z-20"
+          @mouseenter="isCheckboxHovered = true"
+          @mouseleave="isCheckboxHovered = false"
+        >
+          <transition name="fade">
+            <button
+              @click.stop="$emit('update:selected', !selected)"
+              :class="[
+                'w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-all absolute left-1 top-1',
+                selected ? 'bg-om-orange-500 border-om-orange-500' : 'bg-white border-om-gray-300 hover:border-om-orange-500'
+              ]"
+            >
+              <Check v-if="selected" :size="14" class="text-white" stroke-width="3" />
+            </button>
+          </transition>
+        </div>
         <img :src="image" :alt="name" class="w-full h-full object-cover" :style="{ objectPosition: imagePosition }" />
         <transition name="fade">
-          <div v-if="isImageHovered" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
+          <div v-if="isImageHovered && !isCheckboxHovered" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
             <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
               <img :src="image" :alt="name" class="w-96 h-auto rounded-lg" />
             </div>
@@ -93,7 +93,7 @@
       >
         <img :src="image" :alt="name" class="w-full h-full object-cover" :style="{ objectPosition: imagePosition }" />
         <transition name="fade">
-          <div v-if="isImageHovered" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
+          <div v-if="isImageHovered && !isCheckboxHovered" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
             <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
               <img :src="image" :alt="name" class="w-96 h-auto rounded-lg" />
             </div>
@@ -157,6 +157,7 @@ const metricSlots = computed(() => {
 })
 
 const isHovered = ref(false)
+const isCheckboxHovered = ref(false)
 const isImageHovered = ref(false)
 const mouseX = ref(0)
 const mouseY = ref(0)

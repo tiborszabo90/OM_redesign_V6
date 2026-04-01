@@ -5,7 +5,7 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-5 max-960:flex-col max-960:items-start max-960:gap-3">
           <h1 class="text-2xl max-960:text-xl font-semibold text-om-gray-700">Campaigns (32)</h1>
-          <Button variant="primary" size="sm" @click="$emit('new-campaign')">New Campaign</Button>
+          <Button variant="primary" size="md" @click="$emit('new-campaign')">New Campaign</Button>
         </div>
 
         <!-- Filters and Controls -->
@@ -16,7 +16,7 @@
             <Dropdown
               v-model="selectedDomain"
               :options="domains"
-              class="w-[240px]"
+              style="width: 240px; min-width: 240px"
             >
               <template #icon>
                 <div class="w-6 h-6 rounded-full overflow-hidden">
@@ -25,18 +25,28 @@
               </template>
             </Dropdown>
 
+            <!-- Search input -->
+            <div class="relative">
+              <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-400 pointer-events-none" />
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search campaigns..."
+                class="pl-9 pr-3 h-10 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300 w-[240px]"
+              />
+            </div>
+
             <!-- Tab filters -->
             <div class="flex items-center gap-2">
-              <button class="chip px-3 py-2 rounded-lg bg-om-gray-100 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:bg-om-gray-200">
-                Active
+              <button
+                v-for="f in statusFilters"
+                :key="f.value"
+                @click="activeStatusFilter = f.value"
+                :class="['chip px-3 h-10 flex items-center rounded-lg text-sm cursor-pointer transition-all duration-200 ease-out', activeStatusFilter === f.value ? 'bg-om-gray-200 text-om-gray-700 font-medium' : 'bg-om-gray-100 text-om-gray-700 hover:bg-om-gray-200']"
+              >
+                {{ f.label }}
               </button>
-              <button class="chip px-3 py-2 rounded-lg bg-om-gray-100 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:bg-om-gray-200">
-                Archive
-              </button>
-              <button class="chip px-3 py-2 rounded-lg bg-om-gray-100 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:bg-om-gray-200">
-                Service
-              </button>
-              <button class="chip w-9 h-9 flex items-center justify-center bg-om-gray-100 text-om-gray-700 rounded-lg cursor-pointer transition-all duration-200 ease-out hover:bg-om-gray-200">
+              <button class="chip w-10 h-10 flex items-center justify-center bg-om-gray-100 text-om-gray-700 rounded-lg cursor-pointer transition-all duration-200 ease-out hover:bg-om-gray-200">
                 <Plus :size="16" />
               </button>
             </div>
@@ -44,20 +54,8 @@
 
           <!-- Right: View controls and dropdown -->
           <div class="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              icon-only
-              :active="viewMode === 'grid'"
-              @click="viewMode = viewMode === 'list' ? 'grid' : 'list'"
-            >
-              <template #icon><LayoutGrid :size="18" /></template>
-            </Button>
-            <Button variant="ghost" size="sm" icon-only>
-              <template #icon><Search :size="18" /></template>
-            </Button>
             <div class="relative">
-              <Button variant="ghost" size="sm" icon-only :class="sortOpen ? '!bg-[#E3E5E8]' : ''" @click="sortOpen = !sortOpen">
+              <Button variant="ghost" size="md" icon-only :class="sortOpen ? '!bg-[#505763]/10' : ''" @click="sortOpen = !sortOpen">
                 <template #icon><ArrowUpDown :size="18" /></template>
               </Button>
               <div v-if="sortOpen" class="fixed inset-0 z-10" @click="sortOpen = false" />
@@ -80,7 +78,7 @@
             <Dropdown
               v-model="selectedTimeFilter"
               :options="timeFilterOptions"
-              class="w-[240px]"
+              style="width: 240px; min-width: 240px"
             >
               <template #icon>
                 <Calendar :size="20" class="text-om-gray-600" />
@@ -89,8 +87,33 @@
           </div>
         </div>
 
+        <!-- Bulk Action Bar -->
+        <transition
+          enter-active-class="transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)]"
+          enter-from-class="opacity-0 -translate-y-3 scale-y-95"
+          enter-to-class="opacity-100 translate-y-0 scale-y-100"
+          leave-active-class="transition-all duration-250 ease-[cubic-bezier(0.4,0,1,1)]"
+          leave-from-class="opacity-100 translate-y-0 scale-y-100"
+          leave-to-class="opacity-0 -translate-y-3 scale-y-95"
+        >
+          <div v-if="selectedCount > 0" class="flex items-center gap-3 mb-4 px-4 py-2.5 bg-om-gray-100 rounded-xl origin-top">
+            <Checkbox :model-value="allSelected" :indeterminate="!allSelected && selectedCount > 0" @update:model-value="toggleSelectAll" />
+            <span class="text-sm text-om-gray-600">{{ selectedCount }} selected</span>
+            <div class="flex items-center gap-2 ml-auto">
+              <Button variant="ghost" size="sm" @click="archiveSelected">
+                <template #icon><Archive :size="16" /></template>
+                Archive
+              </Button>
+              <Button variant="ghost" size="sm" @click="deleteSelected">
+                <template #icon><Trash2 :size="16" /></template>
+                Delete
+              </Button>
+            </div>
+          </div>
+        </transition>
+
         <!-- Campaign Cards List View -->
-        <div v-if="viewMode === 'list'" class="space-y-4">
+        <div class="space-y-4">
           <CampaignCard
             v-for="campaign in pagedCampaigns"
             :key="campaign.id"
@@ -109,36 +132,24 @@
           />
         </div>
 
-        <!-- Campaign Cards Grid View -->
-        <div v-else class="grid grid-cols-3 gap-4">
-          <CampaignCard
-            v-for="campaign in pagedCampaigns"
-            :key="campaign.id + '-grid'"
-            :name="campaign.name"
-            :domain="campaign.domain"
-            :image="campaign.image"
-            :image-position="campaign.imagePosition || 'center'"
-            :active="campaign.active"
-            @update:active="campaign.active = $event"
-            :selected="campaign.selected"
-            @update:selected="campaign.selected = $event"
-            :metrics="campaign.gridMetrics || campaign.metrics"
-            :last-updated="campaign.lastUpdated"
-            variant="grid"
-            @click="handleCampaignClick(campaign.id)"
-          />
-        </div>
-
         <!-- Pagination -->
         <div class="flex items-center justify-between mt-6">
-          <span class="text-sm text-om-gray-400">Showing {{ (page - 1) * perPage + 1 }} to {{ Math.min(page * perPage, campaigns.length) }} of {{ campaigns.length }} campaigns</span>
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-om-gray-400">View</span>
+            <Dropdown v-model="perPage" :options="perPageOptions" size="sm" class="w-[72px]" :drop-up="true" />
+            <span class="text-sm text-om-gray-400">{{ (page - 1) * perPage + 1 }} - {{ Math.min(page * perPage, filteredCampaigns.length) }}/{{ filteredCampaigns.length }}</span>
+          </div>
           <div class="flex items-center gap-1">
-            <Button variant="ghost" size="sm" :disabled="page === 1" @click="page--">Previous</Button>
+            <Button variant="ghost" size="sm" icon-only :disabled="page === 1" @click="page--">
+              <template #icon><ChevronLeft :size="18" /></template>
+            </Button>
             <template v-for="p in totalPages" :key="p">
               <Button v-if="p <= 3 || p === totalPages" variant="ghost" size="sm" :active="p === page" @click="page = p">{{ p }}</Button>
               <span v-else-if="p === 4 && totalPages > 4" class="px-2 text-sm text-om-gray-400">...</span>
             </template>
-            <Button variant="ghost" size="sm" :disabled="page === totalPages" @click="page++">Next</Button>
+            <Button variant="ghost" size="sm" icon-only :disabled="page === totalPages" @click="page++">
+              <template #icon><ChevronRight :size="18" /></template>
+            </Button>
           </div>
         </div>
       </div>
@@ -153,7 +164,8 @@
 <script setup>
 import { ref, reactive, computed, watch } from 'vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
-import { Plus, LayoutGrid, Search, Calendar, ArrowUpDown, Check } from 'lucide-vue-next'
+import { Plus, Search, Calendar, ArrowUpDown, Check, ChevronLeft, ChevronRight, Trash2, Archive } from 'lucide-vue-next'
+import Checkbox from '../components/shared/Checkbox.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import Button from '../components/shared/Button.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
@@ -194,7 +206,6 @@ const chatAiResponses = {
   'How do I reduce cart abandonment?': 'Your **Cart Abandonment Stopper** campaign is already active. To improve it further:\n\n**1. Trigger earlier** — Show at 70% scroll on the cart page, not just on exit.\n**2. Offer a stronger incentive** — Free shipping converts better than % discounts.\n**3. Add urgency** — "Only 3 left in stock" messaging.\n\nWould you like me to suggest a specific template?',
 }
 
-const viewMode = ref('list')
 
 const campaigns = reactive([
   {
@@ -233,7 +244,7 @@ const campaigns = reactive([
     name: 'Lucky Wheel',
     domain: 'domain.com',
     image: '/campaigns/lucky-wheel.png',
-    active: true,
+    active: false,
     selected: false,
     lastUpdated: '14 days ago',
     metrics: [
@@ -424,9 +435,32 @@ const campaigns = reactive([
 
 // Pagination
 const page = ref(1)
-const perPage = 20
-const totalPages = computed(() => Math.ceil(campaigns.length / perPage))
-const pagedCampaigns = computed(() => campaigns.slice((page.value - 1) * perPage, page.value * perPage))
+const perPage = ref(30)
+const perPageOptions = [
+  { value: 30, label: '30' },
+  { value: 50, label: '50' },
+  { value: 100, label: '100' },
+]
+const searchQuery = ref('')
+const activeStatusFilter = ref('all')
+const statusFilters = [
+  { value: 'all', label: 'All' },
+  { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
+  { value: 'archive', label: 'Archive' },
+]
+const filteredCampaigns = computed(() => {
+  let result = [...campaigns]
+  if (activeStatusFilter.value === 'active') result = result.filter(c => c.active)
+  else if (activeStatusFilter.value === 'inactive') result = result.filter(c => !c.active)
+  if (searchQuery.value) {
+    const q = searchQuery.value.toLowerCase()
+    result = result.filter(c => c.name.toLowerCase().includes(q))
+  }
+  return result
+})
+const totalPages = computed(() => Math.ceil(filteredCampaigns.value.length / perPage.value))
+const pagedCampaigns = computed(() => filteredCampaigns.value.slice((page.value - 1) * perPage.value, page.value * perPage.value))
 
 const selectedDomain = ref('telekom.hu')
 const domains = ref(['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com', '+ Add new domain'])
@@ -444,14 +478,33 @@ const handleNewDomain = (newDomain) => {
 }
 
 const timeFilterOptions = [
-  { value: 'week', label: 'Last week' },
-  { value: 'month', label: 'Last month' },
-  { value: '3months', label: 'Last 3 months' }
+  { value: '7days', label: 'Last 7 days' },
+  { value: '30days', label: 'Last 30 days' },
+  { value: 'this-month', label: 'This month' },
+  { value: 'prev-month', label: 'Previous month' },
+  { value: 'custom', label: 'Custom period' }
 ]
 const selectedTimeFilter = ref(timeFilterOptions[0])
 
 const handleLogoClick = () => {
   window.location.reload()
+}
+
+const selectedCount = computed(() => campaigns.filter(c => c.selected).length)
+const allSelected = computed(() => filteredCampaigns.value.length > 0 && filteredCampaigns.value.every(c => c.selected))
+const toggleSelectAll = () => {
+  const newVal = !allSelected.value
+  filteredCampaigns.value.forEach(c => c.selected = newVal)
+}
+const archiveSelected = () => {
+  campaigns.forEach(c => { if (c.selected) c.selected = false })
+}
+const deleteSelected = () => {
+  const toDelete = campaigns.filter(c => c.selected).map(c => c.id)
+  toDelete.forEach(id => {
+    const idx = campaigns.findIndex(c => c.id === id)
+    if (idx !== -1) campaigns.splice(idx, 1)
+  })
 }
 
 const handleCampaignClick = (campaignId) => {

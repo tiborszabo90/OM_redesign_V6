@@ -356,7 +356,7 @@
             <div
               class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_200px_36px] gap-3 items-center py-3 group cursor-pointer"
               :class="vi < variants.length - 1 ? 'border-b border-om-gray-100' : ''"
-              @click="openPreview(variant)"
+              @click="$emit('navigate', vi === 0 ? 'ppo-variant-detail-v1' : 'ppo-variant-detail-v2')"
             >
               <div class="flex items-center gap-2.5">
                 <div class="min-w-0">

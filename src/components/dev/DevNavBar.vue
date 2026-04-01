@@ -250,8 +250,9 @@ const sectionGroups = {
   },
   campaigns: {
     label: 'Campaigns',
-    views: ['campaigns-v3', 'campaigns-empty'],
+    views: ['campaigns-v2', 'campaigns-v3', 'campaigns-empty'],
     items: [
+      { view: 'campaigns-v2', label: 'Campaigns V2' },
       { view: 'campaigns-v3', label: 'Campaigns' },
       { view: 'campaigns-empty', label: 'Campaigns (Empty)' },
     ],
@@ -274,11 +275,13 @@ const sectionGroups = {
   },
   ppo: {
     label: 'PPO v2',
-    views: ['ppo-campaign-detail', 'ppo-campaign-flow', 'ppo-placement', 'ppo-variant-detail-v1', 'ppo-variant-detail-v2', 'ppo-variable-setup', 'ppo-generation'],
+    views: ['ppo-campaign-detail', 'ppo-campaign-flow', 'ppo-campaign-flow-v2', 'ppo-placement', 'ppo-variant-detail-v1', 'ppo-variant-detail-v2', 'ppo-variable-setup', 'ppo-campaign-setup-preview', 'ppo-generation'],
     items: [
       { view: 'ppo-campaign-detail', label: 'Campaign Detail' },
       { view: 'ppo-campaign-flow', label: 'Campaign Flow' },
+      { view: 'ppo-campaign-flow', label: 'Campaign Flow' },
       { view: 'ppo-variable-setup', label: 'Variable Setup' },
+      { view: 'ppo-campaign-setup-preview', label: 'Setup Preview' },
       { view: 'ppo-generation', label: 'Generation' },
     ],
   },
@@ -349,6 +352,7 @@ const archiveItems = ref([
   { view: 'settings-ai-texts-images-v1', label: 'AI Texts & Images V1' },
   { view: 'registration-v1', label: 'Registration V1' },
   { view: 'ppo-v1-campaign-flow', label: 'PPO V1' },
+  { view: 'ppo-campaign-flow-v2', label: 'PPO Campaign Flow (tiles)' },
 ])
 
 const archiveViews = computed(() => archiveItems.value.map(item => item.view))
