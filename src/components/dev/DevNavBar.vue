@@ -240,12 +240,13 @@ const imageBadgeStepCount = computed(() => {
 const sectionGroups = {
   home: {
     label: 'Home',
-    views: ['home-old', 'home-with-review', 'home-onboarding', 'home-onboarding-with-reco'],
+    views: ['home-old', 'home-with-review', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-with-reco-v2'],
     items: [
       { view: 'home-old', label: 'Home (Active Campaigns)' },
       { view: 'home-with-review', label: 'Home (Review)' },
       { view: 'home-onboarding', label: 'Home Onboarding' },
       { view: 'home-onboarding-with-reco', label: 'Home Onboarding + Reco' },
+      { view: 'home-onboarding-with-reco-v2', label: 'Home Onboarding + Reco V2' },
     ],
   },
   campaigns: {
@@ -292,14 +293,6 @@ const sectionGroups = {
       { view: 'ppo-v1-campaign-flow', label: 'Campaign Flow' },
       { view: 'ppo-v1-variable-setup', label: 'Variable Setup' },
       { view: 'ppo-v1-generation', label: 'Generation' },
-    ],
-  },
-  registration: {
-    label: 'Registration',
-    views: ['registration', 'registration-v2'],
-    items: [
-      { view: 'registration', label: 'Registration' },
-      { view: 'registration-v2', label: 'Registration V2' },
     ],
   },
   aiContent: {
@@ -358,6 +351,7 @@ const archiveItems = ref([
   { view: 'wizard-analysis-no-chat', label: 'Wizard Flow (no chat)' },
   { view: 'settings-ai-texts-images-v1', label: 'AI Texts & Images V1' },
   { view: 'registration-v1', label: 'Registration V1' },
+  { view: 'registration-v2', label: 'Registration V2' },
   { view: 'ppo-v1-campaign-flow', label: 'PPO V1' },
   { view: 'ppo-campaign-flow-v2', label: 'PPO Campaign Flow (tiles)' },
 ])

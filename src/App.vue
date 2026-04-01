@@ -36,6 +36,7 @@ import HomeChatVersionsView from './views/HomeChatVersionsView.vue'
 import HomeChatLeftView from './views/HomeChatLeftView.vue'
 import HomeOnboardingView from './views/HomeOnboardingView.vue'
 import HomeOnboardingWithRecoView from './views/HomeOnboardingWithRecoView.vue'
+import HomeOnboardingWithRecoV2View from './views/HomeOnboardingWithRecoV2View.vue'
 import HomeOnboardingWizardView from './views/HomeOnboardingWizardView.vue'
 import PublicWizardView from './views/PublicWizardView.vue'
 import CampaignsEmptyView from './views/CampaignsEmptyView.vue'
@@ -683,7 +684,7 @@ const handleNavigateToOpportunities = () => {
 
 const handleMenuClick = (menuId) => {
   if (menuId === 'campaigns') {
-    const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'wizard-flow']
+    const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-with-reco-v2', 'home-onboarding-wizard', 'wizard-flow']
     currentView.value = onboardingViews.includes(currentView.value) ? 'campaigns-empty' : 'campaigns-v3'
   } else if (menuId === 'home') {
     if (currentView.value === 'wizard-flow' || currentView.value === 'home-onboarding-wizard') {
@@ -696,7 +697,7 @@ const handleMenuClick = (menuId) => {
       currentView.value = 'home-old'
     }
   } else if (menuId === 'insights') {
-    const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'wizard-flow', 'campaigns-empty', 'analytics-empty']
+    const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-with-reco-v2', 'home-onboarding-wizard', 'wizard-flow', 'campaigns-empty', 'analytics-empty']
     currentView.value = onboardingViews.includes(currentView.value) ? 'analytics-empty' : 'analytics-v4'
   } else if (menuId === 'campaign-page') {
     currentView.value = 'campaign-page-v1'
@@ -766,7 +767,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       class="pt-8 pl-8 shrink-0"
     >
       <img
-        src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
+        src="/OM-Logo-primary-basic.svg"
         alt="OptiMonk"
         class="h-8"
       />
@@ -870,6 +871,13 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       <HomeOnboardingWithRecoView
         v-else-if="currentView === 'home-onboarding-with-reco'"
         :key="'home-onboarding-with-reco-' + sessionKey"
+        :registration-data="registrationData"
+        @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
+      />
+      <HomeOnboardingWithRecoV2View
+        v-else-if="currentView === 'home-onboarding-with-reco-v2'"
+        :key="'home-onboarding-with-reco-v2-' + sessionKey"
         :registration-data="registrationData"
         @task-created="handleTaskCreated"
         @menu-click="handleMenuClick"

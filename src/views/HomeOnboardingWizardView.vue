@@ -3,7 +3,7 @@
   <MainLayout v-if="step === 'chat'" illustration-bottom-lg>
     <template #content>
       <div class="fixed top-8 left-8 z-50 cursor-pointer" @click="emit('menu-click', 'home-onboarding')">
-        <img src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg" alt="OptiMonk" class="h-8" />
+        <img src="/OM-Logo-primary-basic.svg" alt="OptiMonk" class="h-8" />
       </div>
       <StepUseCase
         v-model="formData"

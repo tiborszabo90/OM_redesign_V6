@@ -3,7 +3,7 @@
     <!-- Logo at top left corner - only in no-chat version (chat version has sidebar with logo) -->
     <div v-if="!props.showChat && !showRecommendation && !showRecommendationV2 && !showRecommendationV4 && !showRecommendationV5" class="pt-8 pl-8 pb-3">
       <img
-        src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
+        src="/OM-Logo-primary-basic.svg"
         alt="OptiMonk"
         class="h-8"
       />
@@ -15,7 +15,7 @@
         <!-- Full-width header with logo -->
         <div class="w-full px-4 sm:px-6 md:px-8 pt-8">
           <img
-            src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
+            src="/OM-Logo-primary-basic.svg"
             alt="OptiMonk"
             class="h-8"
           />
@@ -78,7 +78,7 @@
         <!-- Full-width header with logo -->
         <div class="w-full px-4 sm:px-6 md:px-8 pt-4">
           <img
-            src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
+            src="/OM-Logo-primary-basic.svg"
             alt="OptiMonk"
             class="h-8"
           />
@@ -404,7 +404,7 @@
         <!-- Full-width header with logo -->
         <div class="w-full px-4 sm:px-6 md:px-8 pt-4">
           <img
-            src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
+            src="/OM-Logo-primary-basic.svg"
             alt="OptiMonk"
             class="h-8"
           />

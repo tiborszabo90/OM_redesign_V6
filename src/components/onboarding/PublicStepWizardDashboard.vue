@@ -3,7 +3,7 @@
     <!-- Logo at top left corner - only in no-chat version (chat version has sidebar with logo) -->
     <div v-if="!props.showChat && !showRecommendation && !showRecommendationV2 && !showRecommendationV4 && !showRecommendationV5" class="pt-8 pl-8 pb-3" :class="{ 'bg-om-gray-50': showStyleSelection }">
       <img
-        src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
+        src="/OM-Logo-primary-basic.svg"
         alt="OptiMonk"
         class="h-8"
       />
@@ -15,7 +15,7 @@
         <!-- Full-width header with logo -->
         <div class="w-full px-4 sm:px-6 md:px-8 pt-8">
           <img
-            src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
+            src="/OM-Logo-primary-basic.svg"
             alt="OptiMonk"
             class="h-8"
           />
@@ -78,7 +78,7 @@
         <!-- Full-width header with logo -->
         <div class="w-full px-4 sm:px-6 md:px-8 pt-4">
           <img
-            src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
+            src="/OM-Logo-primary-basic.svg"
             alt="OptiMonk"
             class="h-8"
           />
@@ -405,7 +405,7 @@
         <!-- Full-width header with logo -->
         <div class="w-full px-4 sm:px-6 md:px-8 pt-4">
           <img
-            src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
+            src="/OM-Logo-primary-basic.svg"
             alt="OptiMonk"
             class="h-8"
           />
@@ -1156,7 +1156,7 @@
           <div class="w-1/2 py-8 pl-8 lg:py-10 lg:pl-10 pr-8 lg:pr-10 flex flex-col relative">
 
             <img
-              src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
+              src="/OM-Logo-primary-basic.svg"
               alt="OptiMonk"
               class="h-7 shrink-0 self-start mb-6"
             />
@@ -1351,27 +1351,32 @@
           </div>
 
           <!-- Right: Why join us -->
-          <div class="w-1/2 bg-[#ED5A29] flex flex-col px-8 py-8 lg:py-10 overflow-y-auto">
-            <h2 class="text-white font-bold text-2xl mb-8">Why join us?</h2>
-            <ul class="space-y-3 mb-8">
-              <li v-for="item in whyJoinItems" :key="item" class="flex items-center gap-3">
-                <span class="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                  <Check :size="12" class="text-white" stroke-width="3" />
-                </span>
-                <span class="text-white text-base font-semibold">{{ item }}</span>
-              </li>
-            </ul>
-            <div class="flex items-center gap-2 mb-8">
-              <div class="flex">
-                <svg v-for="i in 5" :key="i" width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
+          <div class="w-1/2 bg-om-peach-50 flex flex-col px-8 py-8 lg:py-10 overflow-y-auto">
+            <div>
+              <h2 class="text-om-gray-700 font-bold text-2xl mb-8">Why join us?</h2>
+              <ul class="space-y-3 mb-8">
+                <li v-for="item in whyJoinItems" :key="item" class="flex items-center gap-3">
+                  <span class="flex-shrink-0 w-6 h-6 rounded-full bg-om-orange-500 flex items-center justify-center">
+                    <Check :size="14" class="text-white" stroke-width="3" />
+                  </span>
+                  <span class="text-om-gray-600 text-base">{{ item }}</span>
+                </li>
+              </ul>
+              <div class="flex items-center gap-2 mb-8">
+                <div class="flex">
+                  <svg v-for="i in 5" :key="i" width="22" height="22" viewBox="0 0 24 24" fill="#ED5A29" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                </div>
+                <span class="text-om-gray-600 text-base">Trusted by 30,000+ businesses</span>
               </div>
-              <span class="text-white/90 text-sm">Trusted by 30,000+ businesses</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <div v-for="logo in trustedLogos" :key="logo.name" class="bg-white/15 rounded-xl px-4 py-3 flex items-center justify-center h-12">
-                <component :is="logo.component" class="max-w-full max-h-full brightness-0 invert opacity-90" />
+              <div class="bg-om-peach-100 rounded-2xl p-6">
+                <div class="grid grid-cols-3 gap-3">
+                  <div v-for="logo in trustedLogos" :key="logo.name" class="flex items-center justify-center h-14">
+                    <img v-if="logo.src" :src="logo.src" :alt="logo.name" class="max-w-full max-h-full logo-gray-700" />
+                    <component v-else :is="logo.component" class="max-w-full max-h-full logo-gray-700" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1494,8 +1499,6 @@ import VilgainLogo from '../logos/VilgainLogo.vue'
 import LoccitaneLogo from '../logos/LoccitaneLogo.vue'
 import AldoLogo from '../logos/AldoLogo.vue'
 import BenchLogo from '../logos/BenchLogo.vue'
-import YvesRocherLogo from '../logos/YvesRocherLogo.vue'
-import HugoLogo from '../logos/HugoLogo.vue'
 
 const props = defineProps({
   modelValue: {
@@ -1585,8 +1588,7 @@ const trustedLogos = [
   { name: "L'Occitane", component: LoccitaneLogo },
   { name: 'Aldo', component: AldoLogo },
   { name: 'Bench', component: BenchLogo },
-  { name: 'Yves Rocher', component: YvesRocherLogo },
-  { name: 'Hugo', component: HugoLogo },
+  { name: 'Yves Rocher', src: '/trusted-logos/Yves_Rocher_logo.svg' },
 ]
 let paywallScrollCleanup = null
 // modalStep: 'buttons' | 'email-form' | 'referral' | 'relationship' | 'contact-type' | 'agency-details'
@@ -2220,6 +2222,18 @@ defineExpose({
 </script>
 
 <style scoped>
+.logo-gray-700 {
+  filter: brightness(0) saturate(100%) invert(9%) sepia(5%) saturate(897%) hue-rotate(180deg) brightness(95%) contrast(93%);
+}
+
+@keyframes monk-slide-in {
+  from { translate: 100% 0; opacity: 0; }
+  to { translate: 0 0; opacity: 1; }
+}
+.monk-slide-in {
+  animation: monk-slide-in 0.4s ease-out 0.3s both;
+}
+
 .slide-in-enter-active {
   transition: all 0.4s ease-out;
 }

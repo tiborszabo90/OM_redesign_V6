@@ -3,7 +3,7 @@
     <!-- Wizard header: logo top-left -->
     <div class="fixed top-6 left-8 z-50">
       <img
-        src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
+        src="/OM-Logo-primary-basic.svg"
         alt="OptiMonk"
         class="h-8"
       />

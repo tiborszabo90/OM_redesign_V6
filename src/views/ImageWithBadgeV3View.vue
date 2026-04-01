@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-white flex items-center justify-center relative">
     <!-- Optimonk Logo -->
     <img
-      src="https://www.optimonk.com/wp-content/uploads/optimonk-logo-2024.svg"
+      src="/OM-Logo-primary-basic.svg"
       alt="OptiMonk"
       class="absolute top-6 left-6 h-8"
     />
