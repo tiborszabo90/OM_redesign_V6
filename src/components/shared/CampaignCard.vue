@@ -79,37 +79,37 @@
         <div v-if="isKebabOpen" class="fixed inset-0 z-10" @click.stop="isKebabOpen = false" />
         <div
           v-if="isKebabOpen"
-          class="absolute right-0 top-full mt-1 z-20 bg-white border border-om-gray-200 rounded-lg shadow-lg min-w-[180px] py-1"
+          class="absolute right-0 top-full mt-1 z-20 bg-white border border-[#D5D8DD] rounded-lg shadow-lg min-w-[180px]"
         >
-          <button class="w-full text-left text-sm text-om-gray-700 px-3 py-2 hover:bg-[#505763]/5 transition-colors cursor-pointer" @click.stop="$emit('rename'); isKebabOpen = false">Rename</button>
-          <button class="w-full text-left text-sm text-om-gray-700 px-3 py-2 hover:bg-[#505763]/5 transition-colors cursor-pointer" @click.stop="$emit('duplicate'); isKebabOpen = false">Duplicate</button>
-          <button class="w-full text-left text-sm text-om-gray-700 px-3 py-2 hover:bg-[#505763]/5 transition-colors cursor-pointer" @click.stop="$emit('edit'); isKebabOpen = false">Edit campaign</button>
-          <button class="w-full text-left text-sm text-om-gray-700 px-3 py-2 hover:bg-[#505763]/5 transition-colors cursor-pointer" @click.stop="$emit('edit-schedule'); isKebabOpen = false">Edit schedule</button>
+          <button class="w-full text-left text-sm text-[#23262A] px-4 py-2 hover:bg-[#F9FAFB] transition-colors cursor-pointer" @click.stop="$emit('rename'); isKebabOpen = false">Rename</button>
+          <button class="w-full text-left text-sm text-[#23262A] px-4 py-2 hover:bg-[#F9FAFB] transition-colors cursor-pointer" @click.stop="$emit('duplicate'); isKebabOpen = false">Duplicate</button>
+          <button class="w-full text-left text-sm text-[#23262A] px-4 py-2 hover:bg-[#F9FAFB] transition-colors cursor-pointer" @click.stop="$emit('edit'); isKebabOpen = false">Edit campaign</button>
+          <button class="w-full text-left text-sm text-[#23262A] px-4 py-2 hover:bg-[#F9FAFB] transition-colors cursor-pointer" @click.stop="$emit('edit-schedule'); isKebabOpen = false">Edit schedule</button>
           <!-- Set priority submenu -->
           <div class="relative" @mouseenter="isPriorityOpen = true" @mouseleave="isPriorityOpen = false">
-            <button :class="['w-full text-left text-sm text-om-gray-700 px-3 py-2 hover:bg-[#505763]/5 transition-colors cursor-pointer flex items-center justify-between', isPriorityOpen ? 'bg-[#505763]/5' : '']" @click.stop>
+            <button :class="['w-full text-left text-sm text-[#23262A] px-4 py-2 hover:bg-[#F9FAFB] transition-colors cursor-pointer flex items-center justify-between', isPriorityOpen ? 'bg-[#F1F2F4]' : '']" @click.stop>
               Set priority
               <ChevronRight :size="14" class="text-om-gray-400" />
             </button>
             <div
               v-if="isPriorityOpen"
-              class="absolute right-full top-0 -mr-px z-30 bg-white border border-om-gray-200 rounded-lg shadow-lg overflow-hidden min-w-[150px] py-1"
+              class="absolute right-full top-0 -mr-px z-30 bg-white border border-[#D5D8DD] rounded-lg shadow-lg min-w-[150px]"
             >
-              <button class="w-full text-left text-sm text-om-gray-700 px-3 py-2 hover:bg-[#505763]/5 transition-colors cursor-pointer flex items-center gap-2" @click.stop="$emit('set-priority', 'high'); isKebabOpen = false; isPriorityOpen = false">
+              <button class="w-full text-left text-sm text-[#23262A] px-4 py-2 hover:bg-[#F9FAFB] transition-colors cursor-pointer flex items-center gap-2" @click.stop="$emit('set-priority', 'high'); isKebabOpen = false; isPriorityOpen = false">
                 <ChevronsUp :size="14" class="text-om-orange-500" /> High
               </button>
-              <button class="w-full text-left text-sm text-om-gray-700 px-3 py-2 hover:bg-[#505763]/5 transition-colors cursor-pointer flex items-center gap-2" @click.stop="$emit('set-priority', 'normal'); isKebabOpen = false; isPriorityOpen = false">
+              <button class="w-full text-left text-sm text-[#23262A] px-4 py-2 hover:bg-[#F9FAFB] transition-colors cursor-pointer flex items-center gap-2" @click.stop="$emit('set-priority', 'normal'); isKebabOpen = false; isPriorityOpen = false">
                 <Minus :size="14" class="text-om-gray-400" /> Normal <Check v-if="true" :size="14" class="text-om-gray-500 ml-auto" />
               </button>
-              <button class="w-full text-left text-sm text-om-gray-700 px-3 py-2 hover:bg-[#505763]/5 transition-colors cursor-pointer flex items-center gap-2" @click.stop="$emit('set-priority', 'low'); isKebabOpen = false; isPriorityOpen = false">
+              <button class="w-full text-left text-sm text-[#23262A] px-4 py-2 hover:bg-[#F9FAFB] transition-colors cursor-pointer flex items-center gap-2" @click.stop="$emit('set-priority', 'low'); isKebabOpen = false; isPriorityOpen = false">
                 <ChevronsDown :size="14" class="text-blue-500" /> Low
               </button>
             </div>
           </div>
-          <button class="w-full text-left text-sm text-om-gray-700 px-3 py-2 hover:bg-[#505763]/5 transition-colors cursor-pointer" @click.stop="$emit('share'); isKebabOpen = false">Share</button>
+          <button class="w-full text-left text-sm text-[#23262A] px-4 py-2 hover:bg-[#F9FAFB] transition-colors cursor-pointer" @click.stop="$emit('share'); isKebabOpen = false">Share</button>
           <div class="border-t border-om-gray-100 my-1"></div>
-          <button class="w-full text-left text-sm text-om-gray-700 px-3 py-2 hover:bg-[#505763]/5 transition-colors cursor-pointer" @click.stop="$emit('archive'); isKebabOpen = false">Archive</button>
-          <button class="w-full text-left text-sm text-red-500 px-3 py-2 hover:bg-[#505763]/5 transition-colors cursor-pointer" @click.stop="$emit('delete'); isKebabOpen = false">Delete</button>
+          <button class="w-full text-left text-sm text-[#23262A] px-4 py-2 hover:bg-[#F9FAFB] transition-colors cursor-pointer" @click.stop="$emit('archive'); isKebabOpen = false">Archive</button>
+          <button class="w-full text-left text-sm text-[#23262A] px-4 py-2 hover:bg-[#F9FAFB] transition-colors cursor-pointer" @click.stop="$emit('delete'); isKebabOpen = false">Delete</button>
         </div>
       </div>
     </div>

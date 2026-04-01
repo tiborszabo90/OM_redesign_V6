@@ -46,9 +46,6 @@
               >
                 {{ f.label }}
               </button>
-              <button class="chip w-10 h-10 flex items-center justify-center bg-om-gray-100 text-om-gray-700 rounded-lg cursor-pointer transition-all duration-200 ease-out hover:bg-om-gray-200">
-                <Plus :size="16" />
-              </button>
             </div>
           </div>
 
@@ -67,7 +64,7 @@
                   v-for="opt in sortOptions"
                   :key="opt.value"
                   @click="sortBy = opt.value; sortOpen = false"
-                  class="w-full text-left text-sm text-[#23262A] px-3 py-1.5 hover:bg-[#F9FAFB] transition-colors cursor-pointer flex items-center justify-between"
+                  class="w-full text-left text-sm text-[#23262A] px-4 py-2 hover:bg-[#F9FAFB] transition-colors cursor-pointer flex items-center justify-between"
                   :class="sortBy === opt.value ? 'bg-[#F1F2F4] font-medium' : ''"
                 >
                   {{ opt.label }}
@@ -187,7 +184,6 @@ const sortOptions = [
   { value: 'name-desc',        label: '↑ Name Z–A' },
   { value: 'newest',           label: '↓ Newest first' },
   { value: 'oldest',           label: '↑ Oldest first' },
-  { value: 'status',           label: 'Status' },
 ]
 
 const chatSuggestions = [

@@ -250,9 +250,8 @@ const sectionGroups = {
   },
   campaigns: {
     label: 'Campaigns',
-    views: ['campaigns-v2', 'campaigns-v3', 'campaigns-empty'],
+    views: ['campaigns-v3', 'campaigns-empty'],
     items: [
-      { view: 'campaigns-v2', label: 'Campaigns V2' },
       { view: 'campaigns-v3', label: 'Campaigns' },
       { view: 'campaigns-empty', label: 'Campaigns (Empty)' },
     ],
