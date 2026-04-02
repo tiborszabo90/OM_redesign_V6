@@ -354,6 +354,8 @@ const archiveItems = ref([
   { view: 'registration-v2', label: 'Registration V2' },
   { view: 'ppo-v1-campaign-flow', label: 'PPO V1' },
   { view: 'ppo-campaign-flow-v2', label: 'PPO Campaign Flow (tiles)' },
+  { view: 'home-onboarding-v1', label: 'Home Onboarding V1' },
+  { view: 'home-onboarding-with-reco-v1', label: 'Home Onboarding + Reco V1' },
 ])
 
 const archiveViews = computed(() => archiveItems.value.map(item => item.view))

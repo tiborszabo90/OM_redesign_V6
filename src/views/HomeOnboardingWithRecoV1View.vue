@@ -29,21 +29,19 @@
             title="Create your first campaign"
             :open="openStep === 0"
             @toggle="openStep = openStep === 0 ? null : 0"
-            icon-size="w-6 h-6"
-            icon-bg="bg-[#2CC896]"
           >
             <template #icon>
-              <Check :size="14" :stroke-width="3.5" class="text-white scale-75" />
+              <LayoutTemplate :size="20" class="text-om-orange-500" />
             </template>
             <template #meta>
               <span class="text-sm text-om-gray-400">~10 min</span>
             </template>
             <!-- Content -->
             <div class="flex gap-6 pt-2">
-              <div class="pl-9 flex-1 min-w-0">
+              <div class="pl-13 flex-1 min-w-0">
                 <h3 class="text-xl font-bold text-om-gray-700 leading-snug mb-3">Choose from recommended<br>campaigns for Reflexshop</h3>
                 <p class="text-base text-om-gray-500 mb-6">Based on your answers, we identified the most suitable campaigns for you.</p>
-                <Button variant="primary" size="md" class="self-start" @click="$emit('menu-click', 'wizard-recommendation')">Show recommendations</Button>
+                <Button variant="primary" size="lg" class="self-start" @click="$emit('menu-click', 'wizard-recommendation')">Show recommendations</Button>
               </div>
 
               <!-- Illustration -->
@@ -83,51 +81,32 @@
             title="Install OptiMonk"
             :open="openStep === 1"
             @toggle="openStep = openStep === 1 ? null : 1"
-            icon-size="w-6 h-6"
-            icon-bg="bg-[#2CC896]"
           >
             <template #icon>
-              <Check :size="14" :stroke-width="3.5" class="text-white scale-75" />
+              <Plug :size="20" class="text-om-orange-500" />
             </template>
             <template #meta>
               <span class="text-sm text-om-gray-400">~2 min</span>
             </template>
             <div class="flex items-stretch gap-6">
-              <div class="pl-9 flex-1 py-2 pr-96">
+              <div class="pl-13 flex-1 py-2 pr-96">
                 <p class="text-base text-om-gray-500 mb-5">Connect your website to OptiMonk and let us make the most of your online presence.</p>
-                <Button variant="primary" size="md" class="self-start">Connect my website</Button>
+                <Button variant="primary" size="lg" class="self-start">Connect my website</Button>
               </div>
-              <div class="absolute top-4 right-0 bottom-4 flex items-stretch -translate-x-32">
+              <div class="absolute top-10 right-0 bottom-10 flex items-stretch -translate-x-20">
                 <MeditatingPersonSvg class="h-full w-auto" />
               </div>
             </div>
           </Accordion>
 
-          <!-- Step 3: Share your feedback -->
+          <!-- Step 3: Setup check (disabled) -->
           <Accordion
             title="Setup check"
-            :open="openStep === 2"
-            @toggle="openStep = openStep === 2 ? null : 2"
+            :disabled="true"
             icon-size="w-6 h-6"
             icon-bg="bg-transparent border-2 border-om-gray-300"
           >
             <template #icon></template>
-            <template #meta>
-              <span class="text-sm text-om-gray-400">~1 min</span>
-            </template>
-            <div class="flex items-stretch gap-6">
-              <div class="pl-9 flex-1 py-2 pr-96">
-                <p class="text-xl font-bold text-om-gray-700 mb-3">Your first campaign is live!</p>
-                <p class="text-base text-om-gray-500 mb-6">Your code has been successfully installed and your first campaign is live!<br>Let us know if there's anything you need help with.</p>
-                <div class="flex items-center gap-3">
-                  <Button variant="primary" size="md" @click="$emit('navigate-to-review')">Everything's great</Button>
-                  <Button variant="outline" size="md">Contact support</Button>
-                </div>
-              </div>
-              <div class="absolute top-4 right-0 bottom-4 flex items-stretch -translate-x-32">
-                <img src="/monk-happy-white2.svg" alt="" class="h-full w-auto" />
-              </div>
-            </div>
           </Accordion>
         </div>
 
@@ -231,7 +210,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { UserPlus, Signpost, X, LayoutTemplate, LayoutGrid, Plug, Star, Check } from 'lucide-vue-next'
+import { UserPlus, Signpost, X, LayoutTemplate, LayoutGrid, Plug } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Accordion from '../components/shared/Accordion.vue'
 import Button from '../components/shared/Button.vue'
@@ -247,7 +226,7 @@ defineProps({
   }
 })
 
-defineEmits(['task-created', 'menu-click', 'navigate-to-review'])
+defineEmits(['task-created', 'menu-click'])
 
 const handleLogoClick = () => {}
 
@@ -267,9 +246,7 @@ const chatAiResponses = {
   'Help me choose a use case': 'Here are the most popular use cases to start with:\n\n1. **Email list building** — capture leads with a discount or free resource\n2. **Cart abandonment** — recover visitors before they leave\n3. **Product promotion** — highlight offers to the right audience\n4. **Customer feedback** — learn what visitors think\n\nWhich one sounds most relevant to your business?',
 }
 
-const openStep = ref(2)
-const hoveredStar = ref(0)
-const selectedStar = ref(0)
+const openStep = ref(0)
 
 const showInviteBlock = ref(true)
 const showConsultBlock = ref(true)

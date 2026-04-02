@@ -35,7 +35,9 @@ import HomeWithReviewView from './views/HomeWithReviewView.vue'
 import HomeChatVersionsView from './views/HomeChatVersionsView.vue'
 import HomeChatLeftView from './views/HomeChatLeftView.vue'
 import HomeOnboardingView from './views/HomeOnboardingView.vue'
+import HomeOnboardingV1View from './views/HomeOnboardingV1View.vue'
 import HomeOnboardingWithRecoView from './views/HomeOnboardingWithRecoView.vue'
+import HomeOnboardingWithRecoV1View from './views/HomeOnboardingWithRecoV1View.vue'
 import HomeOnboardingWithRecoV2View from './views/HomeOnboardingWithRecoV2View.vue'
 import HomeOnboardingWizardView from './views/HomeOnboardingWizardView.vue'
 import PublicWizardView from './views/PublicWizardView.vue'
@@ -879,6 +881,21 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       <HomeOnboardingWithRecoV2View
         v-else-if="currentView === 'home-onboarding-with-reco-v2'"
         :key="'home-onboarding-with-reco-v2-' + sessionKey"
+        :registration-data="registrationData"
+        @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
+        @navigate-to-review="currentView = 'campaign-review'"
+      />
+      <HomeOnboardingV1View
+        v-else-if="currentView === 'home-onboarding-v1'"
+        :key="'home-onboarding-v1-' + sessionKey"
+        :registration-data="registrationData"
+        @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
+      />
+      <HomeOnboardingWithRecoV1View
+        v-else-if="currentView === 'home-onboarding-with-reco-v1'"
+        :key="'home-onboarding-with-reco-v1-' + sessionKey"
         :registration-data="registrationData"
         @task-created="handleTaskCreated"
         @menu-click="handleMenuClick"

@@ -1,8 +1,8 @@
 <template>
-  <div class="relative bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow duration-300 ease-in-out overflow-hidden">
+  <div :class="['relative bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] transition-shadow duration-300 ease-in-out overflow-hidden', disabled ? 'opacity-50' : 'hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)]']">
     <button
-      @click="$emit('toggle')"
-      class="w-full px-5 py-4 flex items-center justify-between text-left transition-colors rounded-lg cursor-pointer"
+      @click="!disabled && $emit('toggle')"
+      :class="['w-full px-5 py-4 flex items-center justify-between text-left transition-colors rounded-lg', disabled ? 'cursor-not-allowed' : 'cursor-pointer']"
     >
       <div class="flex items-center gap-3">
         <div class="accordion-icon">
@@ -10,7 +10,7 @@
             <slot name="icon" />
           </div>
         </div>
-        <span class="text-base font-semibold text-om-gray-700">{{ title }}</span>
+        <span :class="['text-base font-semibold', disabled ? 'text-om-gray-500' : 'text-om-gray-700']">{{ title }}</span>
       </div>
       <div class="flex items-center gap-3 shrink-0">
         <slot name="meta" />
@@ -46,6 +46,10 @@ defineProps({
   iconSize: {
     type: String,
     default: 'w-10 h-10'
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 

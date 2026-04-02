@@ -29,19 +29,19 @@
             title="Create your first campaign"
             :open="openStep === 0"
             @toggle="openStep = openStep === 0 ? null : 0"
+            icon-size="w-6 h-6"
+            icon-bg="bg-transparent border-2 border-om-gray-300"
           >
-            <template #icon>
-              <LayoutTemplate :size="20" class="text-om-orange-500" />
-            </template>
+            <template #icon></template>
             <template #meta>
               <span class="text-sm text-om-gray-400">~10 min</span>
             </template>
             <!-- Content -->
             <div class="flex gap-6 pt-2">
-              <div class="pl-13 flex-1 min-w-0">
+              <div class="pl-9 flex-1 min-w-0">
                 <h3 class="text-xl font-bold text-om-gray-700 leading-snug mb-3">Choose from recommended<br>campaigns for Reflexshop</h3>
                 <p class="text-base text-om-gray-500 mb-6">Based on your answers, we identified the most suitable campaigns for you.</p>
-                <Button variant="primary" size="lg" class="self-start" @click="$emit('menu-click', 'wizard-recommendation')">Show recommendations</Button>
+                <Button variant="primary" size="md" class="self-start" @click="$emit('menu-click', 'wizard-recommendation')">Show recommendations</Button>
               </div>
 
               <!-- Illustration -->
@@ -81,22 +81,32 @@
             title="Install OptiMonk"
             :open="openStep === 1"
             @toggle="openStep = openStep === 1 ? null : 1"
+            icon-size="w-6 h-6"
+            icon-bg="bg-transparent border-2 border-om-gray-300"
           >
-            <template #icon>
-              <Plug :size="20" class="text-om-orange-500" />
-            </template>
+            <template #icon></template>
             <template #meta>
               <span class="text-sm text-om-gray-400">~2 min</span>
             </template>
             <div class="flex items-stretch gap-6">
-              <div class="pl-13 flex-1 py-2 pr-96">
+              <div class="pl-9 flex-1 py-2 pr-96">
                 <p class="text-base text-om-gray-500 mb-5">Connect your website to OptiMonk and let us make the most of your online presence.</p>
-                <Button variant="primary" size="lg" class="self-start">Connect my website</Button>
+                <Button variant="primary" size="md" class="self-start">Connect my website</Button>
               </div>
-              <div class="absolute top-10 right-0 bottom-10 flex items-stretch -translate-x-20">
+              <div class="absolute top-4 right-0 bottom-4 flex items-stretch -translate-x-32">
                 <MeditatingPersonSvg class="h-full w-auto" />
               </div>
             </div>
+          </Accordion>
+
+          <!-- Step 3: Setup check (disabled) -->
+          <Accordion
+            title="Setup check"
+            :disabled="true"
+            icon-size="w-6 h-6"
+            icon-bg="bg-transparent border-2 border-om-gray-300"
+          >
+            <template #icon></template>
           </Accordion>
         </div>
 

@@ -29,22 +29,22 @@
             title="Create your first campaign"
             :open="openStep === 0"
             @toggle="openStep = openStep === 0 ? null : 0"
-            icon-size="w-6 h-6"
-            icon-bg="bg-transparent border-2 border-om-gray-300"
           >
-            <template #icon></template>
+            <template #icon>
+              <LayoutTemplate :size="20" class="text-om-orange-500" />
+            </template>
             <template #meta>
               <span class="text-sm text-om-gray-400">~10 min</span>
             </template>
             <!-- Content -->
             <div class="flex gap-6 pt-2">
               <!-- Left: wizard launcher -->
-              <div class="flex flex-col justify-between flex-1 min-w-0 pl-9">
+              <div class="flex flex-col justify-between flex-1 min-w-0 pl-13">
                 <div>
                   <h3 class="text-2xl font-bold text-om-gray-700 leading-snug mb-3">Launch the<br>Popup Wizard</h3>
                   <p class="text-base text-om-gray-500 mb-5">Answer a few questions and get<br>personalized campaigns in minutes.</p>
                 </div>
-                <Button variant="primary" size="md" class="self-start" @click="$emit('menu-click', 'home-onboarding-wizard')">Get started</Button>
+                <Button variant="primary" size="lg" class="self-start" @click="$emit('menu-click', 'home-onboarding-wizard')">Get started</Button>
               </div>
 
               <!-- Illustration -->
@@ -84,19 +84,19 @@
             title="Install OptiMonk"
             :open="openStep === 1"
             @toggle="openStep = openStep === 1 ? null : 1"
-            icon-size="w-6 h-6"
-            icon-bg="bg-transparent border-2 border-om-gray-300"
           >
-            <template #icon></template>
+            <template #icon>
+              <Plug :size="20" class="text-om-orange-500" />
+            </template>
             <template #meta>
               <span class="text-sm text-om-gray-400">~2 min</span>
             </template>
             <div class="flex items-stretch gap-6">
-              <div class="pl-9 flex-1 py-2 pr-96">
+              <div class="pl-13 flex-1 py-2 pr-96">
                 <p class="text-base text-om-gray-500 mb-5">Connect your website to OptiMonk and let us make the most of your online presence.</p>
-                <Button variant="primary" size="md" class="self-start">Connect my website</Button>
+                <Button variant="primary" size="lg" class="self-start">Connect my website</Button>
               </div>
-              <div class="absolute top-4 right-0 bottom-4 flex items-stretch -translate-x-32">
+              <div class="absolute top-10 right-0 bottom-10 flex items-stretch -translate-x-20">
                 <MeditatingPersonSvg class="h-full w-auto" />
               </div>
             </div>
