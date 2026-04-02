@@ -38,7 +38,7 @@ import HomeOnboardingView from './views/HomeOnboardingView.vue'
 import HomeOnboardingV1View from './views/HomeOnboardingV1View.vue'
 import HomeOnboardingWithRecoView from './views/HomeOnboardingWithRecoView.vue'
 import HomeOnboardingWithRecoV1View from './views/HomeOnboardingWithRecoV1View.vue'
-import HomeOnboardingWithRecoV2View from './views/HomeOnboardingWithRecoV2View.vue'
+import HomeOnboardingReviewView from './views/HomeOnboardingReviewView.vue'
 import HomeOnboardingWizardView from './views/HomeOnboardingWizardView.vue'
 import PublicWizardView from './views/PublicWizardView.vue'
 import CampaignsEmptyView from './views/CampaignsEmptyView.vue'
@@ -686,7 +686,7 @@ const handleNavigateToOpportunities = () => {
 
 const handleMenuClick = (menuId) => {
   if (menuId === 'campaigns') {
-    const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-with-reco-v2', 'home-onboarding-wizard', 'wizard-flow']
+    const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-review', 'home-onboarding-wizard', 'wizard-flow']
     currentView.value = onboardingViews.includes(currentView.value) ? 'campaigns-empty' : 'campaigns-v3'
   } else if (menuId === 'home') {
     if (currentView.value === 'wizard-flow' || currentView.value === 'home-onboarding-wizard') {
@@ -699,7 +699,7 @@ const handleMenuClick = (menuId) => {
       currentView.value = 'home-old'
     }
   } else if (menuId === 'insights') {
-    const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-with-reco-v2', 'home-onboarding-wizard', 'wizard-flow', 'campaigns-empty', 'analytics-empty']
+    const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-review', 'home-onboarding-wizard', 'wizard-flow', 'campaigns-empty', 'analytics-empty']
     currentView.value = onboardingViews.includes(currentView.value) ? 'analytics-empty' : 'analytics-v4'
   } else if (menuId === 'campaign-page') {
     currentView.value = 'campaign-page-v1'
@@ -766,7 +766,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         'ai-texts-images-v2', 'ai-texts-images-v2-new', 'ai-texts-images-v2-presets', 'ai-texts-images-v2-preview', 'ai-texts-images-v2-choose-products', 'ai-texts-images-v2-generation', 'ai-texts-images-v2-generation-product', 'ai-texts-images-v2-add-products', 'ai-texts-images-v2-text-presets', 'ai-texts-images-v2-text-preview', 'ai-texts-images-v2-text-generation',
         'registration', 'registration-v1', 'registration-v2',
         'ppo-v1-campaign-detail', 'ppo-v1-placement', 'ppo-v1-variant-detail-v1', 'ppo-v1-variant-detail-v2', 'ppo-v1-variable-setup', 'ppo-v1-generation', 'ppo-v1-campaign-flow',
-        'home-onboarding-with-reco-v2'].includes(currentView)"
+        'home-onboarding-review'].includes(currentView)"
       class="pt-8 pl-8 shrink-0"
     >
       <img
@@ -878,9 +878,9 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         @task-created="handleTaskCreated"
         @menu-click="handleMenuClick"
       />
-      <HomeOnboardingWithRecoV2View
-        v-else-if="currentView === 'home-onboarding-with-reco-v2'"
-        :key="'home-onboarding-with-reco-v2-' + sessionKey"
+      <HomeOnboardingReviewView
+        v-else-if="currentView === 'home-onboarding-review'"
+        :key="'home-onboarding-review-' + sessionKey"
         :registration-data="registrationData"
         @task-created="handleTaskCreated"
         @menu-click="handleMenuClick"

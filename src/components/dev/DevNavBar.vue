@@ -240,13 +240,13 @@ const imageBadgeStepCount = computed(() => {
 const sectionGroups = {
   home: {
     label: 'Home',
-    views: ['home-old', 'home-with-review', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-with-reco-v2'],
+    views: ['home-old', 'home-with-review', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-review'],
     items: [
       { view: 'home-old', label: 'Home (Active Campaigns)' },
       { view: 'home-with-review', label: 'Home (Review)' },
       { view: 'home-onboarding', label: 'Home Onboarding' },
       { view: 'home-onboarding-with-reco', label: 'Home Onboarding + Reco' },
-      { view: 'home-onboarding-with-reco-v2', label: 'Home Onboarding + Reco V2' },
+      { view: 'home-onboarding-review', label: 'Home Onboarding Review' },
     ],
   },
   campaigns: {
