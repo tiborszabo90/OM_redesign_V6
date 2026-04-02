@@ -6,7 +6,7 @@
     >
       <div class="flex items-center gap-3">
         <div class="accordion-icon">
-          <div :class="['w-10 h-10 rounded-full flex items-center justify-center shrink-0', iconBg]">
+          <div :class="['rounded-full flex items-center justify-center shrink-0', iconSize, iconBg]">
             <slot name="icon" />
           </div>
         </div>
@@ -42,6 +42,10 @@ defineProps({
   iconBg: {
     type: String,
     default: 'bg-om-orange-100'
+  },
+  iconSize: {
+    type: String,
+    default: 'w-10 h-10'
   }
 })
 
