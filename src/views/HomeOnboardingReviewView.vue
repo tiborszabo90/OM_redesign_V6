@@ -103,11 +103,36 @@
             </div>
           </Accordion>
 
-          <!-- Step 3: Share your feedback -->
+          <!-- Step 3: Activate your first campaign -->
           <Accordion
-            title="Setup check"
+            title="Activate your first campaign"
             :open="openStep === 2"
             @toggle="openStep = openStep === 2 ? null : 2"
+            icon-size="w-6 h-6"
+            icon-bg="bg-[#2CC896]"
+          >
+            <template #icon>
+              <Check :size="14" :stroke-width="3.5" class="text-white scale-75" />
+            </template>
+            <template #meta>
+              <span class="text-sm text-om-gray-400">~1 min</span>
+            </template>
+            <div class="flex items-stretch gap-6">
+              <div class="pl-9 flex-1 py-2 pr-96">
+                <p class="text-base text-om-gray-500 mb-5">Activate or schedule your very first campaign to boost conversions.</p>
+                <Button variant="primary" size="md" class="self-start" @click="$emit('menu-click', 'campaign-page-with-review')">Activate campaign</Button>
+              </div>
+              <div class="absolute top-2 right-0 bottom-2 flex items-stretch -translate-x-44">
+                <img src="/monk-on.svg" alt="" class="h-full w-auto" />
+              </div>
+            </div>
+          </Accordion>
+
+          <!-- Step 4: Setup check -->
+          <Accordion
+            title="Setup check"
+            :open="openStep === 3"
+            @toggle="openStep = openStep === 3 ? null : 3"
             icon-size="w-6 h-6"
             icon-bg="bg-transparent border-2 border-om-gray-300"
           >
@@ -124,7 +149,7 @@
                   <Button variant="outline" size="md">Contact support</Button>
                 </div>
               </div>
-              <div class="absolute top-4 right-0 bottom-4 flex items-stretch -translate-x-32">
+              <div class="absolute top-8 right-0 bottom-8 flex items-stretch -translate-x-32">
                 <img src="/monk-happy-white2.svg" alt="" class="h-full w-auto" />
               </div>
             </div>
@@ -267,7 +292,7 @@ const chatAiResponses = {
   'Help me choose a use case': 'Here are the most popular use cases to start with:\n\n1. **Email list building** — capture leads with a discount or free resource\n2. **Cart abandonment** — recover visitors before they leave\n3. **Product promotion** — highlight offers to the right audience\n4. **Customer feedback** — learn what visitors think\n\nWhich one sounds most relevant to your business?',
 }
 
-const openStep = ref(2)
+const openStep = ref(3)
 const hoveredStar = ref(0)
 const selectedStar = ref(0)
 

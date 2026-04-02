@@ -102,7 +102,17 @@
             </div>
           </Accordion>
 
-          <!-- Step 3: Setup check (disabled) -->
+          <!-- Step 3: Activate your first campaign (disabled) -->
+          <Accordion
+            title="Activate your first campaign"
+            :disabled="true"
+            icon-size="w-6 h-6"
+            icon-bg="bg-transparent border-2 border-om-gray-300"
+          >
+            <template #icon></template>
+          </Accordion>
+
+          <!-- Step 4: Setup check (disabled) -->
           <Accordion
             title="Setup check"
             :disabled="true"
