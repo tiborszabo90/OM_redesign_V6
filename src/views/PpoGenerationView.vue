@@ -1,24 +1,24 @@
 <template>
-  <DashboardLayout active-menu-item="campaigns" @menu-click="$emit('menu-click', $event)">
-    <template #content>
-      <div class="w-full max-w-[1400px] mx-auto -mt-3" @click="showGenMenu = false">
+  <div class="h-screen flex flex-col bg-om-gray-50">
+    <!-- Header bar -->
+    <div class="flex items-center justify-between border-b border-om-gray-200 shrink-0 px-8 py-4 bg-white">
+      <div class="flex items-center gap-3">
+        <button @click="emit('back')" class="text-om-gray-600 hover:text-om-gray-800 cursor-pointer">
+          <ArrowLeft :size="18" />
+        </button>
+        <div class="h-5 w-px bg-om-gray-200" />
+        <span class="font-semibold text-om-gray-700 text-lg">Product Page Optimizer</span>
+      </div>
+      <Button variant="primary" size="sm" @click="emit('create')">Create Campaign</Button>
+    </div>
 
-        <!-- Back + pathway -->
-        <div class="flex items-center gap-2 mb-2">
-          <Button variant="ghost" size="sm" :icon-only="true" @click="emit('back')">
-            <template #icon><ArrowLeft :size="16" /></template>
-          </Button>
-          <nav class="flex items-center gap-1.5 text-sm text-om-gray-400">
-            <span>Product Page Optimizer</span>
-            <span class="text-om-gray-300">›</span>
-            <span class="text-om-gray-600 font-medium">Generation</span>
-          </nav>
-        </div>
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto">
+      <div class="max-w-[1400px] mx-auto px-8 py-8" @click="showGenMenu = false">
 
-        <!-- Title + create button -->
+        <!-- Title -->
         <div class="flex items-center justify-between mb-1">
           <h1 class="text-2xl font-semibold text-om-gray-700">Product Generation</h1>
-          <Button variant="primary" size="md" @click="emit('create')">Create Campaign</Button>
         </div>
         <p class="text-sm text-om-gray-500 mb-6">Generate AI content for your products. Each row shows the status for all selected variable types.</p>
 
@@ -217,7 +217,7 @@
               <div v-if="hasImageType('image-badge')" class="border-t border-om-gray-100 pt-2.5">
                 <div class="flex items-center gap-1.5 mb-1.5">
                   <ImageIcon :size="12" class="text-om-gray-400 shrink-0" />
-                  <span class="text-[11px] font-semibold text-om-gray-400 uppercase tracking-wider flex-1">Kép badge-el</span>
+                  <span class="text-[11px] font-semibold text-om-gray-400 uppercase tracking-wider flex-1">Image with badge</span>
                   <span v-if="product.status === 'generated'" class="ready-badge shrink-0 flex items-center justify-center gap-0 bg-[#D6F5EC] text-[#2CC896] rounded-full p-1 cursor-default transition-all duration-200 overflow-hidden">
                     <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-width="2" /><path stroke-linecap="round" stroke-linejoin="round" d="M8 12l3 3 5-5" /></svg>
                     <span class="ready-label text-[11px] font-medium whitespace-nowrap max-w-0 opacity-0 transition-all duration-200">Ready to use</span>
@@ -227,12 +227,52 @@
                     Generating
                   </Tag>
                 </div>
-                <div
-                  class="rounded-lg shrink-0 overflow-hidden h-16 w-full"
-                  :class="product.status === 'generated' ? '' : 'border-2 border-dashed border-om-gray-200 flex items-center justify-center'"
-                >
-                  <img v-if="product.status === 'generated'" src="/image-with-badge/whisky2.png" class="w-full h-full object-cover" />
-                  <svg v-else class="w-5 h-5 text-om-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                <div v-if="product.status === 'generated'" class="flex gap-2 items-start h-48">
+                  <img src="/image-with-badge/image-1.jpg" class="h-full w-auto object-contain rounded-lg" />
+                  <img src="/image-with-badge/image-1-mobile.jpg" class="h-full w-auto object-contain rounded-lg" />
+                </div>
+                <div v-else class="rounded-lg shrink-0 overflow-hidden h-16 w-full border-2 border-dashed border-om-gray-200 flex items-center justify-center">
+                  <svg class="w-5 h-5 text-om-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                </div>
+              </div>
+
+              <!-- Product summary type -->
+              <div v-if="hasImageType('product-summary')" class="border-t border-om-gray-100 pt-2.5">
+                <div class="flex items-center gap-1.5 mb-1.5">
+                  <ImageIcon :size="12" class="text-om-gray-400 shrink-0" />
+                  <span class="text-[11px] font-semibold text-om-gray-400 uppercase tracking-wider flex-1">Product summary</span>
+                  <span v-if="product.status === 'generated'" class="ready-badge shrink-0 flex items-center justify-center gap-0 bg-[#D6F5EC] text-[#2CC896] rounded-full p-1 cursor-default transition-all duration-200 overflow-hidden">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-width="2" /><path stroke-linecap="round" stroke-linejoin="round" d="M8 12l3 3 5-5" /></svg>
+                    <span class="ready-label text-[11px] font-medium whitespace-nowrap max-w-0 opacity-0 transition-all duration-200">Ready to use</span>
+                  </span>
+                  <Tag v-else-if="product.status === 'generating'" variant="orange" class="shrink-0">
+                    <template #icon><svg class="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg></template>
+                    Generating
+                  </Tag>
+                </div>
+                <div v-if="product.status === 'generated'" class="flex rounded-lg overflow-hidden border border-om-gray-200 h-32">
+                  <div class="h-full aspect-square bg-om-gray-50 shrink-0">
+                    <img src="/image-with-badge/whisky2.png" class="w-full h-full object-cover" />
+                  </div>
+                  <div class="flex-1 bg-[#E8611A] flex flex-col justify-center px-4 py-3 text-white">
+                    <div class="space-y-1.5">
+                      <div class="flex items-start gap-2">
+                        <img src="/badge-1.svg" class="w-4 h-4 shrink-0 mt-0.5" style="filter: brightness(0) invert(1); opacity: 0.3;" />
+                        <span class="text-xs leading-relaxed">Egyedülálló ír whiskey és vanília keverék</span>
+                      </div>
+                      <div class="flex items-start gap-2">
+                        <img src="/badge-1.svg" class="w-4 h-4 shrink-0 mt-0.5" style="filter: brightness(0) invert(1); opacity: 0.3;" />
+                        <span class="text-xs leading-relaxed">Selymesen lágy, tökéletes jéggel vagy koktélokban</span>
+                      </div>
+                      <div class="flex items-start gap-2">
+                        <img src="/badge-1.svg" class="w-4 h-4 shrink-0 mt-0.5" style="filter: brightness(0) invert(1); opacity: 0.3;" />
+                        <span class="text-xs leading-relaxed">Díjnyertes kézműves likőr</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="rounded-lg shrink-0 overflow-hidden h-16 w-full border-2 border-dashed border-om-gray-200 flex items-center justify-center">
+                  <svg class="w-5 h-5 text-om-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 </div>
               </div>
             </div>
@@ -253,13 +293,12 @@
         </div>
 
       </div>
-    </template>
-  </DashboardLayout>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
-import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Tag from '../components/shared/Tag.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
@@ -268,12 +307,13 @@ import { ArrowLeft, Search, SlidersHorizontal, Upload, ArrowDownAZ, Coins, Image
 const props = defineProps({
   selectedTypes: { type: Array, default: () => [] },
 })
-const emit = defineEmits(['menu-click', 'back', 'create'])
+const emit = defineEmits(['back', 'create'])
 
 // Variable types from selected
 const allTypes = [
   { id: 'product-image',    label: 'Product Image' },
-  { id: 'image-badge',      label: 'Image Badge' },
+  { id: 'image-badge',      label: 'Image with badge' },
+  { id: 'product-summary',  label: 'Product summary' },
   { id: 'headline',         label: 'Headline' },
   { id: 'subheadline',      label: 'Subheadline' },
   { id: 'benefit-list',     label: 'Benefit List' },
@@ -283,7 +323,7 @@ const allTypes = [
 
 const variableTypes = computed(() => allTypes.filter(t => props.selectedTypes.includes(t.id)))
 
-const isImageTypeId = (id) => id === 'product-image' || id === 'image-badge'
+const isImageTypeId = (id) => id === 'product-image' || id === 'image-badge' || id === 'product-summary'
 const textTypes = computed(() => variableTypes.value.filter(t => !isImageTypeId(t.id)))
 const hasTextTypes = computed(() => textTypes.value.length > 0)
 const hasImageType = (id) => variableTypes.value.some(t => t.id === id)

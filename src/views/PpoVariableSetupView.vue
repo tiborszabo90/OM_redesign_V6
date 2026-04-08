@@ -1,61 +1,62 @@
 <template>
-  <DashboardLayout active-menu-item="campaigns" @menu-click="$emit('menu-click', $event)">
-    <template #content>
-      <div class="w-full max-w-[1400px] mx-auto -mt-3">
-
-        <!-- Top bar: back + stepper + actions -->
-        <div class="relative flex items-center mb-6">
-          <Button variant="ghost" size="sm" :icon-only="true" @click="handleBack">
-            <template #icon><ArrowLeft :size="16" /></template>
-          </Button>
-
-          <!-- Stepper (absolutely centered) -->
-          <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div class="flex items-center gap-2 pointer-events-auto">
-              <template v-for="(type, i) in types" :key="type.id">
-                <div
-                  class="flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all cursor-pointer shrink-0"
-                  :class="[
-                    i === currentStep
-                      ? 'border-om-orange-500 bg-om-orange-50 shadow-[0_2px_8px_rgba(237,90,41,0.15)]'
-                      : stepStates[type.id]?.generated
-                        ? 'border-[#2CC896] bg-[#EDFDF7]'
-                        : 'border-om-gray-200 bg-white hover:border-om-gray-300'
-                  ]"
-                  @click="currentStep = i"
-                >
-                  <div
-                    class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[11px] font-bold"
-                    :class="[
-                      i === currentStep
-                        ? 'bg-om-orange-500 text-white'
-                        : stepStates[type.id]?.generated
-                          ? 'bg-[#2CC896] text-white'
-                          : 'bg-om-gray-200 text-om-gray-500'
-                    ]"
-                  >
-                    <CheckIcon v-if="stepStates[type.id]?.generated && i !== currentStep" :size="12" />
-                    <span v-else>{{ i + 1 }}</span>
-                  </div>
-                  <span
-                    class="text-xs font-medium whitespace-nowrap"
-                    :class="i === currentStep ? 'text-om-orange-600' : stepStates[type.id]?.generated ? 'text-[#2CC896]' : 'text-om-gray-500'"
-                  >
-                    {{ type.label }}
-                  </span>
-                </div>
-              </template>
+  <div class="h-screen flex flex-col bg-om-gray-50">
+    <!-- Header bar -->
+    <div class="flex items-center justify-between border-b border-om-gray-200 shrink-0 px-8 py-4 bg-white">
+      <div class="flex items-center gap-3">
+        <button @click="handleBack" class="text-om-gray-600 hover:text-om-gray-800 cursor-pointer">
+          <ArrowLeft :size="18" />
+        </button>
+        <div class="h-5 w-px bg-om-gray-200" />
+        <span class="font-semibold text-om-gray-700 text-lg">Product Page Optimizer</span>
+      </div>
+      <!-- Stepper (centered) -->
+      <div class="flex items-center gap-2">
+        <template v-for="(type, i) in types" :key="type.id">
+          <div
+            class="flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all cursor-pointer shrink-0"
+            :class="[
+              i === currentStep
+                ? 'border-om-orange-500 bg-om-orange-50 shadow-[0_2px_8px_rgba(237,90,41,0.15)]'
+                : stepStates[type.id]?.generated
+                  ? 'border-[#2CC896] bg-[#EDFDF7]'
+                  : 'border-om-gray-200 bg-white hover:border-om-gray-300'
+            ]"
+            @click="currentStep = i"
+          >
+            <div
+              class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[11px] font-bold"
+              :class="[
+                i === currentStep
+                  ? 'bg-om-orange-500 text-white'
+                  : stepStates[type.id]?.generated
+                    ? 'bg-[#2CC896] text-white'
+                    : 'bg-om-gray-200 text-om-gray-500'
+              ]"
+            >
+              <CheckIcon v-if="stepStates[type.id]?.generated && i !== currentStep" :size="12" />
+              <span v-else>{{ i + 1 }}</span>
             </div>
+            <span
+              class="text-xs font-medium whitespace-nowrap"
+              :class="i === currentStep ? 'text-om-orange-600' : stepStates[type.id]?.generated ? 'text-[#2CC896]' : 'text-om-gray-500'"
+            >
+              {{ type.label }}
+            </span>
           </div>
+        </template>
+      </div>
+      <!-- Actions (right-aligned) -->
+      <div class="flex items-center gap-2">
+        <Button v-if="currentStep > 0" variant="outline" size="sm" @click="currentStep--">Previous</Button>
+        <Button variant="primary" size="sm" @click="handleNext">
+          {{ isLastStep ? 'Continue to Preview' : 'Next' }}
+        </Button>
+      </div>
+    </div>
 
-          <!-- Actions (right-aligned) -->
-          <div class="flex items-center gap-2 ml-auto">
-            <Button v-if="currentStep > 0" variant="outline" size="sm" @click="currentStep--">Previous</Button>
-            <Button variant="primary" size="sm" @click="handleNext">
-              {{ isLastStep ? 'Continue to Preview' : 'Next' }}
-            </Button>
-          </div>
-        </div>
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto">
+      <div class="max-w-[1400px] mx-auto px-8 py-8">
 
         <!-- Two columns: Original + AI Preview -->
         <div class="grid grid-cols-[380px_1fr] gap-4 mb-4 items-stretch" style="height: 500px;">
@@ -108,7 +109,43 @@
               </template>
               <template v-else>
                 <!-- Generated preview -->
-                <template v-if="isImageType">
+                <template v-if="currentType.id === 'product-summary'">
+                  <div class="p-6 w-full flex items-center justify-center transition-all duration-300" :class="promptChanged ? 'blur-sm scale-105' : ''">
+                    <div class="flex w-full rounded-xl overflow-hidden border border-om-gray-200 shadow-sm">
+                      <!-- Left: product image (1:1 square) -->
+                      <div class="aspect-square bg-om-gray-50 shrink-0 w-80 overflow-hidden">
+                        <img src="/image-with-badge/whisky2.png" class="w-full h-full object-cover" />
+                      </div>
+                      <!-- Right: orange info block -->
+                      <div class="flex-1 bg-[#E8611A] flex flex-col justify-center px-6 py-6 text-white">
+                        <div class="space-y-5">
+                          <div class="flex items-start gap-3">
+                            <div class="w-7 h-7 shrink-0 mt-0.5 relative flex items-center justify-center">
+                              <img src="/badge-1.svg" class="absolute inset-0 w-full h-full text-white opacity-20" style="filter: brightness(0) invert(1);" />
+                              <CheckIcon :size="14" class="text-white relative z-10" stroke-width="3" />
+                            </div>
+                            <span class="text-base leading-relaxed">Egyedülálló ír whiskey és vanília keverék, prémium minőségű természetes összetevőkkel</span>
+                          </div>
+                          <div class="flex items-start gap-3">
+                            <div class="w-7 h-7 shrink-0 mt-0.5 relative flex items-center justify-center">
+                              <img src="/badge-1.svg" class="absolute inset-0 w-full h-full text-white opacity-20" style="filter: brightness(0) invert(1);" />
+                              <CheckIcon :size="14" class="text-white relative z-10" stroke-width="3" />
+                            </div>
+                            <span class="text-base leading-relaxed">Selymesen lágy, tökéletes jéggel, koktélokban vagy önmagában fogyasztva</span>
+                          </div>
+                          <div class="flex items-start gap-3">
+                            <div class="w-7 h-7 shrink-0 mt-0.5 relative flex items-center justify-center">
+                              <img src="/badge-1.svg" class="absolute inset-0 w-full h-full text-white opacity-20" style="filter: brightness(0) invert(1);" />
+                              <CheckIcon :size="14" class="text-white relative z-10" stroke-width="3" />
+                            </div>
+                            <span class="text-base leading-relaxed">Díjnyertes kézműves likőr, amelyet hagyományos ír módszerekkel készítenek</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+                <template v-else-if="isImageType">
                   <img src="/image-with-badge/whisky2.png" class="max-h-full w-auto object-contain transition-all duration-300" :class="promptChanged ? 'blur-sm scale-105' : ''" />
                 </template>
                 <template v-else>
@@ -217,13 +254,12 @@
         </div>
 
       </div>
-    </template>
-  </DashboardLayout>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { ref, computed, reactive } from 'vue'
-import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Tag from '../components/shared/Tag.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
@@ -233,12 +269,13 @@ import { ArrowLeft, ChevronDown, ChevronUp, Wand2, Sparkles, ImageIcon, Type, Ch
 const props = defineProps({
   selectedTypes: { type: Array, default: () => [] },
 })
-const emit = defineEmits(['menu-click', 'back', 'next'])
+const emit = defineEmits(['back', 'next'])
 
 // Content type definitions
 const allTypes = [
   { id: 'product-image',    label: 'Product Image',     category: 'Image' },
-  { id: 'image-badge',      label: 'Image Badge',       category: 'Image' },
+  { id: 'image-badge',      label: 'Image with badge',   category: 'Image' },
+  { id: 'product-summary',  label: 'Product summary',    category: 'Image' },
   { id: 'headline',         label: 'Headline',           category: 'Text' },
   { id: 'subheadline',      label: 'Subheadline',        category: 'Text' },
   { id: 'benefit-list',     label: 'Benefit List',       category: 'Text' },
@@ -265,6 +302,7 @@ const getDefaultPrompt = (id) => {
   const prompts = {
     'product-image': 'Create a lifestyle product photo with a clean, modern background. Show the product in a natural setting that highlights its use case.',
     'image-badge': 'Create a product image with an overlay badge highlighting the current promotion or key feature.',
+    'product-summary': 'Create a product summary block with an image and a short text description highlighting the key features.',
     'headline': 'Write a compelling, benefit-driven headline for this product. Max 10 words.',
     'subheadline': 'Write a supporting subheadline that expands on the main benefit. Max 20 words.',
     'benefit-list': 'List the top 3 benefits of this product as short, scannable bullet points.',

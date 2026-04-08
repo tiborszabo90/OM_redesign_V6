@@ -15,11 +15,11 @@
     </div>
 
     <!-- Content: two columns side by side -->
-    <div class="flex-1 overflow-y-auto">
-      <div class="max-w-6xl mx-auto px-8 py-8 flex gap-8 items-start">
+    <div class="flex-1 flex min-h-0">
+      <div class="max-w-6xl mx-auto px-8 py-8 flex gap-8 items-start flex-1 min-h-0">
 
-        <!-- Left: element picker -->
-        <div class="w-[340px] shrink-0">
+        <!-- Left: element picker (fixed) -->
+        <div class="w-[340px] shrink-0 sticky top-8 self-start">
           <h2 class="text-lg font-semibold text-om-gray-700 mb-1">Choose elements</h2>
           <p class="text-sm text-om-gray-500 mb-5">Select which AI-generated elements to add to your product pages.</p>
 
@@ -43,8 +43,8 @@
                 @click.stop
                 @update:model-value="toggleType(type.id)"
               />
-              <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" :class="type.isImage ? 'bg-purple-50' : 'bg-blue-50'">
-                <ImageIcon v-if="type.isImage" :size="16" class="text-purple-500" />
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" :class="type.isImage || type.isMixed ? 'bg-purple-50' : 'bg-blue-50'">
+                <ImageIcon v-if="type.isImage || type.isMixed" :size="16" class="text-purple-500" />
                 <Type v-else :size="16" class="text-blue-500" />
               </div>
               <div class="flex-1 min-w-0">
@@ -60,9 +60,9 @@
           <p class="text-xs text-om-gray-400 mt-4">{{ selectedTypes.length }} element{{ selectedTypes.length !== 1 ? 's' : '' }} selected</p>
         </div>
 
-        <!-- Right: dummy product page preview -->
-        <div class="flex-1 min-w-0">
-          <div class="bg-white rounded-xl shadow-sm p-8 sticky top-8">
+        <!-- Right: dummy product page preview (scrollable) -->
+        <div class="flex-1 min-w-0 overflow-y-auto max-h-full">
+          <div class="bg-white rounded-xl shadow-sm p-8">
             <!-- Dummy nav -->
             <div class="flex items-center justify-between mb-8 pb-4 border-b border-om-gray-200">
               <div class="flex items-center gap-6">
@@ -135,11 +135,54 @@
 
             <!-- Image badge slot (below fold) -->
             <transition name="fade-slot">
-              <div v-if="selectedTypes.includes('image-badge')" class="mt-8 rounded-lg border-2 border-dashed border-om-orange-400 bg-om-orange-50 p-4 flex items-center justify-center">
-                <div class="text-[10px] font-semibold text-om-orange-500 uppercase tracking-wider mr-3">Kép badge-el</div>
+              <div v-if="selectedTypes.includes('image-badge')" class="mt-8 rounded-lg border-2 border-dashed border-om-orange-400 bg-om-orange-50 p-4 h-36 flex items-center justify-center">
+                <div class="text-[10px] font-semibold text-om-orange-500 uppercase tracking-wider mr-3">Image with badge</div>
                 <ImageIcon :size="18" class="text-om-orange-400" />
               </div>
             </transition>
+
+            <!-- Product summary slot -->
+            <transition name="fade-slot">
+              <div v-if="selectedTypes.includes('product-summary')" class="mt-8 rounded-lg border-2 border-dashed border-om-orange-400 bg-om-orange-50 p-4 h-36 flex items-center justify-center">
+                <div class="text-[10px] font-semibold text-om-orange-500 uppercase tracking-wider mr-3">Product summary</div>
+                <ImageIcon :size="18" class="text-om-orange-400" />
+              </div>
+            </transition>
+
+            <!-- Full-width banner -->
+            <div class="w-full h-28 bg-om-gray-100 rounded-lg flex items-center justify-center mt-8">
+              <div class="text-xs text-om-gray-300 uppercase tracking-wider">Banner</div>
+            </div>
+
+            <!-- Related products -->
+            <div class="mt-8">
+              <div class="w-40 h-5 bg-om-gray-200 rounded mb-4" />
+              <div class="grid grid-cols-4 gap-4">
+                <div v-for="i in 4" :key="i" class="flex flex-col gap-2">
+                  <div class="aspect-square bg-om-gray-100 rounded-lg" />
+                  <div class="w-full h-3 bg-om-gray-100 rounded" />
+                  <div class="w-2/3 h-3 bg-om-gray-100 rounded" />
+                  <div class="w-1/3 h-4 bg-om-gray-200 rounded" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Description block -->
+            <div class="mt-8">
+              <div class="w-48 h-5 bg-om-gray-200 rounded mb-4" />
+              <div class="space-y-2">
+                <div class="w-full h-3 bg-om-gray-100 rounded" />
+                <div class="w-full h-3 bg-om-gray-100 rounded" />
+                <div class="w-full h-3 bg-om-gray-100 rounded" />
+                <div class="w-3/4 h-3 bg-om-gray-100 rounded" />
+              </div>
+              <div class="w-full h-40 bg-om-gray-100 rounded-lg mt-4" />
+              <div class="space-y-2 mt-4">
+                <div class="w-full h-3 bg-om-gray-100 rounded" />
+                <div class="w-full h-3 bg-om-gray-100 rounded" />
+                <div class="w-5/6 h-3 bg-om-gray-100 rounded" />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -161,10 +204,10 @@ const selectedTypes = ref([])
 
 const contentTypes = [
   { id: 'product-image',    label: 'Product image',          description: 'AI-generált termékkép lifestyle háttérrel.',           isImage: true,  comingSoon: false },
+  { id: 'image-badge',      label: 'Image with badge',       description: 'Termékkép akciós vagy egyéb badge-dzsel.',             isImage: true,  comingSoon: false },
+  { id: 'product-summary',  label: 'Product summary',     description: 'Image and text combined — full product block.',        isMixed: true,  comingSoon: false },
   { id: 'product-sentence', label: 'Product sentence',  description: 'Egyetlen összefoglaló mondat a termékről.',            isImage: false, comingSoon: false },
   { id: 'benefit-list',     label: 'Benefit list',       description: 'Felsorolás a termék legfontosabb előnyeiről.',         isImage: false, comingSoon: false },
-  { id: 'image-badge',      label: 'Kép badge-el',       description: 'Termékkép akciós vagy egyéb badge-dzsel.',             isImage: true,  comingSoon: false },
-  { id: 'product-summary',  label: 'Termékösszefoglaló', description: 'Kép és szöveg együtt — teljes termékblokk.',           isImage: false, comingSoon: true  },
 ]
 
 const toggleType = (id) => {

@@ -240,10 +240,9 @@ const imageBadgeStepCount = computed(() => {
 const sectionGroups = {
   home: {
     label: 'Home',
-    views: ['home-old', 'home-with-review', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-review'],
+    views: ['home-old', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-review'],
     items: [
       { view: 'home-old', label: 'Home (Active Campaigns)' },
-      { view: 'home-with-review', label: 'Home (Review)' },
       { view: 'home-onboarding', label: 'Home Onboarding' },
       { view: 'home-onboarding-with-reco', label: 'Home Onboarding + Reco' },
       { view: 'home-onboarding-review', label: 'Home Onboarding Review' },
@@ -356,6 +355,7 @@ const archiveItems = ref([
   { view: 'ppo-campaign-flow-v2', label: 'PPO Campaign Flow (tiles)' },
   { view: 'home-onboarding-v1', label: 'Home Onboarding V1' },
   { view: 'home-onboarding-with-reco-v1', label: 'Home Onboarding + Reco V1' },
+  { view: 'home-with-review', label: 'Home (Review)' },
 ])
 
 const archiveViews = computed(() => archiveItems.value.map(item => item.view))

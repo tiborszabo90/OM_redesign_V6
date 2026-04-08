@@ -16,12 +16,12 @@
         <Button variant="outline" size="sm" @click="$emit('go-editor')">Editor</Button>
         <Button variant="outline" size="sm" @click="$emit('go-ai-texts-images')">AI Texts &amp; Images V1</Button>
         <Button variant="outline" size="sm" @click="$emit('go-ai-texts-images-v2')">AI Texts &amp; Images V2</Button>
-        <Button variant="outline" size="sm" @click="showArchive = true">Archive</Button>
+        <Button variant="outline" size="sm" @click="openArchive">Archive</Button>
       </div>
 
       <!-- Archive sub-page -->
       <div v-else class="flex flex-col gap-4 items-center">
-        <Button variant="outline" size="sm" @click="showArchive = false">← Back</Button>
+        <Button variant="outline" size="sm" @click="closeArchive">← Back</Button>
         <div class="grid grid-cols-2 gap-3">
           <Button
             v-for="item in archiveItems"
@@ -43,9 +43,23 @@
 import { ref } from 'vue'
 import Button from '../components/shared/Button.vue'
 
-defineEmits(['select', 'go-home', 'go-home-onboarding', 'go-public-wizard', 'go-design-guide', 'go-image-with-badge', 'go-chat-versions', 'go-editor', 'go-ai-texts-images', 'go-ai-texts-images-v2', 'navigate'])
+const props = defineProps({
+  initialShowArchive: { type: Boolean, default: false }
+})
 
-const showArchive = ref(false)
+const emit = defineEmits(['select', 'go-home', 'go-home-onboarding', 'go-public-wizard', 'go-design-guide', 'go-image-with-badge', 'go-chat-versions', 'go-editor', 'go-ai-texts-images', 'go-ai-texts-images-v2', 'navigate', 'show-archive'])
+
+const showArchive = ref(props.initialShowArchive)
+
+const openArchive = () => {
+  showArchive.value = true
+  emit('show-archive', true)
+}
+
+const closeArchive = () => {
+  showArchive.value = false
+  emit('show-archive', false)
+}
 
 const archiveItems = [
   { view: 'home-old-v2', label: 'Home Old' },
@@ -70,5 +84,6 @@ const archiveItems = [
   { view: 'ppo-campaign-flow-v2', label: 'PPO Campaign Flow (tiles)' },
   { view: 'home-onboarding-v1', label: 'Home Onboarding V1' },
   { view: 'home-onboarding-with-reco-v1', label: 'Home Onboarding + Reco V1' },
+  { view: 'home-with-review', label: 'Home (Review)' },
 ]
 </script>

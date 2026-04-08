@@ -51,70 +51,105 @@
                   ? 'border-om-orange-500 bg-white shadow-sm'
                   : 'border-om-gray-200 bg-white hover:border-om-gray-300'
               ]"
-              @click="activeCard = type.id"
             >
               <!-- Card header -->
-              <div class="flex items-center gap-3 p-3 cursor-pointer">
+              <div class="flex items-center gap-3 p-3 cursor-pointer" @click="activeCard = activeCard === type.id ? null : type.id">
                 <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="type.isImage ? 'bg-purple-50' : 'bg-blue-50'">
                   <ImageIcon v-if="type.isImage" :size="16" class="text-purple-500" />
                   <Type v-else :size="16" class="text-blue-500" />
                 </div>
-                <div class="flex-1 min-w-0">
-                  <span class="text-sm font-medium text-om-gray-700">{{ type.label }}</span>
-                  <p class="text-xs text-om-gray-400 mt-0.5">{{ type.description }}</p>
-                </div>
+                <span class="text-sm font-medium text-om-gray-700 flex-1 min-w-0">{{ type.label }}</span>
                 <ChevronDown :size="14" class="text-om-gray-400 shrink-0 transition-transform" :class="activeCard === type.id ? 'rotate-180' : ''" />
               </div>
 
-              <!-- Typography settings (expanded, only for text types) -->
+              <!-- Expanded settings -->
               <transition name="expand">
-                <div v-if="activeCard === type.id && !type.isImage" class="px-3 pb-3 border-t border-om-gray-100">
+                <div v-if="activeCard === type.id" class="px-3 pb-3 border-t border-om-gray-100">
                   <div class="pt-3 space-y-3">
-                    <!-- Font family -->
-                    <div>
-                      <label class="text-xs font-medium text-om-gray-500 mb-1 block">Font family</label>
-                      <Dropdown v-model="typeSettings[type.id].fontFamily" :options="fontFamilyOptions" size="sm" />
+                    <!-- Position dropdown (not for product-image) -->
+                    <div v-if="type.id !== 'product-image'">
+                      <label class="text-xs font-medium text-om-gray-500 mb-1 block">Position</label>
+                      <Dropdown :model-value="positions[type.id]" :options="positionOptionsFor(type.id)" size="sm" @update:model-value="val => positions[type.id] = typeof val === 'object' ? val.value : val" />
                     </div>
-                    <!-- Font size + weight row -->
-                    <div class="flex gap-2">
-                      <div class="flex-1">
-                        <label class="text-xs font-medium text-om-gray-500 mb-1 block">Size</label>
-                        <Dropdown v-model="typeSettings[type.id].fontSize" :options="fontSizeOptions" size="sm" />
-                      </div>
-                      <div class="flex-1">
-                        <label class="text-xs font-medium text-om-gray-500 mb-1 block">Weight</label>
-                        <Dropdown v-model="typeSettings[type.id].fontWeight" :options="fontWeightOptions" size="sm" />
-                      </div>
-                    </div>
-                    <!-- Color -->
-                    <div>
-                      <label class="text-xs font-medium text-om-gray-500 mb-1 block">Color</label>
-                      <div class="flex items-center gap-2">
-                        <input type="color" v-model="typeSettings[type.id].color" class="w-8 h-8 rounded border border-om-gray-200 cursor-pointer" />
-                        <span class="text-xs text-om-gray-500 font-mono">{{ typeSettings[type.id].color }}</span>
-                      </div>
-                    </div>
-                    <!-- Line height -->
-                    <div>
-                      <label class="text-xs font-medium text-om-gray-500 mb-1 block">Line height</label>
-                      <Dropdown v-model="typeSettings[type.id].lineHeight" :options="lineHeightOptions" size="sm" />
-                    </div>
-                  </div>
-                </div>
-              </transition>
 
-              <!-- Image settings (expanded, only for image types) -->
-              <transition name="expand">
-                <div v-if="activeCard === type.id && type.isImage" class="px-3 pb-3 border-t border-om-gray-100">
-                  <div class="pt-3 space-y-3">
-                    <div>
-                      <label class="text-xs font-medium text-om-gray-500 mb-1 block">Border radius</label>
-                      <Dropdown v-model="typeSettings[type.id].borderRadius" :options="borderRadiusOptions" size="sm" />
-                    </div>
-                    <div>
-                      <label class="text-xs font-medium text-om-gray-500 mb-1 block">Aspect ratio</label>
-                      <Dropdown v-model="typeSettings[type.id].aspectRatio" :options="aspectRatioOptions" size="sm" />
-                    </div>
+                    <!-- Text type settings -->
+                    <template v-if="!type.isImage">
+                      <div>
+                        <label class="text-xs font-medium text-om-gray-500 mb-1 block">Font family</label>
+                        <Dropdown v-model="typeSettings[type.id].fontFamily" :options="fontFamilyOptions" size="sm" />
+                      </div>
+                      <div class="flex gap-2">
+                        <div class="flex-1">
+                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">Size</label>
+                          <Dropdown v-model="typeSettings[type.id].fontSize" :options="fontSizeOptions" size="sm" />
+                        </div>
+                        <div class="flex-1">
+                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">Weight</label>
+                          <Dropdown v-model="typeSettings[type.id].fontWeight" :options="fontWeightOptions" size="sm" />
+                        </div>
+                      </div>
+                      <div>
+                        <label class="text-xs font-medium text-om-gray-500 mb-1 block">Color</label>
+                        <div class="flex items-center gap-2">
+                          <input type="color" v-model="typeSettings[type.id].color" class="w-8 h-8 rounded border border-om-gray-200 cursor-pointer" />
+                          <span class="text-xs text-om-gray-500 font-mono">{{ typeSettings[type.id].color }}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <label class="text-xs font-medium text-om-gray-500 mb-1 block">Line height</label>
+                        <Dropdown v-model="typeSettings[type.id].lineHeight" :options="lineHeightOptions" size="sm" />
+                      </div>
+                    </template>
+
+                    <!-- Product summary settings -->
+                    <template v-else-if="type.id === 'product-summary'">
+                      <div class="flex gap-2">
+                        <div class="flex-1">
+                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">Text size</label>
+                          <Dropdown v-model="typeSettings[type.id].fontSize" :options="fontSizeOptions" size="sm" />
+                        </div>
+                        <div class="flex-1">
+                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">Text weight</label>
+                          <Dropdown v-model="typeSettings[type.id].fontWeight" :options="fontWeightOptions" size="sm" />
+                        </div>
+                      </div>
+                      <div>
+                        <label class="text-xs font-medium text-om-gray-500 mb-1 block">Check style</label>
+                        <Dropdown v-model="typeSettings[type.id].checkStyle" :options="checkStyleOptions" size="sm" />
+                      </div>
+                      <div class="flex gap-2">
+                        <div class="flex-1">
+                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">Background</label>
+                          <label class="flex items-center gap-2 cursor-pointer">
+                            <div class="color-swatch w-8 h-8 rounded-md border-2 border-om-gray-200 hover:border-om-gray-400 transition-all hover:scale-110 shrink-0 relative overflow-hidden" :style="{ backgroundColor: typeSettings[type.id].bgColor }">
+                              <input type="color" v-model="typeSettings[type.id].bgColor" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+                            </div>
+                            <span class="text-xs text-om-gray-500 font-mono">{{ typeSettings[type.id].bgColor }}</span>
+                          </label>
+                        </div>
+                        <div class="flex-1">
+                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">Text color</label>
+                          <label class="flex items-center gap-2 cursor-pointer">
+                            <div class="color-swatch w-8 h-8 rounded-md border-2 border-om-gray-200 hover:border-om-gray-400 transition-all hover:scale-110 shrink-0 relative overflow-hidden" :style="{ backgroundColor: typeSettings[type.id].textColor }">
+                              <input type="color" v-model="typeSettings[type.id].textColor" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+                            </div>
+                            <span class="text-xs text-om-gray-500 font-mono">{{ typeSettings[type.id].textColor }}</span>
+                          </label>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Image type settings -->
+                    <template v-else>
+                      <div>
+                        <label class="text-xs font-medium text-om-gray-500 mb-1 block">Border radius</label>
+                        <Dropdown v-model="typeSettings[type.id].borderRadius" :options="borderRadiusOptions" size="sm" />
+                      </div>
+                      <div>
+                        <label class="text-xs font-medium text-om-gray-500 mb-1 block">Aspect ratio</label>
+                        <Dropdown v-model="typeSettings[type.id].aspectRatio" :options="aspectRatioOptions" size="sm" />
+                      </div>
+                    </template>
                   </div>
                 </div>
               </transition>
@@ -143,6 +178,7 @@
             :url="selectedProductPage"
             :device="previewMode"
             :highlight-all-placements="true"
+            :show-all-overlays="showAllBorders"
             :positions="positions"
             :position-meta="positionMeta"
             :generated-content="iframeGeneratedContent"
@@ -157,11 +193,30 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import ProductPagePreview from '../components/ppo/ProductPagePreview.vue'
 import { ArrowLeft, Monitor, Smartphone, ChevronDown, ImageIcon, Type } from 'lucide-vue-next'
+
+const baseUrl = window.location.origin
+
+const isLightColor = (hex) => {
+  const c = hex.replace('#', '')
+  const r = parseInt(c.substring(0, 2), 16)
+  const g = parseInt(c.substring(2, 4), 16)
+  const b = parseInt(c.substring(4, 6), 16)
+  return (r * 299 + g * 587 + b * 114) / 1000 > 160
+}
+
+const getCheckIconHtml = (style, color) => {
+  const c = color || '#FFFFFF'
+  if (style === 'Circle') return '<div style="width:28px;height:28px;flex-shrink:0;margin-top:2px;border-radius:50%;background:' + c + '22;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="' + c + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>'
+  if (style === 'Checkmark') return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="' + c + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:3px;opacity:0.7;"><polyline points="20 6 9 17 4 12"/></svg>'
+  if (style === 'None') return ''
+  // Badge (default) — badge shape with check icon on top
+  return '<div style="width:28px;height:28px;flex-shrink:0;margin-top:2px;position:relative;display:flex;align-items:center;justify-content:center;"><img src="' + baseUrl + '/badge-1.svg" style="position:absolute;inset:0;width:100%;height:100%;filter:brightness(0) invert(1);opacity:0.2;" /><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="' + c + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="position:relative;z-index:1;"><polyline points="20 6 9 17 4 12"/></svg></div>'
+}
 
 const props = defineProps({
   selectedTypes: { type: Array, default: () => [] },
@@ -170,18 +225,39 @@ const props = defineProps({
 })
 
 // Generated content for iframe
-const baseUrl = window.location.origin
 const generatedContent = {
   'product-image': { image: baseUrl + '/image-with-badge/whisky2.png' },
   'product-sentence': { text: 'A unique blend of Irish whiskey with vanilla and roasted malt — silky smooth, perfect neat or in cocktails.' },
   'benefit-list': { items: ['Unique Irish whiskey & vanilla blend', 'Silky smooth, perfect neat or on ice', 'Award-winning craft liqueur'] },
-  'image-badge': { image: baseUrl + '/image-with-badge/whisky2.png' },
 }
 
 const iframeGeneratedContent = computed(() => {
   const content = {}
   for (const type of contentTypes.value) {
-    if (generatedContent[type.id]) {
+    if (type.id === 'image-badge') {
+      content['image-badge'] = { image: baseUrl + (previewMode.value === 'mobile' ? '/image-with-badge/image-1-mobile.jpg' : '/image-with-badge/image-1.jpg') }
+    } else if (type.id === 'product-summary') {
+      const s = typeSettings.value['product-summary'] || {}
+      const bg = s.bgColor || '#E8611A'
+      const tc = s.textColor || '#FFFFFF'
+      const fs = s.fontSize || '16px'
+      const fw = { Regular: '400', Medium: '500', Semibold: '600', Bold: '700' }[s.fontWeight] || '400'
+      const checkHtml = getCheckIconHtml(s.checkStyle, tc)
+      const items = [
+        'Egyedülálló ír whiskey és vanília keverék, prémium minőségű természetes összetevőkkel',
+        'Selymesen lágy, tökéletes jéggel, koktélokban vagy önmagában fogyasztva',
+        'Díjnyertes kézműves likőr, amelyet hagyományos ír módszerekkel készítenek',
+      ]
+      const itemsHtml = items.map(t =>
+        '<div style="display:flex;align-items:flex-start;gap:12px;">' + checkHtml + '<span style="font-size:' + fs + ';font-weight:' + fw + ';line-height:1.5;color:' + tc + ';">' + t + '</span></div>'
+      ).join('')
+      content['product-summary'] = { html: '<div style="display:flex;border-radius:12px;overflow:hidden;border:1px solid #e5e5e5;">'
+        + '<div style="width:320px;flex-shrink:0;background:#f9fafb;aspect-ratio:1/1;">'
+        + '<img src="' + baseUrl + '/image-with-badge/whisky2.png" style="width:100%;height:100%;object-fit:cover;" />'
+        + '</div>'
+        + '<div style="flex:1;background:' + bg + ';display:flex;flex-direction:column;justify-content:center;padding:32px;">'
+        + '<div style="display:flex;flex-direction:column;gap:20px;">' + itemsHtml + '</div></div></div>' }
+    } else if (generatedContent[type.id]) {
       content[type.id] = generatedContent[type.id]
     }
   }
@@ -203,7 +279,8 @@ const allContentTypes = [
   { id: 'product-image',    label: 'Product image',         description: 'AI-generált termékkép lifestyle háttérrel.', isImage: true },
   { id: 'product-sentence', label: 'Product sentence',  description: 'Egyetlen összefoglaló mondat a termékről.',  isImage: false },
   { id: 'benefit-list',     label: 'Benefit list',      description: 'Felsorolás a termék legfontosabb előnyeiről.', isImage: false },
-  { id: 'image-badge',      label: 'Kép badge-el',      description: 'Termékkép akciós vagy egyéb badge-dzsel.',   isImage: true },
+  { id: 'image-badge',      label: 'Image with badge',   description: 'Termékkép akciós vagy egyéb badge-dzsel.',   isImage: true },
+  { id: 'product-summary',  label: 'Product summary',    description: 'Image and text combined — full product block.', isImage: true },
 ]
 
 const contentTypes = computed(() =>
@@ -213,6 +290,8 @@ const contentTypes = computed(() =>
 )
 
 const activeCard = ref(null)
+const showAllBorders = ref(true)
+onMounted(() => { setTimeout(() => { showAllBorders.value = false }, 2000) })
 // Set initial active card after content types are resolved
 const initActiveCard = () => {
   const types = contentTypes.value
@@ -227,6 +306,7 @@ const fontFamilyOptions = ['Inherit', 'Inter', 'Roboto', 'Open Sans', 'Lato', 'M
 const fontSizeOptions = ['12px', '13px', '14px', '15px', '16px', '18px', '20px', '24px']
 const fontWeightOptions = ['Regular', 'Medium', 'Semibold', 'Bold']
 const lineHeightOptions = ['1.0', '1.2', '1.4', '1.5', '1.6', '1.8', '2.0']
+const checkStyleOptions = ['Badge', 'Circle', 'Checkmark', 'None']
 const borderRadiusOptions = ['0px', '4px', '8px', '12px', '16px', '24px']
 const aspectRatioOptions = ['Auto', '1:1', '4:3', '16:9', '3:4']
 
@@ -236,12 +316,14 @@ const desktopSettings = reactive({
   'product-sentence': { fontFamily: 'Inherit', fontSize: '15px', fontWeight: 'Medium', color: '#23262A', lineHeight: '1.5' },
   'benefit-list':     { fontFamily: 'Inherit', fontSize: '14px', fontWeight: 'Regular', color: '#505763', lineHeight: '1.6' },
   'image-badge':      { borderRadius: '12px', aspectRatio: '1:1' },
+  'product-summary':  { fontSize: '16px', fontWeight: 'Regular', checkStyle: 'Badge', bgColor: '#E8611A', textColor: '#FFFFFF' },
 })
 const mobileSettings = reactive({
   'product-image':    { borderRadius: '8px', aspectRatio: 'Auto' },
   'product-sentence': { fontFamily: 'Inherit', fontSize: '14px', fontWeight: 'Medium', color: '#23262A', lineHeight: '1.4' },
   'benefit-list':     { fontFamily: 'Inherit', fontSize: '13px', fontWeight: 'Regular', color: '#505763', lineHeight: '1.5' },
   'image-badge':      { borderRadius: '8px', aspectRatio: '1:1' },
+  'product-summary':  { fontSize: '14px', fontWeight: 'Regular', checkStyle: 'Badge', bgColor: '#E8611A', textColor: '#FFFFFF' },
 })
 
 const typeSettings = computed(() => previewMode.value === 'desktop' ? desktopSettings : mobileSettings)
@@ -287,7 +369,7 @@ const activeVariableType = computed(() => {
   return ct?.isImage ? 'Image' : 'Text'
 })
 
-// Positioning system
+// Positioning system — 3 predefined positions per element type
 const positionSlots = [
   { id: 'pos-before-headline', label: 'Headline fölött' },
   { id: 'pos-after-headline', label: 'Headline alatt' },
@@ -297,30 +379,42 @@ const positionSlots = [
   { id: 'pos-after-description', label: 'Leírás alatt' },
 ]
 
+const allowedSlots = {
+  'product-image':    ['pos-before-headline', 'pos-before-description', 'pos-after-description'],
+  'product-sentence': ['pos-after-headline', 'pos-after-sku', 'pos-before-description'],
+  'benefit-list':     ['pos-after-headline', 'pos-after-sku', 'pos-after-description'],
+  'image-badge':      ['pos-before-headline', 'pos-before-description', 'pos-after-description'],
+  'product-summary':  ['pos-before-description', 'pos-after-description', 'pos-after-wishlist'],
+}
+
+const positionOptionsFor = (typeId) => {
+  const slotIds = allowedSlots[typeId] || []
+  return slotIds.map(id => {
+    const slot = positionSlots.find(s => s.id === id)
+    return { value: id, label: slot?.label || id }
+  })
+}
+
 const positions = ref({
+  'product-image': 'pos-before-headline',
   'product-sentence': 'pos-after-headline',
   'benefit-list': 'pos-after-sku',
   'image-badge': 'pos-before-description',
+  'product-summary': 'pos-before-description',
 })
 
-const repositionableTypes = ['product-sentence', 'benefit-list', 'image-badge']
+const repositionableTypes = ['product-image', 'product-sentence', 'benefit-list', 'image-badge', 'product-summary']
 const fullWidthSlots = ['pos-before-description', 'pos-after-description']
-
-const allowedSlots = {
-  'product-sentence': positionSlots,
-  'benefit-list': positionSlots,
-  'image-badge': positionSlots.filter(s => fullWidthSlots.includes(s.id)),
-}
 
 const positionMeta = computed(() => {
   const meta = {}
   for (const id of repositionableTypes) {
-    const slots = allowedSlots[id] || positionSlots
+    const slotIds = allowedSlots[id] || []
     const idx = getPositionIndex(id)
     meta[id] = {
       label: getPositionLabel(id),
       isFirst: idx === 0,
-      isLast: idx === slots.length - 1,
+      isLast: idx === slotIds.length - 1,
     }
   }
   return meta
@@ -333,29 +427,33 @@ const handleMove = (areaId, direction) => {
 
 const getPositionLabel = (id) => {
   const slotId = positions.value[id]
-  const slots = allowedSlots[id] || positionSlots
-  return slots.find(s => s.id === slotId)?.label || ''
+  return positionSlots.find(s => s.id === slotId)?.label || ''
 }
 
 const getPositionIndex = (id) => {
-  const slots = allowedSlots[id] || positionSlots
-  return slots.findIndex(s => s.id === positions.value[id])
+  const slotIds = allowedSlots[id] || []
+  return slotIds.indexOf(positions.value[id])
 }
 
 const moveUp = (id) => {
-  const slots = allowedSlots[id] || positionSlots
+  const slotIds = allowedSlots[id] || []
   const idx = getPositionIndex(id)
-  if (idx > 0) positions.value[id] = slots[idx - 1].id
+  if (idx > 0) positions.value[id] = slotIds[idx - 1]
 }
 
 const moveDown = (id) => {
-  const slots = allowedSlots[id] || positionSlots
+  const slotIds = allowedSlots[id] || []
   const idx = getPositionIndex(id)
-  if (idx < slots.length - 1) positions.value[id] = slots[idx + 1].id
+  if (idx < slotIds.length - 1) positions.value[id] = slotIds[idx + 1]
 }
 </script>
 
 <style scoped>
+.color-swatch:focus,
+.color-swatch:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
 .expand-enter-active,
 .expand-leave-active {
   transition: all 0.2s ease;

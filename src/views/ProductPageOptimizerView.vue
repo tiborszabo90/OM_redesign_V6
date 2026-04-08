@@ -148,7 +148,7 @@
               <!-- Image with badge – hero banner -->
               <PreviewArea
                 v-if="isSelected('image-badge')"
-                label="Kép badge-el"
+                label="Image with badge"
                 :active="true"
                 class="w-full rounded-xl mt-6"
                 style="aspect-ratio: 16/5;"
@@ -204,7 +204,7 @@ const isSelected = (id) => selectedTypes.value.includes(id)
 
 const contentTypes = [
   { id: 'product-image',    label: 'Termékkép',          description: 'AI-generált termékkép lifestyle háttérrel.',             comingSoon: false },
-  { id: 'image-badge',      label: 'Kép badge-el',       description: 'Termékkép akciós vagy egyéb badge-dzsel.',               comingSoon: false },
+  { id: 'image-badge',      label: 'Image with badge',       description: 'Termékkép akciós vagy egyéb badge-dzsel.',               comingSoon: false },
   { id: 'headline',         label: 'Headline',           description: 'AI-generált főcím a termékhez.',                         comingSoon: false },
   { id: 'subheadline',      label: 'Subheadline',        description: 'Kiegészítő alcím a headline alatt.',                     comingSoon: false },
   { id: 'benefit-list',     label: 'Benefit list',       description: 'Felsorolás a termék legfontosabb előnyeiről.',           comingSoon: false },

@@ -111,6 +111,7 @@ const wizardFlowStep = ref('url')
 const selectedOpportunityId = ref(1)
 const sessionKey = ref(0)
 const devNavOpen = ref(true)
+const devStartShowArchive = ref(false)
 const wizardMessage = ref('')
 const wizardPhase = ref(null) // Tracks internal wizard phase for DevNavBar + URL
 
@@ -226,6 +227,17 @@ const handleDevNavigate = (view) => {
 
   // Reset wizard phase when navigating
   wizardPhase.value = null
+  // Archive route — show dev-start with archive panel open
+  if (view === 'archive') {
+    devStartShowArchive.value = true
+    currentView.value = null
+    flowSelected.value = false
+    setTimeout(() => {
+      currentView.value = 'dev-start'
+    }, 50)
+    return
+  }
+  devStartShowArchive.value = false
   // Reset all state when going back to start
   if (view === 'dev-start') {
     // Force unmount current component first
@@ -583,6 +595,13 @@ const handleGoDesignGuide = () => {
   currentView.value = 'design-guide'
 }
 
+const handleShowArchive = (show) => {
+  devStartShowArchive.value = show
+  skipHashChange = true
+  window.location.hash = show ? '/archive' : '/dev-start'
+  setTimeout(() => { skipHashChange = false })
+}
+
 const handleGoImageWithBadge = () => {
   flowSelected.value = true
   registrationType.value = 'image-with-badge'
@@ -780,6 +799,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
     <transition name="fade" mode="out-in">
       <DevStartView
         v-if="currentView === 'dev-start'"
+        :initial-show-archive="devStartShowArchive"
         @select="handleDevStartSelect"
         @go-home="handleGoHome"
         @go-home-onboarding="handleGoHomeOnboarding"
@@ -791,6 +811,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         @go-ai-texts-images="handleGoAiTextsImages"
         @go-ai-texts-images-v2="handleGoAiTextsImagesV2"
         @navigate="handleDevNavigate"
+        @show-archive="handleShowArchive"
       />
       <RegistrationView
         v-else-if="currentView === 'registration'"
@@ -978,7 +999,6 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       <PpoVariableSetupView
         v-else-if="currentView === 'ppo-variable-setup'"
         :selected-types="ppoWizardState.selectedTypes"
-        @menu-click="handleMenuClick"
         @back="currentView = 'ppo-campaign-flow'"
         @next="(configs) => { ppoWizardState.variableConfigs = configs; currentView = 'ppo-campaign-setup-preview' }"
       />
@@ -992,7 +1012,6 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       <PpoGenerationView
         v-else-if="currentView === 'ppo-generation'"
         :selected-types="ppoWizardState.selectedTypes"
-        @menu-click="handleMenuClick"
         @back="currentView = 'ppo-campaign-setup-preview'"
         @create="currentView = 'ppo-campaign-detail'"
       />

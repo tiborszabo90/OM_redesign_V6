@@ -34,6 +34,7 @@ const props = defineProps({
   positions: { type: Object, default: () => ({}) },
   positionMeta: { type: Object, default: () => ({}) },
   generatedContent: { type: Object, default: () => ({}) },
+  showAllOverlays: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['assign', 'move'])
@@ -68,7 +69,7 @@ const AREA_META = [
   { id: 'product-sentence', type: 'Text',  label: 'Short Description' },
   { id: 'summary',          type: 'Text',  label: 'Description' },
   { id: 'benefit-list',     type: 'Text',  label: 'Benefit List' },
-  { id: 'product-summary',  type: 'Mixed', label: 'Related Products' },
+  { id: 'product-summary',  type: 'Image', label: 'Product Summary' },
 ]
 
 const AREA_TYPES = Object.fromEntries(AREA_META.map(a => [a.id, a.type]))
@@ -112,8 +113,13 @@ function computeAreaStates() {
     const isActiveArea = activeAreaIds.has(area.id)
 
     let state = 'hidden'
-    if (props.highlightAllPlacements && assigned) state = 'assigned'
-    else if (assigned && isActiveArea) state = 'assigned'
+    if (props.showAllOverlays && assigned) {
+      state = 'assigned'
+    } else if (props.highlightAllPlacements && assigned) {
+      state = isActiveArea ? 'assigned' : 'content-only'
+    } else if (assigned && isActiveArea) {
+      state = 'assigned'
+    }
 
     const varName = getVarName(area.id)
     const meta = props.positionMeta[area.id]
@@ -159,7 +165,7 @@ function sendStateToIframe() {
 
 // Watch all relevant props and send state to iframe
 watch(
-  () => [props.placements, props.activeVariableId, props.activeVariableType, props.variables, props.benefitPosition, props.hoveredVariableId, props.highlightAllPlacements, props.positions, props.positionMeta, props.generatedContent],
+  () => [props.placements, props.activeVariableId, props.activeVariableType, props.variables, props.benefitPosition, props.hoveredVariableId, props.highlightAllPlacements, props.showAllOverlays, props.positions, props.positionMeta, props.generatedContent],
   () => sendStateToIframe(),
   { deep: true }
 )

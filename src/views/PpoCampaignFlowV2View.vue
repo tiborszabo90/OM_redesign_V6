@@ -141,7 +141,7 @@ const strategyCards = [
   },
   {
     id: 'image-badge',
-    label: 'Kép badge-el',
+    label: 'Image with badge',
     description: 'Termékkép akciós vagy egyéb badge-dzsel.',
     highlight: 'badge',
   },
