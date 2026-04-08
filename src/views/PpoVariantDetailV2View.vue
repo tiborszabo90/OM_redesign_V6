@@ -7,7 +7,10 @@
           <ArrowLeft :size="18" />
         </button>
         <div class="h-5 w-px bg-om-gray-200" />
-        <span class="font-semibold text-om-gray-700 text-[15px]">Setup Preview</span>
+        <div class="flex flex-col">
+          <span class="font-semibold text-om-gray-700 text-[15px]">Product Summary 1</span>
+          <span class="text-xs text-om-gray-400">Product summary 1</span>
+        </div>
       </div>
       <div class="flex-1 flex items-center justify-between px-6 py-3 gap-3">
         <Dropdown v-if="showProductDropdown" v-model="selectedProductPage" :options="productPageOptions" size="sm" class="min-w-0" />
@@ -30,7 +33,7 @@
             </button>
           </div>
           <Button variant="primary" size="sm" @click="$emit('next')">
-            Next
+            Done
           </Button>
         </div>
       </div>
@@ -38,140 +41,74 @@
 
     <!-- Content -->
     <div class="flex flex-1 min-h-0">
-      <!-- Left sidebar: variable cards with typography settings -->
+      <!-- Left sidebar: product summary settings (always open, no accordion) -->
       <div class="w-[360px] bg-white flex flex-col shrink-0 border-r border-om-gray-200">
-        <div class="flex-1 overflow-y-auto px-3 pt-3 pb-3">
-          <div class="flex flex-col gap-3">
-            <div
-              v-for="type in contentTypes"
-              :key="type.id"
-              class="rounded-xl border transition-all duration-150 overflow-hidden"
-              :class="[
-                activeCard === type.id
-                  ? 'border-om-orange-500 bg-white shadow-sm'
-                  : 'border-om-gray-200 bg-white hover:border-om-gray-300'
-              ]"
-            >
-              <!-- Card header -->
-              <div class="flex items-center gap-3 p-3 cursor-pointer" @click="activeCard = activeCard === type.id ? null : type.id">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="type.isImage ? 'bg-purple-50' : 'bg-blue-50'">
-                  <ImageIcon v-if="type.isImage" :size="16" class="text-purple-500" />
-                  <Type v-else :size="16" class="text-blue-500" />
-                </div>
-                <span class="text-sm font-medium text-om-gray-700 flex-1 min-w-0">{{ type.label }}</span>
-                <ChevronDown :size="14" class="text-om-gray-400 shrink-0 transition-transform" :class="activeCard === type.id ? 'rotate-180' : ''" />
-              </div>
-
-              <!-- Expanded settings -->
-              <transition name="expand">
-                <div v-if="activeCard === type.id" class="px-3 pb-3 border-t border-om-gray-100">
-                  <div class="pt-3 space-y-3">
-                    <!-- Position dropdown (not for product-image) -->
-                    <div v-if="type.id !== 'product-image'">
+        <div class="flex-1 overflow-y-auto px-4 pt-4 pb-4">
+          <div class="space-y-3">
+                    <!-- Position -->
+                    <div>
                       <label class="text-xs font-medium text-om-gray-500 mb-1 block">Position</label>
-                      <Dropdown :model-value="positions[type.id]" :options="positionOptionsFor(type.id)" size="sm" @update:model-value="val => positions[type.id] = typeof val === 'object' ? val.value : val" />
+                      <Dropdown :model-value="positions['product-summary']" :options="positionOptionsFor('product-summary')" size="sm" @update:model-value="val => positions['product-summary'] = typeof val === 'object' ? val.value : val" />
                     </div>
 
-                    <!-- Text type settings -->
-                    <template v-if="!type.isImage">
-                      <div>
-                        <label class="text-xs font-medium text-om-gray-500 mb-1 block">Font family</label>
-                        <Dropdown v-model="typeSettings[type.id].fontFamily" :options="fontFamilyOptions" size="sm" />
-                      </div>
-                      <div class="flex gap-2">
-                        <div class="flex-1">
-                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">Size</label>
-                          <Dropdown v-model="typeSettings[type.id].fontSize" :options="fontSizeOptions" size="sm" />
-                        </div>
-                        <div class="flex-1">
-                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">Weight</label>
-                          <Dropdown v-model="typeSettings[type.id].fontWeight" :options="fontWeightOptions" size="sm" />
-                        </div>
-                      </div>
-                      <div>
-                        <label class="text-xs font-medium text-om-gray-500 mb-1 block">Color</label>
-                        <div class="flex items-center gap-2">
-                          <input type="color" v-model="typeSettings[type.id].color" class="w-8 h-8 rounded border border-om-gray-200 cursor-pointer" />
-                          <span class="text-xs text-om-gray-500 font-mono">{{ typeSettings[type.id].color }}</span>
-                        </div>
-                      </div>
-                      <div>
-                        <label class="text-xs font-medium text-om-gray-500 mb-1 block">Line height</label>
-                        <Dropdown v-model="typeSettings[type.id].lineHeight" :options="lineHeightOptions" size="sm" />
-                      </div>
-                    </template>
-
-                    <!-- Product summary settings -->
-                    <template v-else-if="type.id === 'product-summary'">
+                    <!-- Title font -->
                       <div>
                         <label class="text-xs font-medium text-om-gray-500 mb-1 block">Title font</label>
-                        <Dropdown v-model="typeSettings[type.id].titleFontFamily" :options="fontFamilyOptions" size="sm" />
+                        <Dropdown v-model="typeSettings['product-summary'].titleFontFamily" :options="fontFamilyOptions" size="sm" />
                       </div>
                       <div class="flex gap-2">
                         <div class="flex-1">
                           <label class="text-xs font-medium text-om-gray-500 mb-1 block">Title size</label>
-                          <Dropdown v-model="typeSettings[type.id].titleFontSize" :options="fontSizeOptions" size="sm" />
+                          <Dropdown v-model="typeSettings['product-summary'].titleFontSize" :options="fontSizeOptions" size="sm" />
                         </div>
                         <div class="flex-1">
                           <label class="text-xs font-medium text-om-gray-500 mb-1 block">Title weight</label>
-                          <Dropdown v-model="typeSettings[type.id].titleFontWeight" :options="fontWeightOptions" size="sm" />
+                          <Dropdown v-model="typeSettings['product-summary'].titleFontWeight" :options="fontWeightOptions" size="sm" />
                         </div>
                       </div>
+
+                    <!-- List font -->
                       <div>
                         <label class="text-xs font-medium text-om-gray-500 mb-1 block">List font</label>
-                        <Dropdown v-model="typeSettings[type.id].listFontFamily" :options="fontFamilyOptions" size="sm" />
+                        <Dropdown v-model="typeSettings['product-summary'].listFontFamily" :options="fontFamilyOptions" size="sm" />
                       </div>
                       <div class="flex gap-2">
                         <div class="flex-1">
                           <label class="text-xs font-medium text-om-gray-500 mb-1 block">List size</label>
-                          <Dropdown v-model="typeSettings[type.id].listFontSize" :options="fontSizeOptions" size="sm" />
+                          <Dropdown v-model="typeSettings['product-summary'].listFontSize" :options="fontSizeOptions" size="sm" />
                         </div>
                         <div class="flex-1">
                           <label class="text-xs font-medium text-om-gray-500 mb-1 block">List weight</label>
-                          <Dropdown v-model="typeSettings[type.id].listFontWeight" :options="fontWeightOptions" size="sm" />
+                          <Dropdown v-model="typeSettings['product-summary'].listFontWeight" :options="fontWeightOptions" size="sm" />
                         </div>
                       </div>
+
+                    <!-- Check style -->
                       <div>
                         <label class="text-xs font-medium text-om-gray-500 mb-1 block">Check style</label>
-                        <Dropdown v-model="typeSettings[type.id].checkStyle" :options="checkStyleOptions" size="sm" />
+                        <Dropdown v-model="typeSettings['product-summary'].checkStyle" :options="checkStyleOptions" size="sm" />
                       </div>
+                    <!-- Colors -->
                       <div class="flex gap-2">
                         <div class="flex-1">
                           <label class="text-xs font-medium text-om-gray-500 mb-1 block">Background</label>
                           <label class="flex items-center gap-2 cursor-pointer">
-                            <div class="color-swatch w-8 h-8 rounded-md border-2 border-om-gray-200 hover:border-om-gray-400 transition-all hover:scale-110 shrink-0 relative overflow-hidden" :style="{ backgroundColor: typeSettings[type.id].bgColor }">
-                              <input type="color" v-model="typeSettings[type.id].bgColor" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+                            <div class="color-swatch w-8 h-8 rounded-md border-2 border-om-gray-200 hover:border-om-gray-400 transition-all hover:scale-110 shrink-0 relative overflow-hidden" :style="{ backgroundColor: typeSettings['product-summary'].bgColor }">
+                              <input type="color" v-model="typeSettings['product-summary'].bgColor" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
                             </div>
-                            <span class="text-xs text-om-gray-500 font-mono">{{ typeSettings[type.id].bgColor }}</span>
+                            <span class="text-xs text-om-gray-500 font-mono">{{ typeSettings['product-summary'].bgColor }}</span>
                           </label>
                         </div>
                         <div class="flex-1">
                           <label class="text-xs font-medium text-om-gray-500 mb-1 block">Text color</label>
                           <label class="flex items-center gap-2 cursor-pointer">
-                            <div class="color-swatch w-8 h-8 rounded-md border-2 border-om-gray-200 hover:border-om-gray-400 transition-all hover:scale-110 shrink-0 relative overflow-hidden" :style="{ backgroundColor: typeSettings[type.id].textColor }">
-                              <input type="color" v-model="typeSettings[type.id].textColor" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+                            <div class="color-swatch w-8 h-8 rounded-md border-2 border-om-gray-200 hover:border-om-gray-400 transition-all hover:scale-110 shrink-0 relative overflow-hidden" :style="{ backgroundColor: typeSettings['product-summary'].textColor }">
+                              <input type="color" v-model="typeSettings['product-summary'].textColor" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
                             </div>
-                            <span class="text-xs text-om-gray-500 font-mono">{{ typeSettings[type.id].textColor }}</span>
+                            <span class="text-xs text-om-gray-500 font-mono">{{ typeSettings['product-summary'].textColor }}</span>
                           </label>
                         </div>
                       </div>
-                    </template>
-
-                    <!-- Image type settings -->
-                    <template v-else>
-                      <div>
-                        <label class="text-xs font-medium text-om-gray-500 mb-1 block">Border radius</label>
-                        <Dropdown v-model="typeSettings[type.id].borderRadius" :options="borderRadiusOptions" size="sm" />
-                      </div>
-                      <div>
-                        <label class="text-xs font-medium text-om-gray-500 mb-1 block">Aspect ratio</label>
-                        <Dropdown v-model="typeSettings[type.id].aspectRatio" :options="aspectRatioOptions" size="sm" />
-                      </div>
-                    </template>
-                  </div>
-                </div>
-              </transition>
-            </div>
           </div>
         </div>
       </div>
@@ -313,7 +250,7 @@ const contentTypes = computed(() =>
     : allContentTypes
 )
 
-const activeCard = ref(null)
+const activeCard = ref('product-summary')
 const showAllBorders = ref(true)
 onMounted(() => { setTimeout(() => { showAllBorders.value = false }, 2000) })
 // Set initial active card after content types are resolved
