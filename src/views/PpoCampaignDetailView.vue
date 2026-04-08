@@ -246,15 +246,15 @@
             Settings
           </button>
           <button
-            @click="activeTab = 'Add to cart'"
+            @click="activeTab = 'Orders'"
             :class="[
               'px-4 py-2 rounded-xl text-sm font-normal transition-all cursor-pointer',
-              activeTab === 'Add to cart'
+              activeTab === 'Orders'
                 ? 'bg-om-orange-100 text-om-orange-500'
                 : 'bg-transparent text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600'
             ]"
           >
-            Add to cart
+            Orders
           </button>
           <button
             @click="activeTab = 'Analytics'"
@@ -300,14 +300,14 @@
                 <path d="M2 4L10 22L2 40" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               <div class="flex-1">
-                <div class="text-xs text-om-gray-400 mb-0.5">Add to cart</div>
+                <div class="text-xs text-om-gray-400 mb-0.5">Orders</div>
                 <div class="text-xl font-semibold text-om-gray-700">294</div>
               </div>
               <svg width="12" height="44" viewBox="0 0 12 44" fill="none" class="text-om-gray-300">
                 <path d="M2 4L10 22L2 40" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               <div class="flex-1">
-                <div class="text-xs text-om-gray-400 mb-0.5">Add to cart rate</div>
+                <div class="text-xs text-om-gray-400 mb-0.5">Conversion Rate</div>
                 <div class="text-xl font-semibold text-om-gray-700">7.71%</div>
               </div>
             </div>
@@ -339,8 +339,8 @@
             <div>Variants</div>
             <div>Active</div>
             <div class="text-right">Visitors</div>
-            <div class="text-right">ATC</div>
-            <div class="text-right">ATC rate</div>
+            <div class="text-right">Orders</div>
+            <div class="text-right">Conv. R.</div>
             <div class="text-right">Uplift</div>
             <div class="text-right">Chance to win</div>
             <div></div>
@@ -371,7 +371,7 @@
               </div>
               <div class="text-base font-semibold text-om-gray-700 text-right">{{ variant.visitors }}</div>
               <div class="text-base font-semibold text-om-gray-700 text-right">{{ variant.addToCart }}</div>
-              <div class="text-base font-semibold text-om-gray-700 text-right">{{ variant.atcRate }}</div>
+              <div class="text-base font-semibold text-om-gray-700 text-right">{{ variant.orderRate }}</div>
               <div class="text-base font-semibold flex items-center gap-1 justify-end" :class="variant.uplift.startsWith('+') ? 'text-[#10B981]' : 'text-om-gray-400'">
                 {{ variant.uplift }}
                 <TrendingUp v-if="variant.uplift.startsWith('+')" :size="16" class="text-[#2CC896]" />
@@ -1265,7 +1265,7 @@ const variants = reactive([
     expanded: true,
     visitors: '12,593',
     addToCart: '650',
-    atcRate: '7.25%',
+    orderRate: '7.25%',
     uplift: '+0.77%',
     chanceToWin: '91.2%',
     variables: [
@@ -1285,7 +1285,7 @@ const variants = reactive([
     placements: {},
     visitors: '12,593',
     addToCart: '412',
-    atcRate: '3.27%',
+    orderRate: '3.27%',
     uplift: '-',
     chanceToWin: '-',
     variables: [],
@@ -1579,8 +1579,8 @@ const tooltipStyle = computed(() => ({
 const selectedTimePeriod = ref('Last 30 days')
 const timePeriodOptions = ['Last 7 days', 'Last 30 days', 'Last 90 days', 'Last 12 months']
 
-const selectedGoal = ref('Add to cart')
-const goalOptions = ['Submit', 'Order', 'Add to cart', 'Email capture', 'Phone capture']
+const selectedGoal = ref('Order')
+const goalOptions = ['Submit', 'Order', 'Email capture', 'Phone capture']
 
 const handleLogoClick = () => {
   // Navigate back to home
