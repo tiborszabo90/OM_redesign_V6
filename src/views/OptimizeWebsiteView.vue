@@ -27,7 +27,7 @@
               v-for="item in optimizeItems"
               :key="item.title"
               class="flex items-center gap-4 px-6 py-4 bg-white border-2 border-om-gray-200 rounded-xl cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] transition-all duration-200"
-              @click="item.type === 'product-page-optimizer' ? $emit('navigate', 'ppo-campaign-flow') : $emit('select', item.type)"
+              @click="$emit('select', item.type)"
             >
               <div class="w-12 h-12 rounded-full bg-om-peach-50 flex items-center justify-center shrink-0">
                 <component :is="item.icon" :size="22" class="text-om-orange-500" />
@@ -76,7 +76,7 @@
 
 <script setup>
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
-import { ChevronLeft, ChevronRight, Columns2, GitBranch, ShoppingBag, LayoutGrid, UserRound, Megaphone } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Columns2, GitBranch, LayoutGrid, UserRound, Megaphone } from 'lucide-vue-next'
 
 defineEmits(['menu-click', 'back', 'select', 'navigate'])
 
@@ -94,13 +94,6 @@ const optimizeItems = [
     description: 'Test two different versions of your landing page.',
     icon: GitBranch,
     badge: null,
-  },
-  {
-    type: 'product-page-optimizer',
-    title: 'Product Page Optimizer',
-    description: 'Optimize your product pages with AI-powered copy.',
-    icon: ShoppingBag,
-    badge: 'upgrade',
   },
   {
     type: 'multi-campaign-ab',

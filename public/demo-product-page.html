@@ -5254,6 +5254,16 @@ Place this snippet between the <head> and </head> tags on every page of your sit
   window.addEventListener('message', function(e){
     if(!e.data) return;
 
+    // Handle scroll-to request
+    if(e.data.type === 'ppo-scroll-to'){
+      var targetId = e.data.areaId;
+      var targetEl = document.querySelector('[data-ppo-area="'+targetId+'"]');
+      if(targetEl){
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
     // Handle position changes
     if(e.data.type === 'ppo-position'){
       var positions = e.data.positions || {};

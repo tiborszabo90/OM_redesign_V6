@@ -118,6 +118,7 @@
                       </div>
                       <!-- Right: orange info block -->
                       <div class="flex-1 bg-[#E8611A] flex flex-col justify-center px-6 py-6 text-white">
+                        <h3 class="text-xl font-bold mb-4 leading-snug">Shanky's Whip Black Irish Whiskey Likőr</h3>
                         <div class="space-y-5">
                           <div class="flex items-start gap-3">
                             <div class="w-7 h-7 shrink-0 mt-0.5 relative flex items-center justify-center">

@@ -18,9 +18,10 @@
             v-for="card in cards"
             :key="card.title"
             class="flex flex-col items-center gap-5 bg-white border-2 border-om-gray-200 rounded-xl p-8 w-72 cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03] transition-all duration-200 text-left"
-            @click="card.type === 'popup' ? $emit('navigate', 'templates-v2') : card.type === 'optimize' ? $emit('navigate', 'optimize-website') : $emit('select', card.type)"
+            @click="card.type === 'popup' ? $emit('navigate', 'templates-v2') : card.type === 'optimize' ? $emit('navigate', 'optimize-website') : card.type === 'ppo' ? $emit('navigate', 'ppo-campaign-flow-v3') : $emit('select', card.type)"
           >
-            <img :src="card.image" :alt="card.title" class="w-36 h-36 object-contain shrink-0" />
+            <img v-if="card.image" :src="card.image" :alt="card.title" class="w-36 h-36 object-contain shrink-0" />
+            <div v-else class="w-36 h-36 rounded-lg bg-om-gray-100 shrink-0" />
             <div class="text-center">
               <div class="text-lg font-semibold text-om-gray-700 mb-1">{{ card.title }}</div>
               <div class="text-base text-om-gray-400 leading-relaxed whitespace-pre-line">{{ card.description }}</div>
@@ -53,10 +54,10 @@ const cards = [
     image: '/optimize.c2ec5c73.svg',
   },
   {
-    type: 'library',
-    title: 'Browse Tactic Library',
-    description: 'Not sure? Get inspired by\n50+ tactics.',
-    image: '/library.9b57dc7b.svg',
+    type: 'ppo',
+    title: 'Smart Product Page',
+    description: 'Optimize your product pages\nwith AI-powered content.',
+    image: null,
   },
 ]
 </script>

@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
+import { computed, ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { Lock } from 'lucide-vue-next'
 
 const props = defineProps({
@@ -153,6 +153,15 @@ function sendElementPositions() {
   }, '*')
 }
 
+function getActiveAreaId() {
+  const activeVarId = props.activeVariableId
+  if (activeVarId === null) return null
+  for (const [areaId, varId] of Object.entries(props.placements)) {
+    if (varId === activeVarId) return areaId
+  }
+  return null
+}
+
 function sendStateToIframe() {
   if (!iframeReady.value || !iframeRef.value) return
   sendPositionToIframe()
@@ -163,6 +172,17 @@ function sendStateToIframe() {
   }, '*')
 }
 
+function sendScrollToActive() {
+  if (!iframeReady.value || !iframeRef.value) return
+  const areaId = getActiveAreaId()
+  if (areaId) {
+    iframeRef.value.contentWindow.postMessage({
+      type: 'ppo-scroll-to',
+      areaId: areaId
+    }, '*')
+  }
+}
+
 // Watch all relevant props and send state to iframe
 watch(
   () => [props.placements, props.activeVariableId, props.activeVariableType, props.variables, props.benefitPosition, props.hoveredVariableId, props.highlightAllPlacements, props.showAllOverlays, props.positions, props.positionMeta, props.generatedContent],
@@ -170,11 +190,22 @@ watch(
   { deep: true }
 )
 
+// Scroll to active element when selection changes or showAllOverlays ends
+watch(() => props.activeVariableId, () => {
+  nextTick(() => sendScrollToActive())
+})
+watch(() => props.showAllOverlays, (newVal, oldVal) => {
+  if (oldVal && !newVal) {
+    nextTick(() => sendScrollToActive())
+  }
+})
+
 // Listen for iframe messages
 function onMessage(e) {
   if (e.data?.type === 'ppo-ready') {
     iframeReady.value = true
     sendStateToIframe()
+    setTimeout(() => sendScrollToActive(), 500)
   }
   if (e.data?.type === 'ppo-click') {
     const areaId = e.data.areaId.startsWith('benefit-list-') ? 'benefit-list' : e.data.areaId

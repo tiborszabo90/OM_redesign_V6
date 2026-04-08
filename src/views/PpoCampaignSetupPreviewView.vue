@@ -105,12 +105,22 @@
                     <template v-else-if="type.id === 'product-summary'">
                       <div class="flex gap-2">
                         <div class="flex-1">
-                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">Text size</label>
-                          <Dropdown v-model="typeSettings[type.id].fontSize" :options="fontSizeOptions" size="sm" />
+                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">Title size</label>
+                          <Dropdown v-model="typeSettings[type.id].titleFontSize" :options="fontSizeOptions" size="sm" />
                         </div>
                         <div class="flex-1">
-                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">Text weight</label>
-                          <Dropdown v-model="typeSettings[type.id].fontWeight" :options="fontWeightOptions" size="sm" />
+                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">Title weight</label>
+                          <Dropdown v-model="typeSettings[type.id].titleFontWeight" :options="fontWeightOptions" size="sm" />
+                        </div>
+                      </div>
+                      <div class="flex gap-2">
+                        <div class="flex-1">
+                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">List size</label>
+                          <Dropdown v-model="typeSettings[type.id].listFontSize" :options="fontSizeOptions" size="sm" />
+                        </div>
+                        <div class="flex-1">
+                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">List weight</label>
+                          <Dropdown v-model="typeSettings[type.id].listFontWeight" :options="fontWeightOptions" size="sm" />
                         </div>
                       </div>
                       <div>
@@ -240,23 +250,27 @@ const iframeGeneratedContent = computed(() => {
       const s = typeSettings.value['product-summary'] || {}
       const bg = s.bgColor || '#E8611A'
       const tc = s.textColor || '#FFFFFF'
-      const fs = s.fontSize || '16px'
-      const fw = { Regular: '400', Medium: '500', Semibold: '600', Bold: '700' }[s.fontWeight] || '400'
+      const tfs = s.titleFontSize || '20px'
+      const tfw = { Regular: '400', Medium: '500', Semibold: '600', Bold: '700' }[s.titleFontWeight] || '700'
+      const lfs = s.listFontSize || '16px'
+      const lfw = { Regular: '400', Medium: '500', Semibold: '600', Bold: '700' }[s.listFontWeight] || '400'
       const checkHtml = getCheckIconHtml(s.checkStyle, tc)
+      const title = "Shanky's Whip Black Irish Whiskey Likőr"
       const items = [
         'Egyedülálló ír whiskey és vanília keverék, prémium minőségű természetes összetevőkkel',
         'Selymesen lágy, tökéletes jéggel, koktélokban vagy önmagában fogyasztva',
         'Díjnyertes kézműves likőr, amelyet hagyományos ír módszerekkel készítenek',
       ]
+      const titleHtml = '<h3 style="font-size:' + tfs + ';font-weight:' + tfw + ';line-height:1.3;color:' + tc + ';margin:0 0 16px 0;">' + title + '</h3>'
       const itemsHtml = items.map(t =>
-        '<div style="display:flex;align-items:flex-start;gap:12px;">' + checkHtml + '<span style="font-size:' + fs + ';font-weight:' + fw + ';line-height:1.5;color:' + tc + ';">' + t + '</span></div>'
+        '<div style="display:flex;align-items:flex-start;gap:12px;">' + checkHtml + '<span style="font-size:' + lfs + ';font-weight:' + lfw + ';line-height:1.5;color:' + tc + ';">' + t + '</span></div>'
       ).join('')
       content['product-summary'] = { html: '<div style="display:flex;border-radius:12px;overflow:hidden;border:1px solid #e5e5e5;">'
         + '<div style="width:320px;flex-shrink:0;background:#f9fafb;aspect-ratio:1/1;">'
         + '<img src="' + baseUrl + '/image-with-badge/whisky2.png" style="width:100%;height:100%;object-fit:cover;" />'
         + '</div>'
         + '<div style="flex:1;background:' + bg + ';display:flex;flex-direction:column;justify-content:center;padding:32px;">'
-        + '<div style="display:flex;flex-direction:column;gap:20px;">' + itemsHtml + '</div></div></div>' }
+        + titleHtml + '<div style="display:flex;flex-direction:column;gap:20px;">' + itemsHtml + '</div></div></div>' }
     } else if (generatedContent[type.id]) {
       content[type.id] = generatedContent[type.id]
     }
@@ -316,14 +330,14 @@ const desktopSettings = reactive({
   'product-sentence': { fontFamily: 'Inherit', fontSize: '15px', fontWeight: 'Medium', color: '#23262A', lineHeight: '1.5' },
   'benefit-list':     { fontFamily: 'Inherit', fontSize: '14px', fontWeight: 'Regular', color: '#505763', lineHeight: '1.6' },
   'image-badge':      { borderRadius: '12px', aspectRatio: '1:1' },
-  'product-summary':  { fontSize: '16px', fontWeight: 'Regular', checkStyle: 'Badge', bgColor: '#E8611A', textColor: '#FFFFFF' },
+  'product-summary':  { titleFontSize: '20px', titleFontWeight: 'Bold', listFontSize: '16px', listFontWeight: 'Regular', checkStyle: 'Badge', bgColor: '#E8611A', textColor: '#FFFFFF' },
 })
 const mobileSettings = reactive({
   'product-image':    { borderRadius: '8px', aspectRatio: 'Auto' },
   'product-sentence': { fontFamily: 'Inherit', fontSize: '14px', fontWeight: 'Medium', color: '#23262A', lineHeight: '1.4' },
   'benefit-list':     { fontFamily: 'Inherit', fontSize: '13px', fontWeight: 'Regular', color: '#505763', lineHeight: '1.5' },
   'image-badge':      { borderRadius: '8px', aspectRatio: '1:1' },
-  'product-summary':  { fontSize: '14px', fontWeight: 'Regular', checkStyle: 'Badge', bgColor: '#E8611A', textColor: '#FFFFFF' },
+  'product-summary':  { titleFontSize: '18px', titleFontWeight: 'Bold', listFontSize: '14px', listFontWeight: 'Regular', checkStyle: 'Badge', bgColor: '#E8611A', textColor: '#FFFFFF' },
 })
 
 const typeSettings = computed(() => previewMode.value === 'desktop' ? desktopSettings : mobileSettings)

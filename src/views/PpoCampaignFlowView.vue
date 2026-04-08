@@ -20,8 +20,8 @@
 
         <!-- Left: element picker (fixed) -->
         <div class="w-[340px] shrink-0 sticky top-8 self-start">
-          <h2 class="text-lg font-semibold text-om-gray-700 mb-1">Choose elements</h2>
-          <p class="text-sm text-om-gray-500 mb-5">Select which AI-generated elements to add to your product pages.</p>
+          <h2 class="text-lg font-semibold text-om-gray-700 mb-1">What would you like to change on your product pages?</h2>
+          <p class="text-sm text-om-gray-500 mb-5">You can select multiple elements — we'll optimize them all at once.</p>
 
           <div class="flex flex-col gap-2.5">
             <div
@@ -149,11 +149,6 @@
               </div>
             </transition>
 
-            <!-- Full-width banner -->
-            <div class="w-full h-28 bg-om-gray-100 rounded-lg flex items-center justify-center mt-8">
-              <div class="text-xs text-om-gray-300 uppercase tracking-wider">Banner</div>
-            </div>
-
             <!-- Related products -->
             <div class="mt-8">
               <div class="w-40 h-5 bg-om-gray-200 rounded mb-4" />
@@ -203,11 +198,11 @@ defineEmits(['back', 'next', 'menu-click'])
 const selectedTypes = ref([])
 
 const contentTypes = [
-  { id: 'product-image',    label: 'Product image',          description: 'AI-generált termékkép lifestyle háttérrel.',           isImage: true,  comingSoon: false },
-  { id: 'image-badge',      label: 'Image with badge',       description: 'Termékkép akciós vagy egyéb badge-dzsel.',             isImage: true,  comingSoon: false },
+  { id: 'product-image',    label: 'Product image',          description: 'AI-generated product photo with lifestyle background.',  isImage: true,  comingSoon: false },
+  { id: 'image-badge',      label: 'Image with badge',       description: 'Product image with promotional or feature badge.',       isImage: true,  comingSoon: false },
   { id: 'product-summary',  label: 'Product summary',     description: 'Image and text combined — full product block.',        isMixed: true,  comingSoon: false },
-  { id: 'product-sentence', label: 'Product sentence',  description: 'Egyetlen összefoglaló mondat a termékről.',            isImage: false, comingSoon: false },
-  { id: 'benefit-list',     label: 'Benefit list',       description: 'Felsorolás a termék legfontosabb előnyeiről.',         isImage: false, comingSoon: false },
+  { id: 'product-sentence', label: 'Product sentence',  description: 'A single compelling sentence about the product.',       isImage: false, comingSoon: false },
+  { id: 'benefit-list',     label: 'Benefit list',       description: 'Key product benefits as scannable bullet points.',      isImage: false, comingSoon: false },
 ]
 
 const toggleType = (id) => {

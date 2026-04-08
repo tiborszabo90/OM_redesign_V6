@@ -58,6 +58,7 @@ import PpoVariableSetupView from './views/PpoVariableSetupView.vue'
 import PpoGenerationView from './views/PpoGenerationView.vue'
 import PpoCampaignSetupPreviewView from './views/PpoCampaignSetupPreviewView.vue'
 import PpoCampaignFlowV2View from './views/PpoCampaignFlowV2View.vue'
+import PpoCampaignFlowV3View from './views/PpoCampaignFlowV3View.vue'
 import PpoCampaignFlowV1View from './views/PpoCampaignFlowV1View.vue'
 import PpoCampaignDetailV1View from './views/PpoCampaignDetailV1View.vue'
 import PpoVariantDetailV1View from './views/PpoVariantDetailV1View.vue'
@@ -778,7 +779,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="h-screen-safe flex flex-col">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v2', 'campaigns-v3', 'campaigns-empty', 'new-campaign', 'optimize-website', 'product-page-optimizer', 'campaign-page-v1', 'ppo-campaign-detail', 'ppo-placement', 'ppo-variant-detail-v1', 'ppo-variant-detail-v2', 'ppo-variable-setup', 'ppo-generation', 'ppo-campaign-flow', 'ppo-campaign-flow-v2', 'ppo-campaign-setup-preview',, 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-v4', 'analytics-v4-purchase', 'analytics-v4-add-to-cart', 'analytics-v4-email-capture', 'analytics-v4-phone-capture', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v2-essential-theme', 'templates-v2-branding', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor', 'ai-texts-images', 'ai-texts-images-new', 'ai-texts-images-presets', 'ai-texts-images-preview', 'ai-texts-images-choose-products', 'ai-texts-images-generation', 'ai-texts-images-add-products', 'ai-texts-images-text-presets', 'ai-texts-images-text-preview', 'ai-texts-images-text-generation',
+      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v2', 'campaigns-v3', 'campaigns-empty', 'new-campaign', 'optimize-website', 'product-page-optimizer', 'campaign-page-v1', 'ppo-campaign-detail', 'ppo-placement', 'ppo-variant-detail-v1', 'ppo-variant-detail-v2', 'ppo-variable-setup', 'ppo-generation', 'ppo-campaign-flow', 'ppo-campaign-flow-v2', 'ppo-campaign-flow-v3', 'ppo-campaign-setup-preview',, 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-v4', 'analytics-v4-purchase', 'analytics-v4-add-to-cart', 'analytics-v4-email-capture', 'analytics-v4-phone-capture', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v2-essential-theme', 'templates-v2-branding', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor', 'ai-texts-images', 'ai-texts-images-new', 'ai-texts-images-presets', 'ai-texts-images-preview', 'ai-texts-images-choose-products', 'ai-texts-images-generation', 'ai-texts-images-add-products', 'ai-texts-images-text-presets', 'ai-texts-images-text-preview', 'ai-texts-images-text-generation',
         'settings-ai-texts-images', 'settings-ai-texts-images-new', 'settings-ai-texts-images-presets', 'settings-ai-texts-images-preview', 'settings-ai-texts-images-choose-products', 'settings-ai-texts-images-generation', 'settings-ai-texts-images-generation-product', 'settings-ai-texts-images-add-products', 'settings-ai-texts-images-text-presets', 'settings-ai-texts-images-text-preview', 'settings-ai-texts-images-text-generation',
         'settings-ai-texts-images-v1', 'settings-ai-texts-images-v1-new', 'settings-ai-texts-images-v1-presets', 'settings-ai-texts-images-v1-preview', 'settings-ai-texts-images-v1-choose-products', 'settings-ai-texts-images-v1-generation', 'settings-ai-texts-images-v1-add-products', 'settings-ai-texts-images-v1-text-presets', 'settings-ai-texts-images-v1-text-preview', 'settings-ai-texts-images-v1-text-generation',
         'settings-ai-texts-images-v2', 'settings-ai-texts-images-v2-new', 'settings-ai-texts-images-v2-presets', 'settings-ai-texts-images-v2-preview', 'settings-ai-texts-images-v2-choose-products', 'settings-ai-texts-images-v2-generation', 'settings-ai-texts-images-v2-generation-product', 'settings-ai-texts-images-v2-add-products', 'settings-ai-texts-images-v2-text-presets', 'settings-ai-texts-images-v2-text-preview', 'settings-ai-texts-images-v2-text-generation',
@@ -988,12 +989,17 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
       />
       <PpoCampaignFlowView
         v-else-if="currentView === 'ppo-campaign-flow'"
-        @back="currentView = 'optimize-website'"
+        @back="currentView = 'new-campaign'"
         @next="(types) => { ppoWizardState.selectedTypes = types; currentView = 'ppo-variable-setup' }"
       />
       <PpoCampaignFlowV2View
         v-else-if="currentView === 'ppo-campaign-flow-v2'"
         @back="currentView = 'dev-start'"
+        @next="(types) => { ppoWizardState.selectedTypes = types; currentView = 'ppo-variable-setup' }"
+      />
+      <PpoCampaignFlowV3View
+        v-else-if="currentView === 'ppo-campaign-flow-v3'"
+        @back="currentView = 'new-campaign'"
         @next="(types) => { ppoWizardState.selectedTypes = types; currentView = 'ppo-variable-setup' }"
       />
       <PpoVariableSetupView
