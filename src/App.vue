@@ -39,6 +39,7 @@ import HomeOnboardingV1View from './views/HomeOnboardingV1View.vue'
 import HomeOnboardingWithRecoView from './views/HomeOnboardingWithRecoView.vue'
 import HomeOnboardingWithRecoV1View from './views/HomeOnboardingWithRecoV1View.vue'
 import HomeOnboardingReviewView from './views/HomeOnboardingReviewView.vue'
+import HomeHeartbeatView from './views/HomeHeartbeatView.vue'
 import HomeOnboardingWizardView from './views/HomeOnboardingWizardView.vue'
 import PublicWizardView from './views/PublicWizardView.vue'
 import CampaignsEmptyView from './views/CampaignsEmptyView.vue'
@@ -784,7 +785,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   <div class="h-screen-safe flex flex-col">
     <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
     <div
-      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v2', 'campaigns-v3', 'campaigns-empty', 'new-campaign', 'optimize-website', 'product-page-optimizer', 'campaign-page-v1', 'ppo-campaign-detail', 'ppo-campaign-detail-v2', 'ppo-variant-detail-v2', 'ppo-placement', 'ppo-variant-detail-v1', 'ppo-variant-detail-v2', 'ppo-variable-setup', 'ppo-generation', 'ppo-campaign-flow', 'ppo-campaign-flow-v2', 'ppo-campaign-flow-v3', 'ppo-campaign-flow-mvp', 'ppo-campaign-setup-preview', 'ppo-campaign-setup-preview-v2', 'ppo-campaign-setup-preview-v3',, 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-v4', 'analytics-v4-purchase', 'analytics-v4-add-to-cart', 'analytics-v4-email-capture', 'analytics-v4-phone-capture', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v2-essential-theme', 'templates-v2-branding', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor', 'ai-texts-images', 'ai-texts-images-new', 'ai-texts-images-presets', 'ai-texts-images-preview', 'ai-texts-images-choose-products', 'ai-texts-images-generation', 'ai-texts-images-add-products', 'ai-texts-images-text-presets', 'ai-texts-images-text-preview', 'ai-texts-images-text-generation',
+      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-heartbeat', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v2', 'campaigns-v3', 'campaigns-empty', 'new-campaign', 'optimize-website', 'product-page-optimizer', 'campaign-page-v1', 'ppo-campaign-detail', 'ppo-campaign-detail-v2', 'ppo-variant-detail-v2', 'ppo-placement', 'ppo-variant-detail-v1', 'ppo-variant-detail-v2', 'ppo-variable-setup', 'ppo-generation', 'ppo-campaign-flow', 'ppo-campaign-flow-v2', 'ppo-campaign-flow-v3', 'ppo-campaign-flow-mvp', 'ppo-campaign-setup-preview', 'ppo-campaign-setup-preview-v2', 'ppo-campaign-setup-preview-v3', 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-v4', 'analytics-v4-purchase', 'analytics-v4-add-to-cart', 'analytics-v4-email-capture', 'analytics-v4-phone-capture', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v2-essential-theme', 'templates-v2-branding', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor', 'ai-texts-images', 'ai-texts-images-new', 'ai-texts-images-presets', 'ai-texts-images-preview', 'ai-texts-images-choose-products', 'ai-texts-images-generation', 'ai-texts-images-add-products', 'ai-texts-images-text-presets', 'ai-texts-images-text-preview', 'ai-texts-images-text-generation',
         'settings-ai-texts-images', 'settings-ai-texts-images-new', 'settings-ai-texts-images-presets', 'settings-ai-texts-images-preview', 'settings-ai-texts-images-choose-products', 'settings-ai-texts-images-generation', 'settings-ai-texts-images-generation-product', 'settings-ai-texts-images-add-products', 'settings-ai-texts-images-text-presets', 'settings-ai-texts-images-text-preview', 'settings-ai-texts-images-text-generation',
         'settings-ai-texts-images-v1', 'settings-ai-texts-images-v1-new', 'settings-ai-texts-images-v1-presets', 'settings-ai-texts-images-v1-preview', 'settings-ai-texts-images-v1-choose-products', 'settings-ai-texts-images-v1-generation', 'settings-ai-texts-images-v1-add-products', 'settings-ai-texts-images-v1-text-presets', 'settings-ai-texts-images-v1-text-preview', 'settings-ai-texts-images-v1-text-generation',
         'settings-ai-texts-images-v2', 'settings-ai-texts-images-v2-new', 'settings-ai-texts-images-v2-presets', 'settings-ai-texts-images-v2-preview', 'settings-ai-texts-images-v2-choose-products', 'settings-ai-texts-images-v2-generation', 'settings-ai-texts-images-v2-generation-product', 'settings-ai-texts-images-v2-add-products', 'settings-ai-texts-images-v2-text-presets', 'settings-ai-texts-images-v2-text-preview', 'settings-ai-texts-images-v2-text-generation',
@@ -904,6 +905,14 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
         :registration-data="registrationData"
         @task-created="handleTaskCreated"
         @menu-click="handleMenuClick"
+      />
+      <HomeHeartbeatView
+        v-else-if="currentView === 'home-heartbeat'"
+        :key="'home-heartbeat-' + sessionKey"
+        :registration-data="registrationData"
+        @task-created="handleTaskCreated"
+        @menu-click="handleMenuClick"
+        @new-campaign="currentView = 'new-campaign'"
       />
       <HomeOnboardingReviewView
         v-else-if="currentView === 'home-onboarding-review'"
