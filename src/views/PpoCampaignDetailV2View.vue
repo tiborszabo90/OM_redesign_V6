@@ -383,15 +383,11 @@
             <div
               v-for="(variable, vIdx) in variant.variables"
               :key="variable.id"
-              class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_200px_36px] gap-3 items-center py-2 pl-6 cursor-pointer hover:bg-om-gray-50 transition-colors"
+              class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_200px_36px] gap-3 items-center py-2 -mx-3 px-3 cursor-pointer hover:bg-om-gray-50 rounded-lg transition-colors"
               :class="vIdx === variant.variables.length - 1 && vi < variants.length - 1 ? 'border-b border-om-gray-100' : ''"
               @click="$emit('navigate', variable.type === 'Image' ? 'settings-ai-texts-images-v2-generation' : 'settings-ai-texts-images-v2-text-generation')"
             >
-              <div class="flex items-center gap-2">
-                <div class="w-5 h-5 rounded flex items-center justify-center shrink-0" :class="variable.type === 'Image' ? 'bg-purple-50' : 'bg-blue-50'">
-                  <ImageIcon v-if="variable.type === 'Image'" :size="12" class="text-purple-500" />
-                  <Type v-else :size="12" class="text-blue-500" />
-                </div>
+              <div class="flex items-center">
                 <span class="text-xs text-om-gray-500">{{ variable.name }}</span>
               </div>
               <div></div>
