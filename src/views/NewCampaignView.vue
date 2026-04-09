@@ -57,7 +57,7 @@ const cards = [
     type: 'ppo',
     title: 'Smart Product Page',
     description: 'Optimize your product pages\nwith AI-powered content.',
-    image: null,
+    image: '/SPP.svg',
   },
 ]
 </script>

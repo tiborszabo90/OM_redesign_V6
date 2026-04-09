@@ -274,7 +274,7 @@ const sectionGroups = {
   },
   ppo: {
     label: 'PPO v2',
-    views: ['ppo-campaign-detail', 'ppo-campaign-detail-v2', 'ppo-campaign-flow', 'ppo-campaign-flow-v2', 'ppo-campaign-flow-v3', 'ppo-campaign-flow-mvp', 'ppo-campaign-setup-preview-v2', 'ppo-placement', 'ppo-variant-detail-v1', 'ppo-variant-detail-v2', 'ppo-variable-setup', 'ppo-campaign-setup-preview', 'ppo-generation'],
+    views: ['ppo-campaign-detail', 'ppo-campaign-detail-v2', 'ppo-campaign-flow', 'ppo-campaign-flow-v2', 'ppo-campaign-flow-v3', 'ppo-campaign-flow-mvp', 'ppo-campaign-setup-preview-v2', 'ppo-campaign-setup-preview-v3', 'ppo-placement', 'ppo-variant-detail-v1', 'ppo-variant-detail-v2', 'ppo-variable-setup', 'ppo-campaign-setup-preview', 'ppo-generation'],
     items: [
       { view: 'ppo-campaign-detail', label: 'Campaign Detail' },
       { view: 'ppo-campaign-detail-v2', label: 'Campaign Detail V2' },
@@ -284,6 +284,9 @@ const sectionGroups = {
       { view: 'ppo-variable-setup', label: 'Variable Setup' },
       { view: 'ppo-campaign-setup-preview', label: 'Setup Preview' },
       { view: 'ppo-campaign-setup-preview-v2', label: 'Setup Preview V2' },
+      { view: 'ppo-campaign-setup-preview-v3', label: 'Setup Preview V3' },
+      { view: 'ppo-variant-detail-v1', label: 'Variant Detail' },
+      { view: 'ppo-variant-detail-v2', label: 'Variant Detail V2' },
       { view: 'ppo-generation', label: 'Generation' },
     ],
   },

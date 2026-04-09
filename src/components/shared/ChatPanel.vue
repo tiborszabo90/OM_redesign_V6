@@ -45,20 +45,22 @@
   <transition :name="panelTransitionName">
   <div
     v-if="modelValue"
-    :style="{ width: panelWidth + 'px' }"
-    :class="['shrink-0 flex flex-col bg-white p-4 pt-6 pb-4 relative rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] my-3 mr-3', side === 'left' ? 'ml-3 mr-0' : '']"
+    :style="inline ? {} : { width: panelWidth + 'px' }"
+    :class="[inline ? 'flex flex-col bg-white relative px-4 pb-4' : 'shrink-0 flex flex-col bg-white p-4 pt-6 pb-4 relative rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] my-3 mr-3', !inline && side === 'left' ? 'ml-3 mr-0' : '']"
   >
     <!-- Resize handle -->
     <div
+      v-if="!inline"
       @mousedown="startResize"
       :class="['resize-handle absolute top-0 bottom-0 w-1 cursor-ew-resize hover:bg-om-orange-300 transition-colors z-10', side === 'left' ? 'right-0' : 'left-0']"
     ></div>
     <!-- Header with close button -->
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center justify-between" :class="inline ? 'px-4 py-2' : 'mb-4'">
       <Button variant="ghost" size="sm" @click="openConversationsModal">
         <span class="flex items-center gap-1">{{ conversationTitle }}<ChevronDown :size="14" /></span>
       </Button>
       <button
+        v-if="!inline"
         @click="closePanel"
         class="w-8 h-8 rounded-lg flex items-center justify-center text-[#8F97A4] hover:text-[#505763] hover:bg-[#F1F2F4] transition-colors cursor-pointer"
       >
@@ -224,6 +226,10 @@ const props = defineProps({
     default: true
   },
   fab: {
+    type: Boolean,
+    default: false
+  },
+  inline: {
     type: Boolean,
     default: false
   },

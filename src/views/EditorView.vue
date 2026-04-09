@@ -149,86 +149,22 @@
         <!-- Visual / AI tabs -->
         <div class="px-3 py-2 shrink-0">
           <div class="flex bg-gray-100 rounded-xl p-1 gap-1">
-            <!-- Visual tab: not clickable -->
             <div class="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-sm font-medium text-gray-400 cursor-pointer hover:text-gray-500 transition-colors">
               <Brush :size="14" /> Visual
             </div>
-            <!-- AI tab: always active -->
             <div class="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-sm font-medium text-om-orange-500 bg-white shadow-sm">
               <Sparkles :size="14" /> AI
             </div>
           </div>
         </div>
 
-        <!-- Chat: empty state -->
-        <div v-if="chatMessages.length === 0" class="flex-1 flex flex-col p-4 min-h-0">
-          <div class="flex flex-col items-center pt-6">
-            <div class="w-24 h-24 rounded-full bg-om-gray-100 flex items-center justify-center mb-4">
-              <img src="/icons/optibot64.svg" alt="OptiBot" class="w-16 h-16" />
-            </div>
-            <h3 class="text-base font-semibold text-om-gray-700 mb-1 text-center">How can I help you?</h3>
-          </div>
-          <div class="mt-auto pb-2">
-            <p class="text-xs text-om-gray-500 mb-3">Try with an example:</p>
-            <div class="flex flex-col gap-2">
-              <button
-                v-for="suggestion in chatSuggestions"
-                :key="suggestion"
-                @click="handleSuggestionClick(suggestion)"
-                class="w-full text-left px-3 py-1.5 rounded-lg bg-white border border-om-gray-200 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:scale-[1.02]"
-              >
-                {{ suggestion }}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Chat: messages -->
-        <div v-else ref="chatMessagesContainer" class="flex-1 overflow-y-auto space-y-3 p-4 min-h-0 chat-scroll">
-          <div v-for="(msg, index) in chatMessages" :key="index" class="flex" :class="msg.type === 'user' ? 'justify-end' : 'justify-start'">
-            <div v-if="msg.type === 'user'" class="bg-om-peach-100 text-om-gray-700 px-3 py-2 rounded-2xl rounded-br-md max-w-[90%] text-sm">
-              {{ msg.message }}
-            </div>
-            <div v-else class="bg-om-gray-100 text-om-gray-700 px-3 py-2 rounded-2xl rounded-bl-md max-w-[90%] text-sm leading-relaxed" v-html="formatMessage(msg.message)" />
-          </div>
-          <!-- Typing indicator -->
-          <div v-if="isTyping" class="flex justify-start">
-            <div class="bg-om-gray-100 px-3 py-2 rounded-2xl rounded-bl-md flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 bg-om-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
-              <span class="w-1.5 h-1.5 bg-om-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
-              <span class="w-1.5 h-1.5 bg-om-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Chat input -->
-        <div class="p-3 shrink-0">
-          <div class="relative">
-            <textarea
-              ref="chatTextareaRef"
-              v-model="chatMessage"
-              rows="3"
-              @keydown.enter.exact.prevent="handleChatSubmit"
-              class="w-full px-4 py-3 pb-10 border border-om-gray-300 rounded-xl focus:ring-2 focus:ring-om-gray-500 focus:border-transparent transition-colors text-om-gray-700 resize-none pr-12 text-sm"
-              placeholder="Ask OptiMonk..."
-            ></textarea>
-            <button
-              class="absolute bottom-3 left-1.5 w-8 h-8 rounded-lg flex items-center justify-center text-om-gray-500 hover:bg-om-gray-100 hover:text-om-gray-600 transition-colors"
-            >
-              <Paperclip :size="16" />
-            </button>
-            <button
-              @click="handleChatSubmit"
-              :disabled="!chatMessage?.trim()"
-              :class="[
-                'absolute bottom-3 right-1.5 w-8 h-8 rounded-lg flex items-center justify-center transition-colors',
-                chatMessage?.trim() ? 'bg-om-orange-500 text-white cursor-pointer' : 'bg-om-gray-200 text-om-gray-500 cursor-default'
-              ]"
-            >
-              <ArrowUp :size="16" />
-            </button>
-          </div>
-        </div>
+        <ChatPanel
+          v-model="editorChatOpen"
+          :inline="true"
+          :suggestions="chatSuggestions"
+          :ai-responses="aiResponses"
+          class="flex-1 min-h-0"
+        />
       </div>
 
     </div>
@@ -237,13 +173,14 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref } from 'vue'
 import Button from '../components/shared/Button.vue'
+import ChatPanel from '../components/shared/ChatPanel.vue'
 import {
   ChevronLeft, ChevronUp, Monitor, Smartphone,
   Undo2, Redo2, X, Plus,
   Brush, PlusCircle, Code2,
-  Sparkles, Paperclip, ArrowUp
+  Sparkles
 } from 'lucide-vue-next'
 
 defineEmits(['go-back'])
@@ -252,11 +189,7 @@ const device = ref('desktop')
 const activeSidebarItem = ref('elements')
 
 // Chat
-const chatMessage = ref('')
-const chatMessages = ref([])
-const isTyping = ref(false)
-const chatMessagesContainer = ref(null)
-const chatTextareaRef = ref(null)
+const editorChatOpen = ref(true)
 
 const chatSuggestions = [
   'Change the headline to be more engaging',
@@ -271,59 +204,7 @@ const aiResponses = {
   'Suggest a better color scheme': 'Based on your brand colors, here are 2 schemes that complement the green panel:\n\n**Option A — Warm** 🟠\n- Primary: `#FF6B35`\n- Accent: `#FFD166`\n\n**Option B — Premium** 🖤\n- Primary: `#1A1A2E`\n- Accent: `#E94560`\n\nWould you like to preview either of these?',
   'Add urgency to the copy': 'I can add urgency with these changes:\n\n**Headline:** "Last Chance: Your 10% Welcome Gift Expires Today!"\n**Subtitle:** "Only 47 coupons left — don\'t miss out!"\n**CTA:** "CLAIM MY COUPON BEFORE IT\'S GONE"\n\nThis uses scarcity + time pressure which typically boosts conversion by 15–25%. Apply these?',
 }
-
-const formatMessage = (text) => {
-  if (!text) return ''
-  return text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-}
-
-const scrollToBottom = () => {
-  nextTick(() => {
-    if (chatMessagesContainer.value) {
-      chatMessagesContainer.value.scrollTop = chatMessagesContainer.value.scrollHeight
-    }
-  })
-}
-
-const sendAIResponse = (userMessage) => {
-  isTyping.value = true
-  scrollToBottom()
-  setTimeout(() => {
-    isTyping.value = false
-    const response = aiResponses[userMessage] || 'Great question! Based on the current popup design, I\'d recommend A/B testing your headline and CTA copy first — those typically have the biggest impact on conversion rates.'
-    chatMessages.value.push({ type: 'ai', message: response })
-    scrollToBottom()
-  }, 1200)
-}
-
-const handleSuggestionClick = (suggestion) => {
-  chatMessages.value.push({ type: 'user', message: suggestion })
-  scrollToBottom()
-  sendAIResponse(suggestion)
-}
-
-const handleChatSubmit = () => {
-  if (chatMessage.value?.trim()) {
-    const text = chatMessage.value.trim()
-    chatMessages.value.push({ type: 'user', message: text })
-    scrollToBottom()
-    chatMessage.value = ''
-    sendAIResponse(text)
-  }
-}
 </script>
 
 <style scoped>
-.chat-scroll {
-  scrollbar-gutter: stable;
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-}
-.chat-scroll:hover {
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-}
-.chat-scroll::-webkit-scrollbar { width: 6px; }
-.chat-scroll::-webkit-scrollbar-track { background: transparent; }
-.chat-scroll::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
-.chat-scroll:hover::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); }
 </style>

@@ -162,10 +162,19 @@ function getActiveAreaId() {
   return null
 }
 
+function sendDeviceToIframe() {
+  if (!iframeReady.value || !iframeRef.value) return
+  iframeRef.value.contentWindow.postMessage({
+    type: 'ppo-device',
+    device: props.device
+  }, '*')
+}
+
 function sendStateToIframe() {
   if (!iframeReady.value || !iframeRef.value) return
   sendPositionToIframe()
   sendElementPositions()
+  sendDeviceToIframe()
   iframeRef.value.contentWindow.postMessage({
     type: 'ppo-update',
     areas: computeAreaStates()

@@ -1,128 +1,46 @@
 <template>
   <div class="h-screen flex flex-col">
     <!-- Header bar -->
-    <div class="flex items-center border-b border-om-gray-200 shrink-0">
-      <div class="w-[360px] shrink-0 flex items-center gap-3 px-5 py-3 border-r border-om-gray-200">
-        <button @click="$emit('back')" class="text-om-gray-600 hover:text-om-gray-800 cursor-pointer">
-          <ArrowLeft :size="18" />
+    <div class="flex items-center h-12 border-b border-gray-200 px-3 shrink-0 bg-white">
+      <!-- Left: back + campaign info -->
+      <div class="flex items-center gap-2 flex-1">
+        <button class="flex items-center text-gray-500 hover:text-gray-800 -ml-1" @click="$emit('back')">
+          <ChevronLeft :size="18" />
         </button>
-        <div class="h-5 w-px bg-om-gray-200" />
-        <div class="flex flex-col">
-          <span class="font-semibold text-om-gray-700 text-[15px]">Product Summary 1</span>
-          <span class="text-xs text-om-gray-400">Product summary 1</span>
+        <div class="flex flex-col leading-tight">
+          <span class="text-sm font-semibold text-gray-900">Product Summary 1</span>
+          <span class="text-xs text-gray-400">Product summary 1</span>
         </div>
       </div>
-      <div class="flex-1 flex items-center justify-between px-6 py-3 gap-3">
-        <Dropdown v-if="showProductDropdown" v-model="selectedProductPage" :options="productPageOptions" size="sm" class="min-w-0" />
-        <div v-else />
-        <div class="flex items-center gap-3 shrink-0">
-          <div class="flex items-center bg-om-gray-100 rounded-lg p-0.5">
-            <button
-              class="flex items-center justify-center w-8 h-8 rounded-md transition-colors cursor-pointer"
-              :class="previewMode === 'desktop' ? 'bg-white shadow-sm text-om-gray-700' : 'text-om-gray-400 hover:text-om-gray-600'"
-              @click="previewMode = 'desktop'"
-            >
-              <Monitor :size="16" />
-            </button>
-            <button
-              class="flex items-center justify-center w-8 h-8 rounded-md transition-colors cursor-pointer"
-              :class="previewMode === 'mobile' ? 'bg-white shadow-sm text-om-gray-700' : 'text-om-gray-400 hover:text-om-gray-600'"
-              @click="previewMode = 'mobile'"
-            >
-              <Smartphone :size="16" />
-            </button>
-          </div>
-          <Button variant="primary" size="sm" @click="$emit('next')">
-            Done
-          </Button>
-        </div>
+
+      <!-- Center: device toggle -->
+      <div class="flex items-center gap-1">
+        <button
+          class="p-1.5 rounded transition-colors"
+          :class="previewMode === 'desktop' ? 'text-[#FF4D00]' : 'text-gray-400 hover:text-gray-600'"
+          @click="previewMode = 'desktop'"
+        >
+          <Monitor :size="18" />
+        </button>
+        <button
+          class="p-1.5 rounded transition-colors"
+          :class="previewMode === 'mobile' ? 'text-[#FF4D00]' : 'text-gray-400 hover:text-gray-600'"
+          @click="previewMode = 'mobile'"
+        >
+          <Smartphone :size="18" />
+        </button>
+      </div>
+
+      <!-- Right: actions -->
+      <div class="flex items-center gap-2 flex-1 justify-end">
+        <Button variant="primary" size="sm" @click="$emit('next')">Done</Button>
       </div>
     </div>
 
     <!-- Content -->
     <div class="flex flex-1 min-h-0">
-      <!-- Left sidebar: product summary settings (always open, no accordion) -->
-      <div class="w-[360px] bg-white flex flex-col shrink-0 border-r border-om-gray-200">
-        <div class="flex-1 overflow-y-auto px-4 pt-4 pb-4">
-          <div class="space-y-3">
-                    <!-- Position -->
-                    <div>
-                      <label class="text-xs font-medium text-om-gray-500 mb-1 block">Position</label>
-                      <Dropdown :model-value="positions['product-summary']" :options="positionOptionsFor('product-summary')" size="sm" @update:model-value="val => positions['product-summary'] = typeof val === 'object' ? val.value : val" />
-                    </div>
-
-                    <!-- Title font -->
-                      <div>
-                        <label class="text-xs font-medium text-om-gray-500 mb-1 block">Title font</label>
-                        <Dropdown v-model="typeSettings['product-summary'].titleFontFamily" :options="fontFamilyOptions" size="sm" />
-                      </div>
-                      <div class="flex gap-2">
-                        <div class="flex-1">
-                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">Title size</label>
-                          <Dropdown v-model="typeSettings['product-summary'].titleFontSize" :options="fontSizeOptions" size="sm" />
-                        </div>
-                        <div class="flex-1">
-                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">Title weight</label>
-                          <Dropdown v-model="typeSettings['product-summary'].titleFontWeight" :options="fontWeightOptions" size="sm" />
-                        </div>
-                      </div>
-
-                    <!-- List font -->
-                      <div>
-                        <label class="text-xs font-medium text-om-gray-500 mb-1 block">List font</label>
-                        <Dropdown v-model="typeSettings['product-summary'].listFontFamily" :options="fontFamilyOptions" size="sm" />
-                      </div>
-                      <div class="flex gap-2">
-                        <div class="flex-1">
-                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">List size</label>
-                          <Dropdown v-model="typeSettings['product-summary'].listFontSize" :options="fontSizeOptions" size="sm" />
-                        </div>
-                        <div class="flex-1">
-                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">List weight</label>
-                          <Dropdown v-model="typeSettings['product-summary'].listFontWeight" :options="fontWeightOptions" size="sm" />
-                        </div>
-                      </div>
-
-                    <!-- Check style -->
-                      <div>
-                        <label class="text-xs font-medium text-om-gray-500 mb-1 block">Check style</label>
-                        <Dropdown v-model="typeSettings['product-summary'].checkStyle" :options="checkStyleOptions" size="sm" />
-                      </div>
-                    <!-- Colors -->
-                      <div class="flex gap-2">
-                        <div class="flex-1">
-                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">Background</label>
-                          <label class="flex items-center gap-2 cursor-pointer">
-                            <div class="color-swatch w-8 h-8 rounded-md border-2 border-om-gray-200 hover:border-om-gray-400 transition-all hover:scale-110 shrink-0 relative overflow-hidden" :style="{ backgroundColor: typeSettings['product-summary'].bgColor }">
-                              <input type="color" v-model="typeSettings['product-summary'].bgColor" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
-                            </div>
-                            <span class="text-xs text-om-gray-500 font-mono">{{ typeSettings['product-summary'].bgColor }}</span>
-                          </label>
-                        </div>
-                        <div class="flex-1">
-                          <label class="text-xs font-medium text-om-gray-500 mb-1 block">Text color</label>
-                          <label class="flex items-center gap-2 cursor-pointer">
-                            <div class="color-swatch w-8 h-8 rounded-md border-2 border-om-gray-200 hover:border-om-gray-400 transition-all hover:scale-110 shrink-0 relative overflow-hidden" :style="{ backgroundColor: typeSettings['product-summary'].textColor }">
-                              <input type="color" v-model="typeSettings['product-summary'].textColor" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
-                            </div>
-                            <span class="text-xs text-om-gray-500 font-mono">{{ typeSettings['product-summary'].textColor }}</span>
-                          </label>
-                        </div>
-                      </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right: Product page preview with iframe -->
+      <!-- Left: Product page preview with iframe -->
       <div class="flex-1 min-h-0 min-w-0 bg-om-gray-200 flex flex-col">
-        <!-- Device diff info banner -->
-        <div v-if="anyDeviceDiff" class="flex items-center gap-2 px-6 py-2.5 bg-om-orange-50 border-b border-om-orange-100 shrink-0">
-          <Monitor v-if="previewMode === 'desktop'" :size="14" class="text-om-orange-400 shrink-0" />
-          <Smartphone v-else :size="14" class="text-om-orange-400 shrink-0" />
-          <span class="text-xs text-om-orange-600">
-            Position and styling can be set separately for {{ previewMode === 'desktop' ? 'mobile' : 'desktop' }}
-          </span>
-        </div>
         <div class="flex-1 min-h-0 p-6 flex justify-center" :class="previewMode === 'mobile' ? 'items-start overflow-hidden' : 'overflow-y-auto'">
         <div :class="previewMode === 'mobile' ? 'w-[360px] h-full overflow-hidden rounded-2xl shadow-[0_4px_24px_0_rgb(0_0_0/0.08)]' : 'w-full'" class="transition-all duration-300">
           <ProductPagePreview
@@ -143,6 +61,115 @@
         </div>
         </div>
       </div>
+
+      <!-- Right sidebar -->
+      <div class="w-[300px] bg-white flex flex-col shrink-0 border-l border-om-gray-200 min-h-0 overflow-hidden">
+        <!-- Visual / AI tabs -->
+        <div class="px-3 py-2 shrink-0">
+          <div class="flex bg-gray-100 rounded-xl p-1 gap-1">
+            <button
+              class="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-sm font-medium cursor-pointer transition-colors"
+              :class="rightTab === 'visual' ? 'text-om-orange-500 bg-white shadow-sm' : 'text-gray-400 hover:text-gray-500'"
+              @click="rightTab = 'visual'"
+            >
+              <Brush :size="14" /> Visual
+            </button>
+            <button
+              class="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-sm font-medium cursor-pointer transition-colors"
+              :class="rightTab === 'ai' ? 'text-om-orange-500 bg-white shadow-sm' : 'text-gray-400 hover:text-gray-500'"
+              @click="rightTab = 'ai'"
+            >
+              <Sparkles :size="14" /> AI
+            </button>
+          </div>
+        </div>
+
+        <!-- Visual tab: settings -->
+        <div v-if="rightTab === 'visual'" class="flex-1 overflow-y-auto px-4 pt-2 pb-4">
+          <div class="space-y-3">
+            <!-- Product dropdown -->
+            <div v-if="showProductDropdown">
+              <label class="text-xs font-medium text-om-gray-500 mb-1 block">Product page</label>
+              <Dropdown v-model="selectedProductPage" :options="productPageOptions" size="sm" />
+            </div>
+            <!-- Position -->
+            <div>
+              <label class="text-xs font-medium text-om-gray-500 mb-1 block">Position</label>
+              <Dropdown :model-value="positions['product-summary']" :options="positionOptionsFor('product-summary')" size="sm" @update:model-value="val => positions['product-summary'] = typeof val === 'object' ? val.value : val" />
+            </div>
+            <!-- Title font -->
+            <div>
+              <label class="text-xs font-medium text-om-gray-500 mb-1 block">Title font</label>
+              <Dropdown v-model="typeSettings['product-summary'].titleFontFamily" :options="fontFamilyOptions" size="sm" />
+            </div>
+            <div class="flex gap-2">
+              <div class="flex-1">
+                <label class="text-xs font-medium text-om-gray-500 mb-1 block">Title size</label>
+                <Dropdown v-model="typeSettings['product-summary'].titleFontSize" :options="fontSizeOptions" size="sm" />
+              </div>
+              <div class="flex-1">
+                <label class="text-xs font-medium text-om-gray-500 mb-1 block">Title weight</label>
+                <Dropdown v-model="typeSettings['product-summary'].titleFontWeight" :options="fontWeightOptions" size="sm" />
+              </div>
+            </div>
+            <!-- List font -->
+            <div>
+              <label class="text-xs font-medium text-om-gray-500 mb-1 block">List font</label>
+              <Dropdown v-model="typeSettings['product-summary'].listFontFamily" :options="fontFamilyOptions" size="sm" />
+            </div>
+            <div class="flex gap-2">
+              <div class="flex-1">
+                <label class="text-xs font-medium text-om-gray-500 mb-1 block">List size</label>
+                <Dropdown v-model="typeSettings['product-summary'].listFontSize" :options="fontSizeOptions" size="sm" />
+              </div>
+              <div class="flex-1">
+                <label class="text-xs font-medium text-om-gray-500 mb-1 block">List weight</label>
+                <Dropdown v-model="typeSettings['product-summary'].listFontWeight" :options="fontWeightOptions" size="sm" />
+              </div>
+            </div>
+            <!-- Check style -->
+            <div>
+              <label class="text-xs font-medium text-om-gray-500 mb-1 block">Check style</label>
+              <Dropdown v-model="typeSettings['product-summary'].checkStyle" :options="checkStyleOptions" size="sm" />
+            </div>
+            <!-- Colors -->
+            <div class="flex gap-2">
+              <div class="flex-1">
+                <label class="text-xs font-medium text-om-gray-500 mb-1 block">Background</label>
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-md border-2 border-om-gray-200 shrink-0" :style="{ backgroundColor: typeSettings['product-summary'].bgColor }"></div>
+                  <span class="text-xs text-om-gray-500 font-mono">{{ typeSettings['product-summary'].bgColor }}</span>
+                </div>
+              </div>
+              <div class="flex-1">
+                <label class="text-xs font-medium text-om-gray-500 mb-1 block">Text color</label>
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-md border-2 border-om-gray-200 shrink-0" :style="{ backgroundColor: typeSettings['product-summary'].textColor }"></div>
+                  <span class="text-xs text-om-gray-500 font-mono">{{ typeSettings['product-summary'].textColor }}</span>
+                </div>
+              </div>
+            </div>
+            <!-- Device diff info (inline, after last input) -->
+            <div v-if="anyDeviceDiff" class="flex items-center gap-2 mt-2 px-3 py-2 bg-om-orange-50 rounded-lg">
+              <Monitor v-if="previewMode === 'desktop'" :size="14" class="text-om-orange-400 shrink-0" />
+              <Smartphone v-else :size="14" class="text-om-orange-400 shrink-0" />
+              <span class="text-xs text-om-orange-600">
+                Position and styling can be set separately for {{ previewMode === 'desktop' ? 'mobile' : 'desktop' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI tab: chat -->
+        <ChatPanel
+          v-if="rightTab === 'ai'"
+          v-model="chatOpen"
+          :inline="true"
+          :suggestions="chatSuggestions"
+          :ai-responses="chatAiResponses"
+          class="flex-1 min-h-0"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -152,7 +179,8 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import ProductPagePreview from '../components/ppo/ProductPagePreview.vue'
-import { ArrowLeft, Monitor, Smartphone, ChevronDown, ImageIcon, Type } from 'lucide-vue-next'
+import ChatPanel from '../components/shared/ChatPanel.vue'
+import { ChevronLeft, Monitor, Smartphone, ChevronDown, ImageIcon, Type, Brush, Sparkles } from 'lucide-vue-next'
 
 const baseUrl = window.location.origin
 
@@ -212,12 +240,21 @@ const iframeGeneratedContent = computed(() => {
       const itemsHtml = items.map(t =>
         '<div style="display:flex;align-items:flex-start;gap:12px;">' + checkHtml + '<span style="font-size:' + lfs + ';font-weight:' + lfw + ';line-height:1.5;color:' + tc + ';' + (lff ? 'font-family:' + lff + ',sans-serif;' : '') + '">' + t + '</span></div>'
       ).join('')
-      content['product-summary'] = { html: '<div style="display:flex;border-radius:12px;overflow:hidden;border:1px solid #e5e5e5;">'
-        + '<div style="width:320px;flex-shrink:0;background:#f9fafb;aspect-ratio:1/1;">'
-        + '<img src="' + baseUrl + '/image-with-badge/whisky2.png" style="width:100%;height:100%;object-fit:cover;" />'
-        + '</div>'
-        + '<div style="flex:1;background:' + bg + ';display:flex;flex-direction:column;justify-content:center;padding:32px;">'
-        + titleHtml + '<div style="display:flex;flex-direction:column;gap:20px;">' + itemsHtml + '</div></div></div>' }
+      const isMobile = previewMode.value === 'mobile'
+      content['product-summary'] = { html: isMobile
+        ? '<div style="display:flex;flex-direction:column;border-radius:8px;overflow:hidden;border:1px solid #e5e5e5;margin:0;">'
+          + '<div style="width:100%;aspect-ratio:4/3;background:#f9fafb;">'
+          + '<img src="' + baseUrl + '/image-with-badge/whisky2.png" style="width:100%;height:100%;object-fit:cover;" />'
+          + '</div>'
+          + '<div style="background:' + bg + ';display:flex;flex-direction:column;padding:16px;">'
+          + titleHtml + '<div style="display:flex;flex-direction:column;gap:12px;">' + itemsHtml + '</div></div></div>'
+        : '<div style="display:flex;border-radius:12px;overflow:hidden;border:1px solid #e5e5e5;">'
+          + '<div style="width:320px;flex-shrink:0;background:#f9fafb;aspect-ratio:1/1;">'
+          + '<img src="' + baseUrl + '/image-with-badge/whisky2.png" style="width:100%;height:100%;object-fit:cover;" />'
+          + '</div>'
+          + '<div style="flex:1;background:' + bg + ';display:flex;flex-direction:column;justify-content:center;padding:32px;">'
+          + titleHtml + '<div style="display:flex;flex-direction:column;gap:20px;">' + itemsHtml + '</div></div></div>'
+      }
     } else if (generatedContent[type.id]) {
       content[type.id] = generatedContent[type.id]
     }
@@ -228,6 +265,22 @@ const iframeGeneratedContent = computed(() => {
 defineEmits(['back', 'next', 'menu-click'])
 
 const previewMode = ref('desktop')
+const rightTab = ref('visual')
+const chatOpen = ref(true)
+
+const chatSuggestions = [
+  'Change the title to be more engaging',
+  'Use a different background color',
+  'Add more benefit items',
+  'Make the text more persuasive',
+]
+
+const chatAiResponses = {
+  'Change the title to be more engaging': 'Here are 3 alternative titles:\n\n**1.** "Discover the Perfect Black Irish Whiskey Experience"\n**2.** "Why Shanky\'s Whip Is Your Next Favourite Liqueur"\n**3.** "Smooth, Bold & Unforgettable — Try Shanky\'s Whip"\n\nWhich would you like to apply?',
+  'Use a different background color': 'Here are some color options that work well:\n\n**1. Deep Navy** — `#1A1A2E` for a premium feel\n**2. Forest Green** — `#2D6A4F` for a natural vibe\n**3. Rich Purple** — `#5B2C6F` for luxury positioning\n\nShall I apply any of these?',
+  'Add more benefit items': 'I can add these additional benefits:\n\n**4.** "Perfect base for cocktails — from Espresso Martinis to Irish Coffee"\n**5.** "Award-winning recipe since 2005 — consistently rated 90+ points"\n\nWant me to add these to the list?',
+  'Make the text more persuasive': 'I\'d recommend these changes:\n\n**Title:** Add a power word → "Irresistible Irish Whiskey Likőr"\n**Benefits:** Start each with an action verb\n**Add urgency:** "Limited edition — only available while stocks last"\n\nThis typically boosts conversion by 15–20%. Apply these?',
+}
 
 const productPageOptions = [
   { value: 'https://www.whiskynet.hu/shankys-whip-black-irish-whiskey-likor-07l-33', label: "Shanky's Whip Black Ír whiskeylikőr" },
