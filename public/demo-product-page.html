@@ -5140,8 +5140,8 @@ Place this snippet between the <head> and </head> tags on every page of your sit
 
 <style>
 @keyframes ppo-pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
-.ppo-overlay { position:absolute; inset:0; z-index:9999; border-radius:8px; cursor:pointer; transition:all .15s, opacity .25s ease; pointer-events:auto; display:block; opacity:0; }
-.ppo-label { position:absolute; top:-9px; right:8px; font-size:11px; font-weight:600; border-radius:999px; padding:3px 10px; white-space:nowrap; z-index:10000; display:none; font-family:-apple-system,BlinkMacSystemFont,sans-serif; }
+.ppo-overlay { position:absolute; inset:0; z-index:9999; border-radius:8px; cursor:pointer; transition:opacity 0.6s ease, outline 0.6s ease, background 0.6s ease; pointer-events:auto; display:block; opacity:0; }
+.ppo-label { position:absolute; bottom:calc(100% + 4px); right:8px; font-size:11px; font-weight:600; border-radius:999px; padding:3px 10px; white-space:nowrap; z-index:10000; font-family:-apple-system,BlinkMacSystemFont,sans-serif; opacity:0; transition:opacity 0.6s ease; pointer-events:none; }
 .ppo-arrows-wrap { position:absolute; right:-36px; top:0; bottom:0; display:none; z-index:10000; pointer-events:none; }
 .ppo-arrows-wrap .ppo-arrow-btn { width:26px; height:26px; border-radius:8px; position:absolute; right:0; pointer-events:auto; }
 .ppo-arrows-wrap .ppo-arrow-up { top:-13px; }
@@ -5359,10 +5359,7 @@ Place this snippet between the <head> and </head> tags on every page of your sit
       o.el.style.pointerEvents = 'auto';
       o.el.onmouseenter = null;
       o.el.onmouseleave = null;
-      o.label.style.display = data.label ? 'block' : 'none';
-      o.label.textContent = data.label || '';
-      o.label.style.border = 'none';
-      o.label.style.boxShadow = 'none';
+      o.label.style.opacity = '0';
       if (o.arrowWrap) o.arrowWrap.style.display = 'none';
 
       switch(data.state){
@@ -5371,11 +5368,6 @@ Place this snippet between the <head> and </head> tags on every page of your sit
           o.el.style.background = 'rgba(249,115,22,0.04)';
           o.label.style.background = '#ED5A29';
           o.label.style.color = '#fff';
-          if (o.arrowWrap) {
-            o.arrowWrap.style.display = 'block';
-            if (o.upBtn) o.upBtn.style.visibility = data.isFirst ? 'hidden' : 'visible';
-            if (o.downBtn) o.downBtn.style.visibility = data.isLast ? 'hidden' : 'visible';
-          }
           break;
         case 'eligible':
           o.el.style.outline = '2px dashed #F97316';
@@ -5390,7 +5382,7 @@ Place this snippet between the <head> and </head> tags on every page of your sit
           o.el.style.display = 'none';
           break;
         default:
-          o.label.style.display = 'none';
+          o.label.style.opacity = '0';
           o.el.onmouseenter = function(){
             o.el.style.background = 'rgba(249,115,22,0.05)';
             o.el.style.outline = '2px solid #FDBA74';

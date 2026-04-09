@@ -193,6 +193,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ChevronUp, X, Copy, Check, Loader2 } from 'lucide-vue-next'
+import { getArchivedViews, getSectionItems, getSectionForView, sectionLabels, flowDefinitions } from '../../registry'
 
 const props = defineProps({
   currentView: { type: String, required: true },
@@ -221,163 +222,57 @@ const toggleOpen = (value) => {
   emit('update:isOpen', value)
 }
 
-// --- Flow step data ---
-const publicWizardSteps = [
-  { id: 'public-wizard-url', label: 'URL Input' },
-  { id: 'public-wizard-chat', label: 'Goal Input' },
-  { id: 'wizard-analysis', label: 'Analysis' },
-  { id: 'wizard-style', label: 'Style' },
-  { id: 'wizard-quicktune', label: 'Quicktune' },
-  { id: 'wizard-recommendation-v4', label: 'Recommendation' },
-]
+// --- Flow step data (from registry) ---
+const publicWizardSteps = flowDefinitions['public-wizard'].steps
+const wizardSteps = flowDefinitions['wizard'].steps
 
-const wizardSteps = [
-  { id: 'wizard-analysis', label: 'Analysis' },
-  { id: 'wizard-style', label: 'Style' },
-  { id: 'wizard-quicktune', label: 'Quicktune' },
-  { id: 'wizard-recommendation-v4', label: 'Recommendation' },
-]
-
-const imageBadgeVersions = [
-  { view: 'image-with-badge', label: 'V1' },
-  { view: 'image-with-badge-v2', label: 'V2' },
-  { view: 'image-with-badge-v3', label: 'V3' },
-]
+const imageBadgeFlow = flowDefinitions['image-with-badge']
+const imageBadgeVersions = imageBadgeFlow.versions.map(v => ({ view: v.view, label: v.label }))
 
 const imageBadgeStepCount = computed(() => {
-  if (props.currentView === 'image-with-badge') return 7
-  if (props.currentView === 'image-with-badge-v2') return 2
-  return 3
+  const version = imageBadgeFlow.versions.find(v => v.view === props.currentView)
+  return version?.stepCount || 3
 })
 
-// --- Section groups (context-aware dropdown) ---
-const sectionGroups = {
-  home: {
-    label: 'Home',
-    views: ['home-old', 'home-heartbeat', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-review'],
-    items: [
-      { view: 'home-old', label: 'Home (Active Campaigns)' },
-      { view: 'home-heartbeat', label: 'Home Heartbeat' },
-      { view: 'home-onboarding', label: 'Home Onboarding' },
-      { view: 'home-onboarding-with-reco', label: 'Home Onboarding + Reco' },
-      { view: 'home-onboarding-review', label: 'Home Onboarding Review' },
-    ],
-  },
-  campaigns: {
-    label: 'Campaigns',
-    views: ['campaigns-v3', 'campaigns-empty'],
-    items: [
-      { view: 'campaigns-v3', label: 'Campaigns' },
-      { view: 'campaigns-empty', label: 'Campaigns (Empty)' },
-    ],
-  },
-  campaignPage: {
-    label: 'Campaign Page',
-    views: ['campaign-page-v1', 'campaign-page-with-review'],
-    items: [
-      { view: 'campaign-page-v1', label: 'Campaign Page' },
-      { view: 'campaign-page-with-review', label: 'Campaign Page + Review' },
-    ],
-  },
-  analytics: {
-    label: 'Analytics',
-    views: ['analytics-v4', 'analytics-v4-purchase', 'analytics-v4-add-to-cart', 'analytics-v4-email-capture', 'analytics-v4-phone-capture', 'analytics-empty'],
-    items: [
-      { view: 'analytics-v4', label: 'Analytics' },
-      { view: 'analytics-empty', label: 'Analytics (Empty)' },
-    ],
-  },
-  ppo: {
-    label: 'PPO v2',
-    views: ['ppo-campaign-detail', 'ppo-campaign-detail-v2', 'ppo-campaign-flow', 'ppo-campaign-flow-v2', 'ppo-campaign-flow-v3', 'ppo-campaign-flow-mvp', 'ppo-campaign-setup-preview-v2', 'ppo-campaign-setup-preview-v3', 'ppo-placement', 'ppo-variant-detail-v1', 'ppo-variant-detail-v2', 'ppo-variable-setup', 'ppo-campaign-setup-preview', 'ppo-generation'],
-    items: [
-      { view: 'ppo-campaign-detail', label: 'Campaign Detail' },
-      { view: 'ppo-campaign-detail-v2', label: 'Campaign Detail V2' },
-      { view: 'ppo-campaign-flow', label: 'Campaign Flow' },
-      { view: 'ppo-campaign-flow-v3', label: 'Campaign Flow (cards)' },
-      { view: 'ppo-campaign-flow-mvp', label: 'Campaign Flow (MVP)' },
-      { view: 'ppo-variable-setup', label: 'Variable Setup' },
-      { view: 'ppo-campaign-setup-preview', label: 'Setup Preview' },
-      { view: 'ppo-campaign-setup-preview-v2', label: 'Setup Preview V2' },
-      { view: 'ppo-campaign-setup-preview-v3', label: 'Setup Preview V3' },
-      { view: 'ppo-variant-detail-v1', label: 'Variant Detail' },
-      { view: 'ppo-variant-detail-v2', label: 'Variant Detail V2' },
-      { view: 'ppo-generation', label: 'Generation' },
-    ],
-  },
-  ppoV1: {
-    label: 'PPO v1',
-    views: ['ppo-v1-campaign-detail', 'ppo-v1-campaign-flow', 'ppo-v1-placement', 'ppo-v1-variant-detail-v1', 'ppo-v1-variant-detail-v2', 'ppo-v1-variable-setup', 'ppo-v1-generation'],
-    items: [
-      { view: 'ppo-v1-campaign-detail', label: 'Campaign Detail' },
-      { view: 'ppo-v1-campaign-flow', label: 'Campaign Flow' },
-      { view: 'ppo-v1-variable-setup', label: 'Variable Setup' },
-      { view: 'ppo-v1-generation', label: 'Generation' },
-    ],
-  },
-  aiContent: {
-    label: 'AI Content',
-    views: null, // uses startsWith matching
-    items: [
-      { view: 'ai-texts-images', label: 'AI Texts & Images V1' },
-      { view: 'ai-texts-images-v2', label: 'AI Texts & Images V2' },
-    ],
-  },
-}
-
+// --- Section groups (from registry) ---
 const activeSection = computed(() => {
   const view = props.currentView
   if (!view) return null
-  for (const group of Object.values(sectionGroups)) {
-    if (group.views) {
-      if (group.views.includes(view)) return group.items
-    } else {
-      // startsWith matching for ai-texts-images and settings-ai-texts-images
-      if (group.items.some(item => view.startsWith(item.view) || view.startsWith('settings-' + item.view))) return group.items
-    }
+
+  // Check exact section match
+  const sectionKey = getSectionForView(view)
+  if (sectionKey) {
+    const items = getSectionItems(sectionKey)
+    return items.length > 1 ? items.map(v => ({ view: v.id, label: v.label })) : null
   }
+
+  // AI Content: prefix matching for ai-texts-images and settings-ai-texts-images
+  if (view.startsWith('ai-texts-images') || view.startsWith('settings-ai-texts-images')) {
+    const items = getSectionItems('aiContent')
+    return items.length > 0 ? items.map(v => ({ view: v.id, label: v.label })) : null
+  }
+
   return null
 })
 
 const activeSectionLabel = computed(() => {
   const view = props.currentView
   if (!view) return ''
-  for (const group of Object.values(sectionGroups)) {
-    if (group.views) {
-      if (group.views.includes(view)) return group.label
-    } else {
-      if (group.items.some(item => view.startsWith(item.view) || view.startsWith('settings-' + item.view))) return group.label
-    }
+
+  const sectionKey = getSectionForView(view)
+  if (sectionKey) return sectionLabels[sectionKey] || ''
+
+  if (view.startsWith('ai-texts-images') || view.startsWith('settings-ai-texts-images')) {
+    return sectionLabels['aiContent'] || ''
   }
+
   return ''
 })
 
-// --- Archive ---
-const archiveItems = ref([
-  { view: 'home-old-v2', label: 'Home Old' },
-  { view: 'home-chat-versions', label: 'Chat Versions' },
-  { view: 'home-chat-left', label: 'Chat Left' },
-  { view: 'task-creation', label: 'Home Agentic' },
-  { view: 'analytics-v1', label: 'Analytics V1' },
-  { view: 'analytics-v2', label: 'Analytics V2' },
-  { view: 'analytics-v3', label: 'Analytics V3' },
-  { view: 'templates-v1', label: 'Templates V1' },
-  { view: 'templates-v3', label: 'Templates V3' },
-  { view: 'wizard-recommendation', label: 'Recommendation V1' },
-  { view: 'wizard-recommendation-v2', label: 'Recommendation V2' },
-  { view: 'wizard-recommendation-v3', label: 'Recommendation V3' },
-  { view: 'wizard-recommendation-v5', label: 'Recommendation V5' },
-  { view: 'wizard-analysis', label: 'Wizard Flow' },
-  { view: 'wizard-analysis-no-chat', label: 'Wizard Flow (no chat)' },
-  { view: 'settings-ai-texts-images-v1', label: 'AI Texts & Images V1' },
-  { view: 'registration-v1', label: 'Registration V1' },
-  { view: 'registration-v2', label: 'Registration V2' },
-  { view: 'ppo-v1-campaign-flow', label: 'PPO V1' },
-  { view: 'ppo-campaign-flow-v2', label: 'PPO Campaign Flow (tiles)' },
-  { view: 'home-onboarding-v1', label: 'Home Onboarding V1' },
-  { view: 'home-onboarding-with-reco-v1', label: 'Home Onboarding + Reco V1' },
-  { view: 'home-with-review', label: 'Home (Review)' },
-])
+// --- Archive (from registry) ---
+const archiveItems = computed(() =>
+  getArchivedViews().map(v => ({ view: v.id, label: v.label }))
+)
 
 const archiveViews = computed(() => archiveItems.value.map(item => item.view))
 

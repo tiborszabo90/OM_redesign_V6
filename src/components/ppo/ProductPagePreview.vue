@@ -119,6 +119,8 @@ function computeAreaStates() {
       state = isActiveArea ? 'assigned' : 'content-only'
     } else if (assigned && isActiveArea) {
       state = 'assigned'
+    } else if (assigned) {
+      state = 'content-only'
     }
 
     const varName = getVarName(area.id)

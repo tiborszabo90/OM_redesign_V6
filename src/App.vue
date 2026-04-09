@@ -1,94 +1,43 @@
 <script setup>
-import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
-import DevStartView from './views/DevStartView.vue'
-import RegistrationView from './views/RegistrationView.vue'
-import RegistrationV1View from './views/RegistrationV1View.vue'
-import RegistrationV2View from './views/RegistrationV2View.vue'
-import OnboardingView from './views/OnboardingView.vue'
-import TaskCreationView from './views/TaskCreationView.vue'
-import WizardAnalysisView from './views/WizardAnalysisView.vue'
-import DesignGuideView from './views/DesignGuideView.vue'
-import EditorView from './views/EditorView.vue'
-import WizardView from './views/WizardView.vue'
-import CampaignsView from './views/CampaignsView.vue'
-import CampaignsV2View from './views/CampaignsV2View.vue'
-import CampaignsV3View from './views/CampaignsV3View.vue'
-import CampaignPageV1View from './views/CampaignPageV1View.vue'
-import CampaignPageWithReviewView from './views/CampaignPageWithReviewView.vue'
-import CampaignReviewView from './views/CampaignReviewView.vue'
-import AnalyticsV1View from './views/AnalyticsV1View.vue'
-import AnalyticsV2View from './views/AnalyticsV2View.vue'
-import AnalyticsV3View from './views/AnalyticsV3View.vue'
-import AnalyticsV4View from './views/AnalyticsV4View.vue'
-import AnalyticsEmptyView from './views/AnalyticsEmptyView.vue'
-import TemplatesViewV1 from './views/TemplatesViewV1.vue'
-import TemplatesViewV2 from './views/TemplatesViewV2.vue'
-import TemplatesViewV3 from './views/TemplatesViewV3.vue'
-import TemplatesV2BrandingView from './views/TemplatesV2BrandingView.vue'
-import TemplatesV2QuicktuneView from './views/TemplatesV2QuicktuneView.vue'
-import ImageWithBadgeView from './views/ImageWithBadgeView.vue'
-import ImageWithBadgeV2View from './views/ImageWithBadgeV2View.vue'
-import ImageWithBadgeV3View from './views/ImageWithBadgeV3View.vue'
-import HomeOldView from './views/HomeOldView.vue'
-import HomeOldV2View from './views/HomeOldV2View.vue'
-import HomeWithReviewView from './views/HomeWithReviewView.vue'
-import HomeChatVersionsView from './views/HomeChatVersionsView.vue'
-import HomeChatLeftView from './views/HomeChatLeftView.vue'
-import HomeOnboardingView from './views/HomeOnboardingView.vue'
-import HomeOnboardingV1View from './views/HomeOnboardingV1View.vue'
-import HomeOnboardingWithRecoView from './views/HomeOnboardingWithRecoView.vue'
-import HomeOnboardingWithRecoV1View from './views/HomeOnboardingWithRecoV1View.vue'
-import HomeOnboardingReviewView from './views/HomeOnboardingReviewView.vue'
-import HomeHeartbeatView from './views/HomeHeartbeatView.vue'
-import HomeOnboardingWizardView from './views/HomeOnboardingWizardView.vue'
-import PublicWizardView from './views/PublicWizardView.vue'
-import CampaignsEmptyView from './views/CampaignsEmptyView.vue'
-import WizardFlowView from './views/WizardFlowView.vue'
-import OptimizationOpportunityDetailView from './views/OptimizationOpportunityDetailView.vue'
-import OptimizationOpportunitiesAllView from './views/OptimizationOpportunitiesAllView.vue'
-import SettingsView from './views/SettingsView.vue'
-import AiTextsImagesView from './views/AiTextsImagesView.vue'
-import AiTextsImagesV2View from './views/AiTextsImagesV2View.vue'
-import NewCampaignView from './views/NewCampaignView.vue'
-import OptimizeWebsiteView from './views/OptimizeWebsiteView.vue'
-import ProductPageOptimizerView from './views/ProductPageOptimizerView.vue'
-import PpoCampaignFlowView from './views/PpoCampaignFlowView.vue'
-import PpoCampaignDetailView from './views/PpoCampaignDetailView.vue'
-import PpoCampaignDetailV2View from './views/PpoCampaignDetailV2View.vue'
-import PpoVariantDetailV2View from './views/PpoVariantDetailV2View.vue'
-import PpoCampaignSetupPreviewV2View from './views/PpoCampaignSetupPreviewV2View.vue'
-import PpoCampaignSetupPreviewV3View from './views/PpoCampaignSetupPreviewV3View.vue'
-import PpoVariantDetailView from './views/PpoVariantDetailView.vue'
-import PpoVariableSetupView from './views/PpoVariableSetupView.vue'
-import PpoGenerationView from './views/PpoGenerationView.vue'
-import PpoCampaignSetupPreviewView from './views/PpoCampaignSetupPreviewView.vue'
-import PpoCampaignFlowV2View from './views/PpoCampaignFlowV2View.vue'
-import PpoCampaignFlowV3View from './views/PpoCampaignFlowV3View.vue'
-import PpoCampaignFlowMvpView from './views/PpoCampaignFlowMvpView.vue'
-import PpoCampaignFlowV1View from './views/PpoCampaignFlowV1View.vue'
-import PpoCampaignDetailV1View from './views/PpoCampaignDetailV1View.vue'
-import PpoVariantDetailV1View from './views/PpoVariantDetailV1View.vue'
-import PpoVariableSetupV1View from './views/PpoVariableSetupV1View.vue'
-import PpoGenerationV1View from './views/PpoGenerationV1View.vue'
+import { ref, computed, defineAsyncComponent, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
+import { viewDefinitions, resolveView, getView, getSlugForView, isLogoHidden } from './registry'
 
-// URL slug <-> view name mapping
-const viewToSlug = { 'home-old': 'home', 'task-creation': 'task-creation', 'campaign-page-v1': 'campaign-detail', 'ppo-campaign-detail': 'ppo-campaign-detail', 'ppo-placement': 'ppo-placement', 'ppo-variable-setup': 'ppo-variable-setup', 'ppo-generation': 'ppo-generation', 'ppo-campaign-flow': 'ppo-campaign-flow', 'opportunity-detail': 'opportunity-detail' }
-const slugToView = { 'home': 'home-old', 'task-creation': 'task-creation', 'campaign-detail': 'campaign-page-v1', 'ppo-campaign-detail': 'ppo-campaign-detail', 'ppo-placement': 'ppo-placement', 'ppo-variable-setup': 'ppo-variable-setup', 'ppo-generation': 'ppo-generation', 'ppo-campaign-flow': 'ppo-campaign-flow', 'opportunity-detail': 'opportunity-detail' }
+// ============================================================================
+// Component map — built from registry, lazy-loaded
+// ============================================================================
+const componentMap = {}
+for (const def of viewDefinitions) {
+  if (!componentMap[def.id]) {
+    componentMap[def.id] = defineAsyncComponent(def.component)
+  }
+}
 
-// PPO wizard state
+// ============================================================================
+// URL slug <-> view name mapping (derived from registry)
+// ============================================================================
+const viewToSlug = {}
+const slugToView = {}
+for (const def of viewDefinitions) {
+  if (def.slug && def.slug !== def.id) {
+    viewToSlug[def.id] = def.slug
+    slugToView[def.slug] = def.id
+  }
+}
+
+// ============================================================================
+// State
+// ============================================================================
 const ppoWizardState = ref({ selectedTypes: [], variableConfigs: {}, fromMvp: false })
 
 const getViewFromHash = () => {
   const hash = window.location.hash.replace('#/', '').replace('#', '')
   if (!hash) return null
-  // Try exact match first, then progressively strip trailing /segments
   if (slugToView[hash]) return slugToView[hash]
   const parts = hash.split('/')
   for (let len = parts.length - 1; len > 0; len--) {
     const candidate = parts.slice(0, len).join('/')
     if (slugToView[candidate]) return slugToView[candidate]
-    // Also check as direct view name
     if (candidate === hash) continue
   }
   return hash.split('/')[0] || hash
@@ -102,14 +51,8 @@ const previousView = ref(null)
 watch(currentView, (newView, oldView) => {
   if (newView === 'new-campaign' && oldView) previousView.value = oldView
 })
+
 const registrationData = ref(null)
-const onboardingRef = ref(null)
-const taskCreationRef = ref(null)
-const wizardAnalysisRef = ref(null)
-const publicWizardRef = ref(null)
-const homeOnboardingWizardRef = ref(null)
-const wizardFlowRef = ref(null)
-const imageWithBadgeRef = ref(null)
 const createdTasks = ref([])
 const flowSelected = ref(false)
 const registrationType = ref('email')
@@ -120,18 +63,36 @@ const sessionKey = ref(0)
 const devNavOpen = ref(true)
 const devStartShowArchive = ref(false)
 const wizardMessage = ref('')
-const wizardPhase = ref(null) // Tracks internal wizard phase for DevNavBar + URL
+const wizardPhase = ref(null)
 
-// The view name shown in DevNavBar and URL (wizardPhase overrides currentView when set)
+// View refs — keyed by refName from registry
+const viewRefs = {}
+const setViewRef = (el) => {
+  const def = getView(currentView.value)
+  if (def?.refName && el) {
+    viewRefs[def.refName] = el
+  }
+}
+
+// Backwards-compatible ref accessors
+const onboardingRef = computed(() => viewRefs.onboardingRef)
+const taskCreationRef = computed(() => viewRefs.taskCreationRef)
+const wizardAnalysisRef = computed(() => viewRefs.wizardAnalysisRef)
+const publicWizardRef = computed(() => viewRefs.publicWizardRef)
+const homeOnboardingWizardRef = computed(() => viewRefs.homeOnboardingWizardRef)
+const wizardFlowRef = computed(() => viewRefs.wizardFlowRef)
+const imageWithBadgeRef = computed(() => viewRefs.imageWithBadgeRef)
+
 const displayView = computed(() => wizardPhase.value || currentView.value || '')
 
-// Sync URL hash with displayView
+// ============================================================================
+// URL hash sync
+// ============================================================================
 let skipHashChange = false
 watch(displayView, (view) => {
   if (view && view !== 'null') {
     const currentHash = window.location.hash.replace('#/', '').replace('#', '')
     const targetSlug = viewToSlug[view] || view
-    // Don't overwrite sub-paths (e.g. ppo-campaign-detail/variable/0)
     if (currentHash.startsWith(targetSlug + '/') || currentHash === targetSlug) return
     skipHashChange = true
     window.location.hash = '/' + targetSlug
@@ -139,6 +100,133 @@ watch(displayView, (view) => {
   }
 })
 
+// ============================================================================
+// Logo visibility (from registry)
+// ============================================================================
+const showLogo = computed(() => currentView.value && !isLogoHidden(currentView.value))
+
+// ============================================================================
+// Dynamic component resolution
+// ============================================================================
+const resolvedComponent = computed(() => {
+  const id = currentView.value
+  if (!id) return null
+  // Exact match
+  if (componentMap[id]) return componentMap[id]
+  // Prefix match (settings-ai-*, ai-texts-images-*)
+  const def = resolveView(id)
+  if (def) return componentMap[def.id] || null
+  return null
+})
+
+const componentKey = computed(() => {
+  const def = getView(currentView.value)
+  if (def?.keyPrefix) return `${def.keyPrefix}-${sessionKey.value}`
+  return currentView.value
+})
+
+// ============================================================================
+// Props resolution
+// ============================================================================
+const settingsInitialSection = computed(() => {
+  if (currentView.value?.startsWith('settings-ai-texts-images-v2')) return 'products-ai-texts-images-v2'
+  if (currentView.value?.startsWith('settings-ai-texts-images-v1')) return 'products-ai-texts-images-v1'
+  return 'personal-details'
+})
+
+const settingsScreenMap = {
+  'new': 'new', 'presets': 'image-presets', 'preview': 'image-preview',
+  'choose-products': 'choose-products', 'generation': 'generation',
+  'generation-product': 'generation-product', 'add-products': 'add-products',
+  'text-presets': 'text-presets', 'text-preview': 'text-preview', 'text-generation': 'text-generation',
+}
+
+function resolveAiScreen(viewId, prefix) {
+  if (viewId === prefix) return 'list'
+  const suffix = viewId.slice(prefix.length + 1) // +1 for the '-'
+  return settingsScreenMap[suffix] || 'list'
+}
+
+const activeProps = computed(() => {
+  const id = currentView.value
+  if (!id) return {}
+
+  // Per-view props configuration
+  const propsConfig = {
+    'dev-start': { initialShowArchive: devStartShowArchive.value },
+    'registration-v1': { registrationType: registrationType.value },
+    'onboarding': { registrationData: registrationData.value, registrationType: registrationType.value },
+    'task-creation': { registrationData: registrationData.value },
+    'home-old': { registrationData: registrationData.value },
+    'home-old-v2': {},
+    'home-with-review': { registrationData: registrationData.value },
+    'home-chat-versions': { registrationData: registrationData.value },
+    'home-chat-left': { registrationData: registrationData.value },
+    'home-onboarding': { registrationData: registrationData.value },
+    'home-onboarding-v1': { registrationData: registrationData.value },
+    'home-onboarding-with-reco': { registrationData: registrationData.value },
+    'home-onboarding-with-reco-v1': { registrationData: registrationData.value },
+    'home-onboarding-wizard': { registrationData: registrationData.value },
+    'public-wizard': { registrationData: registrationData.value, initialMessage: wizardMessage.value },
+    'wizard-flow': { registrationData: registrationData.value },
+    'ppo-variable-setup': { selectedTypes: ppoWizardState.value.selectedTypes },
+    'ppo-campaign-setup-preview': { selectedTypes: ppoWizardState.value.selectedTypes, variableConfigs: ppoWizardState.value.variableConfigs },
+    'ppo-campaign-setup-preview-v2': { selectedTypes: ['product-summary'] },
+    'ppo-campaign-setup-preview-v3': { selectedTypes: ['product-summary'], showProductDropdown: true },
+    'ppo-generation': { selectedTypes: ppoWizardState.value.selectedTypes },
+    'ppo-campaign-detail': { showPlacement: false },
+    'ppo-placement': { showPlacement: true },
+    'ppo-variant-detail-v1': { showProductDropdown: true },
+    'ppo-variant-detail-v2': { showProductDropdown: true, selectedTypes: ['product-summary'] },
+    'ppo-v1-variable-setup': { selectedTypes: ppoWizardState.value.selectedTypes },
+    'ppo-v1-generation': { selectedTypes: ppoWizardState.value.selectedTypes },
+    'ppo-v1-campaign-detail': { showPlacement: false },
+    'ppo-v1-placement': { showPlacement: true },
+    'ppo-v1-variant-detail-v1': { variant: 'variant1' },
+    'ppo-v1-variant-detail-v2': { variant: 'variant2' },
+    'analytics-v4': { goal: 'submits' },
+    'analytics-v4-purchase': { goal: 'purchase' },
+    'analytics-v4-add-to-cart': { goal: 'add-to-cart' },
+    'analytics-v4-email-capture': { goal: 'email-capture' },
+    'analytics-v4-phone-capture': { goal: 'phone-capture' },
+    'opportunity-detail': { opportunityId: selectedOpportunityId.value },
+    'templates-v2-essential-theme': { initialFamily: 'essential' },
+    'wizard-analysis': { registrationData: registrationData.value, initialMessage: wizardMessage.value },
+    'wizard-analysis-no-chat': { registrationData: registrationData.value, initialMessage: wizardMessage.value, noChat: true },
+    'wizard-style': { registrationData: registrationData.value, startAtStyle: true },
+    'wizard-recommendation': { registrationData: registrationData.value, startAtRecommendation: true },
+    'wizard-recommendation-v2': { registrationData: registrationData.value, startAtRecommendationV2: true },
+    'wizard-recommendation-v3': { registrationData: registrationData.value, startAtRecommendationV3: true },
+    'wizard-recommendation-v4': { registrationData: registrationData.value, startAtRecommendationV4: true },
+    'wizard-recommendation-v5': { registrationData: registrationData.value, startAtRecommendationV5: true },
+    'settings': { initialSection: settingsInitialSection.value, initialScreen: 'list' },
+  }
+
+  // Exact match
+  if (propsConfig[id] !== undefined) return propsConfig[id]
+
+  // Settings sub-views
+  if (id.startsWith('settings-ai')) {
+    return {
+      initialSection: settingsInitialSection.value,
+      initialScreen: resolveAiScreen(id, id.startsWith('settings-ai-texts-images-v2') ? 'settings-ai-texts-images-v2' : id.startsWith('settings-ai-texts-images-v1') ? 'settings-ai-texts-images-v1' : 'settings-ai-texts-images'),
+    }
+  }
+
+  // AI texts standalone sub-views
+  if (id.startsWith('ai-texts-images-v2')) {
+    return { screen: resolveAiScreen(id, 'ai-texts-images-v2') }
+  }
+  if (id.startsWith('ai-texts-images')) {
+    return { screen: resolveAiScreen(id, 'ai-texts-images') }
+  }
+
+  return {}
+})
+
+// ============================================================================
+// Events resolution
+// ============================================================================
 const handlePhaseChanged = (phase) => {
   wizardPhase.value = phase
 }
@@ -149,21 +237,15 @@ const handleRegistrationComplete = (data) => {
 }
 
 const handleOnboardingComplete = () => {
-  // After onboarding, go to wizard flow
   sessionKey.value++
   currentView.value = null
-  setTimeout(() => {
-    currentView.value = 'wizard-flow'
-  }, 50)
+  setTimeout(() => { currentView.value = 'wizard-flow' }, 50)
 }
 
 const handleGoToWizard = () => {
-  // After onboarding, go to wizard flow
   sessionKey.value++
   currentView.value = null
-  setTimeout(() => {
-    currentView.value = 'wizard-flow'
-  }, 50)
+  setTimeout(() => { currentView.value = 'wizard-flow' }, 50)
 }
 
 const handlePublicWizardRegistrationCompleted = () => {
@@ -171,534 +253,16 @@ const handlePublicWizardRegistrationCompleted = () => {
   currentView.value = null
   setTimeout(() => {
     currentView.value = 'wizard-flow'
-    // Wait for component to mount, then navigate to recommendation
     setTimeout(() => {
-      wizardFlowRef.value?.navigateToPhase('wizard-recommendation-v4')
+      viewRefs.wizardFlowRef?.navigateToPhase('wizard-recommendation-v4')
       wizardFlowStep.value = 'wizard-recommendation-v4'
     }, 200)
   }, 50)
 }
 
-// Wizard phases that can be navigated to internally without remounting
-const wizardPhases = ['wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation-v4']
-
-const handleDevNavigate = (view) => {
-  // If already in wizard-analysis (chat version) and navigating to a wizard phase,
-  // use internal navigation to preserve chat content
-  if (currentView.value === 'wizard-analysis' && wizardPhases.includes(view) && wizardAnalysisRef.value) {
-    wizardAnalysisRef.value.navigateToPhase(view)
-    wizardPhase.value = view === 'wizard-analysis' ? null : view
-    return
-  }
-
-  if (view === 'public-wizard-url') {
-    publicWizardStep.value = 'url'
-    publicWizardRef.value?.navigateToStep('url')
-    return
-  }
-
-  if (view === 'public-wizard-chat') {
-    publicWizardStep.value = 'chat'
-    publicWizardRef.value?.navigateToStep('chat')
-    return
-  }
-
-  if (currentView.value === 'public-wizard' && wizardPhases.includes(view) && publicWizardRef.value) {
-    publicWizardRef.value.navigateToPhase(view)
-    publicWizardStep.value = view
-    return
-  }
-
-  if (view === 'wizard-flow-url') {
-    wizardFlowStep.value = 'url'
-    wizardFlowRef.value?.navigateToStep('url')
-    return
-  }
-
-  if (view === 'wizard-flow-chat') {
-    wizardFlowStep.value = 'chat'
-    wizardFlowRef.value?.navigateToStep('chat')
-    return
-  }
-
-  if (currentView.value === 'wizard-flow' && wizardPhases.includes(view) && wizardFlowRef.value) {
-    wizardFlowRef.value.navigateToPhase(view)
-    wizardFlowStep.value = view
-    return
-  }
-
-  if (currentView.value === 'home-onboarding-wizard' && wizardPhases.includes(view) && homeOnboardingWizardRef.value) {
-    homeOnboardingWizardRef.value.navigateToPhase(view)
-    return
-  }
-
-  // Reset wizard phase when navigating
-  wizardPhase.value = null
-  // Archive route — show dev-start with archive panel open
-  if (view === 'archive') {
-    devStartShowArchive.value = true
-    currentView.value = null
-    flowSelected.value = false
-    setTimeout(() => {
-      currentView.value = 'dev-start'
-    }, 50)
-    return
-  }
-  devStartShowArchive.value = false
-  // Reset all state when going back to start
-  if (view === 'dev-start') {
-    // Force unmount current component first
-    currentView.value = null
-    flowSelected.value = false
-    registrationType.value = 'email'
-    registrationData.value = null
-    createdTasks.value = []
-    wizardMessage.value = '' // Clear wizard message
-    // Then mount dev-start after a brief delay
-    setTimeout(() => {
-      currentView.value = 'dev-start'
-    }, 50)
-  } else if (view === 'task-creation') {
-    // Going to Home - always reset for fresh state
-    sessionKey.value++
-    flowSelected.value = true
-    wizardMessage.value = '' // Clear wizard message when navigating to home
-    // Force unmount current component first
-    currentView.value = null
-    setTimeout(() => {
-      currentView.value = 'task-creation'
-    }, 50)
-  } else if (view === 'home-old') {
-    // Home Old - reset for fresh state
-    sessionKey.value++
-    flowSelected.value = true
-    wizardMessage.value = ''
-    currentView.value = null
-    setTimeout(() => {
-      currentView.value = 'home-old'
-    }, 50)
-  } else if (view === 'home-with-review') {
-    sessionKey.value++
-    flowSelected.value = true
-    wizardMessage.value = ''
-    currentView.value = null
-    setTimeout(() => {
-      currentView.value = 'home-with-review'
-    }, 50)
-  } else if (view === 'home-onboarding') {
-    sessionKey.value++
-    flowSelected.value = true
-    wizardMessage.value = ''
-    currentView.value = null
-    setTimeout(() => {
-      currentView.value = 'home-onboarding'
-    }, 50)
-  } else if (view === 'public-wizard') {
-    sessionKey.value++
-    flowSelected.value = true
-    registrationType.value = 'public-wizard'
-    publicWizardStep.value = 'url'
-    wizardMessage.value = ''
-    currentView.value = null
-    setTimeout(() => {
-      currentView.value = 'public-wizard'
-    }, 50)
-  } else if (view === 'wizard-flow') {
-    sessionKey.value++
-    flowSelected.value = true
-    registrationType.value = 'wizard'
-    wizardFlowStep.value = 'url'
-    wizardMessage.value = ''
-    currentView.value = null
-    setTimeout(() => {
-      currentView.value = 'wizard-flow'
-    }, 50)
-  } else if (view === 'design-guide') {
-    // Design guide is a standalone view
-    currentView.value = 'design-guide'
-  } else if (view === 'settings') {
-    currentView.value = 'settings'
-  } else if (view === 'image-with-badge') {
-    // Image with badge flow
-    flowSelected.value = true
-    registrationType.value = 'image-with-badge'
-    sessionKey.value++
-    currentView.value = null
-    setTimeout(() => { currentView.value = 'image-with-badge' }, 50)
-  } else if (view === 'image-with-badge-v2') {
-    // Image with badge V2 flow
-    flowSelected.value = true
-    registrationType.value = 'image-with-badge'
-    sessionKey.value++
-    currentView.value = null
-    setTimeout(() => { currentView.value = 'image-with-badge-v2' }, 50)
-  } else if (view === 'image-with-badge-v3') {
-    // Image with badge V3 flow
-    flowSelected.value = true
-    registrationType.value = 'image-with-badge'
-    sessionKey.value++
-    currentView.value = null
-    setTimeout(() => { currentView.value = 'image-with-badge-v3' }, 50)
-  } else if (view === 'wizard-analysis') {
-    // Wizard analysis - set default message to auto-start
-    flowSelected.value = true
-    registrationType.value = 'wizard'
-    sessionKey.value++
-    if (!wizardMessage.value) {
-      wizardMessage.value = 'Demo website analysis'
-    }
-    currentView.value = null
-    setTimeout(() => {
-      currentView.value = view
-    }, 50)
-  } else if (view === 'wizard-analysis-no-chat') {
-    // Wizard analysis without chat (archived version)
-    flowSelected.value = true
-    sessionKey.value++
-    if (!wizardMessage.value) {
-      wizardMessage.value = 'Demo website analysis'
-    }
-    currentView.value = null
-    setTimeout(() => {
-      currentView.value = view
-    }, 50)
-  } else if (view === 'wizard-style') {
-    // Wizard style - go directly to style selection
-    flowSelected.value = true
-    sessionKey.value++
-    currentView.value = null
-    setTimeout(() => {
-      currentView.value = view
-    }, 50)
-  } else if (view === 'wizard-quicktune') {
-    // Wizard quicktune - go directly to quicktune
-    flowSelected.value = true
-    sessionKey.value++
-    currentView.value = null
-    setTimeout(() => {
-      currentView.value = view
-    }, 50)
-  } else if (view === 'wizard-recommendation') {
-    // Wizard recommendation v1 - go directly to recommendation
-    flowSelected.value = true
-    sessionKey.value++
-    currentView.value = null
-    setTimeout(() => {
-      currentView.value = view
-    }, 50)
-  } else if (view === 'wizard-recommendation-v2') {
-    // Wizard recommendation v2 - go directly to recommendation v2
-    flowSelected.value = true
-    sessionKey.value++
-    currentView.value = null
-    setTimeout(() => {
-      currentView.value = view
-    }, 50)
-  } else if (view === 'wizard-recommendation-v3') {
-    // Wizard recommendation v3 - go directly to recommendation v3
-    flowSelected.value = true
-    sessionKey.value++
-    currentView.value = null
-    setTimeout(() => {
-      currentView.value = view
-    }, 50)
-  } else if (view === 'wizard-recommendation-v4') {
-    // Wizard recommendation v4 - go directly to recommendation v4
-    flowSelected.value = true
-    sessionKey.value++
-    currentView.value = null
-    setTimeout(() => {
-      currentView.value = view
-    }, 50)
-  } else if (view === 'wizard-recommendation-v5') {
-    // Wizard recommendation v5 - go directly to recommendation v5
-    flowSelected.value = true
-    sessionKey.value++
-    currentView.value = null
-    setTimeout(() => {
-      currentView.value = view
-    }, 50)
-  } else if (view === 'campaigns-v2' || view === 'campaigns-v3' || view === 'campaigns-empty') {
-    currentView.value = view
-  } else if (view === 'campaign-page-v1' || view === 'ppo-campaign-detail' || view === 'ppo-placement' || view === 'ppo-variant-detail-v1' || view === 'ppo-variant-detail-v2') {
-    // Campaign Page view
-    currentView.value = view
-  } else if (view === 'opportunity-detail' || view === 'opportunities-all') {
-    currentView.value = view
-  } else if (view === 'analytics-v1' || view === 'analytics-v2' || view === 'analytics-v3' || view === 'analytics-v4'
-    || view === 'analytics-v4-purchase' || view === 'analytics-v4-add-to-cart'
-    || view === 'analytics-v4-email-capture' || view === 'analytics-v4-phone-capture') {
-    // Analytics views
-    currentView.value = view
-  } else if (view === 'templates-v1' || view === 'templates-v2' || view === 'templates-v2-essential-theme' || view === 'templates-v2-branding' || view === 'templates-v3') {
-    // Templates views
-    currentView.value = view
-  } else if (view === 'registration' || view === 'registration-v2' || view === 'onboarding' || view === 'wizard') {
-    // Navigating to flow views - ensure flow is selected
-    flowSelected.value = true
-    sessionKey.value++
-    currentView.value = null
-    setTimeout(() => {
-      currentView.value = view
-    }, 50)
-  } else {
-    currentView.value = view
-  }
-}
-
-// Hash-based navigation listeners (placed after handleDevNavigate)
-const onHashChange = () => {
-  if (skipHashChange) return
-  const view = getViewFromHash()
-  if (view && view !== currentView.value) {
-    handleDevNavigate(view)
-  }
-}
-
-onMounted(() => {
-  window.addEventListener('hashchange', onHashChange)
-  window.addEventListener('scroll', handleGlobalScroll, { capture: true, passive: true })
-  // If page loaded with a hash, navigate to that view
-  const initialView = getViewFromHash()
-  if (initialView && initialView !== 'dev-start') {
-    handleDevNavigate(initialView)
-  }
-})
-
-onUnmounted(() => {
-  window.removeEventListener('hashchange', onHashChange)
-  window.removeEventListener('scroll', handleGlobalScroll, { capture: true })
-})
-
-const handleDevStartSelect = (type) => {
-  sessionKey.value++ // Force fresh component creation for new flow
-  flowSelected.value = true
-  registrationType.value = type
-  // Force unmount current component first
-  currentView.value = null
-  // Then mount the new view after a brief delay
-  setTimeout(() => {
-    if (type === 'wizard') {
-      // Wizard flow uses the new WizardFlowView
-      wizardFlowStep.value = 'url'
-      currentView.value = 'wizard-flow'
-    } else if (type === 'image-with-badge') {
-      // Image with Badge flow goes directly to image-with-badge V1
-      registrationType.value = 'image-with-badge'
-      currentView.value = 'image-with-badge'
-    } else if (type === 'shopify') {
-      // Shopify flow skips registration and goes directly to onboarding
-      currentView.value = 'onboarding'
-    } else {
-      // Email flow starts with registration
-      currentView.value = 'registration'
-    }
-  }, 50)
-}
-
-const handleWizardSubmit = (message) => {
-  // Store the wizard message and start the wizard analysis flow
-  wizardMessage.value = message
-  sessionKey.value++ // Force fresh component
-  currentView.value = null
-  setTimeout(() => {
-    currentView.value = 'wizard-analysis'
-  }, 50)
-}
-
-const handleDevGoToStep = async (step) => {
-  // Ensure flow is selected when navigating to onboarding steps
-  flowSelected.value = true
-
-  if (currentView.value !== 'onboarding') {
-    // Force fresh component if coming from a different view
-    sessionKey.value++
-    currentView.value = null
-    await nextTick()
-    setTimeout(() => {
-      currentView.value = 'onboarding'
-      // Wait for the component to mount and transition to complete
-      setTimeout(() => {
-        if (onboardingRef.value) {
-          onboardingRef.value.devGoToStep(step)
-        }
-      }, 350)
-    }, 50)
-  } else {
-    if (onboardingRef.value) {
-      onboardingRef.value.devGoToStep(step)
-    }
-  }
-}
-
-const handleImageWithBadgeGoToStep = async (step) => {
-  // Ensure flow is selected when navigating to image-with-badge steps
-  flowSelected.value = true
-  registrationType.value = 'image-with-badge'
-
-  const isImageWithBadgeView = currentView.value === 'image-with-badge' || currentView.value === 'image-with-badge-v2' || currentView.value === 'image-with-badge-v3'
-
-  if (!isImageWithBadgeView) {
-    // Force fresh component if coming from a different view
-    sessionKey.value++
-    currentView.value = null
-    await nextTick()
-    setTimeout(() => {
-      currentView.value = 'image-with-badge'
-      // Wait for the component to mount and transition to complete
-      setTimeout(() => {
-        if (imageWithBadgeRef.value) {
-          imageWithBadgeRef.value.devGoToStep(step)
-        }
-      }, 350)
-    }, 50)
-  } else {
-    if (imageWithBadgeRef.value) {
-      imageWithBadgeRef.value.devGoToStep(step)
-    }
-  }
-}
-
 const handleTaskCreated = (taskData) => {
-  // Only add task if it doesn't exist already
   const existingTask = createdTasks.value.find(t => t.phase === taskData.phase)
-  if (!existingTask) {
-    createdTasks.value.push(taskData)
-  }
-}
-
-const handleTaskPhaseNavigate = async (phase) => {
-  // Navigate to task creation view
-  if (currentView.value !== 'task-creation') {
-    currentView.value = 'task-creation'
-    await nextTick()
-    setTimeout(() => {
-      if (taskCreationRef.value && taskCreationRef.value.resetToPhase) {
-        taskCreationRef.value.resetToPhase(phase)
-      }
-    }, 350)
-  } else {
-    if (taskCreationRef.value && taskCreationRef.value.resetToPhase) {
-      taskCreationRef.value.resetToPhase(phase)
-    }
-  }
-}
-
-const handleGoHome = () => {
-  sessionKey.value++
-  flowSelected.value = true
-  wizardMessage.value = '' // Clear wizard message
-  currentView.value = 'home-old'
-}
-
-const handleGoHomeOnboarding = () => {
-  sessionKey.value++
-  flowSelected.value = true
-  wizardMessage.value = ''
-  currentView.value = 'home-onboarding'
-}
-
-const handleGoDesignGuide = () => {
-  currentView.value = 'design-guide'
-}
-
-const handleShowArchive = (show) => {
-  devStartShowArchive.value = show
-  skipHashChange = true
-  window.location.hash = show ? '/archive' : '/dev-start'
-  setTimeout(() => { skipHashChange = false })
-}
-
-const handleGoImageWithBadge = () => {
-  flowSelected.value = true
-  registrationType.value = 'image-with-badge'
-  currentView.value = 'image-with-badge'
-}
-
-const handleGoChatVersions = () => {
-  currentView.value = 'home-chat-versions'
-}
-
-const handleGoEditor = () => {
-  currentView.value = 'editor'
-}
-
-const handleQuicktuneContinue = (view) => {
-  if (view === 'wizard-recommendation-v4') {
-    currentView.value = 'editor'
-  } else {
-    handleDevNavigate(view)
-  }
-}
-
-const handleGoAiTextsImages = () => {
-  currentView.value = 'ai-texts-images'
-}
-
-const handleGoAiTextsImagesV2 = () => {
-  currentView.value = 'settings-ai-texts-images-v2'
-}
-
-const settingsInitialSection = computed(() => {
-  if (currentView.value?.startsWith('settings-ai-texts-images-v2')) return 'products-ai-texts-images-v2'
-  if (currentView.value?.startsWith('settings-ai-texts-images-v1')) return 'products-ai-texts-images-v1'
-  return 'personal-details'
-})
-
-const settingsInitialScreen = computed(() => {
-  const map = {
-    'settings-ai-texts-images': 'list',
-    'settings-ai-texts-images-new': 'new',
-    'settings-ai-texts-images-presets': 'image-presets',
-    'settings-ai-texts-images-preview': 'image-preview',
-    'settings-ai-texts-images-choose-products': 'choose-products',
-    'settings-ai-texts-images-generation': 'generation',
-    'settings-ai-texts-images-generation-product': 'generation-product',
-    'settings-ai-texts-images-add-products': 'add-products',
-    'settings-ai-texts-images-text-presets': 'text-presets',
-    'settings-ai-texts-images-text-preview': 'text-preview',
-    'settings-ai-texts-images-text-generation': 'text-generation',
-    'settings-ai-texts-images-v1': 'list',
-    'settings-ai-texts-images-v1-new': 'new',
-    'settings-ai-texts-images-v1-presets': 'image-presets',
-    'settings-ai-texts-images-v1-preview': 'image-preview',
-    'settings-ai-texts-images-v1-choose-products': 'choose-products',
-    'settings-ai-texts-images-v1-generation': 'generation',
-    'settings-ai-texts-images-v1-add-products': 'add-products',
-    'settings-ai-texts-images-v1-text-presets': 'text-presets',
-    'settings-ai-texts-images-v1-text-preview': 'text-preview',
-    'settings-ai-texts-images-v1-text-generation': 'text-generation',
-    'settings-ai-texts-images-v2': 'list',
-    'settings-ai-texts-images-v2-new': 'new',
-    'settings-ai-texts-images-v2-presets': 'image-presets',
-    'settings-ai-texts-images-v2-preview': 'image-preview',
-    'settings-ai-texts-images-v2-choose-products': 'choose-products',
-    'settings-ai-texts-images-v2-generation': 'generation',
-    'settings-ai-texts-images-v2-generation-product': 'generation-product',
-    'settings-ai-texts-images-v2-add-products': 'add-products',
-    'settings-ai-texts-images-v2-text-presets': 'text-presets',
-    'settings-ai-texts-images-v2-text-preview': 'text-preview',
-    'settings-ai-texts-images-v2-text-generation': 'text-generation',
-  }
-  return map[currentView.value] || 'list'
-})
-
-const handleGoChatLeft = () => {
-  currentView.value = 'home-chat-left'
-}
-
-const handleGoPublicWizard = () => {
-  sessionKey.value++
-  flowSelected.value = true
-  registrationType.value = 'public-wizard'
-  publicWizardStep.value = 'url'
-  if (!wizardMessage.value) {
-    wizardMessage.value = 'Demo website analysis'
-  }
-  currentView.value = null
-  setTimeout(() => {
-    currentView.value = 'public-wizard'
-  }, 50)
+  if (!existingTask) createdTasks.value.push(taskData)
 }
 
 const handleNavigateToOpportunity = (id) => {
@@ -708,6 +272,17 @@ const handleNavigateToOpportunity = (id) => {
 
 const handleNavigateToOpportunities = () => {
   handleDevNavigate('opportunities-all')
+}
+
+const handleNavigateToGoal = (g) => {
+  handleDevNavigate('analytics-v4' + (g === 'submits' ? '' : '-' + g))
+}
+
+const handleWizardSubmit = (message) => {
+  wizardMessage.value = message
+  sessionKey.value++
+  currentView.value = null
+  setTimeout(() => { currentView.value = 'wizard-analysis' }, 50)
 }
 
 const handleMenuClick = (menuId) => {
@@ -735,16 +310,12 @@ const handleMenuClick = (menuId) => {
     sessionKey.value++
     flowSelected.value = true
     currentView.value = null
-    setTimeout(() => {
-      currentView.value = 'home-onboarding'
-    }, 50)
+    setTimeout(() => { currentView.value = 'home-onboarding' }, 50)
   } else if (menuId === 'home-onboarding-wizard') {
     sessionKey.value++
     flowSelected.value = true
     currentView.value = null
-    setTimeout(() => {
-      currentView.value = 'home-onboarding-wizard'
-    }, 50)
+    setTimeout(() => { currentView.value = 'home-onboarding-wizard' }, 50)
   } else if (menuId === 'wizard-recommendation') {
     sessionKey.value++
     flowSelected.value = true
@@ -752,610 +323,377 @@ const handleMenuClick = (menuId) => {
     setTimeout(() => {
       currentView.value = 'wizard-flow'
       setTimeout(() => {
-        wizardFlowRef.value?.navigateToPhase('wizard-recommendation-v4')
+        viewRefs.wizardFlowRef?.navigateToPhase('wizard-recommendation-v4')
         wizardFlowStep.value = 'wizard-recommendation-v4'
       }, 200)
     }, 50)
   }
-  // Add other menu items as needed
 }
 
-// Scrollbar visibility: show thumb while scrolling, hide after idle
+const handleShowArchive = (show) => {
+  devStartShowArchive.value = show
+  skipHashChange = true
+  window.location.hash = show ? '/archive' : '/dev-start'
+  setTimeout(() => { skipHashChange = false })
+}
+
+const activeEvents = computed(() => {
+  const id = currentView.value
+  if (!id) return {}
+
+  // Shared analytics-v4 events
+  const analyticsV4Events = {
+    'menu-click': handleMenuClick,
+    'navigate-to-opportunity': handleNavigateToOpportunity,
+    'navigate-to-opportunities': handleNavigateToOpportunities,
+    'navigate-to-goal': handleNavigateToGoal,
+  }
+
+  const eventsConfig = {
+    'dev-start': {
+      select: handleDevStartSelect,
+      'go-home': () => { sessionKey.value++; flowSelected.value = true; wizardMessage.value = ''; currentView.value = 'home-old' },
+      'go-home-onboarding': () => { sessionKey.value++; flowSelected.value = true; wizardMessage.value = ''; currentView.value = 'home-onboarding' },
+      'go-public-wizard': () => {
+        sessionKey.value++; flowSelected.value = true; registrationType.value = 'public-wizard'; publicWizardStep.value = 'url'
+        if (!wizardMessage.value) wizardMessage.value = 'Demo website analysis'
+        currentView.value = null; setTimeout(() => { currentView.value = 'public-wizard' }, 50)
+      },
+      'go-design-guide': () => { currentView.value = 'design-guide' },
+      'go-image-with-badge': () => { flowSelected.value = true; registrationType.value = 'image-with-badge'; currentView.value = 'image-with-badge' },
+      'go-chat-versions': () => { currentView.value = 'home-chat-versions' },
+      'go-editor': () => { currentView.value = 'editor' },
+      'go-ai-texts-images': () => { currentView.value = 'ai-texts-images' },
+      'go-ai-texts-images-v2': () => { currentView.value = 'settings-ai-texts-images-v2' },
+      navigate: handleDevNavigate,
+      'show-archive': handleShowArchive,
+    },
+    'registration': { complete: handleRegistrationComplete },
+    'registration-v1': { complete: handleRegistrationComplete },
+    'registration-v2': { complete: handleRegistrationComplete },
+    'onboarding': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated },
+    'task-creation': { 'task-created': handleTaskCreated },
+    'home-old': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities },
+    'home-heartbeat': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities },
+    'home-old-v2': { 'menu-click': handleMenuClick },
+    'home-with-review': { 'menu-click': handleMenuClick },
+    'home-chat-versions': { 'menu-click': handleMenuClick },
+    'home-chat-left': { 'menu-click': handleMenuClick },
+    'home-onboarding': { 'menu-click': handleMenuClick },
+    'home-onboarding-v1': { 'menu-click': handleMenuClick },
+    'home-onboarding-with-reco': { 'menu-click': handleMenuClick },
+    'home-onboarding-with-reco-v1': { 'menu-click': handleMenuClick },
+    'home-onboarding-review': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'home-onboarding-wizard': { 'menu-click': handleMenuClick, 'phase-changed': handlePhaseChanged, 'registration-completed': handlePublicWizardRegistrationCompleted },
+    'public-wizard': { 'phase-changed': handlePhaseChanged, 'registration-completed': handlePublicWizardRegistrationCompleted },
+    'wizard-flow': { 'phase-changed': handlePhaseChanged, 'registration-completed': handlePublicWizardRegistrationCompleted, 'menu-click': handleMenuClick },
+    'campaigns': { 'menu-click': handleMenuClick },
+    'campaigns-v2': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },
+    'campaigns-v3': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },
+    'campaigns-empty': { 'menu-click': handleMenuClick },
+    'new-campaign': { 'menu-click': handleMenuClick, back: () => { currentView.value = previousView.value || 'campaigns-v3' }, navigate: handleDevNavigate },
+    'optimize-website': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'new-campaign' }, navigate: handleDevNavigate },
+    'product-page-optimizer': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'optimize-website' }, next: (types) => { ppoWizardState.value.selectedTypes = types; currentView.value = 'ppo-variable-setup' } },
+    'ppo-campaign-flow': { back: () => { currentView.value = 'new-campaign' }, next: (types) => { ppoWizardState.value.selectedTypes = types; currentView.value = 'ppo-variable-setup' } },
+    'ppo-campaign-flow-v2': { back: () => { currentView.value = 'dev-start' }, next: (types) => { ppoWizardState.value.selectedTypes = types; currentView.value = 'ppo-variable-setup' } },
+    'ppo-campaign-flow-v3': { back: () => { currentView.value = 'new-campaign' }, next: (types) => { ppoWizardState.value.selectedTypes = types; currentView.value = 'ppo-variable-setup' } },
+    'ppo-campaign-flow-mvp': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'new-campaign' }, next: (types) => { ppoWizardState.value.selectedTypes = types; currentView.value = 'ppo-campaign-setup-preview-v3' } },
+    'ppo-variable-setup': { back: () => { currentView.value = 'ppo-campaign-flow' }, next: (configs) => { ppoWizardState.value.variableConfigs = configs; currentView.value = 'ppo-campaign-setup-preview' } },
+    'ppo-campaign-setup-preview': { back: () => { currentView.value = 'ppo-variable-setup' }, next: () => { currentView.value = 'ppo-generation' } },
+    'ppo-campaign-setup-preview-v2': { back: () => { currentView.value = 'ppo-campaign-flow-mvp' }, next: () => { currentView.value = 'ppo-campaign-detail-v2' } },
+    'ppo-campaign-setup-preview-v3': { back: () => { currentView.value = 'ppo-campaign-flow-mvp' }, next: () => { currentView.value = 'ppo-campaign-detail-v2' } },
+    'ppo-generation': { back: () => { currentView.value = 'ppo-campaign-setup-preview' }, create: () => { currentView.value = 'ppo-campaign-detail' } },
+    'campaign-page-v1': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'ppo-campaign-detail': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'ppo-placement': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'ppo-campaign-detail-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'ppo-variant-detail-v1': { back: () => { currentView.value = 'ppo-campaign-detail' }, next: () => { currentView.value = 'ppo-campaign-detail' } },
+    'ppo-variant-detail-v2': { back: () => { currentView.value = 'ppo-campaign-detail-v2' }, next: () => { currentView.value = 'ppo-campaign-detail-v2' } },
+    // PPO V1
+    'ppo-v1-campaign-flow': { back: () => { currentView.value = 'dev-start' }, next: (types) => { ppoWizardState.value.selectedTypes = types; currentView.value = 'ppo-v1-variable-setup' } },
+    'ppo-v1-variable-setup': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'ppo-v1-campaign-flow' }, next: (configs) => { ppoWizardState.value.variableConfigs = configs; currentView.value = 'ppo-v1-generation' } },
+    'ppo-v1-generation': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'ppo-v1-variable-setup' }, create: () => { currentView.value = 'ppo-v1-campaign-detail' } },
+    'ppo-v1-campaign-detail': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'ppo-v1-placement': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'ppo-v1-variant-detail-v1': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'ppo-v1-campaign-detail' }, navigate: handleDevNavigate },
+    'ppo-v1-variant-detail-v2': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'ppo-v1-campaign-detail' }, navigate: handleDevNavigate },
+    'campaign-page-with-review': { 'menu-click': handleMenuClick, 'navigate-to-review': () => { currentView.value = 'campaign-review' } },
+    'campaign-review': { 'menu-click': handleMenuClick, 'go-back': () => { currentView.value = 'campaign-page-with-review' } },
+    'analytics-v1': { 'menu-click': handleMenuClick },
+    'analytics-v2': { 'menu-click': handleMenuClick },
+    'analytics-v3': { 'menu-click': handleMenuClick, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities },
+    'analytics-v4': analyticsV4Events,
+    'analytics-v4-purchase': analyticsV4Events,
+    'analytics-v4-add-to-cart': analyticsV4Events,
+    'analytics-v4-email-capture': analyticsV4Events,
+    'analytics-v4-phone-capture': analyticsV4Events,
+    'analytics-empty': { 'menu-click': handleMenuClick },
+    'opportunity-detail': { 'menu-click': handleMenuClick, 'go-back': () => handleDevNavigate('analytics-v4') },
+    'opportunities-all': { 'menu-click': handleMenuClick, 'go-back': () => handleDevNavigate('analytics-v4'), 'navigate-to-opportunity': handleNavigateToOpportunity },
+    'templates-v1': { 'menu-click': handleMenuClick },
+    'templates-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'templates-v2-essential-theme': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'templates-v2-branding': { navigate: handleDevNavigate },
+    'templates-v3': { 'menu-click': handleMenuClick },
+    'wizard-analysis': { 'task-created': handleTaskCreated, 'navigate-to': handleDevNavigate, 'phase-changed': handlePhaseChanged, 'menu-click': handleMenuClick },
+    'wizard-analysis-no-chat': { 'task-created': handleTaskCreated, 'navigate-to': handleDevNavigate, 'phase-changed': handlePhaseChanged },
+    'wizard-style': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
+    'wizard-quicktune': { navigate: handleDevNavigate },
+    'wizard-recommendation': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
+    'wizard-recommendation-v2': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
+    'wizard-recommendation-v3': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
+    'wizard-recommendation-v4': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
+    'wizard-recommendation-v5': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
+    'editor': { 'go-back': () => handleDevNavigate('campaign-page-v1') },
+    'wizard': { submit: handleWizardSubmit },
+  }
+
+  // Exact match
+  if (eventsConfig[id]) return eventsConfig[id]
+
+  // Settings sub-views (all route to SettingsView)
+  if (id === 'settings' || id.startsWith('settings-ai')) {
+    return { 'menu-click': handleMenuClick, navigate: handleDevNavigate }
+  }
+
+  // AI texts sub-views
+  if (id.startsWith('ai-texts-images')) {
+    return { 'menu-click': handleMenuClick, navigate: handleDevNavigate }
+  }
+
+  return {}
+})
+
+// ============================================================================
+// Navigation
+// ============================================================================
+const wizardPhases = ['wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation-v4']
+
+const handleDevNavigate = (view) => {
+  // Internal wizard navigation (preserve state, no view change)
+  if (currentView.value === 'wizard-analysis' && wizardPhases.includes(view) && viewRefs.wizardAnalysisRef) {
+    viewRefs.wizardAnalysisRef.navigateToPhase(view)
+    wizardPhase.value = view === 'wizard-analysis' ? null : view
+    return
+  }
+  if (view === 'public-wizard-url') {
+    publicWizardStep.value = 'url'
+    viewRefs.publicWizardRef?.navigateToStep('url')
+    return
+  }
+  if (view === 'public-wizard-chat') {
+    publicWizardStep.value = 'chat'
+    viewRefs.publicWizardRef?.navigateToStep('chat')
+    return
+  }
+  if (currentView.value === 'public-wizard' && wizardPhases.includes(view) && viewRefs.publicWizardRef) {
+    viewRefs.publicWizardRef.navigateToPhase(view)
+    publicWizardStep.value = view
+    return
+  }
+  if (view === 'wizard-flow-url') {
+    wizardFlowStep.value = 'url'
+    viewRefs.wizardFlowRef?.navigateToStep('url')
+    return
+  }
+  if (view === 'wizard-flow-chat') {
+    wizardFlowStep.value = 'chat'
+    viewRefs.wizardFlowRef?.navigateToStep('chat')
+    return
+  }
+  if (currentView.value === 'wizard-flow' && wizardPhases.includes(view) && viewRefs.wizardFlowRef) {
+    viewRefs.wizardFlowRef.navigateToPhase(view)
+    wizardFlowStep.value = view
+    return
+  }
+  if (currentView.value === 'home-onboarding-wizard' && wizardPhases.includes(view) && viewRefs.homeOnboardingWizardRef) {
+    viewRefs.homeOnboardingWizardRef.navigateToPhase(view)
+    return
+  }
+
+  // Reset wizard phase when navigating to a new view
+  wizardPhase.value = null
+
+  // Archive route
+  if (view === 'archive') {
+    devStartShowArchive.value = true
+    currentView.value = null
+    flowSelected.value = false
+    setTimeout(() => { currentView.value = 'dev-start' }, 50)
+    return
+  }
+  devStartShowArchive.value = false
+
+  // Dev-start: reset all state
+  if (view === 'dev-start') {
+    currentView.value = null
+    flowSelected.value = false
+    registrationType.value = 'email'
+    registrationData.value = null
+    createdTasks.value = []
+    wizardMessage.value = ''
+    setTimeout(() => { currentView.value = 'dev-start' }, 50)
+    return
+  }
+
+  // Registry-driven navigation
+  const def = getView(view)
+  if (def?.nav) {
+    const nav = def.nav
+    if (nav.sessionReset) sessionKey.value++
+    if (nav.flowSelected) flowSelected.value = true
+    if (nav.registrationType) registrationType.value = nav.registrationType
+    if (nav.clearWizardMessage) wizardMessage.value = ''
+    if (nav.defaultWizardMessage && !wizardMessage.value) wizardMessage.value = nav.defaultWizardMessage
+    if (nav.extraState) {
+      for (const [key, val] of Object.entries(nav.extraState)) {
+        if (key === 'publicWizardStep') publicWizardStep.value = val
+        if (key === 'wizardFlowStep') wizardFlowStep.value = val
+      }
+    }
+    // Remount pattern
+    currentView.value = null
+    setTimeout(() => { currentView.value = view }, 50)
+  } else {
+    // Simple assignment
+    currentView.value = view
+  }
+}
+
+// ============================================================================
+// DevStart & DevNavBar helpers
+// ============================================================================
+const handleDevStartSelect = (type) => {
+  sessionKey.value++
+  flowSelected.value = true
+  registrationType.value = type
+  currentView.value = null
+  setTimeout(() => {
+    if (type === 'wizard') {
+      wizardFlowStep.value = 'url'
+      currentView.value = 'wizard-flow'
+    } else if (type === 'image-with-badge') {
+      registrationType.value = 'image-with-badge'
+      currentView.value = 'image-with-badge'
+    } else if (type === 'shopify') {
+      currentView.value = 'onboarding'
+    } else {
+      currentView.value = 'registration'
+    }
+  }, 50)
+}
+
+const handleDevGoToStep = async (step) => {
+  flowSelected.value = true
+  if (currentView.value !== 'onboarding') {
+    sessionKey.value++
+    currentView.value = null
+    await nextTick()
+    setTimeout(() => {
+      currentView.value = 'onboarding'
+      setTimeout(() => { viewRefs.onboardingRef?.devGoToStep(step) }, 350)
+    }, 50)
+  } else {
+    viewRefs.onboardingRef?.devGoToStep(step)
+  }
+}
+
+const handleImageWithBadgeGoToStep = async (step) => {
+  flowSelected.value = true
+  registrationType.value = 'image-with-badge'
+  const isImageView = currentView.value === 'image-with-badge' || currentView.value === 'image-with-badge-v2' || currentView.value === 'image-with-badge-v3'
+  if (!isImageView) {
+    sessionKey.value++
+    currentView.value = null
+    await nextTick()
+    setTimeout(() => {
+      currentView.value = 'image-with-badge'
+      setTimeout(() => { viewRefs.imageWithBadgeRef?.devGoToStep(step) }, 350)
+    }, 50)
+  } else {
+    viewRefs.imageWithBadgeRef?.devGoToStep(step)
+  }
+}
+
+const handleTaskPhaseNavigate = async (phase) => {
+  if (currentView.value !== 'task-creation') {
+    currentView.value = 'task-creation'
+    await nextTick()
+    setTimeout(() => {
+      if (viewRefs.taskCreationRef?.resetToPhase) viewRefs.taskCreationRef.resetToPhase(phase)
+    }, 350)
+  } else {
+    if (viewRefs.taskCreationRef?.resetToPhase) viewRefs.taskCreationRef.resetToPhase(phase)
+  }
+}
+
+// ============================================================================
+// Hash-based navigation listeners
+// ============================================================================
+const onHashChange = () => {
+  if (skipHashChange) return
+  const view = getViewFromHash()
+  if (view && view !== currentView.value) handleDevNavigate(view)
+}
+
+onMounted(() => {
+  window.addEventListener('hashchange', onHashChange)
+  window.addEventListener('scroll', handleGlobalScroll, { capture: true, passive: true })
+  const initialView = getViewFromHash()
+  if (initialView && initialView !== 'dev-start') handleDevNavigate(initialView)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('hashchange', onHashChange)
+  window.removeEventListener('scroll', handleGlobalScroll, { capture: true })
+})
+
+// ============================================================================
+// Scrollbar visibility
+// ============================================================================
 const scrollTimers = new WeakMap()
 const handleGlobalScroll = (e) => {
   const el = e.target
   if (!el || !el.classList) return
   el.classList.add('is-scrolling')
   clearTimeout(scrollTimers.get(el))
-  scrollTimers.set(el, setTimeout(() => {
-    el.classList.remove('is-scrolling')
-  }, 1000))
+  scrollTimers.set(el, setTimeout(() => { el.classList.remove('is-scrolling') }, 1000))
 }
 
-// Update CSS variable for dev nav height
 const updateNavHeight = (isOpen) => {
   document.documentElement.style.setProperty('--dev-nav-height', isOpen ? '48px' : '0px')
 }
-
-// Use immediate watcher to set CSS variable on initial load and on changes
 watch(devNavOpen, updateNavHeight, { immediate: true })
 </script>
 
 <template>
   <div class="h-screen-safe flex flex-col">
-    <!-- Global Logo - stays visible during view transitions (hidden on pages with their own logo) -->
-    <div
-      v-if="currentView && !['dev-start', 'design-guide', 'settings', 'image-with-badge', 'image-with-badge-v2', 'image-with-badge-v3', 'wizard-analysis', 'wizard-analysis-no-chat', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation', 'wizard-recommendation-v2', 'wizard-recommendation-v3', 'wizard-recommendation-v4', 'wizard-recommendation-v5', 'task-creation', 'home-old', 'home-heartbeat', 'home-with-review', 'home-chat-versions', 'home-chat-left', 'home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-wizard', 'public-wizard', 'wizard-flow', 'campaigns', 'campaigns-v2', 'campaigns-v3', 'campaigns-empty', 'new-campaign', 'optimize-website', 'product-page-optimizer', 'campaign-page-v1', 'ppo-campaign-detail', 'ppo-campaign-detail-v2', 'ppo-variant-detail-v2', 'ppo-placement', 'ppo-variant-detail-v1', 'ppo-variant-detail-v2', 'ppo-variable-setup', 'ppo-generation', 'ppo-campaign-flow', 'ppo-campaign-flow-v2', 'ppo-campaign-flow-v3', 'ppo-campaign-flow-mvp', 'ppo-campaign-setup-preview', 'ppo-campaign-setup-preview-v2', 'ppo-campaign-setup-preview-v3', 'campaign-page-with-review', 'campaign-review', 'analytics-v1', 'analytics-v2', 'analytics-v3', 'analytics-v4', 'analytics-v4-purchase', 'analytics-v4-add-to-cart', 'analytics-v4-email-capture', 'analytics-v4-phone-capture', 'analytics-empty', 'templates-v1', 'templates-v2', 'templates-v2-essential-theme', 'templates-v2-branding', 'templates-v3', 'opportunity-detail', 'opportunities-all', 'editor', 'ai-texts-images', 'ai-texts-images-new', 'ai-texts-images-presets', 'ai-texts-images-preview', 'ai-texts-images-choose-products', 'ai-texts-images-generation', 'ai-texts-images-add-products', 'ai-texts-images-text-presets', 'ai-texts-images-text-preview', 'ai-texts-images-text-generation',
-        'settings-ai-texts-images', 'settings-ai-texts-images-new', 'settings-ai-texts-images-presets', 'settings-ai-texts-images-preview', 'settings-ai-texts-images-choose-products', 'settings-ai-texts-images-generation', 'settings-ai-texts-images-generation-product', 'settings-ai-texts-images-add-products', 'settings-ai-texts-images-text-presets', 'settings-ai-texts-images-text-preview', 'settings-ai-texts-images-text-generation',
-        'settings-ai-texts-images-v1', 'settings-ai-texts-images-v1-new', 'settings-ai-texts-images-v1-presets', 'settings-ai-texts-images-v1-preview', 'settings-ai-texts-images-v1-choose-products', 'settings-ai-texts-images-v1-generation', 'settings-ai-texts-images-v1-add-products', 'settings-ai-texts-images-v1-text-presets', 'settings-ai-texts-images-v1-text-preview', 'settings-ai-texts-images-v1-text-generation',
-        'settings-ai-texts-images-v2', 'settings-ai-texts-images-v2-new', 'settings-ai-texts-images-v2-presets', 'settings-ai-texts-images-v2-preview', 'settings-ai-texts-images-v2-choose-products', 'settings-ai-texts-images-v2-generation', 'settings-ai-texts-images-v2-generation-product', 'settings-ai-texts-images-v2-add-products', 'settings-ai-texts-images-v2-text-presets', 'settings-ai-texts-images-v2-text-preview', 'settings-ai-texts-images-v2-text-generation',
-        'ai-texts-images-v2', 'ai-texts-images-v2-new', 'ai-texts-images-v2-presets', 'ai-texts-images-v2-preview', 'ai-texts-images-v2-choose-products', 'ai-texts-images-v2-generation', 'ai-texts-images-v2-generation-product', 'ai-texts-images-v2-add-products', 'ai-texts-images-v2-text-presets', 'ai-texts-images-v2-text-preview', 'ai-texts-images-v2-text-generation',
-        'registration', 'registration-v1', 'registration-v2',
-        'ppo-v1-campaign-detail', 'ppo-v1-placement', 'ppo-v1-variant-detail-v1', 'ppo-v1-variant-detail-v2', 'ppo-v1-variable-setup', 'ppo-v1-generation', 'ppo-v1-campaign-flow',
-        'home-onboarding-review'].includes(currentView)"
-      class="pt-8 pl-8 shrink-0"
-    >
-      <img
-        src="/OM-Logo-primary-basic.svg"
-        alt="OptiMonk"
-        class="h-8"
-      />
+    <!-- Global Logo -->
+    <div v-if="showLogo" class="pt-8 pl-8 shrink-0">
+      <img src="/OM-Logo-primary-basic.svg" alt="OptiMonk" class="h-8" />
     </div>
 
     <div class="flex-1 min-h-0">
-    <transition name="fade" mode="out-in">
-      <DevStartView
-        v-if="currentView === 'dev-start'"
-        :initial-show-archive="devStartShowArchive"
-        @select="handleDevStartSelect"
-        @go-home="handleGoHome"
-        @go-home-onboarding="handleGoHomeOnboarding"
-        @go-public-wizard="handleGoPublicWizard"
-        @go-design-guide="handleGoDesignGuide"
-        @go-image-with-badge="handleGoImageWithBadge"
-        @go-chat-versions="handleGoChatVersions"
-        @go-editor="handleGoEditor"
-        @go-ai-texts-images="handleGoAiTextsImages"
-        @go-ai-texts-images-v2="handleGoAiTextsImagesV2"
-        @navigate="handleDevNavigate"
-        @show-archive="handleShowArchive"
-      />
-      <RegistrationView
-        v-else-if="currentView === 'registration'"
-        :key="'reg-' + sessionKey"
-        @complete="handleRegistrationComplete"
-      />
-      <RegistrationV1View
-        v-else-if="currentView === 'registration-v1'"
-        :key="'reg-v1-' + sessionKey"
-        :registration-type="registrationType"
-        @complete="handleRegistrationComplete"
-      />
-      <RegistrationV2View
-        v-else-if="currentView === 'registration-v2'"
-        :key="'reg-v2-' + sessionKey"
-        @complete="handleRegistrationComplete"
-      />
-      <OnboardingView
-        v-else-if="currentView === 'onboarding'"
-        :key="'onb-' + sessionKey"
-        ref="onboardingRef"
-        :registration-data="registrationData"
-        :registration-type="registrationType"
-        @onboarding-complete="handleOnboardingComplete"
-        @go-to-wizard="handleGoToWizard"
-        @skip-to-dashboard="handleMenuClick('home-onboarding')"
-      />
-      <TaskCreationView
-        v-else-if="currentView === 'task-creation'"
-        :key="'task-' + sessionKey"
-        ref="taskCreationRef"
-        :registration-data="registrationData"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-        @navigate-to="(view, message) => { if (message) wizardMessage = message; handleDevNavigate(view) }"
-      />
-      <HomeOldView
-        v-else-if="currentView === 'home-old'"
-        :key="'home-old-' + sessionKey"
-        :registration-data="registrationData"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-        @new-campaign="currentView = 'new-campaign'"
-      />
-      <HomeOldV2View
-        v-else-if="currentView === 'home-old-v2'"
-        :key="'home-old-v2-' + sessionKey"
-        :registration-data="registrationData"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-      />
-      <HomeWithReviewView
-        v-else-if="currentView === 'home-with-review'"
-        :key="'home-with-review-' + sessionKey"
-        :registration-data="registrationData"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-        @navigate-to-review="currentView = 'campaign-review'"
-      />
-      <HomeChatVersionsView
-        v-else-if="currentView === 'home-chat-versions'"
-        :key="'home-chat-versions-' + sessionKey"
-        :registration-data="registrationData"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-      />
-      <HomeChatLeftView
-        v-else-if="currentView === 'home-chat-left'"
-        :key="'home-chat-left-' + sessionKey"
-        :registration-data="registrationData"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-      />
-      <HomeOnboardingView
-        v-else-if="currentView === 'home-onboarding'"
-        :key="'home-onboarding-' + sessionKey"
-        :registration-data="registrationData"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-      />
-      <HomeOnboardingWithRecoView
-        v-else-if="currentView === 'home-onboarding-with-reco'"
-        :key="'home-onboarding-with-reco-' + sessionKey"
-        :registration-data="registrationData"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-      />
-      <HomeHeartbeatView
-        v-else-if="currentView === 'home-heartbeat'"
-        :key="'home-heartbeat-' + sessionKey"
-        :registration-data="registrationData"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-        @new-campaign="currentView = 'new-campaign'"
-      />
-      <HomeOnboardingReviewView
-        v-else-if="currentView === 'home-onboarding-review'"
-        :key="'home-onboarding-review-' + sessionKey"
-        :registration-data="registrationData"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-        @navigate-to-review="currentView = 'campaign-review'"
-      />
-      <HomeOnboardingV1View
-        v-else-if="currentView === 'home-onboarding-v1'"
-        :key="'home-onboarding-v1-' + sessionKey"
-        :registration-data="registrationData"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-      />
-      <HomeOnboardingWithRecoV1View
-        v-else-if="currentView === 'home-onboarding-with-reco-v1'"
-        :key="'home-onboarding-with-reco-v1-' + sessionKey"
-        :registration-data="registrationData"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-      />
-      <HomeOnboardingWizardView
-        v-else-if="currentView === 'home-onboarding-wizard'"
-        ref="homeOnboardingWizardRef"
-        :key="'home-onboarding-wizard-' + sessionKey"
-        :registration-data="registrationData"
-        @task-created="handleTaskCreated"
-        @navigate-to="(view) => handleDevNavigate(view)"
-        @menu-click="handleMenuClick"
-      />
-      <PublicWizardView
-        v-else-if="currentView === 'public-wizard'"
-        ref="publicWizardRef"
-        :key="'public-wizard-' + sessionKey"
-        :registration-data="registrationData"
-        :initial-message="wizardMessage"
-        @task-created="handleTaskCreated"
-        @navigate-to="(view) => handleDevNavigate(view)"
-        @menu-click="handleMenuClick"
-        @registration-completed="handlePublicWizardRegistrationCompleted"
-      />
-      <WizardFlowView
-        v-else-if="currentView === 'wizard-flow'"
-        ref="wizardFlowRef"
-        :key="'wizard-flow-' + sessionKey"
-        :registration-data="registrationData"
-        @task-created="handleTaskCreated"
-        @navigate-to="(view) => handleDevNavigate(view)"
-        @menu-click="handleMenuClick"
-      />
-      <CampaignsView
-        v-else-if="currentView === 'campaigns'"
-        @menu-click="handleMenuClick"
-      />
-      <CampaignsV2View
-        v-else-if="currentView === 'campaigns-v2'"
-        @menu-click="handleMenuClick"
-        @navigate-to-campaign="currentView = 'campaign-page-v1'"
-        @navigate-to-ppo-detail="currentView = 'ppo-campaign-detail'"
-        @new-campaign="currentView = 'new-campaign'"
-      />
-      <CampaignsV3View
-        v-else-if="currentView === 'campaigns-v3'"
-        @menu-click="handleMenuClick"
-        @navigate-to-campaign="currentView = 'campaign-page-v1'"
-        @navigate-to-ppo-detail="currentView = 'ppo-campaign-detail'"
-        @new-campaign="currentView = 'new-campaign'"
-      />
-      <NewCampaignView
-        v-else-if="currentView === 'new-campaign'"
-        @menu-click="handleMenuClick"
-        @back="currentView = previousView || 'campaigns-v3'"
-        @navigate="handleDevNavigate"
-      />
-      <OptimizeWebsiteView
-        v-else-if="currentView === 'optimize-website'"
-        @menu-click="handleMenuClick"
-        @back="currentView = 'new-campaign'"
-        @navigate="handleDevNavigate"
-      />
-      <ProductPageOptimizerView
-        v-else-if="currentView === 'product-page-optimizer'"
-        @menu-click="handleMenuClick"
-        @back="currentView = 'optimize-website'"
-        @next="(types) => { ppoWizardState.selectedTypes = types; currentView = 'ppo-variable-setup' }"
-      />
-      <PpoCampaignFlowView
-        v-else-if="currentView === 'ppo-campaign-flow'"
-        @back="currentView = 'new-campaign'"
-        @next="(types) => { ppoWizardState.selectedTypes = types; currentView = 'ppo-variable-setup' }"
-      />
-      <PpoCampaignFlowV2View
-        v-else-if="currentView === 'ppo-campaign-flow-v2'"
-        @back="currentView = 'dev-start'"
-        @next="(types) => { ppoWizardState.selectedTypes = types; currentView = 'ppo-variable-setup' }"
-      />
-      <PpoCampaignFlowV3View
-        v-else-if="currentView === 'ppo-campaign-flow-v3'"
-        @back="currentView = 'new-campaign'"
-        @next="(types) => { ppoWizardState.selectedTypes = types; currentView = 'ppo-variable-setup' }"
-      />
-      <PpoCampaignFlowMvpView
-        v-else-if="currentView === 'ppo-campaign-flow-mvp'"
-        @menu-click="handleMenuClick"
-        @back="currentView = 'new-campaign'"
-        @next="(types) => { ppoWizardState.selectedTypes = types; currentView = 'ppo-campaign-setup-preview-v3' }"
-      />
-      <PpoVariableSetupView
-        v-else-if="currentView === 'ppo-variable-setup'"
-        :selected-types="ppoWizardState.selectedTypes"
-        @back="currentView = 'ppo-campaign-flow'"
-        @next="(configs) => { ppoWizardState.variableConfigs = configs; currentView = 'ppo-campaign-setup-preview' }"
-      />
-      <PpoCampaignSetupPreviewView
-        v-else-if="currentView === 'ppo-campaign-setup-preview'"
-        :selected-types="ppoWizardState.selectedTypes"
-        :variable-configs="ppoWizardState.variableConfigs"
-        @back="currentView = 'ppo-variable-setup'"
-        @next="(types) => { currentView = 'ppo-generation' }"
-      />
-      <PpoCampaignSetupPreviewV2View
-        v-else-if="currentView === 'ppo-campaign-setup-preview-v2'"
-        :selected-types="['product-summary']"
-        @back="currentView = 'ppo-campaign-flow-mvp'"
-        @next="currentView = 'ppo-campaign-detail-v2'"
-      />
-      <PpoCampaignSetupPreviewV3View
-        v-else-if="currentView === 'ppo-campaign-setup-preview-v3'"
-        :selected-types="['product-summary']"
-        :show-product-dropdown="true"
-        @back="currentView = 'ppo-campaign-flow-mvp'"
-        @next="currentView = 'ppo-campaign-detail-v2'"
-      />
-      <PpoGenerationView
-        v-else-if="currentView === 'ppo-generation'"
-        :selected-types="ppoWizardState.selectedTypes"
-        @back="currentView = 'ppo-campaign-setup-preview'"
-        @create="currentView = 'ppo-campaign-detail'"
-      />
-      <CampaignsEmptyView
-        v-else-if="currentView === 'campaigns-empty'"
-        @menu-click="handleMenuClick"
-      />
-      <CampaignPageV1View
-        v-else-if="currentView === 'campaign-page-v1'"
-        @menu-click="handleMenuClick"
-        @navigate="handleDevNavigate"
-      />
-      <PpoCampaignDetailView
-        v-else-if="currentView === 'ppo-campaign-detail' || currentView === 'ppo-placement'"
-        :show-placement="currentView === 'ppo-placement'"
-        @menu-click="handleMenuClick"
-        @navigate="handleDevNavigate"
-      />
-      <PpoCampaignDetailV2View
-        v-else-if="currentView === 'ppo-campaign-detail-v2'"
-        @menu-click="handleMenuClick"
-        @navigate="handleDevNavigate"
-      />
-      <PpoCampaignSetupPreviewView
-        v-else-if="currentView === 'ppo-variant-detail-v1'"
-        :show-product-dropdown="true"
-        @back="currentView = 'ppo-campaign-detail'"
-        @next="currentView = 'ppo-campaign-detail'"
-      />
-      <PpoVariantDetailV2View
-        v-else-if="currentView === 'ppo-variant-detail-v2'"
-        :show-product-dropdown="true"
-        :selected-types="['product-summary']"
-        @back="currentView = 'ppo-campaign-detail-v2'"
-        @next="currentView = 'ppo-campaign-detail-v2'"
-      />
-      <!-- PPO V1 (archived) -->
-      <PpoCampaignFlowV1View
-        v-else-if="currentView === 'ppo-v1-campaign-flow'"
-        @back="currentView = 'dev-start'"
-        @next="(types) => { ppoWizardState.selectedTypes = types; currentView = 'ppo-v1-variable-setup' }"
-      />
-      <PpoVariableSetupV1View
-        v-else-if="currentView === 'ppo-v1-variable-setup'"
-        :selected-types="ppoWizardState.selectedTypes"
-        @menu-click="handleMenuClick"
-        @back="currentView = 'ppo-v1-campaign-flow'"
-        @next="(configs) => { ppoWizardState.variableConfigs = configs; currentView = 'ppo-v1-generation' }"
-      />
-      <PpoGenerationV1View
-        v-else-if="currentView === 'ppo-v1-generation'"
-        :selected-types="ppoWizardState.selectedTypes"
-        @menu-click="handleMenuClick"
-        @back="currentView = 'ppo-v1-variable-setup'"
-        @create="currentView = 'ppo-v1-campaign-detail'"
-      />
-      <PpoCampaignDetailV1View
-        v-else-if="currentView === 'ppo-v1-campaign-detail' || currentView === 'ppo-v1-placement'"
-        :show-placement="currentView === 'ppo-v1-placement'"
-        @menu-click="handleMenuClick"
-        @navigate="handleDevNavigate"
-      />
-      <PpoVariantDetailV1View
-        v-else-if="currentView === 'ppo-v1-variant-detail-v1'"
-        variant="variant1"
-        @menu-click="handleMenuClick"
-        @back="currentView = 'ppo-v1-campaign-detail'"
-        @navigate="handleDevNavigate"
-      />
-      <PpoVariantDetailV1View
-        v-else-if="currentView === 'ppo-v1-variant-detail-v2'"
-        variant="variant2"
-        @menu-click="handleMenuClick"
-        @back="currentView = 'ppo-v1-campaign-detail'"
-        @navigate="handleDevNavigate"
-      />
-      <CampaignPageWithReviewView
-        v-else-if="currentView === 'campaign-page-with-review'"
-        @menu-click="handleMenuClick"
-        @navigate-to-review="currentView = 'campaign-review'"
-      />
-      <CampaignReviewView
-        v-else-if="currentView === 'campaign-review'"
-        @menu-click="handleMenuClick"
-        @go-back="currentView = 'campaign-page-with-review'"
-      />
-      <AnalyticsV1View
-        v-else-if="currentView === 'analytics-v1'"
-        @menu-click="handleMenuClick"
-      />
-      <AnalyticsV2View
-        v-else-if="currentView === 'analytics-v2'"
-        @menu-click="handleMenuClick"
-      />
-      <AnalyticsV3View
-        v-else-if="currentView === 'analytics-v3'"
-        @menu-click="handleMenuClick"
-        @navigate-to-opportunity="handleNavigateToOpportunity"
-        @navigate-to-opportunities="handleNavigateToOpportunities"
-      />
-      <AnalyticsV4View
-        v-else-if="currentView === 'analytics-v4'"
-        goal="submits"
-        @menu-click="handleMenuClick"
-        @navigate-to-opportunity="handleNavigateToOpportunity"
-        @navigate-to-opportunities="handleNavigateToOpportunities"
-        @navigate-to-goal="(g) => handleDevNavigate('analytics-v4' + (g === 'submits' ? '' : '-' + g))"
-      />
-      <AnalyticsV4View
-        v-else-if="currentView === 'analytics-v4-purchase'"
-        goal="purchase"
-        @menu-click="handleMenuClick"
-        @navigate-to-opportunity="handleNavigateToOpportunity"
-        @navigate-to-opportunities="handleNavigateToOpportunities"
-        @navigate-to-goal="(g) => handleDevNavigate('analytics-v4' + (g === 'submits' ? '' : '-' + g))"
-      />
-      <AnalyticsV4View
-        v-else-if="currentView === 'analytics-v4-add-to-cart'"
-        goal="add-to-cart"
-        @menu-click="handleMenuClick"
-        @navigate-to-opportunity="handleNavigateToOpportunity"
-        @navigate-to-opportunities="handleNavigateToOpportunities"
-        @navigate-to-goal="(g) => handleDevNavigate('analytics-v4' + (g === 'submits' ? '' : '-' + g))"
-      />
-      <AnalyticsV4View
-        v-else-if="currentView === 'analytics-v4-email-capture'"
-        goal="email-capture"
-        @menu-click="handleMenuClick"
-        @navigate-to-opportunity="handleNavigateToOpportunity"
-        @navigate-to-opportunities="handleNavigateToOpportunities"
-        @navigate-to-goal="(g) => handleDevNavigate('analytics-v4' + (g === 'submits' ? '' : '-' + g))"
-      />
-      <AnalyticsV4View
-        v-else-if="currentView === 'analytics-v4-phone-capture'"
-        goal="phone-capture"
-        @menu-click="handleMenuClick"
-        @navigate-to-opportunity="handleNavigateToOpportunity"
-        @navigate-to-opportunities="handleNavigateToOpportunities"
-        @navigate-to-goal="(g) => handleDevNavigate('analytics-v4' + (g === 'submits' ? '' : '-' + g))"
-      />
-      <AnalyticsEmptyView
-        v-else-if="currentView === 'analytics-empty'"
-        @menu-click="handleMenuClick"
-      />
-      <OptimizationOpportunityDetailView
-        v-else-if="currentView === 'opportunity-detail'"
-        :opportunity-id="selectedOpportunityId"
-        @menu-click="handleMenuClick"
-        @go-back="handleDevNavigate('analytics-v4')"
-      />
-      <OptimizationOpportunitiesAllView
-        v-else-if="currentView === 'opportunities-all'"
-        @menu-click="handleMenuClick"
-        @go-back="handleDevNavigate('analytics-v4')"
-        @navigate-to-opportunity="handleNavigateToOpportunity"
-      />
-      <TemplatesViewV1
-        v-else-if="currentView === 'templates-v1'"
-        @menu-click="handleMenuClick"
-      />
-      <TemplatesViewV2
-        v-else-if="currentView === 'templates-v2' || currentView === 'templates-v2-essential-theme'"
-        :initial-family="currentView === 'templates-v2-essential-theme' ? 'essential' : null"
-        @menu-click="handleMenuClick"
-        @navigate="handleDevNavigate"
-      />
-      <TemplatesV2BrandingView
-        v-else-if="currentView === 'templates-v2-branding'"
-        @navigate="handleDevNavigate"
-      />
-      <TemplatesViewV3
-        v-else-if="currentView === 'templates-v3'"
-        @menu-click="handleMenuClick"
-      />
-      <WizardAnalysisView
-        v-else-if="currentView === 'wizard-analysis'"
-        :key="'wizard-analysis-' + sessionKey"
-        ref="wizardAnalysisRef"
-        :registration-data="registrationData"
-        :initial-message="wizardMessage"
-        @task-created="handleTaskCreated"
-        @navigate-to="handleDevNavigate"
-        @phase-changed="handlePhaseChanged"
-        @menu-click="handleMenuClick"
-      />
-      <WizardAnalysisView
-        v-else-if="currentView === 'wizard-analysis-no-chat'"
-        :key="'wizard-analysis-no-chat-' + sessionKey"
-        :registration-data="registrationData"
-        :initial-message="wizardMessage"
-        :no-chat="true"
-        @task-created="handleTaskCreated"
-        @navigate-to="handleDevNavigate"
-        @phase-changed="handlePhaseChanged"
-      />
-      <WizardAnalysisView
-        v-else-if="currentView === 'wizard-style'"
-        :key="'wizard-style-' + sessionKey"
-        :registration-data="registrationData"
-        :start-at-style="true"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-      />
-      <TemplatesV2QuicktuneView
-        v-else-if="currentView === 'wizard-quicktune'"
-        :key="'wizard-quicktune-' + sessionKey"
-        @navigate="handleDevNavigate"
-      />
-      <WizardAnalysisView
-        v-else-if="currentView === 'wizard-recommendation'"
-        :key="'wizard-recommendation-' + sessionKey"
-        :registration-data="registrationData"
-        :start-at-recommendation="true"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-      />
-      <WizardAnalysisView
-        v-else-if="currentView === 'wizard-recommendation-v2'"
-        :key="'wizard-recommendation-v2-' + sessionKey"
-        :registration-data="registrationData"
-        :start-at-recommendation-v2="true"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-      />
-      <WizardAnalysisView
-        v-else-if="currentView === 'wizard-recommendation-v3'"
-        :key="'wizard-recommendation-v3-' + sessionKey"
-        :registration-data="registrationData"
-        :start-at-recommendation-v3="true"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-      />
-      <WizardAnalysisView
-        v-else-if="currentView === 'wizard-recommendation-v4'"
-        :key="'wizard-recommendation-v4-' + sessionKey"
-        :registration-data="registrationData"
-        :start-at-recommendation-v4="true"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-      />
-      <WizardAnalysisView
-        v-else-if="currentView === 'wizard-recommendation-v5'"
-        :key="'wizard-recommendation-v5-' + sessionKey"
-        :registration-data="registrationData"
-        :start-at-recommendation-v5="true"
-        @task-created="handleTaskCreated"
-        @menu-click="handleMenuClick"
-      />
-      <EditorView
-        v-else-if="currentView === 'editor'"
-        @go-back="handleDevNavigate('campaign-page-v1')"
-      />
-      <DesignGuideView
-        v-else-if="currentView === 'design-guide'"
-      />
-      <SettingsView
-        v-else-if="currentView === 'settings' || currentView?.startsWith('settings-ai')"
-        :initial-section="settingsInitialSection"
-        :initial-screen="settingsInitialScreen"
-        @menu-click="handleMenuClick"
-        @navigate="handleDevNavigate"
-      />
-      <AiTextsImagesView
-        v-else-if="currentView === 'ai-texts-images' || currentView === 'ai-texts-images-new' || currentView === 'ai-texts-images-presets' || currentView === 'ai-texts-images-preview' || currentView === 'ai-texts-images-choose-products' || currentView === 'ai-texts-images-generation' || currentView === 'ai-texts-images-add-products' || currentView === 'ai-texts-images-text-presets' || currentView === 'ai-texts-images-text-preview' || currentView === 'ai-texts-images-text-generation'"
-        :screen="currentView === 'ai-texts-images-new' ? 'new' : currentView === 'ai-texts-images-presets' ? 'image-presets' : currentView === 'ai-texts-images-preview' ? 'image-preview' : currentView === 'ai-texts-images-choose-products' ? 'choose-products' : currentView === 'ai-texts-images-generation' ? 'generation' : currentView === 'ai-texts-images-add-products' ? 'add-products' : currentView === 'ai-texts-images-text-presets' ? 'text-presets' : currentView === 'ai-texts-images-text-preview' ? 'text-preview' : currentView === 'ai-texts-images-text-generation' ? 'text-generation' : 'list'"
-        @menu-click="handleMenuClick"
-        @navigate="handleDevNavigate"
-      />
-      <AiTextsImagesV2View
-        v-else-if="currentView === 'ai-texts-images-v2' || currentView === 'ai-texts-images-v2-new' || currentView === 'ai-texts-images-v2-presets' || currentView === 'ai-texts-images-v2-preview' || currentView === 'ai-texts-images-v2-choose-products' || currentView === 'ai-texts-images-v2-generation' || currentView === 'ai-texts-images-v2-generation-product' || currentView === 'ai-texts-images-v2-add-products' || currentView === 'ai-texts-images-v2-text-presets' || currentView === 'ai-texts-images-v2-text-preview' || currentView === 'ai-texts-images-v2-text-generation'"
-        :screen="currentView === 'ai-texts-images-v2-new' ? 'new' : currentView === 'ai-texts-images-v2-presets' ? 'image-presets' : currentView === 'ai-texts-images-v2-preview' ? 'image-preview' : currentView === 'ai-texts-images-v2-choose-products' ? 'choose-products' : currentView === 'ai-texts-images-v2-generation' ? 'generation' : currentView === 'ai-texts-images-v2-generation-product' ? 'generation-product' : currentView === 'ai-texts-images-v2-add-products' ? 'add-products' : currentView === 'ai-texts-images-v2-text-presets' ? 'text-presets' : currentView === 'ai-texts-images-v2-text-preview' ? 'text-preview' : currentView === 'ai-texts-images-v2-text-generation' ? 'text-generation' : 'list'"
-        @menu-click="handleMenuClick"
-        @navigate="handleDevNavigate"
-      />
-      <ImageWithBadgeView
-        v-else-if="currentView === 'image-with-badge'"
-        :key="'image-with-badge-' + sessionKey"
-        ref="imageWithBadgeRef"
-      />
-      <ImageWithBadgeV2View
-        v-else-if="currentView === 'image-with-badge-v2'"
-        :key="'image-with-badge-v2-' + sessionKey"
-        ref="imageWithBadgeRef"
-      />
-      <ImageWithBadgeV3View
-        v-else-if="currentView === 'image-with-badge-v3'"
-        :key="'image-with-badge-v3-' + sessionKey"
-        ref="imageWithBadgeRef"
-      />
-      <WizardView
-        v-else-if="currentView === 'wizard'"
-        :key="'wizard-' + sessionKey"
-        @submit="handleWizardSubmit"
-      />
-    </transition>
+      <transition name="fade" mode="out-in">
+        <component
+          :is="resolvedComponent"
+          v-if="resolvedComponent"
+          :key="componentKey"
+          v-bind="activeProps"
+          v-on="activeEvents"
+          :ref="setViewRef"
+        />
+      </transition>
     </div>
   </div>
 
   <DevNavBar
     :current-view="displayView"
-    :current-step="onboardingRef?.displayStepForNav || 1"
-    :total-steps="onboardingRef?.totalStepsCount || 4"
-    :current-image-step="imageWithBadgeRef?.currentStep || 1"
+    :current-step="viewRefs.onboardingRef?.displayStepForNav || 1"
+    :total-steps="viewRefs.onboardingRef?.totalStepsCount || 4"
+    :current-image-step="viewRefs.imageWithBadgeRef?.currentStep || 1"
     :created-tasks="createdTasks"
-    :current-task-phase="taskCreationRef?.stepDashboardRef?.currentPhase || 'analysis'"
+    :current-task-phase="viewRefs.taskCreationRef?.stepDashboardRef?.currentPhase || 'analysis'"
     :flow-selected="flowSelected"
     :registration-type="registrationType"
     :public-wizard-step="publicWizardStep"

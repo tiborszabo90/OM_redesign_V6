@@ -9,31 +9,25 @@ Before using any component or icon, verify it is already imported. If not, add t
 
 ## Archive Rule
 
-**NEVER read, edit, or modify any view file that corresponds to an entry in the `archiveItems` array in `src/components/dev/DevNavBar.vue`, or any file in an `_archive/` folder.**
-These are frozen historical versions kept for reference only. When in doubt, check the `archiveItems` list in DevNavBar.vue — that is the single source of truth.
+**NEVER read, edit, or modify any view file that has `status: 'archived'` in `src/registry/views.js`, or any file in an `_archive/` folder.**
+These are frozen historical versions kept for reference only. The single source of truth is the `status` field in `src/registry/views.js`.
 
-Currently archived view files (do not touch):
-- `src/views/HomeOldV2View.vue`
-- `src/views/HomeChatVersionsView.vue`
-- `src/views/HomeChatLeftView.vue`
-- `src/views/TaskCreationView.vue`
-- `src/views/AnalyticsV1View.vue`
-- `src/views/AnalyticsV2View.vue`
-- `src/views/AnalyticsV3View.vue`
-- `src/views/TemplatesViewV1.vue`
-- `src/views/TemplatesViewV3.vue`
-- `src/views/WizardAnalysisView.vue`
-- `src/views/AiTextsImagesV1View.vue`
-- `src/views/RegistrationV1View.vue`
-- `src/views/PpoCampaignFlowV1View.vue`
-- `src/views/PpoCampaignDetailV1View.vue`
-- `src/views/PpoVariantDetailV1View.vue`
-- `src/views/PpoVariableSetupV1View.vue`
-- `src/views/PpoGenerationV1View.vue`
-- `src/views/PpoCampaignFlowV2View.vue`
-- `src/views/PpoCustomBuildView.vue`
-- `src/views/RegistrationV2View.vue`
-- `src/views/_archive/` (entire folder)
+To check if a view is archived: look for its entry in `src/registry/views.js` and check if `status: 'archived'`.
+Also never touch: `src/views/_archive/` (entire folder)
+
+## Adding New Views
+
+**When creating any new view, ALWAYS follow these steps — no exceptions:**
+
+1. Create the `.vue` file in `src/views/`
+2. **Register it** in `src/registry/views.js` — add an object to the appropriate category array with at minimum: `id`, `component: () => import(...)`, `label`, `status`, `section`, `hideLogo: true`
+3. **Add props** in `src/App.vue` → `activeProps` computed (only if the view receives props)
+4. **Add events** in `src/App.vue` → `activeEvents` computed (only if the view emits events)
+5. **If the view needs a session reset on navigate** (e.g. wizard flows, registration), add `nav: { sessionReset: true, flowSelected: true }` to the registry entry and optionally `keyPrefix` for the component key
+
+DevNavBar sections, archive dropdown, and logo visibility all derive from the registry automatically — NEVER add views to these manually.
+
+The `section` field controls which DevNavBar dropdown group the view appears in. Valid values: `'home'`, `'campaigns'`, `'campaignPage'`, `'analytics'`, `'ppo'`, `'ppoV1'`, `'aiContent'`, or `null` (no section).
 
 ---
 

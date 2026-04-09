@@ -46,11 +46,11 @@
           <ProductPagePreview
             :placements="previewPlacements"
             :variables="previewVariables"
-            :active-variable-id="activeVariableId"
-            :active-variable-type="activeVariableType"
+            :active-variable-id="showAllBorders ? activeVariableId : null"
+            :active-variable-type="showAllBorders ? activeVariableType : null"
             :url="selectedProductPage"
             :device="previewMode"
-            :highlight-all-placements="true"
+            :highlight-all-placements="showAllBorders"
             :show-all-overlays="showAllBorders"
             :positions="positions"
             :position-meta="positionMeta"
@@ -64,34 +64,17 @@
 
       <!-- Right sidebar -->
       <div class="w-[300px] bg-white flex flex-col shrink-0 border-l border-om-gray-200 min-h-0 overflow-hidden">
-        <!-- Visual / AI tabs -->
-        <div class="px-3 py-2 shrink-0">
-          <div class="flex bg-gray-100 rounded-xl p-1 gap-1">
-            <button
-              class="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-sm font-medium cursor-pointer transition-colors"
-              :class="rightTab === 'visual' ? 'text-om-orange-500 bg-white shadow-sm' : 'text-gray-400 hover:text-gray-500'"
-              @click="rightTab = 'visual'"
-            >
-              <Brush :size="14" /> Visual
-            </button>
-            <button
-              class="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-sm font-medium cursor-pointer transition-colors"
-              :class="rightTab === 'ai' ? 'text-om-orange-500 bg-white shadow-sm' : 'text-gray-400 hover:text-gray-500'"
-              @click="rightTab = 'ai'"
-            >
-              <Sparkles :size="14" /> AI
-            </button>
-          </div>
+        <!-- Product page selector (sticky top) -->
+        <div v-if="showProductDropdown" class="px-4 pt-4 pb-3 border-b border-om-gray-200 shrink-0">
+          <label class="text-[11px] uppercase tracking-wider font-semibold text-om-gray-700 mb-2 flex items-center gap-1.5">
+            <Globe :size="12" class="text-om-gray-400" />
+            Product page
+          </label>
+          <Dropdown v-model="selectedProductPage" :options="productPageOptions" size="sm" />
         </div>
-
-        <!-- Visual tab: settings -->
-        <div v-if="rightTab === 'visual'" class="flex-1 overflow-y-auto px-4 pt-2 pb-4">
+        <!-- Settings -->
+        <div class="flex-1 overflow-y-auto px-4 pt-3 pb-4">
           <div class="space-y-3">
-            <!-- Product dropdown -->
-            <div v-if="showProductDropdown">
-              <label class="text-xs font-medium text-om-gray-500 mb-1 block">Product page</label>
-              <Dropdown v-model="selectedProductPage" :options="productPageOptions" size="sm" />
-            </div>
             <!-- Position -->
             <div>
               <label class="text-xs font-medium text-om-gray-500 mb-1 block">Position</label>
@@ -132,6 +115,24 @@
               <label class="text-xs font-medium text-om-gray-500 mb-1 block">Check style</label>
               <Dropdown v-model="typeSettings['product-summary'].checkStyle" :options="checkStyleOptions" size="sm" />
             </div>
+            <!-- Corners -->
+            <div>
+              <label class="text-xs font-medium text-om-gray-500 mb-1 block">Corners</label>
+              <Dropdown v-model="cornersModel" :options="cornerOptions" size="sm">
+                <template #selected="{ option }">
+                  <span class="flex items-center gap-2">
+                    <span class="w-4 h-4 border-2 border-om-gray-400" :class="option?.iconClass"></span>
+                    <span>{{ option?.label || 'None' }}</span>
+                  </span>
+                </template>
+                <template #option="{ option, selected }">
+                  <span class="flex items-center gap-2">
+                    <span class="w-4 h-4 border-2 shrink-0" :class="[option.iconClass, selected ? 'border-om-orange-500' : 'border-om-gray-400']"></span>
+                    <span>{{ option.label }}</span>
+                  </span>
+                </template>
+              </Dropdown>
+            </div>
             <!-- Colors -->
             <div class="flex gap-2">
               <div class="flex-1">
@@ -160,15 +161,6 @@
           </div>
         </div>
 
-        <!-- AI tab: chat -->
-        <ChatPanel
-          v-if="rightTab === 'ai'"
-          v-model="chatOpen"
-          :inline="true"
-          :suggestions="chatSuggestions"
-          :ai-responses="chatAiResponses"
-          class="flex-1 min-h-0"
-        />
       </div>
     </div>
   </div>
@@ -179,8 +171,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import ProductPagePreview from '../components/ppo/ProductPagePreview.vue'
-import ChatPanel from '../components/shared/ChatPanel.vue'
-import { ChevronLeft, Monitor, Smartphone, ChevronDown, ImageIcon, Type, Brush, Sparkles } from 'lucide-vue-next'
+import { ChevronLeft, Monitor, Smartphone, ChevronDown, ImageIcon, Type, Globe } from 'lucide-vue-next'
 
 const baseUrl = window.location.origin
 
@@ -241,14 +232,15 @@ const iframeGeneratedContent = computed(() => {
         '<div style="display:flex;align-items:flex-start;gap:12px;">' + checkHtml + '<span style="font-size:' + lfs + ';font-weight:' + lfw + ';line-height:1.5;color:' + tc + ';' + (lff ? 'font-family:' + lff + ',sans-serif;' : '') + '">' + t + '</span></div>'
       ).join('')
       const isMobile = previewMode.value === 'mobile'
+      const cr = cornerRadius.value
       content['product-summary'] = { html: isMobile
-        ? '<div style="display:flex;flex-direction:column;border-radius:8px;overflow:hidden;border:1px solid #e5e5e5;margin:0;">'
+        ? '<div style="display:flex;flex-direction:column;border-radius:' + cr + ';overflow:hidden;border:1px solid #e5e5e5;margin:0;">'
           + '<div style="width:100%;aspect-ratio:4/3;background:#f9fafb;">'
           + '<img src="' + baseUrl + '/image-with-badge/whisky2.png" style="width:100%;height:100%;object-fit:cover;" />'
           + '</div>'
           + '<div style="background:' + bg + ';display:flex;flex-direction:column;padding:16px;">'
           + titleHtml + '<div style="display:flex;flex-direction:column;gap:12px;">' + itemsHtml + '</div></div></div>'
-        : '<div style="display:flex;border-radius:12px;overflow:hidden;border:1px solid #e5e5e5;">'
+        : '<div style="display:flex;border-radius:' + cr + ';overflow:hidden;border:1px solid #e5e5e5;">'
           + '<div style="width:320px;flex-shrink:0;background:#f9fafb;aspect-ratio:1/1;">'
           + '<img src="' + baseUrl + '/image-with-badge/whisky2.png" style="width:100%;height:100%;object-fit:cover;" />'
           + '</div>'
@@ -265,22 +257,6 @@ const iframeGeneratedContent = computed(() => {
 defineEmits(['back', 'next', 'menu-click'])
 
 const previewMode = ref('desktop')
-const rightTab = ref('visual')
-const chatOpen = ref(true)
-
-const chatSuggestions = [
-  'Change the title to be more engaging',
-  'Use a different background color',
-  'Add more benefit items',
-  'Make the text more persuasive',
-]
-
-const chatAiResponses = {
-  'Change the title to be more engaging': 'Here are 3 alternative titles:\n\n**1.** "Discover the Perfect Black Irish Whiskey Experience"\n**2.** "Why Shanky\'s Whip Is Your Next Favourite Liqueur"\n**3.** "Smooth, Bold & Unforgettable — Try Shanky\'s Whip"\n\nWhich would you like to apply?',
-  'Use a different background color': 'Here are some color options that work well:\n\n**1. Deep Navy** — `#1A1A2E` for a premium feel\n**2. Forest Green** — `#2D6A4F` for a natural vibe\n**3. Rich Purple** — `#5B2C6F` for luxury positioning\n\nShall I apply any of these?',
-  'Add more benefit items': 'I can add these additional benefits:\n\n**4.** "Perfect base for cocktails — from Espresso Martinis to Irish Coffee"\n**5.** "Award-winning recipe since 2005 — consistently rated 90+ points"\n\nWant me to add these to the list?',
-  'Make the text more persuasive': 'I\'d recommend these changes:\n\n**Title:** Add a power word → "Irresistible Irish Whiskey Likőr"\n**Benefits:** Start each with an action verb\n**Add urgency:** "Limited edition — only available while stocks last"\n\nThis typically boosts conversion by 15–20%. Apply these?',
-}
 
 const productPageOptions = [
   { value: 'https://www.whiskynet.hu/shankys-whip-black-irish-whiskey-likor-07l-33', label: "Shanky's Whip Black Ír whiskeylikőr" },
@@ -303,9 +279,22 @@ const contentTypes = computed(() =>
     : allContentTypes
 )
 
+const cornerOptions = [
+  { value: 'none', label: 'None', iconClass: 'rounded-none', radius: '0px' },
+  { value: 'small', label: 'Small', iconClass: 'rounded-sm', radius: '8px' },
+  { value: 'medium', label: 'Medium', iconClass: 'rounded-md', radius: '16px' },
+  { value: 'large', label: 'Large', iconClass: 'rounded-lg', radius: '24px' },
+]
+const selectedCorner = ref('small')
+const cornersModel = computed({
+  get: () => cornerOptions.find(o => o.value === selectedCorner.value) || cornerOptions[1],
+  set: (val) => { selectedCorner.value = val.value },
+})
+const cornerRadius = computed(() => cornerOptions.find(o => o.value === selectedCorner.value)?.radius || '8px')
+
 const activeCard = ref('product-summary')
 const showAllBorders = ref(true)
-onMounted(() => { setTimeout(() => { showAllBorders.value = false }, 2000) })
+onMounted(() => { setTimeout(() => { showAllBorders.value = false }, 3000) })
 // Set initial active card after content types are resolved
 const initActiveCard = () => {
   const types = contentTypes.value
