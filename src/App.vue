@@ -393,7 +393,7 @@ const activeEvents = computed(() => {
     'campaigns-empty': { 'menu-click': handleMenuClick },
     'new-campaign': { 'menu-click': handleMenuClick, back: () => { currentView.value = previousView.value || 'campaigns-v3' }, navigate: handleDevNavigate },
     'ppo-loading': { 'menu-click': handleMenuClick, done: () => { currentView.value = 'ppo-campaign-setup-preview-v3' } },
-    'optimize-website': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'new-campaign' }, navigate: handleDevNavigate },
+    'optimize-website': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'new-campaign' }, navigate: handleDevNavigate, select: (type) => { if (type === 'smart-product-page') currentView.value = 'ppo-campaign-flow-mvp' } },
     'product-page-optimizer': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'optimize-website' }, next: (types) => { ppoWizardState.value.selectedTypes = types; currentView.value = 'ppo-variable-setup' } },
     'ppo-campaign-flow': { back: () => { currentView.value = 'new-campaign' }, next: (types) => { ppoWizardState.value.selectedTypes = types; currentView.value = 'ppo-variable-setup' } },
     'ppo-campaign-flow-v2': { back: () => { currentView.value = 'dev-start' }, next: (types) => { ppoWizardState.value.selectedTypes = types; currentView.value = 'ppo-variable-setup' } },

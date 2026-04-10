@@ -18,7 +18,7 @@
             v-for="card in cards"
             :key="card.title"
             class="flex flex-col items-center gap-5 bg-white border-2 border-om-gray-200 rounded-xl p-8 w-72 cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03] transition-all duration-200 text-left"
-            @click="card.type === 'popup' ? $emit('navigate', 'templates-v2') : card.type === 'optimize' ? $emit('navigate', 'optimize-website') : card.type === 'ppo' ? $emit('navigate', 'ppo-campaign-flow-mvp') : $emit('select', card.type)"
+            @click="card.type === 'popup' ? $emit('navigate', 'templates-v2') : card.type === 'optimize' ? $emit('navigate', 'optimize-website') : $emit('select', card.type)"
           >
             <img v-if="card.image" :src="card.image" :alt="card.title" class="w-36 h-36 object-contain shrink-0" />
             <div v-else class="w-36 h-36 rounded-lg bg-om-gray-100 shrink-0" />
@@ -54,10 +54,10 @@ const cards = [
     image: '/optimize.c2ec5c73.svg',
   },
   {
-    type: 'ppo',
-    title: 'Smart Product Page',
-    description: 'Optimize your product pages\nwith AI-powered content.',
-    image: '/SPP.svg',
+    type: 'tactic',
+    title: 'Use a Tactic',
+    description: 'Ready-made strategies\nfor common use cases.',
+    image: '/library.9b57dc7b.svg',
   },
 ]
 </script>

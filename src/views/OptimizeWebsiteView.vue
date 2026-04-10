@@ -76,11 +76,18 @@
 
 <script setup>
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
-import { ChevronLeft, ChevronRight, Columns2, GitBranch, LayoutGrid, UserRound, Megaphone } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Columns2, GitBranch, LayoutGrid, UserRound, Megaphone, Sparkles } from 'lucide-vue-next'
 
 defineEmits(['menu-click', 'back', 'select', 'navigate'])
 
 const optimizeItems = [
+  {
+    type: 'smart-product-page',
+    title: 'Smart Product Page',
+    description: 'AI-powered content blocks that boost product page conversions.',
+    icon: Sparkles,
+    badge: null,
+  },
   {
     type: 'ab-test',
     title: 'A/B test',

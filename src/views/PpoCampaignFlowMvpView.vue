@@ -21,13 +21,13 @@
             :key="type.id"
             class="bg-white rounded-xl border-2 overflow-hidden transition-all duration-200 cursor-pointer"
             :class="[
-              selectedTypes.includes(type.id)
+              selectedType === type.id
                 ? 'border-om-orange-500 shadow-[0_4px_14px_rgba(237,90,41,0.4)] scale-[1.03]'
                 : type.comingSoon
                   ? 'border-om-gray-100 opacity-60 cursor-default'
                   : 'border-om-gray-200 hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03]'
             ]"
-            @click="!type.comingSoon && $emit('next', [type.id])"
+            @click="!type.comingSoon && selectType(type.id)"
           >
             <!-- Image placeholder -->
             <div class="w-full flex items-center justify-center relative overflow-hidden pt-4">
@@ -45,21 +45,17 @@
               </div>
               <!-- Product sentence -->
               <div v-else-if="type.id === 'product-sentence'" class="w-full h-full bg-white overflow-hidden flex gap-2.5 px-3 py-2">
-                <!-- Left: product image -->
                 <div class="w-[40%] shrink-0">
                   <div class="aspect-square bg-om-gray-100 rounded" />
                 </div>
-                <!-- Right: info + highlighted sentence -->
                 <div class="flex-1 flex flex-col gap-1.5 pt-0.5">
                   <div class="w-full h-1.5 bg-om-gray-200 rounded" />
                   <div class="w-2/3 h-1.5 bg-om-gray-200 rounded" />
                   <div class="w-8 h-2 bg-om-gray-100 rounded" />
-                  <!-- Highlighted sentence -->
                   <div class="rounded-md bg-om-orange-50 border border-om-orange-200 px-2 py-1.5 mt-0.5">
                     <div class="w-full h-1.5 bg-om-orange-200 rounded mb-1" />
                     <div class="w-4/5 h-1.5 bg-om-orange-200 rounded" />
                   </div>
-                  <!-- Skeleton below -->
                   <div class="space-y-1 mt-0.5">
                     <div class="w-full h-1.5 bg-om-gray-100 rounded" />
                     <div class="w-full h-1.5 bg-om-gray-100 rounded" />
@@ -77,16 +73,13 @@
               </div>
               <!-- Benefit list -->
               <div v-else-if="type.id === 'benefit-list'" class="w-full h-full bg-white overflow-hidden flex gap-2.5 px-3 py-2">
-                <!-- Left: product image -->
                 <div class="w-[40%] shrink-0">
                   <div class="aspect-square bg-om-gray-100 rounded" />
                 </div>
-                <!-- Right: info + highlighted benefit list -->
                 <div class="flex-1 flex flex-col gap-1.5 pt-0.5">
                   <div class="w-full h-1.5 bg-om-gray-200 rounded" />
                   <div class="w-2/3 h-1.5 bg-om-gray-200 rounded" />
                   <div class="w-8 h-2 bg-om-gray-100 rounded" />
-                  <!-- Highlighted benefit list -->
                   <div class="rounded-md bg-om-orange-50 border border-om-orange-200 px-2 py-1.5 mt-0.5 space-y-1.5">
                     <div class="flex items-center gap-1.5">
                       <div class="w-1.5 h-1.5 rounded-full bg-om-orange-400 shrink-0" />
@@ -101,7 +94,6 @@
                       <div class="h-1.5 bg-om-orange-200 rounded w-3/5" />
                     </div>
                   </div>
-                  <!-- Skeleton below -->
                   <div class="space-y-1 mt-0.5">
                     <div class="w-full h-1.5 bg-om-gray-100 rounded" />
                     <div class="w-full h-1.5 bg-om-gray-100 rounded" />
@@ -123,7 +115,7 @@
               </div>
               <!-- Selected checkmark -->
               <div
-                v-if="selectedTypes.includes(type.id)"
+                v-if="selectedType === type.id"
                 class="absolute top-3 right-3 w-6 h-6 rounded-full bg-om-orange-500 flex items-center justify-center"
               >
                 <Check :size="14" class="text-white" stroke-width="3" />
@@ -142,28 +134,134 @@
 
       </div>
       </div>
+
+      <!-- Domain selector modal -->
+      <transition name="fade">
+        <div v-if="showDomainModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="closeDomainModal">
+          <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+            <!-- Header -->
+            <div class="px-6 pt-6 pb-4">
+              <h3 class="text-lg font-semibold text-om-gray-700 mb-1">Select a domain</h3>
+              <p class="text-sm text-om-gray-400">Choose which store to optimize with Smart Product Pages.</p>
+            </div>
+
+            <!-- Domain list -->
+            <div class="px-6 pb-2">
+              <div class="space-y-2">
+                <div
+                  v-for="domain in domains"
+                  :key="domain.url"
+                  class="flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all duration-150 cursor-pointer"
+                  :class="[
+                    syncingDomain === domain.url ? 'border-om-gray-200 bg-om-gray-50' :
+                    selectedDomain === domain.url ? 'border-om-orange-500 bg-om-orange-50/50' :
+                    'border-om-gray-200 hover:border-om-gray-300'
+                  ]"
+                  @click="handleDomainClick(domain)"
+                >
+                  <!-- Domain + catalog status -->
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-medium text-om-gray-700 truncate">{{ domain.url }}</div>
+                    <div v-if="syncingDomain === domain.url" class="flex items-center gap-1.5 text-xs text-om-gray-500 mt-0.5">
+                      <Loader2 :size="11" class="animate-spin" />
+                      Synchronizing product catalog...
+                    </div>
+                    <div v-else-if="domain.hasCatalog" class="flex items-center gap-1 text-xs text-emerald-600 mt-0.5">
+                      <CheckCircle2 :size="11" />
+                      {{ domain.productCount.toLocaleString() }} products
+                    </div>
+                    <div v-else class="flex items-center gap-1 text-xs text-amber-600 mt-0.5">
+                      <AlertCircle :size="11" />
+                      No catalog — click to sync
+                    </div>
+                  </div>
+                  <template v-if="domain.hasCatalog && syncingDomain !== domain.url">
+                    <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0"
+                      :class="selectedDomain === domain.url ? 'border-om-orange-500' : 'border-om-gray-300'">
+                      <div v-if="selectedDomain === domain.url" class="w-2.5 h-2.5 rounded-full bg-om-orange-500" />
+                    </div>
+                  </template>
+                  <ChevronRight v-else-if="!syncingDomain || syncingDomain !== domain.url" :size="16" class="text-om-gray-300 shrink-0" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 pt-4 pb-6 flex justify-end gap-3">
+              <Button variant="ghost" size="sm" @click="closeDomainModal">Cancel</Button>
+              <Button variant="primary" size="sm" :disabled="!selectedDomain" @click="confirmDomain">
+                Next
+              </Button>
+            </div>
+          </div>
+        </div>
+      </transition>
     </template>
   </DashboardLayout>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Tag from '../components/shared/Tag.vue'
-import { ChevronLeft, ImageIcon, Type, Check } from 'lucide-vue-next'
+import Button from '../components/shared/Button.vue'
+import { ChevronLeft, ChevronRight, ImageIcon, Type, Check, CheckCircle2, AlertCircle, ArrowRight, Loader2 } from 'lucide-vue-next'
 
-defineEmits(['back', 'next', 'menu-click'])
+const emit = defineEmits(['back', 'next', 'menu-click'])
 
-const selectedTypes = ref([])
+const selectedType = ref(null)
+const pendingType = ref(null)
+const showDomainModal = ref(false)
 
 const contentTypes = [
   { id: 'image-badge',      label: 'Image with badge',   description: 'A lifestyle product image with short text and icon badge overlay.',       isImage: true,  comingSoon: false },
   { id: 'product-summary',  label: 'Product summary',    description: 'A lifestyle product image, a headline and a benefit list combined into one block.',  isMixed: true,  comingSoon: false },
 ]
 
-const toggleType = (id) => {
-  const idx = selectedTypes.value.indexOf(id)
-  if (idx === -1) selectedTypes.value.push(id)
-  else selectedTypes.value.splice(idx, 1)
+const domains = reactive([
+  { url: 'whiskynet.hu', hasCatalog: true, productCount: 1284 },
+  { url: 'demo-store.myshopify.com', hasCatalog: true, productCount: 356 },
+  { url: 'newbrand.com', hasCatalog: false, productCount: 0 },
+])
+
+const selectedDomain = ref(domains[0].url)
+const syncingDomain = ref(null)
+
+const selectedDomainObj = computed(() =>
+  domains.find(d => d.url === selectedDomain.value)
+)
+
+function handleDomainClick(domain) {
+  if (syncingDomain.value) return
+  if (domain.hasCatalog) {
+    selectedDomain.value = domain.url
+  }
+}
+
+function selectType(id) {
+  pendingType.value = id
+  showDomainModal.value = true
+}
+
+// Reset selection if modal closed without confirming
+function closeDomainModal() {
+  showDomainModal.value = false
+  pendingType.value = null
+}
+
+function confirmDomain() {
+  showDomainModal.value = false
+  emit('next', [pendingType.value])
 }
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

@@ -149,13 +149,30 @@
                 </div>
               </div>
             </div>
-            <!-- Device diff info (inline, after last input) -->
+            <!-- Device diff info -->
             <div v-if="anyDeviceDiff" class="flex items-center gap-2 mt-2 px-3 py-2 bg-om-orange-50 rounded-lg">
               <Monitor v-if="previewMode === 'desktop'" :size="14" class="text-om-orange-400 shrink-0" />
               <Smartphone v-else :size="14" class="text-om-orange-400 shrink-0" />
               <span class="text-xs text-om-orange-600">
                 Position and styling can be set separately for {{ previewMode === 'desktop' ? 'mobile' : 'desktop' }}
               </span>
+            </div>
+            <!-- Variables -->
+            <div class="pt-2 mt-2 border-t border-om-gray-200">
+              <label class="text-[11px] uppercase tracking-wider font-semibold text-om-gray-700 mb-2 flex items-center gap-1.5">
+                <GitBranch :size="12" class="text-om-gray-400" />
+                Variables
+              </label>
+              <div class="space-y-2">
+                <div>
+                  <label class="text-xs font-medium text-om-gray-500 mb-1 block">Image</label>
+                  <Dropdown v-model="selectedImageVariable" :options="imageVariableOptions" size="sm" />
+                </div>
+                <div>
+                  <label class="text-xs font-medium text-om-gray-500 mb-1 block">Text</label>
+                  <Dropdown v-model="selectedTextVariable" :options="textVariableOptions" size="sm" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -170,7 +187,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import ProductPagePreview from '../components/ppo/ProductPagePreview.vue'
-import { ChevronLeft, Monitor, Smartphone, ChevronDown, ImageIcon, Type, Globe } from 'lucide-vue-next'
+import { ChevronLeft, Monitor, Smartphone, ChevronDown, ImageIcon, Type, Globe, GitBranch } from 'lucide-vue-next'
 
 const baseUrl = window.location.origin
 
@@ -290,6 +307,21 @@ const cornersModel = computed({
   set: (val) => { selectedCorner.value = val.value },
 })
 const cornerRadius = computed(() => cornerOptions.find(o => o.value === selectedCorner.value)?.radius || '8px')
+
+// Variable selectors
+const imageVariableOptions = [
+  { value: 'lifestyle', label: 'Product Lifestyle Image' },
+  { value: 'badge-desktop', label: 'Product Image with badge desktop' },
+  { value: 'badge-mobile', label: 'Product Image with badge mobile' },
+]
+const selectedImageVariable = ref(imageVariableOptions[0])
+
+const textVariableOptions = [
+  { value: 'headline-summary', label: 'Headline + summary' },
+  { value: 'headline-subheadline', label: 'Headline + subheadline' },
+  { value: 'benefit-list', label: 'Benefit list' },
+]
+const selectedTextVariable = ref(textVariableOptions[0])
 
 const activeCard = ref('product-summary')
 const showAllBorders = ref(true)
