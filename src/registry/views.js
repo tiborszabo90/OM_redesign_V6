@@ -433,6 +433,14 @@ const campaignViews = [
     hideLogo: true,
   },
   {
+    id: 'ppo-loading',
+    component: () => import('../views/PpoLoadingView.vue'),
+    label: 'SPP Loading',
+    status: 'active',
+    section: null,
+    hideLogo: true,
+  },
+  {
     id: 'campaign-page-v1',
     component: () => import('../views/CampaignPageV1View.vue'),
     label: 'Campaign Page',

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SPP Loader Step 3 Test</title>
+<style>
+  body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+  .controls { margin-bottom: 24px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .controls button { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; background: #ED5A29; color: white; }
+  .controls button:hover { background: #d44f20; }
+  .label { font-size: 13px; color: #888; margin-bottom: 8px; }
+
+  /* All animated SVG elements use CSS transitions */
+  .page-el, .spp-el { transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+  .spp-el { opacity: 0; }
+  .spp-el.visible { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="label">Phase: <span id="phaseLabel">0 — Empty page</span></div>
+<div class="controls">
+  <button onclick="setPhase(0)">0: Empty</button>
+  <button onclick="setPhase('1a')">1a: Lines move</button>
+  <button onclick="setPhase(1)">1: 3a</button>
+  <button onclick="setPhase(2)">2: 3b</button>
+<button onclick="setPhase(3)">3: 3c</button>
+  <button onclick="autoPlay()">▶ Auto</button>
+</div>
+
+<svg width="236" height="196" viewBox="0 0 236 196" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:240px;">
+  <!-- Page border -->
+  <rect x="1" y="1" width="234" height="194" rx="7" stroke="#F1F2F4" stroke-width="2"/>
+
+  <!-- Product image (constant) -->
+  <rect class="page-el" id="img" x="12" y="12" width="62" height="62" rx="4" fill="#E3E5E8"/>
+
+  <!-- Thumbnails -->
+  <rect class="page-el" id="thumb1" x="12" y="80" width="18" height="18" rx="4" fill="#E3E5E8"/>
+  <rect class="page-el" id="thumb2" x="34" y="80" width="18" height="18" rx="4" fill="#E3E5E8"/>
+  <rect class="page-el" id="thumb3" x="56" y="80" width="18" height="18" rx="4" fill="#E3E5E8"/>
+
+  <!-- Title, text, price -->
+  <rect class="page-el" id="title" x="83" y="12" width="99" height="12" rx="4" fill="#E3E5E8"/>
+  <rect class="page-el" id="text1" x="83" y="31" width="56" height="6" rx="3" fill="#E3E5E8"/>
+  <rect class="page-el" id="text2" x="83" y="40" width="76" height="6" rx="3" fill="#E3E5E8"/>
+  <rect class="page-el" id="price" x="83" y="62" width="42" height="12" rx="4" fill="#E3E5E8"/>
+
+  <!-- Description lines -->
+  <rect class="page-el" id="desc1" x="12" y="108" width="185" height="6" rx="3" fill="#E3E5E8"/>
+  <rect class="page-el" id="desc2" x="12" y="117" width="212" height="6" rx="3" fill="#E3E5E8"/>
+  <rect class="page-el" id="desc3" x="12" y="127" width="157" height="6" rx="3" fill="#E3E5E8"/>
+  <rect class="page-el" id="desc4" x="12" y="136" width="212" height="6" rx="3" fill="#E3E5E8"/>
+
+  <!-- Bottom buttons (3b only) -->
+  <rect class="page-el" id="btn1" x="12" y="159" width="62" height="26" rx="4" fill="#E3E5E8" opacity="0"/>
+  <rect class="page-el" id="btn2" x="87" y="159" width="62" height="26" rx="4" fill="#E3E5E8" opacity="0"/>
+  <rect class="page-el" id="btn3" x="162" y="159" width="62" height="26" rx="4" fill="#E3E5E8" opacity="0"/>
+
+  <!-- ===== SPP BLOCK ===== -->
+  <!-- SPP background -->
+  <rect class="spp-el" id="sppBg" x="12" y="105" width="212" height="62" rx="4" fill="#FBD9CE"/>
+  <!-- SPP image -->
+  <rect class="spp-el" id="sppImg" x="12" y="105" width="62" height="62" rx="4" fill="#F7B59F"/>
+  <!-- SPP image icon (path drawn at origin 0,0 with coords ~16-46, use transform to position) -->
+  <path class="spp-el" id="sppIcon" d="M41.5 16H20.5C19.3065 16 18.1619 16.4741 17.318 17.318C16.4741 18.1619 16 19.3065 16 20.5V41.5C16 42.6935 16.4741 43.8381 17.318 44.682C18.1619 45.5259 19.3065 46 20.5 46H41.5C41.7467 45.9966 41.9927 45.9715 42.235 45.925L42.685 45.82H42.79H42.865L43.42 45.61L43.615 45.505C43.765 45.415 43.93 45.34 44.08 45.235C44.2803 45.0876 44.4707 44.9273 44.65 44.755L44.755 44.62C44.9023 44.4708 45.0377 44.3103 45.16 44.14L45.295 43.945C45.3998 43.778 45.4901 43.6024 45.565 43.42C45.6062 43.348 45.6413 43.2728 45.67 43.195C45.745 43.015 45.79 42.82 45.85 42.625V42.4C45.935 42.1069 45.9854 41.8048 46 41.5V20.5C46 19.3065 45.5259 18.1619 44.682 17.318C43.8381 16.4741 42.6935 16 41.5 16ZM20.5 43C20.1022 43 19.7206 42.842 19.4393 42.5607C19.158 42.2794 19 41.8978 19 41.5V35.035L23.935 30.085C24.0744 29.9444 24.2403 29.8328 24.4231 29.7567C24.6059 29.6805 24.802 29.6413 25 29.6413C25.198 29.6413 25.3941 29.6805 25.5769 29.7567C25.7597 29.8328 25.9256 29.9444 26.065 30.085L38.965 43H20.5ZM43 41.5C42.9986 41.6849 42.963 41.868 42.895 42.04C42.8607 42.1131 42.8206 42.1833 42.775 42.25C42.7349 42.3135 42.6897 42.3737 42.64 42.43L34.615 34.405L35.935 33.085C36.0744 32.9444 36.2403 32.8328 36.4231 32.7567C36.6059 32.6805 36.802 32.6413 37 32.6413C37.198 32.6413 37.3941 32.6805 37.5769 32.7567C37.7597 32.8328 37.9256 32.9444 38.065 33.085L43 38.035V41.5ZM43 33.79L40.18 31C39.3216 30.1855 38.1833 29.7314 37 29.7314C35.8167 29.7314 34.6784 30.1855 33.82 31L32.5 32.32L28.18 28C27.3216 27.1855 26.1833 26.7314 25 26.7314C23.8167 26.7314 22.6784 27.1855 21.82 28L19 30.79V20.5C19 20.1022 19.158 19.7206 19.4393 19.4393C19.7206 19.158 20.1022 19 20.5 19H41.5C41.8978 19 42.2794 19.158 42.5607 19.4393C42.842 19.7206 43 20.1022 43 20.5V33.79Z" fill="#FBD9CE" transform="translate(12, 105)"/>
+  <!-- SPP title -->
+  <rect class="spp-el" id="sppTitle" x="83" y="114" width="86" height="12" rx="4" fill="#F7B59F"/>
+  <!-- SPP list: checks (dots) and lines -->
+  <rect class="spp-el" id="sppCheck1" x="83" y="130" width="8" height="8" rx="4" fill="#F7B59F"/>
+  <rect class="spp-el" id="sppLine1" x="93" y="131" width="94" height="6" rx="3" fill="#F7B59F"/>
+  <rect class="spp-el" id="sppCheck2" x="83" y="140" width="8" height="8" rx="4" fill="#F7B59F"/>
+  <rect class="spp-el" id="sppLine2" x="93" y="141" width="104" height="6" rx="3" fill="#F7B59F"/>
+  <rect class="spp-el" id="sppCheck3" x="83" y="150" width="8" height="8" rx="4" fill="#F7B59F"/>
+  <rect class="spp-el" id="sppLine3" x="93" y="151" width="86" height="6" rx="3" fill="#F7B59F"/>
+</svg>
+
+<script>
+// Exact coordinates from the 3 reference SVGs (3a, 3b, 3c)
+// Phase 2 (3b) uses exact values from the SVG — checks are 5.617x5.617, lines are h=4.213
+
+const phases = {
+  0: {
+    thumb1: { x: 12, y: 80, opacity: 1 }, thumb2: { x: 34, y: 80, opacity: 1 }, thumb3: { x: 56, y: 80, opacity: 1 },
+    title: { x: 83, y: 12, width: 99 },
+    text1: { x: 83, y: 31, width: 56 },
+    text2: { x: 83, y: 40, width: 76 },
+    price: { x: 83, y: 62, width: 42 },
+    desc1: { y: 108, opacity: 1 }, desc2: { y: 117, opacity: 1 },
+    desc3: { y: 127, opacity: 1 }, desc4: { y: 136, opacity: 1 },
+    btn1: { opacity: 0 }, btn2: { opacity: 0 }, btn3: { opacity: 0 },
+    spp: false,
+  },
+  '1a': {
+    thumb1: { x: 12, y: 80, opacity: 1 }, thumb2: { x: 34, y: 80, opacity: 1 }, thumb3: { x: 56, y: 80, opacity: 1 },
+    title: { x: 83, y: 12, width: 99 },
+    text1: { x: 83, y: 31, width: 56 },
+    text2: { x: 83, y: 40, width: 76 },
+    price: { x: 83, y: 62, width: 42 },
+    desc1: { y: 175, opacity: 1 }, desc2: { y: 184, opacity: 1 },
+    desc3: { y: 175, opacity: 0 }, desc4: { y: 184, opacity: 0 },
+    btn1: { opacity: 0 }, btn2: { opacity: 0 }, btn3: { opacity: 0 },
+    spp: false,
+  },
+  // Phase 1 = 3a: SPP full-width at y=105
+  1: {
+    thumb1: { x: 12, y: 80, opacity: 1 }, thumb2: { x: 34, y: 80, opacity: 1 }, thumb3: { x: 56, y: 80, opacity: 1 },
+    title: { x: 83, y: 12, width: 99 },
+    text1: { x: 83, y: 31, width: 56 },
+    text2: { x: 83, y: 40, width: 76 },
+    price: { x: 83, y: 62, width: 42 },
+    desc1: { y: 175, opacity: 1 }, desc2: { y: 184, opacity: 1 },
+    desc3: { y: 175, opacity: 0 }, desc4: { y: 184, opacity: 0 },
+    btn1: { opacity: 0 }, btn2: { opacity: 0 }, btn3: { opacity: 0 },
+    spp: true,
+    sppBg:     { x: 12, y: 105, width: 212, height: 62 },
+    sppImg:    { x: 12, y: 105, width: 62, height: 62 },
+    sppIcon:   { transform: 'translate(12, 105)' },
+    sppTitle:  { x: 83,  y: 114, width: 86, height: 12 },
+    sppCheck1: { x: 83,  y: 130, width: 8, height: 8 },
+    sppLine1:  { x: 93,  y: 131, width: 94, height: 6 },
+    sppCheck2: { x: 83,  y: 140, width: 8, height: 8 },
+    sppLine2:  { x: 93,  y: 141, width: 104, height: 6 },
+    sppCheck3: { x: 83,  y: 150, width: 8, height: 8 },
+    sppLine3:  { x: 93,  y: 151, width: 86, height: 6 },
+  },
+  // Phase 2 = 3b: SPP smaller at y=64, right side — EXACT coords from 3b SVG
+  2: {
+    thumb1: { x: 12, y: 80, opacity: 1 }, thumb2: { x: 34, y: 80, opacity: 1 }, thumb3: { x: 56, y: 80, opacity: 1 },
+    title: { x: 83, y: 12, width: 99 },
+    text1: { x: 83, y: 28, width: 56 },
+    text2: { x: 83, y: 37, width: 76 },
+    price: { x: 83, y: 46, width: 42 },
+    desc1: { y: 117, opacity: 1 }, desc2: { y: 126, opacity: 1 },
+    desc3: { y: 136, opacity: 1 }, desc4: { y: 145, opacity: 1 },
+    btn1: { opacity: 1 }, btn2: { opacity: 1 }, btn3: { opacity: 1 },
+    spp: true,
+    sppBg:     { x: 83,     y: 64,     width: 141,    height: 44 },
+    sppImg:    { x: 83,     y: 64,     width: 43.53,  height: 43.53 },
+    sppIcon:   { transform: 'translate(83, 64) scale(0.7)' },
+    sppTitle:  { x: 132.85, y: 70.32,  width: 33.7,   height: 8.43 },
+    sppCheck1: { x: 132.85, y: 81.55,  width: 5.62,   height: 5.62 },
+    sppLine1:  { x: 140.57, y: 82.26,  width: 33.7,   height: 4.21 },
+    sppCheck2: { x: 132.85, y: 88.57,  width: 5.62,   height: 5.62 },
+    sppLine2:  { x: 140.57, y: 89.28,  width: 37.21,  height: 4.21 },
+    sppCheck3: { x: 132.85, y: 95.6,   width: 5.62,   height: 5.62 },
+    sppLine3:  { x: 140.57, y: 96.3,   width: 30.89,  height: 4.21 },
+  },
+  // Phase 3a: page shifts to 3c layout, SPP stays at 3b position
+  '3a': {
+    thumb1: { x: 12, y: 82, opacity: 1 }, thumb2: { x: 34, y: 82, opacity: 1 }, thumb3: { x: 56, y: 82, opacity: 1 },
+    title: { x: 83, y: 12, width: 99 },
+    text1: { x: 83, y: 31, width: 56 },
+    text2: { x: 83, y: 40, width: 76 },
+    price: { x: 83, y: 62, width: 42 },
+    desc1: { y: 108, opacity: 1 }, desc2: { y: 117, opacity: 1 },
+    desc3: { y: 136, opacity: 0 }, desc4: { y: 145, opacity: 0 },
+    btn1: { opacity: 0 }, btn2: { opacity: 0 }, btn3: { opacity: 0 },
+    spp: true,
+    sppBg:     { x: 83,     y: 64,     width: 141,    height: 44 },
+    sppImg:    { x: 83,     y: 64,     width: 43.53,  height: 43.53 },
+    sppIcon:   { transform: 'translate(83, 64) scale(0.7)' },
+    sppTitle:  { x: 132.85, y: 70.32,  width: 33.7,   height: 8.43 },
+    sppCheck1: { x: 132.85, y: 81.55,  width: 5.62,   height: 5.62 },
+    sppLine1:  { x: 140.57, y: 82.26,  width: 33.7,   height: 4.21 },
+    sppCheck2: { x: 132.85, y: 88.57,  width: 5.62,   height: 5.62 },
+    sppLine2:  { x: 140.57, y: 89.28,  width: 37.21,  height: 4.21 },
+    sppCheck3: { x: 132.85, y: 95.6,   width: 5.62,   height: 5.62 },
+    sppLine3:  { x: 140.57, y: 96.3,   width: 30.89,  height: 4.21 },
+  },
+  // Phase 3 = 3c: SPP full-width at y=129
+  3: {
+    thumb1: { x: 12, y: 82, opacity: 1 }, thumb2: { x: 34, y: 82, opacity: 1 }, thumb3: { x: 56, y: 82, opacity: 1 },
+    title: { x: 83, y: 12, width: 99 },
+    text1: { x: 83, y: 31, width: 56 },
+    text2: { x: 83, y: 40, width: 76 },
+    price: { x: 83, y: 62, width: 42 },
+    desc1: { y: 108, opacity: 1 }, desc2: { y: 117, opacity: 1 },
+    desc3: { opacity: 0 }, desc4: { opacity: 0 },
+    btn1: { opacity: 0 }, btn2: { opacity: 0 }, btn3: { opacity: 0 },
+    spp: true,
+    sppBg:     { x: 12, y: 129, width: 212, height: 62 },
+    sppImg:    { x: 12, y: 129, width: 62, height: 62 },
+    sppIcon:   { transform: 'translate(12, 129)' },
+    sppTitle:  { x: 83,  y: 138, width: 86, height: 12 },
+    sppCheck1: { x: 83,  y: 154, width: 8, height: 8 },
+    sppLine1:  { x: 93,  y: 155, width: 94, height: 6 },
+    sppCheck2: { x: 83,  y: 164, width: 8, height: 8 },
+    sppLine2:  { x: 93,  y: 165, width: 104, height: 6 },
+    sppCheck3: { x: 83,  y: 174, width: 8, height: 8 },
+    sppLine3:  { x: 93,  y: 175, width: 86, height: 6 },
+  }
+};
+
+const labels = { 0: '0 — Empty page', '1a': '1a — Lines move', 1: '1 — 3a (SPP bottom)', 2: '2 — 3b (SPP middle)', '3a': '3a — Layout shift', 3: '3 — 3c (SPP lower)' };
+
+const sppIds = ['sppBg','sppImg','sppIcon','sppTitle','sppCheck1','sppLine1','sppCheck2','sppLine2','sppCheck3','sppLine3'];
+
+function setPhase(p) {
+  document.getElementById('phaseLabel').textContent = labels[p];
+  const phase = phases[p];
+
+  // Page elements
+  for (const [id, attrs] of Object.entries(phase)) {
+    if (id === 'spp') continue;
+    if (sppIds.includes(id)) continue;
+    const el = document.getElementById(id);
+    if (!el) continue;
+    for (const [attr, val] of Object.entries(attrs)) {
+      if (attr === 'opacity') { el.style.opacity = val; }
+      else { el.setAttribute(attr, val); }
+    }
+  }
+
+  // SPP elements
+  const showSpp = phase.spp;
+  sppIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (showSpp) {
+      el.classList.add('visible');
+      const attrs = phase[id];
+      if (attrs) {
+        for (const [attr, val] of Object.entries(attrs)) {
+          if (attr === 'transform') { el.setAttribute('transform', val); }
+          else { el.setAttribute(attr, val); }
+        }
+      }
+    } else {
+      el.classList.remove('visible');
+    }
+  });
+}
+
+function autoPlay() {
+  setPhase(0);
+  setTimeout(() => setPhase('1a'), 1000);  // lines slide down + fade
+  setTimeout(() => setPhase(1), 1800);     // SPP appears at bottom
+  setTimeout(() => setPhase(2), 3200);     // SPP shrinks to middle
+  setTimeout(() => setPhase(3), 5000);     // SPP expands to lower position
+}
+
+// Start at phase 0
+setPhase(0);
+</script>
+</body>
+</html>
