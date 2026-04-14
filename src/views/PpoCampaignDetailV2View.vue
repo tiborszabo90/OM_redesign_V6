@@ -172,43 +172,68 @@
                   class="absolute right-0 mt-2 w-56 bg-white border border-om-gray-200 rounded-xl shadow-lg overflow-hidden z-10"
                 >
                   <button
+                    @click="handleRename"
+                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                  >
+                    Rename
+                  </button>
+                  <button
                     @click="handleDuplicate"
                     class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
                   >
                     Duplicate
                   </button>
                   <button
-                    @click="handlePrioritySettings"
+                    @click="handleEditCampaign"
                     class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
                   >
-                    Priority settings
+                    Edit campaign
                   </button>
                   <button
-                    @click="handleChangeLog"
+                    @click="handleEditSchedule"
                     class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
                   >
-                    Change log
+                    Edit schedule
                   </button>
+                  <div class="relative" @mouseenter="isPriorityOpen = true" @mouseleave="isPriorityOpen = false">
+                    <button :class="['w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer flex items-center justify-between', isPriorityOpen ? 'bg-om-gray-50' : '']" @click.stop>
+                      Set priority
+                      <ChevronRight :size="14" class="text-om-gray-400" />
+                    </button>
+                    <div
+                      v-if="isPriorityOpen"
+                      class="absolute right-full top-0 -mr-px z-30 bg-white border border-om-gray-200 rounded-xl shadow-lg min-w-[150px] overflow-hidden"
+                    >
+                      <button class="w-full text-left text-sm text-om-gray-700 px-4 py-2.5 hover:bg-om-gray-50 transition-colors cursor-pointer flex items-center gap-2" @click.stop="handleSetPriority('high')">
+                        <ChevronsUp :size="14" class="text-om-orange-500" /> High
+                      </button>
+                      <button class="w-full text-left text-sm text-om-gray-700 px-4 py-2.5 hover:bg-om-gray-50 transition-colors cursor-pointer flex items-center gap-2" @click.stop="handleSetPriority('normal')">
+                        <Minus :size="14" class="text-om-gray-400" /> Normal <Check v-if="true" :size="14" class="text-om-gray-500 ml-auto" />
+                      </button>
+                      <button class="w-full text-left text-sm text-om-gray-700 px-4 py-2.5 hover:bg-om-gray-50 transition-colors cursor-pointer flex items-center gap-2" @click.stop="handleSetPriority('low')">
+                        <ChevronsDown :size="14" class="text-blue-500" /> Low
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    @click="handleShare"
+                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                  >
+                    Share
+                  </button>
+                  <button
+                    @click="handleStartPersonalization"
+                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
+                  >
+                    Start personalization
+                  </button>
+                  <div class="border-t border-om-gray-200"></div>
                   <button
                     @click="handleArchive"
                     class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
                   >
                     Archive
                   </button>
-                  <button
-                    @click="handleEditSchedule"
-                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
-                  >
-                    {{ scheduleSaved ? 'Edit schedule' : 'Add schedule' }}
-                  </button>
-                  <button
-                    v-if="scheduleSaved"
-                    @click="handleDeleteSchedule"
-                    class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
-                  >
-                    Delete schedule
-                  </button>
-                  <div class="border-t border-om-gray-200"></div>
                   <button
                     @click="handleDelete"
                     class="w-full px-4 py-2.5 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors cursor-pointer"
@@ -350,15 +375,31 @@
           <div
             v-for="(variant, vi) in variants"
             :key="variant.id"
+            :class="vi < variants.length - 1 ? 'border-b border-om-gray-100' : ''"
           >
             <!-- Variant header row -->
             <div
-              class="grid grid-cols-[1fr_60px_80px_80px_80px_100px_100px_36px] gap-3 items-center pt-3 pb-1.5 group cursor-pointer"
-              :class="!variant.variables.length && vi < variants.length - 1 ? 'border-b border-om-gray-100' : ''"
+              class="grid grid-cols-[1fr_60px_80px_80px_80px_100px_100px_36px] gap-3 items-center py-4 group cursor-pointer"
               @click="$emit('navigate', 'ppo-variant-detail-v2')"
             >
-              <div class="flex items-center gap-2.5">
-                <span class="text-sm font-medium text-om-gray-700">{{ variant.name }}</span>
+              <div class="flex items-center gap-3">
+                <div v-if="variant.variables.length" class="w-36 h-24 rounded-lg border border-om-gray-200 overflow-hidden shrink-0 flex flex-col bg-white px-2 pb-2">
+                  <div class="flex-1 bg-gray-200 rounded-sm"></div>
+                  <div class="py-2">
+                    <img src="/SPP1.png" alt="" class="w-full h-auto rounded-sm" />
+                  </div>
+                  <div class="flex gap-1.5 flex-1">
+                    <div class="flex-1 bg-gray-200 rounded-sm"></div>
+                    <div class="flex-1 bg-gray-200 rounded-sm"></div>
+                    <div class="flex-1 bg-gray-200 rounded-sm"></div>
+                  </div>
+                </div>
+                <div>
+                  <span class="text-sm font-medium text-om-gray-700">{{ variant.name }}</span>
+                  <div v-if="variant.variables.length" class="flex flex-wrap gap-1.5 mt-1.5">
+                    <Tag v-for="variable in variant.variables" :key="variable.id" variant="gray">{{ variable.name }}</Tag>
+                  </div>
+                </div>
               </div>
               <div @click.stop>
                 <ToggleSwitch v-model="variant.active" />
@@ -374,14 +415,6 @@
               <div class="flex items-center justify-end" @click.stop>
                 <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
               </div>
-            </div>
-            <!-- Variable tags -->
-            <div
-              v-if="variant.variables.length"
-              class="flex flex-wrap gap-1.5 pb-3"
-              :class="vi < variants.length - 1 ? 'border-b border-om-gray-100' : ''"
-            >
-              <Tag v-for="variable in variant.variables" :key="variable.id" variant="gray">{{ variable.name }}</Tag>
             </div>
           </div>
 
@@ -1194,7 +1227,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil } from 'lucide-vue-next'
+import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check } from 'lucide-vue-next'
 import Tag from '../components/shared/Tag.vue'
 import ProductPagePreview from '../components/ppo/ProductPagePreview.vue'
 import Button from '../components/shared/Button.vue'
@@ -1734,23 +1767,18 @@ const saveSchedule = () => {
 }
 
 // Kebab menu handlers
+const handleRename = () => {
+  console.log('Rename campaign')
+  isKebabMenuOpen.value = false
+}
+
 const handleDuplicate = () => {
   console.log('Duplicate campaign')
   isKebabMenuOpen.value = false
 }
 
-const handlePrioritySettings = () => {
-  console.log('Open priority settings')
-  isKebabMenuOpen.value = false
-}
-
-const handleChangeLog = () => {
-  console.log('Open change log')
-  isKebabMenuOpen.value = false
-}
-
-const handleArchive = () => {
-  console.log('Archive campaign')
+const handleEditCampaign = () => {
+  console.log('Edit campaign')
   isKebabMenuOpen.value = false
 }
 
@@ -1759,11 +1787,26 @@ const handleEditSchedule = () => {
   isKebabMenuOpen.value = false
 }
 
-const handleDeleteSchedule = () => {
-  scheduleSaved.value = false
+const isPriorityOpen = ref(false)
+const handleSetPriority = (level) => {
+  console.log('Set priority:', level)
+  isPriorityOpen.value = false
   isKebabMenuOpen.value = false
-  isScheduleModalOpen.value = false
-  console.log('Schedule deleted')
+}
+
+const handleShare = () => {
+  console.log('Share campaign')
+  isKebabMenuOpen.value = false
+}
+
+const handleStartPersonalization = () => {
+  console.log('Start personalization')
+  isKebabMenuOpen.value = false
+}
+
+const handleArchive = () => {
+  console.log('Archive campaign')
+  isKebabMenuOpen.value = false
 }
 
 const handleDelete = () => {
