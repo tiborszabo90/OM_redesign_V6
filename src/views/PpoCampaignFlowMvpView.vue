@@ -147,15 +147,15 @@
                 <h3 class="text-lg font-semibold text-om-gray-700 mb-1">Select a domain</h3>
                 <p class="text-sm text-om-gray-400">Choose which store to optimize with Smart Product Pages.</p>
               </div>
-              <button @click="closeDomainModal" class="p-1 rounded-lg hover:bg-om-gray-100 transition-colors cursor-pointer text-om-gray-400 hover:text-om-gray-600 shrink-0 mt-0.5">
-                <X :size="18" />
-              </button>
+              <Button variant="ghost" size="sm" icon-only @click="closeDomainModal" class="shrink-0 mt-0.5">
+                <template #icon><X :size="16" /></template>
+              </Button>
             </div>
 
             <!-- Domain list with bottom shadow -->
             <div>
-              <div ref="domainListRef" class="px-6 pb-6 max-h-96 overflow-y-auto domain-list-scroll" @scroll="onDomainListScroll">
-                <div class="space-y-2">
+              <div ref="domainListRef" :class="['px-6 max-h-96 overflow-y-auto', isScrolledToBottom ? '' : 'domain-list-scroll']" @scroll="onDomainListScroll">
+                <div class="space-y-2 pt-2 pb-4">
                   <div
                     v-for="domain in domains"
                     :key="domain.url"
@@ -163,7 +163,7 @@
                     :class="[
                       syncingDomain === domain.url ? 'border-om-gray-200 bg-om-gray-50' :
                       selectedDomain === domain.url ? 'border-om-orange-500 bg-om-orange-50/50' :
-                      'border-om-gray-200 hover:border-om-gray-300'
+                      'border-om-gray-200 hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03]'
                     ]"
                     @click="handleDomainClick(domain)"
                   >
@@ -187,10 +187,18 @@
                 </div>
               </div>
             </div>
+            <!-- Sticky add domain -->
+            <div class="px-6 py-6 border-t border-om-gray-100 shrink-0">
+              <button @click="showDomainModal = false; showAddDomainModal = true" class="flex items-center gap-2 text-sm font-medium text-om-orange-500 hover:text-om-orange-600 cursor-pointer transition-colors">
+                <Plus :size="16" />
+                Add new domain
+              </button>
+            </div>
           </div>
         </div>
       </transition>
     </template>
+    <AddDomainModal v-model="showAddDomainModal" @add="handleNewDomain" />
   </DashboardLayout>
 </template>
 
@@ -198,7 +206,9 @@
 import { ref, reactive, computed } from 'vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Tag from '../components/shared/Tag.vue'
-import { ChevronLeft, ChevronRight, ImageIcon, Type, Check, AlertCircle, ArrowRight, Loader2, X } from 'lucide-vue-next'
+import Button from '../components/shared/Button.vue'
+import AddDomainModal from '../components/shared/AddDomainModal.vue'
+import { ChevronLeft, ChevronRight, ImageIcon, Type, Check, AlertCircle, ArrowRight, Loader2, X, Plus } from 'lucide-vue-next'
 
 const emit = defineEmits(['back', 'next', 'menu-click'])
 
@@ -211,8 +221,11 @@ const headerShadowStyle = computed(() => ({
   transition: 'box-shadow 0.3s ease',
 }))
 
+const isScrolledToBottom = ref(false)
+
 function onDomainListScroll(e) {
   isScrolled.value = e.target.scrollTop > 0
+  isScrolledToBottom.value = e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight < 10
 }
 const pendingType = ref(null)
 const showDomainModal = ref(false)
@@ -258,6 +271,11 @@ function selectType(id) {
 function closeDomainModal() {
   showDomainModal.value = false
   pendingType.value = null
+}
+
+const showAddDomainModal = ref(false)
+function handleNewDomain(newDomain) {
+  domains.push({ url: newDomain, hasCatalog: false, productCount: 0 })
 }
 
 </script>

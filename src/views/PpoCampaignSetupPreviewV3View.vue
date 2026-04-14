@@ -228,7 +228,7 @@ const iframeGeneratedContent = computed(() => {
       content['image-badge'] = { image: baseUrl + (previewMode.value === 'mobile' ? '/image-with-badge/image-1-mobile.jpg' : '/image-with-badge/image-1.jpg') }
     } else if (type.id === 'product-summary') {
       const s = typeSettings.value['product-summary'] || {}
-      const bg = s.bgColor || '#E8611A'
+      const bg = s.bgColor || '#d8691b'
       const tc = s.textColor || '#FFFFFF'
       const tff = s.titleFontFamily && s.titleFontFamily !== 'Inherit' ? s.titleFontFamily : ''
       const tfs = s.titleFontSize || '20px'
@@ -350,14 +350,14 @@ const desktopSettings = reactive({
   'product-sentence': { fontFamily: 'Inherit', fontSize: '15px', fontWeight: 'Medium', color: '#23262A', lineHeight: '1.5' },
   'benefit-list':     { fontFamily: 'Inherit', fontSize: '14px', fontWeight: 'Regular', color: '#505763', lineHeight: '1.6' },
   'image-badge':      { borderRadius: '12px', aspectRatio: '1:1' },
-  'product-summary':  { titleFontFamily: 'Inherit', titleFontSize: '20px', titleFontWeight: 'Bold', listFontFamily: 'Inherit', listFontSize: '16px', listFontWeight: 'Regular', checkStyle: 'Badge', bgColor: '#E8611A', textColor: '#FFFFFF' },
+  'product-summary':  { titleFontFamily: 'Inherit', titleFontSize: '20px', titleFontWeight: 'Bold', listFontFamily: 'Inherit', listFontSize: '16px', listFontWeight: 'Regular', checkStyle: 'Badge', bgColor: '#d8691b', textColor: '#FFFFFF' },
 })
 const mobileSettings = reactive({
   'product-image':    { borderRadius: '8px', aspectRatio: 'Auto' },
   'product-sentence': { fontFamily: 'Inherit', fontSize: '14px', fontWeight: 'Medium', color: '#23262A', lineHeight: '1.4' },
   'benefit-list':     { fontFamily: 'Inherit', fontSize: '13px', fontWeight: 'Regular', color: '#505763', lineHeight: '1.5' },
   'image-badge':      { borderRadius: '8px', aspectRatio: '1:1' },
-  'product-summary':  { titleFontFamily: 'Inherit', titleFontSize: '18px', titleFontWeight: 'Bold', listFontFamily: 'Inherit', listFontSize: '14px', listFontWeight: 'Regular', checkStyle: 'Badge', bgColor: '#E8611A', textColor: '#FFFFFF' },
+  'product-summary':  { titleFontFamily: 'Inherit', titleFontSize: '18px', titleFontWeight: 'Bold', listFontFamily: 'Inherit', listFontSize: '14px', listFontWeight: 'Regular', checkStyle: 'Badge', bgColor: '#d8691b', textColor: '#FFFFFF' },
 })
 
 const typeSettings = computed(() => previewMode.value === 'desktop' ? desktopSettings : mobileSettings)

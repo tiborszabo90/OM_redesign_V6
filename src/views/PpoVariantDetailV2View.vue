@@ -158,6 +158,23 @@
                 Position and styling can be set separately for {{ previewMode === 'desktop' ? 'mobile' : 'desktop' }}
               </span>
             </div>
+            <!-- Variables -->
+            <div class="pt-2 mt-2 border-t border-om-gray-200">
+              <label class="text-[11px] uppercase tracking-wider font-semibold text-om-gray-700 mb-2 flex items-center gap-1.5">
+                <GitBranch :size="12" class="text-om-gray-400" />
+                Variables
+              </label>
+              <div class="space-y-2">
+                <div>
+                  <label class="text-xs font-medium text-om-gray-500 mb-1 block">Image</label>
+                  <Dropdown v-model="selectedImageVariable" :options="imageVariableOptions" size="sm" />
+                </div>
+                <div>
+                  <label class="text-xs font-medium text-om-gray-500 mb-1 block">Text</label>
+                  <Dropdown v-model="selectedTextVariable" :options="textVariableOptions" size="sm" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -171,7 +188,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import ProductPagePreview from '../components/ppo/ProductPagePreview.vue'
-import { ChevronLeft, Monitor, Smartphone, ChevronDown, ImageIcon, Type, Globe } from 'lucide-vue-next'
+import { ChevronLeft, Monitor, Smartphone, ChevronDown, ImageIcon, Type, Globe, Pencil, GitBranch } from 'lucide-vue-next'
 
 const baseUrl = window.location.origin
 
@@ -212,7 +229,7 @@ const iframeGeneratedContent = computed(() => {
       content['image-badge'] = { image: baseUrl + (previewMode.value === 'mobile' ? '/image-with-badge/image-1-mobile.jpg' : '/image-with-badge/image-1.jpg') }
     } else if (type.id === 'product-summary') {
       const s = typeSettings.value['product-summary'] || {}
-      const bg = s.bgColor || '#E8611A'
+      const bg = s.bgColor || '#d8691b'
       const tc = s.textColor || '#FFFFFF'
       const tff = s.titleFontFamily && s.titleFontFamily !== 'Inherit' ? s.titleFontFamily : ''
       const tfs = s.titleFontSize || '20px'
@@ -292,6 +309,19 @@ const cornersModel = computed({
 })
 const cornerRadius = computed(() => cornerOptions.find(o => o.value === selectedCorner.value)?.radius || '8px')
 
+const imageVariableOptions = [
+  { value: 'lifestyle', label: 'Product Lifestyle Image' },
+  { value: 'badge-desktop', label: 'Product Image with badge desktop' },
+  { value: 'badge-mobile', label: 'Product Image with badge mobile' },
+]
+const selectedImageVariable = ref(imageVariableOptions[0])
+
+const textVariableOptions = [
+  { value: 'headline-summary', label: 'Headline + summary' },
+  { value: 'headline-subheadline', label: 'Headline + subheadline' },
+  { value: 'benefit-list', label: 'Benefit list' },
+]
+const selectedTextVariable = ref(textVariableOptions[0])
 const activeCard = ref('product-summary')
 const showAllBorders = ref(true)
 onMounted(() => { setTimeout(() => { showAllBorders.value = false }, 3000) })
@@ -319,14 +349,14 @@ const desktopSettings = reactive({
   'product-sentence': { fontFamily: 'Inherit', fontSize: '15px', fontWeight: 'Medium', color: '#23262A', lineHeight: '1.5' },
   'benefit-list':     { fontFamily: 'Inherit', fontSize: '14px', fontWeight: 'Regular', color: '#505763', lineHeight: '1.6' },
   'image-badge':      { borderRadius: '12px', aspectRatio: '1:1' },
-  'product-summary':  { titleFontFamily: 'Inherit', titleFontSize: '20px', titleFontWeight: 'Bold', listFontFamily: 'Inherit', listFontSize: '16px', listFontWeight: 'Regular', checkStyle: 'Badge', bgColor: '#E8611A', textColor: '#FFFFFF' },
+  'product-summary':  { titleFontFamily: 'Inherit', titleFontSize: '20px', titleFontWeight: 'Bold', listFontFamily: 'Inherit', listFontSize: '16px', listFontWeight: 'Regular', checkStyle: 'Badge', bgColor: '#d8691b', textColor: '#FFFFFF' },
 })
 const mobileSettings = reactive({
   'product-image':    { borderRadius: '8px', aspectRatio: 'Auto' },
   'product-sentence': { fontFamily: 'Inherit', fontSize: '14px', fontWeight: 'Medium', color: '#23262A', lineHeight: '1.4' },
   'benefit-list':     { fontFamily: 'Inherit', fontSize: '13px', fontWeight: 'Regular', color: '#505763', lineHeight: '1.5' },
   'image-badge':      { borderRadius: '8px', aspectRatio: '1:1' },
-  'product-summary':  { titleFontFamily: 'Inherit', titleFontSize: '18px', titleFontWeight: 'Bold', listFontFamily: 'Inherit', listFontSize: '14px', listFontWeight: 'Regular', checkStyle: 'Badge', bgColor: '#E8611A', textColor: '#FFFFFF' },
+  'product-summary':  { titleFontFamily: 'Inherit', titleFontSize: '18px', titleFontWeight: 'Bold', listFontFamily: 'Inherit', listFontSize: '14px', listFontWeight: 'Regular', checkStyle: 'Badge', bgColor: '#d8691b', textColor: '#FFFFFF' },
 })
 
 const typeSettings = computed(() => previewMode.value === 'desktop' ? desktopSettings : mobileSettings)

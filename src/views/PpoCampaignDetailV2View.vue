@@ -394,11 +394,15 @@
                     <div class="flex-1 bg-gray-200 rounded-sm"></div>
                   </div>
                 </div>
+                <div v-else class="w-36 h-24 rounded-lg border border-om-gray-200 overflow-hidden shrink-0 flex items-center justify-center bg-om-gray-100">
+                  <Ban :size="60" :stroke-width="1" class="text-om-gray-300" />
+                </div>
                 <div>
                   <span class="text-sm font-medium text-om-gray-700">{{ variant.name }}</span>
                   <div v-if="variant.variables.length" class="flex flex-wrap gap-1.5 mt-1.5">
                     <Tag v-for="variable in variant.variables" :key="variable.id" variant="gray">{{ variable.name }}</Tag>
                   </div>
+                  <div v-else class="text-xs text-om-gray-400 mt-1">No variant will be shown.</div>
                 </div>
               </div>
               <div @click.stop>
@@ -436,35 +440,121 @@
 
           <!-- Product Pages -->
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
-            <!-- Header -->
-            <div class="flex items-center justify-between mb-5">
-              <h3 class="text-base font-semibold text-om-gray-700">Product pages</h3>
-              <div class="flex items-center gap-4">
-                <div class="flex items-baseline gap-1.5">
-                  <span class="text-sm text-om-gray-400">Ready for</span>
-                  <span class="text-2xl font-semibold text-om-gray-700 tabular-nums">{{ campaignProductPages }}</span>
-                  <span class="text-sm text-om-gray-400">/ {{ campaignTotalProducts }}</span>
+            <h3 class="text-base font-semibold text-om-gray-700 mb-4">Product pages</h3>
+            <div class="flex gap-5 items-start">
+              <!-- Variable table -->
+              <div class="flex-1 min-w-0">
+                <div class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 pb-2 border-b border-om-gray-100 text-xs text-om-gray-500 font-medium">
+                  <span>Variable</span>
+                  <span>Type</span>
+                  <span class="text-right">Last updated</span>
+                  <span class="text-right">Ready</span>
                 </div>
-                <Button variant="outline" size="sm">Show product catalog</Button>
+                <div class="flex flex-col">
+                  <div
+                    v-for="variable in allVariables"
+                    :key="variable.id"
+                    class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 py-2.5 cursor-pointer hover:bg-om-gray-50 rounded-lg transition-all items-center"
+                    @click="$emit('navigate', variable.type === 'Image' ? 'settings-ai-texts-images-v2-generation' : 'settings-ai-texts-images-v2-text-generation')"
+                  >
+                    <div class="flex items-center gap-2 min-w-0">
+                      <span class="text-sm text-om-gray-700 truncate">{{ variable.name }}</span>
+                    </div>
+                    <div>
+                      <Tag variant="outlined">{{ variable.type }}</Tag>
+                    </div>
+                    <span class="text-xs text-om-gray-400 text-right">{{ variable.lastUpdated }}</span>
+                    <span class="text-base font-semibold text-om-gray-700 tabular-nums text-right">{{ variable.generated.split(' / ')[0] }}</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Summary side -->
+              <div class="w-96 shrink-0 px-4 py-3 rounded-lg bg-om-gray-50">
+                <div class="flex items-end justify-between mb-2">
+                  <div class="flex items-baseline gap-1.5">
+                    <span class="text-5xl font-light text-om-gray-700 tabular-nums leading-none">{{ campaignProductPages }}</span>
+                    <span class="text-sm text-om-gray-400">/ {{ campaignTotalProducts }} product pages ready</span>
+                  </div>
+                  <Button variant="outline" size="sm" class="shrink-0">Product catalog</Button>
+                </div>
+                <div class="text-xs text-om-gray-400 leading-relaxed">This campaign will appear on product pages where all variables have been successfully generated.</div>
               </div>
             </div>
-            <!-- Variable cards -->
-            <div class="grid gap-2.5" :style="{ gridTemplateColumns: `repeat(${Math.min(allVariables.length, 4)}, 1fr)` }">
-              <div
-                v-for="variable in allVariables"
-                :key="variable.id"
-                class="border border-om-gray-100 rounded-lg px-3 py-2.5 cursor-pointer hover:border-om-gray-200 hover:shadow-sm transition-all flex items-center justify-between gap-3"
-                @click="$emit('navigate', variable.type === 'Image' ? 'settings-ai-texts-images-v2-generation' : 'settings-ai-texts-images-v2-text-generation')"
-              >
-                <div class="flex items-center gap-2 min-w-0">
-                  <div class="w-7 h-7 rounded-md flex items-center justify-center shrink-0" :class="variable.type === 'Image' ? 'bg-blue-50' : 'bg-purple-50'">
-                    <ImageIcon v-if="variable.type === 'Image'" :size="15" class="text-blue-500" />
-                    <Type v-else :size="15" class="text-purple-500" />
-                  </div>
-                  <span class="text-sm text-om-gray-700 truncate">{{ variable.name }}</span>
-                  <span class="text-xs text-om-gray-400 shrink-0">{{ variable.lastUpdated }}</span>
+          </div>
+
+          <!-- Product Pages V2: kör diagram, summary a teljes jobb oldalon -->
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] flex overflow-hidden">
+            <div class="flex-1 p-5">
+              <h3 class="text-base font-semibold text-om-gray-700 mb-4">Product pages — V2</h3>
+              <div class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 pb-2 border-b border-om-gray-100 text-xs text-om-gray-500 font-medium">
+                <span>Variable</span>
+                <span>Type</span>
+                <span class="text-right">Last updated</span>
+                <span class="text-right">Ready</span>
+              </div>
+              <div class="flex flex-col">
+                <div v-for="variable in allVariables" :key="'v2-' + variable.id" class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 py-2.5 cursor-pointer hover:bg-om-gray-50 rounded-lg transition-all items-center">
+                  <div class="flex items-center gap-2 min-w-0"><span class="text-sm text-om-gray-700 truncate">{{ variable.name }}</span></div>
+                  <div><Tag variant="outlined">{{ variable.type }}</Tag></div>
+                  <span class="text-xs text-om-gray-400 text-right">{{ variable.lastUpdated }}</span>
+                  <span class="text-base font-semibold text-om-gray-700 tabular-nums text-right">{{ variable.generated.split(' / ')[0] }}</span>
                 </div>
-                <span class="text-base font-semibold text-om-gray-700 tabular-nums shrink-0">{{ variable.generated.split(' / ')[0] }}</span>
+              </div>
+            </div>
+            <div class="w-96 shrink-0 px-5 py-5 bg-om-gray-50 flex flex-col justify-center m-3 rounded-xl">
+              <!-- Top row: stat + button -->
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-2.5">
+                  <div class="relative w-14 h-14 shrink-0">
+                    <svg class="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
+                      <circle cx="28" cy="28" r="22" fill="none" stroke="#e3e5e8" stroke-width="7" />
+                      <circle cx="28" cy="28" r="22" fill="none" stroke="#2CC896" stroke-width="7" stroke-linecap="round" :stroke-dasharray="`${(campaignProductPages / campaignTotalProducts) * 138.2} 138.2`" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="text-[2rem] font-light text-om-gray-700 tabular-nums leading-none font-['Funnel_Sans']">{{ campaignProductPages }}<span class="text-base text-om-gray-500 font-normal"> / {{ campaignTotalProducts }}</span></div>
+                    <div class="text-sm text-om-gray-500 mt-1">product pages ready</div>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" class="shrink-0">Product catalog</Button>
+              </div>
+              <!-- Description -->
+              <div class="text-xs text-om-gray-400 leading-relaxed">This campaign will appear on product pages where all variables have been successfully generated.</div>
+            </div>
+          </div>
+
+          <!-- Product Pages V3 -->
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
+            <h3 class="text-base font-semibold text-om-gray-700 mb-4">Product pages — V3</h3>
+            <div class="flex gap-5 items-start">
+              <div class="flex-1 min-w-0">
+                <div class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 pb-2 border-b border-om-gray-100 text-xs text-om-gray-500 font-medium">
+                  <span>Variable</span>
+                  <span>Type</span>
+                  <span class="text-right">Last updated</span>
+                  <span class="text-right">Ready</span>
+                </div>
+                <div class="flex flex-col">
+                  <div v-for="variable in allVariables" :key="'v3-' + variable.id" class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 py-2.5 cursor-pointer hover:bg-om-gray-50 rounded-lg transition-all items-center">
+                    <div class="flex items-center gap-2 min-w-0"><span class="text-sm text-om-gray-700 truncate">{{ variable.name }}</span></div>
+                    <div><Tag variant="outlined">{{ variable.type }}</Tag></div>
+                    <span class="text-xs text-om-gray-400 text-right">{{ variable.lastUpdated }}</span>
+                    <span class="text-base font-semibold text-om-gray-700 tabular-nums text-right">{{ variable.generated.split(' / ')[0] }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="w-96 shrink-0 px-5 py-4 rounded-lg bg-om-gray-50">
+                <div class="flex items-end justify-between mb-3">
+                  <div>
+                    <div class="text-sm font-medium text-om-gray-600 mb-1">Product page coverage</div>
+                    <div class="flex items-baseline gap-1.5">
+                      <span class="text-5xl font-light text-om-gray-700 tabular-nums leading-none">{{ campaignProductPages }}</span>
+                      <span class="text-sm text-om-gray-400">/ {{ campaignTotalProducts }}</span>
+                    </div>
+                  </div>
+                  <Button variant="outline" size="sm" class="shrink-0">Product catalog</Button>
+                </div>
+                <div class="text-xs text-om-gray-400 leading-relaxed">This campaign will appear on product pages where all variables have been successfully generated.</div>
               </div>
             </div>
           </div>
@@ -1227,7 +1317,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check } from 'lucide-vue-next'
+import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check, Ban, Info } from 'lucide-vue-next'
 import Tag from '../components/shared/Tag.vue'
 import ProductPagePreview from '../components/ppo/ProductPagePreview.vue'
 import Button from '../components/shared/Button.vue'
