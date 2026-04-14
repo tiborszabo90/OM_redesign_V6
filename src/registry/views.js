@@ -167,7 +167,7 @@ const homeViews = [
     id: 'home-heartbeat',
     component: () => import('../views/HomeHeartbeatView.vue'),
     label: 'Home Heartbeat',
-    status: 'active',
+    status: 'archived',
     section: 'home',
     hideLogo: true,
     keyPrefix: 'home-heartbeat',

@@ -33,11 +33,15 @@
             </button>
           </transition>
         </div>
-        <img :src="image" :alt="name" class="w-full h-full object-cover" :style="{ objectPosition: imagePosition }" />
+        <slot name="thumbnail">
+          <img :src="image" :alt="name" class="w-full h-full object-cover" :style="{ objectPosition: imagePosition }" />
+        </slot>
         <transition name="fade">
           <div v-if="isImageHovered && !isCheckboxHovered" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
             <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-              <img :src="image" :alt="name" class="w-96 h-auto rounded-lg" />
+              <slot name="thumbnail-hover">
+                <img :src="image" :alt="name" class="w-96 h-auto rounded-lg" />
+              </slot>
             </div>
           </div>
         </transition>
@@ -133,11 +137,15 @@
         @mouseenter="isImageHovered = true"
         @mouseleave="isImageHovered = false"
       >
-        <img :src="image" :alt="name" class="w-full h-full object-cover" :style="{ objectPosition: imagePosition }" />
+        <slot name="thumbnail">
+          <img :src="image" :alt="name" class="w-full h-full object-cover" :style="{ objectPosition: imagePosition }" />
+        </slot>
         <transition name="fade">
           <div v-if="isImageHovered && !isCheckboxHovered" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
             <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-              <img :src="image" :alt="name" class="w-96 h-auto rounded-lg" />
+              <slot name="thumbnail-hover">
+                <img :src="image" :alt="name" class="w-96 h-auto rounded-lg" />
+              </slot>
             </div>
           </div>
         </transition>

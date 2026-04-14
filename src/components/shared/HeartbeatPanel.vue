@@ -16,16 +16,15 @@
         </button>
       </div>
 
-      <!-- Column headers -->
-      <div class="grid grid-cols-[2fr_1.5fr_1fr_80px] gap-3 px-5 py-2 border-b border-gray-100 bg-gray-50/60 text-[10px] font-semibold text-om-gray-400 uppercase tracking-wider">
-        <span>Visitor</span>
-        <span>Current Page</span>
-        <span>Source</span>
-        <span class="text-right">Duration</span>
-      </div>
-
       <!-- Visitor list -->
-      <div class="max-h-[300px] overflow-y-auto">
+      <div class="max-h-85 overflow-y-auto">
+        <!-- Column headers (sticky inside scroll area) -->
+        <div class="grid grid-cols-[2fr_1.5fr_1fr_80px] gap-3 px-5 py-3 border-b border-[rgb(227,229,232)] text-[13px] font-normal text-om-gray-500 sticky top-0 bg-white z-10">
+          <span>Visitor</span>
+          <span>Current Page</span>
+          <span>Source</span>
+          <span class="text-right">Duration</span>
+        </div>
         <TransitionGroup name="visitor" tag="div" class="divide-y divide-gray-50 relative">
           <div
             v-for="visitor in visitors"
@@ -35,7 +34,13 @@
           >
             <!-- Col 1: Visitor identity -->
             <div class="flex items-center gap-2.5 min-w-0">
-              <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center shrink-0 text-base">
+              <img
+                v-if="getFlagUrl(visitor.country)"
+                :src="getFlagUrl(visitor.country)"
+                :alt="visitor.country"
+                class="w-5 h-5 rounded-full object-cover shrink-0 ring-1 ring-om-gray-200"
+              />
+              <div v-else class="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center shrink-0 text-xs">
                 {{ visitor.flag }}
               </div>
               <div class="min-w-0">
@@ -104,6 +109,45 @@ const props = defineProps({
 })
 
 defineEmits(['close'])
+
+const countryCodeMap = {
+  'USA': 'US',
+  'Germany': 'DE',
+  'Hungary': 'HU',
+  'UK': 'GB',
+  'United Kingdom': 'GB',
+  'France': 'FR',
+  'Austria': 'AT',
+  'Romania': 'RO',
+  'Netherlands': 'NL',
+  'Poland': 'PL',
+  'Italy': 'IT',
+  'Spain': 'ES',
+  'Sweden': 'SE',
+  'United States': 'US',
+  'Canada': 'CA',
+  'Australia': 'AU',
+  'Czech Republic': 'CZ',
+  'Slovakia': 'SK',
+  'Switzerland': 'CH',
+  'Belgium': 'BE',
+  'Norway': 'NO',
+  'Denmark': 'DK',
+  'Finland': 'FI',
+  'Portugal': 'PT',
+  'Greece': 'GR',
+  'Croatia': 'HR',
+  'Ukraine': 'UA',
+  'Serbia': 'RS',
+  'Bulgaria': 'BG',
+  'Turkey': 'TR',
+  'Japan': 'JP',
+  'Singapore': 'SG',
+}
+const getFlagUrl = (country) => {
+  const code = countryCodeMap[country]
+  return code ? `https://flagcdn.com/w40/${code.toLowerCase()}.png` : null
+}
 
 const referrerIcons = {
   google: { icon: markRaw(Search), bg: 'bg-blue-50', text: 'text-blue-500' },

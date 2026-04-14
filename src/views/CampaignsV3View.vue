@@ -126,7 +126,21 @@
             :last-updated="campaign.lastUpdated"
             variant="list"
             @click="handleCampaignClick(campaign.id)"
-          />
+          >
+            <template v-if="campaign.id === 'campaign-ppo'" #thumbnail>
+              <div class="w-full h-full flex flex-col overflow-hidden bg-white px-2 pb-2">
+                <div class="flex-1 bg-gray-200 rounded-sm"></div>
+                <div class="py-2">
+                  <img src="/SPP1.png" alt="Product Summary" class="w-full h-auto rounded-sm" />
+                </div>
+                <div class="flex gap-1.5 flex-1">
+                  <div class="flex-1 bg-gray-200 rounded-sm"></div>
+                  <div class="flex-1 bg-gray-200 rounded-sm"></div>
+                  <div class="flex-1 bg-gray-200 rounded-sm"></div>
+                </div>
+              </div>
+            </template>
+          </CampaignCard>
         </div>
 
         <!-- Pagination -->
@@ -221,7 +235,7 @@ const campaigns = reactive([
   },
   {
     id: 'campaign-ppo',
-    name: 'Product Page Optimizer',
+    name: 'Product Summary 1',
     domain: 'domain.com',
     image: '/image-with-badge/preview-1.png',
     imagePosition: 'top',
@@ -230,8 +244,8 @@ const campaigns = reactive([
     lastUpdated: '3 days ago',
     metrics: [
       { label: 'Visitors', value: '3,812' },
-      { label: 'Add to cart', value: '294' },
-      { label: 'ATC rate', value: '7.71%' },
+      { label: 'Orders', value: '294' },
+      { label: 'Order rate', value: '7.71%' },
       { label: 'Conv. uplift', value: '62.50%', trend: true },
     ],
   },
@@ -485,6 +499,12 @@ const selectedTimeFilter = ref(timeFilterOptions[0])
 const handleLogoClick = () => {
   window.location.reload()
 }
+
+const ppoThumbnailItems = [
+  'Egyedülálló ír whiskey és vanília keverék',
+  'Selymesen lágy, tökéletes jéggel',
+  'Díjnyertes kézműves likőr',
+]
 
 const selectedCount = computed(() => campaigns.filter(c => c.selected).length)
 const allSelected = computed(() => filteredCampaigns.value.length > 0 && filteredCampaigns.value.every(c => c.selected))

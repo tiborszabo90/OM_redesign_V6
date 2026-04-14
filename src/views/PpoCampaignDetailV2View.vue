@@ -335,7 +335,7 @@
         <!-- Variants + Variables Section -->
         <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 pt-5 pb-5 pl-5 pr-8">
           <!-- Header -->
-          <div class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_200px_36px] gap-3 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
+          <div class="grid grid-cols-[1fr_60px_80px_80px_80px_100px_100px_36px] gap-3 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
             <div>Variants</div>
             <div>Active</div>
             <div class="text-right">Visitors</div>
@@ -343,7 +343,6 @@
             <div class="text-right">Conv. R.</div>
             <div class="text-right">Uplift</div>
             <div class="text-right">Chance to win</div>
-            <div></div>
             <div></div>
           </div>
 
@@ -354,7 +353,7 @@
           >
             <!-- Variant header row -->
             <div
-              class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_200px_36px] gap-3 items-center py-3 group cursor-pointer"
+              class="grid grid-cols-[1fr_60px_80px_80px_80px_100px_100px_36px] gap-3 items-center pt-3 pb-1.5 group cursor-pointer"
               :class="!variant.variables.length && vi < variants.length - 1 ? 'border-b border-om-gray-100' : ''"
               @click="$emit('navigate', 'ppo-variant-detail-v2')"
             >
@@ -372,34 +371,17 @@
                 <TrendingUp v-if="variant.uplift.startsWith('+')" :size="16" class="text-[#2CC896]" />
               </div>
               <div class="text-base font-semibold text-om-gray-400 text-right">{{ variant.chanceToWin }}</div>
-              <div class="flex items-center justify-end whitespace-nowrap" @click.stop>
-                <Tag v-if="variant.variables.length" variant="green">Ready for {{ readyCount(variant) }} products</Tag>
-              </div>
               <div class="flex items-center justify-end" @click.stop>
                 <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
               </div>
             </div>
-            <!-- Variable sub-rows -->
+            <!-- Variable tags -->
             <div
-              v-for="(variable, vIdx) in variant.variables"
-              :key="variable.id"
-              class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_200px_36px] gap-3 items-center py-2 -mx-3 px-3 cursor-pointer hover:bg-om-gray-50 rounded-lg transition-colors"
-              :class="vIdx === variant.variables.length - 1 && vi < variants.length - 1 ? 'border-b border-om-gray-100' : ''"
-              @click="$emit('navigate', variable.type === 'Image' ? 'settings-ai-texts-images-v2-generation' : 'settings-ai-texts-images-v2-text-generation')"
+              v-if="variant.variables.length"
+              class="flex flex-wrap gap-1.5 pb-3"
+              :class="vi < variants.length - 1 ? 'border-b border-om-gray-100' : ''"
             >
-              <div class="flex items-center">
-                <span class="text-xs text-om-gray-500">{{ variable.name }}</span>
-              </div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div class="flex items-center justify-end whitespace-nowrap">
-                <Tag variant="green-light">Ready for {{ variable.generated.split(' / ')[0] }} products</Tag>
-              </div>
-              <div></div>
+              <Tag v-for="variable in variant.variables" :key="variable.id" variant="gray">{{ variable.name }}</Tag>
             </div>
           </div>
 
@@ -414,39 +396,42 @@
 
         <!-- Campaign Settings Sections -->
         <div class="space-y-5">
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-om-gray-700">Settings summary</h2>
+            <Button variant="outline" size="sm" @click="activeTab = 'Settings'">Edit settings</Button>
+          </div>
 
-
-          <!-- Who should see the popup -->
+          <!-- Product Pages -->
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
-            <h3 class="text-base font-semibold text-om-gray-700 mb-4">Who should see the popup</h3>
-            <div class="space-y-3">
-              <div class="flex items-start gap-3">
-                <div class="w-7 h-7 bg-om-orange-50 rounded flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#ED5A29" stroke-width="1.5">
-                    <rect x="2" y="3" width="10" height="8" rx="1"/>
-                    <path d="M4 3V2M10 3V2"/>
-                  </svg>
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-5">
+              <h3 class="text-base font-semibold text-om-gray-700">Product pages</h3>
+              <div class="flex items-center gap-4">
+                <div class="flex items-baseline gap-1.5">
+                  <span class="text-sm text-om-gray-400">Ready for</span>
+                  <span class="text-2xl font-semibold text-om-gray-700 tabular-nums">{{ campaignProductPages }}</span>
+                  <span class="text-sm text-om-gray-400">/ {{ campaignTotalProducts }}</span>
                 </div>
-                <div class="flex-1">
-                  <div class="text-sm font-medium text-om-gray-700">Spent on pages</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">The popup will appear to visitors who spent a minimum of <span class="font-medium text-om-gray-700">10 seconds</span> on the current subpage</div>
-                </div>
+                <Button variant="outline" size="sm">Show product catalog</Button>
               </div>
-              <div class="flex items-start gap-3">
-                <div class="w-7 h-7 bg-om-orange-50 rounded flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#ED5A29" stroke-width="1.5">
-                    <rect x="2" y="3" width="10" height="8" rx="1"/>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-medium text-om-gray-700">Aktuális oldal / URL</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5 space-y-0.5">
-                    <div>A kampány egy aktuális oldal URL-jén és az altalanaihoz <span class="font-medium text-om-gray-700">cart</span></div>
-                    <div>vagy az aktuális oldal URL-jén vagy altalanaihoz <span class="font-medium text-om-gray-700">shop_cart</span></div>
-                    <div>vagy az aktuális oldal URL-jén vagy altalanaihoz <span class="font-medium text-om-gray-700">shop_reg</span></div>
-                    <div>vagy az aktuális oldal URL-jén vagy altalanaihoz <span class="font-medium text-om-gray-700">shop_category</span></div>
+            </div>
+            <!-- Variable cards -->
+            <div class="grid gap-2.5" :style="{ gridTemplateColumns: `repeat(${Math.min(allVariables.length, 4)}, 1fr)` }">
+              <div
+                v-for="variable in allVariables"
+                :key="variable.id"
+                class="border border-om-gray-100 rounded-lg px-3 py-2.5 cursor-pointer hover:border-om-gray-200 hover:shadow-sm transition-all flex items-center justify-between gap-3"
+                @click="$emit('navigate', variable.type === 'Image' ? 'settings-ai-texts-images-v2-generation' : 'settings-ai-texts-images-v2-text-generation')"
+              >
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="w-7 h-7 rounded-md flex items-center justify-center shrink-0" :class="variable.type === 'Image' ? 'bg-blue-50' : 'bg-purple-50'">
+                    <ImageIcon v-if="variable.type === 'Image'" :size="15" class="text-blue-500" />
+                    <Type v-else :size="15" class="text-purple-500" />
                   </div>
+                  <span class="text-sm text-om-gray-700 truncate">{{ variable.name }}</span>
+                  <span class="text-xs text-om-gray-400 shrink-0">{{ variable.lastUpdated }}</span>
                 </div>
+                <span class="text-base font-semibold text-om-gray-700 tabular-nums shrink-0">{{ variable.generated.split(' / ')[0] }}</span>
               </div>
             </div>
           </div>
@@ -1295,6 +1280,25 @@ const variants = reactive([
   },
   {
     id: 'v2',
+    name: 'Product summary 2',
+    active: true,
+    expanded: false,
+    visitors: '12,401',
+    addToCart: '589',
+    orderRate: '5.83%',
+    uplift: '+0.34%',
+    chanceToWin: '67.4%',
+    variables: [
+      { id: 0, name: 'AI lifestyle image 1', type: 'Image', generated: '73 / 467', status: 'Ready to use', lastUpdated: 'Mar 15, 2026' },
+      { id: 8, name: 'Benefit list', type: 'Text', generated: '112 / 467', status: 'Ready to use', lastUpdated: 'Mar 17, 2026' },
+    ],
+    placements: {
+      'product-image': 0,
+      'benefit-list': 8,
+    },
+  },
+  {
+    id: 'v3',
     name: 'Control',
     active: true,
     expanded: false,
@@ -1340,6 +1344,36 @@ const generatedPercent = (variant) => {
   const total = totals[0]
   return total > 0 ? Math.round((min / total) * 100) : 0
 }
+
+const campaignProductPages = computed(() => {
+  const variantsWithVars = variants.filter(v => v.variables.length > 0)
+  if (!variantsWithVars.length) return 0
+  return Math.min(...variantsWithVars.map(v => readyCount(v)))
+})
+
+const campaignTotalProducts = computed(() => {
+  const variantsWithVars = variants.filter(v => v.variables.length > 0)
+  if (!variantsWithVars.length) return 0
+  return totalProducts(variantsWithVars[0])
+})
+
+const campaignCoveragePercent = computed(() => {
+  return campaignTotalProducts.value > 0 ? Math.round((campaignProductPages.value / campaignTotalProducts.value) * 100) : 0
+})
+
+const allVariables = computed(() => {
+  const seen = new Set()
+  const result = []
+  for (const variant of variants) {
+    for (const variable of variant.variables) {
+      if (!seen.has(variable.id)) {
+        seen.add(variable.id)
+        result.push(variable)
+      }
+    }
+  }
+  return result
+})
 
 // Area type definitions
 const AREA_TYPES = {

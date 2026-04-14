@@ -138,60 +138,54 @@
       <!-- Domain selector modal -->
       <transition name="fade">
         <div v-if="showDomainModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="closeDomainModal">
-          <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+          <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 flex flex-col">
             <!-- Header -->
-            <div class="px-6 pt-6 pb-4">
-              <h3 class="text-lg font-semibold text-om-gray-700 mb-1">Select a domain</h3>
-              <p class="text-sm text-om-gray-400">Choose which store to optimize with Smart Product Pages.</p>
+            <div class="px-6 pt-6 pb-4 flex items-start justify-between shrink-0 relative z-10"
+              :style="headerShadowStyle"
+            >
+              <div>
+                <h3 class="text-lg font-semibold text-om-gray-700 mb-1">Select a domain</h3>
+                <p class="text-sm text-om-gray-400">Choose which store to optimize with Smart Product Pages.</p>
+              </div>
+              <button @click="closeDomainModal" class="p-1 rounded-lg hover:bg-om-gray-100 transition-colors cursor-pointer text-om-gray-400 hover:text-om-gray-600 shrink-0 mt-0.5">
+                <X :size="18" />
+              </button>
             </div>
 
-            <!-- Domain list -->
-            <div class="px-6 pb-2">
-              <div class="space-y-2">
-                <div
-                  v-for="domain in domains"
-                  :key="domain.url"
-                  class="flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all duration-150 cursor-pointer"
-                  :class="[
-                    syncingDomain === domain.url ? 'border-om-gray-200 bg-om-gray-50' :
-                    selectedDomain === domain.url ? 'border-om-orange-500 bg-om-orange-50/50' :
-                    'border-om-gray-200 hover:border-om-gray-300'
-                  ]"
-                  @click="handleDomainClick(domain)"
-                >
-                  <!-- Domain + catalog status -->
-                  <div class="flex-1 min-w-0">
-                    <div class="text-sm font-medium text-om-gray-700 truncate">{{ domain.url }}</div>
-                    <div v-if="syncingDomain === domain.url" class="flex items-center gap-1.5 text-xs text-om-gray-500 mt-0.5">
-                      <Loader2 :size="11" class="animate-spin" />
-                      Synchronizing product catalog...
+            <!-- Domain list with bottom shadow -->
+            <div>
+              <div ref="domainListRef" class="px-6 pb-6 max-h-96 overflow-y-auto domain-list-scroll" @scroll="onDomainListScroll">
+                <div class="space-y-2">
+                  <div
+                    v-for="domain in domains"
+                    :key="domain.url"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all duration-150 cursor-pointer"
+                    :class="[
+                      syncingDomain === domain.url ? 'border-om-gray-200 bg-om-gray-50' :
+                      selectedDomain === domain.url ? 'border-om-orange-500 bg-om-orange-50/50' :
+                      'border-om-gray-200 hover:border-om-gray-300'
+                    ]"
+                    @click="handleDomainClick(domain)"
+                  >
+                    <!-- Domain + catalog status -->
+                    <div class="flex-1 min-w-0">
+                      <div class="text-sm font-medium text-om-gray-700 truncate">{{ domain.url }}</div>
+                      <div v-if="syncingDomain === domain.url" class="flex items-center gap-1.5 text-xs text-om-gray-500 mt-0.5">
+                        <Loader2 :size="11" class="animate-spin" />
+                        Synchronizing product catalog...
+                      </div>
+                      <div v-else-if="domain.hasCatalog" class="text-xs text-om-gray-400 mt-0.5">
+                        {{ domain.productCount.toLocaleString() }} products
+                      </div>
+                      <div v-else class="flex items-center gap-1 text-xs text-amber-600 mt-0.5">
+                        <AlertCircle :size="11" />
+                        No catalog — click to sync
+                      </div>
                     </div>
-                    <div v-else-if="domain.hasCatalog" class="flex items-center gap-1 text-xs text-emerald-600 mt-0.5">
-                      <CheckCircle2 :size="11" />
-                      {{ domain.productCount.toLocaleString() }} products
-                    </div>
-                    <div v-else class="flex items-center gap-1 text-xs text-amber-600 mt-0.5">
-                      <AlertCircle :size="11" />
-                      No catalog — click to sync
-                    </div>
+                    <ChevronRight v-if="syncingDomain !== domain.url" :size="16" class="text-om-gray-300 shrink-0" />
                   </div>
-                  <template v-if="domain.hasCatalog && syncingDomain !== domain.url">
-                    <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0"
-                      :class="selectedDomain === domain.url ? 'border-om-orange-500' : 'border-om-gray-300'">
-                      <div v-if="selectedDomain === domain.url" class="w-2.5 h-2.5 rounded-full bg-om-orange-500" />
-                    </div>
-                  </template>
-                  <ChevronRight v-else-if="!syncingDomain || syncingDomain !== domain.url" :size="16" class="text-om-gray-300 shrink-0" />
                 </div>
               </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="px-6 pt-4 pb-6 flex justify-end gap-3">
-              <Button variant="ghost" size="sm" @click="closeDomainModal">Cancel</Button>
-              <Button variant="primary" size="sm" :disabled="!selectedDomain" @click="confirmDomain">
-                Next
-              </Button>
             </div>
           </div>
         </div>
@@ -204,12 +198,22 @@
 import { ref, reactive, computed } from 'vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Tag from '../components/shared/Tag.vue'
-import Button from '../components/shared/Button.vue'
-import { ChevronLeft, ChevronRight, ImageIcon, Type, Check, CheckCircle2, AlertCircle, ArrowRight, Loader2 } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, ImageIcon, Type, Check, AlertCircle, ArrowRight, Loader2, X } from 'lucide-vue-next'
 
 const emit = defineEmits(['back', 'next', 'menu-click'])
 
 const selectedType = ref(null)
+const isScrolled = ref(false)
+const domainListRef = ref(null)
+
+const headerShadowStyle = computed(() => ({
+  boxShadow: isScrolled.value ? '0 4px 16px rgba(0,0,0,0.15)' : '0 0 0 rgba(0,0,0,0)',
+  transition: 'box-shadow 0.3s ease',
+}))
+
+function onDomainListScroll(e) {
+  isScrolled.value = e.target.scrollTop > 0
+}
 const pendingType = ref(null)
 const showDomainModal = ref(false)
 
@@ -221,10 +225,15 @@ const contentTypes = [
 const domains = reactive([
   { url: 'whiskynet.hu', hasCatalog: true, productCount: 1284 },
   { url: 'demo-store.myshopify.com', hasCatalog: true, productCount: 356 },
+  { url: 'mybrand.com', hasCatalog: true, productCount: 89 },
+  { url: 'premium-spirits.eu', hasCatalog: true, productCount: 2410 },
+  { url: 'craft-beer-shop.com', hasCatalog: true, productCount: 567 },
+  { url: 'organic-wines.co', hasCatalog: true, productCount: 198 },
   { url: 'newbrand.com', hasCatalog: false, productCount: 0 },
+  { url: 'test-store.myshopify.com', hasCatalog: false, productCount: 0 },
 ])
 
-const selectedDomain = ref(domains[0].url)
+const selectedDomain = ref(null)
 const syncingDomain = ref(null)
 
 const selectedDomainObj = computed(() =>
@@ -235,6 +244,8 @@ function handleDomainClick(domain) {
   if (syncingDomain.value) return
   if (domain.hasCatalog) {
     selectedDomain.value = domain.url
+    showDomainModal.value = false
+    emit('next', [pendingType.value])
   }
 }
 
@@ -249,10 +260,6 @@ function closeDomainModal() {
   pendingType.value = null
 }
 
-function confirmDomain() {
-  showDomainModal.value = false
-  emit('next', [pendingType.value])
-}
 </script>
 
 <style scoped>
@@ -263,5 +270,10 @@ function confirmDomain() {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.domain-list-scroll {
+  mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
 }
 </style>
