@@ -33,6 +33,175 @@
             </Dropdown>
             </div>
 
+            <!-- Predefined filter chips -->
+            <div class="flex items-center gap-2">
+              <div
+                v-for="(f, idx) in predefinedFilters"
+                :key="f.value"
+                class="group relative flex items-center"
+              >
+                <button
+                  @click="editFilter(f, idx)"
+                  class="inline-flex items-center gap-1.5 px-3 h-10 rounded-lg bg-om-orange-100 text-om-orange-600 text-sm font-medium cursor-pointer hover:bg-om-orange-200 transition-colors"
+                >
+                  {{ f.label }}
+                  <span class="inline-flex items-center overflow-hidden transition-all duration-200 ease-out w-0 group-hover:w-4 group-hover:ml-1">
+                    <X
+                      :size="14"
+                      class="shrink-0 text-om-orange-400 hover:text-om-orange-700"
+                      @click.stop="removePredefinedFilter(f.value)"
+                    />
+                  </span>
+                </button>
+                <!-- Filter dropdown anchored to this chip -->
+                <div v-if="showAddFilterDropdown && editingFilterIndex === idx" class="fixed inset-0 z-10" @click="closeFilterDropdown" />
+                <div v-if="showAddFilterDropdown && editingFilterIndex === idx" class="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-20 w-[280px]">
+                  <!-- Header -->
+                  <div class="px-3 pt-3 pb-2">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="text-xs font-medium text-om-gray-400 uppercase tracking-wide">
+                        {{ selectedFilterCategory?.label }}
+                      </span>
+                    </div>
+                    <!-- Condition selector -->
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <button
+                        v-for="cond in filterConditions"
+                        :key="cond.value"
+                        @click="selectedFilterCondition = cond.value"
+                        :class="['px-2.5 py-1 rounded-md text-xs cursor-pointer transition-all duration-150', selectedFilterCondition === cond.value ? 'bg-om-gray-200 text-om-gray-700 font-medium' : 'bg-om-gray-100 text-om-gray-500 hover:bg-om-gray-200']"
+                      >
+                        {{ cond.label }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Search -->
+                  <div class="px-3 pb-2">
+                    <div class="relative">
+                      <Search :size="14" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-om-gray-400 pointer-events-none" />
+                      <input
+                        v-model="filterDropdownSearch"
+                        type="text"
+                        :placeholder="`Search ${selectedFilterCategory?.label.toLowerCase()}...`"
+                        class="w-full pl-8 pr-3 h-8 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Values list -->
+                  <div class="py-1">
+                    <label
+                      v-for="val in filteredValues"
+                      :key="val"
+                      class="w-full px-3 py-2 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors flex items-center gap-2.5 cursor-pointer"
+                    >
+                      <Checkbox
+                        :model-value="filterDropdownSelected.includes(val)"
+                        size="sm"
+                        @update:model-value="toggleFilterValue(val)"
+                      />
+                      <span>{{ val }}</span>
+                    </label>
+                  </div>
+
+                  <!-- Apply button -->
+                  <div v-if="filterDropdownSelected.length > 0" class="px-3 py-2 border-t border-om-gray-100">
+                    <Button variant="primary" size="sm" class="w-full" @click="applyDropdownFilter">
+                      Apply {{ filterDropdownSelected.length }} filter{{ filterDropdownSelected.length > 1 ? 's' : '' }}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add filter button -->
+              <div class="relative">
+                <button
+                  @click="toggleFilterDropdown"
+                  :class="['px-3 h-10 flex items-center gap-1.5 rounded-lg text-sm cursor-pointer transition-all duration-200 ease-out', showAddFilterDropdown && editingFilterIndex === null ? 'bg-om-gray-200 text-om-gray-700' : 'bg-om-gray-100 text-om-gray-500 hover:bg-om-gray-200 hover:text-om-gray-700']"
+                >
+                  <Plus :size="16" />
+                  <span class="text-om-gray-700">Filter</span>
+                </button>
+                <div v-if="showAddFilterDropdown && editingFilterIndex === null" class="fixed inset-0 z-10" @click="closeFilterDropdown" />
+                <div v-if="showAddFilterDropdown && editingFilterIndex === null" class="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-20 w-[280px]">
+                  <!-- Header -->
+                  <div v-if="filterDropdownStep === 'values'" class="px-3 pt-3 pb-2">
+                    <div class="flex items-center gap-2 mb-2">
+                      <button
+                        @click="filterDropdownStep = 'categories'"
+                        class="w-6 h-6 flex items-center justify-center rounded hover:bg-om-gray-100 text-om-gray-400 transition-colors"
+                      >
+                        <ChevronLeft :size="16" />
+                      </button>
+                      <span class="text-xs font-medium text-om-gray-400 uppercase tracking-wide">
+                        {{ selectedFilterCategory?.label }}
+                      </span>
+                    </div>
+                    <!-- Condition selector -->
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <button
+                        v-for="cond in filterConditions"
+                        :key="cond.value"
+                        @click="selectedFilterCondition = cond.value"
+                        :class="['px-2.5 py-1 rounded-md text-xs cursor-pointer transition-all duration-150', selectedFilterCondition === cond.value ? 'bg-om-gray-200 text-om-gray-700 font-medium' : 'bg-om-gray-100 text-om-gray-500 hover:bg-om-gray-200']"
+                      >
+                        {{ cond.label }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Search -->
+                  <div class="px-3 pt-3 pb-2">
+                    <div class="relative">
+                      <Search :size="14" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-om-gray-400 pointer-events-none" />
+                      <input
+                        v-model="filterDropdownSearch"
+                        type="text"
+                        :placeholder="filterDropdownStep === 'categories' ? 'Search filters...' : `Search ${selectedFilterCategory?.label.toLowerCase()}...`"
+                        class="w-full pl-8 pr-3 h-8 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Categories list -->
+                  <div v-if="filterDropdownStep === 'categories'" class="py-1">
+                    <button
+                      v-for="cat in filteredCategories"
+                      :key="cat.value"
+                      @click="selectFilterCategory(cat)"
+                      class="w-full px-3 py-2 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors flex items-center gap-2"
+                    >
+                      <component :is="cat.icon" :size="16" class="text-om-gray-400 shrink-0" />
+                      {{ cat.label }}
+                    </button>
+                  </div>
+
+                  <!-- Values list -->
+                  <div v-if="filterDropdownStep === 'values'" class="py-1">
+                    <label
+                      v-for="val in filteredValues"
+                      :key="val"
+                      class="w-full px-3 py-2 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors flex items-center gap-2.5 cursor-pointer"
+                    >
+                      <Checkbox
+                        :model-value="filterDropdownSelected.includes(val)"
+                        size="sm"
+                        @update:model-value="toggleFilterValue(val)"
+                      />
+                      <span>{{ val }}</span>
+                    </label>
+                  </div>
+
+                  <!-- Apply button -->
+                  <div v-if="filterDropdownStep === 'values' && filterDropdownSelected.length > 0" class="px-3 py-2 border-t border-om-gray-100">
+                    <Button variant="primary" size="sm" class="w-full" @click="applyDropdownFilter">
+                      Apply {{ filterDropdownSelected.length }} filter{{ filterDropdownSelected.length > 1 ? 's' : '' }}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Right-aligned filters -->
@@ -1461,8 +1630,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue'
-import { ExternalLink, ChevronDown, ChevronRight, ChevronLeft, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X, Dice5, Search, Download } from 'lucide-vue-next'
+import { ref, reactive, computed, watch, nextTick } from 'vue'
+import { ExternalLink, ChevronDown, ChevronRight, ChevronLeft, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X, Dice5, Search, Download, Plus, Monitor, Globe, Tag, MousePointerClick, BarChart3, Smartphone, FileText, Languages, Laptop, Link, Megaphone } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
@@ -1601,6 +1770,156 @@ const periods = ref([
   'Last year',
   'Custom period'
 ])
+
+// Predefined filters
+const activePredefinedFilter = ref(null)
+const predefinedFilters = reactive([])
+
+const removePredefinedFilter = (value) => {
+  predefinedFilters.splice(predefinedFilters.findIndex(f => f.value === value), 1)
+  if (activePredefinedFilter.value === value) {
+    activePredefinedFilter.value = null
+  }
+}
+
+// Add filter dropdown
+const showAddFilterDropdown = ref(false)
+const filterDropdownStep = ref('categories')
+const filterDropdownSearch = ref('')
+const selectedFilterCategory = ref(null)
+const filterDropdownSelected = ref([])
+const addedQuickFilters = ref([])
+const editingFilterIndex = ref(null)
+
+const allFilterOptions = [
+  { value: 'device', label: 'Device', icon: Smartphone, values: ['Mobile', 'Desktop', 'Tablet'] },
+  { value: 'traffic-source', label: 'Traffic source', icon: Globe, values: ['Google', 'Facebook', 'Instagram', 'Direct', 'Email', 'TikTok', 'Twitter/X', 'LinkedIn'] },
+  { value: 'country', label: 'Country', icon: Globe, values: ['Hungary', 'United States', 'Germany', 'United Kingdom', 'France', 'Austria', 'Romania', 'Slovakia'] },
+  { value: 'visitor-type', label: 'Visitor type', icon: MousePointerClick, values: ['New visitors', 'Returning visitors'] },
+  { value: 'campaign', label: 'Campaign', icon: Monitor, values: ['Smart Discount Popup', 'Black Friday 2025', 'Exit Intent Offer', 'Welcome Popup', 'Newsletter Signup', 'Cart Abandonment'] },
+  { value: 'tag', label: 'Tag', icon: Tag, values: ['Popup', 'Embedded', 'Fullscreen', 'Sidebar', 'Gamification', 'Survey'] },
+  { value: 'campaign-type', label: 'Campaign type', icon: MousePointerClick, values: ['Popup', 'Embedded', 'Fullscreen', 'Sticky bar', 'Side message'] },
+  { value: 'conversion-goal', label: 'Conversion goal', icon: BarChart3, values: ['Purchase', 'Add to cart', 'Email capture', 'Phone capture', 'Submit'] },
+  { value: 'landing-page', label: 'Landing page', icon: FileText, values: ['/home', '/products', '/collections/sale', '/cart', '/checkout', '/about', '/contact', '/blog'] },
+  { value: 'browser-language', label: 'Browser language', icon: Languages, values: ['en', 'hu', 'de', 'fr', 'es', 'ro', 'sk', 'pl'] },
+  { value: 'operating-system', label: 'Operating system', icon: Laptop, values: ['Windows', 'macOS', 'iOS', 'Android', 'Linux'] },
+  { value: 'visited-page', label: 'Visited page', icon: FileText, values: ['/home', '/products', '/collections/sale', '/cart', '/checkout', '/about', '/contact', '/blog'] },
+  { value: 'referring-site', label: 'Referring site', icon: Link, values: ['google.com', 'facebook.com', 'instagram.com', 'tiktok.com', 'pinterest.com', 'reddit.com', 'twitter.com'] },
+  { value: 'utm-campaign', label: 'UTM campaign', icon: Megaphone, values: ['summer_sale_2025', 'black_friday', 'spring_launch', 'newsletter_jan', 'retargeting_q1', 'brand_awareness'] },
+  { value: 'utm-source', label: 'UTM source', icon: Megaphone, values: ['google', 'facebook', 'instagram', 'email', 'tiktok', 'linkedin', 'twitter'] },
+]
+
+const filteredCategories = computed(() => {
+  const q = filterDropdownSearch.value.toLowerCase()
+  if (!q) return allFilterOptions
+  return allFilterOptions.filter(c => c.label.toLowerCase().includes(q))
+})
+
+const filteredValues = computed(() => {
+  if (!selectedFilterCategory.value) return []
+  const q = filterDropdownSearch.value.toLowerCase()
+  const vals = selectedFilterCategory.value.values
+  if (!q) return vals
+  return vals.filter(v => v.toLowerCase().includes(q))
+})
+
+const toggleFilterDropdown = () => {
+  showAddFilterDropdown.value = !showAddFilterDropdown.value
+  if (showAddFilterDropdown.value) {
+    filterDropdownStep.value = 'categories'
+    filterDropdownSearch.value = ''
+    selectedFilterCategory.value = null
+    filterDropdownSelected.value = []
+    editingFilterIndex.value = null
+  }
+}
+
+const closeFilterDropdown = () => {
+  showAddFilterDropdown.value = false
+}
+
+const allFilterConditions = [
+  { value: 'is', label: 'Is' },
+  { value: 'is-not', label: 'Is not' },
+  { value: 'contains', label: 'Contains' },
+  { value: 'not-contains', label: 'Does not contain' },
+]
+const selectedFilterCondition = ref('is')
+
+const filterConditions = computed(() => {
+  const cat = selectedFilterCategory.value
+  if (!cat || cat.values.length <= 5) {
+    return allFilterConditions.filter(c => c.value === 'is' || c.value === 'is-not')
+  }
+  return allFilterConditions
+})
+
+const selectFilterCategory = (cat) => {
+  selectedFilterCategory.value = cat
+  filterDropdownStep.value = 'values'
+  filterDropdownSearch.value = ''
+  filterDropdownSelected.value = []
+  selectedFilterCondition.value = 'is'
+}
+
+const toggleFilterValue = (val) => {
+  const idx = filterDropdownSelected.value.indexOf(val)
+  if (idx >= 0) {
+    filterDropdownSelected.value.splice(idx, 1)
+  } else {
+    filterDropdownSelected.value.push(val)
+  }
+}
+
+const buildFilterLabel = (catLabel, condLabel, values) => {
+  const valStr = values.length <= 2 ? values.join(', ') : `${values.length} selected`
+  return `${catLabel} ${condLabel.toLowerCase()} ${valStr}`
+}
+
+const applyDropdownFilter = () => {
+  const cat = selectedFilterCategory.value
+  const cond = allFilterConditions.find(c => c.value === selectedFilterCondition.value)
+  const vals = [...filterDropdownSelected.value]
+  const label = buildFilterLabel(cat.label, cond.label, vals)
+
+  if (editingFilterIndex.value !== null) {
+    const f = predefinedFilters[editingFilterIndex.value]
+    f.category = cat.value
+    f.condition = selectedFilterCondition.value
+    f.selectedValues = vals
+    f.label = label
+    f.value = `${cat.value}-${selectedFilterCondition.value}-${vals.join(',')}`
+    editingFilterIndex.value = null
+  } else {
+    predefinedFilters.push({
+      value: `${cat.value}-${selectedFilterCondition.value}-${vals.join(',')}`,
+      label,
+      category: cat.value,
+      condition: selectedFilterCondition.value,
+      selectedValues: vals,
+    })
+  }
+  showAddFilterDropdown.value = false
+}
+
+const editFilter = (f, idx) => {
+  editingFilterIndex.value = idx
+  const cat = allFilterOptions.find(o => o.value === f.category)
+  selectedFilterCategory.value = cat
+  selectedFilterCondition.value = f.condition
+  filterDropdownSelected.value = [...f.selectedValues]
+  filterDropdownStep.value = 'values'
+  filterDropdownSearch.value = ''
+  showAddFilterDropdown.value = true
+}
+
+const backToCategories = () => {
+  editingFilterIndex.value = null
+  filterDropdownStep.value = 'categories'
+  filterDropdownSearch.value = ''
+  selectedFilterCategory.value = null
+  filterDropdownSelected.value = []
+}
 
 // Chart data - 30 days of conversion rate (0.4% to 0.8%)
 // Chart data for each metric
@@ -2555,6 +2874,14 @@ const applyFilterFromSelection = (section, selectedSet, getLabel) => {
 
 const removeFilterChip = (key) => {
   activeFilterChips.value = activeFilterChips.value.filter(c => c.key !== key)
+  // Remove from addedQuickFilters if no more chips from that category
+  if (key.startsWith('quick-')) {
+    const section = activeFilterChips.value.find(c => c.key === key)?.section
+    if (section && !activeFilterChips.value.some(c => c.section === section)) {
+      const catValue = section.replace('quick-', '')
+      addedQuickFilters.value = addedQuickFilters.value.filter(v => v !== catValue)
+    }
+  }
 }
 
 const sectionHasActiveFilters = (section) => {

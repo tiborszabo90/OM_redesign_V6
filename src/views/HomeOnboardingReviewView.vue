@@ -7,17 +7,33 @@
 
         <!-- Filters Section -->
         <div class="flex items-center justify-between mb-5 gap-4 max-960:flex-col max-960:items-start">
-          <!-- Domain Selector -->
-          <div class="w-56">
-            <Dropdown
-              v-model="selectedDomain"
-              :options="domains"
-              placeholder="Select domain"
-            >
-              <template #icon>
-                <img src="/demos/telekom/logo.png" alt="Domain" class="w-5 h-5 rounded-full object-cover" />
-              </template>
-            </Dropdown>
+          <!-- Domain Selector + Heartbeat -->
+          <div class="flex items-center gap-4">
+            <div class="w-56">
+              <Dropdown
+                v-model="selectedDomain"
+                :options="domains"
+                placeholder="Select domain"
+              >
+                <template #icon>
+                  <img src="/demos/telekom/logo.png" alt="Domain" class="w-5 h-5 rounded-full object-cover" />
+                </template>
+              </Dropdown>
+            </div>
+            <div class="relative">
+              <HeartbeatIndicator
+                :visitor-count="liveVisitors.length"
+                :expanded="heartbeatOpen"
+                @toggle="heartbeatOpen = !heartbeatOpen"
+              />
+              <div v-if="heartbeatOpen" class="absolute top-full left-0 mt-2 z-50 w-175">
+                <HeartbeatPanel
+                  :open="heartbeatOpen"
+                  :visitors="liveVisitors"
+                  @close="heartbeatOpen = false"
+                />
+              </div>
+            </div>
           </div>
 
         </div>
@@ -255,8 +271,8 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import { UserPlus, Signpost, X, LayoutTemplate, LayoutGrid, Plug, Star, Check } from 'lucide-vue-next'
+import { ref, watch, onMounted, onUnmounted, markRaw } from 'vue'
+import { UserPlus, Signpost, X, LayoutTemplate, LayoutGrid, Plug, Star, Check, Monitor, Smartphone, Tablet } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Accordion from '../components/shared/Accordion.vue'
 import Button from '../components/shared/Button.vue'
@@ -264,6 +280,8 @@ import Dropdown from '../components/shared/Dropdown.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
 import MeditatingPersonSvg from '../components/illustrations/MeditatingPersonSvg.vue'
 import AddDomainModal from '../components/shared/AddDomainModal.vue'
+import HeartbeatIndicator from '../components/shared/HeartbeatIndicator.vue'
+import HeartbeatPanel from '../components/shared/HeartbeatPanel.vue'
 
 defineProps({
   registrationData: {
@@ -319,4 +337,68 @@ const handleNewDomain = (newDomain) => {
   domains.value.splice(insertIdx, 0, newDomain)
   selectedDomain.value = newDomain
 }
+
+// ── Heartbeat ──
+const heartbeatOpen = ref(false)
+
+const visitorPool = [
+  { flag: '🇺🇸', label: 'Anonymous visitor', city: 'New York', country: 'USA', currentPage: '/products/wireless-headphones', device: 'desktop', referrer: 'google', browser: 'Chrome', pagesViewed: 4, returning: false },
+  { flag: '🇩🇪', label: 'Anonymous visitor', city: 'Berlin', country: 'Germany', currentPage: '/cart', device: 'mobile', referrer: 'instagram', browser: 'Safari', pagesViewed: 6, returning: true },
+  { flag: '🇭🇺', label: 'Anonymous visitor', city: 'Budapest', country: 'Hungary', currentPage: '/products/yoga-mat', device: 'desktop', referrer: 'direct', browser: 'Chrome', pagesViewed: 2, returning: false },
+  { flag: '🇬🇧', label: 'Anonymous visitor', city: 'London', country: 'UK', currentPage: '/checkout', device: 'desktop', referrer: 'google', browser: 'Firefox', pagesViewed: 8, returning: true },
+  { flag: '🇫🇷', label: 'Anonymous visitor', city: 'Paris', country: 'France', currentPage: '/', device: 'mobile', referrer: 'facebook', browser: 'Safari', pagesViewed: 1, returning: false },
+  { flag: '🇦🇹', label: 'Anonymous visitor', city: 'Vienna', country: 'Austria', currentPage: '/products/running-shoes', device: 'tablet', referrer: 'google', browser: 'Chrome', pagesViewed: 3, returning: false },
+  { flag: '🇷🇴', label: 'Anonymous visitor', city: 'Bucharest', country: 'Romania', currentPage: '/products/smartwatch', device: 'mobile', referrer: 'tiktok', browser: 'Chrome', pagesViewed: 5, returning: true },
+  { flag: '🇳🇱', label: 'Anonymous visitor', city: 'Amsterdam', country: 'Netherlands', currentPage: '/sale', device: 'desktop', referrer: 'email', browser: 'Chrome', pagesViewed: 3, returning: true },
+  { flag: '🇵🇱', label: 'Anonymous visitor', city: 'Warsaw', country: 'Poland', currentPage: '/products/backpack', device: 'desktop', referrer: 'google', browser: 'Edge', pagesViewed: 2, returning: false },
+  { flag: '🇮🇹', label: 'Anonymous visitor', city: 'Milan', country: 'Italy', currentPage: '/products/sunglasses', device: 'mobile', referrer: 'instagram', browser: 'Safari', pagesViewed: 7, returning: true },
+  { flag: '🇪🇸', label: 'Anonymous visitor', city: 'Madrid', country: 'Spain', currentPage: '/products/fitness-tracker', device: 'desktop', referrer: 'direct', browser: 'Chrome', pagesViewed: 4, returning: false },
+  { flag: '🇸🇪', label: 'Anonymous visitor', city: 'Stockholm', country: 'Sweden', currentPage: '/about', device: 'tablet', referrer: 'facebook', browser: 'Safari', pagesViewed: 1, returning: false },
+]
+
+const durations = ['0:12', '0:34', '1:07', '1:45', '2:23', '3:01', '0:08', '0:55', '4:12', '2:50']
+const deviceIconMap = { desktop: markRaw(Monitor), mobile: markRaw(Smartphone), tablet: markRaw(Tablet) }
+
+let nextId = 1
+function createVisitor(isNew = false) {
+  const template = visitorPool[Math.floor(Math.random() * visitorPool.length)]
+  return {
+    ...template,
+    id: nextId++,
+    duration: durations[Math.floor(Math.random() * durations.length)],
+    deviceIcon: deviceIconMap[template.device],
+    pagesViewed: template.pagesViewed + Math.floor(Math.random() * 3),
+    isNew,
+  }
+}
+
+const liveVisitors = ref(Array.from({ length: 5 }, () => createVisitor(false)))
+
+let heartbeatInterval = null
+onMounted(() => {
+  heartbeatInterval = setInterval(() => {
+    const action = Math.random()
+    if (action < 0.4 && liveVisitors.value.length < 12) {
+      liveVisitors.value = [createVisitor(true), ...liveVisitors.value]
+      const addedId = liveVisitors.value[0].id
+      setTimeout(() => {
+        const v = liveVisitors.value.find(x => x.id === addedId)
+        if (v) v.isNew = false
+      }, 3000)
+    } else if (action < 0.65 && liveVisitors.value.length > 2) {
+      const idx = Math.floor(Math.random() * liveVisitors.value.length)
+      liveVisitors.value = liveVisitors.value.filter((_, i) => i !== idx)
+    } else {
+      const idx = Math.floor(Math.random() * liveVisitors.value.length)
+      if (liveVisitors.value[idx]) {
+        const newTemplate = visitorPool[Math.floor(Math.random() * visitorPool.length)]
+        liveVisitors.value[idx].currentPage = newTemplate.currentPage
+        liveVisitors.value[idx].duration = durations[Math.floor(Math.random() * durations.length)]
+      }
+    }
+  }, 3000)
+})
+onUnmounted(() => {
+  if (heartbeatInterval) clearInterval(heartbeatInterval)
+})
 </script>
