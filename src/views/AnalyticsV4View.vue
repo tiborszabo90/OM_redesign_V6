@@ -77,7 +77,7 @@
                   </div>
 
                   <!-- Search -->
-                  <div class="px-3 pb-2">
+                  <div v-if="showValuesSearch" class="px-3 pb-2">
                     <div class="relative">
                       <Search :size="14" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-om-gray-400 pointer-events-none" />
                       <input
@@ -179,7 +179,7 @@
                   </div>
 
                   <!-- Search -->
-                  <div class="px-3 pt-3 pb-2">
+                  <div v-if="filterDropdownStep === 'categories' || showValuesSearch" class="px-3 pt-3 pb-2">
                     <div class="relative">
                       <Search :size="14" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-om-gray-400 pointer-events-none" />
                       <input
@@ -1685,7 +1685,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, nextTick } from 'vue'
-import { ExternalLink, ChevronDown, ChevronRight, ChevronLeft, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X, Dice5, Search, Download, Plus, Monitor, Globe, Tag, MousePointerClick, BarChart3, Smartphone, FileText, Languages, Laptop, Link, Megaphone } from 'lucide-vue-next'
+import { ExternalLink, ChevronDown, ChevronRight, ChevronLeft, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X, Dice5, Search, Download, Plus, Monitor, Globe, Tag, MousePointerClick, BarChart3, Smartphone, FileText, Languages, Laptop, Link, Megaphone, AppWindow } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
@@ -1850,13 +1850,13 @@ const allFilterOptions = [
   { value: 'traffic-source', label: 'Traffic source', icon: Globe, values: ['Google', 'Facebook', 'Instagram', 'Direct', 'Email', 'TikTok', 'Twitter/X', 'LinkedIn'] },
   { value: 'country', label: 'Country', icon: Globe, values: ['Hungary', 'United States', 'Germany', 'United Kingdom', 'France', 'Austria', 'Romania', 'Slovakia'] },
   { value: 'visitor-type', label: 'Visitor type', icon: MousePointerClick, values: ['New visitors', 'Returning visitors'] },
-  { value: 'campaign', label: 'Campaign', icon: Monitor, values: ['Smart Discount Popup', 'Black Friday 2025', 'Exit Intent Offer', 'Welcome Popup', 'Newsletter Signup', 'Cart Abandonment'] },
-  { value: 'tag', label: 'Tag', icon: Tag, values: ['Popup', 'Embedded', 'Fullscreen', 'Sidebar', 'Gamification', 'Survey'] },
+  { value: 'campaign', label: 'Campaign', icon: Monitor, freeText: true, values: ['Smart Discount Popup', 'Black Friday 2025', 'Exit Intent Offer', 'Welcome Popup', 'Newsletter Signup', 'Cart Abandonment'] },
   { value: 'campaign-type', label: 'Campaign type', icon: MousePointerClick, values: ['Popup', 'Embedded', 'Fullscreen', 'Sticky bar', 'Side message'] },
   { value: 'conversion-goal', label: 'Conversion goal', icon: BarChart3, values: ['Purchase', 'Add to cart', 'Email capture', 'Phone capture', 'Submit'] },
   { value: 'landing-page', label: 'Landing page', icon: FileText, freeText: true, values: ['/home', '/products', '/collections/sale', '/cart', '/checkout', '/about', '/contact', '/blog'] },
   { value: 'browser-language', label: 'Browser language', icon: Languages, values: ['en', 'hu', 'de', 'fr', 'es', 'ro', 'sk', 'pl'] },
   { value: 'operating-system', label: 'Operating system', icon: Laptop, values: ['Windows', 'macOS', 'iOS', 'Android', 'Linux'] },
+  { value: 'browser', label: 'Browser', icon: AppWindow, values: ['Chrome', 'Safari', 'Firefox', 'Edge', 'Opera', 'Samsung Internet'] },
   { value: 'visited-page', label: 'Visited page', icon: FileText, freeText: true, values: ['/home', '/products', '/collections/sale', '/cart', '/checkout', '/about', '/contact', '/blog'] },
   { value: 'referring-site', label: 'Referring site', icon: Link, freeText: true, values: ['google.com', 'facebook.com', 'instagram.com', 'tiktok.com', 'pinterest.com', 'reddit.com', 'twitter.com'] },
   { value: 'utm-campaign', label: 'UTM campaign', icon: Megaphone, freeText: true, values: ['summer_sale_2025', 'black_friday', 'spring_launch', 'newsletter_jan', 'retargeting_q1', 'brand_awareness'] },
@@ -1902,14 +1902,18 @@ const selectedFilterCondition = ref('is')
 
 const filterConditions = computed(() => {
   const cat = selectedFilterCategory.value
-  if (!cat) return allFilterConditions.filter(c => c.value === 'is' || c.value === 'is-not')
-  if (cat.freeText || cat.values.length > 5) return allFilterConditions
+  if (cat?.freeText) return allFilterConditions
   return allFilterConditions.filter(c => c.value === 'is' || c.value === 'is-not')
 })
 
 const isFreeTextMode = computed(() => {
   const cat = selectedFilterCategory.value
   return !!cat?.freeText
+})
+
+const showValuesSearch = computed(() => {
+  const cat = selectedFilterCategory.value
+  return !isFreeTextMode.value && cat && cat.values.length >= 10
 })
 
 const freeTextInput = ref('')
