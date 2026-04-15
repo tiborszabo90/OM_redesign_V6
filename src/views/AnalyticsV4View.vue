@@ -89,6 +89,33 @@
                     </div>
                   </div>
 
+                  <!-- Free text input -->
+                  <div v-if="isFreeTextMode" class="px-3 pt-2 pb-1">
+                    <div class="flex gap-1.5">
+                      <input
+                        v-model="freeTextInput"
+                        type="text"
+                        :placeholder="`Type a value...`"
+                        class="flex-1 px-2.5 h-8 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300"
+                        @keydown.enter="addFreeTextValue"
+                      />
+                      <button
+                        @click="addFreeTextValue"
+                        class="px-2.5 h-8 rounded-lg bg-om-gray-100 text-om-gray-500 text-sm hover:bg-om-gray-200 transition-colors"
+                      >Add</button>
+                    </div>
+                    <div v-if="filterDropdownSelected.length > 0" class="flex flex-wrap gap-1.5 mt-2">
+                      <span
+                        v-for="val in filterDropdownSelected"
+                        :key="val"
+                        class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-om-orange-100 text-om-orange-600 text-xs font-medium"
+                      >
+                        {{ val }}
+                        <X :size="12" class="cursor-pointer hover:text-om-orange-700" @click="toggleFilterValue(val)" />
+                      </span>
+                    </div>
+                  </div>
+
                   <!-- Values list -->
                   <div class="py-1">
                     <label
@@ -177,8 +204,35 @@
                     </button>
                   </div>
 
+                  <!-- Free text input -->
+                  <div v-if="filterDropdownStep === 'values' && isFreeTextMode" class="px-3 py-2">
+                    <div class="flex gap-1.5">
+                      <input
+                        v-model="freeTextInput"
+                        type="text"
+                        :placeholder="`Type a value...`"
+                        class="flex-1 px-2.5 h-8 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300"
+                        @keydown.enter="addFreeTextValue"
+                      />
+                      <button
+                        @click="addFreeTextValue"
+                        class="px-2.5 h-8 rounded-lg bg-om-gray-100 text-om-gray-500 text-sm hover:bg-om-gray-200 transition-colors"
+                      >Add</button>
+                    </div>
+                    <div v-if="filterDropdownSelected.length > 0" class="flex flex-wrap gap-1.5 mt-2">
+                      <span
+                        v-for="val in filterDropdownSelected"
+                        :key="val"
+                        class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-om-orange-100 text-om-orange-600 text-xs font-medium"
+                      >
+                        {{ val }}
+                        <X :size="12" class="cursor-pointer hover:text-om-orange-700" @click="toggleFilterValue(val)" />
+                      </span>
+                    </div>
+                  </div>
+
                   <!-- Values list -->
-                  <div v-if="filterDropdownStep === 'values'" class="py-1">
+                  <div v-if="filterDropdownStep === 'values' && !isFreeTextMode" class="py-1">
                     <label
                       v-for="val in filteredValues"
                       :key="val"
@@ -1800,13 +1854,13 @@ const allFilterOptions = [
   { value: 'tag', label: 'Tag', icon: Tag, values: ['Popup', 'Embedded', 'Fullscreen', 'Sidebar', 'Gamification', 'Survey'] },
   { value: 'campaign-type', label: 'Campaign type', icon: MousePointerClick, values: ['Popup', 'Embedded', 'Fullscreen', 'Sticky bar', 'Side message'] },
   { value: 'conversion-goal', label: 'Conversion goal', icon: BarChart3, values: ['Purchase', 'Add to cart', 'Email capture', 'Phone capture', 'Submit'] },
-  { value: 'landing-page', label: 'Landing page', icon: FileText, values: ['/home', '/products', '/collections/sale', '/cart', '/checkout', '/about', '/contact', '/blog'] },
+  { value: 'landing-page', label: 'Landing page', icon: FileText, freeText: true, values: ['/home', '/products', '/collections/sale', '/cart', '/checkout', '/about', '/contact', '/blog'] },
   { value: 'browser-language', label: 'Browser language', icon: Languages, values: ['en', 'hu', 'de', 'fr', 'es', 'ro', 'sk', 'pl'] },
   { value: 'operating-system', label: 'Operating system', icon: Laptop, values: ['Windows', 'macOS', 'iOS', 'Android', 'Linux'] },
-  { value: 'visited-page', label: 'Visited page', icon: FileText, values: ['/home', '/products', '/collections/sale', '/cart', '/checkout', '/about', '/contact', '/blog'] },
-  { value: 'referring-site', label: 'Referring site', icon: Link, values: ['google.com', 'facebook.com', 'instagram.com', 'tiktok.com', 'pinterest.com', 'reddit.com', 'twitter.com'] },
-  { value: 'utm-campaign', label: 'UTM campaign', icon: Megaphone, values: ['summer_sale_2025', 'black_friday', 'spring_launch', 'newsletter_jan', 'retargeting_q1', 'brand_awareness'] },
-  { value: 'utm-source', label: 'UTM source', icon: Megaphone, values: ['google', 'facebook', 'instagram', 'email', 'tiktok', 'linkedin', 'twitter'] },
+  { value: 'visited-page', label: 'Visited page', icon: FileText, freeText: true, values: ['/home', '/products', '/collections/sale', '/cart', '/checkout', '/about', '/contact', '/blog'] },
+  { value: 'referring-site', label: 'Referring site', icon: Link, freeText: true, values: ['google.com', 'facebook.com', 'instagram.com', 'tiktok.com', 'pinterest.com', 'reddit.com', 'twitter.com'] },
+  { value: 'utm-campaign', label: 'UTM campaign', icon: Megaphone, freeText: true, values: ['summer_sale_2025', 'black_friday', 'spring_launch', 'newsletter_jan', 'retargeting_q1', 'brand_awareness'] },
+  { value: 'utm-source', label: 'UTM source', icon: Megaphone, freeText: true, values: ['google', 'facebook', 'instagram', 'email', 'tiktok', 'linkedin', 'twitter'] },
 ]
 
 const filteredCategories = computed(() => {
@@ -1848,11 +1902,24 @@ const selectedFilterCondition = ref('is')
 
 const filterConditions = computed(() => {
   const cat = selectedFilterCategory.value
-  if (!cat || cat.values.length <= 5) {
-    return allFilterConditions.filter(c => c.value === 'is' || c.value === 'is-not')
-  }
-  return allFilterConditions
+  if (!cat) return allFilterConditions.filter(c => c.value === 'is' || c.value === 'is-not')
+  if (cat.freeText || cat.values.length > 5) return allFilterConditions
+  return allFilterConditions.filter(c => c.value === 'is' || c.value === 'is-not')
 })
+
+const isFreeTextMode = computed(() => {
+  const cat = selectedFilterCategory.value
+  return !!cat?.freeText
+})
+
+const freeTextInput = ref('')
+const addFreeTextValue = () => {
+  const val = freeTextInput.value.trim()
+  if (val && !filterDropdownSelected.value.includes(val)) {
+    filterDropdownSelected.value.push(val)
+  }
+  freeTextInput.value = ''
+}
 
 const selectFilterCategory = (cat) => {
   selectedFilterCategory.value = cat
