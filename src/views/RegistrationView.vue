@@ -24,7 +24,7 @@
 
             <!-- Social login buttons view -->
             <template v-if="currentStep === 'buttons'">
-              <h2 class="text-3xl font-bold text-om-gray-700 mb-1">Create your free account</h2>
+              <h2 class="text-4xl font-bold text-om-gray-700 mb-1">Create your free account</h2>
               <p class="text-om-gray-500 mb-8">and unlock your full optimization plan</p>
 
               <div class="flex flex-col gap-3">
@@ -63,7 +63,7 @@
 
             <!-- Email registration form view -->
             <template v-else-if="currentStep === 'email-form'">
-              <h2 class="text-3xl font-bold text-om-gray-700 mb-1">Create your free account</h2>
+              <h2 class="text-4xl font-bold text-om-gray-700 mb-1">Create your free account</h2>
               <p class="text-om-gray-500 mb-6">and unlock your full optimization plan</p>
 
               <form @submit.prevent="handleEmailSubmit" class="space-y-3">
@@ -189,7 +189,7 @@
       <div class="hidden md:flex flex-1 bg-om-peach-50 overflow-hidden relative">
         <img src="/monk-hi-user.svg" alt="" class="absolute top-1/6 -right-12 w-64 -rotate-50 pointer-events-none monk-slide-in" />
         <div class="w-full flex flex-col justify-center pl-16 lg:pl-24 why-join-content reg-right-pad relative z-10">
-          <h2 class="text-om-gray-700 font-bold text-3xl mb-10">Why join us?</h2>
+          <h2 class="text-om-gray-700 font-bold text-2xl mb-10">Why join us?</h2>
           <ul class="space-y-4 mb-10">
             <li v-for="item in whyJoinItems" :key="item" class="flex items-center gap-3">
               <span class="shrink-0 w-6 h-6 rounded-full bg-om-orange-500 flex items-center justify-center">
@@ -263,7 +263,7 @@ const strengthTextColors = { 0: 'text-om-gray-400', 1: 'text-red-500', 2: 'text-
 const strengthLabels = { 0: '', 1: 'Weak', 2: 'Fair', 3: 'Good', 4: 'Strong' }
 
 const whyJoinItems = [
-  'Personalized optimization strategies',
+  'No. 1 rated popup builder according to G2',
   'AI-powered conversion insights',
   'Real-time performance tracking',
   '100+ optimization solutions',
