@@ -47,7 +47,7 @@
     </div>
 
     <!-- Right side: top bar + content -->
-    <div class="flex flex-col flex-1 min-w-0">
+    <div class="flex flex-col flex-1 min-w-0 min-h-0">
 
     <!-- Top Bar -->
     <div class="flex items-center h-12 border-b border-gray-200 px-3 shrink-0 bg-white">
@@ -145,7 +145,7 @@
       </div>
 
       <!-- Right panel -->
-      <div class="w-72 border-l border-gray-200 flex flex-col shrink-0 bg-white">
+      <div class="w-72 border-l border-gray-200 flex flex-col shrink-0 bg-white min-h-0">
         <!-- Visual / AI tabs -->
         <div class="px-3 py-2 shrink-0">
           <div class="flex bg-gray-100 rounded-xl p-1 gap-1">
@@ -158,13 +158,15 @@
           </div>
         </div>
 
-        <ChatPanel
-          v-model="editorChatOpen"
-          :inline="true"
-          :suggestions="chatSuggestions"
-          :ai-responses="aiResponses"
-          class="flex-1 min-h-0"
-        />
+        <div class="flex-1 min-h-0 flex flex-col overflow-hidden">
+          <ChatPanel
+            v-model="editorChatOpen"
+            :inline="true"
+            :suggestions="chatHistory.length ? [] : chatSuggestions"
+            :ai-responses="aiResponses"
+            :initial-messages="chatHistory"
+          />
+        </div>
       </div>
 
     </div>
@@ -182,6 +184,13 @@ import {
   Brush, PlusCircle, Code2,
   Sparkles
 } from 'lucide-vue-next'
+
+const props = defineProps({
+  chatHistory: {
+    type: Array,
+    default: () => []
+  }
+})
 
 defineEmits(['go-back'])
 

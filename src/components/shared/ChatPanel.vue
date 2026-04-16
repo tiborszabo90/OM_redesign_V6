@@ -45,12 +45,17 @@
   <transition :name="panelTransitionName">
   <div
     v-if="modelValue"
-    :style="inline ? {} : { width: panelWidth + 'px' }"
-    :class="[inline ? 'flex flex-col bg-white relative px-4 pb-4' : 'shrink-0 flex flex-col bg-white p-4 pt-6 pb-4 relative rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] my-3 mr-3', !inline && side === 'left' ? 'ml-3 mr-0' : '']"
+    :style="inline ? {} : (isWideMode ? {} : { width: effectiveWidth + 'px' })"
+    :class="[
+      inline ? 'flex flex-col bg-white relative px-4 pb-4 h-full'
+        : isWideMode ? 'flex-1 flex flex-col bg-white p-4 relative rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] my-3 mr-3 chat-panel-width-transition'
+        : 'shrink-0 flex flex-col bg-white p-4 relative rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] my-3 mr-3 chat-panel-width-transition',
+      !inline && side === 'left' ? 'ml-3 mr-0' : ''
+    ]"
   >
-    <!-- Resize handle -->
+    <!-- Resize handle (hidden in wide mode) -->
     <div
-      v-if="!inline"
+      v-if="!inline && !isWideMode"
       @mousedown="startResize"
       :class="['resize-handle absolute top-0 bottom-0 w-1 cursor-ew-resize hover:bg-om-orange-300 transition-colors z-10', side === 'left' ? 'right-0' : 'left-0']"
     ></div>
@@ -59,13 +64,21 @@
       <Button variant="ghost" size="sm" @click="openConversationsModal">
         <span class="flex items-center gap-1">{{ conversationTitle }}<ChevronDown :size="14" /></span>
       </Button>
-      <button
-        v-if="!inline"
-        @click="closePanel"
-        class="w-8 h-8 rounded-lg flex items-center justify-center text-[#8F97A4] hover:text-[#505763] hover:bg-[#F1F2F4] transition-colors cursor-pointer"
-      >
-        <X :size="16" />
-      </button>
+      <div v-if="!inline" class="flex items-center gap-1">
+        <button
+          @click="emit('toggle-expand')"
+          class="w-8 h-8 rounded-lg flex items-center justify-center text-[#8F97A4] hover:text-[#505763] hover:bg-[#F1F2F4] transition-colors cursor-pointer"
+        >
+          <Minimize2 v-if="isWideMode" :size="16" />
+          <Maximize2 v-else :size="16" />
+        </button>
+        <button
+          @click="closePanel"
+          class="w-8 h-8 rounded-lg flex items-center justify-center text-[#8F97A4] hover:text-[#505763] hover:bg-[#F1F2F4] transition-colors cursor-pointer"
+        >
+          <X :size="16" />
+        </button>
+      </div>
     </div>
 
     <!-- Conversations modal overlay -->
@@ -103,33 +116,17 @@
       </div>
     </div>
 
-    <!-- Empty state (outside overflow container so scale hover is not clipped) -->
-    <div v-if="messages.length === 0" class="flex-1 flex flex-col mb-4">
-      <!-- Floating monk -->
-      <div class="flex-1 flex flex-col items-center justify-center">
-        <div class="relative w-56 h-48 mb-4 flex items-end justify-center">
-          <img src="/monk-shadow.svg" alt="" class="absolute -bottom-3 w-36 opacity-60 monk-shadow-pulse" />
-          <img src="/monk-medit.2.svg" alt="OptiMonk" class="relative w-44 h-44 object-contain monk-float" />
-        </div>
-      </div>
-      <!-- Suggestions at the bottom -->
-      <div class="mt-auto pb-2 suggestions-fade-in">
-        <p class="text-xs text-om-gray-500 mb-3">Try with an example:</p>
-        <div class="flex flex-col gap-2">
-          <button
-            v-for="suggestion in suggestions"
-            :key="suggestion"
-            @click="handleSuggestionClick(suggestion)"
-            class="chip w-full text-left px-3 py-1.5 rounded-lg bg-white border border-om-gray-200 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:scale-[1.02]"
-          >
-            {{ suggestion }}
-          </button>
-        </div>
+    <!-- Empty state -->
+    <div v-if="messages.length === 0" class="flex-1 min-h-0 flex flex-col items-center justify-center overflow-hidden">
+      <div class="relative w-56 h-48 flex items-end justify-center shrink-0">
+        <img src="/monk-shadow.svg" alt="" class="absolute -bottom-3 w-36 opacity-60 monk-shadow-pulse" />
+        <img src="/monk-medit.2.svg" alt="OptiMonk" class="relative w-44 h-44 object-contain monk-float" />
       </div>
     </div>
 
     <!-- Messages area (only rendered when there are messages) -->
-    <div v-else ref="chatMessagesContainer" class="flex-1 overflow-y-auto space-y-3 mb-4 chat-panel-scroll">
+    <div v-else ref="chatMessagesContainer" :class="['flex-1 overflow-y-auto pb-4 chat-panel-scroll', isWideMode ? 'px-4' : '']">
+      <div :class="isWideMode && wideCompact ? 'mx-auto space-y-3' : 'space-y-3'" :style="isWideMode && wideCompact ? { maxWidth: '65%' } : {}">
       <!-- Message loop -->
       <div v-for="(msg, index) in messages" :key="index" class="flex" :class="msg.type === 'user' ? 'justify-end' : 'justify-start'">
         <!-- User message -->
@@ -169,6 +166,59 @@
           </div>
         </div>
 
+        <!-- AI image cards message -->
+        <div v-else-if="msg.type === 'ai-images'" :class="isWideMode ? 'w-full text-sm mb-12' : 'w-full text-sm'">
+          <div v-if="msg.message" class="bg-[#F1F2F4] text-[#23262A] px-3 py-2 rounded-2xl rounded-bl-md mb-3 leading-relaxed" :class="isWideMode ? 'max-w-[600px]' : 'max-w-[90%]'" v-html="formatChatMessage(msg.message)"></div>
+          <div :class="isWideMode ? 'grid grid-cols-2 gap-4 pb-2' : !msg.hideLabels && msg.cards?.[0]?.image ? 'flex flex-col gap-1.5 pb-2' : 'grid grid-cols-2 gap-2 pb-2'">
+            <component
+              :is="inline ? 'div' : 'button'"
+              v-for="card in msg.cards"
+              :key="card.id"
+              @click="!inline && handleImageCardClick(card, msg)"
+              :class="cardClasses(card, msg)"
+            >
+              <!-- Narrow mode: text-only list (when has labels + image) -->
+              <div v-if="!isWideMode && !msg.hideLabels && card.image" class="px-3 py-2">
+                <div class="font-medium text-om-gray-700 text-sm">{{ card.label }}</div>
+                <div v-if="card.reason" class="text-om-gray-500 mt-0.5 leading-snug text-xs">{{ card.reason }}</div>
+              </div>
+              <!-- Wide mode: horizontal layout (image left, text right) -->
+              <div v-else-if="isWideMode && !msg.hideLabels && card.image" class="flex h-40">
+                <div class="w-1/2 shrink-0 overflow-hidden" :style="{ backgroundColor: card.bgColor || '' }" :class="!card.bgColor ? 'bg-om-gray-100' : ''">
+                  <img :src="card.image" :alt="card.label" :class="card.bgColor ? 'w-[88%] h-full object-contain m-auto' : 'w-full h-full object-cover object-top'" />
+                </div>
+                <div class="px-4 py-3 flex-1 flex flex-col justify-center">
+                  <div class="font-medium text-om-gray-700 text-sm">{{ card.label }}</div>
+                  <div v-if="card.description" class="text-om-gray-400 mt-0.5 leading-snug text-xs">{{ card.description }}</div>
+                  <div v-if="card.reason" class="text-om-gray-500 mt-1.5 leading-snug italic text-xs">{{ card.reason }}</div>
+                </div>
+              </div>
+              <!-- Vertical layout: image only or no labels -->
+              <template v-else>
+                <div class="aspect-video overflow-hidden" :style="{ backgroundColor: card.bgColor || '' }" :class="!card.bgColor ? 'bg-om-gray-100' : ''">
+                  <img v-if="card.image" :src="card.image" :alt="card.label" class="w-full h-full object-cover object-top" />
+                  <div v-else class="w-full h-full bg-om-gray-200"></div>
+                </div>
+                <div v-if="!msg.hideLabels" :class="isWideMode ? 'px-3 py-3' : 'px-2.5 py-2'">
+                  <div class="font-medium text-om-gray-700" :class="isWideMode ? 'text-sm' : 'text-xs'">{{ card.label }}</div>
+                  <div v-if="card.description" class="text-om-gray-400 mt-0.5 leading-snug" :class="isWideMode ? 'text-xs' : 'text-[11px]'">{{ card.description }}</div>
+                </div>
+              </template>
+            </component>
+          </div>
+        </div>
+
+        <!-- AI action link message (hidden in editor/inline) -->
+        <div v-else-if="msg.type === 'ai-action-link' && !inline" class="flex justify-start">
+          <button
+            @click="emit('action', msg.action)"
+            class="inline-flex items-center gap-1.5 text-om-orange-500 hover:text-om-orange-600 text-sm font-medium cursor-pointer transition-colors"
+          >
+            {{ msg.message }}
+            <ArrowUp :size="14" class="rotate-90" />
+          </button>
+        </div>
+
         <!-- AI text message -->
         <div v-else class="bg-[#F1F2F4] text-[#23262A] px-3 py-2 rounded-2xl rounded-bl-md max-w-[90%] text-sm leading-relaxed" v-html="formatChatMessage(msg.message)">
         </div>
@@ -182,10 +232,26 @@
           <span class="w-1.5 h-1.5 bg-om-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
         </div>
       </div>
+      </div>
+    </div>
+
+    <!-- Suggestions (sticky above input) -->
+    <div v-if="suggestions.length && messages.length === 0" class="pb-2 pt-2 shrink-0" :class="isWideMode ? 'max-w-[45%] mx-auto' : ''">
+      <p class="text-xs text-om-gray-500 mb-2">Try with an example:</p>
+      <div class="flex flex-col gap-1.5">
+        <button
+          v-for="suggestion in suggestions"
+          :key="suggestion"
+          @click="handleSuggestionClick(suggestion)"
+          class="chip w-full text-left px-3 py-1.5 rounded-lg bg-white border border-om-gray-200 text-om-gray-700 text-sm cursor-pointer transition-all duration-200 ease-out hover:scale-[1.02]"
+        >
+          {{ suggestion }}
+        </button>
+      </div>
     </div>
 
     <!-- Chat input -->
-    <div class="relative">
+    <div :class="isWideMode ? 'relative mx-auto' : 'relative'" :style="isWideMode ? { width: '45%' } : {}">
       <textarea
         ref="chatTextareaRef"
         v-model="chatMessage"
@@ -216,8 +282,8 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick, onUnmounted } from 'vue'
-import { ArrowUp, X, Check, Paperclip, ChevronDown } from 'lucide-vue-next'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { ArrowUp, X, Check, Paperclip, ChevronDown, Maximize2, Minimize2 } from 'lucide-vue-next'
 import Button from './Button.vue'
 
 const props = defineProps({
@@ -256,10 +322,32 @@ const props = defineProps({
       'What are the best templates for Black Friday?': 'For Black Friday, the highest-converting template types are:\n\n**1. Countdown Timer Popup** — Creates urgency\n**2. Discount Wheel** — High engagement, viral potential\n**3. Cart Abandonment Banner** — Captures last-minute saves\n\nYou can find all of these in the **Templates** section under Seasonal.',
       'How do I reduce cart abandonment?': 'Your **Cart Abandonment Stopper** campaign is already active. To improve it further:\n\n**1. Trigger earlier** — Show at 70% scroll on the cart page, not just on exit.\n**2. Offer a stronger incentive** — Free shipping converts better than % discounts.\n**3. Add urgency** — "Only 3 left in stock" messaging.\n\nWould you like me to suggest a specific template?',
     })
+  },
+  messageMatchers: {
+    type: Array,
+    default: () => []
+    // Array of { keywords: string[], response: string | { message, followUp, action }, action?: string }
+    // keywords: if ALL keywords are found in the user message (case-insensitive), this matcher wins
+    // action: emitted via 'action' event after the AI response is shown
+  },
+  expandedWidth: {
+    type: Number,
+    default: 0
+    // When > 0, overrides panelWidth with an animated transition
+  },
+  wideCompact: {
+    type: Boolean,
+    default: false
+    // When true + wide mode: content is 70% centered, grid always 2 cols
+  },
+  initialMessages: {
+    type: Array,
+    default: () => []
+    // Pre-populate chat with messages from a previous conversation
   }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'action', 'toggle-expand'])
 
 const panelTransitionName = computed(() => {
   if (props.fab) return 'panel-to-fab'
@@ -271,8 +359,9 @@ function closePanel() {
 }
 
 const chatMessage = ref('')
-const messages = ref([])
+const messages = ref([...props.initialMessages])
 const isTyping = ref(false)
+const selectedCardId = ref(null)
 const showConversationsModal = ref(false)
 const currentConversationSaved = ref(false)
 const savedConversations = ref([
@@ -320,6 +409,12 @@ const panelWidth = ref(360)
 const MIN_WIDTH = 280
 const MAX_WIDTH = 640
 
+// Wide mode: panel takes all available space via flex:1 instead of fixed width
+const isWideMode = computed(() => props.expandedWidth > 0)
+
+// Effective width only used in non-wide mode
+const effectiveWidth = computed(() => panelWidth.value)
+
 const startResize = (e) => {
   e.preventDefault()
   const startX = e.clientX
@@ -343,10 +438,26 @@ const startResize = (e) => {
   document.addEventListener('mouseup', onMouseUp)
 }
 
+onMounted(() => {
+  if (messages.value.length > 0) {
+    scrollToBottom()
+  }
+})
+
 onUnmounted(() => {
   document.body.style.cursor = ''
   document.body.style.userSelect = ''
 })
+
+const cardClasses = (card, msg) => {
+  const base = 'image-card group rounded-xl overflow-hidden text-left transition-all duration-200'
+
+  if (props.inline) return `${base} opacity-70 border border-om-gray-200`
+
+  const selected = selectedCardId.value === card.id
+  const border = selected ? 'border border-om-gray-600 shadow-md' : 'border border-om-gray-200'
+  return `${base} ${border} cursor-pointer hover:shadow-lg hover:scale-[1.03] focus:outline-none`
+}
 
 const formatChatMessage = (text) => {
   if (!text) return ''
@@ -397,28 +508,91 @@ const scrollToBottom = () => {
   })
 }
 
+const findMatcherResponse = (userMessage) => {
+  const lower = userMessage.toLowerCase()
+  for (const matcher of props.messageMatchers) {
+    const allMatch = matcher.keywords.every(kw => kw === '' || lower.includes(kw.toLowerCase()))
+    if (allMatch) {
+      // Support dynamic response via function: response can be (userMessage) => string | object
+      if (typeof matcher.response === 'function') {
+        return { ...matcher, response: matcher.response(userMessage) }
+      }
+      return matcher
+    }
+  }
+  return null
+}
+
 const sendAIResponse = (userMessage) => {
   isTyping.value = true
   scrollToBottom()
   setTimeout(() => {
     isTyping.value = false
-    const response = props.aiResponses[userMessage] || 'Great question! Let me look into that for you. Based on your current campaign data, I\'d recommend reviewing your targeting settings and A/B testing your CTA copy.'
+
+    // 1. Exact match in aiResponses
+    let response = props.aiResponses[userMessage]
+    let matchedAction = null
+
+    // 2. Keyword matcher fallback
+    if (!response) {
+      const matcher = findMatcherResponse(userMessage)
+      if (matcher) {
+        response = matcher.response
+        matchedAction = matcher.action || null
+      }
+    }
+
+    // 3. Generic fallback
+    if (!response) {
+      const fallbacks = [
+        'I can help you with that! Here are some things I can do:\n\n- **Create a welcome popup** to greet new visitors\n- Show you how your **campaigns are performing**\n- Suggest ways to **improve your conversion rate**\n\nWhat would you like to try?',
+        'I\'m not sure I fully understood that. Could you try rephrasing? For example, you can ask me to:\n\n- **Create a popup** for your website\n- **Analyze** your campaign performance\n- Give you **optimization tips**',
+        'Hmm, let me think about that... In the meantime, I can help you **create popups**, **review campaign performance**, or **suggest improvements**. Just ask!',
+      ]
+      response = fallbacks[Math.floor(Math.random() * fallbacks.length)]
+    }
+
     const message = typeof response === 'object' ? response.message : response
     const followUp = typeof response === 'object' ? response.followUp : null
+    const actionFromResponse = typeof response === 'object' ? response.action : null
+    const action = matchedAction || actionFromResponse
+
     messages.value.push({ type: 'ai', message })
     scrollToBottom()
+
     if (followUp) {
       setTimeout(() => {
         isTyping.value = true
         scrollToBottom()
         setTimeout(() => {
           isTyping.value = false
-          messages.value.push({ type: 'ai', message: followUp })
+          // followUp can be a string (text message) or object (e.g. { type: 'ai-images', ... })
+          if (typeof followUp === 'object' && followUp.type) {
+            messages.value.push(followUp)
+          } else {
+            messages.value.push({ type: 'ai', message: followUp })
+          }
           scrollToBottom()
+          // Emit action after followUp is shown
+          if (action) {
+            setTimeout(() => emit('action', action), 800)
+          }
         }, 900)
       }, 400)
+    } else if (action) {
+      // Emit action after a short delay so user can read the message
+      setTimeout(() => emit('action', action), 1500)
     }
   }, 1200)
+}
+
+const handleImageCardClick = (card, msg) => {
+  selectedCardId.value = card.id
+  if (!msg?.skipUserMessage) {
+    messages.value.push({ type: 'user', message: card.label })
+  }
+  scrollToBottom()
+  sendAIResponse(card.label)
 }
 
 const handleSuggestionClick = (suggestion) => {
@@ -436,6 +610,19 @@ const handleChatSubmit = () => {
     sendAIResponse(text)
   }
 }
+
+// Expose methods for parent to inject messages (e.g. after panel expansion)
+const pushMessage = (msg) => {
+  isTyping.value = true
+  scrollToBottom()
+  setTimeout(() => {
+    isTyping.value = false
+    messages.value.push(msg)
+    scrollToBottom()
+  }, 900)
+}
+
+defineExpose({ pushMessage, messages })
 </script>
 
 <style scoped>
@@ -479,6 +666,11 @@ const handleChatSubmit = () => {
 .panel-slide-right-leave-to {
   width: 0 !important;
   opacity: 0;
+}
+
+/* Smooth width transition when expandedWidth changes */
+.chat-panel-width-transition {
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .resize-handle::after {

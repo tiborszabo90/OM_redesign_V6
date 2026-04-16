@@ -7,25 +7,25 @@
       :no-content-padding="true"
     >
       <template #content>
-        <div class="w-full max-w-[1400px] mx-auto">
+        <div class="w-full pt-8">
         <div class="templates-layout">
           <!-- Left Sidebar -->
           <aside class="templates-sidebar">
             <!-- Navigation Tabs -->
             <div class="sidebar-tabs">
-              <button class="sidebar-tab active">
+              <button :class="['sidebar-tab', { active: activeTab === 'all' }]" @click="activeTab = 'all'; selectedFamily = null">
                 <Home :size="20" />
                 <span>All templates</span>
               </button>
-              <button class="sidebar-tab">
+              <button :class="['sidebar-tab', { active: activeTab === 'themes' }]" @click="activeTab = 'themes'">
                 <Paintbrush :size="20" />
                 <span>Themes</span>
               </button>
-              <button class="sidebar-tab">
+              <button :class="['sidebar-tab', { active: activeTab === 'usecases' }]" @click="activeTab = 'usecases'; selectedUsecase = null">
                 <FolderOpen :size="20" />
                 <span>Use Cases</span>
               </button>
-              <button class="sidebar-tab">
+              <button :class="['sidebar-tab', { active: activeTab === 'blank' }]" @click="activeTab = 'blank'">
                 <Edit :size="20" />
                 <span>Create Blank</span>
               </button>
@@ -308,6 +308,43 @@
 
           <!-- Main Content -->
           <main class="templates-main">
+
+            <!-- Use Cases View -->
+            <div v-if="activeTab === 'usecases'" class="usecases-view">
+              <!-- Use case detail (templates for selected use case) -->
+              <template v-if="selectedUsecase">
+                <h1 class="usecases-heading" style="margin-bottom: 0.25rem">{{ selectedUsecase.label }}</h1>
+                <p class="usecase-detail-subtitle">{{ selectedUsecase.subtitle }}</p>
+                <div class="usecase-templates-grid">
+                  <div v-for="n in 12" :key="n" class="usecase-template-card">
+                    <div class="usecase-template-placeholder"></div>
+                    <div class="usecase-card-v2-label">Template {{ n }}</div>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Use case listing -->
+              <template v-else>
+                <h1 class="usecases-heading">Use Cases</h1>
+                <div class="usecases-grid">
+                  <div
+                    v-for="item in usecaseItems"
+                    :key="item.image"
+                    class="usecase-card-v2"
+                    @click="selectedUsecase = item"
+                  >
+                    <div class="usecase-card-v2-image">
+                      <img :src="item.image" :alt="item.label" />
+                    </div>
+                    <div class="usecase-card-v2-label">{{ item.label }}</div>
+                    <div v-if="item.subtitle" class="usecase-card-v2-subtitle">{{ item.subtitle }}</div>
+                  </div>
+                </div>
+              </template>
+            </div>
+
+            <!-- All Templates View -->
+            <template v-else>
             <!-- Header -->
             <div class="templates-header">
               <template v-if="selectedFamily === 'essential'">
@@ -432,26 +469,16 @@
             <div class="recommended-usecases">
               <h2 class="recommended-usecases-title">Recommended use cases</h2>
               <div class="usecases-grid">
-                <div class="usecase-card">
-                  <div class="usecase-image-wrapper">
-                    <img src="/templates/usecase-1.png" alt="Use Case 1" class="usecase-image" />
+                <div
+                  v-for="item in usecaseItems.slice(0, 3)"
+                  :key="item.image"
+                  class="usecase-card-v2"
+                >
+                  <div class="usecase-card-v2-image">
+                    <img :src="item.image" :alt="item.label" />
                   </div>
-                  <h3 class="usecase-title">Use Case Title 1</h3>
-                  <p class="usecase-subtext">Description for use case 1</p>
-                </div>
-                <div class="usecase-card">
-                  <div class="usecase-image-wrapper">
-                    <img src="/templates/usecase-2.png" alt="Use Case 2" class="usecase-image" />
-                  </div>
-                  <h3 class="usecase-title">Use Case Title 2</h3>
-                  <p class="usecase-subtext">Description for use case 2</p>
-                </div>
-                <div class="usecase-card">
-                  <div class="usecase-image-wrapper">
-                    <img src="/templates/usecase-3.png" alt="Use Case 3" class="usecase-image" />
-                  </div>
-                  <h3 class="usecase-title">Use Case Title 3</h3>
-                  <p class="usecase-subtext">Description for use case 3</p>
+                  <div class="usecase-card-v2-label">{{ item.label }}</div>
+                  <div v-if="item.subtitle" class="usecase-card-v2-subtitle">{{ item.subtitle }}</div>
                 </div>
               </div>
             </div>
@@ -475,6 +502,7 @@
               </div>
             </div>
 
+            </template>
             </template>
           </main>
         </div>
@@ -532,7 +560,9 @@ const messageType = ref({
 })
 
 // Family selection
+const activeTab = ref('all')
 const selectedFamily = ref(props.initialFamily)
+const selectedUsecase = ref(null)
 
 watch(() => props.initialFamily, (val) => { selectedFamily.value = val })
 
@@ -609,6 +639,47 @@ const handleSeasonsScroll = () => {
   }
 }
 
+// ── Use Cases data (names from optimonk.com/use-cases) ──
+// First 6: named images (first 2 rows)
+const usecaseItems = [
+  // Row 1-2: Named/featured use cases
+  { image: '/usecases/SmartDiscountPopup.png', label: 'Smart Discount Popup', subtitle: 'The most effective list-building popup formula' },
+  { image: '/usecases/Luckywheel.png', label: 'Lucky Wheel', subtitle: 'Gamify list-building popups to increase new visitor engagement' },
+  { image: '/usecases/CartAbandonmentStopper.png', label: 'Cart Abandonment Stopper', subtitle: 'Offer a discount for cart abandoners' },
+  { image: '/usecases/Conversational.png', label: 'Conversational Popup', subtitle: 'Segment and guide your visitors while building your list' },
+  { image: '/usecases/discountreminder.png', label: 'Discount Reminder', subtitle: 'Remind users of their coupons to encourage redemption' },
+  { image: '/usecases/misterybag.png', label: 'Mystery Bag', subtitle: 'Use mystery bags to nudge visitors toward conversion' },
+  // Remaining use cases
+  { image: '/usecases/MagicPopupFormula.png', label: 'Magic Popup Formula', subtitle: 'How to create the perfect welcome popup' },
+  { image: '/usecases/LeadMagnet.png', label: 'Lead Magnet', subtitle: 'Grow your email list by offering valuable content in the form of ebooks' },
+  { image: '/usecases/Giveaway.png', label: 'Giveaway', subtitle: 'Leverage gifts or giveaways to win subscribers' },
+  { image: '/usecases/SMSListBuilder.png', label: 'SMS List Builder', subtitle: 'Collect engaged contacts and run high-performing phone, SMS or WhatsApp campaigns' },
+  { image: '/usecases/Announcement.png', label: 'Announcement', subtitle: 'Deliver important announcements seamlessly!' },
+  { image: '/usecases/Scratchcard.png', label: 'Scratchcard', subtitle: 'Test the luck of your visitors while boosting your sales' },
+  { image: '/usecases/ShoppingQuiz.png', label: 'Shopping Quiz', subtitle: 'Segment your visitors based on interest and help them choose' },
+  { image: '/usecases/AttributionSurvey.png', label: 'Attribution Survey', subtitle: 'Launch a post-purchase attribution survey' },
+  { image: '/usecases/BrowsingReminder.png', label: 'Browsing Reminder', subtitle: 'Remind returning visitors of their last visited products' },
+  { image: '/usecases/SmartRecommender.png', label: 'Smart Recommender', subtitle: 'Transform browsing into buying beyond discounts' },
+  { image: '/usecases/UpsellPopup.png', label: 'Upsell Popup', subtitle: 'Increase cart value by showing your most popular products' },
+  { image: '/usecases/EmbeddedProductRecommender.png', label: 'Embedded Product Recommender', subtitle: 'Recommend relevant products in blog articles' },
+  { image: '/usecases/TrojanHorse.png', label: 'Trojan Horse', subtitle: 'Build your email and SMS list at the same time' },
+  { image: '/usecases/PersonalRecommender.png', label: 'Personal Recommender', subtitle: 'Personalize messaging based on interest' },
+  { image: '/usecases/NewsletterSignupPopup.png', label: 'Newsletter Signup Popup', subtitle: 'Build your newsletter list in a user friendly way' },
+  { image: '/usecases/PersonalizedCartSaver.png', label: 'Personalized Cart Saver', subtitle: 'Personalize exit messages based on cart content' },
+  { image: '/usecases/CountdownOffer.png', label: 'Countdown Offer', subtitle: 'Stop visitors from abandoning their cart with a last-minute offer' },
+  { image: '/usecases/PersonalWelcomeBack.png', label: 'Personal Welcome Back', subtitle: 'Personalize your homepage messaging for returning customers' },
+  { image: '/usecases/FreeShippingBar.png', label: 'Free Shipping Bar', subtitle: 'Display your free shipping limit' },
+  { image: '/usecases/DynamicShippingBar.png', label: 'Dynamic Shipping Bar', subtitle: 'Promote a free shipping threshold based on cart value' },
+  { image: '/usecases/SeasonalCountdown.png', label: 'Seasonal Countdown', subtitle: 'Reminding visitors of limited-time offers' },
+  { image: '/usecases/PurchaseSatisfactionSurvey.png', label: 'Purchase Satisfaction Survey', subtitle: 'Uncover problems with your customers\' buying journey' },
+  { image: '/usecases/RepeatPurchaseSurvey.png', label: 'Repeat Purchase Survey', subtitle: 'Start building loyalty after making the first sale' },
+  { image: '/usecases/FeedbackSurvey.png', label: 'Feedback Survey', subtitle: 'Get real, measurable feedback on anything you want' },
+  { image: '/usecases/ReferralBoosterPopup.png', label: 'Referral Booster Popup', subtitle: 'Personalize your offers for top referral partners' },
+  { image: '/usecases/ConversationalPopupAlt.png', label: 'Conversational Popup', subtitle: 'Segment and guide your visitors while building your list' },
+  { image: '/usecases/ContactForm.png', label: 'Contact Form', subtitle: 'Get quote-requests and contacts in an effective, yet subtle way' },
+  { image: '/usecases/EmbeddedListBuilder.png', label: 'Embedded List Builder', subtitle: 'Collect emails without interrupting the user experience' },
+]
+
 </script>
 
 <style scoped>
@@ -625,6 +696,10 @@ const handleSeasonsScroll = () => {
   padding: 1rem 1rem 1.5rem 3rem;
   overflow-y: auto;
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100%;
 }
 
 .sidebar-tabs {
@@ -741,6 +816,8 @@ const handleSeasonsScroll = () => {
 .templates-main {
   flex: 1;
   overflow-y: auto;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .templates-header h1 {
@@ -1082,12 +1159,101 @@ const handleSeasonsScroll = () => {
 }
 
 .telekom-title {
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  color: #111827;
+  color: #23262A;
+  margin-top: 0.625rem;
 }
 
 .templates-content {
   padding: 2rem 3rem;
+}
+
+/* Use Cases View */
+.usecases-view {
+  padding: 1.5rem 3rem 3rem;
+}
+
+.usecases-heading {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.usecases-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 1.25rem;
+  row-gap: 2.5rem;
+}
+
+.usecase-card-v2 {
+  cursor: pointer;
+}
+
+.usecase-card-v2:hover .usecase-card-v2-image img {
+  transform: scale(1.05);
+}
+
+.usecase-card-v2-image {
+  aspect-ratio: 3 / 2;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #FEF7F3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  transition: box-shadow 0.2s ease;
+}
+
+.usecase-card-v2-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.usecase-card-v2-label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #23262A;
+  margin-top: 0.625rem;
+}
+
+.usecase-card-v2-subtitle {
+  font-size: 0.8125rem;
+  color: #8F97A4;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
+.usecase-detail-subtitle {
+  font-size: 0.9375rem;
+  color: #8F97A4;
+  margin-bottom: 2rem;
+}
+
+.usecase-templates-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 1.25rem;
+  row-gap: 2rem;
+}
+
+.usecase-template-card {
+  cursor: pointer;
+}
+
+.usecase-template-placeholder {
+  aspect-ratio: 3 / 2;
+  border-radius: 12px;
+  background-color: #E5E7EB;
+}
+
+.usecase-template-card:hover .usecase-template-placeholder {
+  background-color: #D1D5DB;
 }
 </style>

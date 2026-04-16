@@ -163,7 +163,7 @@
       </div>
     </template>
     <template #right-panel>
-      <ChatPanel ref="chatPanelRef" v-model="isChatOpen" :fab="true" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" :message-matchers="chatMessageMatchers" :expanded-width="chatExpandedWidth" @action="handleChatAction" @toggle-expand="chatExpandedWidth = chatExpandedWidth > 0 ? 0 : 9999" />
+      <ChatPanel ref="chatPanelRef" v-model="isChatOpen" :fab="true" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" :message-matchers="chatMessageMatchers" :expanded-width="chatExpandedWidth" :wide-compact="true" @action="handleChatAction" @toggle-expand="chatExpandedWidth = chatExpandedWidth > 0 ? 0 : 9999" />
     </template>
     <AddDomainModal v-model="showAddDomainModal" @add="handleNewDomain" />
   </DashboardLayout>
@@ -212,15 +212,15 @@ watch(isChatOpen, (open) => {
 const campaignTab = ref('top')
 
 const chatSuggestions = [
+  'I want to create a welcome popup',
   'How is my account performing?',
   'Which campaigns need attention?',
   'How can I improve my conversion rate?',
-  'Show me my top performing campaigns',
 ]
 
 const chatAiResponses = {
   'I want to create a welcome popup': {
-    message: 'Great choice! Here are some popular use cases — pick one to get started:',
+    message: 'Based on your site\'s traffic and performance data, these use cases would have the biggest impact for you:',
     action: 'flow-welcome-usecase',
   },
   'How is my account performing?': 'Your account is performing well overall. Conversion rate is at **5.2%**, which is above your **3.2% average**. Impressions are up **12%** compared to last month.',
@@ -241,10 +241,10 @@ const usecaseLabels = {
 }
 
 const usecaseCards = [
-  { id: 'smart-discount', label: 'Smart Discount Popup', image: '/usecases/SmartDiscountPopup.png', bgColor: '#FFEFE5' },
-  { id: 'lucky-wheel', label: 'Lucky Wheel', image: '/usecases/Luckywheel.png', bgColor: '#FFEFE5' },
-  { id: 'newsletter', label: 'Newsletter Signup Popup', image: '/usecases/NewsletterSignupPopup.png', bgColor: '#FFEFE5' },
-  { id: 'cart-abandonment', label: 'Cart Abandonment Stopper', image: '/usecases/CartAbandonmentStopper.png', bgColor: '#FFEFE5' },
+  { id: 'smart-discount', label: 'Smart Discount Popup', image: '/usecases/SmartDiscountPopup.png', bgColor: '#FFEFE5', reason: 'Your new visitors have a 12% bounce rate — a welcome discount can convert them into subscribers.' },
+  { id: 'lucky-wheel', label: 'Lucky Wheel', image: '/usecases/Luckywheel.png', bgColor: '#FFEFE5', reason: 'Gamified popups get 2x more engagement — perfect for your high-traffic pages.' },
+  { id: 'newsletter', label: 'Newsletter Signup Popup', image: '/usecases/NewsletterSignupPopup.png', bgColor: '#FFEFE5', reason: 'Your email list grew only 3% last month — a signup popup can accelerate that.' },
+  { id: 'cart-abandonment', label: 'Cart Abandonment Stopper', image: '/usecases/CartAbandonmentStopper.png', bgColor: '#FFEFE5', reason: '68% of your carts are abandoned — an exit offer can recover up to 15% of them.' },
 ]
 
 // ── Template cards per use case (grey placeholders) ──
@@ -275,8 +275,8 @@ const templateCards = {
   ],
 }
 
-const usecaseListEN = 'Great choice! Here are some popular use cases — pick one to get started:'
-const usecaseListHU = 'Szuper! Íme néhány népszerű use case — válassz egyet:'
+const usecaseListEN = 'Based on your site\'s traffic and performance data, these use cases would have the biggest impact for you:'
+const usecaseListHU = 'Az oldalad forgalmi és teljesítményadatai alapján ezek a use case-ek hoznák a legnagyobb eredményt neked:'
 
 // ── Matchers per flow step ──
 const chatMessageMatchers = computed(() => {
@@ -388,7 +388,7 @@ function brandingDoneResponse(branded) {
 const handleChatAction = (action) => {
   if (action === 'flow-welcome-usecase') {
     welcomeFlowStep.value = 'usecase'
-    // Expand panel and inject use case cards with images
+    // Expand to full width
     chatExpandedWidth.value = 9999
     setTimeout(() => {
       chatPanelRef.value?.pushMessage({
@@ -410,6 +410,7 @@ const handleChatAction = (action) => {
         message: '',
         cards,
         hideLabels: true,
+        skipUserMessage: true,
       })
     }, 500)
   } else if (action.startsWith('flow-welcome-branding:')) {

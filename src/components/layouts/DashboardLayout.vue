@@ -177,7 +177,7 @@
     <!-- Main Content Area -->
     <main class="w-full flex overflow-hidden" :class="{ 'ml-19': !hideSidebar }">
       <slot name="left-panel"></slot>
-      <div ref="contentDivRef" class="flex-1 overflow-y-auto min-w-0 transition-all duration-300 max-960:text-sm" :class="noContentPadding ? '' : ['py-8 max-960:py-4', leftPanelOpen ? 'pl-6 max-960:pl-4' : 'pl-12 max-960:pl-6', rightPanelCollapsed ? 'pr-10 max-960:pr-4' : 'pr-12 max-960:pr-4']">
+      <div ref="contentDivRef" :class="[contentHidden ? 'w-0 overflow-hidden opacity-0' : 'flex-1 overflow-y-auto min-w-0 max-960:text-sm', 'transition-all duration-300', !contentHidden && !noContentPadding ? ['py-8 max-960:py-4', leftPanelOpen ? 'pl-6 max-960:pl-4' : 'pl-12 max-960:pl-6', rightPanelCollapsed ? 'pr-10 max-960:pr-4' : 'pr-12 max-960:pr-4'] : '']">
         <slot name="content"></slot>
       </div>
       <slot name="right-panel"></slot>
@@ -236,6 +236,10 @@ const props = defineProps({
     default: false
   },
   passthrough: {
+    type: Boolean,
+    default: false
+  },
+  contentHidden: {
     type: Boolean,
     default: false
   }

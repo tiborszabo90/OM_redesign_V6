@@ -29,6 +29,7 @@ for (const def of viewDefinitions) {
 // State
 // ============================================================================
 const ppoWizardState = ref({ selectedTypes: [], variableConfigs: {}, fromMvp: false })
+const editorChatHistory = ref([])
 
 const getViewFromHash = () => {
   const hash = window.location.hash.replace('#/', '').replace('#', '')
@@ -158,6 +159,9 @@ const activeProps = computed(() => {
     'onboarding': { registrationData: registrationData.value, registrationType: registrationType.value },
     'task-creation': { registrationData: registrationData.value },
     'home-old': { registrationData: registrationData.value },
+    'chat-create-popup-v1': { registrationData: registrationData.value },
+    'chat-create-popup-v3': { registrationData: registrationData.value },
+    'chat-create-popup-v2': { registrationData: registrationData.value },
     'home-old-v2': {},
     'home-with-review': { registrationData: registrationData.value },
     'home-chat-versions': { registrationData: registrationData.value },
@@ -189,6 +193,7 @@ const activeProps = computed(() => {
     'analytics-v4-add-to-cart': { goal: 'add-to-cart' },
     'analytics-v4-email-capture': { goal: 'email-capture' },
     'analytics-v4-phone-capture': { goal: 'phone-capture' },
+    'editor': { chatHistory: editorChatHistory.value },
     'opportunity-detail': { opportunityId: selectedOpportunityId.value },
     'templates-v2-essential-theme': { initialFamily: 'essential' },
     'wizard-analysis': { registrationData: registrationData.value, initialMessage: wizardMessage.value },
@@ -373,7 +378,10 @@ const activeEvents = computed(() => {
     'registration-v2': { complete: handleRegistrationComplete },
     'onboarding': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated },
     'task-creation': { 'task-created': handleTaskCreated },
-    'home-old': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities },
+    'home-old': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' } },
+    'chat-create-popup-v1': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' } },
+    'chat-create-popup-v3': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' } },
+    'chat-create-popup-v2': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' } },
     'home-heartbeat': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities },
     'home-old-v2': { 'menu-click': handleMenuClick },
     'home-with-review': { 'menu-click': handleMenuClick },

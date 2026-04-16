@@ -1,7 +1,64 @@
 <template>
-  <DashboardLayout @logo-click="handleLogoClick" @menu-click="$emit('menu-click', $event)" :right-panel-collapsed="!isChatOpen || chatWideMode" :content-hidden="chatWideMode">
+  <DashboardLayout @logo-click="handleLogoClick" @menu-click="$emit('menu-click', $event)" :right-panel-collapsed="!isChatOpen || chatWideMode" :content-hidden="chatWideMode && !['usecase', 'template', 'branding', 'editor'].includes(welcomeFlowStep)">
     <template #content>
-      <div class="w-full max-w-[1400px] mx-auto -mt-3">
+      <!-- Use case picker -->
+      <div v-if="welcomeFlowStep === 'usecase'" class="w-full pt-8 px-8">
+        <h1 class="text-2xl font-semibold text-om-gray-700 mb-6">Based on your data, these would drive the most results</h1>
+        <div class="grid grid-cols-2 gap-4">
+          <div
+            v-for="card in usecaseCards"
+            :key="card.id"
+            class="cursor-pointer image-card rounded-xl border border-om-gray-200 overflow-hidden transition-all duration-200 hover:scale-[1.03] hover:shadow-lg"
+            @click="handleUsecasePickFromContent(card)"
+          >
+            <div class="aspect-video overflow-hidden bg-om-peach-100">
+              <img :src="card.image" :alt="card.label" class="w-full h-full object-cover object-top" />
+            </div>
+            <div class="px-3 py-2.5">
+              <div class="text-sm font-semibold text-om-gray-700">{{ card.label }}</div>
+              <div v-if="card.subtitle" class="text-xs text-om-gray-400 mt-0.5 leading-snug">{{ card.subtitle }}</div>
+              <div v-if="card.reason" class="text-xs text-om-gray-500 mt-1.5 leading-snug italic">{{ card.reason }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Template picker -->
+      <div v-else-if="welcomeFlowStep === 'template'" class="w-full pt-8 px-8">
+        <h1 class="text-2xl font-semibold text-om-gray-700 mb-6">{{ usecaseLabels[welcomeFlowData.usecase] }}</h1>
+        <div class="grid grid-cols-3 gap-5">
+          <div
+            v-for="card in (templateCards[welcomeFlowData.usecase] || [])"
+            :key="card.id"
+            class="cursor-pointer group"
+            @click="handleTemplatePickFromContent(card)"
+          >
+            <div class="aspect-[3/2] rounded-xl bg-om-gray-200 overflow-hidden" :class="selectedTemplateId === card.id ? 'ring-2 ring-om-gray-600' : ''">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Branding picker -->
+      <div v-else-if="welcomeFlowStep === 'branding' || welcomeFlowStep === 'editor'" class="w-full pt-8 px-8">
+        <h1 class="text-2xl font-semibold text-om-gray-700 mb-2">Should we auto-personalize the branding?</h1>
+        <p class="text-sm text-om-gray-400 mb-6">Choose how your popup should look</p>
+        <div class="grid grid-cols-2 gap-5">
+          <div
+            v-for="card in brandingCards"
+            :key="card.id"
+            class="cursor-pointer group"
+            @click="handleBrandingPickFromContent(card)"
+          >
+            <div class="aspect-[3/2] rounded-xl bg-om-gray-200 overflow-hidden" :class="selectedBrandingId === card.id ? 'ring-2 ring-om-gray-600' : ''">
+            </div>
+            <div class="text-sm font-medium text-om-gray-700 mt-2.5">{{ card.label }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Normal home content -->
+      <div v-else class="w-full max-w-[1400px] mx-auto -mt-3">
         <!-- Header -->
         <h1 class="text-2xl font-semibold text-om-gray-700 mb-5">Hi Csaba</h1>
 
@@ -197,6 +254,8 @@ const handleLogoClick = () => {
 
 const chatPanelRef = ref(null)
 const isChatOpen = ref(false)
+const selectedTemplateId = ref(null)
+const selectedBrandingId = ref(null)
 const chatExpandedWidth = ref(0)
 const chatWideMode = computed(() => chatExpandedWidth.value > 0)
 
@@ -212,15 +271,15 @@ watch(isChatOpen, (open) => {
 const campaignTab = ref('top')
 
 const chatSuggestions = [
+  'I want to create a welcome popup',
   'How is my account performing?',
   'Which campaigns need attention?',
   'How can I improve my conversion rate?',
-  'Show me my top performing campaigns',
 ]
 
 const chatAiResponses = {
   'I want to create a welcome popup': {
-    message: 'Great choice! Here are some popular use cases — pick one to get started:',
+    message: 'Great choice! Here are some popular use cases:\n\n**1.** Smart Discount Popup — the most effective list-building formula\n**2.** Lucky Wheel — gamify list-building to increase engagement\n**3.** Newsletter Signup — build your list in a user-friendly way\n**4.** Cart Abandonment Stopper — offer a discount for cart abandoners\n\nWhich one would you like?',
     action: 'flow-welcome-usecase',
   },
   'How is my account performing?': 'Your account is performing well overall. Conversion rate is at **5.2%**, which is above your **3.2% average**. Impressions are up **12%** compared to last month.',
@@ -241,10 +300,10 @@ const usecaseLabels = {
 }
 
 const usecaseCards = [
-  { id: 'smart-discount', label: 'Smart Discount Popup', image: '/usecases/SmartDiscountPopup.png', bgColor: '#FFEFE5' },
-  { id: 'lucky-wheel', label: 'Lucky Wheel', image: '/usecases/Luckywheel.png', bgColor: '#FFEFE5' },
-  { id: 'newsletter', label: 'Newsletter Signup Popup', image: '/usecases/NewsletterSignupPopup.png', bgColor: '#FFEFE5' },
-  { id: 'cart-abandonment', label: 'Cart Abandonment Stopper', image: '/usecases/CartAbandonmentStopper.png', bgColor: '#FFEFE5' },
+  { id: 'smart-discount', label: 'Smart Discount Popup', subtitle: 'The most effective list-building popup formula', image: '/usecases/SmartDiscountPopup.png', reason: 'Your new visitors have a 12% bounce rate — a welcome discount can convert them into subscribers.' },
+  { id: 'lucky-wheel', label: 'Lucky Wheel', subtitle: 'Gamify list-building popups to increase new visitor engagement', image: '/usecases/Luckywheel.png', reason: 'Gamified popups get 2x more engagement — perfect for your high-traffic pages.' },
+  { id: 'newsletter', label: 'Newsletter Signup Popup', subtitle: 'Build your newsletter list in a user friendly way', image: '/usecases/NewsletterSignupPopup.png', reason: 'Your email list grew only 3% last month — a signup popup can accelerate that.' },
+  { id: 'cart-abandonment', label: 'Cart Abandonment Stopper', subtitle: 'Offer a discount for cart abandoners', image: '/usecases/CartAbandonmentStopper.png', reason: '68% of your carts are abandoned — an exit offer can recover up to 15% of them.' },
 ]
 
 // ── Template cards per use case (grey placeholders) ──
@@ -254,29 +313,61 @@ const templateCards = {
     { id: 'sd-2', label: 'Minimal Discount', description: 'Clean, simple form' },
     { id: 'sd-3', label: 'Image + Discount', description: 'Product image with coupon' },
     { id: 'sd-4', label: 'Countdown Discount', description: 'Urgency with timer' },
+    { id: 'sd-5', label: 'Bold Offer', description: 'Full-width, high-impact design' },
+    { id: 'sd-6', label: 'Welcome Gift', description: 'Friendly first-visit popup' },
+    { id: 'sd-7', label: 'Seasonal Discount', description: 'Holiday-themed coupon' },
+    { id: 'sd-8', label: 'VIP Discount', description: 'Exclusive offer for loyal visitors' },
+    { id: 'sd-9', label: 'Flash Sale', description: 'Short-term deal with urgency' },
+    { id: 'sd-10', label: 'Exit Offer', description: 'Last-chance discount on exit' },
+    { id: 'sd-11', label: 'Mobile Discount', description: 'Optimized for phone visitors' },
+    { id: 'sd-12', label: 'Two-step Discount', description: 'Teaser + full popup combo' },
   ],
   'lucky-wheel': [
     { id: 'lw-1', label: 'Classic Wheel', description: 'Spin-to-win with prizes' },
     { id: 'lw-2', label: 'Holiday Wheel', description: 'Seasonal themed design' },
     { id: 'lw-3', label: 'Minimal Wheel', description: 'Clean, modern look' },
     { id: 'lw-4', label: 'Bold Wheel', description: 'High contrast, eye-catching' },
+    { id: 'lw-5', label: 'Neon Wheel', description: 'Vibrant, glowing colors' },
+    { id: 'lw-6', label: 'Pastel Wheel', description: 'Soft, friendly tones' },
+    { id: 'lw-7', label: 'Dark Wheel', description: 'Premium dark theme' },
+    { id: 'lw-8', label: 'Fun Wheel', description: 'Playful, animated feel' },
+    { id: 'lw-9', label: 'Elegant Wheel', description: 'Sophisticated, luxury look' },
+    { id: 'lw-10', label: 'Retro Wheel', description: 'Vintage style design' },
+    { id: 'lw-11', label: 'Summer Wheel', description: 'Bright, seasonal theme' },
+    { id: 'lw-12', label: 'Mobile Wheel', description: 'Phone-optimized layout' },
   ],
   'newsletter': [
     { id: 'nl-1', label: 'Simple Signup', description: 'Email field with CTA' },
     { id: 'nl-2', label: 'Content Teaser', description: 'Preview what subscribers get' },
     { id: 'nl-3', label: 'Sidebar Form', description: 'Embedded style popup' },
     { id: 'nl-4', label: 'Full-screen Signup', description: 'Bold, immersive form' },
+    { id: 'nl-5', label: 'Minimal Form', description: 'Clean single-field layout' },
+    { id: 'nl-6', label: 'Image + Form', description: 'Photo alongside signup' },
+    { id: 'nl-7', label: 'Welcome Newsletter', description: 'First-visit subscriber capture' },
+    { id: 'nl-8', label: 'Blog Popup', description: 'Designed for blog readers' },
+    { id: 'nl-9', label: 'Exit Newsletter', description: 'Capture on exit intent' },
+    { id: 'nl-10', label: 'Floating Bar', description: 'Subtle sticky bar signup' },
+    { id: 'nl-11', label: 'Two-field Form', description: 'Name + email capture' },
+    { id: 'nl-12', label: 'Social Proof', description: 'With subscriber count' },
   ],
   'cart-abandonment': [
     { id: 'ca-1', label: 'Exit Discount', description: 'Last-chance coupon offer' },
     { id: 'ca-2', label: 'Cart Reminder', description: 'Show items left in cart' },
     { id: 'ca-3', label: 'Free Shipping', description: 'Shipping threshold nudge' },
     { id: 'ca-4', label: 'Countdown Exit', description: 'Timer + discount combo' },
+    { id: 'ca-5', label: 'Product Spotlight', description: 'Highlight top cart item' },
+    { id: 'ca-6', label: 'Social Proof Exit', description: 'Reviews + discount' },
+    { id: 'ca-7', label: 'Minimal Reminder', description: 'Simple, non-intrusive' },
+    { id: 'ca-8', label: 'Full-screen Exit', description: 'Bold, can\'t-miss offer' },
+    { id: 'ca-9', label: 'Gift Exit', description: 'Free gift with purchase' },
+    { id: 'ca-10', label: 'Bundle Saver', description: 'Bundle discount suggestion' },
+    { id: 'ca-11', label: 'Mobile Exit', description: 'Phone-optimized exit popup' },
+    { id: 'ca-12', label: 'Urgency Exit', description: 'Stock scarcity + timer' },
   ],
 }
 
-const usecaseListEN = 'Great choice! Here are some popular use cases — pick one to get started:'
-const usecaseListHU = 'Szuper! Íme néhány népszerű use case — válassz egyet:'
+const usecaseListEN = 'Great choice! Here are some popular use cases:\n\n**1.** Smart Discount Popup — the most effective list-building formula\n**2.** Lucky Wheel — gamify list-building to increase engagement\n**3.** Newsletter Signup — build your list in a user-friendly way\n**4.** Cart Abandonment Stopper — offer a discount for cart abandoners\n\nWhich one would you like?'
+const usecaseListHU = 'Szuper! Íme néhány népszerű use case:\n\n**1.** Smart Discount Popup — a leghatékonyabb lista-építő formula\n**2.** Lucky Wheel — játékosított feliratkozás\n**3.** Hírlevél feliratkozás — felhasználóbarát lista-építés\n**4.** Kosárelhagyás csökkentő — kedvezmény a távozóknak\n\nMelyiket választod?'
 
 // ── Matchers per flow step ──
 const chatMessageMatchers = computed(() => {
@@ -298,7 +389,7 @@ const chatMessageMatchers = computed(() => {
     { keywords: ['kampány'],         response: usecaseListHU, action: 'flow-welcome-usecase' },
   ]
 
-  // ── Step 1: Use case selection (visual cards, wide panel) ──
+  // ── Step 1: Use case selection (text-based, normal width) ──
   if (welcomeFlowStep.value === 'usecase') {
     const u = (id) => ({ response: `Great, **${usecaseLabels[id]}**! Let me show you some templates:`, action: `flow-welcome-template:${id}` })
     return [
@@ -385,37 +476,49 @@ function brandingDoneResponse(branded) {
   return 'Your popup is almost ready! To fine-tune it, open the editor.'
 }
 
+const handleUsecasePickFromContent = (card) => {
+  welcomeFlowData.value.usecase = card.id
+  welcomeFlowStep.value = 'template'
+  chatPanelRef.value?.pushMessage({ type: 'ai-success', message: `Use case: ${card.label}` })
+}
+
+const handleTemplatePickFromContent = (card) => {
+  selectedTemplateId.value = card.id
+  welcomeFlowData.value.template = card.id
+  welcomeFlowStep.value = 'branding'
+  chatPanelRef.value?.pushMessage({ type: 'ai-success', message: 'Template:' })
+  setTimeout(() => {
+    chatPanelRef.value?.pushMessage({ type: 'ai-images', message: '', cards: [card], hideLabels: true, skipUserMessage: true })
+  }, 1000)
+}
+
+const handleBrandingPickFromContent = (card) => {
+  selectedBrandingId.value = card.id
+  welcomeFlowData.value.branded = card.id === 'branded'
+  chatPanelRef.value?.pushMessage({ type: 'ai-success', message: `Branding: ${card.label}` })
+  // Save chat and go to editor (wait for message to appear)
+  setTimeout(() => {
+    const chatMessages = chatPanelRef.value?.messages ? [...chatPanelRef.value.messages] : []
+    welcomeFlowStep.value = null
+    chatExpandedWidth.value = 0
+    welcomeFlowData.value = { usecase: null, template: null, branded: null }
+    emit('open-editor-with-chat', chatMessages)
+  }, 1500)
+}
+
 const handleChatAction = (action) => {
   if (action === 'flow-welcome-usecase') {
     welcomeFlowStep.value = 'usecase'
-    // Expand panel and inject use case cards with images
-    chatExpandedWidth.value = 9999
-    setTimeout(() => {
-      chatPanelRef.value?.pushMessage({
-        type: 'ai-images',
-        message: '',
-        cards: usecaseCards,
-      })
-    }, 500)
+    chatExpandedWidth.value = 0
   } else if (action.startsWith('flow-welcome-template:')) {
     welcomeFlowData.value.usecase = action.split(':')[1]
     welcomeFlowStep.value = 'template'
-    // 1. Expand panel
-    chatExpandedWidth.value = 9999
-    // 2. After expansion, inject template cards
-    const cards = templateCards[welcomeFlowData.value.usecase] || []
-    setTimeout(() => {
-      chatPanelRef.value?.pushMessage({
-        type: 'ai-images',
-        message: '',
-        cards,
-        hideLabels: true,
-      })
-    }, 500)
+    // Shrink chat back — templates show in content area
+    chatExpandedWidth.value = 0
   } else if (action.startsWith('flow-welcome-branding:')) {
+    // From chat text input (fallback)
     welcomeFlowData.value.template = action.split(':')[1]
     welcomeFlowStep.value = 'branding'
-    // Stay wide, inject branding cards
     setTimeout(() => {
       chatPanelRef.value?.pushMessage({
         type: 'ai-images',
