@@ -31,6 +31,7 @@
                   :open="heartbeatOpen"
                   :visitors="liveVisitors"
                   @close="heartbeatOpen = false"
+                  @visitor-click="(v) => $emit('visitor-click', v)"
                 />
               </div>
             </div>
@@ -290,7 +291,7 @@ defineProps({
   }
 })
 
-defineEmits(['task-created', 'menu-click', 'navigate-to-review'])
+defineEmits(['task-created', 'menu-click', 'navigate-to-review', 'visitor-click'])
 
 const handleLogoClick = () => {}
 

@@ -60,6 +60,7 @@ const registrationType = ref('email')
 const publicWizardStep = ref('url')
 const wizardFlowStep = ref('url')
 const selectedOpportunityId = ref(1)
+const selectedLead = ref(null)
 const sessionKey = ref(0)
 const devNavOpen = ref(true)
 const devStartShowArchive = ref(false)
@@ -195,6 +196,7 @@ const activeProps = computed(() => {
     'analytics-v4-phone-capture': { goal: 'phone-capture' },
     'editor': { chatHistory: editorChatHistory.value },
     'opportunity-detail': { opportunityId: selectedOpportunityId.value },
+    'audience-profile': { lead: selectedLead.value },
     'templates-v2-essential-theme': { initialFamily: 'essential' },
     'wizard-analysis': { registrationData: registrationData.value, initialMessage: wizardMessage.value },
     'wizard-analysis-no-chat': { registrationData: registrationData.value, initialMessage: wizardMessage.value, noChat: true },
@@ -283,6 +285,42 @@ const handleNavigateToGoal = (g) => {
   handleDevNavigate('analytics-v4' + (g === 'submits' ? '' : '-' + g))
 }
 
+const handleVisitorClick = (visitor) => {
+  const now = new Date()
+  const hasEmail = visitor.submitted && visitor.email
+  selectedLead.value = {
+    ...visitor,
+    name: '',
+    email: hasEmail ? visitor.email : '',
+    initials: visitor.city?.[0] || 'V',
+    avatarColor: hasEmail ? '#81C784' : '#64B5F6',
+    syncStatus: visitor.submitted ? 'Completed' : 'Browsing',
+    campaign: visitor.submitted ? 'Welcome Popup for New Visitors' : '',
+    domain: 'shop.example.com',
+    date: now,
+    dateFormatted: now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    timeFormatted: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+    phone: '',
+    flag: visitor.flag || '',
+    city: visitor.city || '',
+    language: '',
+    source: visitor.referrer || 'Direct',
+    pageViews: visitor.pagesViewed || 1,
+    totalVisits: visitor.returning ? 3 : 1,
+    orders: 0,
+    lifetimeValue: '$0',
+    lastVisit: now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    couponCode: '',
+    region: '',
+    industry: '',
+    birthday: '',
+    os: visitor.device === 'mobile' ? 'iOS 17' : visitor.device === 'tablet' ? 'iPadOS 17' : 'Windows 11',
+    browser: visitor.browser || 'Chrome 120',
+    device: visitor.device ? visitor.device.charAt(0).toUpperCase() + visitor.device.slice(1) : 'Desktop',
+  }
+  currentView.value = 'audience-profile'
+}
+
 const handleWizardSubmit = (message) => {
   wizardMessage.value = message
   sessionKey.value++
@@ -309,6 +347,8 @@ const handleMenuClick = (menuId) => {
     currentView.value = onboardingViews.includes(currentView.value) ? 'analytics-empty' : 'analytics-v4'
   } else if (menuId === 'campaign-page') {
     currentView.value = 'campaign-page-v1'
+  } else if (menuId === 'audience') {
+    currentView.value = 'audience'
   } else if (menuId === 'templates' || menuId === 'library') {
     currentView.value = 'templates-v2'
   } else if (menuId === 'home-onboarding') {
@@ -378,10 +418,10 @@ const activeEvents = computed(() => {
     'registration-v2': { complete: handleRegistrationComplete },
     'onboarding': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated },
     'task-creation': { 'task-created': handleTaskCreated },
-    'home-old': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' } },
-    'chat-create-popup-v1': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' } },
-    'chat-create-popup-v3': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' } },
-    'chat-create-popup-v2': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' } },
+    'home-old': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
+    'chat-create-popup-v1': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
+    'chat-create-popup-v3': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
+    'chat-create-popup-v2': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
     'home-heartbeat': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities },
     'home-old-v2': { 'menu-click': handleMenuClick },
     'home-with-review': { 'menu-click': handleMenuClick },
@@ -391,10 +431,12 @@ const activeEvents = computed(() => {
     'home-onboarding-v1': { 'menu-click': handleMenuClick },
     'home-onboarding-with-reco': { 'menu-click': handleMenuClick },
     'home-onboarding-with-reco-v1': { 'menu-click': handleMenuClick },
-    'home-onboarding-review': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'home-onboarding-review': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'visitor-click': handleVisitorClick },
     'home-onboarding-wizard': { 'menu-click': handleMenuClick, 'phase-changed': handlePhaseChanged, 'registration-completed': handlePublicWizardRegistrationCompleted },
     'public-wizard': { 'phase-changed': handlePhaseChanged, 'registration-completed': handlePublicWizardRegistrationCompleted },
     'wizard-flow': { 'phase-changed': handlePhaseChanged, 'registration-completed': handlePublicWizardRegistrationCompleted, 'menu-click': handleMenuClick },
+    'audience': { 'menu-click': handleMenuClick, 'open-profile': (lead) => { selectedLead.value = lead; currentView.value = 'audience-profile' } },
+    'audience-profile': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'audience' }, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' } },
     'campaigns': { 'menu-click': handleMenuClick },
     'campaigns-v2': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },
     'campaigns-v3': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail-v2' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },

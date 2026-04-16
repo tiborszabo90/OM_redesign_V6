@@ -454,6 +454,23 @@ const campaignViews = [
     section: 'campaigns',
     hideLogo: true,
   },
+  // ── Audience ──
+  {
+    id: 'audience',
+    component: () => import('../views/AudienceView.vue'),
+    label: 'Audience',
+    status: 'active',
+    section: 'audience',
+    hideLogo: true,
+  },
+  {
+    id: 'audience-profile',
+    component: () => import('../views/AudienceProfileView.vue'),
+    label: 'Audience Profile',
+    status: 'active',
+    section: 'audience',
+    hideLogo: true,
+  },
   {
     id: 'new-campaign',
     component: () => import('../views/NewCampaignView.vue'),

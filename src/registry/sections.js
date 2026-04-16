@@ -7,4 +7,5 @@ export const sectionLabels = {
   ppo: 'PPO v2',
   ppoV1: 'PPO v1',
   aiContent: 'AI Content',
+  audience: 'Audience',
 }

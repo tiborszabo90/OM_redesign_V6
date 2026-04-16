@@ -11,26 +11,25 @@
           <span class="text-sm font-semibold text-om-gray-700">Live Visitors</span>
           <span class="text-xs text-om-gray-400">{{ visitors.length }} active now</span>
         </div>
-        <button @click="$emit('close')" class="text-om-gray-400 hover:text-om-gray-600 transition-colors cursor-pointer">
-          <X :size="16" />
-        </button>
+        <Button variant="ghost" size="sm" icon-only @click="$emit('close')">
+          <template #icon><X :size="16" /></template>
+        </Button>
       </div>
 
       <!-- Visitor list -->
       <div class="max-h-85 overflow-y-auto">
         <!-- Column headers (sticky inside scroll area) -->
-        <div class="grid grid-cols-[2fr_1.5fr_1fr_80px] gap-3 px-5 py-3 border-b border-[rgb(227,229,232)] text-[13px] font-normal text-om-gray-500 sticky top-0 bg-white z-10">
+        <div class="grid grid-cols-[2fr_1.5fr] gap-3 px-5 py-3 border-b border-[rgb(227,229,232)] text-[13px] font-normal text-om-gray-500 sticky top-0 bg-white z-10">
           <span>Visitor</span>
           <span>Current Page</span>
-          <span>Source</span>
-          <span class="text-right">Duration</span>
         </div>
         <TransitionGroup name="visitor" tag="div" class="divide-y divide-gray-50 relative">
           <div
             v-for="visitor in visitors"
             :key="visitor.id"
-            class="visitor-row grid grid-cols-[2fr_1.5fr_1fr_80px] gap-3 items-center px-5 py-2.5 hover:bg-gray-50/50 transition-colors"
+            class="visitor-row grid grid-cols-[2fr_1.5fr] gap-3 items-center px-5 py-2.5 hover:bg-gray-50/50 transition-colors cursor-pointer"
             :class="{ 'visitor-highlight': visitor.isNew }"
+            @click="$emit('visitor-click', visitor)"
           >
             <!-- Col 1: Visitor identity -->
             <div class="flex items-center gap-2.5 min-w-0">
@@ -50,10 +49,11 @@
                     <span v-if="visitor.isNew" class="text-[9px] font-semibold bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-full leading-none">new</span>
                   </transition>
                   <span v-if="visitor.returning" class="text-[9px] font-medium bg-blue-50 text-blue-500 px-1.5 py-0.5 rounded-full leading-none">returning</span>
+                  <span v-if="visitor.returning && visitor.submitted" class="text-[9px] font-medium bg-orange-50 text-om-orange-500 px-1.5 py-0.5 rounded-full leading-none">submitted</span>
                 </div>
                 <div class="flex items-center gap-1 mt-0.5 text-[11px] text-om-gray-400">
                   <component :is="visitor.deviceIcon" :size="10" class="shrink-0" />
-                  <span class="truncate">{{ visitor.device }} · {{ visitor.browser }}</span>
+                  <span class="truncate">{{ visitor.submitted && visitor.email ? visitor.email : `${visitor.device} · ${visitor.browser}` }}</span>
                 </div>
               </div>
             </div>
@@ -63,18 +63,6 @@
               <div class="text-[13px] text-om-gray-600 truncate font-mono">{{ visitor.currentPage }}</div>
             </div>
 
-            <!-- Col 3: Referrer source -->
-            <div class="flex items-center gap-1.5">
-              <div class="w-4 h-4 rounded-full flex items-center justify-center shrink-0" :class="referrerStyle(visitor.referrer).bg">
-                <component :is="referrerStyle(visitor.referrer).icon" :size="10" :class="referrerStyle(visitor.referrer).text" />
-              </div>
-              <span class="text-[12px] text-om-gray-500 capitalize">{{ visitor.referrer }}</span>
-            </div>
-
-            <!-- Col 4: Duration -->
-            <div class="text-right">
-              <span class="text-[13px] font-medium text-om-gray-600 tabular-nums">{{ visitor.duration }}</span>
-            </div>
           </div>
         </TransitionGroup>
       </div>
@@ -94,8 +82,9 @@
 </template>
 
 <script setup>
-import { computed, markRaw } from 'vue'
-import { X, RefreshCw, Search, Globe, Mail, Share2, ExternalLink } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { X, RefreshCw } from 'lucide-vue-next'
+import Button from './Button.vue'
 
 const props = defineProps({
   open: {
@@ -108,7 +97,7 @@ const props = defineProps({
   }
 })
 
-defineEmits(['close'])
+defineEmits(['close', 'visitor-click'])
 
 const countryCodeMap = {
   'USA': 'US',
@@ -147,20 +136,6 @@ const countryCodeMap = {
 const getFlagUrl = (country) => {
   const code = countryCodeMap[country]
   return code ? `https://flagcdn.com/w40/${code.toLowerCase()}.png` : null
-}
-
-const referrerIcons = {
-  google: { icon: markRaw(Search), bg: 'bg-blue-50', text: 'text-blue-500' },
-  direct: { icon: markRaw(Globe), bg: 'bg-gray-100', text: 'text-gray-500' },
-  facebook: { icon: markRaw(Share2), bg: 'bg-indigo-50', text: 'text-indigo-500' },
-  instagram: { icon: markRaw(Share2), bg: 'bg-pink-50', text: 'text-pink-500' },
-  tiktok: { icon: markRaw(Share2), bg: 'bg-gray-100', text: 'text-gray-700' },
-  email: { icon: markRaw(Mail), bg: 'bg-amber-50', text: 'text-amber-600' },
-}
-const defaultReferrer = { icon: markRaw(ExternalLink), bg: 'bg-gray-100', text: 'text-gray-400' }
-
-function referrerStyle(ref) {
-  return referrerIcons[ref] || defaultReferrer
 }
 
 const topPages = computed(() => {

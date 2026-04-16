@@ -31,6 +31,7 @@
                   :open="heartbeatOpen"
                   :visitors="liveVisitors"
                   @close="heartbeatOpen = false"
+                  @visitor-click="(v) => $emit('visitor-click', v)"
                 />
               </div>
             </div>
@@ -189,7 +190,7 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['task-created', 'menu-click'])
+const emit = defineEmits(['task-created', 'menu-click', 'visitor-click'])
 
 const handleLogoClick = () => {
   // No-op for now
@@ -716,25 +717,25 @@ const chartOptions = computed(() => {
 const heartbeatOpen = ref(false)
 
 const visitorPool = [
-  { flag: '🇺🇸', label: 'Anonymous visitor', city: 'New York', country: 'USA', currentPage: '/products/wireless-headphones', device: 'desktop', referrer: 'google', browser: 'Chrome', pagesViewed: 4, returning: false },
-  { flag: '🇩🇪', label: 'Anonymous visitor', city: 'Berlin', country: 'Germany', currentPage: '/cart', device: 'mobile', referrer: 'instagram', browser: 'Safari', pagesViewed: 6, returning: true },
-  { flag: '🇭🇺', label: 'Anonymous visitor', city: 'Budapest', country: 'Hungary', currentPage: '/products/yoga-mat', device: 'desktop', referrer: 'direct', browser: 'Chrome', pagesViewed: 2, returning: false },
-  { flag: '🇬🇧', label: 'Anonymous visitor', city: 'London', country: 'UK', currentPage: '/checkout', device: 'desktop', referrer: 'google', browser: 'Firefox', pagesViewed: 8, returning: true },
-  { flag: '🇫🇷', label: 'Anonymous visitor', city: 'Paris', country: 'France', currentPage: '/', device: 'mobile', referrer: 'facebook', browser: 'Safari', pagesViewed: 1, returning: false },
-  { flag: '🇦🇹', label: 'Anonymous visitor', city: 'Vienna', country: 'Austria', currentPage: '/products/running-shoes', device: 'tablet', referrer: 'google', browser: 'Chrome', pagesViewed: 3, returning: false },
-  { flag: '🇷🇴', label: 'Anonymous visitor', city: 'Bucharest', country: 'Romania', currentPage: '/products/smartwatch', device: 'mobile', referrer: 'tiktok', browser: 'Chrome', pagesViewed: 5, returning: true },
-  { flag: '🇳🇱', label: 'Anonymous visitor', city: 'Amsterdam', country: 'Netherlands', currentPage: '/sale', device: 'desktop', referrer: 'email', browser: 'Chrome', pagesViewed: 3, returning: true },
-  { flag: '🇵🇱', label: 'Anonymous visitor', city: 'Warsaw', country: 'Poland', currentPage: '/products/backpack', device: 'desktop', referrer: 'google', browser: 'Edge', pagesViewed: 2, returning: false },
-  { flag: '🇮🇹', label: 'Anonymous visitor', city: 'Milan', country: 'Italy', currentPage: '/products/sunglasses', device: 'mobile', referrer: 'instagram', browser: 'Safari', pagesViewed: 7, returning: true },
-  { flag: '🇪🇸', label: 'Anonymous visitor', city: 'Madrid', country: 'Spain', currentPage: '/products/fitness-tracker', device: 'desktop', referrer: 'direct', browser: 'Chrome', pagesViewed: 4, returning: false },
-  { flag: '🇸🇪', label: 'Anonymous visitor', city: 'Stockholm', country: 'Sweden', currentPage: '/about', device: 'tablet', referrer: 'facebook', browser: 'Safari', pagesViewed: 1, returning: false },
+  { flag: '🇺🇸', label: 'Anonymous visitor', city: 'New York', country: 'USA', currentPage: '/products/wireless-headphones', device: 'desktop', referrer: 'google', browser: 'Chrome', pagesViewed: 4, returning: true, submitted: true, email: 'sarah.j@gmail.com' },
+  { flag: '🇩🇪', label: 'Anonymous visitor', city: 'Berlin', country: 'Germany', currentPage: '/cart', device: 'mobile', referrer: 'instagram', browser: 'Safari', pagesViewed: 6, returning: true, submitted: true, email: 'felix.m@web.de' },
+  { flag: '🇭🇺', label: 'Anonymous visitor', city: 'Budapest', country: 'Hungary', currentPage: '/products/yoga-mat', device: 'desktop', referrer: 'direct', browser: 'Chrome', pagesViewed: 2, returning: false, submitted: false, email: '' },
+  { flag: '🇬🇧', label: 'Anonymous visitor', city: 'London', country: 'UK', currentPage: '/checkout', device: 'desktop', referrer: 'google', browser: 'Firefox', pagesViewed: 8, returning: true, submitted: true, email: 'james.w@outlook.com' },
+  { flag: '🇫🇷', label: 'Anonymous visitor', city: 'Paris', country: 'France', currentPage: '/', device: 'mobile', referrer: 'facebook', browser: 'Safari', pagesViewed: 1, returning: false, submitted: false, email: '' },
+  { flag: '🇦🇹', label: 'Anonymous visitor', city: 'Vienna', country: 'Austria', currentPage: '/products/running-shoes', device: 'tablet', referrer: 'google', browser: 'Chrome', pagesViewed: 3, returning: true, submitted: true, email: 'anna.m@yahoo.com' },
+  { flag: '🇷🇴', label: 'Anonymous visitor', city: 'Bucharest', country: 'Romania', currentPage: '/products/smartwatch', device: 'mobile', referrer: 'tiktok', browser: 'Chrome', pagesViewed: 5, returning: true, submitted: false, email: '' },
+  { flag: '🇳🇱', label: 'Anonymous visitor', city: 'Amsterdam', country: 'Netherlands', currentPage: '/sale', device: 'desktop', referrer: 'email', browser: 'Chrome', pagesViewed: 3, returning: true, submitted: true, email: 'mark.v@company.io' },
+  { flag: '🇵🇱', label: 'Anonymous visitor', city: 'Warsaw', country: 'Poland', currentPage: '/products/backpack', device: 'desktop', referrer: 'google', browser: 'Edge', pagesViewed: 2, returning: false, submitted: false, email: '' },
+  { flag: '🇮🇹', label: 'Anonymous visitor', city: 'Milan', country: 'Italy', currentPage: '/products/sunglasses', device: 'mobile', referrer: 'instagram', browser: 'Safari', pagesViewed: 7, returning: true, submitted: true, email: 'lucia.r@gmail.com' },
+  { flag: '🇪🇸', label: 'Anonymous visitor', city: 'Madrid', country: 'Spain', currentPage: '/products/fitness-tracker', device: 'desktop', referrer: 'direct', browser: 'Chrome', pagesViewed: 4, returning: false, submitted: false, email: '' },
+  { flag: '🇸🇪', label: 'Anonymous visitor', city: 'Stockholm', country: 'Sweden', currentPage: '/about', device: 'tablet', referrer: 'facebook', browser: 'Safari', pagesViewed: 1, returning: false, submitted: false, email: '' },
 ]
 
 const durations = ['0:12', '0:34', '1:07', '1:45', '2:23', '3:01', '0:08', '0:55', '4:12', '2:50']
 const deviceIconMap = { desktop: markRaw(Monitor), mobile: markRaw(Smartphone), tablet: markRaw(Tablet) }
 
 let nextId = 1
-function createVisitor(isNew = false) {
+function createVisitor() {
   const template = visitorPool[Math.floor(Math.random() * visitorPool.length)]
   return {
     ...template,
@@ -742,23 +743,18 @@ function createVisitor(isNew = false) {
     duration: durations[Math.floor(Math.random() * durations.length)],
     deviceIcon: deviceIconMap[template.device],
     pagesViewed: template.pagesViewed + Math.floor(Math.random() * 3),
-    isNew,
+    isNew: !template.returning,
   }
 }
 
-const liveVisitors = ref(Array.from({ length: 5 }, () => createVisitor(false)))
+const liveVisitors = ref(Array.from({ length: 5 }, () => createVisitor()))
 
 let heartbeatInterval = null
 onMounted(() => {
   heartbeatInterval = setInterval(() => {
     const action = Math.random()
     if (action < 0.4 && liveVisitors.value.length < 12) {
-      liveVisitors.value = [createVisitor(true), ...liveVisitors.value]
-      const addedId = liveVisitors.value[0].id
-      setTimeout(() => {
-        const v = liveVisitors.value.find(x => x.id === addedId)
-        if (v) v.isNew = false
-      }, 3000)
+      liveVisitors.value = [createVisitor(), ...liveVisitors.value]
     } else if (action < 0.65 && liveVisitors.value.length > 2) {
       const idx = Math.floor(Math.random() * liveVisitors.value.length)
       liveVisitors.value = liveVisitors.value.filter((_, i) => i !== idx)
