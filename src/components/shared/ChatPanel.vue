@@ -169,7 +169,7 @@
         <!-- AI image cards message -->
         <div v-else-if="msg.type === 'ai-images'" :class="isWideMode ? 'w-full text-sm mb-12' : 'w-full text-sm'">
           <div v-if="msg.message" class="bg-[#F1F2F4] text-[#23262A] px-3 py-2 rounded-2xl rounded-bl-md mb-3 leading-relaxed" :class="isWideMode ? 'max-w-[600px]' : 'max-w-[90%]'" v-html="formatChatMessage(msg.message)"></div>
-          <div :class="isWideMode ? 'grid grid-cols-2 gap-4 pb-2' : !msg.hideLabels && msg.cards?.[0]?.image ? 'flex flex-col gap-1.5 pb-2' : 'grid grid-cols-2 gap-2 pb-2'">
+          <div :class="isWideMode ? (msg.layout === 'vertical' ? ['grid gap-4 pb-2', msg.cards?.length <= 3 ? 'grid-cols-3' : 'grid-cols-4'] : 'grid grid-cols-2 gap-4 pb-2') : !msg.hideLabels && msg.cards?.[0]?.image ? 'flex flex-col gap-1.5 pb-2' : 'grid grid-cols-2 gap-2 pb-2'">
             <component
               :is="inline ? 'div' : 'button'"
               v-for="card in msg.cards"
@@ -182,8 +182,8 @@
                 <div class="font-medium text-om-gray-700 text-sm">{{ card.label }}</div>
                 <div v-if="card.reason" class="text-om-gray-500 mt-0.5 leading-snug text-xs">{{ card.reason }}</div>
               </div>
-              <!-- Wide mode: horizontal layout (image left, text right) -->
-              <div v-else-if="isWideMode && !msg.hideLabels && card.image" class="flex h-40">
+              <!-- Wide mode: horizontal layout (image left, text right) — skip for vertical layout -->
+              <div v-else-if="isWideMode && !msg.hideLabels && card.image && msg.layout !== 'vertical'" class="flex h-40">
                 <div class="w-1/2 shrink-0 overflow-hidden" :style="{ backgroundColor: card.bgColor || '' }" :class="!card.bgColor ? 'bg-om-gray-100' : ''">
                   <img :src="card.image" :alt="card.label" :class="card.bgColor ? 'w-[88%] h-full object-contain m-auto' : 'w-full h-full object-cover object-top'" />
                 </div>
@@ -199,9 +199,10 @@
                   <img v-if="card.image" :src="card.image" :alt="card.label" class="w-full h-full object-cover object-top" />
                   <div v-else class="w-full h-full bg-om-gray-200"></div>
                 </div>
-                <div v-if="!msg.hideLabels" :class="isWideMode ? 'px-3 py-3' : 'px-2.5 py-2'">
+                <div v-if="!msg.hideLabels" :class="isWideMode ? 'px-3 py-2.5' : 'px-2.5 py-2'">
                   <div class="font-medium text-om-gray-700" :class="isWideMode ? 'text-sm' : 'text-xs'">{{ card.label }}</div>
                   <div v-if="card.description" class="text-om-gray-400 mt-0.5 leading-snug" :class="isWideMode ? 'text-xs' : 'text-[11px]'">{{ card.description }}</div>
+                  <div v-if="card.reason" class="text-om-gray-500 mt-1 leading-snug italic" :class="isWideMode ? 'text-xs' : 'text-[11px]'">{{ card.reason }}</div>
                 </div>
               </template>
             </component>

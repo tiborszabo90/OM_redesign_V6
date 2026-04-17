@@ -7,34 +7,17 @@
 
         <!-- Filters Section -->
         <div class="flex items-center justify-between mb-5 gap-4 max-960:flex-col max-960:items-start">
-          <!-- Domain Selector + Heartbeat -->
-          <div class="flex items-center gap-4">
-            <div class="w-56">
-              <Dropdown
-                v-model="selectedDomain"
-                :options="domains"
-                placeholder="Select domain"
-              >
-                <template #icon>
-                  <img src="/demos/telekom/logo.png" alt="Domain" class="w-5 h-5 rounded-full object-cover" />
-                </template>
-              </Dropdown>
-            </div>
-            <div class="relative">
-              <HeartbeatIndicator
-                :visitor-count="liveVisitors.length"
-                :expanded="heartbeatOpen"
-                @toggle="heartbeatOpen = !heartbeatOpen"
-              />
-              <div v-if="heartbeatOpen" class="absolute top-full left-0 mt-2 z-50 w-175">
-                <HeartbeatPanel
-                  :open="heartbeatOpen"
-                  :visitors="liveVisitors"
-                  @close="heartbeatOpen = false"
-                  @visitor-click="(v) => $emit('visitor-click', v)"
-                />
-              </div>
-            </div>
+          <!-- Domain Selector -->
+          <div class="w-56">
+            <Dropdown
+              v-model="selectedDomain"
+              :options="domains"
+              placeholder="Select domain"
+            >
+              <template #icon>
+                <img src="/demos/telekom/logo.png" alt="Domain" class="w-5 h-5 rounded-full object-cover" />
+              </template>
+            </Dropdown>
           </div>
 
         </div>
@@ -101,11 +84,9 @@
             :open="openStep === 1"
             @toggle="openStep = openStep === 1 ? null : 1"
             icon-size="w-6 h-6"
-            icon-bg="bg-[#2CC896]"
+            icon-bg="bg-transparent border-2 border-om-gray-300"
           >
-            <template #icon>
-              <Check :size="14" :stroke-width="3.5" class="text-white scale-75" />
-            </template>
+            <template #icon></template>
             <template #meta>
               <span class="text-sm text-om-gray-400">~2 min</span>
             </template>
@@ -120,57 +101,56 @@
             </div>
           </Accordion>
 
-          <!-- Step 3: Activate your first campaign -->
+          <!-- Step 3: Activate your first campaign (disabled) -->
           <Accordion
             title="Activate your first campaign"
-            :open="openStep === 2"
-            @toggle="openStep = openStep === 2 ? null : 2"
-            icon-size="w-6 h-6"
-            icon-bg="bg-[#2CC896]"
-          >
-            <template #icon>
-              <Check :size="14" :stroke-width="3.5" class="text-white scale-75" />
-            </template>
-            <template #meta>
-              <span class="text-sm text-om-gray-400">~1 min</span>
-            </template>
-            <div class="flex items-stretch gap-6">
-              <div class="pl-9 flex-1 py-2 pr-96">
-                <p class="text-base text-om-gray-500 mb-5">Activate or schedule your very first campaign to boost conversions.</p>
-                <Button variant="primary" size="md" class="self-start" @click="$emit('menu-click', 'campaign-page-with-review')">Activate campaign</Button>
-              </div>
-              <div class="absolute top-2 right-0 bottom-2 flex items-stretch -translate-x-44">
-                <img src="/monk-on.svg" alt="" class="h-full w-auto" />
-              </div>
-            </div>
-          </Accordion>
-
-          <!-- Step 4: Setup check -->
-          <Accordion
-            title="Setup check"
-            :open="openStep === 3"
-            @toggle="openStep = openStep === 3 ? null : 3"
+            :disabled="true"
             icon-size="w-6 h-6"
             icon-bg="bg-transparent border-2 border-om-gray-300"
           >
             <template #icon></template>
-            <template #meta>
-              <span class="text-sm text-om-gray-400">~1 min</span>
-            </template>
-            <div class="flex items-stretch gap-6">
-              <div class="pl-9 flex-1 py-2 pr-96">
-                <p class="text-xl font-bold text-om-gray-700 mb-3">Your first campaign is live!</p>
-                <p class="text-base text-om-gray-500 mb-6">Your code has been successfully installed and your first campaign is live!<br>Let us know if there's anything you need help with.</p>
-                <div class="flex items-center gap-3">
-                  <Button variant="primary" size="md" @click="$emit('navigate-to-review')">Everything's great</Button>
-                  <Button variant="outline" size="md">Contact support</Button>
+          </Accordion>
+
+          <!-- Step 4: Setup check (disabled) -->
+          <Accordion
+            title="Setup check"
+            :disabled="true"
+            icon-size="w-6 h-6"
+            icon-bg="bg-transparent border-2 border-om-gray-300"
+          >
+            <template #icon></template>
+          </Accordion>
+        </div>
+
+        <!-- Trend Chart Section (hidden) -->
+        <div v-if="false" class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 px-5">
+          <div class="trend-chart-tabs">
+            <div
+              v-for="tab in trendTabs"
+              :key="tab.id"
+              :class="['trend-chart-tab', { active: activeTab === tab.id }]"
+              @click="activeTab = tab.id"
+            >
+              <div class="trend-chart-tab-title">{{ tab.title }}</div>
+              <div class="trend-chart-stat">
+                <div class="trend-chart-value">{{ tab.value }}</div>
+                <div :class="['trend-chart-change', tab.isPositive ? 'positive' : 'negative']">
+                  <TrendingUp v-if="tab.isPositive" :size="14" />
+                  <TrendingDown v-else :size="14" />
+                  {{ tab.change }}
                 </div>
               </div>
-              <div class="absolute top-8 right-0 bottom-8 flex items-stretch -translate-x-32">
-                <img src="/monk-happy-white2.svg" alt="" class="h-full w-auto" />
-              </div>
             </div>
-          </Accordion>
+          </div>
+          <div class="chart-canvas">
+            <VueApexCharts
+              :key="activeTab"
+              type="area"
+              height="280"
+              :options="chartOptions"
+              :series="chartSeries"
+            />
+          </div>
         </div>
 
         <!-- Promo Blocks -->
@@ -227,7 +207,7 @@
             </div>
             <div class="flex items-center gap-2">
               <Button variant="ghost" size="sm">All campaigns</Button>
-              <Button variant="primary" size="sm" @click="$emit('menu-click', 'home-onboarding-wizard')">New campaign</Button>
+              <Button variant="primary" size="sm" @click="$emit('menu-click', 'wizard')">New campaign</Button>
             </div>
           </div>
 
@@ -259,18 +239,18 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, onMounted, onUnmounted, markRaw } from 'vue'
-import { UserPlus, Signpost, X, LayoutTemplate, Plug, Star, Check, Monitor, Smartphone, Tablet } from 'lucide-vue-next'
+import { ref, computed, reactive, watch } from 'vue'
+import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X, LayoutTemplate, Zap, Plug, Check } from 'lucide-vue-next'
+import VueApexCharts from 'vue3-apexcharts'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Accordion from '../components/shared/Accordion.vue'
 import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
+import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
 import CampaignCard from '../components/shared/CampaignCard.vue'
 import MeditatingPersonSvg from '../components/illustrations/MeditatingPersonSvg.vue'
 import AddDomainModal from '../components/shared/AddDomainModal.vue'
-import HeartbeatIndicator from '../components/shared/HeartbeatIndicator.vue'
-import HeartbeatPanel from '../components/shared/HeartbeatPanel.vue'
 
 defineProps({
   registrationData: {
@@ -279,9 +259,11 @@ defineProps({
   }
 })
 
-defineEmits(['task-created', 'menu-click', 'navigate-to-review', 'visitor-click'])
+defineEmits(['task-created', 'menu-click'])
 
-const handleLogoClick = () => {}
+const handleLogoClick = () => {
+  // No-op for now
+}
 
 const isChatOpen = ref(false)
 
@@ -299,13 +281,13 @@ const chatAiResponses = {
   'Help me choose a use case': 'Here are the most popular use cases to start with:\n\n1. **Email list building** — capture leads with a discount or free resource\n2. **Cart abandonment** — recover visitors before they leave\n3. **Product promotion** — highlight offers to the right audience\n4. **Customer feedback** — learn what visitors think\n\nWhich one sounds most relevant to your business?',
 }
 
-const openStep = ref(3)
-const hoveredStar = ref(0)
-const selectedStar = ref(0)
+const openStep = ref(1)
+const campaignTab = ref('top')
 
 const showInviteBlock = ref(true)
 const showConsultBlock = ref(true)
 
+// Domain selector
 const selectedDomain = ref('reflexshop.hu')
 const domains = ref([
   'reflexshop.hu',
@@ -327,8 +309,26 @@ const handleNewDomain = (newDomain) => {
   selectedDomain.value = newDomain
 }
 
-// ── Campaigns ──
-const campaignTab = ref('top')
+// Goal dropdown
+const selectedGoal = ref('Conversions (default)')
+const goals = ref([
+  'Conversions (default)',
+  'browserTabReturn',
+  'Buyers with cart under 100k HUF',
+  'Add to cart',
+  'Purchase'
+])
+
+// Period dropdown
+const selectedPeriod = ref('Last 30 days')
+const periods = ref([
+  'Yesterday',
+  'Last 7 days',
+  'Last 30 days',
+  'Last month',
+  'Last year',
+  'Custom period'
+])
 
 const homeCampaigns = reactive([
   {
@@ -336,79 +336,320 @@ const homeCampaigns = reactive([
     name: 'Smart Discount Popup',
     domain: 'domain.com',
     image: '/campaigns/smart-discount-popup.png',
-    active: true,
+    active: false,
     selected: false,
     lastUpdated: '14 days ago',
     metrics: [
-      { label: 'Impressions', value: '142' },
-      { label: 'Submits', value: '8' },
-      { label: 'Submit rate', value: '5.63%' },
-      { label: 'Conversion uplift', value: '12.4%', trend: true },
+      { label: 'Impressions', value: '0' },
+      { label: 'Submits', value: '0' },
+      { label: 'Submit rate', value: '0%' },
+      { label: 'Conversion uplift', value: '0%' },
     ],
   },
 ])
 
-// ── Heartbeat ──
-const heartbeatOpen = ref(false)
+const activeTab = ref('conversion-rate')
 
-const visitorPool = [
-  { flag: '🇺🇸', label: 'Anonymous visitor', city: 'New York', country: 'USA', currentPage: '/products/wireless-headphones', device: 'desktop', referrer: 'google', browser: 'Chrome', pagesViewed: 4, returning: false },
-  { flag: '🇩🇪', label: 'Anonymous visitor', city: 'Berlin', country: 'Germany', currentPage: '/cart', device: 'mobile', referrer: 'instagram', browser: 'Safari', pagesViewed: 6, returning: true },
-  { flag: '🇭🇺', label: 'Anonymous visitor', city: 'Budapest', country: 'Hungary', currentPage: '/products/yoga-mat', device: 'desktop', referrer: 'direct', browser: 'Chrome', pagesViewed: 2, returning: false },
-  { flag: '🇬🇧', label: 'Anonymous visitor', city: 'London', country: 'UK', currentPage: '/checkout', device: 'desktop', referrer: 'google', browser: 'Firefox', pagesViewed: 8, returning: true },
-  { flag: '🇫🇷', label: 'Anonymous visitor', city: 'Paris', country: 'France', currentPage: '/', device: 'mobile', referrer: 'facebook', browser: 'Safari', pagesViewed: 1, returning: false },
-  { flag: '🇦🇹', label: 'Anonymous visitor', city: 'Vienna', country: 'Austria', currentPage: '/products/running-shoes', device: 'tablet', referrer: 'google', browser: 'Chrome', pagesViewed: 3, returning: false },
-  { flag: '🇷🇴', label: 'Anonymous visitor', city: 'Bucharest', country: 'Romania', currentPage: '/products/smartwatch', device: 'mobile', referrer: 'tiktok', browser: 'Chrome', pagesViewed: 5, returning: true },
-  { flag: '🇳🇱', label: 'Anonymous visitor', city: 'Amsterdam', country: 'Netherlands', currentPage: '/sale', device: 'desktop', referrer: 'email', browser: 'Chrome', pagesViewed: 3, returning: true },
-  { flag: '🇵🇱', label: 'Anonymous visitor', city: 'Warsaw', country: 'Poland', currentPage: '/products/backpack', device: 'desktop', referrer: 'google', browser: 'Edge', pagesViewed: 2, returning: false },
-  { flag: '🇮🇹', label: 'Anonymous visitor', city: 'Milan', country: 'Italy', currentPage: '/products/sunglasses', device: 'mobile', referrer: 'instagram', browser: 'Safari', pagesViewed: 7, returning: true },
-  { flag: '🇪🇸', label: 'Anonymous visitor', city: 'Madrid', country: 'Spain', currentPage: '/products/fitness-tracker', device: 'desktop', referrer: 'direct', browser: 'Chrome', pagesViewed: 4, returning: false },
-  { flag: '🇸🇪', label: 'Anonymous visitor', city: 'Stockholm', country: 'Sweden', currentPage: '/about', device: 'tablet', referrer: 'facebook', browser: 'Safari', pagesViewed: 1, returning: false },
+const trendTabs = ref([
+  { id: 'conversion-rate', title: 'Conversion Rate', value: '0.57%', change: '+14.0%', isPositive: true },
+  { id: 'conversions', title: 'Conversions', value: '2.2K', change: '+8.3%', isPositive: true },
+  { id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true },
+  { id: 'unique-visitors', title: 'Unique Visitors', value: '168.2K', change: '+6.7%', isPositive: true },
+  { id: 'supported-orders', title: 'Supported Orders', value: '286', change: '-4.2%', isPositive: false },
+  { id: 'supported-revenue', title: 'Supported Rev. (HUF)', value: '8,494,963', change: '+15.8%', isPositive: true }
+])
+
+// Chart data
+const conversionRateData = [
+  0.52, 0.48, 0.51, 0.49, 0.53, 0.50, 0.47, 0.52, 0.55, 0.54,
+  0.51, 0.53, 0.56, 0.58, 0.57, 0.59, 0.61, 0.58, 0.56, 0.60,
+  0.62, 0.59, 0.57, 0.61, 0.63, 0.60, 0.58, 0.61, 0.59, 0.57
 ]
 
-const durations = ['0:12', '0:34', '1:07', '1:45', '2:23', '3:01', '0:08', '0:55', '4:12', '2:50']
-const deviceIconMap = { desktop: markRaw(Monitor), mobile: markRaw(Smartphone), tablet: markRaw(Tablet) }
+const conversionsData = [
+  62, 58, 65, 59, 68, 61, 57, 64, 71, 69,
+  65, 68, 74, 79, 76, 81, 85, 80, 77, 84,
+  88, 82, 79, 86, 91, 85, 81, 87, 83, 80
+]
 
-let nextId = 1
-function createVisitor(isNew = false) {
-  const template = visitorPool[Math.floor(Math.random() * visitorPool.length)]
-  return {
-    ...template,
-    id: nextId++,
-    duration: durations[Math.floor(Math.random() * durations.length)],
-    deviceIcon: deviceIconMap[template.device],
-    pagesViewed: template.pagesViewed + Math.floor(Math.random() * 3),
-    isNew,
+const impressionsData = [
+  11234, 10987, 11456, 10876, 11789, 11123, 10765, 11345, 12123, 11876,
+  11567, 11987, 12456, 12876, 12567, 13123, 13567, 12987, 12456, 13234,
+  13678, 13123, 12876, 13456, 13987, 13456, 12987, 13567, 13234, 12876
+]
+
+const uniqueVisitorsData = [
+  4876, 4654, 4987, 4723, 5123, 4865, 4587, 4923, 5287, 5134,
+  5023, 5234, 5456, 5687, 5523, 5876, 6123, 5876, 5543, 5987,
+  6234, 5943, 5687, 6087, 6345, 6123, 5876, 6187, 5987, 5723
+]
+
+const supportedOrdersData = [
+  8, 7, 9, 7, 10, 8, 7, 9, 11, 10,
+  9, 10, 11, 12, 11, 13, 14, 12, 11, 13,
+  14, 12, 11, 13, 15, 13, 12, 14, 13, 12
+]
+
+const supportedRevenueData = [
+  234567, 223456, 256789, 218765, 267890, 239876, 215678, 248765, 289765, 278654,
+  265432, 279876, 298765, 312345, 301234, 323456, 345678, 321234, 298765, 334567,
+  356789, 329876, 309876, 339876, 367890, 345678, 323456, 351234, 338765, 321234
+]
+
+const chartDates = [
+  'Jan 6', 'Jan 7', 'Jan 8', 'Jan 9', 'Jan 10', 'Jan 11', 'Jan 12', 'Jan 13', 'Jan 14', 'Jan 15',
+  'Jan 16', 'Jan 17', 'Jan 18', 'Jan 19', 'Jan 20', 'Jan 21', 'Jan 22', 'Jan 23', 'Jan 24', 'Jan 25',
+  'Jan 26', 'Jan 27', 'Jan 28', 'Jan 29', 'Jan 30', 'Jan 31', 'Feb 1', 'Feb 2', 'Feb 3', 'Feb 4'
+]
+
+const getChartConfig = () => {
+  const calculateRange = (data, paddingPercent = 15) => {
+    const dataMin = Math.min(...data)
+    const dataMax = Math.max(...data)
+    const range = dataMax - dataMin
+    const padding = range * (paddingPercent / 100)
+    const rawMin = dataMin - padding
+    const rawMax = dataMax + padding
+    const rawRange = rawMax - rawMin
+    const roughStep = rawRange / 4
+    const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)))
+    const normalized = roughStep / magnitude
+    let niceStep
+    if (normalized < 1.5) niceStep = 1
+    else if (normalized < 3) niceStep = 2
+    else if (normalized < 7) niceStep = 5
+    else niceStep = 10
+    niceStep *= magnitude
+    const yMin = Math.floor(rawMin / niceStep) * niceStep
+    const stepsNeeded = Math.ceil((rawMax - yMin) / niceStep)
+    const steps = Math.max(4, stepsNeeded)
+    const yMax = yMin + (niceStep * steps)
+    return { yMin, yMax, tickAmount: steps }
   }
+
+  const configs = {
+    'conversion-rate': {
+      data: conversionRateData,
+      name: 'Conversion Rate',
+      ...calculateRange(conversionRateData, 15),
+      formatter: (value) => `${value.toFixed(1)}%`,
+      tooltipFormatter: (value) => `${value.toFixed(2)}%`
+    },
+    'conversions': {
+      data: conversionsData,
+      name: 'Conversions',
+      ...calculateRange(conversionsData, 15),
+      formatter: (value) => Math.round(value),
+      tooltipFormatter: (value) => Math.round(value)
+    },
+    'impressions': {
+      data: impressionsData,
+      name: 'Impressions',
+      ...calculateRange(impressionsData, 15),
+      formatter: (value) => `${(value / 1000).toFixed(1)}K`,
+      tooltipFormatter: (value) => value.toLocaleString()
+    },
+    'unique-visitors': {
+      data: uniqueVisitorsData,
+      name: 'Unique Visitors',
+      ...calculateRange(uniqueVisitorsData, 15),
+      formatter: (value) => `${(value / 1000).toFixed(1)}K`,
+      tooltipFormatter: (value) => value.toLocaleString()
+    },
+    'supported-orders': {
+      data: supportedOrdersData,
+      name: 'Supported Orders',
+      ...calculateRange(supportedOrdersData, 15),
+      formatter: (value) => Math.round(value),
+      tooltipFormatter: (value) => Math.round(value)
+    },
+    'supported-revenue': {
+      data: supportedRevenueData,
+      name: 'Supported Revenue',
+      ...calculateRange(supportedRevenueData, 15),
+      formatter: (value) => `HUF ${(value / 1000).toFixed(0)}K`,
+      tooltipFormatter: (value) => `HUF ${value.toLocaleString()}`
+    }
+  }
+  return configs[activeTab.value] || configs['conversion-rate']
 }
 
-const liveVisitors = ref(Array.from({ length: 5 }, () => createVisitor(false)))
-
-let heartbeatInterval = null
-onMounted(() => {
-  heartbeatInterval = setInterval(() => {
-    const action = Math.random()
-    if (action < 0.4 && liveVisitors.value.length < 12) {
-      liveVisitors.value = [createVisitor(true), ...liveVisitors.value]
-      const addedId = liveVisitors.value[0].id
-      setTimeout(() => {
-        const v = liveVisitors.value.find(x => x.id === addedId)
-        if (v) v.isNew = false
-      }, 3000)
-    } else if (action < 0.65 && liveVisitors.value.length > 2) {
-      const idx = Math.floor(Math.random() * liveVisitors.value.length)
-      liveVisitors.value = liveVisitors.value.filter((_, i) => i !== idx)
-    } else {
-      const idx = Math.floor(Math.random() * liveVisitors.value.length)
-      if (liveVisitors.value[idx]) {
-        const newTemplate = visitorPool[Math.floor(Math.random() * visitorPool.length)]
-        liveVisitors.value[idx].currentPage = newTemplate.currentPage
-        liveVisitors.value[idx].duration = durations[Math.floor(Math.random() * durations.length)]
-      }
-    }
-  }, 3000)
+const chartSeries = computed(() => {
+  const config = getChartConfig()
+  return [{
+    name: config.name,
+    data: config.data
+  }]
 })
-onUnmounted(() => {
-  if (heartbeatInterval) clearInterval(heartbeatInterval)
+
+const chartOptions = computed(() => {
+  const config = getChartConfig()
+  return {
+    chart: {
+      type: 'area',
+      height: 280,
+      toolbar: { show: false },
+      zoom: { enabled: false }
+    },
+    dataLabels: { enabled: false },
+    stroke: {
+      curve: 'smooth',
+      width: 2,
+      colors: ['#ed5a29']
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.4,
+        opacityTo: 0.1,
+        stops: [0, 90, 100]
+      },
+      colors: ['#ed5a29']
+    },
+    grid: {
+      borderColor: '#f1f2f4',
+      strokeDashArray: 0,
+      xaxis: { lines: { show: false } },
+      yaxis: { lines: { show: true } }
+    },
+    xaxis: {
+      type: 'category',
+      categories: [
+        'Jan 6', '', '', 'Jan 9', '', '', 'Jan 12', '', '', 'Jan 15',
+        '', '', 'Jan 18', '', '', 'Jan 21', '', '', 'Jan 24', '',
+        '', 'Jan 27', '', '', 'Jan 30', '', '', 'Feb 2', '', 'Feb 4'
+      ],
+      labels: {
+        show: true,
+        rotate: -45,
+        rotateAlways: false,
+        hideOverlappingLabels: true,
+        style: { colors: '#9ba2ad', fontSize: '11px' }
+      },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      tooltip: { enabled: false }
+    },
+    yaxis: {
+      min: config.yMin,
+      max: config.yMax,
+      tickAmount: config.tickAmount,
+      labels: {
+        formatter: config.formatter,
+        style: { colors: '#9ba2ad', fontSize: '12px' }
+      }
+    },
+    tooltip: {
+      enabled: true,
+      custom: function({ series, seriesIndex, dataPointIndex }) {
+        const value = series[seriesIndex][dataPointIndex]
+        const date = chartDates[dataPointIndex]
+        return `<div style="padding: 8px 12px; background: white; border: 1px solid #e3e5e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <div style="color: #9ba2ad; font-weight: 400; font-size: 11px; margin-bottom: 4px;">${date}, 2026</div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 8px; height: 8px; background: #ed5a29; border-radius: 50%; display: inline-block;"></span>
+            <span style="color: #505763; font-weight: 500;">${config.name}: ${config.tooltipFormatter(value)}</span>
+          </div>
+        </div>`
+      }
+    },
+    markers: {
+      size: 0,
+      hover: { size: 5 }
+    }
+  }
 })
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Filters Section */
+.filters-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.filters-right {
+  display: flex;
+  gap: 1rem;
+  margin-left: auto;
+}
+
+.trend-chart-tabs {
+  display: flex;
+  border-bottom: 1px solid rgb(227, 229, 232);
+  overflow-x: auto;
+}
+
+.trend-chart-tab {
+  padding: 1.25rem 0.75rem;
+  flex: 1;
+  min-width: 140px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.trend-chart-tab:hover {
+  background: rgb(249, 250, 251);
+}
+
+.trend-chart-tab.active {
+  border-bottom-color: #ed5a29;
+}
+
+.trend-chart-tab-title {
+  font-size: 0.75rem;
+  color: rgb(80, 87, 99);
+  opacity: 0.8;
+  margin-bottom: 0.625rem;
+  font-weight: 500;
+}
+
+.trend-chart-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.trend-chart-value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgb(80, 87, 99);
+}
+
+.trend-chart-change {
+  font-size: 0.6875rem;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.trend-chart-change.positive {
+  color: rgb(35, 158, 119);
+}
+
+.trend-chart-change.negative {
+  color: rgb(228, 37, 45);
+}
+
+.chart-canvas {
+  padding: 0;
+}
+
+</style>

@@ -254,25 +254,21 @@ const templateCards = {
     { id: 'sd-1', label: 'Classic Discount', description: '10% off with email capture' },
     { id: 'sd-2', label: 'Minimal Discount', description: 'Clean, simple form' },
     { id: 'sd-3', label: 'Image + Discount', description: 'Product image with coupon' },
-    { id: 'sd-4', label: 'Countdown Discount', description: 'Urgency with timer' },
   ],
   'lucky-wheel': [
     { id: 'lw-1', label: 'Classic Wheel', description: 'Spin-to-win with prizes' },
     { id: 'lw-2', label: 'Holiday Wheel', description: 'Seasonal themed design' },
     { id: 'lw-3', label: 'Minimal Wheel', description: 'Clean, modern look' },
-    { id: 'lw-4', label: 'Bold Wheel', description: 'High contrast, eye-catching' },
   ],
   'newsletter': [
     { id: 'nl-1', label: 'Simple Signup', description: 'Email field with CTA' },
     { id: 'nl-2', label: 'Content Teaser', description: 'Preview what subscribers get' },
     { id: 'nl-3', label: 'Sidebar Form', description: 'Embedded style popup' },
-    { id: 'nl-4', label: 'Full-screen Signup', description: 'Bold, immersive form' },
   ],
   'cart-abandonment': [
     { id: 'ca-1', label: 'Exit Discount', description: 'Last-chance coupon offer' },
     { id: 'ca-2', label: 'Cart Reminder', description: 'Show items left in cart' },
     { id: 'ca-3', label: 'Free Shipping', description: 'Shipping threshold nudge' },
-    { id: 'ca-4', label: 'Countdown Exit', description: 'Timer + discount combo' },
   ],
 }
 
@@ -396,6 +392,7 @@ const handleChatAction = (action) => {
         type: 'ai-images',
         message: '',
         cards: usecaseCards,
+        layout: 'vertical',
       })
     }, 500)
   } else if (action.startsWith('flow-welcome-template:')) {
@@ -412,6 +409,7 @@ const handleChatAction = (action) => {
         cards,
         hideLabels: true,
         skipUserMessage: true,
+        layout: 'vertical',
       })
     }, 500)
   } else if (action.startsWith('flow-welcome-branding:')) {

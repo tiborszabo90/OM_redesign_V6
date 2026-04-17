@@ -247,6 +247,16 @@ const homeViews = [
     nav: { sessionReset: true, flowSelected: true, clearWizardMessage: true },
   },
   {
+    id: 'first-campaign-created',
+    component: () => import('../views/FirstCampaignCreatedView.vue'),
+    label: 'First campaign created',
+    status: 'active',
+    section: 'home',
+    hideLogo: true,
+    keyPrefix: 'first-campaign-created',
+    nav: { sessionReset: true, flowSelected: true },
+  },
+  {
     id: 'home-onboarding-v1',
     component: () => import('../views/HomeOnboardingV1View.vue'),
     label: 'Home Onboarding V1',
