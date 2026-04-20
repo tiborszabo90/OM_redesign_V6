@@ -457,6 +457,7 @@ const activeEvents = computed(() => {
     'ppo-campaign-setup-preview-v3': { back: () => { currentView.value = 'ppo-campaign-flow-mvp' }, next: () => { currentView.value = 'ppo-campaign-detail-v2' } },
     'ppo-generation': { back: () => { currentView.value = 'ppo-campaign-setup-preview' }, create: () => { currentView.value = 'ppo-campaign-detail' } },
     'campaign-page-v1': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'campaign-page-v2-mark': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-campaign-detail': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-placement': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-campaign-detail-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },

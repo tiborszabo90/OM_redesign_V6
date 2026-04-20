@@ -507,6 +507,15 @@ const campaignViews = [
     slug: 'campaign-detail',
   },
   {
+    id: 'campaign-page-v2-mark',
+    component: () => import('../views/CampaignPageV2MarkView.vue'),
+    label: 'Campaign Page V2 (Mark)',
+    status: 'active',
+    section: 'campaignPage',
+    hideLogo: true,
+    slug: 'campaign-detail-v2-mark',
+  },
+  {
     id: 'campaign-page-with-review',
     component: () => import('../views/CampaignPageWithReviewView.vue'),
     label: 'Campaign + Review',
