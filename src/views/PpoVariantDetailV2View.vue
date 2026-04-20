@@ -13,22 +13,27 @@
         </div>
       </div>
 
-      <!-- Center: device toggle -->
-      <div class="flex items-center gap-1">
-        <button
-          class="p-1.5 rounded transition-colors"
-          :class="previewMode === 'desktop' ? 'text-[#FF4D00]' : 'text-gray-400 hover:text-gray-600'"
-          @click="previewMode = 'desktop'"
-        >
-          <Monitor :size="18" />
-        </button>
-        <button
-          class="p-1.5 rounded transition-colors"
-          :class="previewMode === 'mobile' ? 'text-[#FF4D00]' : 'text-gray-400 hover:text-gray-600'"
-          @click="previewMode = 'mobile'"
-        >
-          <Smartphone :size="18" />
-        </button>
+      <!-- Center: device toggle + product page selector -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-1">
+          <button
+            class="p-1.5 rounded transition-colors"
+            :class="previewMode === 'desktop' ? 'text-[#FF4D00]' : 'text-gray-400 hover:text-gray-600'"
+            @click="previewMode = 'desktop'"
+          >
+            <Monitor :size="18" />
+          </button>
+          <button
+            class="p-1.5 rounded transition-colors"
+            :class="previewMode === 'mobile' ? 'text-[#FF4D00]' : 'text-gray-400 hover:text-gray-600'"
+            @click="previewMode = 'mobile'"
+          >
+            <Smartphone :size="18" />
+          </button>
+        </div>
+        <div v-if="showProductDropdown" class="w-70 header-product-dropdown">
+          <Dropdown v-model="selectedProductPage" :options="productPageOptions" size="sm" />
+        </div>
       </div>
 
       <!-- Right: actions -->
@@ -64,14 +69,6 @@
 
       <!-- Right sidebar -->
       <div class="w-[300px] bg-white flex flex-col shrink-0 border-l border-om-gray-200 min-h-0 overflow-hidden">
-        <!-- Product page selector (sticky top) -->
-        <div v-if="showProductDropdown" class="px-4 pt-4 pb-3 border-b border-om-gray-200 shrink-0">
-          <label class="text-[11px] uppercase tracking-wider font-semibold text-om-gray-700 mb-2 flex items-center gap-1.5">
-            <Globe :size="12" class="text-om-gray-400" />
-            Product page
-          </label>
-          <Dropdown v-model="selectedProductPage" :options="productPageOptions" size="sm" />
-        </div>
         <!-- Settings -->
         <div class="flex-1 overflow-y-auto px-4 pt-3 pb-4">
           <div class="space-y-3">
@@ -500,5 +497,13 @@ const moveDown = (id) => {
 .expand-enter-to,
 .expand-leave-from {
   max-height: 300px;
+}
+.header-product-dropdown :deep(.dropdown-select) {
+  padding-left: 0.5rem;
+  height: 2rem;
+  padding-top: 0;
+  padding-bottom: 0;
+  display: flex;
+  align-items: center;
 }
 </style>
