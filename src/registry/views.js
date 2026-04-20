@@ -292,6 +292,16 @@ const homeViews = [
     hideLogo: true,
   },
   {
+    id: 'home-agentic',
+    component: () => import('../views/HomeAgenticView.vue'),
+    label: 'Home Agentic',
+    status: 'active',
+    section: 'home',
+    hideLogo: true,
+    keyPrefix: 'home-agentic',
+    nav: { sessionReset: true, flowSelected: true, clearWizardMessage: true },
+  },
+  {
     id: 'home-onboarding-wizard',
     component: () => import('../views/HomeOnboardingWizardView.vue'),
     label: 'Home Wizard',
