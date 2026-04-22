@@ -126,6 +126,24 @@
             />
           </template>
 
+          <!-- AI Texts & Images V2 Feedbacks embedded -->
+          <template v-else-if="activeSection === 'products-ai-texts-images-v2-feedbacks'">
+            <AiTextsImagesV2FeedbacksView
+              :screen="embeddedScreen"
+              :embedded="true"
+              @navigate="handleEmbeddedNavigateV2Feedbacks"
+            />
+          </template>
+
+          <!-- AI Texts & Images V2 Feedbacks Modal embedded -->
+          <template v-else-if="activeSection === 'products-ai-texts-images-v2-feedbacks-modal'">
+            <AiTextsImagesV2FeedbacksModalView
+              :screen="embeddedScreen"
+              :embedded="true"
+              @navigate="handleEmbeddedNavigateV2FeedbacksModal"
+            />
+          </template>
+
           <!-- Placeholder for all other sections -->
           <template v-else>
             <h1 class="text-xl font-bold text-om-gray-700 mb-8">{{ currentSectionTitle }}</h1>
@@ -146,6 +164,8 @@ import RadioButton from '../components/shared/RadioButton.vue'
 import AiTextsImagesView from './AiTextsImagesView.vue'
 import AiTextsImagesV1View from './AiTextsImagesV1View.vue'
 import AiTextsImagesV2View from './AiTextsImagesV2View.vue'
+import AiTextsImagesV2FeedbacksView from './AiTextsImagesV2FeedbacksView.vue'
+import AiTextsImagesV2FeedbacksModalView from './AiTextsImagesV2FeedbacksModalView.vue'
 
 const props = defineProps({
   initialSection: { type: String, default: 'personal-details' },
@@ -219,12 +239,20 @@ const handleSave = () => {
 
 const sectionRouteMap = {
   'products-ai-texts-images-v2': 'settings-ai-texts-images-v2',
+  'products-ai-texts-images-v2-feedbacks': 'settings-ai-texts-images-v2-feedbacks',
+  'products-ai-texts-images-v2-feedbacks-modal': 'settings-ai-texts-images-v2-feedbacks-modal',
 }
 
 const handleSectionClick = (id) => {
   activeSection.value = id
   if (id === 'products-ai-texts-images-v2') {
     embeddedScreen.value = 'list'
+  }
+  if (id === 'products-ai-texts-images-v2-feedbacks') {
+    embeddedScreen.value = 'generation'
+  }
+  if (id === 'products-ai-texts-images-v2-feedbacks-modal') {
+    embeddedScreen.value = 'generation'
   }
   if (sectionRouteMap[id]) {
     emit('navigate', sectionRouteMap[id])
@@ -281,6 +309,16 @@ const screenMapV2 = {
 }
 const handleEmbeddedNavigateV2 = (route) => {
   embeddedScreen.value = screenMapV2[route] ?? 'list'
+  emit('navigate', 'settings-' + route)
+}
+
+const handleEmbeddedNavigateV2Feedbacks = (route) => {
+  embeddedScreen.value = screenMapV2[route] ?? 'generation'
+  emit('navigate', 'settings-' + route)
+}
+
+const handleEmbeddedNavigateV2FeedbacksModal = (route) => {
+  embeddedScreen.value = screenMapV2[route] ?? 'generation'
   emit('navigate', 'settings-' + route)
 }
 </script>

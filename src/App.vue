@@ -131,6 +131,8 @@ const componentKey = computed(() => {
 // Props resolution
 // ============================================================================
 const settingsInitialSection = computed(() => {
+  if (currentView.value === 'settings-ai-texts-images-v2-feedbacks-modal') return 'products-ai-texts-images-v2-feedbacks-modal'
+  if (currentView.value === 'settings-ai-texts-images-v2-feedbacks') return 'products-ai-texts-images-v2-feedbacks'
   if (currentView.value?.startsWith('settings-ai-texts-images-v2')) return 'products-ai-texts-images-v2'
   if (currentView.value?.startsWith('settings-ai-texts-images-v1')) return 'products-ai-texts-images-v1'
   return 'personal-details'
@@ -215,6 +217,18 @@ const activeProps = computed(() => {
   if (propsConfig[id] !== undefined) return propsConfig[id]
 
   // Settings sub-views
+  if (id === 'settings-ai-texts-images-v2-feedbacks') {
+    return {
+      initialSection: settingsInitialSection.value,
+      initialScreen: 'generation',
+    }
+  }
+  if (id === 'settings-ai-texts-images-v2-feedbacks-modal') {
+    return {
+      initialSection: settingsInitialSection.value,
+      initialScreen: 'generation',
+    }
+  }
   if (id.startsWith('settings-ai')) {
     return {
       initialSection: settingsInitialSection.value,

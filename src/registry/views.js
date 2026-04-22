@@ -935,6 +935,22 @@ const settingsAiViews = [
   ...generateSettingsAiSubViews('settings-ai-texts-images'),
   ...generateSettingsAiSubViews('settings-ai-texts-images-v1'),
   ...generateSettingsAiSubViews('settings-ai-texts-images-v2'),
+  {
+    id: 'settings-ai-texts-images-v2-feedbacks',
+    component: () => import('../views/SettingsView.vue'),
+    label: 'AI Texts & Images V2 (feedbacks)',
+    status: 'active',
+    section: 'aiContent',
+    hideLogo: true,
+  },
+  {
+    id: 'settings-ai-texts-images-v2-feedbacks-modal',
+    component: () => import('../views/SettingsView.vue'),
+    label: 'AI Texts & Images V2 (feedbacks modal)',
+    status: 'active',
+    section: 'aiContent',
+    hideLogo: true,
+  },
 ]
 
 // ============================================================================
