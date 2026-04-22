@@ -603,10 +603,13 @@
             icon-bg="bg-om-gray-100"
           >
             <template #icon><Globe :size="20" class="text-om-gray-700" /></template>
-            <p class="text-base text-om-gray-500 mb-5">The campaign runs on product pages where all variables are generated.</p>
+            <div class="flex items-start justify-between gap-4 mb-5">
+              <p class="text-base text-om-gray-500">The campaign runs on product pages where all variables are generated.</p>
+              <Button variant="outline" size="sm" class="shrink-0">Product catalog</Button>
+            </div>
             <div class="flex gap-8 items-start overflow-hidden">
-              <div class="w-96 shrink-0 px-5 py-5 bg-om-gray-50 flex flex-col justify-center rounded-xl">
-                <div class="flex items-center gap-4 mb-4">
+              <div class="w-96 shrink-0 px-5 py-5 bg-om-gray-50 flex items-center justify-center rounded-xl">
+                <div class="flex items-center gap-4 w-full">
                   <div class="relative w-20 h-20 shrink-0">
                     <svg class="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
                       <circle cx="40" cy="40" r="32" fill="none" stroke="#e3e5e8" stroke-width="8" />
@@ -619,9 +622,6 @@
                       <span class="text-sm text-om-gray-500">product pages ready</span>
                     </div>
                   </div>
-                </div>
-                <div class="flex justify-end">
-                  <Button variant="outline" size="sm">Product catalog</Button>
                 </div>
               </div>
               <div class="flex-1 min-w-0">
@@ -666,11 +666,12 @@
                   </div>
                 </div>
               </div>
-              <div class="trigger-timeline-add pl-6">
-                <Button variant="outline" size="lg">
+              <div class="trigger-timeline-add pl-6 flex items-center justify-between gap-3">
+                <Button variant="outline" size="md">
                   <template #icon><Plus :size="18" /></template>
                   Add new rule
                 </Button>
+                <Button variant="outline" size="md">Save as segment</Button>
               </div>
             </div>
           </Accordion>

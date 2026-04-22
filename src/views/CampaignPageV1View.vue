@@ -718,7 +718,7 @@
 
                 <!-- Add new trigger on timeline -->
                 <div class="trigger-timeline-add pl-6">
-                  <Button variant="outline" size="lg">
+                  <Button variant="outline" size="md">
                     <template #icon><Plus :size="18" /></template>
                     Add new trigger
                   </Button>
@@ -743,7 +743,7 @@
                 <div class="space-y-2.5">
                   <RadioButton v-model="frequencyType" value="unlimited" label="Unlimited Times" />
                   <RadioButton v-model="frequencyType" value="maximum">
-                    Maximum
+                    <span class="text-sm text-om-gray-700">Maximum</span>
                     <input
                       type="number"
                       v-model="maxTimes"
@@ -763,7 +763,7 @@
                 <div class="space-y-2.5">
                   <RadioButton v-model="frequencyMode" value="asap" label="As soon as possible" />
                   <RadioButton v-model="frequencyMode" value="min">
-                    Min.
+                    <span class="text-sm text-om-gray-700">Minimum</span>
                     <input
                       type="number"
                       v-model="minValue"
@@ -792,7 +792,7 @@
                 <h4 class="text-sm font-semibold text-om-gray-700 mb-3">
                   When should <span class="font-normal text-om-gray-500">the campaign</span> stop showing <span class="font-normal text-om-gray-500">to the visitors?</span>
                 </h4>
-                <div class="space-y-2.5">
+                <div class="flex flex-col gap-2.5">
                   <Checkbox v-model="stopAfterClose" label="After a visitor has closed the campaign" />
                   <Checkbox v-model="stopAfterConvert" label="After a visitor has converted in this campaign" />
                 </div>
@@ -836,11 +836,12 @@
                   </div>
                 </div>
               </div>
-              <div class="trigger-timeline-add pl-6">
-                <Button variant="outline" size="lg">
+              <div class="trigger-timeline-add pl-6 flex items-center justify-between gap-3">
+                <Button variant="outline" size="md">
                   <template #icon><Plus :size="18" /></template>
                   Add new rule
                 </Button>
+                <Button variant="outline" size="md">Save as segment</Button>
               </div>
             </div>
           </Accordion>
@@ -861,7 +862,7 @@
               <span class="text-sm font-medium text-om-gray-700">Mailchimp</span>
             </div>
             <div class="mt-8">
-              <Button variant="outline" size="lg">
+              <Button variant="outline" size="md">
                 <template #icon><Plus :size="18" /></template>
                 Add new integration
               </Button>
