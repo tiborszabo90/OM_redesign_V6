@@ -564,12 +564,12 @@
         </div>
 
         <!-- Settings Tab Content -->
-        <div v-if="activeTab === 'Settings'" class="space-y-4">
+        <div v-if="activeTab === 'Settings'" class="space-y-4 pb-40">
           <!-- Primary goal -->
           <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pl-4 pr-7 py-4 flex items-center justify-between gap-6">
             <div class="flex items-center gap-3 flex-1 min-w-0">
-              <div class="w-10 h-10 rounded-xl bg-om-gray-100 flex items-center justify-center shrink-0">
-                <Target :size="20" class="text-om-gray-800" />
+              <div class="w-10 h-10 rounded-xl bg-om-orange-100 flex items-center justify-center shrink-0">
+                <Target :size="20" class="text-om-orange-400" />
               </div>
               <div class="flex-1 min-w-0">
                 <h3 class="text-lg font-semibold text-om-gray-700 leading-tight">Primary goal</h3>
@@ -587,9 +587,9 @@
             :open="openAccordion === 'abTest'"
             @toggle="toggleAccordion('abTest')"
             icon-rounded="rounded-xl"
-            icon-bg="bg-om-gray-100"
+            icon-bg="bg-om-orange-100"
           >
-            <template #icon><FlaskConical :size="20" class="text-om-gray-700" /></template>
+            <template #icon><FlaskConical :size="20" class="text-om-orange-400" /></template>
             <div class="grid grid-cols-2 gap-8">
               <!-- Traffic share -->
               <section>
@@ -670,9 +670,9 @@
             :open="openAccordion === 'showUp'"
             @toggle="toggleAccordion('showUp')"
             icon-rounded="rounded-xl"
-            icon-bg="bg-om-gray-100"
+            icon-bg="bg-om-orange-100"
           >
-              <template #icon><Clock :size="20" class="text-om-gray-700" /></template>
+              <template #icon><Clock :size="20" class="text-om-orange-400" /></template>
               <!-- Trigger Timeline -->
               <div class="trigger-timeline">
                 <!-- First trigger: On exit-intent -->
@@ -732,9 +732,9 @@
             :open="openAccordion === 'howMany'"
             @toggle="toggleAccordion('howMany')"
             icon-rounded="rounded-xl"
-            icon-bg="bg-om-gray-100"
+            icon-bg="bg-om-orange-100"
           >
-              <template #icon><RefreshCw :size="20" class="text-om-gray-700" /></template>
+              <template #icon><RefreshCw :size="20" class="text-om-orange-400" /></template>
               <!-- How many times can this campaign appear -->
               <div class="mb-6">
                 <h4 class="text-sm font-semibold text-om-gray-700 mb-3">
@@ -806,9 +806,9 @@
             :open="openAccordion === 'whoSee'"
             @toggle="toggleAccordion('whoSee')"
             icon-rounded="rounded-xl"
-            icon-bg="bg-om-gray-100"
+            icon-bg="bg-om-orange-100"
           >
-            <template #icon><Users :size="20" class="text-om-gray-700" /></template>
+            <template #icon><Users :size="20" class="text-om-orange-400" /></template>
             <div class="trigger-timeline">
               <div class="trigger-timeline-item">
                 <div class="trigger-card">
@@ -852,9 +852,9 @@
             :open="openAccordion === 'sendData'"
             @toggle="toggleAccordion('sendData')"
             icon-rounded="rounded-xl"
-            icon-bg="bg-om-gray-100"
+            icon-bg="bg-om-orange-100"
           >
-            <template #icon><Send :size="20" class="text-om-gray-700" /></template>
+            <template #icon><Send :size="20" class="text-om-orange-400" /></template>
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 bg-[#FFE01B] rounded flex items-center justify-center">
                 <img src="/icons/mailchimp.svg" alt="Mailchimp" class="w-7 h-7" />
@@ -870,11 +870,11 @@
           </Accordion>
 
           <!-- Email Notification Toggle -->
-          <div class="bg-om-gray-100 rounded-2xl pl-4 pr-7 py-4">
+          <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pl-4 pr-7 py-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-om-gray-200 flex items-center justify-center shrink-0">
-                  <Mail :size="20" class="text-om-gray-700" />
+                <div class="w-10 h-10 rounded-xl bg-om-orange-100 flex items-center justify-center shrink-0">
+                  <Mail :size="20" class="text-om-orange-400" />
                 </div>
                 <div>
                   <h4 class="text-lg font-semibold text-om-gray-700">Email notification</h4>
