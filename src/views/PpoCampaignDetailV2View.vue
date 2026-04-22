@@ -383,16 +383,36 @@
               @click="$emit('navigate', 'ppo-variant-detail-v2')"
             >
               <div class="flex items-center gap-3">
-                <div v-if="variant.variables.length" class="w-36 h-24 rounded-lg border border-om-gray-200 overflow-hidden shrink-0 flex flex-col bg-white px-2 pb-2">
-                  <div class="flex-1 bg-gray-200 rounded-sm"></div>
-                  <div class="py-2">
+                <div
+                  v-if="variant.variables.length"
+                  class="w-36 h-24 rounded-lg border border-om-gray-200 overflow-hidden shrink-0 flex flex-col bg-white px-2 pt-0.5 pb-1 gap-0.5 relative"
+                  @mouseenter="handleThumbEnter($event, variant.id)"
+                  @mouseleave="handleThumbLeave()"
+                >
+                  <div class="h-6 flex gap-1.5 items-center shrink-0">
+                    <div class="h-full aspect-square bg-gray-200 rounded-sm shrink-0"></div>
+                    <div class="flex-1 flex flex-col justify-center gap-0.5">
+                      <div class="h-0.5 bg-gray-200 rounded-sm w-2/3"></div>
+                      <div class="h-0.5 bg-gray-200 rounded-sm w-1/2"></div>
+                      <div class="h-0.5 bg-gray-200 rounded-sm w-1/3"></div>
+                    </div>
+                  </div>
+                  <div class="flex items-start justify-center shrink-0">
                     <img src="/SPP1.png" alt="" class="w-full h-auto rounded-sm" />
                   </div>
-                  <div class="flex gap-1.5 flex-1">
+                  <div class="flex gap-1 h-5 shrink-0">
                     <div class="flex-1 bg-gray-200 rounded-sm"></div>
                     <div class="flex-1 bg-gray-200 rounded-sm"></div>
                     <div class="flex-1 bg-gray-200 rounded-sm"></div>
                   </div>
+                  <!-- Hover preview -->
+                  <transition name="fade">
+                    <div v-if="hoveredImage === variant.id" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
+                      <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
+                        <img src="/SPP1.png" alt="Product Summary" class="w-96 h-auto rounded-lg" />
+                      </div>
+                    </div>
+                  </transition>
                 </div>
                 <div v-else class="w-36 h-24 rounded-lg border border-om-gray-200 overflow-hidden shrink-0 flex items-center justify-center bg-om-gray-100">
                   <Ban :size="60" :stroke-width="1" class="text-om-gray-300" />
@@ -438,129 +458,37 @@
             <Button variant="outline" size="sm" @click="activeTab = 'Settings'">Edit settings</Button>
           </div>
 
-          <!-- Product Pages -->
-          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
-            <h3 class="text-base font-semibold text-om-gray-700 mb-4">Product pages</h3>
-            <div class="flex gap-5 items-start">
-              <!-- Variable table -->
-              <div class="flex-1 min-w-0">
-                <div class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 pb-2 border-b border-om-gray-100 text-xs text-om-gray-500 font-medium">
-                  <span>Variable</span>
-                  <span>Type</span>
-                  <span class="text-right">Last updated</span>
-                  <span class="text-right">Ready</span>
-                </div>
-                <div class="flex flex-col">
-                  <div
-                    v-for="variable in allVariables"
-                    :key="variable.id"
-                    class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 py-2.5 cursor-pointer hover:bg-om-gray-50 rounded-lg transition-all items-center"
-                    @click="$emit('navigate', variable.type === 'Image' ? 'settings-ai-texts-images-v2-generation' : 'settings-ai-texts-images-v2-text-generation')"
-                  >
-                    <div class="flex items-center gap-2 min-w-0">
-                      <span class="text-sm text-om-gray-700 truncate">{{ variable.name }}</span>
-                    </div>
-                    <div>
-                      <Tag variant="outlined">{{ variable.type }}</Tag>
-                    </div>
-                    <span class="text-xs text-om-gray-400 text-right">{{ variable.lastUpdated }}</span>
-                    <span class="text-base font-semibold text-om-gray-700 tabular-nums text-right">{{ variable.generated.split(' / ')[0] }}</span>
-                  </div>
-                </div>
+
+          <!-- Where the campaign will appear -->
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('productPages')">
+            <h3 class="text-base font-semibold text-om-gray-700 mb-4">Where the campaign will appear</h3>
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
+                <Globe :size="20" class="text-white" />
               </div>
-              <!-- Summary side -->
-              <div class="w-96 shrink-0 px-4 py-3 rounded-lg bg-om-gray-50">
-                <div class="flex items-end justify-between mb-2">
-                  <div class="flex items-baseline gap-1.5">
-                    <span class="text-5xl font-light text-om-gray-700 tabular-nums leading-none">{{ campaignProductPages }}</span>
-                    <span class="text-sm text-om-gray-400">/ {{ campaignTotalProducts }} product pages ready</span>
-                  </div>
-                  <Button variant="outline" size="sm" class="shrink-0">Product catalog</Button>
-                </div>
-                <div class="text-xs text-om-gray-400 leading-relaxed">This campaign will appear on product pages where all variables have been successfully generated.</div>
+              <div class="flex-1">
+                <div class="text-sm font-semibold text-om-gray-700">Product pages</div>
+                <div class="text-xs text-om-gray-500 mt-0.5">The campaign will appear on <span class="font-semibold text-om-gray-800">73/467 product pages</span> that have all variables generated</div>
               </div>
             </div>
           </div>
 
-          <!-- Product Pages V2: kör diagram, summary a teljes jobb oldalon -->
-          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] flex overflow-hidden">
-            <div class="flex-1 p-5">
-              <h3 class="text-base font-semibold text-om-gray-700 mb-4">Product pages — V2</h3>
-              <div class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 pb-2 border-b border-om-gray-100 text-xs text-om-gray-500 font-medium">
-                <span>Variable</span>
-                <span>Type</span>
-                <span class="text-right">Last updated</span>
-                <span class="text-right">Ready</span>
+          <!-- Who should see the campaign -->
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('whoSee')">
+            <h3 class="text-base font-semibold text-om-gray-700 mb-4">Who should see the campaign</h3>
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
+                <Users :size="20" class="text-white" />
               </div>
-              <div class="flex flex-col">
-                <div v-for="variable in allVariables" :key="'v2-' + variable.id" class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 py-2.5 cursor-pointer hover:bg-om-gray-50 rounded-lg transition-all items-center">
-                  <div class="flex items-center gap-2 min-w-0"><span class="text-sm text-om-gray-700 truncate">{{ variable.name }}</span></div>
-                  <div><Tag variant="outlined">{{ variable.type }}</Tag></div>
-                  <span class="text-xs text-om-gray-400 text-right">{{ variable.lastUpdated }}</span>
-                  <span class="text-base font-semibold text-om-gray-700 tabular-nums text-right">{{ variable.generated.split(' / ')[0] }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="w-96 shrink-0 px-5 py-5 bg-om-gray-50 flex flex-col justify-center m-3 rounded-xl">
-              <!-- Top row: stat + button -->
-              <div class="flex items-start justify-between mb-3">
-                <div class="flex items-center gap-2.5">
-                  <div class="relative w-14 h-14 shrink-0">
-                    <svg class="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
-                      <circle cx="28" cy="28" r="22" fill="none" stroke="#e3e5e8" stroke-width="7" />
-                      <circle cx="28" cy="28" r="22" fill="none" stroke="#2CC896" stroke-width="7" stroke-linecap="round" :stroke-dasharray="`${(campaignProductPages / campaignTotalProducts) * 138.2} 138.2`" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div class="text-[2rem] font-light text-om-gray-700 tabular-nums leading-none font-['Funnel_Sans']">{{ campaignProductPages }}<span class="text-base text-om-gray-500 font-normal"> / {{ campaignTotalProducts }}</span></div>
-                    <div class="text-sm text-om-gray-500 mt-1">product pages ready</div>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm" class="shrink-0">Product catalog</Button>
-              </div>
-              <!-- Description -->
-              <div class="text-xs text-om-gray-400 leading-relaxed">This campaign will appear on product pages where all variables have been successfully generated.</div>
-            </div>
-          </div>
-
-          <!-- Product Pages V3 -->
-          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
-            <h3 class="text-base font-semibold text-om-gray-700 mb-4">Product pages — V3</h3>
-            <div class="flex gap-5 items-start">
-              <div class="flex-1 min-w-0">
-                <div class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 pb-2 border-b border-om-gray-100 text-xs text-om-gray-500 font-medium">
-                  <span>Variable</span>
-                  <span>Type</span>
-                  <span class="text-right">Last updated</span>
-                  <span class="text-right">Ready</span>
-                </div>
-                <div class="flex flex-col">
-                  <div v-for="variable in allVariables" :key="'v3-' + variable.id" class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 py-2.5 cursor-pointer hover:bg-om-gray-50 rounded-lg transition-all items-center">
-                    <div class="flex items-center gap-2 min-w-0"><span class="text-sm text-om-gray-700 truncate">{{ variable.name }}</span></div>
-                    <div><Tag variant="outlined">{{ variable.type }}</Tag></div>
-                    <span class="text-xs text-om-gray-400 text-right">{{ variable.lastUpdated }}</span>
-                    <span class="text-base font-semibold text-om-gray-700 tabular-nums text-right">{{ variable.generated.split(' / ')[0] }}</span>
-                  </div>
-                </div>
-              </div>
-              <div class="w-96 shrink-0 px-5 py-4 rounded-lg bg-om-gray-50">
-                <div class="flex items-end justify-between mb-3">
-                  <div>
-                    <div class="text-sm font-medium text-om-gray-600 mb-1">Product page coverage</div>
-                    <div class="flex items-baseline gap-1.5">
-                      <span class="text-5xl font-light text-om-gray-700 tabular-nums leading-none">{{ campaignProductPages }}</span>
-                      <span class="text-sm text-om-gray-400">/ {{ campaignTotalProducts }}</span>
-                    </div>
-                  </div>
-                  <Button variant="outline" size="sm" class="shrink-0">Product catalog</Button>
-                </div>
-                <div class="text-xs text-om-gray-400 leading-relaxed">This campaign will appear on product pages where all variables have been successfully generated.</div>
+              <div class="flex-1">
+                <div class="text-sm font-semibold text-om-gray-700">Returning / New</div>
+                <div class="text-xs text-om-gray-500 mt-0.5">The campaign will appear to <span class="font-semibold text-om-gray-800">new visitors</span></div>
               </div>
             </div>
           </div>
 
           <!-- Integrations -->
-          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('sendData')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">Integrations</h3>
             <div class="flex items-center gap-3">
               <div class="w-9 h-9 bg-[#FFE01B] rounded flex items-center justify-center">
@@ -576,15 +504,58 @@
 
         <!-- Settings Tab Content -->
         <div v-if="activeTab === 'Settings'" class="space-y-4">
+          <!-- Where the campaign will appear -->
+          <Accordion
+            title="Where the campaign will appear"
+            :open="openAccordion === 'productPages'"
+            @toggle="toggleAccordion('productPages')"
+          >
+            <p class="text-base text-om-gray-500 mb-5">The campaign runs on product pages where all variables are generated.</p>
+            <div class="flex gap-8 items-start overflow-hidden">
+              <div class="w-96 shrink-0 px-5 py-5 bg-om-gray-50 flex flex-col justify-center rounded-xl">
+                <div class="flex items-center gap-4 mb-4">
+                  <div class="relative w-20 h-20 shrink-0">
+                    <svg class="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+                      <circle cx="40" cy="40" r="32" fill="none" stroke="#e3e5e8" stroke-width="8" />
+                      <circle cx="40" cy="40" r="32" fill="none" stroke="#2CC896" stroke-width="8" stroke-linecap="round" :stroke-dasharray="`${(campaignProductPages / campaignTotalProducts) * 201.06} 201.06`" />
+                    </svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline gap-2">
+                      <span class="text-[2rem] font-light text-om-gray-700 tabular-nums leading-none font-['Funnel_Sans']">{{ campaignProductPages }}<span class="text-base text-om-gray-500 font-normal"> / {{ campaignTotalProducts }}</span></span>
+                      <span class="text-sm text-om-gray-500">product pages ready</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex justify-end">
+                  <Button variant="outline" size="sm">Product catalog</Button>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 pb-2 border-b border-om-gray-100 text-xs text-om-gray-500 font-medium">
+                  <span>Variable</span>
+                  <span>Type</span>
+                  <span class="text-right">Last updated</span>
+                  <span class="text-right">Ready</span>
+                </div>
+                <div class="flex flex-col">
+                  <div v-for="variable in allVariables" :key="'v2-' + variable.id" class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 py-2.5 cursor-pointer hover:bg-om-gray-50 rounded-lg transition-all items-center">
+                    <div class="flex items-center gap-2 min-w-0"><span class="text-sm text-om-gray-700 truncate">{{ variable.name }}</span></div>
+                    <div><Tag variant="outlined">{{ variable.type }}</Tag></div>
+                    <span class="text-xs text-om-gray-400 text-right">{{ variable.lastUpdated }}</span>
+                    <span class="text-base font-semibold text-om-gray-700 tabular-nums text-right">{{ variable.generated.split(' / ')[0] }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Accordion>
+
           <!-- When would you like this campaign to show up? -->
           <Accordion
             title="When would you like this campaign to show up?"
             :open="openAccordion === 'showUp'"
             @toggle="toggleAccordion('showUp')"
           >
-            <template #icon>
-              <Clock :size="20" class="text-om-gray-600" />
-            </template>
               <!-- Trigger Timeline -->
               <div class="trigger-timeline">
                 <!-- First trigger: On exit-intent -->
@@ -629,100 +600,16 @@
                 </div>
 
                 <!-- Add new trigger on timeline -->
-                <div class="trigger-timeline-add">
-                  <button class="trigger-add-button">
-                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" class="shrink-0">
-                      <circle cx="11" cy="11" r="10" stroke="currentColor" stroke-width="1.5"/>
-                      <path d="M11 7v8M7 11h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
+                <div class="trigger-timeline-add pl-6">
+                  <Button variant="outline" size="lg">
+                    <template #icon><Plus :size="18" /></template>
                     Add new trigger
-                  </button>
+                  </Button>
                 </div>
               </div>
 
-              <!-- Next button -->
-              <div class="flex justify-end mt-6">
-                <Button variant="primary" size="sm">Next to Frequency</Button>
-              </div>
           </Accordion>
 
-          <!-- How many times should this campaign appear? -->
-          <Accordion
-            title="How many times should this campaign appear?"
-            :open="openAccordion === 'howMany'"
-            @toggle="toggleAccordion('howMany')"
-          >
-            <template #icon>
-              <RefreshCw :size="20" class="text-om-gray-600" />
-            </template>
-              <!-- How many times can this campaign appear -->
-              <div class="mb-6">
-                <h4 class="text-sm font-semibold text-om-gray-700 mb-3">
-                  How many times <span class="font-normal text-om-gray-500">can this campaign appear to a visitor?</span>
-                </h4>
-                <div class="space-y-2.5">
-                  <RadioButton v-model="frequencyType" value="unlimited" label="Unlimited Times" />
-                  <RadioButton v-model="frequencyType" value="maximum">
-                    Maximum
-                    <input
-                      type="number"
-                      v-model="maxTimes"
-                      :disabled="frequencyType !== 'maximum'"
-                      class="w-16 px-2 py-1 border border-om-gray-200 rounded text-sm text-om-gray-700 focus:outline-none focus:border-om-gray-300 disabled:bg-om-gray-50 disabled:text-om-gray-400"
-                    />
-                    <span class="text-sm text-om-gray-700">times</span>
-                  </RadioButton>
-                </div>
-              </div>
-
-              <!-- How frequently -->
-              <div class="mb-6">
-                <h4 class="text-sm font-semibold text-om-gray-700 mb-3">
-                  How frequently <span class="font-normal text-om-gray-500">can this campaign appear again after a visitor has closed it?</span>
-                </h4>
-                <div class="space-y-2.5">
-                  <RadioButton v-model="frequencyMode" value="asap" label="As soon as possible" />
-                  <RadioButton v-model="frequencyMode" value="min">
-                    Min.
-                    <input
-                      type="number"
-                      v-model="minValue"
-                      :disabled="frequencyMode !== 'min'"
-                      class="w-16 px-2 py-1 border border-om-gray-200 rounded text-sm text-om-gray-700 focus:outline-none focus:border-om-gray-300 disabled:bg-om-gray-50 disabled:text-om-gray-400"
-                    />
-                    <div class="relative">
-                      <select
-                        v-model="timeUnit"
-                        :disabled="frequencyMode !== 'min'"
-                        class="w-24 pl-2 pr-6 py-1 border border-om-gray-200 rounded-lg text-sm text-om-gray-700 focus:outline-none focus:border-om-gray-300 appearance-none cursor-pointer disabled:bg-om-gray-50 disabled:text-om-gray-400 disabled:cursor-not-allowed"
-                      >
-                        <option value="hour">hour(s)</option>
-                        <option value="day">day(s)</option>
-                        <option value="session">session(s)</option>
-                      </select>
-                      <ChevronDown :size="16" class="absolute right-1.5 top-1/2 -translate-y-1/2 text-om-gray-600 pointer-events-none" />
-                    </div>
-                    <span class="text-sm text-om-gray-700">between two impressions</span>
-                  </RadioButton>
-                </div>
-              </div>
-
-              <!-- When should stop showing -->
-              <div class="mb-6">
-                <h4 class="text-sm font-semibold text-om-gray-700 mb-3">
-                  When should <span class="font-normal text-om-gray-500">the campaign</span> stop showing <span class="font-normal text-om-gray-500">to the visitors?</span>
-                </h4>
-                <div class="space-y-2.5">
-                  <Checkbox v-model="stopAfterClose" label="After a visitor has closed the campaign" />
-                  <Checkbox v-model="stopAfterConvert" label="After a visitor has converted in this campaign" />
-                </div>
-              </div>
-
-              <!-- Next button -->
-              <div class="flex justify-end">
-                <Button variant="primary" size="sm">Next to Targeting</Button>
-              </div>
-          </Accordion>
 
           <!-- Who should see this campaign? -->
           <Accordion
@@ -730,10 +617,27 @@
             :open="openAccordion === 'whoSee'"
             @toggle="toggleAccordion('whoSee')"
           >
-            <template #icon>
-              <Users :size="20" class="text-om-gray-600" />
-            </template>
-            <p class="text-sm text-om-gray-500">Settings for targeting...</p>
+            <div class="trigger-timeline">
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
+                      <Users :size="28" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">Returning / New</div>
+                      <div class="text-xs text-om-gray-500 mt-0.5">The campaign will appear to <span class="font-semibold text-om-gray-800">new visitors</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="trigger-timeline-add pl-6">
+                <Button variant="outline" size="lg">
+                  <template #icon><Plus :size="18" /></template>
+                  Add new rule
+                </Button>
+              </div>
+            </div>
           </Accordion>
 
           <!-- Where you would like to send the subscribers and campaign data? -->
@@ -742,10 +646,18 @@
             :open="openAccordion === 'sendData'"
             @toggle="toggleAccordion('sendData')"
           >
-            <template #icon>
-              <Send :size="20" class="text-om-gray-600" />
-            </template>
-            <p class="text-sm text-om-gray-500">Settings for integrations and data sending...</p>
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 bg-[#FFE01B] rounded flex items-center justify-center">
+                <img src="/icons/mailchimp.svg" alt="Mailchimp" class="w-7 h-7" />
+              </div>
+              <span class="text-sm font-medium text-om-gray-700">Mailchimp</span>
+            </div>
+            <div class="mt-8">
+              <Button variant="outline" size="lg">
+                <template #icon><Plus :size="18" /></template>
+                Add new integration
+              </Button>
+            </div>
           </Accordion>
 
           <!-- Email Notification Toggle -->
@@ -1317,7 +1229,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check, Ban, Info } from 'lucide-vue-next'
+import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check, Ban, Info, Globe } from 'lucide-vue-next'
 import Tag from '../components/shared/Tag.vue'
 import ProductPagePreview from '../components/ppo/ProductPagePreview.vue'
 import Button from '../components/shared/Button.vue'
@@ -1363,6 +1275,42 @@ const chatAiResponses = {
 const activeTab = ref('Overview')
 const isActive = ref(true)
 
+// Tab routing — each tab gets its own URL
+const VIEW_SLUG = 'ppo-campaign-detail-v2'
+const TAB_SLUGS = { Overview: '', Settings: 'settings', Orders: 'orders', Analytics: 'analytics' }
+const SLUG_TO_TAB = { '': 'Overview', settings: 'Settings', orders: 'Orders', analytics: 'Analytics' }
+
+const getTabFromHash = () => {
+  const hash = window.location.hash.replace('#/', '').replace('#', '')
+  const parts = hash.split('/')
+  if (parts[0] !== VIEW_SLUG) return 'Overview'
+  return SLUG_TO_TAB[parts[1] || ''] || 'Overview'
+}
+
+const updateHashForTab = (tab) => {
+  const tabSlug = TAB_SLUGS[tab] || ''
+  const newHash = '/' + VIEW_SLUG + (tabSlug ? '/' + tabSlug : '')
+  if (window.location.hash !== '#' + newHash) {
+    window.location.hash = newHash
+  }
+}
+
+const handleTabHashChange = () => {
+  const newTab = getTabFromHash()
+  if (newTab !== activeTab.value) activeTab.value = newTab
+}
+
+watch(activeTab, (newTab) => { updateHashForTab(newTab) })
+
+onMounted(() => {
+  activeTab.value = getTabFromHash()
+  window.addEventListener('hashchange', handleTabHashChange)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('hashchange', handleTabHashChange)
+})
+
 // Settings tab - Accordion state
 const openAccordion = ref(null)
 const emailNotification = ref(false)
@@ -1378,6 +1326,11 @@ const stopAfterConvert = ref(true)
 
 const toggleAccordion = (section) => {
   openAccordion.value = openAccordion.value === section ? null : section
+}
+
+const openSettingsAccordion = (section) => {
+  activeTab.value = 'Settings'
+  openAccordion.value = section
 }
 
 // Variants with inline variables
@@ -1740,13 +1693,26 @@ onUnmounted(() => {
 
 // Hover states for image preview
 const hoveredImage = ref(null)
+const hoveredRect = ref(null)
 
-// Tooltip positioning
-const tooltipStyle = computed(() => ({
-  left: '50%',
-  top: '50%',
-  transform: 'translate(-50%, -50%)'
-}))
+const handleThumbEnter = (event, key) => {
+  hoveredImage.value = key
+  hoveredRect.value = event.currentTarget.getBoundingClientRect()
+}
+
+const handleThumbLeave = () => {
+  hoveredImage.value = null
+  hoveredRect.value = null
+}
+
+// Tooltip positioning — to the right of the hovered thumbnail
+const tooltipStyle = computed(() => {
+  if (!hoveredRect.value) return {}
+  return {
+    left: (hoveredRect.value.right + 12) + 'px',
+    top: hoveredRect.value.top + 'px',
+  }
+})
 
 // Dropdown data
 const selectedTimePeriod = ref('Last 30 days')
@@ -1957,7 +1923,7 @@ input[type="time"]::-webkit-clear-button {
   position: absolute;
   left: 0;
   top: 0;
-  bottom: 21px;
+  bottom: 26px;
   width: 3px;
   background: #D5D8DD;
   border-radius: 2px;

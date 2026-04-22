@@ -6,6 +6,7 @@
       <div v-if="!showArchive" class="grid grid-cols-2 gap-3">
         <Button variant="outline" size="sm" @click="$emit('select', 'email')">Email Registration</Button>
         <Button variant="outline" size="sm" @click="$emit('select', 'shopify')">Shopify Registration</Button>
+        <Button variant="outline" size="sm" @click="$emit('navigate', 'login')">Login</Button>
         <Button variant="outline" size="sm" @click="$emit('select', 'wizard')">Wizard</Button>
         <Button variant="outline" size="sm" @click="$emit('go-public-wizard')">Public Wizard</Button>
         <Button variant="outline" size="sm" @click="$emit('go-home-onboarding')">Home Onboarding</Button>

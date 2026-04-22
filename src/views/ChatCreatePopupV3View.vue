@@ -242,10 +242,10 @@ const usecaseLabels = {
 }
 
 const usecaseCards = [
-  { id: 'smart-discount', label: 'Smart Discount Popup', image: '/usecases/SmartDiscountPopup.png', bgColor: '#FFEFE5', reason: 'Your new visitors have a 12% bounce rate — a welcome discount can convert them into subscribers.' },
-  { id: 'lucky-wheel', label: 'Lucky Wheel', image: '/usecases/Luckywheel.png', bgColor: '#FFEFE5', reason: 'Gamified popups get 2x more engagement — perfect for your high-traffic pages.' },
-  { id: 'newsletter', label: 'Newsletter Signup Popup', image: '/usecases/NewsletterSignupPopup.png', bgColor: '#FFEFE5', reason: 'Your email list grew only 3% last month — a signup popup can accelerate that.' },
-  { id: 'cart-abandonment', label: 'Cart Abandonment Stopper', image: '/usecases/CartAbandonmentStopper.png', bgColor: '#FFEFE5', reason: '68% of your carts are abandoned — an exit offer can recover up to 15% of them.' },
+  { id: 'smart-discount', number: 1, label: 'Smart Discount Popup', bgColor: '#FFEFE5', reason: 'Your new visitors have a 12% bounce rate — a welcome discount can convert them into subscribers.' },
+  { id: 'lucky-wheel', number: 2, label: 'Lucky Wheel', bgColor: '#FFEFE5', reason: 'Gamified popups get 2x more engagement — perfect for your high-traffic pages.' },
+  { id: 'newsletter', number: 3, label: 'Newsletter Signup Popup', bgColor: '#FFEFE5', reason: 'Your email list grew only 3% last month — a signup popup can accelerate that.' },
+  { id: 'cart-abandonment', number: 4, label: 'Cart Abandonment Stopper', bgColor: '#FFEFE5', reason: '68% of your carts are abandoned — an exit offer can recover up to 15% of them.' },
 ]
 
 // ── Template cards per use case (grey placeholders) ──

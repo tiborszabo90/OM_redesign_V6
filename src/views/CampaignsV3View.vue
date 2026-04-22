@@ -128,12 +128,19 @@
             @click="handleCampaignClick(campaign.id)"
           >
             <template v-if="campaign.id === 'campaign-ppo'" #thumbnail>
-              <div class="w-full h-full flex flex-col overflow-hidden bg-white px-2 pb-2">
-                <div class="flex-1 bg-gray-200 rounded-sm"></div>
-                <div class="py-2">
+              <div class="w-full h-full flex flex-col overflow-hidden bg-white px-2 pt-0.5 pb-1 gap-0.5">
+                <div class="h-6 flex gap-1.5 items-center shrink-0">
+                  <div class="h-full aspect-square bg-gray-200 rounded-sm shrink-0"></div>
+                  <div class="flex-1 flex flex-col justify-center gap-0.5">
+                    <div class="h-0.5 bg-gray-200 rounded-sm w-2/3"></div>
+                    <div class="h-0.5 bg-gray-200 rounded-sm w-1/2"></div>
+                    <div class="h-0.5 bg-gray-200 rounded-sm w-1/3"></div>
+                  </div>
+                </div>
+                <div class="flex items-start justify-center shrink-0">
                   <img src="/SPP1.png" alt="Product Summary" class="w-full h-auto rounded-sm" />
                 </div>
-                <div class="flex gap-1.5 flex-1">
+                <div class="flex gap-1 h-5 shrink-0">
                   <div class="flex-1 bg-gray-200 rounded-sm"></div>
                   <div class="flex-1 bg-gray-200 rounded-sm"></div>
                   <div class="flex-1 bg-gray-200 rounded-sm"></div>

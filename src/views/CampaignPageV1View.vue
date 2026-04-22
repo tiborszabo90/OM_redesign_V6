@@ -217,8 +217,8 @@
               <div class="col-span-5 flex items-center gap-2.5">
                 <div
                   class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
-                  @mouseenter="hoveredImage = 'variant1'"
-                  @mouseleave="hoveredImage = null"
+                  @mouseenter="handleThumbEnter($event, 'variant1')"
+                  @mouseleave="handleThumbLeave()"
                 >
                   <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
                   <!-- Tooltip -->
@@ -254,8 +254,8 @@
               <div class="col-span-5 flex items-center gap-2.5">
                 <div
                   class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
-                  @mouseenter="hoveredImage = 'variant2'"
-                  @mouseleave="hoveredImage = null"
+                  @mouseenter="handleThumbEnter($event, 'variant2')"
+                  @mouseleave="handleThumbLeave()"
                 >
                   <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
                   <!-- Tooltip -->
@@ -298,117 +298,81 @@
         </div>
 
         <!-- Campaign Settings Sections -->
-        <div class="space-y-5">
+        <div class="space-y-4">
+          <!-- Settings summary heading -->
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-om-gray-700">Settings summary</h2>
+            <Button variant="outline" size="sm" @click="activeTab = 'Settings'">Edit settings</Button>
+          </div>
+
           <!-- When will the popup show up -->
-          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('showUp')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">When will the popup show up</h3>
-            <div class="space-y-3">
-              <div class="flex items-start gap-3">
-                <div class="w-7 h-7 bg-om-gray-100 rounded flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="2" y="2" width="10" height="10" rx="2"/>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-medium text-om-gray-700">On exit-intent</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">When a visitor is about to leave your site</div>
-                </div>
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
+                <Clock :size="20" class="text-white" />
               </div>
-              <div class="flex items-start gap-3">
-                <div class="w-7 h-7 bg-om-gray-100 rounded flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="2" y="2" width="10" height="10" rx="2"/>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-medium text-om-gray-700">After x seconds of inactivity</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">When a visitor is inactive for <span class="font-medium text-om-gray-700">20 seconds</span></div>
-                </div>
+              <div class="flex-1">
+                <div class="text-sm font-semibold text-om-gray-700">On exit-intent · After 20s inactivity</div>
+                <div class="text-xs text-om-gray-500 mt-0.5">The popup will show when a visitor is about to leave or has been <span class="font-semibold text-om-gray-800">inactive for 20 seconds</span></div>
               </div>
             </div>
           </div>
 
           <!-- How often can it appear -->
-          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('howMany')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">How often can it appear</h3>
-            <div class="grid grid-cols-3 gap-4">
-              <div class="flex items-start gap-3">
-                <div class="w-7 h-7 bg-om-orange-50 rounded flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#ED5A29" stroke-width="1.5">
-                    <circle cx="7" cy="7" r="5"/>
-                    <path d="M7 4v3l2 2"/>
-                  </svg>
+            <div class="grid grid-cols-3 gap-10 w-3/4">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
+                  <RefreshCw :size="20" class="text-white" />
                 </div>
-                <div class="flex-1">
-                  <div class="text-sm font-medium text-om-gray-700">How many times</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">Maximum 3 times</div>
+                <div>
+                  <div class="text-sm font-semibold text-om-gray-700">How many times</div>
+                  <div class="text-xs text-om-gray-500 mt-0.5">Maximum 2 times</div>
                 </div>
               </div>
-              <div class="flex items-start gap-3">
-                <div class="w-7 h-7 bg-om-gray-100 rounded flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M7 2v10M10 5l-3-3-3 3"/>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-medium text-om-gray-700">How frequently</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">Max 1 session(s) between two impressions</div>
-                </div>
+              <div>
+                <div class="text-sm font-semibold text-om-gray-700">How frequently</div>
+                <div class="text-xs text-om-gray-500 mt-0.5">Min 1 hour(s) between two impressions</div>
               </div>
-              <div class="flex items-start gap-3">
-                <div class="w-7 h-7 bg-om-gray-100 rounded flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="2" y="2" width="10" height="10" rx="2"/>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-medium text-om-gray-700">Stop showing</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">After a visitor has converted in this campaign</div>
-                </div>
+              <div>
+                <div class="text-sm font-semibold text-om-gray-700">Stop Showing</div>
+                <div class="text-xs text-om-gray-500 mt-0.5">After a visitor has converted in this campaign</div>
               </div>
             </div>
           </div>
 
           <!-- Who should see the popup -->
-          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('whoSee')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">Who should see the popup</h3>
-            <div class="space-y-3">
-              <div class="flex items-start gap-3">
-                <div class="w-7 h-7 bg-om-orange-50 rounded flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#ED5A29" stroke-width="1.5">
-                    <rect x="2" y="3" width="10" height="8" rx="1"/>
-                    <path d="M4 3V2M10 3V2"/>
-                  </svg>
+            <div class="space-y-4">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
+                  <Clock :size="20" class="text-white" />
                 </div>
                 <div class="flex-1">
-                  <div class="text-sm font-medium text-om-gray-700">Spent on pages</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">The popup will appear to visitors who spent a minimum of <span class="font-medium text-om-gray-700">10 seconds</span> on the current subpage</div>
+                  <div class="text-sm font-semibold text-om-gray-700">Spent on pages</div>
+                  <div class="text-xs text-om-gray-500 mt-0.5">The popup will appear to visitors who spent a minimum of <span class="font-semibold text-om-gray-800">10 seconds</span> on the current subpage</div>
                 </div>
               </div>
-              <div class="flex items-start gap-3">
-                <div class="w-7 h-7 bg-om-orange-50 rounded flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#ED5A29" stroke-width="1.5">
-                    <rect x="2" y="3" width="10" height="8" rx="1"/>
-                  </svg>
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
+                  <Globe :size="20" class="text-white" />
                 </div>
                 <div class="flex-1">
-                  <div class="text-sm font-medium text-om-gray-700">Aktuális oldal / URL</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5 space-y-0.5">
-                    <div>A kampány egy aktuális oldal URL-jén és az altalanaihoz <span class="font-medium text-om-gray-700">cart</span></div>
-                    <div>vagy az aktuális oldal URL-jén vagy altalanaihoz <span class="font-medium text-om-gray-700">shop_cart</span></div>
-                    <div>vagy az aktuális oldal URL-jén vagy altalanaihoz <span class="font-medium text-om-gray-700">shop_reg</span></div>
-                    <div>vagy az aktuális oldal URL-jén vagy altalanaihoz <span class="font-medium text-om-gray-700">shop_category</span></div>
-                  </div>
+                  <div class="text-sm font-semibold text-om-gray-700">Current page / URL</div>
+                  <div class="text-xs text-om-gray-500 mt-0.5">URL or its subpaths contains <span class="font-semibold text-om-gray-800">cart</span>, <span class="font-semibold text-om-gray-800">shop_cart</span>, <span class="font-semibold text-om-gray-800">shop_reg</span>, or <span class="font-semibold text-om-gray-800">shop_category</span></div>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Integrations -->
-          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('sendData')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">Integrations</h3>
             <div class="flex items-center gap-3">
-              <div class="w-9 h-9 bg-[#FFE01B] rounded flex items-center justify-center">
+              <div class="w-9 h-9 bg-[#FFE01B] rounded flex items-center justify-center shrink-0">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="#000">
                   <path d="M10 0C4.5 0 0 4.5 0 10s4.5 10 10 10 10-4.5 10-10S15.5 0 10 0zm4.1 13.8l-2.8-1.7v-5h1.3v4.3l2.4 1.4-.9.9z"/>
                 </svg>
@@ -427,9 +391,6 @@
             :open="openAccordion === 'showUp'"
             @toggle="toggleAccordion('showUp')"
           >
-            <template #icon>
-              <Clock :size="20" class="text-om-gray-600" />
-            </template>
               <!-- Trigger Timeline -->
               <div class="trigger-timeline">
                 <!-- First trigger: On exit-intent -->
@@ -474,20 +435,12 @@
                 </div>
 
                 <!-- Add new trigger on timeline -->
-                <div class="trigger-timeline-add">
-                  <button class="trigger-add-button">
-                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" class="shrink-0">
-                      <circle cx="11" cy="11" r="10" stroke="currentColor" stroke-width="1.5"/>
-                      <path d="M11 7v8M7 11h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
+                <div class="trigger-timeline-add pl-6">
+                  <Button variant="outline" size="lg">
+                    <template #icon><Plus :size="18" /></template>
                     Add new trigger
-                  </button>
+                  </Button>
                 </div>
-              </div>
-
-              <!-- Next button -->
-              <div class="flex justify-end mt-6">
-                <Button variant="primary" size="sm">Next to Frequency</Button>
               </div>
           </Accordion>
 
@@ -497,9 +450,6 @@
             :open="openAccordion === 'howMany'"
             @toggle="toggleAccordion('howMany')"
           >
-            <template #icon>
-              <RefreshCw :size="20" class="text-om-gray-600" />
-            </template>
               <!-- How many times can this campaign appear -->
               <div class="mb-6">
                 <h4 class="text-sm font-semibold text-om-gray-700 mb-3">
@@ -563,10 +513,6 @@
                 </div>
               </div>
 
-              <!-- Next button -->
-              <div class="flex justify-end">
-                <Button variant="primary" size="sm">Next to Targeting</Button>
-              </div>
           </Accordion>
 
           <!-- Who should see this campaign? -->
@@ -575,10 +521,40 @@
             :open="openAccordion === 'whoSee'"
             @toggle="toggleAccordion('whoSee')"
           >
-            <template #icon>
-              <Users :size="20" class="text-om-gray-600" />
-            </template>
-            <p class="text-sm text-om-gray-500">Settings for targeting...</p>
+            <div class="trigger-timeline">
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
+                      <Clock :size="28" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">Spent on pages</div>
+                      <div class="text-xs text-om-gray-500 mt-0.5">The popup will appear to visitors who spent a minimum of <span class="font-semibold text-om-gray-800">10 seconds</span> on the current subpage</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
+                      <Globe :size="28" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">Current page / URL</div>
+                      <div class="text-xs text-om-gray-500 mt-0.5">URL or its subpaths contains <span class="font-semibold text-om-gray-800">cart</span>, <span class="font-semibold text-om-gray-800">shop_cart</span>, <span class="font-semibold text-om-gray-800">shop_reg</span>, or <span class="font-semibold text-om-gray-800">shop_category</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="trigger-timeline-add pl-6">
+                <Button variant="outline" size="lg">
+                  <template #icon><Plus :size="18" /></template>
+                  Add new rule
+                </Button>
+              </div>
+            </div>
           </Accordion>
 
           <!-- Where you would like to send the subscribers and campaign data? -->
@@ -587,10 +563,18 @@
             :open="openAccordion === 'sendData'"
             @toggle="toggleAccordion('sendData')"
           >
-            <template #icon>
-              <Send :size="20" class="text-om-gray-600" />
-            </template>
-            <p class="text-sm text-om-gray-500">Settings for integrations and data sending...</p>
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 bg-[#FFE01B] rounded flex items-center justify-center">
+                <img src="/icons/mailchimp.svg" alt="Mailchimp" class="w-7 h-7" />
+              </div>
+              <span class="text-sm font-medium text-om-gray-700">Mailchimp</span>
+            </div>
+            <div class="mt-8">
+              <Button variant="outline" size="lg">
+                <template #icon><Plus :size="18" /></template>
+                Add new integration
+              </Button>
+            </div>
           </Accordion>
 
           <!-- Email Notification Toggle -->
@@ -770,8 +754,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { ChevronDown, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check } from 'lucide-vue-next'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ChevronDown, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus } from 'lucide-vue-next'
 import Button from '../components/shared/Button.vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
@@ -827,19 +811,73 @@ const toggleAccordion = (section) => {
   openAccordion.value = openAccordion.value === section ? null : section
 }
 
+const openSettingsAccordion = (section) => {
+  activeTab.value = 'Settings'
+  openAccordion.value = section
+}
+
+// Tab routing — each tab gets its own URL
+const VIEW_SLUG = 'campaign-detail'
+const TAB_SLUGS = { Overview: '', Settings: 'settings', Submits: 'submits', Analytics: 'analytics' }
+const SLUG_TO_TAB = { '': 'Overview', settings: 'Settings', submits: 'Submits', analytics: 'Analytics' }
+
+const getTabFromHash = () => {
+  const hash = window.location.hash.replace('#/', '').replace('#', '')
+  const parts = hash.split('/')
+  if (parts[0] !== VIEW_SLUG) return 'Overview'
+  return SLUG_TO_TAB[parts[1] || ''] || 'Overview'
+}
+
+const updateHashForTab = (tab) => {
+  const tabSlug = TAB_SLUGS[tab] || ''
+  const newHash = '/' + VIEW_SLUG + (tabSlug ? '/' + tabSlug : '')
+  if (window.location.hash !== '#' + newHash) {
+    window.location.hash = newHash
+  }
+}
+
+const handleTabHashChange = () => {
+  const newTab = getTabFromHash()
+  if (newTab !== activeTab.value) activeTab.value = newTab
+}
+
+watch(activeTab, (newTab) => { updateHashForTab(newTab) })
+
+onMounted(() => {
+  activeTab.value = getTabFromHash()
+  window.addEventListener('hashchange', handleTabHashChange)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('hashchange', handleTabHashChange)
+})
+
 // Variant active states
 const variant1Active = ref(true)
 const variant2Active = ref(true)
 
 // Hover states for image preview
 const hoveredImage = ref(null)
+const hoveredRect = ref(null)
 
-// Tooltip positioning
-const tooltipStyle = computed(() => ({
-  left: '50%',
-  top: '50%',
-  transform: 'translate(-50%, -50%)'
-}))
+const handleThumbEnter = (event, key) => {
+  hoveredImage.value = key
+  hoveredRect.value = event.currentTarget.getBoundingClientRect()
+}
+
+const handleThumbLeave = () => {
+  hoveredImage.value = null
+  hoveredRect.value = null
+}
+
+// Tooltip positioning — to the right of the hovered thumbnail
+const tooltipStyle = computed(() => {
+  if (!hoveredRect.value) return {}
+  return {
+    left: (hoveredRect.value.right + 12) + 'px',
+    top: hoveredRect.value.top + 'px',
+  }
+})
 
 // Dropdown data
 const selectedTimePeriod = ref('Last 30 days')
@@ -1047,7 +1085,7 @@ input[type="time"]::-webkit-clear-button {
   position: absolute;
   left: 0;
   top: 0;
-  bottom: 21px;
+  bottom: 26px;
   width: 3px;
   background: #D5D8DD;
   border-radius: 2px;

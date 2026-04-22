@@ -11,8 +11,8 @@
       <!-- Thumbnail -->
       <div
         class="list-thumb w-36 h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200 relative"
-        @mouseenter="isImageHovered = true"
-        @mouseleave="isImageHovered = false"
+        @mouseenter="handleThumbEnter($event)"
+        @mouseleave="handleThumbLeave()"
       >
         <!-- Checkbox zone (shows on hover, top-left of thumbnail) -->
         <div
@@ -134,8 +134,8 @@
       <!-- Thumbnail -->
       <div
         class="w-full h-48 bg-om-gray-100 rounded-lg overflow-hidden border border-om-gray-200 mb-4 relative"
-        @mouseenter="isImageHovered = true"
-        @mouseleave="isImageHovered = false"
+        @mouseenter="handleThumbEnter($event)"
+        @mouseleave="handleThumbLeave()"
       >
         <slot name="thumbnail">
           <img :src="image" :alt="name" class="w-full h-full object-cover" :style="{ objectPosition: imagePosition }" />
@@ -180,7 +180,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed } from 'vue'
 import { Check, TrendingUp, MoreVertical, ChevronRight, AlertTriangle, Monitor, ChevronsUp, Minus, ChevronsDown } from 'lucide-vue-next'
 import Button from './Button.vue'
 import ToggleSwitch from './ToggleSwitch.vue'
@@ -213,21 +213,25 @@ const metricSlots = computed(() => {
 const isHovered = ref(false)
 const isCheckboxHovered = ref(false)
 const isImageHovered = ref(false)
-const mouseX = ref(0)
-const mouseY = ref(0)
+const hoveredRect = ref(null)
 
-const tooltipStyle = computed(() => ({
-  left: `${mouseX.value + 20}px`,
-  top: `${mouseY.value - 50}px`
-}))
-
-const handleMouseMove = (e) => {
-  mouseX.value = e.clientX
-  mouseY.value = e.clientY
+const handleThumbEnter = (event) => {
+  isImageHovered.value = true
+  hoveredRect.value = event.currentTarget.getBoundingClientRect()
 }
 
-onMounted(() => document.addEventListener('mousemove', handleMouseMove))
-onUnmounted(() => document.removeEventListener('mousemove', handleMouseMove))
+const handleThumbLeave = () => {
+  isImageHovered.value = false
+  hoveredRect.value = null
+}
+
+const tooltipStyle = computed(() => {
+  if (!hoveredRect.value) return {}
+  return {
+    left: `${hoveredRect.value.right + 12}px`,
+    top: `${hoveredRect.value.top}px`,
+  }
+})
 </script>
 
 <style scoped>
