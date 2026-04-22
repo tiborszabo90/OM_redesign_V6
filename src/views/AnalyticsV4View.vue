@@ -15,11 +15,10 @@
           </div>
         </div>
 
-        <!-- Filters Section -->
+        <!-- Filters section -->
         <div class="filters-section">
-          <!-- Domain Selector + Tab filters -->
-          <div class="flex items-center gap-3">
-            <div class="shrink-0" style="width:200px">
+          <!-- Domain Selector -->
+          <div class="shrink-0" style="width:200px">
             <Dropdown
               v-model="selectedDomain"
               :options="domains"
@@ -31,10 +30,57 @@
                 </div>
               </template>
             </Dropdown>
-            </div>
+          </div>
 
-            <!-- Predefined filter chips -->
-            <div class="flex items-center gap-2">
+          <!-- Predefined filter chips (shown on new row) -->
+          <div class="flex items-center gap-2 w-full order-last flex-wrap -mt-1">
+              <!-- Segments button -->
+              <div class="relative">
+                <button
+                  @click="toggleSegmentsDropdown"
+                  :class="['px-3 h-10 flex items-center gap-1.5 rounded-lg text-sm cursor-pointer transition-all duration-200 ease-out', showSegmentsDropdown ? 'bg-om-gray-200 text-om-gray-700' : 'bg-om-gray-100 text-om-gray-500 hover:bg-om-gray-200 hover:text-om-gray-700']"
+                >
+                  <Users :size="16" />
+                  <span class="text-om-gray-700">{{ activeSegmentName }}</span>
+                  <ChevronDown :size="14" class="text-om-gray-400" />
+                </button>
+                <div v-if="showSegmentsDropdown" class="fixed inset-0 z-10" @click="closeSegmentsDropdown" />
+                <div v-if="showSegmentsDropdown" class="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-20 w-[300px]">
+                  <!-- Saved segments list -->
+                  <div class="py-1 max-h-[280px] overflow-y-auto">
+                    <!-- All visitors (default) -->
+                    <div
+                      :class="['w-full px-3 py-2 hover:bg-om-gray-50 transition-colors flex items-center gap-2 cursor-pointer', activeSegmentName === 'All visitors' ? 'bg-om-gray-50' : '']"
+                      @click="loadAllVisitors"
+                    >
+                      <Users :size="14" class="text-om-gray-400 shrink-0" />
+                      <div class="flex-1 min-w-0">
+                        <div class="text-sm text-om-gray-700 truncate">All visitors</div>
+                        <div class="text-xs text-om-gray-400 truncate">No filters</div>
+                      </div>
+                    </div>
+                    <div
+                      v-for="seg in savedSegments"
+                      :key="seg.id"
+                      :class="['group w-full px-3 py-2 hover:bg-om-gray-50 transition-colors flex items-center gap-2 cursor-pointer', activeSegmentName === seg.name ? 'bg-om-gray-50' : '']"
+                      @click="loadSegment(seg)"
+                    >
+                      <Users :size="14" class="text-om-gray-400 shrink-0" />
+                      <div class="flex-1 min-w-0">
+                        <div class="text-sm text-om-gray-700 truncate">{{ seg.name }}</div>
+                        <div class="text-xs text-om-gray-400 truncate">{{ seg.filters.length }} filter{{ seg.filters.length > 1 ? 's' : '' }}</div>
+                      </div>
+                      <button
+                        class="w-6 h-6 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 hover:bg-om-gray-200 text-om-gray-400 hover:text-om-gray-700 transition-all shrink-0"
+                        @click.stop="deleteSegment(seg.id)"
+                      >
+                        <Trash2 :size="14" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div
                 v-for="(f, idx) in predefinedFilters"
                 :key="f.value"
@@ -255,8 +301,34 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Save as segment button -->
+              <div v-if="predefinedFilters.length > 0" class="relative">
+                <button
+                  @click="toggleSaveSegmentPopover"
+                  :class="['px-3 h-10 flex items-center gap-1.5 rounded-lg text-sm cursor-pointer transition-all duration-200 ease-out', showSaveSegmentPopover ? 'bg-om-gray-200 text-om-gray-700' : 'bg-om-gray-100 text-om-gray-500 hover:bg-om-gray-200 hover:text-om-gray-700']"
+                >
+                  <Save :size="16" />
+                  <span class="text-om-gray-700">Save as segment</span>
+                </button>
+                <div v-if="showSaveSegmentPopover" class="fixed inset-0 z-10" @click="closeSaveSegmentPopover" />
+                <div v-if="showSaveSegmentPopover" class="absolute top-full right-0 mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-20 w-[300px] p-3">
+                  <div class="text-xs font-medium text-om-gray-400 uppercase tracking-wide mb-2">Save current filters</div>
+                  <div class="flex gap-1.5">
+                    <input
+                      v-model="newSegmentName"
+                      type="text"
+                      placeholder="Segment name..."
+                      class="flex-1 px-2.5 h-8 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300"
+                      @keydown.enter="saveCurrentAsSegment"
+                    />
+                    <Button variant="primary" size="sm" :disabled="!newSegmentName.trim()" @click="saveCurrentAsSegment">
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
 
           <!-- Right-aligned filters -->
           <div class="filters-right">
@@ -1685,7 +1757,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, nextTick } from 'vue'
-import { ExternalLink, ChevronDown, ChevronRight, ChevronLeft, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X, Dice5, Search, Download, Plus, Monitor, Globe, Tag, MousePointerClick, BarChart3, Smartphone, FileText, Languages, Laptop, Link, Megaphone, AppWindow } from 'lucide-vue-next'
+import { ExternalLink, ChevronDown, ChevronRight, ChevronLeft, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X, Dice5, Search, Download, Plus, Monitor, Globe, Tag, MousePointerClick, BarChart3, Smartphone, FileText, Languages, Laptop, Link, Megaphone, AppWindow, Users, Save, Trash2 } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
@@ -1833,6 +1905,9 @@ const removePredefinedFilter = (value) => {
   predefinedFilters.splice(predefinedFilters.findIndex(f => f.value === value), 1)
   if (activePredefinedFilter.value === value) {
     activePredefinedFilter.value = null
+  }
+  if (predefinedFilters.length === 0) {
+    activeSegmentName.value = 'All visitors'
   }
 }
 
@@ -1990,6 +2065,95 @@ const backToCategories = () => {
   filterDropdownSearch.value = ''
   selectedFilterCategory.value = null
   filterDropdownSelected.value = []
+}
+
+// Saved segments
+const savedSegments = ref([
+  {
+    id: 'seg-mobile-hu',
+    name: 'Mobile visitors – Hungary',
+    filters: [
+      { value: 'device-is-Mobile', label: 'Device is Mobile', category: 'device', condition: 'is', selectedValues: ['Mobile'] },
+      { value: 'country-is-Hungary', label: 'Country is Hungary', category: 'country', condition: 'is', selectedValues: ['Hungary'] },
+    ],
+  },
+  {
+    id: 'seg-returning-desktop',
+    name: 'Returning desktop buyers',
+    filters: [
+      { value: 'device-is-Desktop', label: 'Device is Desktop', category: 'device', condition: 'is', selectedValues: ['Desktop'] },
+      { value: 'visitor-type-is-Returning visitors', label: 'Visitor type is Returning visitors', category: 'visitor-type', condition: 'is', selectedValues: ['Returning visitors'] },
+    ],
+  },
+])
+const showSegmentsDropdown = ref(false)
+const showSaveSegmentPopover = ref(false)
+const newSegmentName = ref('')
+const activeSegmentName = ref('All visitors')
+
+const toggleSegmentsDropdown = () => {
+  showSegmentsDropdown.value = !showSegmentsDropdown.value
+  if (showSegmentsDropdown.value) {
+    showAddFilterDropdown.value = false
+    showSaveSegmentPopover.value = false
+  }
+}
+
+const closeSegmentsDropdown = () => {
+  showSegmentsDropdown.value = false
+}
+
+const toggleSaveSegmentPopover = () => {
+  showSaveSegmentPopover.value = !showSaveSegmentPopover.value
+  if (showSaveSegmentPopover.value) {
+    newSegmentName.value = ''
+    showAddFilterDropdown.value = false
+    showSegmentsDropdown.value = false
+  }
+}
+
+const closeSaveSegmentPopover = () => {
+  showSaveSegmentPopover.value = false
+  newSegmentName.value = ''
+}
+
+const saveCurrentAsSegment = () => {
+  const name = newSegmentName.value.trim()
+  if (!name || predefinedFilters.length === 0) return
+  savedSegments.value.push({
+    id: `seg-${Date.now()}`,
+    name,
+    filters: predefinedFilters.map(f => ({ ...f, selectedValues: [...f.selectedValues] })),
+  })
+  activeSegmentName.value = name
+  newSegmentName.value = ''
+  showSaveSegmentPopover.value = false
+}
+
+const loadSegment = (seg) => {
+  predefinedFilters.splice(0, predefinedFilters.length,
+    ...seg.filters.map(f => ({ ...f, selectedValues: [...f.selectedValues] }))
+  )
+  activePredefinedFilter.value = null
+  activeSegmentName.value = seg.name
+  showSegmentsDropdown.value = false
+}
+
+const loadAllVisitors = () => {
+  predefinedFilters.splice(0, predefinedFilters.length)
+  activePredefinedFilter.value = null
+  activeSegmentName.value = 'All visitors'
+  showSegmentsDropdown.value = false
+}
+
+const deleteSegment = (id) => {
+  const seg = savedSegments.value.find(s => s.id === id)
+  const idx = savedSegments.value.findIndex(s => s.id === id)
+  if (idx >= 0) savedSegments.value.splice(idx, 1)
+  if (seg && activeSegmentName.value === seg.name) {
+    activeSegmentName.value = 'All visitors'
+    predefinedFilters.splice(0, predefinedFilters.length)
+  }
 }
 
 // Chart data - 30 days of conversion rate (0.4% to 0.8%)

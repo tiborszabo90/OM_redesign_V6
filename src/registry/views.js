@@ -596,6 +596,7 @@ const analyticsViews = [
     status: 'active',
     section: 'analytics',
     hideLogo: true,
+    slug: 'analytics',
   },
   {
     id: 'analytics-v4-purchase',
@@ -604,6 +605,7 @@ const analyticsViews = [
     status: 'active',
     section: 'analytics',
     hideLogo: true,
+    slug: 'analytics-purchase',
   },
   {
     id: 'analytics-v4-add-to-cart',
@@ -612,6 +614,7 @@ const analyticsViews = [
     status: 'active',
     section: 'analytics',
     hideLogo: true,
+    slug: 'analytics-add-to-cart',
   },
   {
     id: 'analytics-v4-email-capture',
@@ -620,6 +623,7 @@ const analyticsViews = [
     status: 'active',
     section: 'analytics',
     hideLogo: true,
+    slug: 'analytics-email-capture',
   },
   {
     id: 'analytics-v4-phone-capture',
@@ -628,6 +632,7 @@ const analyticsViews = [
     status: 'active',
     section: 'analytics',
     hideLogo: true,
+    slug: 'analytics-phone-capture',
   },
   {
     id: 'analytics-empty',

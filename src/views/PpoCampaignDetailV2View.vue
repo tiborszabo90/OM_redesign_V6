@@ -271,17 +271,6 @@
             Settings
           </button>
           <button
-            @click="activeTab = 'Orders'"
-            :class="[
-              'px-4 py-2 rounded-xl text-sm font-normal transition-all cursor-pointer',
-              activeTab === 'Orders'
-                ? 'bg-om-orange-100 text-om-orange-500'
-                : 'bg-transparent text-om-gray-700 hover:bg-om-gray-100 hover:text-om-gray-600'
-            ]"
-          >
-            Orders
-          </button>
-          <button
             @click="activeTab = 'Analytics'"
             :class="[
               'px-4 py-2 rounded-xl text-sm font-normal transition-all cursor-pointer',
@@ -298,23 +287,34 @@
         <div v-if="activeTab === 'Overview'">
         <!-- Metrics Section -->
         <div class="bg-om-gray-100 rounded-xl mb-6 relative">
-          <div class="grid grid-cols-12 gap-4">
+          <div class="grid grid-cols-[minmax(0,12fr)_minmax(0,9fr)_minmax(0,3fr)] gap-4">
           <!-- Conversion Uplift -->
-          <div class="col-span-3 pl-8 py-8">
+          <div class="pl-8 py-8">
             <div class="text-base text-om-gray-600 mb-3">Conversion uplift</div>
-            <div class="flex items-end gap-2">
-              <span class="text-[3rem] font-light text-om-gray-700 leading-none font-['Funnel_Sans']">62.50%</span>
-              <TrendingUp :size="24" class="text-[#2CC896]" />
+            <div class="flex items-center gap-5">
+              <div class="flex items-end gap-2 shrink-0">
+                <span class="text-[3rem] font-light text-om-gray-700 leading-none font-['Funnel_Sans']">+0.77%</span>
+                <TrendingUp :size="24" class="text-[#2CC896]" />
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-semibold text-om-gray-700 whitespace-nowrap">A/B test running</span>
+                  <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
+                  </span>
+                </div>
+                <div class="text-sm text-om-gray-500 mt-0.5 whitespace-nowrap">
+                  <span class="font-medium text-om-gray-700">Product summary 1</span>
+                  is leading (91.2% chance to win)
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Divider -->
-          <div class="col-span-1 flex justify-center relative">
-            <div class="w-px bg-om-gray-200 absolute inset-y-0"></div>
-          </div>
-
           <!-- Key Metrics -->
-          <div class="col-span-5 py-8">
+          <div class="py-8 relative pl-1 pr-24">
+            <div class="w-px bg-om-gray-200 absolute inset-y-6 -left-5"></div>
             <div class="text-base text-om-gray-600 mb-4">Key metrics</div>
             <div class="flex items-center gap-4">
               <div class="flex-1">
@@ -339,20 +339,24 @@
           </div>
 
           <!-- Filters -->
-          <div class="col-span-3 flex flex-col justify-end gap-2.5 pr-8 py-8">
+          <div class="flex flex-col items-end justify-end gap-2.5 pr-8 py-8">
             <!-- Time Period Dropdown -->
-            <Dropdown v-model="selectedTimePeriod" :options="timePeriodOptions">
-              <template #icon>
-                <Calendar :size="18" class="text-om-gray-400" />
-              </template>
-            </Dropdown>
+            <div style="width: 208px">
+              <Dropdown key="time-period" v-model="selectedTimePeriod" :options="timePeriodOptions">
+                <template #icon>
+                  <Calendar :size="18" class="text-om-gray-400" />
+                </template>
+              </Dropdown>
+            </div>
 
             <!-- Goal Dropdown -->
-            <Dropdown v-model="selectedGoal" :options="goalOptions">
-              <template #icon>
-                <Target :size="18" class="text-om-gray-400" />
-              </template>
-            </Dropdown>
+            <div style="width: 208px">
+              <Dropdown key="goal" v-model="selectedGoal" :options="goalOptions">
+                <template #icon>
+                  <Target :size="18" class="text-om-gray-400" />
+                </template>
+              </Dropdown>
+            </div>
           </div>
         </div>
         </div>
@@ -360,7 +364,7 @@
         <!-- Variants + Variables Section -->
         <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 pt-5 pb-5 pl-5 pr-8">
           <!-- Header -->
-          <div class="grid grid-cols-[1fr_60px_80px_80px_80px_100px_100px_36px] gap-3 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
+          <div class="grid grid-cols-[1fr_60px_80px_80px_80px_100px_100px_80px_36px] gap-3 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
             <div>Variants</div>
             <div>Active</div>
             <div class="text-right">Visitors</div>
@@ -368,6 +372,7 @@
             <div class="text-right">Conv. R.</div>
             <div class="text-right">Uplift</div>
             <div class="text-right">Chance to win</div>
+            <div class="text-right pr-3">Traffic</div>
             <div></div>
           </div>
 
@@ -379,7 +384,7 @@
           >
             <!-- Variant header row -->
             <div
-              class="grid grid-cols-[1fr_60px_80px_80px_80px_100px_100px_36px] gap-3 items-center py-4 group cursor-pointer"
+              class="grid grid-cols-[1fr_60px_80px_80px_80px_100px_100px_80px_36px] gap-3 items-center py-4 group cursor-pointer"
               @click="$emit('navigate', 'ppo-variant-detail-v2')"
             >
               <div class="flex items-center gap-3">
@@ -435,7 +440,10 @@
                 {{ variant.uplift }}
                 <TrendingUp v-if="variant.uplift.startsWith('+')" :size="16" class="text-[#2CC896]" />
               </div>
-              <div class="text-base font-semibold text-om-gray-400 text-right">{{ variant.chanceToWin }}</div>
+              <div class="text-base font-semibold text-om-gray-400 text-right">{{ variant.id === winningVariantId ? variant.chanceToWin : '' }}</div>
+              <div class="flex justify-end" @click.stop>
+                <Button variant="ghost" size="sm" @click="activeTab = 'Settings'">{{ variant.traffic }}%</Button>
+              </div>
               <div class="flex items-center justify-end" @click.stop>
                 <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
               </div>
@@ -491,10 +499,8 @@
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('sendData')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">Integrations</h3>
             <div class="flex items-center gap-3">
-              <div class="w-9 h-9 bg-[#FFE01B] rounded flex items-center justify-center">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="#000">
-                  <path d="M10 0C4.5 0 0 4.5 0 10s4.5 10 10 10 10-4.5 10-10S15.5 0 10 0zm4.1 13.8l-2.8-1.7v-5h1.3v4.3l2.4 1.4-.9.9z"/>
-                </svg>
+              <div class="w-9 h-9 bg-[#FFE01B] rounded flex items-center justify-center shrink-0">
+                <img src="/icons/mailchimp.svg" alt="Mailchimp" class="w-5 h-5" />
               </div>
               <span class="text-sm font-medium text-om-gray-700">Mailchimp</span>
             </div>
@@ -504,12 +510,99 @@
 
         <!-- Settings Tab Content -->
         <div v-if="activeTab === 'Settings'" class="space-y-4">
+          <!-- Primary goal -->
+          <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pl-4 pr-7 py-4 flex items-center justify-between gap-6">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-om-gray-100 flex items-center justify-center shrink-0">
+                <Target :size="20" class="text-om-gray-800" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-lg font-semibold text-om-gray-700 leading-tight">Primary goal</h3>
+                <p class="text-sm text-om-gray-500 mt-0.5">The main conversion event used to measure this campaign's success. Reports and variant comparisons default to this metric.</p>
+              </div>
+            </div>
+            <div class="w-64 shrink-0">
+              <Dropdown v-model="primaryGoal" :options="goalValues" />
+            </div>
+          </div>
+
+          <!-- A/B test -->
+          <Accordion
+            title="A/B test"
+            :open="openAccordion === 'abTest'"
+            @toggle="toggleAccordion('abTest')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-gray-100"
+          >
+            <template #icon><FlaskConical :size="20" class="text-om-gray-700" /></template>
+            <div class="grid grid-cols-2 gap-8">
+              <!-- Traffic share -->
+              <section>
+                <h4 class="text-base font-semibold text-om-gray-700 mb-3">Traffic share</h4>
+
+                <div class="mb-3 space-y-2">
+                  <div v-for="(variant, idx) in variants" :key="variant.id" class="flex items-center justify-between py-1">
+                    <span class="text-sm font-medium text-om-gray-700">{{ variant.name }}</span>
+                    <div class="relative">
+                      <input
+                        type="number"
+                        :value="variant.traffic"
+                        @input="updateVariantTraffic(idx, $event.target.value)"
+                        min="0"
+                        max="100"
+                        step="1"
+                        class="w-20 pl-3 pr-8 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums text-right"
+                      />
+                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <Checkbox :model-value="trafficEvenlySplit" @update:model-value="toggleEvenlySplit" label="Evenly split" />
+                  <p class="text-sm text-om-gray-500 mt-1 ml-7">Equally distribute weight percentage across all groups</p>
+                </div>
+              </section>
+
+              <!-- Auto-stop -->
+              <section class="pl-8 border-l border-om-gray-100">
+                <h4 class="text-base font-semibold text-om-gray-700 mb-3">Auto-stop</h4>
+
+                <div class="flex items-center gap-3">
+                  <ToggleSwitch v-model="autoStopEnabled" />
+                  <div
+                    class="flex items-center gap-2 text-sm text-om-gray-600 transition-opacity"
+                    :class="{ 'opacity-50': !autoStopEnabled }"
+                  >
+                    <span>Stop at</span>
+                    <div class="relative">
+                      <input
+                        type="number"
+                        v-model.number="autoStopThreshold"
+                        :disabled="!autoStopEnabled"
+                        min="50"
+                        max="100"
+                        step="1"
+                        class="w-20 pl-3 pr-7 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums disabled:cursor-not-allowed disabled:bg-om-gray-50"
+                      />
+                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
+                    </div>
+                    <span>chance to win</span>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </Accordion>
+
           <!-- Where the campaign will appear -->
           <Accordion
             title="Where the campaign will appear"
             :open="openAccordion === 'productPages'"
             @toggle="toggleAccordion('productPages')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-gray-100"
           >
+            <template #icon><Globe :size="20" class="text-om-gray-700" /></template>
             <p class="text-base text-om-gray-500 mb-5">The campaign runs on product pages where all variables are generated.</p>
             <div class="flex gap-8 items-start overflow-hidden">
               <div class="w-96 shrink-0 px-5 py-5 bg-om-gray-50 flex flex-col justify-center rounded-xl">
@@ -550,73 +643,15 @@
             </div>
           </Accordion>
 
-          <!-- When would you like this campaign to show up? -->
-          <Accordion
-            title="When would you like this campaign to show up?"
-            :open="openAccordion === 'showUp'"
-            @toggle="toggleAccordion('showUp')"
-          >
-              <!-- Trigger Timeline -->
-              <div class="trigger-timeline">
-                <!-- First trigger: On exit-intent -->
-                <div class="trigger-timeline-item">
-                  <div class="trigger-card">
-                    <div class="flex items-center gap-5">
-                      <div class="w-20 h-14 shrink-0">
-                        <img src="/settings/setting-1.png" alt="Exit intent" class="w-full h-full object-contain" />
-                      </div>
-                      <div class="flex-1">
-                        <h5 class="text-base font-semibold text-om-gray-700 mb-1">On exit-intent</h5>
-                        <p class="text-sm text-om-gray-400">When a visitor is about to leave your site</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- OR Badge on timeline -->
-                <div class="trigger-timeline-or">
-                  <span class="trigger-or-badge">OR</span>
-                </div>
-
-                <!-- Second trigger: After x seconds of inactivity -->
-                <div class="trigger-timeline-item">
-                  <div class="trigger-card">
-                    <div class="flex items-center gap-5">
-                      <div class="w-20 h-14 shrink-0">
-                        <img src="/settings/setting-1.png" alt="After seconds" class="w-full h-full object-contain" />
-                      </div>
-                      <div>
-                        <h5 class="text-base font-semibold text-om-gray-700 mb-1">After x seconds of inactivity</h5>
-                        <p class="text-sm text-om-gray-400">
-                          When a visitor is inactive for <span class="font-semibold text-om-gray-700">20 seconds</span>
-                        </p>
-                      </div>
-                      <div class="flex items-center gap-2 shrink-0">
-                        <Monitor :size="20" class="text-om-gray-700" />
-                        <Smartphone :size="20" class="text-om-gray-700" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Add new trigger on timeline -->
-                <div class="trigger-timeline-add pl-6">
-                  <Button variant="outline" size="lg">
-                    <template #icon><Plus :size="18" /></template>
-                    Add new trigger
-                  </Button>
-                </div>
-              </div>
-
-          </Accordion>
-
-
           <!-- Who should see this campaign? -->
           <Accordion
             title="Who should see this campaign?"
             :open="openAccordion === 'whoSee'"
             @toggle="toggleAccordion('whoSee')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-gray-100"
           >
+            <template #icon><Users :size="20" class="text-om-gray-700" /></template>
             <div class="trigger-timeline">
               <div class="trigger-timeline-item">
                 <div class="trigger-card">
@@ -640,32 +675,17 @@
             </div>
           </Accordion>
 
-          <!-- Where you would like to send the subscribers and campaign data? -->
-          <Accordion
-            title="Where you would like to send the subscribers and campaign data?"
-            :open="openAccordion === 'sendData'"
-            @toggle="toggleAccordion('sendData')"
-          >
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 bg-[#FFE01B] rounded flex items-center justify-center">
-                <img src="/icons/mailchimp.svg" alt="Mailchimp" class="w-7 h-7" />
-              </div>
-              <span class="text-sm font-medium text-om-gray-700">Mailchimp</span>
-            </div>
-            <div class="mt-8">
-              <Button variant="outline" size="lg">
-                <template #icon><Plus :size="18" /></template>
-                Add new integration
-              </Button>
-            </div>
-          </Accordion>
-
           <!-- Email Notification Toggle -->
-          <div class="bg-om-gray-100 rounded-lg px-5 py-3">
+          <div class="bg-om-gray-100 rounded-2xl pl-4 pr-7 py-4">
             <div class="flex items-center justify-between">
-              <div>
-                <h4 class="text-base font-semibold text-om-gray-700">Email notification</h4>
-                <p class="text-sm text-om-gray-500 mt-1">Get notified when someone submits this campaign</p>
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-om-gray-200 flex items-center justify-center shrink-0">
+                  <Mail :size="20" class="text-om-gray-700" />
+                </div>
+                <div>
+                  <h4 class="text-lg font-semibold text-om-gray-700">Email notification</h4>
+                  <p class="text-sm text-om-gray-500 mt-1">Get notified when someone submits this campaign</p>
+                </div>
               </div>
               <ToggleSwitch v-model="emailNotification" />
             </div>
@@ -1229,7 +1249,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check, Ban, Info, Globe } from 'lucide-vue-next'
+import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check, Ban, Info, Globe, FlaskConical, Mail } from 'lucide-vue-next'
 import Tag from '../components/shared/Tag.vue'
 import ProductPagePreview from '../components/ppo/ProductPagePreview.vue'
 import Button from '../components/shared/Button.vue'
@@ -1277,8 +1297,8 @@ const isActive = ref(true)
 
 // Tab routing — each tab gets its own URL
 const VIEW_SLUG = 'ppo-campaign-detail-v2'
-const TAB_SLUGS = { Overview: '', Settings: 'settings', Orders: 'orders', Analytics: 'analytics' }
-const SLUG_TO_TAB = { '': 'Overview', settings: 'Settings', orders: 'Orders', analytics: 'Analytics' }
+const TAB_SLUGS = { Overview: '', Settings: 'settings', Analytics: 'analytics' }
+const SLUG_TO_TAB = { '': 'Overview', settings: 'Settings', analytics: 'Analytics' }
 
 const getTabFromHash = () => {
   const hash = window.location.hash.replace('#/', '').replace('#', '')
@@ -1345,6 +1365,7 @@ const variants = reactive([
     orderRate: '7.25%',
     uplift: '+0.77%',
     chanceToWin: '91.2%',
+    traffic: 34,
     variables: [
       { id: 0, name: 'AI lifestyle image 1', type: 'Image', generated: '128 / 467', status: 'Ready to use', lastUpdated: 'Mar 13, 2026' },
       { id: 8, name: 'Benefit list', type: 'Text', generated: '100 / 467', status: 'Ready to use', lastUpdated: 'Mar 16, 2026' },
@@ -1364,6 +1385,7 @@ const variants = reactive([
     orderRate: '5.83%',
     uplift: '+0.34%',
     chanceToWin: '67.4%',
+    traffic: 33,
     variables: [
       { id: 0, name: 'AI lifestyle image 1', type: 'Image', generated: '73 / 467', status: 'Ready to use', lastUpdated: 'Mar 15, 2026' },
       { id: 8, name: 'Benefit list', type: 'Text', generated: '112 / 467', status: 'Ready to use', lastUpdated: 'Mar 17, 2026' },
@@ -1384,6 +1406,7 @@ const variants = reactive([
     orderRate: '3.27%',
     uplift: '-',
     chanceToWin: '-',
+    traffic: 33,
     variables: [],
   },
 ])
@@ -1425,6 +1448,14 @@ const campaignProductPages = computed(() => {
   const variantsWithVars = variants.filter(v => v.variables.length > 0)
   if (!variantsWithVars.length) return 0
   return Math.min(...variantsWithVars.map(v => readyCount(v)))
+})
+
+const winningVariantId = computed(() => {
+  const scored = variants
+    .map(v => ({ id: v.id, score: parseFloat(String(v.chanceToWin).replace('%', '')) }))
+    .filter(v => !isNaN(v.score))
+  if (!scored.length) return null
+  return scored.reduce((a, b) => (a.score >= b.score ? a : b)).id
 })
 
 const campaignTotalProducts = computed(() => {
@@ -1718,8 +1749,42 @@ const tooltipStyle = computed(() => {
 const selectedTimePeriod = ref('Last 30 days')
 const timePeriodOptions = ['Last 7 days', 'Last 30 days', 'Last 90 days', 'Last 12 months']
 
+const primaryGoal = ref('Order')
+const goalValues = ['Submit', 'Order', 'Add to cart', 'Email capture', 'Phone capture']
 const selectedGoal = ref('Order')
-const goalOptions = ['Submit', 'Order', 'Email capture', 'Phone capture']
+const goalOptions = computed(() =>
+  goalValues.map(v => ({
+    value: v,
+    label: v === primaryGoal.value ? `${v} (primary)` : v
+  }))
+)
+
+// A/B test settings
+const autoStopEnabled = ref(true)
+const autoStopThreshold = ref(95)
+const trafficEvenlySplit = ref(true)
+
+const updateVariantTraffic = (index, value) => {
+  const v = Math.max(0, Math.min(100, Number(value) || 0))
+  if (trafficEvenlySplit.value) trafficEvenlySplit.value = false
+  const others = variants.filter((_, i) => i !== index)
+  const remaining = 100 - v
+  const othersTotal = others.reduce((sum, o) => sum + (o.traffic || 0), 0) || 1
+  variants[index].traffic = v
+  others.forEach((o, i) => {
+    const idx = variants.indexOf(o)
+    variants[idx].traffic = Math.round((o.traffic / othersTotal) * remaining)
+  })
+}
+
+const toggleEvenlySplit = () => {
+  trafficEvenlySplit.value = !trafficEvenlySplit.value
+  if (trafficEvenlySplit.value) {
+    const even = Math.floor(100 / variants.length)
+    const remainder = 100 - (even * variants.length)
+    variants.forEach((v, i) => { v.traffic = i === 0 ? even + remainder : even })
+  }
+}
 
 const handleLogoClick = () => {
   // Navigate back to home

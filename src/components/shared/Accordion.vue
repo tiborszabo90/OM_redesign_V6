@@ -1,12 +1,12 @@
 <template>
-  <div :class="['relative bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] transition-shadow duration-300 ease-in-out overflow-hidden', disabled ? 'opacity-50' : 'hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)]']">
+  <div :class="['relative bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] transition-shadow duration-300 ease-in-out overflow-hidden', disabled ? 'opacity-50' : 'hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)]']">
     <button
       @click="!disabled && $emit('toggle')"
-      :class="['w-full px-7 py-6 flex items-center justify-between text-left transition-colors rounded-lg', disabled ? 'cursor-not-allowed' : 'cursor-pointer']"
+      :class="['w-full pl-4 pr-7 py-4 flex items-center justify-between text-left transition-colors rounded-2xl', disabled ? 'cursor-not-allowed' : 'cursor-pointer']"
     >
       <div class="flex items-center gap-3">
         <div v-if="hasIcon" class="accordion-icon">
-          <div :class="['rounded-full flex items-center justify-center shrink-0', iconSize, iconBg]">
+          <div :class="['flex items-center justify-center shrink-0', iconRounded, iconSize, iconBg]">
             <slot name="icon" />
           </div>
         </div>
@@ -21,7 +21,7 @@
         />
       </div>
     </button>
-    <div v-if="open" class="px-7 pb-8 pt-2">
+    <div v-if="open" :class="['pb-8 pt-2 pr-7', hasIcon ? 'pl-17' : 'pl-7']">
       <slot />
     </div>
   </div>
@@ -50,6 +50,10 @@ defineProps({
   iconSize: {
     type: String,
     default: 'w-10 h-10'
+  },
+  iconRounded: {
+    type: String,
+    default: 'rounded-full'
   },
   disabled: {
     type: Boolean,
