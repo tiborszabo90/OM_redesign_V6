@@ -344,13 +344,24 @@
           <!-- When will the popup show up -->
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('showUp')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">When will the popup show up</h3>
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
-                <Clock :size="20" class="text-white" />
+            <div class="space-y-4">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
+                  <LogOut :size="20" class="text-white" />
+                </div>
+                <div class="flex-1">
+                  <div class="text-sm font-semibold text-om-gray-700">On exit-intent</div>
+                  <div class="text-xs text-om-gray-500 mt-0.5">When a visitor is about to leave your site</div>
+                </div>
               </div>
-              <div class="flex-1">
-                <div class="text-sm font-semibold text-om-gray-700">On exit-intent · After 20s inactivity</div>
-                <div class="text-xs text-om-gray-500 mt-0.5">The popup will show when a visitor is about to leave or has been <span class="font-semibold text-om-gray-800">inactive for 20 seconds</span></div>
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
+                  <Clock :size="20" class="text-white" />
+                </div>
+                <div class="flex-1">
+                  <div class="text-sm font-semibold text-om-gray-700">After 20s inactivity</div>
+                  <div class="text-xs text-om-gray-500 mt-0.5">When a visitor is inactive for <span class="font-semibold text-om-gray-800">20 seconds</span></div>
+                </div>
               </div>
             </div>
           </div>
@@ -385,7 +396,7 @@
             <div class="space-y-4">
               <div class="flex items-center gap-3">
                 <div class="w-9 h-9 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
-                  <Clock :size="20" class="text-white" />
+                  <Timer :size="20" class="text-white" />
                 </div>
                 <div class="flex-1">
                   <div class="text-sm font-semibold text-om-gray-700">Spent on pages</div>
@@ -803,7 +814,7 @@
                 <div class="trigger-card">
                   <div class="flex items-center gap-3">
                     <div class="w-12 h-12 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
-                      <Clock :size="28" class="text-white" />
+                      <Timer :size="28" class="text-white" />
                     </div>
                     <div class="flex-1">
                       <div class="text-sm font-semibold text-om-gray-700">Spent on pages</div>
@@ -1040,7 +1051,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3 } from 'lucide-vue-next'
+import { ChevronDown, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer } from 'lucide-vue-next'
 import Button from '../components/shared/Button.vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
