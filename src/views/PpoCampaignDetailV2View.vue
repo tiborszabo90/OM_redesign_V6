@@ -383,7 +383,12 @@
               @click="$emit('navigate', 'ppo-variant-detail-v2')"
             >
               <div class="flex items-center gap-3">
-                <div v-if="variant.variables.length" class="w-36 h-24 rounded-lg border border-om-gray-200 overflow-hidden shrink-0 flex flex-col bg-white px-2 pt-0.5 pb-1 gap-0.5">
+                <div
+                  v-if="variant.variables.length"
+                  class="w-36 h-24 rounded-lg border border-om-gray-200 overflow-hidden shrink-0 flex flex-col bg-white px-2 pt-0.5 pb-1 gap-0.5 relative"
+                  @mouseenter="handleThumbEnter($event, variant.id)"
+                  @mouseleave="handleThumbLeave()"
+                >
                   <div class="h-6 flex gap-1.5 items-center shrink-0">
                     <div class="h-full aspect-square bg-gray-200 rounded-sm shrink-0"></div>
                     <div class="flex-1 flex flex-col justify-center gap-0.5">
@@ -400,6 +405,14 @@
                     <div class="flex-1 bg-gray-200 rounded-sm"></div>
                     <div class="flex-1 bg-gray-200 rounded-sm"></div>
                   </div>
+                  <!-- Hover preview -->
+                  <transition name="fade">
+                    <div v-if="hoveredImage === variant.id" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
+                      <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
+                        <img src="/SPP1.png" alt="Product Summary" class="w-96 h-auto rounded-lg" />
+                      </div>
+                    </div>
+                  </transition>
                 </div>
                 <div v-else class="w-36 h-24 rounded-lg border border-om-gray-200 overflow-hidden shrink-0 flex items-center justify-center bg-om-gray-100">
                   <Ban :size="60" :stroke-width="1" class="text-om-gray-300" />
@@ -497,26 +510,28 @@
             :open="openAccordion === 'productPages'"
             @toggle="toggleAccordion('productPages')"
           >
-            <div class="flex overflow-hidden">
-              <div class="w-96 shrink-0 px-5 py-5 bg-om-gray-50 flex flex-col justify-center mr-8 rounded-xl">
-                <div class="flex items-start justify-between mb-3">
-                  <div class="flex items-center gap-2.5">
-                    <div class="relative w-14 h-14 shrink-0">
-                      <svg class="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
-                        <circle cx="28" cy="28" r="22" fill="none" stroke="#e3e5e8" stroke-width="7" />
-                        <circle cx="28" cy="28" r="22" fill="none" stroke="#2CC896" stroke-width="7" stroke-linecap="round" :stroke-dasharray="`${(campaignProductPages / campaignTotalProducts) * 138.2} 138.2`" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div class="text-[2rem] font-light text-om-gray-700 tabular-nums leading-none font-['Funnel_Sans']">{{ campaignProductPages }}<span class="text-base text-om-gray-500 font-normal"> / {{ campaignTotalProducts }}</span></div>
-                      <div class="text-sm text-om-gray-500 mt-1">product pages ready</div>
+            <p class="text-base text-om-gray-500 mb-5">The campaign runs on product pages where all variables are generated.</p>
+            <div class="flex gap-8 items-start overflow-hidden">
+              <div class="w-96 shrink-0 px-5 py-5 bg-om-gray-50 flex flex-col justify-center rounded-xl">
+                <div class="flex items-center gap-4 mb-4">
+                  <div class="relative w-20 h-20 shrink-0">
+                    <svg class="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+                      <circle cx="40" cy="40" r="32" fill="none" stroke="#e3e5e8" stroke-width="8" />
+                      <circle cx="40" cy="40" r="32" fill="none" stroke="#2CC896" stroke-width="8" stroke-linecap="round" :stroke-dasharray="`${(campaignProductPages / campaignTotalProducts) * 201.06} 201.06`" />
+                    </svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline gap-2">
+                      <span class="text-[2rem] font-light text-om-gray-700 tabular-nums leading-none font-['Funnel_Sans']">{{ campaignProductPages }}<span class="text-base text-om-gray-500 font-normal"> / {{ campaignTotalProducts }}</span></span>
+                      <span class="text-sm text-om-gray-500">product pages ready</span>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" class="shrink-0">Product catalog</Button>
                 </div>
-                <div class="text-xs text-om-gray-400 leading-relaxed">The campaign will appear on <span class="font-semibold text-om-gray-700">{{ campaignProductPages }}/{{ campaignTotalProducts }} product pages</span> that have all variables generated.</div>
+                <div class="flex justify-end">
+                  <Button variant="outline" size="sm">Product catalog</Button>
+                </div>
               </div>
-              <div class="flex-1">
+              <div class="flex-1 min-w-0">
                 <div class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 pb-2 border-b border-om-gray-100 text-xs text-om-gray-500 font-medium">
                   <span>Variable</span>
                   <span>Type</span>
@@ -1678,13 +1693,26 @@ onUnmounted(() => {
 
 // Hover states for image preview
 const hoveredImage = ref(null)
+const hoveredRect = ref(null)
 
-// Tooltip positioning
-const tooltipStyle = computed(() => ({
-  left: '50%',
-  top: '50%',
-  transform: 'translate(-50%, -50%)'
-}))
+const handleThumbEnter = (event, key) => {
+  hoveredImage.value = key
+  hoveredRect.value = event.currentTarget.getBoundingClientRect()
+}
+
+const handleThumbLeave = () => {
+  hoveredImage.value = null
+  hoveredRect.value = null
+}
+
+// Tooltip positioning — to the right of the hovered thumbnail
+const tooltipStyle = computed(() => {
+  if (!hoveredRect.value) return {}
+  return {
+    left: (hoveredRect.value.right + 12) + 'px',
+    top: hoveredRect.value.top + 'px',
+  }
+})
 
 // Dropdown data
 const selectedTimePeriod = ref('Last 30 days')

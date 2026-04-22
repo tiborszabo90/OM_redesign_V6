@@ -24,8 +24,8 @@
 
             <!-- Social login buttons view -->
             <template v-if="currentStep === 'buttons'">
-              <h2 class="text-4xl font-bold text-om-gray-700 mb-1">Create your free account</h2>
-              <p class="text-om-gray-500 mb-8">and unlock your full optimization plan</p>
+              <h2 class="text-4xl font-bold text-om-gray-700 mb-1 text-center">Create your free account</h2>
+              <p class="text-om-gray-500 mb-8 text-center">and unlock your full optimization plan</p>
 
               <div class="flex flex-col gap-3">
                 <Button variant="outline" size="lg" class="w-full" @click="currentStep = 'email-form'">
@@ -63,8 +63,8 @@
 
             <!-- Email registration form view -->
             <template v-else-if="currentStep === 'email-form'">
-              <h2 class="text-4xl font-bold text-om-gray-700 mb-1">Create your free account</h2>
-              <p class="text-om-gray-500 mb-6">and unlock your full optimization plan</p>
+              <h2 class="text-4xl font-bold text-om-gray-700 mb-1 text-center">Create your free account</h2>
+              <p class="text-om-gray-500 mb-6 text-center">and unlock your full optimization plan</p>
 
               <form @submit.prevent="handleEmailSubmit" class="space-y-3">
                 <div class="flex gap-3">

@@ -125,7 +125,7 @@
     </div>
 
     <!-- Messages area (only rendered when there are messages) -->
-    <div v-else ref="chatMessagesContainer" :class="['flex-1 overflow-y-auto pb-4 chat-panel-scroll', isWideMode ? 'px-4' : '']">
+    <div v-else ref="chatMessagesContainer" :class="['flex-1 overflow-y-auto pb-4 chat-panel-scroll chat-panel-fade', isWideMode ? 'px-4' : '']">
       <div :class="isWideMode && wideCompact ? 'mx-auto space-y-3' : 'space-y-3'" :style="isWideMode && wideCompact ? { maxWidth: '65%' } : {}">
       <!-- Message loop -->
       <div v-for="(msg, index) in messages" :key="index" class="flex" :class="msg.type === 'user' ? 'justify-end' : 'justify-start'">
@@ -183,21 +183,40 @@
                 <div v-if="card.reason" class="text-om-gray-500 mt-0.5 leading-snug text-xs">{{ card.reason }}</div>
               </div>
               <!-- Wide mode: horizontal layout (image left, text right) — skip for vertical layout -->
-              <div v-else-if="isWideMode && !msg.hideLabels && card.image && msg.layout !== 'vertical'" class="flex h-40">
-                <div class="w-1/2 shrink-0 overflow-hidden" :style="{ backgroundColor: card.bgColor || '' }" :class="!card.bgColor ? 'bg-om-gray-100' : ''">
+              <div v-else-if="isWideMode && !msg.hideLabels && (card.image || card.number) && msg.layout !== 'vertical'" class="flex bg-white" :class="card.number ? 'h-20' : 'h-40'">
+                <div
+                  v-if="card.number"
+                  class="shrink-0 flex items-center justify-center pl-2"
+                >
+                  <div class="w-16 h-16 rounded-md bg-om-gray-100 text-om-gray-700 font-semibold text-3xl flex items-center justify-center">
+                    {{ card.number }}
+                  </div>
+                </div>
+                <div
+                  v-else
+                  class="w-1/2 shrink-0 overflow-hidden"
+                  :style="{ backgroundColor: card.bgColor || '' }"
+                  :class="!card.bgColor ? 'bg-om-gray-100' : ''"
+                >
                   <img :src="card.image" :alt="card.label" :class="card.bgColor ? 'w-[88%] h-full object-contain m-auto' : 'w-full h-full object-cover object-top'" />
                 </div>
-                <div class="px-4 py-3 flex-1 flex flex-col justify-center">
-                  <div class="font-medium text-om-gray-700 text-sm">{{ card.label }}</div>
-                  <div v-if="card.description" class="text-om-gray-400 mt-0.5 leading-snug text-xs">{{ card.description }}</div>
-                  <div v-if="card.reason" class="text-om-gray-500 mt-1.5 leading-snug italic text-xs">{{ card.reason }}</div>
+                <div class="px-3 py-2 flex-1 flex flex-col justify-center min-w-0">
+                  <div class="font-semibold text-om-gray-700 text-sm">{{ card.label }}</div>
+                  <div v-if="card.description" class="text-om-gray-400 mt-0.5 leading-snug text-sm">{{ card.description }}</div>
+                  <div v-if="card.reason" class="text-om-gray-500 mt-0.5 leading-snug text-sm">{{ card.reason }}</div>
                 </div>
               </div>
               <!-- Vertical layout: image only or no labels -->
               <template v-else>
-                <div class="aspect-video overflow-hidden" :style="{ backgroundColor: card.bgColor || '' }" :class="!card.bgColor ? 'bg-om-gray-100' : ''">
+                <div
+                  class="aspect-video overflow-hidden"
+                  :class="[
+                    !card.image ? 'p-2 bg-white' : !card.bgColor ? 'bg-om-gray-100' : ''
+                  ]"
+                  :style="{ backgroundColor: card.bgColor || '' }"
+                >
                   <img v-if="card.image" :src="card.image" :alt="card.label" class="w-full h-full object-cover object-top" />
-                  <div v-else class="w-full h-full bg-om-gray-200"></div>
+                  <div v-else class="w-full h-full bg-om-gray-200 rounded-md"></div>
                 </div>
                 <div v-if="!msg.hideLabels" :class="isWideMode ? 'px-3 py-2.5' : 'px-2.5 py-2'">
                   <div class="font-medium text-om-gray-700" :class="isWideMode ? 'text-sm' : 'text-xs'">{{ card.label }}</div>
@@ -453,11 +472,13 @@ onUnmounted(() => {
 const cardClasses = (card, msg) => {
   const base = 'image-card group rounded-xl overflow-hidden text-left transition-all duration-200'
 
-  if (props.inline) return `${base} opacity-70 border border-om-gray-200`
+  if (props.inline) return `${base} opacity-70 border-2 border-om-gray-200`
 
   const selected = selectedCardId.value === card.id
-  const border = selected ? 'border border-om-gray-600 shadow-md' : 'border border-om-gray-200'
-  return `${base} ${border} cursor-pointer hover:shadow-lg hover:scale-[1.03] focus:outline-none`
+  if (selected) {
+    return `${base} border-2 border-om-orange-500 shadow-[0_4px_14px_rgba(237,90,41,0.4)] cursor-pointer focus:outline-none`
+  }
+  return `${base} border-2 border-om-gray-200 cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03] focus:outline-none`
 }
 
 const formatChatMessage = (text) => {
@@ -704,6 +725,12 @@ defineExpose({ pushMessage, messages })
 }
 .chat-panel-scroll:hover::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.2);
+}
+
+/* Fade bottom of scrollable messages so content fades behind the input */
+.chat-panel-fade {
+  mask-image: linear-gradient(to bottom, black calc(100% - 24px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 24px), transparent 100%);
 }
 
 /* Chat FAB pulse animation */

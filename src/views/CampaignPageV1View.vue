@@ -217,8 +217,8 @@
               <div class="col-span-5 flex items-center gap-2.5">
                 <div
                   class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
-                  @mouseenter="hoveredImage = 'variant1'"
-                  @mouseleave="hoveredImage = null"
+                  @mouseenter="handleThumbEnter($event, 'variant1')"
+                  @mouseleave="handleThumbLeave()"
                 >
                   <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
                   <!-- Tooltip -->
@@ -254,8 +254,8 @@
               <div class="col-span-5 flex items-center gap-2.5">
                 <div
                   class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
-                  @mouseenter="hoveredImage = 'variant2'"
-                  @mouseleave="hoveredImage = null"
+                  @mouseenter="handleThumbEnter($event, 'variant2')"
+                  @mouseleave="handleThumbLeave()"
                 >
                   <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
                   <!-- Tooltip -->
@@ -322,13 +322,23 @@
           <!-- How often can it appear -->
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('howMany')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">How often can it appear</h3>
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
-                <RefreshCw :size="20" class="text-white" />
+            <div class="grid grid-cols-3 gap-10 w-3/4">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
+                  <RefreshCw :size="20" class="text-white" />
+                </div>
+                <div>
+                  <div class="text-sm font-semibold text-om-gray-700">How many times</div>
+                  <div class="text-xs text-om-gray-500 mt-0.5">Maximum 2 times</div>
+                </div>
               </div>
-              <div class="flex-1">
-                <div class="text-sm font-semibold text-om-gray-700">Maximum 3 times</div>
-                <div class="text-xs text-om-gray-500 mt-0.5">Max <span class="font-semibold text-om-gray-800">1 session</span> between impressions, stops after a visitor has converted</div>
+              <div>
+                <div class="text-sm font-semibold text-om-gray-700">How frequently</div>
+                <div class="text-xs text-om-gray-500 mt-0.5">Min 1 hour(s) between two impressions</div>
+              </div>
+              <div>
+                <div class="text-sm font-semibold text-om-gray-700">Stop Showing</div>
+                <div class="text-xs text-om-gray-500 mt-0.5">After a visitor has converted in this campaign</div>
               </div>
             </div>
           </div>
@@ -848,13 +858,26 @@ const variant2Active = ref(true)
 
 // Hover states for image preview
 const hoveredImage = ref(null)
+const hoveredRect = ref(null)
 
-// Tooltip positioning
-const tooltipStyle = computed(() => ({
-  left: '50%',
-  top: '50%',
-  transform: 'translate(-50%, -50%)'
-}))
+const handleThumbEnter = (event, key) => {
+  hoveredImage.value = key
+  hoveredRect.value = event.currentTarget.getBoundingClientRect()
+}
+
+const handleThumbLeave = () => {
+  hoveredImage.value = null
+  hoveredRect.value = null
+}
+
+// Tooltip positioning — to the right of the hovered thumbnail
+const tooltipStyle = computed(() => {
+  if (!hoveredRect.value) return {}
+  return {
+    left: (hoveredRect.value.right + 12) + 'px',
+    top: hoveredRect.value.top + 'px',
+  }
+})
 
 // Dropdown data
 const selectedTimePeriod = ref('Last 30 days')
