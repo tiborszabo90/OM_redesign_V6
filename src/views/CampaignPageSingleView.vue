@@ -137,55 +137,26 @@
         <div v-if="activeTab === 'Overview'">
         <!-- Metrics Section -->
         <div class="bg-om-gray-100 rounded-xl mb-6 relative">
-          <div class="grid grid-cols-[minmax(0,12fr)_minmax(0,9fr)_minmax(0,3fr)] gap-4">
-          <!-- Conversion Uplift -->
-          <div class="pl-8 py-8">
-            <div class="text-base text-om-gray-600 mb-3">Conversion uplift</div>
-            <div class="flex items-center gap-5">
-              <div class="flex items-end gap-2 shrink-0">
-                <span class="text-[3rem] font-light text-om-gray-700 leading-none font-['Funnel_Sans']">+18.52%</span>
-                <TrendingUp :size="24" class="text-[#2CC896]" />
-              </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold text-om-gray-600 whitespace-nowrap">A/B test running</span>
-                  <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
-                  </span>
-                  <Button v-if="autoStopEnabled" variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">
-                    <template #icon><Zap :size="14" /></template>
-                    Declare winner at {{ autoStopThreshold }}%
-                  </Button>
-                </div>
-                <div class="text-sm text-om-gray-500 -mt-0.5 whitespace-nowrap">
-                  <span class="font-medium text-om-gray-600">AI Variant</span>
-                  leading · 9.23% chance to win
-                </div>
-              </div>
-            </div>
-          </div>
-
+          <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-4">
           <!-- Key Metrics -->
-          <div class="py-8 relative pl-1 pr-24">
-            <div class="w-px bg-om-gray-200 absolute inset-y-6 -left-5"></div>
+          <div class="py-8 pl-8 pr-8">
             <div class="text-base text-om-gray-600 mb-4">Key metrics</div>
             <div class="flex items-center gap-4">
-              <div class="flex-1">
+              <div class="shrink-0 w-24">
                 <div class="text-xs text-om-gray-400 mb-0.5">Impressions</div>
                 <div class="text-xl font-semibold text-om-gray-700">1,456</div>
               </div>
               <svg width="12" height="44" viewBox="0 0 12 44" fill="none" class="text-om-gray-300">
                 <path d="M2 4L10 22L2 40" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              <div class="flex-1">
+              <div class="shrink-0 w-24">
                 <div class="text-xs text-om-gray-400 mb-0.5">Submits</div>
                 <div class="text-xl font-semibold text-om-gray-700">125</div>
               </div>
               <svg width="12" height="44" viewBox="0 0 12 44" fill="none" class="text-om-gray-300">
                 <path d="M2 4L10 22L2 40" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              <div class="flex-1">
+              <div class="shrink-0 w-24">
                 <div class="text-xs text-om-gray-400 mb-0.5">Submit rate</div>
                 <div class="text-xl font-semibold text-om-gray-700">8.37%</div>
               </div>
@@ -220,20 +191,17 @@
           <!-- Variants Table -->
           <div class="space-y-0">
             <!-- Header -->
-            <div class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_100px_36px] gap-3 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
+            <div class="grid grid-cols-[1fr_80px_120px_120px_120px_36px] gap-6 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
               <div>Variants</div>
               <div>Active</div>
-              <div class="pl-3">Traffic</div>
               <div class="text-right">Impression</div>
               <div class="text-right">Submits</div>
               <div class="text-right">Submit rate</div>
-              <div class="text-right">Uplift</div>
-              <div class="text-right">Chance to win</div>
               <div></div>
             </div>
 
             <!-- Variant Row 1 -->
-            <div class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_100px_36px] gap-3 items-center py-3 border-b border-om-gray-100 group cursor-pointer" @click="emit('navigate', 'editor')">
+            <div class="grid grid-cols-[1fr_80px_120px_120px_120px_36px] gap-6 items-center py-3 group cursor-pointer" @click="emit('navigate', 'editor')">
               <div class="flex items-center gap-2.5">
                 <div
                   class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
@@ -241,7 +209,6 @@
                   @mouseleave="handleThumbLeave()"
                 >
                   <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
-                  <!-- Tooltip -->
                   <transition name="fade">
                     <div v-if="hoveredImage === 'variant1'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
                       <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
@@ -255,57 +222,9 @@
               <div @click.stop>
                 <ToggleSwitch v-model="variant1Active" />
               </div>
-              <div @click.stop>
-                <Button variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">{{ variant1Traffic }}%</Button>
-              </div>
-              <div class="text-base font-semibold text-om-gray-700 text-right">12,593</div>
-              <div class="text-base font-semibold text-om-gray-700 text-right">650</div>
-              <div class="text-base font-semibold text-om-gray-700 text-right">7.25%</div>
-              <div class="text-base font-semibold text-[#10B981] flex items-center gap-1 justify-end">
-                0.77%
-                <TrendingUp :size="16" class="text-[#2CC896]" />
-              </div>
-              <div class="text-base font-semibold text-om-gray-400 text-right">-</div>
-              <!-- Kebab Menu -->
-              <div class="flex items-center justify-end">
-                <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
-              </div>
-            </div>
-
-            <!-- Variant Row 2 -->
-            <div class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_100px_36px] gap-3 items-center py-3 group cursor-pointer" @click="emit('navigate', 'editor')">
-              <div class="flex items-center gap-2.5">
-                <div
-                  class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
-                  @mouseenter="handleThumbEnter($event, 'variant2')"
-                  @mouseleave="handleThumbLeave()"
-                >
-                  <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
-                  <!-- Tooltip -->
-                  <transition name="fade">
-                    <div v-if="hoveredImage === 'variant2'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
-                      <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-                        <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper Large" class="w-96 h-auto rounded-lg" />
-                      </div>
-                    </div>
-                  </transition>
-                </div>
-                <span class="text-sm font-medium text-om-gray-700">AI Variant</span>
-              </div>
-              <div @click.stop>
-                <ToggleSwitch v-model="variant2Active" />
-              </div>
-              <div @click.stop>
-                <Button variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">{{ variant2Traffic }}%</Button>
-              </div>
-              <div class="text-base font-semibold text-om-gray-700 text-right">12,593</div>
-              <div class="text-base font-semibold text-om-gray-700 text-right">650</div>
-              <div class="text-base font-semibold text-om-gray-700 text-right">7.25%</div>
-              <div class="text-base font-semibold text-[#10B981] flex items-center gap-1 justify-end">
-                +18.52%
-                <TrendingUp :size="16" class="text-[#2CC896]" />
-              </div>
-              <div class="text-base font-semibold text-om-gray-400 text-right">9.23%</div>
+              <div class="text-base font-semibold text-om-gray-700 text-right">1,456</div>
+              <div class="text-base font-semibold text-om-gray-700 text-right">125</div>
+              <div class="text-base font-semibold text-om-gray-700 text-right">8.37%</div>
               <!-- Kebab Menu -->
               <div class="flex items-center justify-end">
                 <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
@@ -570,90 +489,6 @@
               <Dropdown v-model="primaryGoal" :options="goalValues" />
             </div>
           </div>
-
-          <!-- A/B test -->
-          <Accordion
-            title="A/B test"
-            :open="openAccordion === 'abTest'"
-            @toggle="toggleAccordion('abTest')"
-            icon-rounded="rounded-xl"
-            icon-bg="bg-om-orange-100"
-          >
-            <template #icon><FlaskConical :size="20" class="text-om-orange-400" /></template>
-            <div class="grid grid-cols-2 gap-8">
-              <!-- Traffic share -->
-              <section>
-                <h4 class="text-base font-semibold text-om-gray-700 mb-3">Traffic share</h4>
-
-                <div class="mb-3 space-y-2">
-                  <div class="flex items-center justify-between py-1">
-                    <span class="text-sm font-medium text-om-gray-700">Klaviyo Popup</span>
-                    <div class="relative">
-                      <input
-                        type="number"
-                        :value="variant1Traffic"
-                        @input="updateTrafficShare('v1', $event.target.value)"
-                        min="0"
-                        max="100"
-                        step="1"
-                        class="w-20 pl-3 pr-8 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums text-right"
-                      />
-                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
-                    </div>
-                  </div>
-                  <div class="flex items-center justify-between py-1">
-                    <span class="text-sm font-medium text-om-gray-700">AI Variant</span>
-                    <div class="relative">
-                      <input
-                        type="number"
-                        :value="variant2Traffic"
-                        @input="updateTrafficShare('v2', $event.target.value)"
-                        min="0"
-                        max="100"
-                        step="1"
-                        class="w-20 pl-3 pr-8 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums text-right"
-                      />
-                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <Checkbox :model-value="trafficEvenlySplit" @update:model-value="toggleEvenlySplit" label="Evenly split" />
-                  <p class="text-sm text-om-gray-500 mt-1">Equally distribute weight percentage across all groups</p>
-                </div>
-              </section>
-
-              <!-- Auto-declare winner -->
-              <section class="pl-8 border-l border-om-gray-100">
-                <h4 class="text-base font-semibold text-om-gray-700 mb-3">Auto-declare winner</h4>
-
-                <div class="flex items-center gap-3">
-                  <ToggleSwitch v-model="autoStopEnabled" />
-                  <div
-                    class="flex items-center gap-2 text-sm text-om-gray-600 transition-opacity"
-                    :class="{ 'opacity-50': !autoStopEnabled }"
-                  >
-                    <span>Declare winner at</span>
-                    <div class="relative">
-                      <input
-                        type="number"
-                        v-model.number="autoStopThreshold"
-                        :disabled="!autoStopEnabled"
-                        min="50"
-                        max="100"
-                        step="1"
-                        class="w-20 pl-3 pr-7 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums disabled:cursor-not-allowed disabled:bg-om-gray-50"
-                      />
-                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
-                    </div>
-                    <span>chance to win</span>
-                  </div>
-                </div>
-                <p class="text-sm text-om-gray-500 mt-2">Once a variant reaches this chance to win, losing variants are turned off and only the winner keeps running.</p>
-              </section>
-            </div>
-          </Accordion>
 
           <!-- When would you like this campaign to show up? -->
           <Accordion
@@ -1106,7 +941,7 @@ const openSettingsAccordion = (section) => {
 }
 
 // Tab routing — each tab gets its own URL
-const VIEW_SLUG = 'campaign-detail'
+const VIEW_SLUG = 'campaign-detail-single'
 const TAB_SLUGS = { Overview: '', Settings: 'settings', Submits: 'submits', Analytics: 'analytics' }
 const SLUG_TO_TAB = { '': 'Overview', settings: 'Settings', submits: 'Submits', analytics: 'Analytics' }
 

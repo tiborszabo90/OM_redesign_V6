@@ -475,7 +475,7 @@
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('productPages')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">Where the campaign will appear</h3>
             <div class="flex items-center gap-3">
-              <div class="w-9 h-9 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
+              <div class="w-9 h-9 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
                 <Globe :size="20" class="text-white" />
               </div>
               <div class="flex-1">
@@ -489,7 +489,7 @@
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('whoSee')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">Who should see the campaign</h3>
             <div class="flex items-center gap-3">
-              <div class="w-9 h-9 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
+              <div class="w-9 h-9 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
                 <Users :size="20" class="text-white" />
               </div>
               <div class="flex-1">
