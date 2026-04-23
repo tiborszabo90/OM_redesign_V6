@@ -8,7 +8,30 @@
 
             <!-- Step 0: Page scanning with Lottie scanner overlay -->
             <div v-if="currentStep === 0" key="s0" class="relative">
-              <img src="/SPP_loader1.svg?v=2" class="w-60 relative z-0" />
+              <svg width="236" height="151" viewBox="0 0 236 151" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-60 relative z-0">
+                <defs>
+                  <linearGradient id="skeletonShimmerScan" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="80" y2="0">
+                    <stop offset="0%" stop-color="#E3E5E8"/>
+                    <stop offset="50%" stop-color="#F5F6F8"/>
+                    <stop offset="100%" stop-color="#E3E5E8"/>
+                    <animate attributeName="x1" values="-80;236" dur="1.8s" repeatCount="indefinite"/>
+                    <animate attributeName="x2" values="0;316" dur="1.8s" repeatCount="indefinite"/>
+                  </linearGradient>
+                </defs>
+                <rect x="1" y="1" width="234" height="149" rx="7" stroke="#F1F2F4" stroke-width="2"/>
+                <rect x="12" y="12" width="62" height="62" rx="4" fill="url(#skeletonShimmerScan)"/>
+                <rect x="12" y="80" width="18" height="18" rx="4" fill="url(#skeletonShimmerScan)"/>
+                <rect x="34" y="80" width="18" height="18" rx="4" fill="url(#skeletonShimmerScan)"/>
+                <rect x="56" y="80" width="18" height="18" rx="4" fill="url(#skeletonShimmerScan)"/>
+                <rect x="83" y="12" width="99" height="12" rx="4" fill="url(#skeletonShimmerScan)"/>
+                <rect x="83" y="62" width="42" height="12" rx="4" fill="url(#skeletonShimmerScan)"/>
+                <rect x="83" y="31" width="56" height="6" rx="3" fill="url(#skeletonShimmerScan)"/>
+                <rect x="83" y="40" width="76" height="6" rx="3" fill="url(#skeletonShimmerScan)"/>
+                <rect x="12" y="105" width="185" height="6" rx="3" fill="url(#skeletonShimmerScan)"/>
+                <rect x="12" y="114" width="212" height="6" rx="3" fill="url(#skeletonShimmerScan)"/>
+                <rect x="12" y="124" width="157" height="6" rx="3" fill="url(#skeletonShimmerScan)"/>
+                <rect x="12" y="133" width="212" height="6" rx="3" fill="url(#skeletonShimmerScan)"/>
+              </svg>
               <DotLottieVue
                 src="https://lottie.host/3ac1aa01-5f66-42cb-a30f-cd070359a648/UwHQ4qaeYo.lottie"
                 autoplay

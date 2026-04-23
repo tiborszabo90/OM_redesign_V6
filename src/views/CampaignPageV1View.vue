@@ -148,15 +148,21 @@
               </div>
               <div class="min-w-0">
                 <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold text-om-gray-700 whitespace-nowrap">A/B test running</span>
+                  <span class="text-sm font-semibold text-om-gray-600 whitespace-nowrap">A/B test running</span>
                   <span class="relative flex h-2 w-2">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
                   </span>
                 </div>
-                <div class="text-sm text-om-gray-500 mt-0.5 whitespace-nowrap">
-                  <span class="font-medium text-om-gray-700">AI Variant</span>
-                  is leading (9.23% chance to win)
+                <div class="flex items-center gap-1 text-sm text-om-gray-500 mt-0.5 whitespace-nowrap">
+                  <span>
+                    <span class="font-medium text-om-gray-600">AI Variant</span>
+                    leading with 9.23%
+                  </span>
+                  <Button v-if="autoStopEnabled" variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">
+                    <template #icon><Zap :size="14" /></template>
+                    Stop at {{ autoStopThreshold }}%
+                  </Button>
                 </div>
               </div>
             </div>
@@ -216,20 +222,20 @@
           <!-- Variants Table -->
           <div class="space-y-0">
             <!-- Header -->
-            <div class="grid grid-cols-[minmax(0,4fr)_repeat(7,minmax(0,1fr))_auto] gap-1 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
+            <div class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_100px_36px] gap-3 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
               <div>Variants</div>
               <div>Active</div>
+              <div class="pl-3">Traffic</div>
               <div class="text-right">Impression</div>
               <div class="text-right">Submits</div>
               <div class="text-right">Submit rate</div>
               <div class="text-right">Uplift</div>
               <div class="text-right">Chance to win</div>
-              <div class="text-right pr-3">Traffic</div>
-              <div class="w-8"></div>
+              <div></div>
             </div>
 
             <!-- Variant Row 1 -->
-            <div class="grid grid-cols-[minmax(0,4fr)_repeat(7,minmax(0,1fr))_auto] gap-1 items-center py-3 border-b border-om-gray-100 group cursor-pointer" @click="emit('navigate', 'editor')">
+            <div class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_100px_36px] gap-3 items-center py-3 border-b border-om-gray-100 group cursor-pointer" @click="emit('navigate', 'editor')">
               <div class="flex items-center gap-2.5">
                 <div
                   class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
@@ -251,6 +257,9 @@
               <div @click.stop>
                 <ToggleSwitch v-model="variant1Active" />
               </div>
+              <div @click.stop>
+                <Button variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">{{ variant1Traffic }}%</Button>
+              </div>
               <div class="text-base font-semibold text-om-gray-700 text-right">12,593</div>
               <div class="text-base font-semibold text-om-gray-700 text-right">650</div>
               <div class="text-base font-semibold text-om-gray-700 text-right">7.25%</div>
@@ -259,9 +268,6 @@
                 <TrendingUp :size="16" class="text-[#2CC896]" />
               </div>
               <div class="text-base font-semibold text-om-gray-400 text-right">-</div>
-              <div class="flex justify-end" @click.stop>
-                <Button variant="ghost" size="sm" @click="activeTab = 'Settings'">{{ variant1Traffic }}%</Button>
-              </div>
               <!-- Kebab Menu -->
               <div class="flex items-center justify-end">
                 <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
@@ -269,7 +275,7 @@
             </div>
 
             <!-- Variant Row 2 -->
-            <div class="grid grid-cols-[minmax(0,4fr)_repeat(7,minmax(0,1fr))_auto] gap-1 items-center py-3 group cursor-pointer" @click="emit('navigate', 'editor')">
+            <div class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_100px_36px] gap-3 items-center py-3 group cursor-pointer" @click="emit('navigate', 'editor')">
               <div class="flex items-center gap-2.5">
                 <div
                   class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
@@ -291,6 +297,9 @@
               <div @click.stop>
                 <ToggleSwitch v-model="variant2Active" />
               </div>
+              <div @click.stop>
+                <Button variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">{{ variant2Traffic }}%</Button>
+              </div>
               <div class="text-base font-semibold text-om-gray-700 text-right">12,593</div>
               <div class="text-base font-semibold text-om-gray-700 text-right">650</div>
               <div class="text-base font-semibold text-om-gray-700 text-right">7.25%</div>
@@ -299,9 +308,6 @@
                 <TrendingUp :size="16" class="text-[#2CC896]" />
               </div>
               <div class="text-base font-semibold text-om-gray-400 text-right">9.23%</div>
-              <div class="flex justify-end" @click.stop>
-                <Button variant="ghost" size="sm" @click="activeTab = 'Settings'">{{ variant2Traffic }}%</Button>
-              </div>
               <!-- Kebab Menu -->
               <div class="flex items-center justify-end">
                 <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
@@ -325,20 +331,6 @@
           <div class="flex items-center justify-between">
             <h2 class="text-lg font-semibold text-om-gray-700">Settings summary</h2>
             <Button variant="outline" size="sm" @click="activeTab = 'Settings'">Edit settings</Button>
-          </div>
-
-          <!-- Primary goal -->
-          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('primaryGoal')">
-            <h3 class="text-base font-semibold text-om-gray-700 mb-4">Primary goal</h3>
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
-                <Target :size="20" class="text-white" />
-              </div>
-              <div class="flex-1">
-                <div class="text-sm font-semibold text-om-gray-700">{{ primaryGoal }}</div>
-                <div class="text-xs text-om-gray-500 mt-0.5">Success metric used to measure this campaign's performance</div>
-              </div>
-            </div>
           </div>
 
           <!-- When will the popup show up -->
@@ -1052,7 +1044,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer } from 'lucide-vue-next'
+import { ChevronDown, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap } from 'lucide-vue-next'
 import Button from '../components/shared/Button.vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'

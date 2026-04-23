@@ -298,15 +298,21 @@
               </div>
               <div class="min-w-0">
                 <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold text-om-gray-700 whitespace-nowrap">A/B test running</span>
+                  <span class="text-sm font-semibold text-om-gray-600 whitespace-nowrap">A/B test running</span>
                   <span class="relative flex h-2 w-2">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
                   </span>
                 </div>
-                <div class="text-sm text-om-gray-500 mt-0.5 whitespace-nowrap">
-                  <span class="font-medium text-om-gray-700">Product summary 1</span>
-                  is leading (91.2% chance to win)
+                <div class="flex items-center gap-1 text-sm text-om-gray-500 mt-0.5 whitespace-nowrap">
+                  <span>
+                    <span class="font-medium text-om-gray-600">Product summary 1</span>
+                    leading with 91.2%
+                  </span>
+                  <Button v-if="autoStopEnabled" variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">
+                    <template #icon><Zap :size="14" /></template>
+                    Stop at {{ autoStopThreshold }}%
+                  </Button>
                 </div>
               </div>
             </div>
@@ -364,15 +370,15 @@
         <!-- Variants + Variables Section -->
         <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 pt-5 pb-5 pl-5 pr-8">
           <!-- Header -->
-          <div class="grid grid-cols-[1fr_60px_80px_80px_80px_100px_100px_80px_36px] gap-3 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
+          <div class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_100px_36px] gap-3 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
             <div>Variants</div>
             <div>Active</div>
+            <div class="pl-3">Traffic</div>
             <div class="text-right">Visitors</div>
             <div class="text-right">Orders</div>
             <div class="text-right">Conv. R.</div>
             <div class="text-right">Uplift</div>
             <div class="text-right">Chance to win</div>
-            <div class="text-right pr-3">Traffic</div>
             <div></div>
           </div>
 
@@ -384,7 +390,7 @@
           >
             <!-- Variant header row -->
             <div
-              class="grid grid-cols-[1fr_60px_80px_80px_80px_100px_100px_80px_36px] gap-3 items-center py-4 group cursor-pointer"
+              class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_100px_36px] gap-3 items-center py-4 group cursor-pointer"
               @click="$emit('navigate', 'ppo-variant-detail-v2')"
             >
               <div class="flex items-center gap-3">
@@ -433,6 +439,9 @@
               <div @click.stop>
                 <ToggleSwitch v-model="variant.active" />
               </div>
+              <div @click.stop>
+                <Button variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">{{ variant.traffic }}%</Button>
+              </div>
               <div class="text-base font-semibold text-om-gray-700 text-right">{{ variant.visitors }}</div>
               <div class="text-base font-semibold text-om-gray-700 text-right">{{ variant.addToCart }}</div>
               <div class="text-base font-semibold text-om-gray-700 text-right">{{ variant.orderRate }}</div>
@@ -441,9 +450,6 @@
                 <TrendingUp v-if="variant.uplift.startsWith('+')" :size="16" class="text-[#2CC896]" />
               </div>
               <div class="text-base font-semibold text-om-gray-400 text-right">{{ variant.id === winningVariantId ? variant.chanceToWin : '' }}</div>
-              <div class="flex justify-end" @click.stop>
-                <Button variant="ghost" size="sm" @click="activeTab = 'Settings'">{{ variant.traffic }}%</Button>
-              </div>
               <div class="flex items-center justify-end" @click.stop>
                 <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
               </div>
@@ -1250,7 +1256,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check, Ban, Info, Globe, FlaskConical, Mail } from 'lucide-vue-next'
+import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check, Ban, Info, Globe, FlaskConical, Mail, Zap } from 'lucide-vue-next'
 import Tag from '../components/shared/Tag.vue'
 import ProductPagePreview from '../components/ppo/ProductPagePreview.vue'
 import Button from '../components/shared/Button.vue'
