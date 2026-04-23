@@ -303,16 +303,14 @@
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
                   </span>
-                </div>
-                <div class="flex items-center gap-1 text-sm text-om-gray-500 mt-0.5 whitespace-nowrap">
-                  <span>
-                    <span class="font-medium text-om-gray-600">Product summary 1</span>
-                    leading with 91.2%
-                  </span>
                   <Button v-if="autoStopEnabled" variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">
                     <template #icon><Zap :size="14" /></template>
-                    Stop at {{ autoStopThreshold }}%
+                    Declare winner at {{ autoStopThreshold }}%
                   </Button>
+                </div>
+                <div class="text-sm text-om-gray-500 -mt-0.5 whitespace-nowrap">
+                  <span class="font-medium text-om-gray-600">Product summary 1</span>
+                  leading · 91.2% chance to win
                 </div>
               </div>
             </div>
@@ -566,13 +564,13 @@
 
                 <div>
                   <Checkbox :model-value="trafficEvenlySplit" @update:model-value="toggleEvenlySplit" label="Evenly split" />
-                  <p class="text-sm text-om-gray-500 mt-1 ml-7">Equally distribute weight percentage across all groups</p>
+                  <p class="text-sm text-om-gray-500 mt-1">Equally distribute weight percentage across all groups</p>
                 </div>
               </section>
 
-              <!-- Auto-stop -->
+              <!-- Auto-declare winner -->
               <section class="pl-8 border-l border-om-gray-100">
-                <h4 class="text-base font-semibold text-om-gray-700 mb-3">Auto-stop</h4>
+                <h4 class="text-base font-semibold text-om-gray-700 mb-3">Auto-declare winner</h4>
 
                 <div class="flex items-center gap-3">
                   <ToggleSwitch v-model="autoStopEnabled" />
@@ -580,7 +578,7 @@
                     class="flex items-center gap-2 text-sm text-om-gray-600 transition-opacity"
                     :class="{ 'opacity-50': !autoStopEnabled }"
                   >
-                    <span>Stop at</span>
+                    <span>Declare winner at</span>
                     <div class="relative">
                       <input
                         type="number"
@@ -596,6 +594,7 @@
                     <span>chance to win</span>
                   </div>
                 </div>
+                <p class="text-sm text-om-gray-500 mt-2">Once a variant reaches this chance to win, losing variants are turned off and only the winner keeps running.</p>
               </section>
             </div>
           </Accordion>
