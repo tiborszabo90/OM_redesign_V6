@@ -322,22 +322,22 @@
             <div class="text-base text-om-gray-600 mb-4">Key metrics</div>
             <div class="flex items-center gap-4">
               <div class="flex-1">
-                <div class="text-xs text-om-gray-400 mb-0.5">Visitors</div>
-                <div class="text-xl font-semibold text-om-gray-700">3,812</div>
+                <div class="text-xs text-om-gray-400 mb-0.5">{{ currentKpis.label1 }}</div>
+                <div class="text-xl font-semibold text-om-gray-700">{{ currentKpis.value1 }}</div>
               </div>
               <svg width="12" height="44" viewBox="0 0 12 44" fill="none" class="text-om-gray-300">
                 <path d="M2 4L10 22L2 40" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               <div class="flex-1">
-                <div class="text-xs text-om-gray-400 mb-0.5">Orders</div>
-                <div class="text-xl font-semibold text-om-gray-700">294</div>
+                <div class="text-xs text-om-gray-400 mb-0.5">{{ currentKpis.label2 }}</div>
+                <div class="text-xl font-semibold text-om-gray-700">{{ currentKpis.value2 }}</div>
               </div>
               <svg width="12" height="44" viewBox="0 0 12 44" fill="none" class="text-om-gray-300">
                 <path d="M2 4L10 22L2 40" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
               <div class="flex-1">
-                <div class="text-xs text-om-gray-400 mb-0.5">Conversion Rate</div>
-                <div class="text-xl font-semibold text-om-gray-700">7.71%</div>
+                <div class="text-xs text-om-gray-400 mb-0.5">{{ currentKpis.label3 }}</div>
+                <div class="text-xl font-semibold text-om-gray-700">{{ currentKpis.value3 }}</div>
               </div>
             </div>
           </div>
@@ -368,13 +368,13 @@
         <!-- Variants + Variables Section -->
         <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 pt-5 pb-5 pl-5 pr-8">
           <!-- Header -->
-          <div class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_100px_36px] gap-3 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
+          <div class="grid grid-cols-[56px_1fr_60px_80px_80px_80px_100px_100px_36px] gap-3 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
+            <div class="pl-3">Traffic</div>
             <div>Variants</div>
             <div>Active</div>
-            <div class="pl-3">Traffic</div>
-            <div class="text-right">Visitors</div>
-            <div class="text-right">Orders</div>
-            <div class="text-right">Conv. R.</div>
+            <div class="text-right">{{ currentKpis.h1 }}</div>
+            <div class="text-right">{{ currentKpis.h2 }}</div>
+            <div class="text-right">{{ currentKpis.h3 }}</div>
             <div class="text-right">Uplift</div>
             <div class="text-right">Chance to win</div>
             <div></div>
@@ -388,9 +388,12 @@
           >
             <!-- Variant header row -->
             <div
-              class="grid grid-cols-[1fr_60px_80px_80px_80px_80px_100px_100px_36px] gap-3 items-center py-4 group cursor-pointer"
+              class="grid grid-cols-[56px_1fr_60px_80px_80px_80px_100px_100px_36px] gap-3 items-center py-4 group cursor-pointer"
               @click="$emit('navigate', 'ppo-variant-detail-v2')"
             >
+              <div @click.stop>
+                <Button variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">{{ variant.traffic }}%</Button>
+              </div>
               <div class="flex items-center gap-3">
                 <div
                   v-if="variant.variables.length"
@@ -437,12 +440,9 @@
               <div @click.stop>
                 <ToggleSwitch v-model="variant.active" />
               </div>
-              <div @click.stop>
-                <Button variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">{{ variant.traffic }}%</Button>
-              </div>
-              <div class="text-base font-semibold text-om-gray-700 text-right">{{ variant.visitors }}</div>
-              <div class="text-base font-semibold text-om-gray-700 text-right">{{ variant.addToCart }}</div>
-              <div class="text-base font-semibold text-om-gray-700 text-right">{{ variant.orderRate }}</div>
+              <div class="text-base font-semibold text-om-gray-700 text-right">{{ currentKpis.variants[variant.id]?.v1 }}</div>
+              <div class="text-base font-semibold text-om-gray-700 text-right">{{ currentKpis.variants[variant.id]?.v2 }}</div>
+              <div class="text-base font-semibold text-om-gray-700 text-right">{{ currentKpis.variants[variant.id]?.v3 }}</div>
               <div class="text-base font-semibold flex items-center gap-1 justify-end" :class="variant.uplift.startsWith('+') ? 'text-[#10B981]' : 'text-om-gray-400'">
                 {{ variant.uplift }}
                 <TrendingUp v-if="variant.uplift.startsWith('+')" :size="16" class="text-[#2CC896]" />
@@ -1756,7 +1756,7 @@ const selectedTimePeriod = ref('Last 30 days')
 const timePeriodOptions = ['Last 7 days', 'Last 30 days', 'Last 90 days', 'Last 12 months']
 
 const primaryGoal = ref('Order')
-const goalValues = ['Submit', 'Order', 'Add to cart', 'Email capture', 'Phone capture']
+const goalValues = ['Submit', 'Order', 'Add to cart']
 const selectedGoal = ref('Order')
 const goalOptions = computed(() =>
   goalValues.map(v => ({
@@ -1764,6 +1764,40 @@ const goalOptions = computed(() =>
     label: v === primaryGoal.value ? `${v} (primary)` : v
   }))
 )
+
+const kpiByGoal = {
+  'Submit': {
+    label1: 'Visitors', value1: '3,812', label2: 'Submits',         value2: '215', label3: 'Submit rate',     value3: '5.64%',
+    h1: 'Visitors', h2: 'Submits', h3: 'Submit rate',
+    variants: {
+      v1: { v1: '12,593', v2: '512', v3: '4.07%' },
+      v2: { v1: '12,401', v2: '478', v3: '3.85%' },
+      v3: { v1: '12,593', v2: '320', v3: '2.54%' },
+    },
+  },
+  'Order': {
+    label1: 'Visitors', value1: '3,812', label2: 'Orders',          value2: '294', label3: 'Conversion Rate', value3: '7.71%',
+    h1: 'Visitors', h2: 'Orders', h3: 'Conv. R.',
+    variants: {
+      v1: { v1: '12,593', v2: '650', v3: '7.25%' },
+      v2: { v1: '12,401', v2: '589', v3: '5.83%' },
+      v3: { v1: '12,593', v2: '412', v3: '3.27%' },
+    },
+  },
+  'Add to cart': {
+    label1: 'Visitors', value1: '3,812', label2: 'Adds to cart',    value2: '512', label3: 'ATC rate',        value3: '13.43%',
+    h1: 'Visitors', h2: 'ATC', h3: 'ATC rate',
+    variants: {
+      v1: { v1: '12,593', v2: '1,124', v3: '8.93%' },
+      v2: { v1: '12,401', v2: '987',   v3: '7.96%' },
+      v3: { v1: '12,593', v2: '745',   v3: '5.92%' },
+    },
+  },
+}
+const currentKpis = computed(() => {
+  const key = typeof selectedGoal.value === 'object' ? selectedGoal.value?.value : selectedGoal.value
+  return kpiByGoal[key] || kpiByGoal['Order']
+})
 
 // A/B test settings
 const autoStopEnabled = ref(true)

@@ -557,8 +557,8 @@
           </div>
         </div>
 
-        <!-- Devices + Traffic Source Row -->
-        <div :class="['devices-traffic-row', { 'single-column': sectionHasActiveFilters('devices') || sectionHasActiveFilters('traffic') }]">
+        <!-- Devices + New vs Returning Row -->
+        <div :class="['devices-traffic-row', { 'single-column': sectionHasActiveFilters('devices') || sectionHasActiveFilters('visitorType') }]">
           <!-- Devices Section -->
           <div v-if="!sectionHasActiveFilters('devices')" class="devices-card bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 pr-8 min-w-0 overflow-hidden">
             <h2 class="section-title">Devices</h2>
@@ -641,93 +641,87 @@
             </div>
           </div>
 
-          <div v-if="!sectionHasActiveFilters('traffic')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 min-w-0 overflow-hidden">
-          <div class="section-header" style="padding-left: 32px; padding-right: 32px; margin-bottom: 1.25rem;">
-            <h2 class="section-title" style="padding: 0; margin-bottom: 0;">Traffic Sources</h2>
-            <button class="view-all-btn" @click="openSubPage('traffic-sources')">View All</button>
-          </div>
-          <div class="traffic-plain-layout">
-            <div class="traffic-plain-table">
-              <div v-if="hasTrafficSelection" class="campaign-filter-bar">
-                <Checkbox
-                  :model-value="allTrafficSelected"
-                  :indeterminate="isTrafficIndeterminate"
-                  size="sm"
-                  class="custom-checkbox"
-                  @update:model-value="toggleSelectAllTraffic"
-                />
-                <span class="selection-count">{{ trafficSelectionCount }} selected</span>
-                <button class="filter-btn" @click="applyTrafficFilter">Filter</button>
-              </div>
-              <div v-if="!hasTrafficSelection" class="campaign-headers-row">
-                <div class="campaign-list-header">
-                  <div class="header-cell">Referrer</div>
+          <!-- New vs Returning Visitors -->
+          <div v-if="!sectionHasActiveFilters('visitorType')" class="new-vs-returning-card bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 pr-8 min-w-0 overflow-hidden">
+            <h2 class="section-title">New vs Returning Visitors</h2>
+            <div class="new-vs-returning-content">
+              <div class="new-vs-returning-table-wrap">
+                <div v-if="hasNvrSelection" class="campaign-filter-bar">
+                  <Checkbox
+                    :model-value="allNvrSelected"
+                    :indeterminate="isNvrIndeterminate"
+                    size="sm"
+                    class="custom-checkbox"
+                    @update:model-value="toggleSelectAllNvr"
+                  />
+                  <span class="selection-count">{{ nvrSelectionCount }} selected</span>
+                  <button class="filter-btn" @click="applyNvrFilter">Filter</button>
                 </div>
-                <div class="campaign-metrics-header">
-                  <div class="header-cell numeric">Visitors</div>
-                  <div class="header-cell numeric">{{ labelSubmits }}</div>
-                  <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+                <div v-if="!hasNvrSelection" class="campaign-headers-row">
+                  <div class="campaign-list-header">
+                    <div class="header-cell">Visitor Type</div>
+                  </div>
+                  <div class="campaign-metrics-header">
+                    <div class="header-cell numeric">Visitors</div>
+                    <div class="header-cell numeric">{{ labelSubmits }}</div>
+                    <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+                  </div>
                 </div>
-              </div>
-              <div class="campaign-performance-layout">
-                <div class="campaign-list-column">
-                  <div class="campaign-table-body">
-                    <div
-                      v-for="row in trafficDisplay"
-                      :key="row.referrer"
-                      class="campaign-row"
-                      :class="{ 'is-hovered': hoveredTrafficRow2 === row.referrer }"
-                      @mouseenter="hoveredTrafficRow2 = row.referrer"
-                      @mouseleave="hoveredTrafficRow2 = null"
-                      @click="toggleTrafficRow2(row.referrer)"
-                    >
-                      <Checkbox
-                        :model-value="isTrafficRow2Selected(row.referrer)"
-                        size="sm"
-                        class="custom-checkbox"
-                        @click.stop
-                        @update:model-value="toggleTrafficRow2(row.referrer)"
-                      />
-                      <div class="campaign-name-wrapper">
-                        <div class="campaign-name" style="display:flex;align-items:center;gap:6px;">
-                          <span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;" :style="{ background: trafficPieColors[trafficPieReferrerIndex[row.referrer] ?? 5] }" />
-                          {{ row.referrer }}
+                <div class="campaign-performance-layout">
+                  <div class="campaign-list-column">
+                    <div class="campaign-table-body">
+                      <div
+                        v-for="row in newVsReturningData"
+                        :key="row.type"
+                        class="campaign-row"
+                        :class="{ 'is-hovered': hoveredNvrRow === row.type }"
+                        @mouseenter="hoveredNvrRow = row.type"
+                        @mouseleave="hoveredNvrRow = null"
+                        @click="toggleNvrRow(row.type)"
+                      >
+                        <Checkbox
+                          :model-value="isNvrRowSelected(row.type)"
+                          size="sm"
+                          class="custom-checkbox"
+                          @click.stop
+                          @update:model-value="toggleNvrRow(row.type)"
+                        />
+                        <div class="campaign-name-wrapper">
+                          <div class="campaign-name">{{ row.type }}</div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div class="campaign-metrics-column">
-                  <div class="campaign-table-body">
-                    <div
-                      v-for="row in trafficDisplay"
-                      :key="row.referrer"
-                      class="campaign-metrics-row"
-                      :class="{ 'is-hovered': hoveredTrafficRow2 === row.referrer }"
-                      @mouseenter="hoveredTrafficRow2 = row.referrer"
-                      @mouseleave="hoveredTrafficRow2 = null"
-                    >
-                      <div class="metric-cell">{{ row.visitors.toLocaleString() }}</div>
-                      <div class="metric-cell">{{ row.submits !== null ? row.submits.toLocaleString() : '–' }}</div>
-                      <div class="metric-cell">{{ row.submitRate !== null ? row.submitRate + '%' : '–' }}</div>
+                  <div class="campaign-metrics-column">
+                    <div class="campaign-table-body">
+                      <div
+                        v-for="row in newVsReturningData"
+                        :key="row.type"
+                        class="campaign-metrics-row"
+                        :class="{ 'is-hovered': hoveredNvrRow === row.type }"
+                        @mouseenter="hoveredNvrRow = row.type"
+                        @mouseleave="hoveredNvrRow = null"
+                      >
+                        <div class="metric-cell">{{ row.visitors.toLocaleString() }}</div>
+                        <div class="metric-cell">{{ row.submits.toLocaleString() }}</div>
+                        <div class="metric-cell">{{ row.submitRate }}%</div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+              <div class="new-vs-returning-chart-wrap">
+                <VueApexCharts
+                  type="bar"
+                  height="120"
+                  :options="newVsReturningChartOptions"
+                  :series="newVsReturningChartSeries"
+                />
+              </div>
             </div>
-            <div class="traffic-pie-chart">
-              <VueApexCharts
-                type="donut"
-                height="240"
-                width="240"
-                :options="trafficSubmitsPieOptions"
-                :series="trafficSubmitsPieSeries"
-              />
-            </div>
-          </div>
           </div>
         </div>
-        <!-- /Devices + Traffic Source Row -->
+        <!-- /Devices + New vs Returning Row -->
 
         <!-- Countries + Landing Pages Row -->
         <div :class="['breakdown-modules-row', { 'single-column': sectionHasActiveFilters('countries') || sectionHasActiveFilters('landingPages') }]">
@@ -822,6 +816,136 @@
           </div>
         </div>
 
+        <!-- Traffic Sources + Referring Sites Row -->
+        <div :class="['devices-traffic-row traffic-referring-row', { 'single-column': sectionHasActiveFilters('traffic') || sectionHasActiveFilters('referringSites') }]">
+          <!-- Traffic Sources -->
+          <div v-if="!sectionHasActiveFilters('traffic')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 min-w-0 overflow-hidden">
+            <div class="section-header" style="padding-left: 32px; padding-right: 32px; margin-bottom: 1.25rem;">
+              <h2 class="section-title" style="padding: 0; margin-bottom: 0;">Traffic Sources</h2>
+              <button class="view-all-btn" @click="openSubPage('traffic-sources')">View All</button>
+            </div>
+            <div class="traffic-plain-layout">
+              <div class="traffic-plain-table">
+                <div v-if="hasTrafficSelection" class="campaign-filter-bar">
+                  <Checkbox
+                    :model-value="allTrafficSelected"
+                    :indeterminate="isTrafficIndeterminate"
+                    size="sm"
+                    class="custom-checkbox"
+                    @update:model-value="toggleSelectAllTraffic"
+                  />
+                  <span class="selection-count">{{ trafficSelectionCount }} selected</span>
+                  <button class="filter-btn" @click="applyTrafficFilter">Filter</button>
+                </div>
+                <div v-if="!hasTrafficSelection" class="campaign-headers-row">
+                  <div class="campaign-list-header">
+                    <div class="header-cell">Referrer</div>
+                  </div>
+                  <div class="campaign-metrics-header">
+                    <div class="header-cell numeric">Visitors</div>
+                    <div class="header-cell numeric">{{ labelSubmits }}</div>
+                    <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+                  </div>
+                </div>
+                <div class="campaign-performance-layout">
+                  <div class="campaign-list-column">
+                    <div class="campaign-table-body">
+                      <div
+                        v-for="row in trafficDisplay"
+                        :key="row.referrer"
+                        class="campaign-row"
+                        :class="{ 'is-hovered': hoveredTrafficRow2 === row.referrer }"
+                        @mouseenter="hoveredTrafficRow2 = row.referrer"
+                        @mouseleave="hoveredTrafficRow2 = null"
+                        @click="toggleTrafficRow2(row.referrer)"
+                      >
+                        <Checkbox
+                          :model-value="isTrafficRow2Selected(row.referrer)"
+                          size="sm"
+                          class="custom-checkbox"
+                          @click.stop
+                          @update:model-value="toggleTrafficRow2(row.referrer)"
+                        />
+                        <div class="campaign-name-wrapper">
+                          <div class="campaign-name" style="display:flex;align-items:center;gap:6px;">
+                            <span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;" :style="{ background: trafficPieColors[trafficPieReferrerIndex[row.referrer] ?? 5] }" />
+                            {{ row.referrer }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="campaign-metrics-column">
+                    <div class="campaign-table-body">
+                      <div
+                        v-for="row in trafficDisplay"
+                        :key="row.referrer"
+                        class="campaign-metrics-row"
+                        :class="{ 'is-hovered': hoveredTrafficRow2 === row.referrer }"
+                        @mouseenter="hoveredTrafficRow2 = row.referrer"
+                        @mouseleave="hoveredTrafficRow2 = null"
+                      >
+                        <div class="metric-cell">{{ row.visitors.toLocaleString() }}</div>
+                        <div class="metric-cell">{{ row.submits !== null ? row.submits.toLocaleString() : '–' }}</div>
+                        <div class="metric-cell">{{ row.submitRate !== null ? row.submitRate + '%' : '–' }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="traffic-pie-chart">
+                <VueApexCharts
+                  type="donut"
+                  height="240"
+                  width="240"
+                  :options="trafficSubmitsPieOptions"
+                  :series="trafficSubmitsPieSeries"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Referring Sites -->
+          <div v-if="!sectionHasActiveFilters('referringSites')" class="referring-sites-card bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 min-w-0 overflow-hidden">
+            <div class="section-header">
+              <h2 class="section-title">Referring Sites</h2>
+            </div>
+            <div v-if="hasReferringSitesSelection" class="campaign-filter-bar">
+              <Checkbox :model-value="allReferringSitesSelected" :indeterminate="isReferringSitesIndeterminate" size="sm" class="custom-checkbox" @update:model-value="toggleSelectAllReferringSites" />
+              <span class="selection-count">{{ selectedReferringSitesCount }} selected</span>
+              <button class="filter-btn" @click="applyReferringSitesFilter">Filter</button>
+            </div>
+            <div v-if="!hasReferringSitesSelection" class="campaign-headers-row">
+              <div class="campaign-list-header"><div class="header-cell">Site</div></div>
+              <div class="campaign-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="campaign-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="site in referringSitesDisplay" :key="site.site" class="campaign-row" :class="{ 'is-hovered': hoveredReferringSiteRow === site.site }" @mouseenter="hoveredReferringSiteRow = site.site" @mouseleave="hoveredReferringSiteRow = null" @click="toggleReferringSiteSelection(site.site)">
+                    <Checkbox :model-value="isReferringSiteSelected(site.site)" size="sm" class="custom-checkbox" @click.stop @update:model-value="toggleReferringSiteSelection(site.site)" />
+                    <div class="campaign-name-wrapper"><div class="campaign-name">{{ site.site }}</div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="campaign-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="site in referringSitesDisplay" :key="site.site" class="campaign-metrics-row" :class="{ 'is-hovered': hoveredReferringSiteRow === site.site }" @mouseenter="hoveredReferringSiteRow = site.site" @mouseleave="hoveredReferringSiteRow = null">
+                    <div class="metric-cell">{{ site.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ site.submits.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ site.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /Traffic Sources + Referring Sites Row -->
+
         <!-- Browser Languages + Operating Systems Row -->
         <div :class="['breakdown-modules-row', { 'single-column': sectionHasActiveFilters('browserLanguages') }]">
           <!-- Browser Languages -->
@@ -885,7 +1009,7 @@
             <div class="campaign-performance-layout">
               <div class="breakdown-module-list-column">
                 <div class="campaign-table-body">
-                  <div v-for="os in operatingSystemsDisplay" :key="os.name" class="campaign-row has-selection" :class="{ 'is-hovered': hoveredOsName === os.name }" @mouseenter="hoveredOsName = os.name" @mouseleave="hoveredOsName = null" @click="toggleOsSelection(os.name)">
+                  <div v-for="os in operatingSystemsDisplay" :key="os.name" class="campaign-row" :class="{ 'is-hovered': hoveredOsName === os.name }" @mouseenter="hoveredOsName = os.name" @mouseleave="hoveredOsName = null" @click="toggleOsSelection(os.name)">
                     <Checkbox :model-value="isOsSelected(os.name)" size="sm" class="custom-checkbox" @click.stop @update:model-value="toggleOsSelection(os.name)" />
                     <div class="campaign-name-wrapper"><div class="campaign-name">{{ os.name }}</div></div>
                   </div>
@@ -904,11 +1028,11 @@
           </div>
         </div>
 
-        <!-- Top Pages + Referring Sites Row -->
-        <div :class="['breakdown-modules-row top-pages-row', { 'single-column': sectionHasActiveFilters('visitedPages') || sectionHasActiveFilters('referringSites') }]">
+        <!-- Visited Pages Row -->
+        <div class="breakdown-modules-row top-pages-row single-column">
         <div v-if="!sectionHasActiveFilters('visitedPages')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
           <div class="section-header">
-            <h2 class="section-title">Top Pages</h2>
+            <h2 class="section-title">Visited Pages</h2>
             <button class="view-all-btn" @click="openSubPage('visited-pages')">View All</button>
           </div>
 
@@ -993,45 +1117,6 @@
             </div>
           </div>
         </div>
-
-          <!-- Referring Sites -->
-          <div v-if="!sectionHasActiveFilters('referringSites')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
-            <div class="section-header">
-              <h2 class="section-title">Referring Sites</h2>
-            </div>
-            <div v-if="hasReferringSitesSelection" class="campaign-filter-bar">
-              <Checkbox :model-value="allReferringSitesSelected" :indeterminate="isReferringSitesIndeterminate" size="sm" class="custom-checkbox" @update:model-value="toggleSelectAllReferringSites" />
-              <span class="selection-count">{{ selectedReferringSitesCount }} selected</span>
-              <button class="filter-btn" @click="applyReferringSitesFilter">Filter</button>
-            </div>
-            <div v-if="!hasReferringSitesSelection" class="campaign-headers-row">
-              <div class="campaign-list-header"><div class="header-cell">Site</div></div>
-              <div class="campaign-metrics-header">
-                <div class="header-cell numeric">Visitors</div>
-                <div class="header-cell numeric">{{ labelSubmits }}</div>
-                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
-              </div>
-            </div>
-            <div class="campaign-performance-layout">
-              <div class="campaign-list-column">
-                <div class="campaign-table-body">
-                  <div v-for="site in referringSitesDisplay" :key="site.site" class="campaign-row" :class="{ 'is-hovered': hoveredReferringSiteRow === site.site }" @mouseenter="hoveredReferringSiteRow = site.site" @mouseleave="hoveredReferringSiteRow = null" @click="toggleReferringSiteSelection(site.site)">
-                    <Checkbox :model-value="isReferringSiteSelected(site.site)" size="sm" class="custom-checkbox" @click.stop @update:model-value="toggleReferringSiteSelection(site.site)" />
-                    <div class="campaign-name-wrapper"><div class="campaign-name">{{ site.site }}</div></div>
-                  </div>
-                </div>
-              </div>
-              <div class="campaign-metrics-column">
-                <div class="campaign-table-body">
-                  <div v-for="site in referringSitesDisplay" :key="site.site" class="campaign-metrics-row" :class="{ 'is-hovered': hoveredReferringSiteRow === site.site }" @mouseenter="hoveredReferringSiteRow = site.site" @mouseleave="hoveredReferringSiteRow = null">
-                    <div class="metric-cell">{{ site.visitors.toLocaleString() }}</div>
-                    <div class="metric-cell">{{ site.submits.toLocaleString() }}</div>
-                    <div class="metric-cell">{{ site.conversionRate }}%</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- UTM Modules Row -->
@@ -2239,7 +2324,7 @@ const devicesTableData = [
 const devicesChartSeries = [
   {
     name: 'Submits',
-    data: [797, 1707],
+    data: [1707, 797],
   }
 ]
 
@@ -2261,7 +2346,71 @@ const devicesChartOptions = {
   dataLabels: { enabled: false },
   legend: { show: false },
   xaxis: {
-    categories: ['Desktop', 'Mobile'],
+    categories: ['Mobile', 'Desktop'],
+    axisBorder: { show: false },
+    axisTicks: { show: false },
+    labels: {
+      style: { colors: '#9CA3AF', fontSize: '12px' },
+      formatter: (val) => val >= 1000 ? `${(val / 1000).toFixed(0)}K` : val,
+    },
+  },
+  yaxis: {
+    labels: {
+      show: true,
+      style: { colors: '#6B7280', fontSize: '13px' },
+    },
+  },
+  grid: {
+    borderColor: '#F3F4F6',
+    strokeDashArray: 4,
+    yaxis: { lines: { show: false } },
+  },
+  tooltip: {
+    custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+      const value = series[seriesIndex][dataPointIndex]
+      const label = w.globals.labels[dataPointIndex]
+      return `<div style="padding: 8px 12px; background: white; border: 1px solid #e3e5e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="width: 8px; height: 8px; background: #ed5a29; border-radius: 50%; display: inline-block;"></span>
+          <span style="color: #505763; font-weight: 500;">${label}: ${value.toLocaleString()}</span>
+        </div>
+      </div>`
+    }
+  },
+}
+
+// New vs Returning chart
+const newVsReturningData = [
+  { type: 'New',       visitors: 114864, submits: 2308, submitRate: 2.01 },
+  { type: 'Returning', visitors: 31714,  submits: 904,  submitRate: 2.85 },
+]
+
+const newVsReturningChartSeries = [
+  {
+    name: 'Submits',
+    data: [2308, 904],
+  }
+]
+
+const newVsReturningChartOptions = {
+  chart: {
+    type: 'bar',
+    toolbar: { show: false },
+    fontFamily: 'inherit',
+  },
+  plotOptions: {
+    bar: {
+      borderRadius: 6,
+      barHeight: '60%',
+      distributed: true,
+      horizontal: true,
+    },
+  },
+  colors: ['#FF6A45', '#FF9E89'],
+  dataLabels: { enabled: false },
+  legend: { show: false },
+  xaxis: {
+    categories: ['New', 'Returning'],
     axisBorder: { show: false },
     axisTicks: { show: false },
     labels: {
@@ -3537,6 +3686,28 @@ const applyDevicesFilter = () => {
   clearDevicesRows()
 }
 
+// New vs Returning table selection
+const hoveredNvrRow = ref(null)
+const selectedNvrRows = ref(new Set())
+const toggleNvrRow = (type) => {
+  const s = new Set(selectedNvrRows.value)
+  s.has(type) ? s.delete(type) : s.add(type)
+  selectedNvrRows.value = s
+}
+const isNvrRowSelected = (type) => selectedNvrRows.value.has(type)
+const hasNvrSelection = computed(() => selectedNvrRows.value.size > 0)
+const nvrSelectionCount = computed(() => selectedNvrRows.value.size)
+const allNvrSelected = computed(() => newVsReturningData.length > 0 && newVsReturningData.every(r => selectedNvrRows.value.has(r.type)))
+const isNvrIndeterminate = computed(() => hasNvrSelection.value && !allNvrSelected.value)
+const toggleSelectAllNvr = () => {
+  selectedNvrRows.value = allNvrSelected.value ? new Set() : new Set(newVsReturningData.map(r => r.type))
+}
+const clearNvrRows = () => { selectedNvrRows.value = new Set() }
+const applyNvrFilter = () => {
+  applyFilterFromSelection('visitor-type', selectedNvrRows.value, type => `${type} visitors`)
+  clearNvrRows()
+}
+
 const hasTrafficSelection = computed(() => selectedTrafficRows2.value.size > 0)
 const trafficSelectionCount = computed(() => selectedTrafficRows2.value.size)
 const allTrafficSelected = computed(() => trafficSourceData.length > 0 && trafficSourceData.every(r => selectedTrafficRows2.value.has(r.referrer)))
@@ -4699,8 +4870,12 @@ const allTrafficSources = [
 
 @container (min-width: 1200px) {
   .devices-traffic-row {
-    grid-template-columns: 2fr 3fr;
+    grid-template-columns: 1fr 1fr;
     align-items: stretch;
+  }
+
+  .devices-traffic-row.traffic-referring-row {
+    grid-template-columns: 55% 45%;
   }
 
   .devices-traffic-row.single-column {
@@ -4811,29 +4986,6 @@ const allTrafficSources = [
   padding: 0 20px;
 }
 
-@container (min-width: 600px) {
-  .devices-content {
-    flex-direction: row;
-    align-items: center;
-    gap: 24px;
-    overflow: hidden;
-  }
-  .devices-table-wrap {
-    flex: 1 1 0;
-    min-width: 0;
-    width: 0;
-  }
-  .devices-chart-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 280px;
-    padding: 0;
-  }
-}
-
-
 .devices-table-wrap {
   min-width: 0;
 }
@@ -4861,8 +5013,79 @@ const allTrafficSources = [
 }
 
 .devices-table-wrap .campaign-metrics-header,
-.traffic-plain-table .campaign-metrics-header {
+.traffic-plain-table .campaign-metrics-header,
+.new-vs-returning-table-wrap .campaign-metrics-header {
   container-type: inline-size;
+}
+
+/* New vs Returning Visitors card */
+.new-vs-returning-card {
+  container-type: inline-size;
+}
+
+/* Referring Sites card (used inside traffic-referring-row) */
+.referring-sites-card .campaign-performance-layout {
+  overflow-x: hidden;
+}
+
+.referring-sites-card .campaign-list-header,
+.referring-sites-card .campaign-list-column {
+  flex: 0 0 40%;
+  min-width: 0;
+  max-width: 40%;
+}
+
+.referring-sites-card .campaign-metrics-header,
+.referring-sites-card .campaign-metrics-column {
+  flex: 0 0 60%;
+  min-width: 0;
+  max-width: 60%;
+}
+
+.referring-sites-card .campaign-metrics-header .header-cell:last-child {
+  padding-right: 32px;
+}
+
+.referring-sites-card .campaign-metrics-header .header-cell:nth-child(2),
+.referring-sites-card .campaign-metrics-row .metric-cell:nth-child(2) {
+  flex: 1;
+}
+
+.new-vs-returning-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.new-vs-returning-chart-wrap {
+  padding: 0 20px;
+}
+
+.new-vs-returning-table-wrap {
+  min-width: 0;
+}
+
+.new-vs-returning-table-wrap .campaign-performance-layout {
+  overflow-x: hidden;
+}
+
+.new-vs-returning-table-wrap .campaign-list-header,
+.new-vs-returning-table-wrap .campaign-list-column {
+  flex: 0 0 40%;
+  min-width: 0;
+  max-width: 40%;
+}
+
+.new-vs-returning-table-wrap .campaign-metrics-header,
+.new-vs-returning-table-wrap .campaign-metrics-column {
+  flex: 0 0 60%;
+  min-width: 0;
+  max-width: 60%;
+}
+
+.new-vs-returning-table-wrap .campaign-metrics-header .header-cell:last-child {
+  padding-right: 32px;
 }
 
 .sr-short { display: none; }

@@ -528,6 +528,14 @@ const campaignViews = [
     hideLogo: true,
   },
   {
+    id: 'ppo-no-product-page',
+    component: () => import('../views/PpoNoProductPageView.vue'),
+    label: 'SPP — No Product Page',
+    status: 'active',
+    section: null,
+    hideLogo: true,
+  },
+  {
     id: 'campaign-page-v1',
     component: () => import('../views/CampaignPageV1View.vue'),
     label: 'Campaign Page',
@@ -553,6 +561,15 @@ const campaignViews = [
     section: 'campaignPage',
     hideLogo: true,
     slug: 'campaign-detail-single',
+  },
+  {
+    id: 'campaign-page-single-v2',
+    component: () => import('../views/CampaignPageSingleV2View.vue'),
+    label: 'Campaign Page (no A/B) V2',
+    status: 'active',
+    section: 'campaignPage',
+    hideLogo: true,
+    slug: 'campaign-detail-single-v2',
   },
   {
     id: 'campaign-page-with-review',

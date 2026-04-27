@@ -183,12 +183,12 @@
                 <div v-if="card.reason" class="text-om-gray-500 mt-0.5 leading-snug text-xs">{{ card.reason }}</div>
               </div>
               <!-- Wide mode: horizontal layout (image left, text right) — skip for vertical layout -->
-              <div v-else-if="isWideMode && !msg.hideLabels && (card.image || card.number) && msg.layout !== 'vertical'" class="flex bg-white" :class="card.number ? 'h-20' : 'h-40'">
+              <div v-else-if="isWideMode && !msg.hideLabels && (card.image || card.number) && msg.layout !== 'vertical'" class="flex bg-white" :class="card.number ? 'h-24' : 'h-40'">
                 <div
                   v-if="card.number"
                   class="shrink-0 flex items-center justify-center pl-2"
                 >
-                  <div class="w-16 h-16 rounded-md bg-om-gray-100 text-om-gray-700 font-semibold text-3xl flex items-center justify-center">
+                  <div class="w-20 h-20 rounded-md bg-om-gray-100 text-om-gray-700 font-semibold text-4xl flex items-center justify-center">
                     {{ card.number }}
                   </div>
                 </div>
