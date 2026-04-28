@@ -488,6 +488,7 @@ const activeEvents = computed(() => {
     'ppo-campaign-detail': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-placement': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-campaign-detail-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'ppo-campaign-detail-v3': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-variant-detail-v1': { back: () => { currentView.value = 'ppo-campaign-detail' }, next: () => { currentView.value = 'ppo-campaign-detail' } },
     'ppo-variant-detail-v2': { back: () => { currentView.value = 'ppo-campaign-detail-v2' }, next: () => { currentView.value = 'ppo-campaign-detail-v2' } },
     // PPO V1

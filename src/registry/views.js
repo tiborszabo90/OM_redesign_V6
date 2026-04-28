@@ -807,6 +807,14 @@ const ppoViews = [
     hideLogo: true,
   },
   {
+    id: 'ppo-campaign-detail-v3',
+    component: () => import('../views/PpoCampaignDetailV3View.vue'),
+    label: 'Campaign Detail V3',
+    status: 'active',
+    section: 'ppo',
+    hideLogo: true,
+  },
+  {
     id: 'ppo-variant-detail-v1',
     component: () => import('../views/PpoCampaignSetupPreviewView.vue'),
     label: 'Variant Detail',
