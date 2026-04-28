@@ -142,7 +142,7 @@
           <div class="py-8 pl-8">
             <div class="flex items-center gap-2.5 cursor-pointer group" @click="emit('navigate', 'editor')">
               <div
-                class="w-36 h-24 bg-white rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
+                class="w-64 h-40 bg-white rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
                 @mouseenter="handleThumbEnter($event, 'variant1')"
                 @mouseleave="handleThumbLeave()"
               >
@@ -156,19 +156,19 @@
                 </transition>
               </div>
             </div>
-            <button class="mt-4 flex items-center gap-2 text-sm text-om-orange-500 font-medium hover:text-om-orange-600">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+            <button class="mt-4 flex items-center gap-2.5 text-base text-om-orange-500 font-medium hover:text-om-orange-600">
+              <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="8" cy="8" r="7"/>
                 <path d="M8 5v6M5 8h6"/>
               </svg>
-              Add A/B test variant
+              Add variant
             </button>
           </div>
 
           <!-- Key Metrics -->
           <div class="pt-8 pl-8 pr-8 relative">
-            <div class="h-24 flex items-center">
-              <div class="flex items-center gap-4">
+            <div class="h-40 flex items-center">
+              <div class="flex items-center gap-10">
                 <div class="shrink-0 w-24">
                   <div class="text-xs text-om-gray-400 mb-0.5">Impressions</div>
                   <div class="text-xl font-semibold text-om-gray-700">1,456</div>
@@ -193,7 +193,7 @@
 
           <!-- Filters -->
           <div class="pt-8 pr-8">
-            <div class="h-24 flex flex-col items-end justify-center gap-2.5">
+            <div class="h-40 flex flex-col items-end justify-center gap-2.5">
               <!-- Time Period Dropdown -->
               <div style="width: 208px">
                 <Dropdown key="time-period" v-model="selectedTimePeriod" :options="timePeriodOptions">
@@ -227,23 +227,31 @@
           <!-- When will the popup show up -->
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('showUp')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">When will the popup show up</h3>
-            <div class="space-y-4">
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
-                  <LogOut :size="20" class="text-white" />
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-semibold text-om-gray-700">On exit-intent</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">When a visitor is about to leave your site</div>
+            <div class="trigger-timeline summary-timeline">
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <LogOut :size="22" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">On exit-intent</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">When a visitor is about to leave your site</div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
-                  <Clock :size="20" class="text-white" />
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-semibold text-om-gray-700">After 20s inactivity</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">When a visitor is inactive for <span class="font-semibold text-om-gray-800">20 seconds</span></div>
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <Clock :size="22" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">After 20s inactivity</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">When a visitor is inactive for <span class="font-semibold text-om-gray-800">20 seconds</span></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -252,23 +260,29 @@
           <!-- How often can it appear -->
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('howMany')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">How often can it appear</h3>
-            <div class="grid grid-cols-3 gap-10 w-3/4">
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
-                  <RefreshCw :size="20" class="text-white" />
-                </div>
-                <div>
-                  <div class="text-sm font-semibold text-om-gray-700">How many times</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">Maximum 2 times</div>
+            <div class="grid grid-cols-3 gap-10 w-3/4 items-center">
+              <div class="trigger-timeline summary-timeline">
+                <div class="trigger-timeline-item">
+                  <div class="trigger-card">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                        <RefreshCw :size="22" class="text-white" />
+                      </div>
+                      <div class="flex-1">
+                        <div class="text-sm font-semibold text-om-gray-700">How many times</div>
+                        <div class="text-sm text-om-gray-500 mt-0.5">Maximum <span class="font-semibold text-om-gray-800">2 times</span></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div>
                 <div class="text-sm font-semibold text-om-gray-700">How frequently</div>
-                <div class="text-xs text-om-gray-500 mt-0.5">Min 1 hour(s) between two impressions</div>
+                <div class="text-sm text-om-gray-500 mt-0.5">Min <span class="font-semibold text-om-gray-800">1 hour(s)</span> between two impressions</div>
               </div>
               <div>
-                <div class="text-sm font-semibold text-om-gray-700">Stop Showing</div>
-                <div class="text-xs text-om-gray-500 mt-0.5">After a visitor has converted in this campaign</div>
+                <div class="text-sm font-semibold text-om-gray-700">Stop showing</div>
+                <div class="text-sm text-om-gray-500 mt-0.5">After a visitor has converted in this campaign</div>
               </div>
             </div>
           </div>
@@ -276,23 +290,31 @@
           <!-- Who should see the popup -->
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('whoSee')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">Who should see the popup</h3>
-            <div class="space-y-4">
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
-                  <Timer :size="20" class="text-white" />
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-semibold text-om-gray-700">Spent on pages</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">The popup will appear to visitors who spent a minimum of <span class="font-semibold text-om-gray-800">10 seconds</span> on the current subpage</div>
+            <div class="trigger-timeline summary-timeline">
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <Timer :size="22" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">Spent on pages</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">The popup will appear to visitors who spent a minimum of <span class="font-semibold text-om-gray-800">10 seconds</span> on the current subpage</div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
-                  <Globe :size="20" class="text-white" />
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-semibold text-om-gray-700">Current page / URL</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">URL or its subpaths contains <span class="font-semibold text-om-gray-800">cart</span>, <span class="font-semibold text-om-gray-800">shop_cart</span>, <span class="font-semibold text-om-gray-800">shop_reg</span>, or <span class="font-semibold text-om-gray-800">shop_category</span></div>
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <Globe :size="22" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">Current page / URL</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">URL or its subpaths contains <span class="font-semibold text-om-gray-800">cart</span>, <span class="font-semibold text-om-gray-800">shop_cart</span>, <span class="font-semibold text-om-gray-800">shop_reg</span>, or <span class="font-semibold text-om-gray-800">shop_category</span></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -302,8 +324,8 @@
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('sendData')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">Integrations</h3>
             <div class="flex items-center gap-3">
-              <div class="w-9 h-9 bg-[#FFE01B] rounded flex items-center justify-center shrink-0">
-                <img src="/icons/mailchimp.svg" alt="Mailchimp" class="w-5 h-5" />
+              <div class="w-10 h-10 bg-[#FFE01B] rounded-xl flex items-center justify-center shrink-0">
+                <img src="/icons/mailchimp.svg" alt="Mailchimp" class="w-6 h-6" />
               </div>
               <span class="text-sm font-medium text-om-gray-700">Mailchimp</span>
             </div>
@@ -1259,7 +1281,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronLeft, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Trash2, Save, MousePointerClick, Languages, Laptop, AppWindow } from 'lucide-vue-next'
+import { ChevronDown, ChevronLeft, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Trash2, Save, MousePointerClick, Languages, Laptop, AppWindow, Ban } from 'lucide-vue-next'
 import Button from '../components/shared/Button.vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
@@ -2091,20 +2113,10 @@ input[type="time"]::-webkit-clear-button {
   padding-left: 28px;
 }
 
-/* Continuous vertical line (trunk) */
-.trigger-timeline::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 26px;
-  width: 3px;
-  background: #D5D8DD;
-  border-radius: 2px;
-}
-
 /* Timeline items with horizontal branch */
-.trigger-timeline-item {
+.trigger-timeline-item,
+.trigger-timeline-or,
+.trigger-timeline-add {
   position: relative;
 }
 
@@ -2112,10 +2124,54 @@ input[type="time"]::-webkit-clear-button {
   content: '';
   position: absolute;
   left: -28px;
-  top: 50%;
+  top: 44px;
   width: 24px;
   height: 3px;
   background: #D5D8DD;
+}
+
+.trigger-timeline.summary-timeline .trigger-timeline-item::before {
+  top: 40px;
+}
+
+/* Trunk segments — each direct child draws its own slice, so margins between
+   them are bridged and no parent-level overhang can appear. */
+.trigger-timeline-item::after,
+.trigger-timeline-or::after {
+  content: '';
+  position: absolute;
+  left: -28px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #D5D8DD;
+}
+
+/* Add button trunk: fills its own margin-top gap and stops at its branch */
+.trigger-timeline-add::after {
+  content: '';
+  position: absolute;
+  left: -28px;
+  top: -1.5rem;
+  bottom: 50%;
+  width: 3px;
+  background: #D5D8DD;
+}
+
+/* When no add button follows, last item caps trunk at its branch */
+.trigger-timeline:not(:has(.trigger-timeline-add)) .trigger-timeline-item:last-child::after {
+  bottom: 50%;
+}
+
+/* Rounded caps at the very ends of the trunk */
+.trigger-timeline > *:first-child::after {
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+}
+
+.trigger-timeline > *:last-child::after {
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
 }
 
 .trigger-card {
