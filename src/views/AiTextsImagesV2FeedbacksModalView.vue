@@ -548,11 +548,6 @@
               :key="product.id"
               class="relative bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-4"
             >
-              <Tag variant="green" class="absolute top-3 right-3 shrink-0 z-10">
-                <template #icon><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></template>
-                Ready to use
-              </Tag>
-
               <div class="flex gap-4 items-stretch">
                 <!-- Product column -->
                 <div class="flex-[0_0_22%] min-w-0 flex flex-col pr-2">
@@ -580,11 +575,11 @@
                 </div>
 
                 <!-- Instructions column -->
-                <div class="flex-1 min-w-0 flex flex-col pt-8">
+                <div class="flex-1 min-w-0 flex flex-col">
                   <textarea
                     :value="feedbackByProduct[product.id] ?? ''"
                     @input="feedbackByProduct[product.id] = $event.target.value"
-                    placeholder="Tell the AI what to change..."
+                    placeholder="Instructions for the next generation"
                     rows="6"
                     class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
                   />

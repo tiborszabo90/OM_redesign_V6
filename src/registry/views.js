@@ -959,7 +959,7 @@ const settingsAiViews = [
     id: 'settings-ai-texts-images-v2-feedbacks',
     component: () => import('../views/SettingsView.vue'),
     label: 'AI Texts & Images V2 (feedbacks)',
-    status: 'active',
+    status: 'archived',
     section: 'aiContent',
     hideLogo: true,
   },
