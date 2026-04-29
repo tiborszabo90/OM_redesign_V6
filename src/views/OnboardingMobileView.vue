@@ -7,7 +7,7 @@
           <div :key="currentStep" :class="['w-full', isExitingToWizard ? 'exit-animation' : '']">
             <!-- Back button -->
             <button
-              v-if="currentStep > 1 && !isDesktopRequiredStep && currentStepKey !== 'referralSource'"
+              v-if="currentStep > 1 && !isDesktopRequiredStep && currentStepKey !== 'referralSource' && currentStepKey !== 'relationship'"
               @click="handlePrev"
               class="flex items-center gap-1.5 text-sm text-[#8F97A4] hover:text-[#23262A] transition-colors mb-6"
             >

@@ -14,7 +14,7 @@
 
             <!-- Back button -->
             <button
-              v-if="currentStep !== 'buttons'"
+              v-if="currentStep !== 'buttons' && currentStep !== 'email-form'"
               @click="goBack"
               class="flex items-center gap-1.5 text-sm text-[#8F97A4] hover:text-[#23262A] transition-colors mb-6"
             >
