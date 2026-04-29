@@ -190,7 +190,7 @@ import ChatPanel from '../components/shared/ChatPanel.vue'
 import CampaignCard from '../components/shared/CampaignCard.vue'
 import AddDomainModal from '../components/shared/AddDomainModal.vue'
 
-const emit = defineEmits(['menu-click', 'navigate-to-campaign', 'navigate-to-ppo-detail'])
+const emit = defineEmits(['menu-click', 'navigate-to-campaign', 'navigate-to-campaign-single', 'navigate-to-ppo-detail'])
 
 const isChatOpen = ref(false)
 
@@ -533,6 +533,8 @@ const deleteSelected = () => {
 const handleCampaignClick = (campaignId) => {
   if (campaignId === 'campaign-ppo') {
     emit('navigate-to-ppo-detail')
+  } else if (campaignId === 'campaign3') {
+    emit('navigate-to-campaign-single')
   } else {
     emit('navigate-to-campaign')
   }

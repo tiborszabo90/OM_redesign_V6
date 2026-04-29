@@ -287,32 +287,13 @@
         <div v-if="activeTab === 'Overview'">
         <!-- Metrics Section -->
         <div class="bg-om-gray-100 rounded-xl mb-6 relative">
-          <div class="grid grid-cols-[minmax(0,12fr)_minmax(0,9fr)_minmax(0,3fr)] gap-4">
+          <div class="grid grid-cols-[minmax(0,8fr)_minmax(0,13fr)_minmax(0,3fr)] gap-4">
           <!-- Conversion Uplift -->
           <div class="pl-8 py-8">
             <div class="text-base text-om-gray-600 mb-3">Conversion uplift</div>
-            <div class="flex items-center gap-5">
-              <div class="flex items-end gap-2 shrink-0">
-                <span class="text-[3rem] font-light text-om-gray-700 leading-none font-['Funnel_Sans']">+0.77%</span>
-                <TrendingUp :size="24" class="text-[#2CC896]" />
-              </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold text-om-gray-600 whitespace-nowrap">A/B test running</span>
-                  <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
-                  </span>
-                  <Button v-if="autoStopEnabled" variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">
-                    <template #icon><Zap :size="14" /></template>
-                    Declare winner at {{ autoStopThreshold }}%
-                  </Button>
-                </div>
-                <div class="text-sm text-om-gray-500 -mt-0.5 whitespace-nowrap">
-                  <span class="font-medium text-om-gray-600">Product summary 1</span>
-                  leading · 91.2% chance to win
-                </div>
-              </div>
+            <div class="flex items-end gap-2">
+              <span class="text-[3rem] font-light text-om-gray-700 leading-none font-['Funnel_Sans']">+0.77%</span>
+              <TrendingUp :size="24" class="text-[#2CC896]" />
             </div>
           </div>
 
@@ -367,6 +348,22 @@
 
         <!-- Variants + Variables Section -->
         <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 pt-5 pb-5 pl-5 pr-8">
+          <!-- Test status row -->
+          <div class="flex items-center justify-between gap-3 mb-4 -mr-3 bg-om-gray-50 rounded-xl pl-4 py-2 pr-2">
+            <div class="flex items-center gap-2 text-sm">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
+              </span>
+              <span class="font-semibold text-om-gray-700">A/B test running</span>
+              <span class="text-om-gray-400">·</span>
+              <span class="text-om-gray-500"><span class="font-medium text-om-gray-700">Product summary 1</span> leading · 91.2% chance to win</span>
+            </div>
+            <Button variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">
+              <template #icon><Zap :size="14" /></template>
+              Auto-declare winner
+            </Button>
+          </div>
           <!-- Header -->
           <div class="grid grid-cols-[56px_1fr_60px_80px_80px_80px_100px_100px_36px] gap-3 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
             <div class="pl-3">Traffic</div>
@@ -458,7 +455,7 @@
           <div class="mt-4">
             <button class="flex items-center gap-2 text-sm text-om-orange-500 font-medium hover:text-om-orange-600 cursor-pointer">
               <Plus :size="16" />
-              Add A/B test variant
+              Add variant
             </button>
           </div>
         </div>
@@ -1838,7 +1835,7 @@ const currentKpis = computed(() => {
 })
 
 // A/B test settings
-const autoStopEnabled = ref(true)
+const autoStopEnabled = ref(false)
 const autoStopThreshold = ref(95)
 const trafficEvenlySplit = ref(true)
 

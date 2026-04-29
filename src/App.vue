@@ -458,10 +458,18 @@ const activeEvents = computed(() => {
     'audience-profile': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'audience' }, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' } },
     'campaigns': { 'menu-click': handleMenuClick },
     'campaigns-v2': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },
-    'campaigns-v3': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail-v2' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },
+    'campaigns-v3': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-campaign-single': () => { currentView.value = 'campaign-page-single' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail-v2' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },
     'campaigns-empty': { 'menu-click': handleMenuClick },
     'new-campaign': { 'menu-click': handleMenuClick, back: () => { currentView.value = previousView.value || 'campaigns-v3' }, navigate: handleDevNavigate },
-    'ppo-loading': { 'menu-click': handleMenuClick, done: () => { currentView.value = 'ppo-campaign-setup-preview-v3' } },
+    'ppo-loading': { 'menu-click': handleMenuClick, done: () => {
+      const types = ppoWizardState.value.selectedTypes
+      if (types.length === 1 && types[0] === 'image-badge') {
+        currentView.value = 'ppo-no-product-page'
+      } else {
+        currentView.value = 'ppo-campaign-setup-preview-v3'
+      }
+    } },
+    'ppo-no-product-page': { 'menu-click': handleMenuClick, 'go-to-new-campaign': () => { currentView.value = 'new-campaign' } },
     'optimize-website': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'new-campaign' }, navigate: handleDevNavigate, select: (type) => { if (type === 'smart-product-page') currentView.value = 'ppo-campaign-flow-mvp' } },
     'product-page-optimizer': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'optimize-website' }, next: (types) => { ppoWizardState.value.selectedTypes = types; currentView.value = 'ppo-variable-setup' } },
     'ppo-campaign-flow': { back: () => { currentView.value = 'new-campaign' }, next: (types) => { ppoWizardState.value.selectedTypes = types; currentView.value = 'ppo-variable-setup' } },
@@ -475,9 +483,16 @@ const activeEvents = computed(() => {
     'ppo-generation': { back: () => { currentView.value = 'ppo-campaign-setup-preview' }, create: () => { currentView.value = 'ppo-campaign-detail' } },
     'campaign-page-v1': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'campaign-page-v2-mark': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'campaign-page-single': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'campaign-page-single-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-campaign-detail': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-placement': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-campaign-detail-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'ppo-campaign-detail-v3': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'ppo-campaign-detail-v3-single': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'ppo-campaign-detail-v3-single-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'ppo-campaign-detail-v3-single-v3': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'ppo-campaign-detail-v3-single-v4': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-variant-detail-v1': { back: () => { currentView.value = 'ppo-campaign-detail' }, next: () => { currentView.value = 'ppo-campaign-detail' } },
     'ppo-variant-detail-v2': { back: () => { currentView.value = 'ppo-campaign-detail-v2' }, next: () => { currentView.value = 'ppo-campaign-detail-v2' } },
     // PPO V1

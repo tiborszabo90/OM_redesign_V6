@@ -285,101 +285,10 @@
 
         <!-- Overview Tab Content -->
         <div v-if="activeTab === 'Overview'">
-        <!-- Metrics Section -->
-        <div class="bg-om-gray-100 rounded-xl mb-6 relative">
-          <div class="grid grid-cols-[minmax(0,12fr)_minmax(0,9fr)_minmax(0,3fr)] gap-4">
-          <!-- Conversion Uplift -->
-          <div class="pl-8 py-8">
-            <div class="text-base text-om-gray-600 mb-3">Conversion uplift</div>
-            <div class="flex items-center gap-5">
-              <div class="flex items-end gap-2 shrink-0">
-                <span class="text-[3rem] font-light text-om-gray-700 leading-none font-['Funnel_Sans']">+0.77%</span>
-                <TrendingUp :size="24" class="text-[#2CC896]" />
-              </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold text-om-gray-600 whitespace-nowrap">A/B test running</span>
-                  <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
-                  </span>
-                  <Button v-if="autoStopEnabled" variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">
-                    <template #icon><Zap :size="14" /></template>
-                    Declare winner at {{ autoStopThreshold }}%
-                  </Button>
-                </div>
-                <div class="text-sm text-om-gray-500 -mt-0.5 whitespace-nowrap">
-                  <span class="font-medium text-om-gray-600">Product summary 1</span>
-                  leading · 91.2% chance to win
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Key Metrics -->
-          <div class="py-8 relative pl-1 pr-24">
-            <div class="w-px bg-om-gray-200 absolute inset-y-6 -left-5"></div>
-            <div class="text-base text-om-gray-600 mb-4">Key metrics</div>
-            <div class="flex items-center gap-4">
-              <div class="flex-1">
-                <div class="text-xs text-om-gray-400 mb-0.5">{{ currentKpis.label1 }}</div>
-                <div class="text-xl font-semibold text-om-gray-700">{{ currentKpis.value1 }}</div>
-              </div>
-              <svg width="12" height="44" viewBox="0 0 12 44" fill="none" class="text-om-gray-300">
-                <path d="M2 4L10 22L2 40" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <div class="flex-1">
-                <div class="text-xs text-om-gray-400 mb-0.5">{{ currentKpis.label2 }}</div>
-                <div class="text-xl font-semibold text-om-gray-700">{{ currentKpis.value2 }}</div>
-              </div>
-              <svg width="12" height="44" viewBox="0 0 12 44" fill="none" class="text-om-gray-300">
-                <path d="M2 4L10 22L2 40" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <div class="flex-1">
-                <div class="text-xs text-om-gray-400 mb-0.5">{{ currentKpis.label3 }}</div>
-                <div class="text-xl font-semibold text-om-gray-700">{{ currentKpis.value3 }}</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Filters -->
-          <div class="flex flex-col items-end justify-end gap-2.5 pr-8 py-8">
-            <!-- Time Period Dropdown -->
-            <div style="width: 208px">
-              <Dropdown key="time-period" v-model="selectedTimePeriod" :options="timePeriodOptions">
-                <template #icon>
-                  <Calendar :size="18" class="text-om-gray-400" />
-                </template>
-              </Dropdown>
-            </div>
-
-            <!-- Goal Dropdown -->
-            <div style="width: 208px">
-              <Dropdown key="goal" v-model="selectedGoal" :options="goalOptions">
-                <template #icon>
-                  <Target :size="18" class="text-om-gray-400" />
-                </template>
-              </Dropdown>
-            </div>
-          </div>
-        </div>
-        </div>
-
+        <!-- Variants + Filters side-by-side -->
+        <div class="grid grid-cols-[minmax(0,1fr)_280px] gap-5 mb-5 items-start">
         <!-- Variants + Variables Section -->
-        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 pt-5 pb-5 pl-5 pr-8">
-          <!-- Header -->
-          <div class="grid grid-cols-[56px_1fr_60px_80px_80px_80px_100px_100px_36px] gap-3 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
-            <div class="pl-3">Traffic</div>
-            <div>Variants</div>
-            <div>Active</div>
-            <div class="text-right">{{ currentKpis.h1 }}</div>
-            <div class="text-right">{{ currentKpis.h2 }}</div>
-            <div class="text-right">{{ currentKpis.h3 }}</div>
-            <div class="text-right">Uplift</div>
-            <div class="text-right">Chance to win</div>
-            <div></div>
-          </div>
-
+        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pt-2 pb-5 pl-5 pr-8">
           <!-- Variant rows -->
           <div
             v-for="(variant, vi) in variants"
@@ -388,12 +297,9 @@
           >
             <!-- Variant header row -->
             <div
-              class="grid grid-cols-[56px_1fr_60px_80px_80px_80px_100px_100px_36px] gap-3 items-center py-4 group cursor-pointer"
+              class="grid grid-cols-[2fr_1fr_1fr_1fr_36px] gap-3 items-center py-4 group cursor-pointer"
               @click="$emit('navigate', 'ppo-variant-detail-v2')"
             >
-              <div @click.stop>
-                <Button variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">{{ variant.traffic }}%</Button>
-              </div>
               <div class="flex items-center gap-3">
                 <div
                   v-if="variant.variables.length"
@@ -437,30 +343,56 @@
                   <div v-else class="text-xs text-om-gray-400 mt-1">No variant will be shown.</div>
                 </div>
               </div>
-              <div @click.stop>
-                <ToggleSwitch v-model="variant.active" />
+              <div class="text-right">
+                <div class="text-xs text-om-gray-500 mb-1">{{ currentKpis.h1 }}</div>
+                <div class="text-base font-semibold text-om-gray-700">{{ currentKpis.variants[variant.id]?.v1 }}</div>
               </div>
-              <div class="text-base font-semibold text-om-gray-700 text-right">{{ currentKpis.variants[variant.id]?.v1 }}</div>
-              <div class="text-base font-semibold text-om-gray-700 text-right">{{ currentKpis.variants[variant.id]?.v2 }}</div>
-              <div class="text-base font-semibold text-om-gray-700 text-right">{{ currentKpis.variants[variant.id]?.v3 }}</div>
-              <div class="text-base font-semibold flex items-center gap-1 justify-end" :class="variant.uplift.startsWith('+') ? 'text-[#10B981]' : 'text-om-gray-400'">
-                {{ variant.uplift }}
-                <TrendingUp v-if="variant.uplift.startsWith('+')" :size="16" class="text-[#2CC896]" />
+              <div class="text-right">
+                <div class="text-xs text-om-gray-500 mb-1">{{ currentKpis.h2 }}</div>
+                <div class="text-base font-semibold text-om-gray-700">{{ currentKpis.variants[variant.id]?.v2 }}</div>
               </div>
-              <div class="text-base font-semibold text-om-gray-400 text-right">{{ variant.id === winningVariantId ? variant.chanceToWin : '' }}</div>
+              <div class="text-right">
+                <div class="text-xs text-om-gray-500 mb-1">{{ currentKpis.h3 }}</div>
+                <div class="text-base font-semibold text-om-gray-700">{{ currentKpis.variants[variant.id]?.v3 }}</div>
+              </div>
               <div class="flex items-center justify-end" @click.stop>
                 <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
               </div>
             </div>
           </div>
 
-          <!-- Add Variant Button -->
-          <div class="mt-4">
-            <button class="flex items-center gap-2 text-sm text-om-orange-500 font-medium hover:text-om-orange-600 cursor-pointer">
-              <Plus :size="16" />
-              Add A/B test variant
+          <!-- Add Variant — dual path -->
+          <div class="grid grid-cols-2 gap-3 mt-2">
+            <button class="flex items-center gap-3 p-4 border-2 border-dashed border-om-gray-200 rounded-lg text-left hover:border-om-gray-300 cursor-pointer transition-colors">
+              <div class="w-9 h-9 bg-om-orange-100 rounded-xl flex items-center justify-center shrink-0">
+                <FlaskConical :size="18" class="text-om-orange-500" />
+              </div>
+              <div class="text-sm font-semibold text-om-gray-700">Add A/B test variant</div>
+            </button>
+            <button class="flex items-center gap-3 p-4 border-2 border-dashed border-om-gray-200 rounded-lg text-left hover:border-om-gray-300 cursor-pointer transition-colors">
+              <div class="w-9 h-9 bg-om-orange-100 rounded-xl flex items-center justify-center shrink-0">
+                <Copy :size="18" class="text-om-orange-500" />
+              </div>
+              <div class="text-sm font-semibold text-om-gray-700">Create new version</div>
             </button>
           </div>
+        </div>
+
+        <!-- Filters block (right side) -->
+        <div class="self-start bg-om-gray-100 rounded-xl p-8 flex flex-col gap-2.5">
+          <!-- Time Period Dropdown -->
+          <Dropdown key="time-period" v-model="selectedTimePeriod" :options="timePeriodOptions">
+            <template #icon>
+              <Calendar :size="18" class="text-om-gray-400" />
+            </template>
+          </Dropdown>
+          <!-- Goal Dropdown -->
+          <Dropdown key="goal" v-model="selectedGoal" :options="goalOptions">
+            <template #icon>
+              <Target :size="18" class="text-om-gray-400" />
+            </template>
+          </Dropdown>
+        </div>
         </div>
 
         <!-- Campaign Settings Sections -->
@@ -1293,7 +1225,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check, Ban, Info, Globe, FlaskConical, Mail, Zap } from 'lucide-vue-next'
+import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check, Ban, Info, Globe, FlaskConical, Mail, Zap, Copy } from 'lucide-vue-next'
 import Tag from '../components/shared/Tag.vue'
 import ProductPagePreview from '../components/ppo/ProductPagePreview.vue'
 import Button from '../components/shared/Button.vue'
@@ -1397,7 +1329,7 @@ const openSettingsAccordion = (section) => {
   openAccordion.value = section
 }
 
-// Variants with inline variables
+// Variants with inline variables (single variant — no A/B test)
 const variants = reactive([
   {
     id: 'v1',
@@ -1407,9 +1339,9 @@ const variants = reactive([
     visitors: '12,593',
     addToCart: '650',
     orderRate: '7.25%',
-    uplift: '+0.77%',
-    chanceToWin: '91.2%',
-    traffic: 34,
+    uplift: '-',
+    chanceToWin: '-',
+    traffic: 100,
     variables: [
       { id: 0, name: 'AI lifestyle image 1', type: 'Image', generated: '128 / 467', status: 'Ready to use', lastUpdated: 'Mar 13, 2026' },
       { id: 8, name: 'Benefit list', type: 'Text', generated: '100 / 467', status: 'Ready to use', lastUpdated: 'Mar 16, 2026' },
@@ -1418,40 +1350,6 @@ const variants = reactive([
       'product-image': 0,
       'benefit-list': 8,
     },
-  },
-  {
-    id: 'v2',
-    name: 'Product summary 2',
-    active: true,
-    expanded: false,
-    visitors: '12,401',
-    addToCart: '589',
-    orderRate: '5.83%',
-    uplift: '+0.34%',
-    chanceToWin: '67.4%',
-    traffic: 33,
-    variables: [
-      { id: 0, name: 'AI lifestyle image 1', type: 'Image', generated: '73 / 467', status: 'Ready to use', lastUpdated: 'Mar 15, 2026' },
-      { id: 8, name: 'Benefit list', type: 'Text', generated: '112 / 467', status: 'Ready to use', lastUpdated: 'Mar 17, 2026' },
-    ],
-    placements: {
-      'product-image': 0,
-      'benefit-list': 8,
-    },
-  },
-  {
-    id: 'v3',
-    name: 'Control',
-    active: true,
-    expanded: false,
-    placements: {},
-    visitors: '12,593',
-    addToCart: '412',
-    orderRate: '3.27%',
-    uplift: '-',
-    chanceToWin: '-',
-    traffic: 33,
-    variables: [],
   },
 ])
 
@@ -1805,30 +1703,24 @@ const goalOptions = computed(() =>
 
 const kpiByGoal = {
   'Submit': {
-    label1: 'Visitors', value1: '3,812', label2: 'Submits',         value2: '215', label3: 'Submit rate',     value3: '5.64%',
+    label1: 'Visitors', value1: '12,593', label2: 'Submits',         value2: '512',   label3: 'Submit rate',     value3: '4.07%',
     h1: 'Visitors', h2: 'Submits', h3: 'Submit rate',
     variants: {
       v1: { v1: '12,593', v2: '512', v3: '4.07%' },
-      v2: { v1: '12,401', v2: '478', v3: '3.85%' },
-      v3: { v1: '12,593', v2: '320', v3: '2.54%' },
     },
   },
   'Order': {
-    label1: 'Visitors', value1: '3,812', label2: 'Orders',          value2: '294', label3: 'Conversion Rate', value3: '7.71%',
+    label1: 'Visitors', value1: '12,593', label2: 'Orders',          value2: '650',   label3: 'Conversion Rate', value3: '7.25%',
     h1: 'Visitors', h2: 'Orders', h3: 'Conv. R.',
     variants: {
       v1: { v1: '12,593', v2: '650', v3: '7.25%' },
-      v2: { v1: '12,401', v2: '589', v3: '5.83%' },
-      v3: { v1: '12,593', v2: '412', v3: '3.27%' },
     },
   },
   'Add to cart': {
-    label1: 'Visitors', value1: '3,812', label2: 'Adds to cart',    value2: '512', label3: 'ATC rate',        value3: '13.43%',
+    label1: 'Visitors', value1: '12,593', label2: 'Adds to cart',    value2: '1,124', label3: 'ATC rate',        value3: '8.93%',
     h1: 'Visitors', h2: 'ATC', h3: 'ATC rate',
     variants: {
       v1: { v1: '12,593', v2: '1,124', v3: '8.93%' },
-      v2: { v1: '12,401', v2: '987',   v3: '7.96%' },
-      v3: { v1: '12,593', v2: '745',   v3: '5.92%' },
     },
   },
 }
@@ -1838,7 +1730,7 @@ const currentKpis = computed(() => {
 })
 
 // A/B test settings
-const autoStopEnabled = ref(true)
+const autoStopEnabled = ref(false)
 const autoStopThreshold = ref(95)
 const trafficEvenlySplit = ref(true)
 
@@ -1867,6 +1759,7 @@ const handleLogoClick = () => {
 
 // Kebab menu state
 const isKebabMenuOpen = ref(false)
+const isAddMenuOpen = ref(false)
 
 // Schedule Modal states
 const isScheduleModalOpen = ref(false)
