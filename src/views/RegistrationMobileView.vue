@@ -24,7 +24,7 @@
 
             <!-- Social login buttons view -->
             <template v-if="currentStep === 'buttons'">
-              <h2 class="text-3xl sm:text-4xl font-bold text-om-gray-700 mb-1 text-center">Create your free account</h2>
+              <h2 class="text-2xl sm:text-4xl font-bold text-om-gray-700 mb-1 text-center">Create your free account</h2>
               <p class="text-om-gray-500 mb-8 text-center">and unlock your full optimization plan</p>
 
               <div class="flex flex-col gap-3">
@@ -53,7 +53,7 @@
                 </Button>
               </div>
 
-              <p class="text-xs text-om-gray-400 text-center mt-6">
+              <p class="text-[10px] sm:text-xs text-om-gray-400 text-center mt-6">
                 By submitting this form, you agree to the
                 <a href="#" class="text-om-orange-500 hover:underline">Terms of Service</a>
                 and
@@ -63,7 +63,7 @@
 
             <!-- Email registration form view -->
             <template v-else-if="currentStep === 'email-form'">
-              <h2 class="text-3xl sm:text-4xl font-bold text-om-gray-700 mb-1 text-center">Create your free account</h2>
+              <h2 class="text-2xl sm:text-4xl font-bold text-om-gray-700 mb-1 text-center">Create your free account</h2>
               <p class="text-om-gray-500 mb-6 text-center">and unlock your full optimization plan</p>
 
               <form @submit.prevent="handleEmailSubmit" class="space-y-3">
@@ -99,7 +99,7 @@
                     required
                     class="w-full px-3 py-2.5 border border-om-gray-200 rounded-xl focus:ring-2 focus:ring-om-orange-400 focus:border-transparent transition-colors text-om-gray-700 text-sm"
                   />
-                  <p class="text-xs text-om-gray-400 mt-1.5">You'll receive important alerts and notifications about your account.</p>
+                  <p class="text-[10px] sm:text-xs text-om-gray-400 mt-1.5">You'll receive important alerts and notifications about your account.</p>
                 </div>
 
                 <div>
@@ -134,7 +134,7 @@
                   Get Started
                 </button>
 
-                <p class="text-xs text-om-gray-400 text-center">
+                <p class="text-[10px] sm:text-xs text-om-gray-400 text-center">
                   By submitting this form, you agree to the
                   <a href="#" class="text-om-orange-500 hover:underline">Terms of Service</a>
                   and
