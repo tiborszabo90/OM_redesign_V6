@@ -293,7 +293,7 @@ const goBack = () => {
 }
 
 const handleEmailSubmit = () => {
-  currentStep.value = 'referral'
+  emit('complete', formData.value)
 }
 
 const handleReferralNext = () => {
