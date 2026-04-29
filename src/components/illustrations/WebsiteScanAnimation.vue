@@ -72,11 +72,15 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { DotLottieVue } from '@lottiefiles/dotlottie-vue'
 
+const props = defineProps({
+  skeletonOnly: { type: Boolean, default: false }
+})
+
 const showScreenshot = ref(false)
 let screenshotTimeout = null
 
 onMounted(() => {
-  // Show screenshot after 2 seconds
+  if (props.skeletonOnly) return
   screenshotTimeout = setTimeout(() => {
     showScreenshot.value = true
   }, 2000)

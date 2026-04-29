@@ -76,11 +76,11 @@
         </template>
 
         <!-- Email/Shopify flow (only on registration/onboarding/task views) -->
-        <template v-else-if="['registration', 'onboarding', 'task-creation'].includes(currentView)">
+        <template v-else-if="['registration', 'registration-mobile', 'onboarding', 'onboarding-mobile', 'task-creation'].includes(currentView)">
           <button
             v-if="registrationType === 'email'"
-            @click="$emit('navigate', 'registration')"
-            :class="stepClass(currentView === 'registration')"
+            @click="$emit('navigate', (currentView === 'registration-mobile' || currentView === 'onboarding-mobile') ? 'registration-mobile' : 'registration')"
+            :class="stepClass(currentView === 'registration' || currentView === 'registration-mobile')"
           >Registration</button>
           <!-- Onboarding steps -->
           <div class="flex items-center gap-1 ml-2">
@@ -91,7 +91,7 @@
               @click="$emit('go-to-step', step)"
               :class="[
                 'w-8 h-8 text-sm rounded transition-colors flex items-center justify-center cursor-pointer',
-                currentView === 'onboarding' && currentStep === step ? 'bg-[#ED5A29] text-white' : 'bg-[#505763] hover:bg-[#8F97A4]'
+                (currentView === 'onboarding' || currentView === 'onboarding-mobile') && currentStep === step ? 'bg-[#ED5A29] text-white' : 'bg-[#505763] hover:bg-[#8F97A4]'
               ]"
             >{{ step }}</button>
           </div>

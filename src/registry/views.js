@@ -108,6 +108,16 @@ const registrationViews = [
     nav: { sessionReset: true, flowSelected: true },
   },
   {
+    id: 'registration-mobile',
+    component: () => import('../views/RegistrationMobileView.vue'),
+    label: 'Registration (Mobile)',
+    status: 'active',
+    section: null,
+    hideLogo: true,
+    keyPrefix: 'reg-mobile',
+    nav: { sessionReset: true, flowSelected: true },
+  },
+  {
     id: 'login',
     component: () => import('../views/LoginView.vue'),
     label: 'Login',
@@ -145,6 +155,17 @@ const registrationViews = [
     hideLogo: false, // Logo IS shown for onboarding
     keyPrefix: 'onb',
     refName: 'onboardingRef',
+    nav: { sessionReset: true, flowSelected: true },
+  },
+  {
+    id: 'onboarding-mobile',
+    component: () => import('../views/OnboardingMobileView.vue'),
+    label: 'Onboarding (Mobile)',
+    status: 'active',
+    section: null,
+    hideLogo: false,
+    keyPrefix: 'onb-mobile',
+    refName: 'onboardingMobileRef',
     nav: { sessionReset: true, flowSelected: true },
   },
   {

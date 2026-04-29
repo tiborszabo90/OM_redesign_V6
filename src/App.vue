@@ -66,6 +66,7 @@ const devNavOpen = ref(true)
 const devStartShowArchive = ref(false)
 const wizardMessage = ref('')
 const wizardPhase = ref(null)
+const useMobileOnboarding = ref(false)
 
 // View refs — keyed by refName from registry
 const viewRefs = {}
@@ -78,6 +79,7 @@ const setViewRef = (el) => {
 
 // Backwards-compatible ref accessors
 const onboardingRef = computed(() => viewRefs.onboardingRef)
+const onboardingMobileRef = computed(() => viewRefs.onboardingMobileRef)
 const taskCreationRef = computed(() => viewRefs.taskCreationRef)
 const wizardAnalysisRef = computed(() => viewRefs.wizardAnalysisRef)
 const publicWizardRef = computed(() => viewRefs.publicWizardRef)
@@ -160,6 +162,7 @@ const activeProps = computed(() => {
     'dev-start': { initialShowArchive: devStartShowArchive.value },
     'registration-v1': { registrationType: registrationType.value },
     'onboarding': { registrationData: registrationData.value, registrationType: registrationType.value },
+    'onboarding-mobile': { registrationData: registrationData.value, registrationType: registrationType.value },
     'task-creation': { registrationData: registrationData.value },
     'home-old': { registrationData: registrationData.value },
     'chat-create-popup-v1': { registrationData: registrationData.value },
@@ -256,7 +259,7 @@ const handlePhaseChanged = (phase) => {
 
 const handleRegistrationComplete = (data) => {
   registrationData.value = data
-  currentView.value = 'onboarding'
+  currentView.value = useMobileOnboarding.value ? 'onboarding-mobile' : 'onboarding'
 }
 
 const handleOnboardingComplete = () => {
@@ -430,10 +433,12 @@ const activeEvents = computed(() => {
       'show-archive': handleShowArchive,
     },
     'registration': { complete: handleRegistrationComplete },
+    'registration-mobile': { complete: handleRegistrationComplete },
     'registration-v1': { complete: handleRegistrationComplete },
     'registration-v2': { complete: handleRegistrationComplete },
     'login': { complete: () => { currentView.value = 'home-old' }, 'go-to-register': () => { currentView.value = 'registration' }, 'forgot-password': () => {} },
     'onboarding': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated },
+    'onboarding-mobile': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated, 'sign-out': () => handleDevNavigate('dev-start') },
     'task-creation': { 'task-created': handleTaskCreated },
     'home-old': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
     'chat-create-popup-v1': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
@@ -619,6 +624,7 @@ const handleDevNavigate = (view) => {
     registrationData.value = null
     createdTasks.value = []
     wizardMessage.value = ''
+    useMobileOnboarding.value = false
     setTimeout(() => { currentView.value = 'dev-start' }, 50)
     return
   }
@@ -653,7 +659,8 @@ const handleDevNavigate = (view) => {
 const handleDevStartSelect = (type) => {
   sessionKey.value++
   flowSelected.value = true
-  registrationType.value = type
+  useMobileOnboarding.value = type === 'mobile'
+  registrationType.value = type === 'mobile' ? 'email' : type
   currentView.value = null
   setTimeout(() => {
     if (type === 'wizard') {
@@ -664,6 +671,8 @@ const handleDevStartSelect = (type) => {
       currentView.value = 'image-with-badge'
     } else if (type === 'shopify') {
       currentView.value = 'onboarding'
+    } else if (type === 'mobile') {
+      currentView.value = 'registration-mobile'
     } else {
       currentView.value = 'registration'
     }
@@ -672,16 +681,18 @@ const handleDevStartSelect = (type) => {
 
 const handleDevGoToStep = async (step) => {
   flowSelected.value = true
-  if (currentView.value !== 'onboarding') {
+  const targetView = useMobileOnboarding.value ? 'onboarding-mobile' : 'onboarding'
+  const refKey = useMobileOnboarding.value ? 'onboardingMobileRef' : 'onboardingRef'
+  if (currentView.value !== targetView) {
     sessionKey.value++
     currentView.value = null
     await nextTick()
     setTimeout(() => {
-      currentView.value = 'onboarding'
-      setTimeout(() => { viewRefs.onboardingRef?.devGoToStep(step) }, 350)
+      currentView.value = targetView
+      setTimeout(() => { viewRefs[refKey]?.devGoToStep(step) }, 350)
     }, 50)
   } else {
-    viewRefs.onboardingRef?.devGoToStep(step)
+    viewRefs[refKey]?.devGoToStep(step)
   }
 }
 
