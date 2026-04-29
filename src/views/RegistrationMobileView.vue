@@ -6,7 +6,7 @@
         <img
           src="/OM-Logo-primary-basic.svg"
           alt="OptiMonk"
-          class="absolute top-8 left-8 h-8"
+          class="absolute top-4 md:top-8 left-8 h-8"
         />
         <div class="w-full max-w-[516px]">
           <transition name="step-fade" mode="out-in">
@@ -25,7 +25,7 @@
             <!-- Social login buttons view -->
             <template v-if="currentStep === 'buttons'">
               <h2 class="text-2xl sm:text-4xl font-bold text-om-gray-700 mb-1 text-center">Create your free account</h2>
-              <p class="text-om-gray-500 mb-8 text-center">and unlock your full optimization plan</p>
+              <p class="text-om-gray-500 mb-4 sm:mb-8 text-center">and unlock your full optimization plan</p>
 
               <div class="flex flex-col gap-3">
                 <Button variant="outline" size="lg" class="w-full" @click="currentStep = 'email-form'">
@@ -63,8 +63,8 @@
 
             <!-- Email registration form view -->
             <template v-else-if="currentStep === 'email-form'">
-              <h2 class="text-2xl sm:text-4xl font-bold text-om-gray-700 mb-1 text-center">Create your free account</h2>
-              <p class="text-om-gray-500 mb-6 text-center">and unlock your full optimization plan</p>
+              <h2 class="text-2xl sm:text-4xl font-bold text-om-gray-700 mb-1 mt-2.5 md:mt-0 text-center">Create your free account</h2>
+              <p class="text-om-gray-500 mb-3 sm:mb-6 text-center">and unlock your full optimization plan</p>
 
               <form @submit.prevent="handleEmailSubmit" class="space-y-3">
                 <div class="flex flex-col sm:flex-row gap-3">

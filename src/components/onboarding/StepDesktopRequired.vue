@@ -2,7 +2,7 @@
   <div class="relative">
     <button
       @click="emit('sign-out')"
-      class="fixed top-10 right-8 z-50 text-base font-semibold text-om-orange-500 hover:underline cursor-pointer"
+      class="fixed top-6 md:top-10 right-8 z-50 text-base font-semibold text-om-orange-500 hover:underline cursor-pointer"
     >
       Sign out
     </button>

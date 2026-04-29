@@ -767,7 +767,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
 <template>
   <div class="h-screen-safe flex flex-col">
     <!-- Global Logo -->
-    <div v-if="showLogo" class="pt-8 pl-8 shrink-0">
+    <div v-if="showLogo" class="pt-4 md:pt-8 pl-8 shrink-0">
       <img src="/OM-Logo-primary-basic.svg" alt="OptiMonk" class="h-8" />
     </div>
 
