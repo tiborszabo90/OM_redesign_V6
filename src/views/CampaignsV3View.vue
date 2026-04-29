@@ -127,8 +127,8 @@
             variant="list"
             @click="handleCampaignClick(campaign.id)"
           >
-            <template v-if="campaign.id === 'campaign-ppo'" #thumbnail>
-              <div class="w-full h-full flex flex-col overflow-hidden bg-white px-2 pt-0.5 pb-1 gap-0.5">
+            <template #thumbnail>
+              <div v-if="campaign.id === 'campaign-ppo' || campaign.id === 'campaign-ppo-single'" class="w-full h-full flex flex-col overflow-hidden bg-white px-2 pt-0.5 pb-1 gap-0.5">
                 <div class="h-6 flex gap-1.5 items-center shrink-0">
                   <div class="h-full aspect-square bg-gray-200 rounded-sm shrink-0"></div>
                   <div class="flex-1 flex flex-col justify-center gap-0.5">
@@ -146,6 +146,7 @@
                   <div class="flex-1 bg-gray-200 rounded-sm"></div>
                 </div>
               </div>
+              <img v-else :src="campaign.image" :alt="campaign.name" class="w-full h-full object-cover" :style="{ objectPosition: campaign.imagePosition || 'center' }" />
             </template>
           </CampaignCard>
         </div>
@@ -190,7 +191,7 @@ import ChatPanel from '../components/shared/ChatPanel.vue'
 import CampaignCard from '../components/shared/CampaignCard.vue'
 import AddDomainModal from '../components/shared/AddDomainModal.vue'
 
-const emit = defineEmits(['menu-click', 'navigate-to-campaign', 'navigate-to-campaign-single', 'navigate-to-ppo-detail'])
+const emit = defineEmits(['menu-click', 'navigate-to-campaign', 'navigate-to-campaign-single', 'navigate-to-ppo-detail', 'navigate-to-ppo-detail-single'])
 
 const isChatOpen = ref(false)
 
@@ -257,11 +258,26 @@ const campaigns = reactive([
     ],
   },
   {
+    id: 'campaign-ppo-single',
+    name: 'Product Summary 2',
+    domain: 'domain.com',
+    image: '/image-with-badge/preview-1.png',
+    imagePosition: 'top',
+    active: true,
+    selected: false,
+    lastUpdated: '5 days ago',
+    metrics: [
+      { label: 'Visitors', value: '12,593' },
+      { label: 'Orders', value: '650' },
+      { label: 'Order rate', value: '7.25%' },
+    ],
+  },
+  {
     id: 'campaign2',
     name: 'Lucky Wheel',
     domain: 'domain.com',
     image: '/campaigns/lucky-wheel.png',
-    active: false,
+    active: true,
     selected: false,
     lastUpdated: '14 days ago',
     metrics: [
@@ -281,7 +297,7 @@ const campaigns = reactive([
     name: 'Cart Abandonment Stopper',
     domain: 'domain.com',
     image: '/campaigns/cart-abandonment-stopper.png',
-    active: true,
+    active: false,
     selected: false,
     lastUpdated: '14 days ago',
     metrics: [
@@ -533,7 +549,9 @@ const deleteSelected = () => {
 const handleCampaignClick = (campaignId) => {
   if (campaignId === 'campaign-ppo') {
     emit('navigate-to-ppo-detail')
-  } else if (campaignId === 'campaign3') {
+  } else if (campaignId === 'campaign-ppo-single') {
+    emit('navigate-to-ppo-detail-single')
+  } else if (campaignId === 'campaign3' || campaignId === 'campaign2') {
     emit('navigate-to-campaign-single')
   } else {
     emit('navigate-to-campaign')

@@ -9,7 +9,7 @@
               <ArrowLeft :size="18" />
             </button>
             <div class="h-5 w-px bg-om-gray-200" />
-            <div class="flex flex-col"><span class="font-semibold text-om-gray-700 text-sm">Variables</span><span class="text-xs text-om-gray-400">Product Summary 1</span></div>
+            <div class="flex flex-col"><span class="font-semibold text-om-gray-700 text-sm">Variables</span><span class="text-xs text-om-gray-400">Product Summary 2</span></div>
           </div>
           <div class="flex-1 flex items-center justify-between px-6 py-3 gap-8 min-w-0">
             <Dropdown v-model="selectedProductPage" :options="productPageOptions" size="sm" class="min-w-0" />
@@ -126,7 +126,7 @@
         <!-- Header -->
         <div class="flex items-start justify-between mb-4">
           <div>
-            <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Product Summary 1</h1>
+            <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Product Summary 2</h1>
             <p class="text-xs text-om-gray-400">www.mydomain.com</p>
           </div>
           <div class="flex items-center gap-2.5">
@@ -411,12 +411,13 @@
           </div>
 
           <!-- Add Variant Button -->
-          <div class="mt-4">
-            <button class="flex items-center gap-2 text-sm text-om-orange-500 font-medium hover:text-om-orange-600 cursor-pointer">
-              <Plus :size="16" />
-              Add variant
-            </button>
-          </div>
+          <button class="mt-4 flex items-center gap-2 text-sm text-om-orange-500 font-medium hover:text-om-orange-600 cursor-pointer">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="8" cy="8" r="7"/>
+              <path d="M8 5v6M5 8h6"/>
+            </svg>
+            Add A/B test variant
+          </button>
         </div>
 
         <!-- Campaign Settings Sections -->
@@ -1357,7 +1358,7 @@ const openSettingsAccordion = (section) => {
 const variants = reactive([
   {
     id: 'v1',
-    name: 'Product summary 1',
+    name: 'Product Summary 2',
     active: true,
     expanded: true,
     visitors: '12,593',

@@ -458,7 +458,7 @@ const activeEvents = computed(() => {
     'audience-profile': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'audience' }, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' } },
     'campaigns': { 'menu-click': handleMenuClick },
     'campaigns-v2': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },
-    'campaigns-v3': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-campaign-single': () => { currentView.value = 'campaign-page-single' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail-v2' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },
+    'campaigns-v3': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-campaign-single': () => { currentView.value = 'campaign-page-single' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail-v3' }, 'navigate-to-ppo-detail-single': () => { currentView.value = 'ppo-campaign-detail-v3-single' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },
     'campaigns-empty': { 'menu-click': handleMenuClick },
     'new-campaign': { 'menu-click': handleMenuClick, back: () => { currentView.value = previousView.value || 'campaigns-v3' }, navigate: handleDevNavigate },
     'ppo-loading': { 'menu-click': handleMenuClick, done: () => {
@@ -493,6 +493,7 @@ const activeEvents = computed(() => {
     'ppo-campaign-detail-v3-single-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-campaign-detail-v3-single-v3': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-campaign-detail-v3-single-v4': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'ppo-campaign-detail-v3-single-v5': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-variant-detail-v1': { back: () => { currentView.value = 'ppo-campaign-detail' }, next: () => { currentView.value = 'ppo-campaign-detail' } },
     'ppo-variant-detail-v2': { back: () => { currentView.value = 'ppo-campaign-detail-v2' }, next: () => { currentView.value = 'ppo-campaign-detail-v2' } },
     // PPO V1
