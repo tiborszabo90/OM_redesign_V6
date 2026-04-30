@@ -481,7 +481,7 @@ const activeEvents = computed(() => {
     'audience-profile': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'audience' }, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' } },
     'campaigns': { 'menu-click': handleMenuClick },
     'campaigns-v2': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },
-    'campaigns-v3': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-campaign-single': () => { currentView.value = 'campaign-page-single' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail-v3' }, 'navigate-to-ppo-detail-single': () => { currentView.value = 'ppo-campaign-detail-v3-single' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },
+    'campaigns-v3': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-campaign-single': () => { currentView.value = 'campaign-page-single' }, 'navigate-to-campaign-new': () => { currentView.value = 'campaign-page-with-review' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail-v3' }, 'navigate-to-ppo-detail-single': () => { currentView.value = 'ppo-campaign-detail-v3-single' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },
     'campaigns-empty': { 'menu-click': handleMenuClick },
     'new-campaign': { 'menu-click': handleMenuClick, back: () => { currentView.value = previousView.value || 'campaigns-v3' }, navigate: handleDevNavigate },
     'ppo-loading': { 'menu-click': handleMenuClick, done: () => {
@@ -554,7 +554,8 @@ const activeEvents = computed(() => {
     'wizard-recommendation-v3': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
     'wizard-recommendation-v4': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
     'wizard-recommendation-v5': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
-    'editor': { 'go-back': () => handleDevNavigate('campaign-page-v1') },
+    'editor': { 'go-back': () => handleDevNavigate('campaign-page-v1'), 'save-and-exit': () => handleDevNavigate('campaign-settings-step') },
+    'campaign-settings-step': { 'menu-click': handleMenuClick, next: () => handleDevNavigate('campaign-page-with-review') },
     'wizard': { submit: handleWizardSubmit },
   }
 

@@ -6,7 +6,7 @@
         <!-- Header -->
         <div class="flex items-start justify-between mb-4">
           <div>
-            <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Black Friday 2025</h1>
+            <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Campaign #1</h1>
             <p class="text-xs text-om-gray-400">www.mydomain.com</p>
           </div>
           <div class="flex items-center gap-2.5">

@@ -641,6 +641,7 @@ const campaignViews = [
     status: 'active',
     section: 'campaignPage',
     hideLogo: true,
+    slug: 'campaign-new',
   },
   {
     id: 'campaign-review',
@@ -648,6 +649,14 @@ const campaignViews = [
     label: 'Campaign Review',
     status: 'active',
     section: null,
+    hideLogo: true,
+  },
+  {
+    id: 'campaign-settings-step',
+    component: () => import('../views/CampaignSettingsStepView.vue'),
+    label: 'Campaign Settings (step)',
+    status: 'active',
+    section: 'campaignPage',
     hideLogo: true,
   },
 ]

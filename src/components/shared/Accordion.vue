@@ -1,5 +1,5 @@
 <template>
-  <div :class="['relative bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] transition-shadow duration-300 ease-in-out overflow-hidden', disabled ? 'opacity-50' : 'hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)]']">
+  <div :class="['relative bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] transition-shadow duration-300 ease-in-out', open ? 'overflow-visible' : 'overflow-hidden', disabled ? 'opacity-50' : 'hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)]']">
     <button
       @click="!disabled && $emit('toggle')"
       :class="['w-full pl-4 pr-7 py-4 flex items-center justify-between text-left transition-colors rounded-2xl', disabled ? 'cursor-not-allowed' : 'cursor-pointer']"

@@ -191,7 +191,7 @@ import ChatPanel from '../components/shared/ChatPanel.vue'
 import CampaignCard from '../components/shared/CampaignCard.vue'
 import AddDomainModal from '../components/shared/AddDomainModal.vue'
 
-const emit = defineEmits(['menu-click', 'navigate-to-campaign', 'navigate-to-campaign-single', 'navigate-to-ppo-detail', 'navigate-to-ppo-detail-single'])
+const emit = defineEmits(['menu-click', 'navigate-to-campaign', 'navigate-to-campaign-single', 'navigate-to-campaign-new', 'navigate-to-ppo-detail', 'navigate-to-ppo-detail-single'])
 
 const isChatOpen = ref(false)
 
@@ -294,7 +294,7 @@ const campaigns = reactive([
   },
   {
     id: 'campaign3',
-    name: 'Cart Abandonment Stopper',
+    name: 'Campaign #1',
     domain: 'domain.com',
     image: '/campaigns/cart-abandonment-stopper.png',
     active: false,
@@ -551,7 +551,9 @@ const handleCampaignClick = (campaignId) => {
     emit('navigate-to-ppo-detail')
   } else if (campaignId === 'campaign-ppo-single') {
     emit('navigate-to-ppo-detail-single')
-  } else if (campaignId === 'campaign3' || campaignId === 'campaign2') {
+  } else if (campaignId === 'campaign3') {
+    emit('navigate-to-campaign-new')
+  } else if (campaignId === 'campaign2') {
     emit('navigate-to-campaign-single')
   } else {
     emit('navigate-to-campaign')
