@@ -6,7 +6,7 @@
         <!-- Header -->
         <div class="flex items-start justify-between mb-4">
           <div>
-            <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Campaign #1</h1>
+            <EditableTitle v-model="campaignName" />
             <p class="text-xs text-om-gray-400">www.mydomain.com</p>
           </div>
           <div class="flex items-center gap-2.5">
@@ -811,10 +811,12 @@ import { VueDatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import ScrollTimePicker from '../components/shared/ScrollTimePicker.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
+import EditableTitle from '../components/shared/EditableTitle.vue'
 
 defineEmits(['menu-click', 'navigate-to-review'])
 
 const isChatOpen = ref(false)
+const campaignName = ref('Campaign #1')
 
 const chatSuggestions = [
   'How is this campaign performing?',

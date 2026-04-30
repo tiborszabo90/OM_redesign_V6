@@ -6,7 +6,7 @@
         <!-- Header -->
         <div class="flex items-start justify-between mb-6">
           <div>
-            <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Black Friday 2025</h1>
+            <EditableTitle v-model="campaignName" />
             <p class="text-xs text-om-gray-400">www.mydomain.com</p>
           </div>
           <Button variant="primary" size="md" @click="emit('next')">Next</Button>
@@ -276,8 +276,11 @@ import Dropdown from '../components/shared/Dropdown.vue'
 import Accordion from '../components/shared/Accordion.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
 import RadioButton from '../components/shared/RadioButton.vue'
+import EditableTitle from '../components/shared/EditableTitle.vue'
 
 const emit = defineEmits(['menu-click', 'logo-click', 'next'])
+
+const campaignName = ref('Campaign #1')
 
 // Flow: only one accordion open at a time; Next opens the next step
 const openAccordion = ref('abTest')
