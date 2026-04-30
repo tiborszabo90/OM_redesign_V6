@@ -292,7 +292,7 @@
           <div class="pl-8 py-8">
             <div class="text-base text-om-gray-600 mb-3">Conversion uplift</div>
             <div class="flex items-end gap-2">
-              <span class="text-[3rem] font-light text-om-gray-700 leading-none font-['Funnel_Sans']">+0.77%</span>
+              <span class="text-[3rem] font-light text-om-gray-700 leading-none font-['Funnel_Sans']">+12.77%</span>
               <TrendingUp :size="24" class="text-[#2CC896]" />
             </div>
           </div>
@@ -546,33 +546,87 @@
 
         <!-- Settings Tab Content -->
         <div v-if="activeTab === 'Settings'" class="space-y-4 pb-40">
-          <!-- Primary goal -->
-          <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pl-4 pr-7 py-4 flex items-center justify-between gap-6">
-            <div class="flex items-center gap-3 flex-1 min-w-0">
-              <div class="w-10 h-10 rounded-xl bg-om-orange-100 flex items-center justify-center shrink-0">
-                <Target :size="20" class="text-om-orange-400" />
-              </div>
-              <div class="flex-1 min-w-0">
-                <h3 class="text-lg font-semibold text-om-gray-700 leading-tight">Primary goal</h3>
-                <p class="text-sm text-om-gray-500 mt-0.5">The main conversion event used to measure this campaign's success. Reports and variant comparisons default to this metric.</p>
-              </div>
-            </div>
-            <div class="w-64 shrink-0">
-              <Dropdown v-model="primaryGoal" :options="goalValues" />
-            </div>
-          </div>
-
-          <!-- A/B test -->
+          <!-- Goal & A/B test -->
           <Accordion
-            title="A/B test"
+            title="Goal & A/B test"
             :open="openAccordion === 'abTest'"
             @toggle="toggleAccordion('abTest')"
             icon-rounded="rounded-xl"
             icon-bg="bg-om-orange-100"
           >
             <template #icon><FlaskConical :size="20" class="text-om-orange-400" /></template>
-            <div class="grid grid-cols-2 gap-8">
-              <!-- Traffic share -->
+            <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-16 items-stretch">
+              <!-- Left column: Primary goal + Auto-declare winner -->
+              <div class="flex flex-col gap-6">
+                <!-- Primary goal -->
+                <section>
+                  <h4 class="text-base font-semibold text-om-gray-700 mb-3">Primary goal</h4>
+                  <p class="text-sm text-om-gray-500 mb-3">The main conversion event used to measure this campaign's success.<br />Reports and variant comparisons default to this metric.</p>
+                  <div class="w-64">
+                    <Dropdown v-model="primaryGoal" :options="goalValues" />
+                  </div>
+                </section>
+
+                <!-- Auto-declare winner -->
+                <section class="pt-6 border-t border-om-gray-100">
+                  <div class="flex items-center gap-3 mb-1">
+                    <h4 class="text-base font-semibold text-om-gray-700">Auto-declare winner</h4>
+                    <ToggleSwitch v-model="autoStopEnabled" />
+                  </div>
+                  <p class="text-sm text-om-gray-500 mb-3">Automatically end the test when a clear winner emerges.</p>
+
+                  <div v-if="autoStopEnabled" class="flex flex-col gap-2.5">
+                    <div class="flex items-center gap-2 text-sm text-om-gray-600">
+                      <span>Declare winner at</span>
+                      <div class="relative">
+                        <input
+                          type="number"
+                          v-model.number="autoStopThreshold"
+                          min="50"
+                          max="100"
+                          step="1"
+                          class="w-20 pl-3 pr-7 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums"
+                        />
+                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
+                      </div>
+                      <span>chance to win</span>
+                    </div>
+
+                    <div class="flex items-center gap-2 text-sm text-om-gray-600">
+                      <span>Minimum conversion threshold:</span>
+                      <div class="relative">
+                        <input
+                          type="number"
+                          v-model.number="minConversionThreshold"
+                          min="0"
+                          step="1"
+                          class="w-20 pl-3 pr-3 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums"
+                        />
+                      </div>
+                      <span>conversions</span>
+                    </div>
+
+                    <div class="flex items-center gap-2 text-sm text-om-gray-600">
+                      <span>Minimum days running:</span>
+                      <div class="relative">
+                        <input
+                          type="number"
+                          v-model.number="minDaysRunning"
+                          min="0"
+                          step="1"
+                          class="w-20 pl-3 pr-3 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums"
+                        />
+                      </div>
+                      <span>days</span>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <!-- Vertical divider -->
+              <div class="w-px bg-om-gray-100"></div>
+
+              <!-- Right column: Traffic share -->
               <section>
                 <h4 class="text-base font-semibold text-om-gray-700 mb-3">Traffic share</h4>
 
@@ -587,18 +641,18 @@
                         :disabled="trafficEvenlySplit"
                         min="0"
                         max="100"
-                        step="1"
-                        class="w-20 pl-3 pr-8 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums text-right disabled:cursor-not-allowed disabled:bg-om-gray-50 disabled:text-om-gray-500"
+                        step="0.01"
+                        class="w-24 pl-3 pr-8 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums text-left disabled:cursor-not-allowed disabled:bg-om-gray-50 disabled:text-om-gray-500"
                       />
                       <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
                     </div>
                   </div>
-                  <div class="flex items-center justify-between py-1 border-t border-om-gray-100 pt-2 mt-1">
+                  <div class="flex items-center justify-between py-1">
                     <span class="text-sm font-medium text-om-gray-500">Total</span>
                     <span
                       class="text-sm font-semibold tabular-nums"
                       :class="trafficTotal === 100 ? 'text-om-gray-700' : 'text-red-500'"
-                    >{{ trafficTotal }}%</span>
+                    >{{ trafficTotal.toFixed(2) }}%</span>
                   </div>
                 </div>
 
@@ -606,35 +660,6 @@
                   <Checkbox :model-value="trafficEvenlySplit" @update:model-value="toggleEvenlySplit" label="Evenly split" />
                   <p class="text-sm text-om-gray-500 mt-1">Equally distribute weight percentage across all groups</p>
                 </div>
-              </section>
-
-              <!-- Auto-declare winner -->
-              <section class="pl-8 border-l border-om-gray-100">
-                <h4 class="text-base font-semibold text-om-gray-700 mb-3">Auto-declare winner</h4>
-
-                <div class="flex items-center gap-3">
-                  <ToggleSwitch v-model="autoStopEnabled" />
-                  <div
-                    class="flex items-center gap-2 text-sm text-om-gray-600 transition-opacity"
-                    :class="{ 'opacity-50': !autoStopEnabled }"
-                  >
-                    <span>Declare winner at</span>
-                    <div class="relative">
-                      <input
-                        type="number"
-                        v-model.number="autoStopThreshold"
-                        :disabled="!autoStopEnabled"
-                        min="50"
-                        max="100"
-                        step="1"
-                        class="w-20 pl-3 pr-7 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums disabled:cursor-not-allowed disabled:bg-om-gray-50"
-                      />
-                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
-                    </div>
-                    <span>chance to win</span>
-                  </div>
-                </div>
-                <p class="text-sm text-om-gray-500 mt-2">Once a variant reaches this chance to win, losing variants are turned off and only the winner keeps running.</p>
               </section>
             </div>
           </Accordion>
@@ -1353,41 +1378,35 @@ const chatAiResponses = {
 const activeTab = ref('Overview')
 const isActive = ref(true)
 
-// Tab routing — each tab gets its own URL
-const VIEW_SLUG = 'ppo-campaign-detail-v2'
-const TAB_SLUGS = { Overview: '', Settings: 'settings', Analytics: 'analytics' }
-const SLUG_TO_TAB = { '': 'Overview', settings: 'Settings', analytics: 'Analytics' }
+// --- URL <-> tab sync (deep-link the Settings/Analytics tabs) ---
+const TAB_SUFFIXES = { Overview: '', Settings: '/settings', Analytics: '/analytics' }
+const SUFFIX_TO_TAB = { settings: 'Settings', analytics: 'Analytics' }
 
-const getTabFromHash = () => {
-  const hash = window.location.hash.replace('#/', '').replace('#', '')
+const readTabFromHash = () => {
+  const hash = window.location.hash.replace(/^#\/?/, '')
   const parts = hash.split('/')
-  if (parts[0] !== VIEW_SLUG) return 'Overview'
-  return SLUG_TO_TAB[parts[1] || ''] || 'Overview'
+  if (parts[0] !== 'ppo-campaign-detail-v3') return
+  const suffix = parts[1]
+  activeTab.value = SUFFIX_TO_TAB[suffix] || 'Overview'
 }
 
-const updateHashForTab = (tab) => {
-  const tabSlug = TAB_SLUGS[tab] || ''
-  const newHash = '/' + VIEW_SLUG + (tabSlug ? '/' + tabSlug : '')
-  if (window.location.hash !== '#' + newHash) {
-    window.location.hash = newHash
+watch(activeTab, (tab) => {
+  const hash = window.location.hash.replace(/^#\/?/, '')
+  // Only sync URL when actually viewing the V3 page (parent slug match,
+  // and not a longer slug like ppo-campaign-detail-v3-single).
+  const parts = hash.split('/')
+  if (parts[0] !== 'ppo-campaign-detail-v3') return
+  const next = '/ppo-campaign-detail-v3' + (TAB_SUFFIXES[tab] || '')
+  if (window.location.hash !== '#' + next) {
+    window.location.hash = next
   }
-}
-
-const handleTabHashChange = () => {
-  const newTab = getTabFromHash()
-  if (newTab !== activeTab.value) activeTab.value = newTab
-}
-
-watch(activeTab, (newTab) => { updateHashForTab(newTab) })
+})
 
 onMounted(() => {
-  activeTab.value = getTabFromHash()
-  window.addEventListener('hashchange', handleTabHashChange)
+  readTabFromHash()
+  window.addEventListener('hashchange', readTabFromHash)
 })
-
-onUnmounted(() => {
-  window.removeEventListener('hashchange', handleTabHashChange)
-})
+onUnmounted(() => window.removeEventListener('hashchange', readTabFromHash))
 
 // Settings tab - Accordion state
 const openAccordion = ref(null)
@@ -1421,9 +1440,9 @@ const variants = reactive([
     visitors: '12,593',
     addToCart: '650',
     orderRate: '7.25%',
-    uplift: '+0.77%',
+    uplift: '+12.77%',
     chanceToWin: '91.2%',
-    traffic: 34,
+    traffic: 33.33,
     variables: [
       { id: 0, name: 'AI lifestyle image 1', type: 'Image', generated: '128 / 467', status: 'Ready to use', lastUpdated: 'Mar 13, 2026' },
       { id: 8, name: 'Benefit list', type: 'Text', generated: '100 / 467', status: 'Ready to use', lastUpdated: 'Mar 16, 2026' },
@@ -1443,7 +1462,7 @@ const variants = reactive([
     orderRate: '5.83%',
     uplift: '+0.34%',
     chanceToWin: '67.4%',
-    traffic: 33,
+    traffic: 33.33,
     variables: [
       { id: 0, name: 'AI lifestyle image 1', type: 'Image', generated: '73 / 467', status: 'Ready to use', lastUpdated: 'Mar 15, 2026' },
       { id: 8, name: 'Benefit list', type: 'Text', generated: '112 / 467', status: 'Ready to use', lastUpdated: 'Mar 17, 2026' },
@@ -1464,7 +1483,7 @@ const variants = reactive([
     orderRate: '3.27%',
     uplift: '-',
     chanceToWin: '-',
-    traffic: 33,
+    traffic: 33.33,
     variables: [],
   },
 ])
@@ -1854,6 +1873,8 @@ const currentKpis = computed(() => {
 // A/B test settings
 const autoStopEnabled = ref(false)
 const autoStopThreshold = ref(95)
+const minConversionThreshold = ref(100)
+const minDaysRunning = ref(3)
 const trafficEvenlySplit = ref(true)
 
 const updateVariantTraffic = (index, value) => {
@@ -1862,15 +1883,14 @@ const updateVariantTraffic = (index, value) => {
 }
 
 const trafficTotal = computed(() =>
-  variants.reduce((sum, v) => sum + Number(v.traffic || 0), 0)
+  Math.round(variants.reduce((sum, v) => sum + Number(v.traffic || 0), 0))
 )
 
 const toggleEvenlySplit = () => {
   trafficEvenlySplit.value = !trafficEvenlySplit.value
   if (trafficEvenlySplit.value) {
-    const even = Math.floor(100 / variants.length)
-    const remainder = 100 - (even * variants.length)
-    variants.forEach((v, i) => { v.traffic = i === 0 ? even + remainder : even })
+    const even = Math.floor((100 / variants.length) * 100) / 100
+    variants.forEach((v) => { v.traffic = even })
   }
 }
 

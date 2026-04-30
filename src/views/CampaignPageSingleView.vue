@@ -137,9 +137,9 @@
         <div v-if="activeTab === 'Overview'">
         <!-- Metrics Section -->
         <div class="bg-om-gray-100 rounded-xl mb-6 relative">
-          <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-4">
+          <div class="grid grid-cols-[minmax(0,13fr)_minmax(0,8fr)_minmax(0,3fr)] gap-4">
           <!-- Key Metrics -->
-          <div class="pl-8 py-8 pr-24">
+          <div class="py-8 pl-8 pr-24">
             <div class="text-base text-om-gray-600 mb-4">Key metrics</div>
             <div class="flex items-center gap-4">
               <div class="flex-1">
@@ -162,6 +162,9 @@
               </div>
             </div>
           </div>
+
+          <!-- Empty spacer -->
+          <div></div>
 
           <!-- Filters -->
           <div class="flex flex-col items-end justify-end gap-2.5 pr-8 py-8">
