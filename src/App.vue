@@ -66,7 +66,8 @@ const devNavOpen = ref(true)
 const devStartShowArchive = ref(false)
 const wizardMessage = ref('')
 const wizardPhase = ref(null)
-const useMobileOnboarding = ref(false)
+const mobileOnboardingVariant = ref(null) // null | 'en' | 'hu'
+const useHuDesktopFlow = ref(false)
 
 // View refs — keyed by refName from registry
 const viewRefs = {}
@@ -80,6 +81,8 @@ const setViewRef = (el) => {
 // Backwards-compatible ref accessors
 const onboardingRef = computed(() => viewRefs.onboardingRef)
 const onboardingMobileRef = computed(() => viewRefs.onboardingMobileRef)
+const onboardingMobileHuRef = computed(() => viewRefs.onboardingMobileHuRef)
+const onboardingHuRef = computed(() => viewRefs.onboardingHuRef)
 const taskCreationRef = computed(() => viewRefs.taskCreationRef)
 const wizardAnalysisRef = computed(() => viewRefs.wizardAnalysisRef)
 const publicWizardRef = computed(() => viewRefs.publicWizardRef)
@@ -163,6 +166,9 @@ const activeProps = computed(() => {
     'registration-v1': { registrationType: registrationType.value },
     'onboarding': { registrationData: registrationData.value, registrationType: registrationType.value },
     'onboarding-mobile': { registrationData: registrationData.value, registrationType: registrationType.value },
+    'onboarding-mobile-hu': { registrationData: registrationData.value, registrationType: registrationType.value },
+    'onboarding-hu': { registrationData: registrationData.value, registrationType: registrationType.value },
+    'registration-mobile-hu': {},
     'task-creation': { registrationData: registrationData.value },
     'home-old': { registrationData: registrationData.value },
     'chat-create-popup-v1': { registrationData: registrationData.value },
@@ -259,7 +265,15 @@ const handlePhaseChanged = (phase) => {
 
 const handleRegistrationComplete = (data) => {
   registrationData.value = data
-  currentView.value = useMobileOnboarding.value ? 'onboarding-mobile' : 'onboarding'
+  if (mobileOnboardingVariant.value === 'hu') {
+    currentView.value = 'onboarding-mobile-hu'
+  } else if (mobileOnboardingVariant.value === 'en') {
+    currentView.value = 'onboarding-mobile'
+  } else if (useHuDesktopFlow.value) {
+    currentView.value = 'onboarding-hu'
+  } else {
+    currentView.value = 'onboarding'
+  }
 }
 
 const handleOnboardingComplete = () => {
@@ -433,12 +447,16 @@ const activeEvents = computed(() => {
       'show-archive': handleShowArchive,
     },
     'registration': { complete: handleRegistrationComplete },
+    'registration-hu': { complete: handleRegistrationComplete },
     'registration-mobile': { complete: handleRegistrationComplete },
+    'registration-mobile-hu': { complete: handleRegistrationComplete },
     'registration-v1': { complete: handleRegistrationComplete },
     'registration-v2': { complete: handleRegistrationComplete },
     'login': { complete: () => { currentView.value = 'home-old' }, 'go-to-register': () => { currentView.value = 'registration' }, 'forgot-password': () => {} },
     'onboarding': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated },
     'onboarding-mobile': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated, 'sign-out': () => handleDevNavigate('dev-start') },
+    'onboarding-mobile-hu': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated, 'sign-out': () => handleDevNavigate('dev-start') },
+    'onboarding-hu': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated },
     'task-creation': { 'task-created': handleTaskCreated },
     'home-old': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
     'chat-create-popup-v1': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
@@ -624,7 +642,8 @@ const handleDevNavigate = (view) => {
     registrationData.value = null
     createdTasks.value = []
     wizardMessage.value = ''
-    useMobileOnboarding.value = false
+    mobileOnboardingVariant.value = null
+    useHuDesktopFlow.value = false
     setTimeout(() => { currentView.value = 'dev-start' }, 50)
     return
   }
@@ -659,8 +678,9 @@ const handleDevNavigate = (view) => {
 const handleDevStartSelect = (type) => {
   sessionKey.value++
   flowSelected.value = true
-  useMobileOnboarding.value = type === 'mobile'
-  registrationType.value = type === 'mobile' ? 'email' : type
+  mobileOnboardingVariant.value = type === 'mobile' ? 'en' : type === 'mobile-hu' ? 'hu' : null
+  useHuDesktopFlow.value = type === 'email-hu'
+  registrationType.value = (type === 'mobile' || type === 'mobile-hu' || type === 'email-hu') ? 'email' : type
   currentView.value = null
   setTimeout(() => {
     if (type === 'wizard') {
@@ -673,6 +693,10 @@ const handleDevStartSelect = (type) => {
       currentView.value = 'onboarding'
     } else if (type === 'mobile') {
       currentView.value = 'registration-mobile'
+    } else if (type === 'mobile-hu') {
+      currentView.value = 'registration-mobile-hu'
+    } else if (type === 'email-hu') {
+      currentView.value = 'registration-hu'
     } else {
       currentView.value = 'registration'
     }
@@ -681,8 +705,14 @@ const handleDevStartSelect = (type) => {
 
 const handleDevGoToStep = async (step) => {
   flowSelected.value = true
-  const targetView = useMobileOnboarding.value ? 'onboarding-mobile' : 'onboarding'
-  const refKey = useMobileOnboarding.value ? 'onboardingMobileRef' : 'onboardingRef'
+  const targetView = mobileOnboardingVariant.value === 'hu' ? 'onboarding-mobile-hu'
+                    : mobileOnboardingVariant.value === 'en' ? 'onboarding-mobile'
+                    : useHuDesktopFlow.value ? 'onboarding-hu'
+                    : 'onboarding'
+  const refKey = mobileOnboardingVariant.value === 'hu' ? 'onboardingMobileHuRef'
+                : mobileOnboardingVariant.value === 'en' ? 'onboardingMobileRef'
+                : useHuDesktopFlow.value ? 'onboardingHuRef'
+                : 'onboardingRef'
   if (currentView.value !== targetView) {
     sessionKey.value++
     currentView.value = null

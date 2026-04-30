@@ -78,11 +78,11 @@
         </template>
 
         <!-- Email/Shopify flow (only on registration/onboarding/task views) -->
-        <template v-else-if="['registration', 'registration-mobile', 'onboarding', 'onboarding-mobile', 'task-creation'].includes(currentView)">
+        <template v-else-if="['registration', 'registration-hu', 'registration-mobile', 'registration-mobile-hu', 'onboarding', 'onboarding-hu', 'onboarding-mobile', 'onboarding-mobile-hu', 'task-creation'].includes(currentView)">
           <button
             v-if="registrationType === 'email'"
-            @click="$emit('navigate', (currentView === 'registration-mobile' || currentView === 'onboarding-mobile') ? 'registration-mobile' : 'registration')"
-            :class="stepClass(currentView === 'registration' || currentView === 'registration-mobile')"
+            @click="$emit('navigate', (currentView === 'registration-hu' || currentView === 'onboarding-hu') ? 'registration-hu' : (currentView === 'registration-mobile-hu' || currentView === 'onboarding-mobile-hu') ? 'registration-mobile-hu' : (currentView === 'registration-mobile' || currentView === 'onboarding-mobile') ? 'registration-mobile' : 'registration')"
+            :class="stepClass(['registration', 'registration-hu', 'registration-mobile', 'registration-mobile-hu'].includes(currentView))"
           >Registration</button>
           <!-- Onboarding steps -->
           <div class="flex items-center gap-1 ml-2">
@@ -93,7 +93,7 @@
               @click="$emit('go-to-step', step)"
               :class="[
                 'w-8 h-8 text-sm rounded transition-colors flex items-center justify-center cursor-pointer',
-                (currentView === 'onboarding' || currentView === 'onboarding-mobile') && currentStep === step ? 'bg-[#ED5A29] text-white' : 'bg-[#505763] hover:bg-[#8F97A4]'
+                ['onboarding', 'onboarding-hu', 'onboarding-mobile', 'onboarding-mobile-hu'].includes(currentView) && currentStep === step ? 'bg-[#ED5A29] text-white' : 'bg-[#505763] hover:bg-[#8F97A4]'
               ]"
             >{{ step }}</button>
           </div>
