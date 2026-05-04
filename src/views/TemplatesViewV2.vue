@@ -643,6 +643,7 @@ const handleSeasonsScroll = () => {
 // First 6: named images (first 2 rows)
 const usecaseItems = [
   // Row 1-2: Named/featured use cases
+  { image: '/summary.svg', label: 'Product Summary', subtitle: 'A lifestyle product image, a headline and a benefit list combined into one block.' },
   { image: '/usecases/SmartDiscountPopup.png', label: 'Smart Discount Popup', subtitle: 'The most effective list-building popup formula' },
   { image: '/usecases/Luckywheel.png', label: 'Lucky Wheel', subtitle: 'Gamify list-building popups to increase new visitor engagement' },
   { image: '/usecases/CartAbandonmentStopper.png', label: 'Cart Abandonment Stopper', subtitle: 'Offer a discount for cart abandoners' },

@@ -68,6 +68,7 @@ If a suitable shared component does not exist, create it in `src/components/shar
 | `ScrollTimePicker` | `@/components/shared/ScrollTimePicker.vue` | Scrollable HH:MM time picker | `String` ('HH:MM') |
 | `Tag` | `@/components/shared/Tag.vue` | Informational badge/tag pill | — |
 | `Chip` | `@/components/shared/Chip.vue` | Selectable onboarding chip (rounded-xl) | — |
+| `Modal` | `@/components/shared/Modal.vue` | Generic modal/dialog with header/body/footer slots | `Boolean` (visibility) |
 
 ---
 
@@ -190,3 +191,26 @@ If a suitable shared component does not exist, create it in `src/components/shar
 - `variant`: `gray` (default) | `gray-muted` | `orange` | `green` | `outlined`
 - Slot `icon`: optional leading icon
 - **Always use instead of raw `<span>` pill badges**
+
+---
+
+### `Modal`
+```vue
+<Modal v-model="open" title="Edit campaign" size="md">
+  <p>Body content goes here.</p>
+  <template #footer="{ close }">
+    <Button variant="outline" @click="close">Cancel</Button>
+    <Button variant="primary" @click="save">Save</Button>
+  </template>
+</Modal>
+```
+- `v-model`: controls open/closed state
+- `title`: optional header text (omit if using `#header` slot)
+- `size`: `sm` | `md` | `lg` | `xl` (default: `md`)
+- `closeOnBackdrop`: `Boolean` (default: `true`)
+- `closeOnEsc`: `Boolean` (default: `true`)
+- `hideClose`: `Boolean` — hide the X button
+- `dividers`: `Boolean` — show top/bottom borders around the body
+- Slots: `default` (body), `header` (overrides title), `footer` (receives `{ close }`)
+- Teleports to `body`, locks page scroll while open, closes on Esc
+- **Always use instead of hand-rolled modal wrappers**

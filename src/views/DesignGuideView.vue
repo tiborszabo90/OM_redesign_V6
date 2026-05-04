@@ -556,6 +556,90 @@
         </div>
       </section>
 
+      <!-- Modal Section -->
+      <section class="mb-12">
+        <h2 class="text-xl font-semibold text-om-gray-700 mb-6">Modal</h2>
+
+        <div class="mb-8">
+          <h3 class="text-base font-medium text-om-gray-600 mb-4">Sizes</h3>
+          <div class="flex flex-wrap gap-3">
+            <Button variant="outline" @click="modalSm = true">Small</Button>
+            <Button variant="outline" @click="modalMd = true">Medium (default)</Button>
+            <Button variant="outline" @click="modalLg = true">Large</Button>
+            <Button variant="outline" @click="modalXl = true">Extra large</Button>
+          </div>
+        </div>
+
+        <div class="mb-8">
+          <h3 class="text-base font-medium text-om-gray-600 mb-4">Variants</h3>
+          <div class="flex flex-wrap gap-3">
+            <Button variant="outline" @click="modalDividers = true">With dividers</Button>
+            <Button variant="outline" @click="modalNoClose = true">No close button</Button>
+            <Button variant="outline" @click="modalCustomHeader = true">Custom header slot</Button>
+          </div>
+        </div>
+
+        <Modal v-model="modalSm" title="Small modal" size="sm">
+          <p class="text-sm text-om-gray-600">A compact modal for quick confirmations.</p>
+          <template #footer="{ close }">
+            <Button variant="outline" @click="close">Cancel</Button>
+            <Button variant="primary" @click="close">Confirm</Button>
+          </template>
+        </Modal>
+
+        <Modal v-model="modalMd" title="Medium modal" size="md">
+          <p class="text-sm text-om-gray-600 mb-3">Default size, suitable for most forms and dialogs.</p>
+          <p class="text-sm text-om-gray-600">Body content scrolls when it exceeds the available height.</p>
+          <template #footer="{ close }">
+            <Button variant="outline" @click="close">Cancel</Button>
+            <Button variant="primary" @click="close">Save</Button>
+          </template>
+        </Modal>
+
+        <Modal v-model="modalLg" title="Large modal" size="lg">
+          <p class="text-sm text-om-gray-600">Wider layout for content with multiple columns or longer forms.</p>
+          <template #footer="{ close }">
+            <Button variant="outline" @click="close">Close</Button>
+          </template>
+        </Modal>
+
+        <Modal v-model="modalXl" title="Extra large modal" size="xl">
+          <p class="text-sm text-om-gray-600">Maximum width for rich content like previews or detail views.</p>
+          <template #footer="{ close }">
+            <Button variant="outline" @click="close">Close</Button>
+          </template>
+        </Modal>
+
+        <Modal v-model="modalDividers" title="Modal with dividers" :dividers="true">
+          <p class="text-sm text-om-gray-600">Top and bottom borders separate the header and footer from the body.</p>
+          <template #footer="{ close }">
+            <Button variant="outline" @click="close">Cancel</Button>
+            <Button variant="primary" @click="close">Apply</Button>
+          </template>
+        </Modal>
+
+        <Modal v-model="modalNoClose" title="No close button" :hide-close="true">
+          <p class="text-sm text-om-gray-600">Forces the user to make an explicit choice from the footer.</p>
+          <template #footer="{ close }">
+            <Button variant="outline" @click="close">Decline</Button>
+            <Button variant="primary" @click="close">Accept</Button>
+          </template>
+        </Modal>
+
+        <Modal v-model="modalCustomHeader">
+          <template #header>
+            <div class="flex items-center gap-2">
+              <Star :size="18" class="text-om-orange" />
+              <h2 class="text-lg font-semibold text-om-gray-700">Custom header</h2>
+            </div>
+          </template>
+          <p class="text-sm text-om-gray-600">Use the <code>#header</code> slot to render icons or custom layouts in the title row.</p>
+          <template #footer="{ close }">
+            <Button variant="primary" @click="close">Got it</Button>
+          </template>
+        </Modal>
+      </section>
+
       <!-- Accordion Section -->
       <section class="mb-12">
         <h2 class="text-xl font-semibold text-om-gray-700 mb-6">Accordion</h2>
@@ -991,6 +1075,7 @@ import Dropdown from '../components/shared/Dropdown.vue'
 import MultiSelect from '../components/shared/MultiSelect.vue'
 import Button from '../components/shared/Button.vue'
 import Tag from '../components/shared/Tag.vue'
+import Modal from '../components/shared/Modal.vue'
 import OptimizationPlanCard from '../components/onboarding/OptimizationPlanCard.vue'
 import CampaignCard from '../components/shared/CampaignCard.vue'
 
@@ -1029,6 +1114,15 @@ const checkbox1 = ref(true)
 const checkbox2 = ref(false)
 const radioLanguage = ref('EN')
 const radioFreq = ref('unlimited')
+
+// Modal demos
+const modalSm = ref(false)
+const modalMd = ref(false)
+const modalLg = ref(false)
+const modalXl = ref(false)
+const modalDividers = ref(false)
+const modalNoClose = ref(false)
+const modalCustomHeader = ref(false)
 
 // Single select dropdown small
 const smallDropdownOptions = [

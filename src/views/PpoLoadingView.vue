@@ -42,7 +42,8 @@
 
             <!-- Step 1: Generating content block — elements appear sequentially -->
             <div v-else-if="currentStep === 1" key="s1" class="flex items-center justify-center">
-              <svg width="212" height="62" viewBox="0 0 212 62" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-54">
+              <!-- Badge layout -->
+              <svg v-if="!isSummary" width="212" height="62" viewBox="0 0 212 62" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-54">
                 <rect width="212" height="62" rx="4" fill="#FBD9CE" class="build-in" style="animation-delay: 0s" />
                 <path d="M142.5 17H121.5C120.307 17 119.162 17.4741 118.318 18.318C117.474 19.1619 117 20.3065 117 21.5V42.5C117 43.6935 117.474 44.8381 118.318 45.682C119.162 46.5259 120.307 47 121.5 47H142.5C142.747 46.9966 142.993 46.9715 143.235 46.925L143.685 46.82H143.79H143.865L144.42 46.61L144.615 46.505C144.765 46.415 144.93 46.34 145.08 46.235C145.28 46.0876 145.471 45.9273 145.65 45.755L145.755 45.62C145.902 45.4708 146.038 45.3103 146.16 45.14L146.295 44.945C146.4 44.778 146.49 44.6024 146.565 44.42C146.606 44.348 146.641 44.2728 146.67 44.195C146.745 44.015 146.79 43.82 146.85 43.625V43.4C146.935 43.1069 146.985 42.8048 147 42.5V21.5C147 20.3065 146.526 19.1619 145.682 18.318C144.838 17.4741 143.693 17 142.5 17ZM121.5 44C121.102 44 120.721 43.842 120.439 43.5607C120.158 43.2794 120 42.8978 120 42.5V36.035L124.935 31.085C125.074 30.9444 125.24 30.8328 125.423 30.7567C125.606 30.6805 125.802 30.6413 126 30.6413C126.198 30.6413 126.394 30.6805 126.577 30.7567C126.76 30.8328 126.926 30.9444 127.065 31.085L139.965 44H121.5ZM144 42.5C143.999 42.6849 143.963 42.868 143.895 43.04C143.861 43.1131 143.821 43.1833 143.775 43.25C143.735 43.3135 143.69 43.3737 143.64 43.43L135.615 35.405L136.935 34.085C137.074 33.9444 137.24 33.8328 137.423 33.7567C137.606 33.6805 137.802 33.6413 138 33.6413C138.198 33.6413 138.394 33.6805 138.577 33.7567C138.76 33.8328 138.926 33.9444 139.065 34.085V34.085L144 39.035V42.5ZM144 34.79L141.18 32C140.322 31.1855 139.183 30.7314 138 30.7314C136.817 30.7314 135.678 31.1855 134.82 32L133.5 33.32L129.18 29C128.322 28.1855 127.183 27.7314 126 27.7314C124.817 27.7314 123.678 28.1855 122.82 29L120 31.79V21.5C120 21.1022 120.158 20.7206 120.439 20.4393C120.721 20.158 121.102 20 121.5 20H142.5C142.898 20 143.279 20.158 143.561 20.4393C143.842 20.7206 144 21.1022 144 21.5V34.79Z" fill="#F7B59F" class="build-in" style="animation-delay: 0.5s" />
                 <rect x="9" y="9" width="42" height="12" rx="4" fill="#F7B59F" class="build-in" style="animation-delay: 1.2s" />
@@ -51,6 +52,19 @@
                 <circle cx="15" cy="31" r="4" fill="#FBD9CE" class="build-in" style="animation-delay: 1.8s" />
                 <rect x="9" y="41" width="42" height="12" rx="4" fill="#F7B59F" class="build-in" style="animation-delay: 2.4s" />
                 <circle cx="15" cy="47" r="4" fill="#FBD9CE" class="build-in" style="animation-delay: 2.4s" />
+              </svg>
+              <!-- Summary layout: image left, headline + benefit list right -->
+              <svg v-else width="212" height="62" viewBox="0 0 212 62" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-54">
+                <rect width="212" height="62" rx="4" fill="#FBD9CE" class="build-in" style="animation-delay: 0s" />
+                <rect width="62" height="62" rx="4" fill="#F7B59F" class="build-in" style="animation-delay: 0.5s" />
+                <path d="M41.5 16H20.5C19.3065 16 18.1619 16.4741 17.318 17.318C16.4741 18.1619 16 19.3065 16 20.5V41.5C16 42.6935 16.4741 43.8381 17.318 44.682C18.1619 45.5259 19.3065 46 20.5 46H41.5C41.7467 45.9966 41.9927 45.9715 42.235 45.925L42.685 45.82H42.79H42.865L43.42 45.61L43.615 45.505C43.765 45.415 43.93 45.34 44.08 45.235C44.2803 45.0876 44.4707 44.9273 44.65 44.755L44.755 44.62C44.9023 44.4708 45.0377 44.3103 45.16 44.14L45.295 43.945C45.3998 43.778 45.4901 43.6024 45.565 43.42C45.6062 43.348 45.6413 43.2728 45.67 43.195C45.745 43.015 45.79 42.82 45.85 42.625V42.4C45.935 42.1069 45.9854 41.8048 46 41.5V20.5C46 19.3065 45.5259 18.1619 44.682 17.318C43.8381 16.4741 42.6935 16 41.5 16ZM20.5 43C20.1022 43 19.7206 42.842 19.4393 42.5607C19.158 42.2794 19 41.8978 19 41.5V35.035L23.935 30.085C24.0744 29.9444 24.2403 29.8328 24.4231 29.7567C24.6059 29.6805 24.802 29.6413 25 29.6413C25.198 29.6413 25.3941 29.6805 25.5769 29.7567C25.7597 29.8328 25.9256 29.9444 26.065 30.085L38.965 43H20.5ZM43 41.5C42.9986 41.6849 42.963 41.868 42.895 42.04C42.8607 42.1131 42.8206 42.1833 42.775 42.25C42.7349 42.3135 42.6897 42.3737 42.64 42.43L34.615 34.405L35.935 33.085C36.0744 32.9444 36.2403 32.8328 36.4231 32.7567C36.6059 32.6805 36.802 32.6413 37 32.6413C37.198 32.6413 37.3941 32.6805 37.5769 32.7567C37.7597 32.8328 37.9256 32.9444 38.065 33.085V33.085L43 38.035V41.5ZM43 33.79L40.18 31C39.3216 30.1855 38.1833 29.7314 37 29.7314C35.8167 29.7314 34.6784 30.1855 33.82 31L32.5 32.32L28.18 28C27.3216 27.1855 26.1833 26.7314 25 26.7314C23.8167 26.7314 22.6784 27.1855 21.82 28L19 30.79V20.5C19 20.1022 19.158 19.7206 19.4393 19.4393C19.7206 19.158 20.1022 19 20.5 19H41.5C41.8978 19 42.2794 19.158 42.5607 19.4393C42.842 19.7206 43 20.1022 43 20.5V33.79Z" fill="#FBD9CE" class="build-in" style="animation-delay: 0.5s" />
+                <rect x="71" y="9" width="86" height="12" rx="4" fill="#F7B59F" class="build-in" style="animation-delay: 1.0s" />
+                <rect x="71" y="25" width="8" height="8" rx="4" fill="#F7B59F" class="build-in" style="animation-delay: 1.5s" />
+                <rect x="81" y="26" width="94" height="6" rx="3" fill="#F7B59F" class="build-in" style="animation-delay: 1.5s" />
+                <rect x="71" y="35" width="8" height="8" rx="4" fill="#F7B59F" class="build-in" style="animation-delay: 2.0s" />
+                <rect x="81" y="36" width="104" height="6" rx="3" fill="#F7B59F" class="build-in" style="animation-delay: 2.0s" />
+                <rect x="71" y="45" width="8" height="8" rx="4" fill="#F7B59F" class="build-in" style="animation-delay: 2.5s" />
+                <rect x="81" y="46" width="86" height="6" rx="3" fill="#F7B59F" class="build-in" style="animation-delay: 2.5s" />
               </svg>
             </div>
 
@@ -83,15 +97,31 @@
                 <rect class="anim-el" x="87" y="159" width="62" height="26" rx="4" fill="url(#skeletonShimmer)" :style="{ opacity: p.btn.opacity }"/>
                 <rect class="anim-el" x="162" y="159" width="62" height="26" rx="4" fill="url(#skeletonShimmer)" :style="{ opacity: p.btn.opacity }"/>
 
-                <!-- SPP block -->
-                <rect class="anim-el" :x="p.sppBg.x" :y="p.sppBg.y" :width="p.sppBg.width" :height="p.sppBg.height" rx="4" fill="#FBD9CE" :style="{ opacity: p.spp.opacity }"/>
-                <path class="anim-el" d="M142.5 17H121.5C120.307 17 119.162 17.4741 118.318 18.318C117.474 19.1619 117 20.3065 117 21.5V42.5C117 43.6935 117.474 44.8381 118.318 45.682C119.162 46.5259 120.307 47 121.5 47H142.5C142.747 46.9966 142.993 46.9715 143.235 46.925L143.685 46.82H143.79H143.865L144.42 46.61L144.615 46.505C144.765 46.415 144.93 46.34 145.08 46.235C145.28 46.0876 145.471 45.9273 145.65 45.755L145.755 45.62C145.902 45.4708 146.038 45.3103 146.16 45.14L146.295 44.945C146.4 44.778 146.49 44.6024 146.565 44.42C146.606 44.348 146.641 44.2728 146.67 44.195C146.745 44.015 146.79 43.82 146.85 43.625V43.4C146.935 43.1069 146.985 42.8048 147 42.5V21.5C147 20.3065 146.526 19.1619 145.682 18.318C144.838 17.4741 143.693 17 142.5 17ZM121.5 44C121.102 44 120.721 43.842 120.439 43.5607C120.158 43.2794 120 42.8978 120 42.5V36.035L124.935 31.085C125.074 30.9444 125.24 30.8328 125.423 30.7567C125.606 30.6805 125.802 30.6413 126 30.6413C126.198 30.6413 126.394 30.6805 126.577 30.7567C126.76 30.8328 126.926 30.9444 127.065 31.085L139.965 44H121.5ZM144 42.5C143.999 42.6849 143.963 42.868 143.895 43.04C143.861 43.1131 143.821 43.1833 143.775 43.25C143.735 43.3135 143.69 43.3737 143.64 43.43L135.615 35.405L136.935 34.085C137.074 33.9444 137.24 33.8328 137.423 33.7567C137.606 33.6805 137.802 33.6413 138 33.6413C138.198 33.6413 138.394 33.6805 138.577 33.7567C138.76 33.8328 138.926 33.9444 139.065 34.085V34.085L144 39.035V42.5ZM144 34.79L141.18 32C140.322 31.1855 139.183 30.7314 138 30.7314C136.817 30.7314 135.678 31.1855 134.82 32L133.5 33.32L129.18 29C128.322 28.1855 127.183 27.7314 126 27.7314C124.817 27.7314 123.678 28.1855 122.82 29L120 31.79V21.5C120 21.1022 120.158 20.7206 120.439 20.4393C120.721 20.158 121.102 20 121.5 20H142.5C142.898 20 143.279 20.158 143.561 20.4393C143.842 20.7206 144 21.1022 144 21.5V34.79Z" fill="#F7B59F" :transform="p.sppIcon.transform" :style="{ opacity: p.spp.opacity }"/>
-                <rect class="anim-el" :x="p.sppBar1.x" :y="p.sppBar1.y" :width="p.sppBar1.width" :height="p.sppBar1.height" rx="4" fill="#F7B59F" :style="{ opacity: p.spp.opacity }"/>
-                <circle class="anim-el" :cx="p.sppDot1.cx" :cy="p.sppDot1.cy" :r="p.sppDot1.r" fill="#FBD9CE" :style="{ opacity: p.spp.opacity }"/>
-                <rect class="anim-el" :x="p.sppBar2.x" :y="p.sppBar2.y" :width="p.sppBar2.width" :height="p.sppBar2.height" rx="4" fill="#F7B59F" :style="{ opacity: p.spp.opacity }"/>
-                <circle class="anim-el" :cx="p.sppDot2.cx" :cy="p.sppDot2.cy" :r="p.sppDot2.r" fill="#FBD9CE" :style="{ opacity: p.spp.opacity }"/>
-                <rect class="anim-el" :x="p.sppBar3.x" :y="p.sppBar3.y" :width="p.sppBar3.width" :height="p.sppBar3.height" rx="4" fill="#F7B59F" :style="{ opacity: p.spp.opacity }"/>
-                <circle class="anim-el" :cx="p.sppDot3.cx" :cy="p.sppDot3.cy" :r="p.sppDot3.r" fill="#FBD9CE" :style="{ opacity: p.spp.opacity }"/>
+                <!-- SPP block — Badge layout -->
+                <template v-if="!isSummary">
+                  <rect class="anim-el" :x="p.sppBg.x" :y="p.sppBg.y" :width="p.sppBg.width" :height="p.sppBg.height" rx="4" fill="#FBD9CE" :style="{ opacity: p.spp.opacity }"/>
+                  <path class="anim-el" d="M142.5 17H121.5C120.307 17 119.162 17.4741 118.318 18.318C117.474 19.1619 117 20.3065 117 21.5V42.5C117 43.6935 117.474 44.8381 118.318 45.682C119.162 46.5259 120.307 47 121.5 47H142.5C142.747 46.9966 142.993 46.9715 143.235 46.925L143.685 46.82H143.79H143.865L144.42 46.61L144.615 46.505C144.765 46.415 144.93 46.34 145.08 46.235C145.28 46.0876 145.471 45.9273 145.65 45.755L145.755 45.62C145.902 45.4708 146.038 45.3103 146.16 45.14L146.295 44.945C146.4 44.778 146.49 44.6024 146.565 44.42C146.606 44.348 146.641 44.2728 146.67 44.195C146.745 44.015 146.79 43.82 146.85 43.625V43.4C146.935 43.1069 146.985 42.8048 147 42.5V21.5C147 20.3065 146.526 19.1619 145.682 18.318C144.838 17.4741 143.693 17 142.5 17ZM121.5 44C121.102 44 120.721 43.842 120.439 43.5607C120.158 43.2794 120 42.8978 120 42.5V36.035L124.935 31.085C125.074 30.9444 125.24 30.8328 125.423 30.7567C125.606 30.6805 125.802 30.6413 126 30.6413C126.198 30.6413 126.394 30.6805 126.577 30.7567C126.76 30.8328 126.926 30.9444 127.065 31.085L139.965 44H121.5ZM144 42.5C143.999 42.6849 143.963 42.868 143.895 43.04C143.861 43.1131 143.821 43.1833 143.775 43.25C143.735 43.3135 143.69 43.3737 143.64 43.43L135.615 35.405L136.935 34.085C137.074 33.9444 137.24 33.8328 137.423 33.7567C137.606 33.6805 137.802 33.6413 138 33.6413C138.198 33.6413 138.394 33.6805 138.577 33.7567C138.76 33.8328 138.926 33.9444 139.065 34.085V34.085L144 39.035V42.5ZM144 34.79L141.18 32C140.322 31.1855 139.183 30.7314 138 30.7314C136.817 30.7314 135.678 31.1855 134.82 32L133.5 33.32L129.18 29C128.322 28.1855 127.183 27.7314 126 27.7314C124.817 27.7314 123.678 28.1855 122.82 29L120 31.79V21.5C120 21.1022 120.158 20.7206 120.439 20.4393C120.721 20.158 121.102 20 121.5 20H142.5C142.898 20 143.279 20.158 143.561 20.4393C143.842 20.7206 144 21.1022 144 21.5V34.79Z" fill="#F7B59F" :transform="p.sppIcon.transform" :style="{ opacity: p.spp.opacity }"/>
+                  <rect class="anim-el" :x="p.sppBar1.x" :y="p.sppBar1.y" :width="p.sppBar1.width" :height="p.sppBar1.height" rx="4" fill="#F7B59F" :style="{ opacity: p.spp.opacity }"/>
+                  <circle class="anim-el" :cx="p.sppDot1.cx" :cy="p.sppDot1.cy" :r="p.sppDot1.r" fill="#FBD9CE" :style="{ opacity: p.spp.opacity }"/>
+                  <rect class="anim-el" :x="p.sppBar2.x" :y="p.sppBar2.y" :width="p.sppBar2.width" :height="p.sppBar2.height" rx="4" fill="#F7B59F" :style="{ opacity: p.spp.opacity }"/>
+                  <circle class="anim-el" :cx="p.sppDot2.cx" :cy="p.sppDot2.cy" :r="p.sppDot2.r" fill="#FBD9CE" :style="{ opacity: p.spp.opacity }"/>
+                  <rect class="anim-el" :x="p.sppBar3.x" :y="p.sppBar3.y" :width="p.sppBar3.width" :height="p.sppBar3.height" rx="4" fill="#F7B59F" :style="{ opacity: p.spp.opacity }"/>
+                  <circle class="anim-el" :cx="p.sppDot3.cx" :cy="p.sppDot3.cy" :r="p.sppDot3.r" fill="#FBD9CE" :style="{ opacity: p.spp.opacity }"/>
+                </template>
+
+                <!-- SPP block — Summary layout (image left, headline + benefit list right) -->
+                <g v-else class="spp-summary" :style="{ opacity: p.spp.opacity, transform: summaryTransform }">
+                  <rect width="212" height="62" rx="4" fill="#FBD9CE"/>
+                  <rect width="62" height="62" rx="4" fill="#F7B59F"/>
+                  <path d="M41.5 16H20.5C19.3065 16 18.1619 16.4741 17.318 17.318C16.4741 18.1619 16 19.3065 16 20.5V41.5C16 42.6935 16.4741 43.8381 17.318 44.682C18.1619 45.5259 19.3065 46 20.5 46H41.5C41.7467 45.9966 41.9927 45.9715 42.235 45.925L42.685 45.82H42.79H42.865L43.42 45.61L43.615 45.505C43.765 45.415 43.93 45.34 44.08 45.235C44.2803 45.0876 44.4707 44.9273 44.65 44.755L44.755 44.62C44.9023 44.4708 45.0377 44.3103 45.16 44.14L45.295 43.945C45.3998 43.778 45.4901 43.6024 45.565 43.42C45.6062 43.348 45.6413 43.2728 45.67 43.195C45.745 43.015 45.79 42.82 45.85 42.625V42.4C45.935 42.1069 45.9854 41.8048 46 41.5V20.5C46 19.3065 45.5259 18.1619 44.682 17.318C43.8381 16.4741 42.6935 16 41.5 16ZM20.5 43C20.1022 43 19.7206 42.842 19.4393 42.5607C19.158 42.2794 19 41.8978 19 41.5V35.035L23.935 30.085C24.0744 29.9444 24.2403 29.8328 24.4231 29.7567C24.6059 29.6805 24.802 29.6413 25 29.6413C25.198 29.6413 25.3941 29.6805 25.5769 29.7567C25.7597 29.8328 25.9256 29.9444 26.065 30.085L38.965 43H20.5ZM43 41.5C42.9986 41.6849 42.963 41.868 42.895 42.04C42.8607 42.1131 42.8206 42.1833 42.775 42.25C42.7349 42.3135 42.6897 42.3737 42.64 42.43L34.615 34.405L35.935 33.085C36.0744 32.9444 36.2403 32.8328 36.4231 32.7567C36.6059 32.6805 36.802 32.6413 37 32.6413C37.198 32.6413 37.3941 32.6805 37.5769 32.7567C37.7597 32.8328 37.9256 32.9444 38.065 33.085V33.085L43 38.035V41.5ZM43 33.79L40.18 31C39.3216 30.1855 38.1833 29.7314 37 29.7314C35.8167 29.7314 34.6784 30.1855 33.82 31L32.5 32.32L28.18 28C27.3216 27.1855 26.1833 26.7314 25 26.7314C23.8167 26.7314 22.6784 27.1855 21.82 28L19 30.79V20.5C19 20.1022 19.158 19.7206 19.4393 19.4393C19.7206 19.158 20.1022 19 20.5 19H41.5C41.8978 19 42.2794 19.158 42.5607 19.4393C42.842 19.7206 43 20.1022 43 20.5V33.79Z" fill="#FBD9CE"/>
+                  <rect x="71" y="9" width="86" height="12" rx="4" fill="#F7B59F"/>
+                  <rect x="71" y="25" width="8" height="8" rx="4" fill="#F7B59F"/>
+                  <rect x="81" y="26" width="94" height="6" rx="3" fill="#F7B59F"/>
+                  <rect x="71" y="35" width="8" height="8" rx="4" fill="#F7B59F"/>
+                  <rect x="81" y="36" width="104" height="6" rx="3" fill="#F7B59F"/>
+                  <rect x="71" y="45" width="8" height="8" rx="4" fill="#F7B59F"/>
+                  <rect x="81" y="46" width="86" height="6" rx="3" fill="#F7B59F"/>
+                </g>
               </svg>
             </div>
 
@@ -115,7 +145,18 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import { DotLottieVue } from '@lottiefiles/dotlottie-vue'
 
+const props = defineProps({
+  selectedTypes: { type: Array, default: () => [] },
+})
+
 const emit = defineEmits(['menu-click', 'done'])
+
+const isSummary = computed(() => props.selectedTypes.includes('product-summary'))
+
+const summaryTransform = computed(() => {
+  const bg = p.value.sppBg
+  return `translate(${bg.x}px, ${bg.y}px) scale(${bg.width / 212})`
+})
 
 const steps = [
   'Scanning your product page and identifying content areas',
@@ -275,6 +316,13 @@ onUnmounted(() => {
 /* Smooth transitions for all animated SVG elements in step 2+3 */
 .anim-el {
   transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Summary SPP block — translate+scale via CSS transform */
+.spp-summary {
+  transform-origin: 0 0;
+  transform-box: fill-box;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Animated dots after the step text */

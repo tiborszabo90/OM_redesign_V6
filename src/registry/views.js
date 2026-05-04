@@ -602,6 +602,22 @@ const campaignViews = [
     hideLogo: true,
   },
   {
+    id: 'ppo-loading-summary',
+    component: () => import('../views/PpoLoadingView.vue'),
+    label: 'SPP Loading (Summary)',
+    status: 'active',
+    section: null,
+    hideLogo: true,
+  },
+  {
+    id: 'ppo-loading-badge',
+    component: () => import('../views/PpoLoadingView.vue'),
+    label: 'SPP Loading (Badge)',
+    status: 'active',
+    section: null,
+    hideLogo: true,
+  },
+  {
     id: 'ppo-no-product-page',
     component: () => import('../views/PpoNoProductPageView.vue'),
     label: 'SPP — No Product Page',

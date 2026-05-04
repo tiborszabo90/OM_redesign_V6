@@ -189,6 +189,9 @@ const activeProps = computed(() => {
     'public-wizard': { registrationData: registrationData.value, initialMessage: wizardMessage.value },
     'public-wizard-v2': { registrationData: registrationData.value, initialMessage: wizardMessage.value },
     'wizard-flow': { registrationData: registrationData.value },
+    'ppo-loading': { selectedTypes: ppoWizardState.value.selectedTypes },
+    'ppo-loading-summary': { selectedTypes: ['product-summary'] },
+    'ppo-loading-badge': { selectedTypes: ['image-badge'] },
     'ppo-variable-setup': { selectedTypes: ppoWizardState.value.selectedTypes },
     'ppo-campaign-setup-preview': { selectedTypes: ppoWizardState.value.selectedTypes, variableConfigs: ppoWizardState.value.variableConfigs },
     'ppo-campaign-setup-preview-v2': { selectedTypes: ['product-summary'] },
@@ -500,6 +503,8 @@ const activeEvents = computed(() => {
         currentView.value = 'ppo-campaign-setup-preview-v3'
       }
     } },
+    'ppo-loading-summary': { 'menu-click': handleMenuClick, done: () => {} },
+    'ppo-loading-badge': { 'menu-click': handleMenuClick, done: () => {} },
     'ppo-no-product-page': { 'menu-click': handleMenuClick, 'go-to-new-campaign': () => { currentView.value = 'new-campaign' } },
     'optimize-website': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'new-campaign' }, navigate: handleDevNavigate, select: (type) => { if (type === 'smart-product-page') currentView.value = 'ppo-campaign-flow-mvp' } },
     'product-page-optimizer': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'optimize-website' }, next: (types) => { ppoWizardState.value.selectedTypes = types; currentView.value = 'ppo-variable-setup' } },
