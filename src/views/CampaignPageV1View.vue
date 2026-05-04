@@ -590,143 +590,10 @@
 
         <!-- Settings Tab Content -->
         <div v-if="activeTab === 'Settings'" class="space-y-4 pb-40">
-          <!-- Goal & A/B test -->
-          <Accordion
-            title="Goal & A/B test"
-            :open="openAccordion === 'abTest'"
-            @toggle="toggleAccordion('abTest')"
-            icon-rounded="rounded-xl"
-            icon-bg="bg-om-orange-100"
-          >
-            <template #icon><FlaskConical :size="20" class="text-om-orange-400" /></template>
-            <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-16 items-stretch">
-              <!-- Left column: Primary goal + Auto-declare winner -->
-              <div class="flex flex-col gap-6">
-                <!-- Primary goal -->
-                <section>
-                  <h4 class="text-base font-semibold text-om-gray-700 mb-3">Primary goal</h4>
-                  <p class="text-sm text-om-gray-500 mb-3">The main conversion event used to measure this campaign's success.<br />Reports and variant comparisons default to this metric.</p>
-                  <div class="w-64">
-                    <Dropdown v-model="primaryGoal" :options="goalValues" />
-                  </div>
-                </section>
-
-                <!-- Auto-declare winner -->
-                <section class="pt-6 border-t border-om-gray-100">
-                  <div class="flex items-center gap-3 mb-1">
-                    <h4 class="text-base font-semibold text-om-gray-700">Auto-declare winner</h4>
-                    <ToggleSwitch v-model="autoStopEnabled" />
-                  </div>
-                  <p class="text-sm text-om-gray-500 mb-3">Automatically end the test when a clear winner emerges.</p>
-
-                  <div v-if="autoStopEnabled" class="flex flex-col gap-2.5">
-                    <div class="flex items-center gap-2 text-sm text-om-gray-600">
-                      <span>Declare winner at</span>
-                      <div class="relative">
-                        <input
-                          type="number"
-                          v-model.number="autoStopThreshold"
-                          min="50"
-                          max="100"
-                          step="1"
-                          class="w-20 pl-3 pr-7 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums"
-                        />
-                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
-                      </div>
-                      <span>chance to win</span>
-                    </div>
-
-                    <div class="flex items-center gap-2 text-sm text-om-gray-600">
-                      <span>Minimum conversion threshold:</span>
-                      <div class="relative">
-                        <input
-                          type="number"
-                          v-model.number="minConversionThreshold"
-                          min="0"
-                          step="1"
-                          class="w-20 pl-3 pr-3 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums"
-                        />
-                      </div>
-                      <span>conversions</span>
-                    </div>
-
-                    <div class="flex items-center gap-2 text-sm text-om-gray-600">
-                      <span>Minimum days running:</span>
-                      <div class="relative">
-                        <input
-                          type="number"
-                          v-model.number="minDaysRunning"
-                          min="0"
-                          step="1"
-                          class="w-20 pl-3 pr-3 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums"
-                        />
-                      </div>
-                      <span>days</span>
-                    </div>
-                  </div>
-                </section>
-              </div>
-
-              <!-- Vertical divider -->
-              <div class="w-px bg-om-gray-100"></div>
-
-              <!-- Right column: Traffic share -->
-              <section>
-                <h4 class="text-base font-semibold text-om-gray-700 mb-3">Traffic share</h4>
-
-                <div class="mb-3 space-y-2">
-                  <div class="flex items-center justify-between py-1">
-                    <span class="text-sm font-medium text-om-gray-700">Klaviyo Popup</span>
-                    <div class="relative">
-                      <input
-                        type="number"
-                        :value="variant1Traffic"
-                        @input="updateTrafficShare('v1', $event.target.value)"
-                        :disabled="trafficEvenlySplit"
-                        min="0"
-                        max="100"
-                        step="1"
-                        class="w-24 pl-3 pr-8 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums text-left disabled:cursor-not-allowed disabled:bg-om-gray-50 disabled:text-om-gray-500"
-                      />
-                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
-                    </div>
-                  </div>
-                  <div class="flex items-center justify-between py-1">
-                    <span class="text-sm font-medium text-om-gray-700">AI Variant</span>
-                    <div class="relative">
-                      <input
-                        type="number"
-                        :value="variant2Traffic"
-                        @input="updateTrafficShare('v2', $event.target.value)"
-                        :disabled="trafficEvenlySplit"
-                        min="0"
-                        max="100"
-                        step="1"
-                        class="w-24 pl-3 pr-8 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums text-left disabled:cursor-not-allowed disabled:bg-om-gray-50 disabled:text-om-gray-500"
-                      />
-                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
-                    </div>
-                  </div>
-                  <div class="flex items-center justify-between py-1">
-                    <span class="text-sm font-medium text-om-gray-500">Total</span>
-                    <span
-                      class="text-sm font-semibold tabular-nums"
-                      :class="trafficTotal === 100 ? 'text-om-gray-700' : 'text-red-500'"
-                    >{{ trafficTotal }}%</span>
-                  </div>
-                </div>
-
-                <div>
-                  <Checkbox :model-value="trafficEvenlySplit" @update:model-value="toggleEvenlySplit" label="Evenly split" />
-                  <p class="text-sm text-om-gray-500 mt-1">Equally distribute weight percentage across all groups</p>
-                </div>
-              </section>
-            </div>
-          </Accordion>
-
           <!-- When would you like this campaign to show up? -->
           <Accordion
-            title="When would you like this campaign to show up?"
+            title="Triggering"
+            subtitle="When would you like this campaign to show up?"
             :open="openAccordion === 'showUp'"
             @toggle="toggleAccordion('showUp')"
             icon-rounded="rounded-xl"
@@ -788,7 +655,8 @@
 
           <!-- How many times should this campaign appear? -->
           <Accordion
-            title="How many times should this campaign appear?"
+            title="Frequency"
+            subtitle="How many times should this campaign appear?"
             :open="openAccordion === 'howMany'"
             @toggle="toggleAccordion('howMany')"
             icon-rounded="rounded-xl"
@@ -862,7 +730,8 @@
 
           <!-- Who should see this campaign? -->
           <Accordion
-            title="Who should see this campaign?"
+            title="Targeting"
+            subtitle="Who should see this campaign?"
             :open="openAccordion === 'whoSee'"
             @toggle="toggleAccordion('whoSee')"
             icon-rounded="rounded-xl"
@@ -908,7 +777,8 @@
 
           <!-- Where you would like to send the subscribers and campaign data? -->
           <Accordion
-            title="Where you would like to send the subscribers and campaign data?"
+            title="Integrations"
+            subtitle="Where you would like to send the subscribers and campaign data?"
             :open="openAccordion === 'sendData'"
             @toggle="toggleAccordion('sendData')"
             icon-rounded="rounded-xl"
@@ -929,12 +799,153 @@
             </div>
           </Accordion>
 
+          <!-- A/B test -->
+          <Accordion
+            title="A/B test"
+            subtitle="Split traffic between variants and pick a winner automatically"
+            :open="openAccordion === 'abTest'"
+            @toggle="toggleAccordion('abTest')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
+          >
+            <template #icon><FlaskConical :size="20" class="text-om-orange-400" /></template>
+            <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-16 items-stretch">
+              <!-- Left column: Auto-declare winner -->
+              <section>
+                <div class="flex items-center gap-3 mb-1">
+                  <h4 class="text-base font-semibold text-om-gray-700">Auto-declare winner</h4>
+                  <ToggleSwitch v-model="autoStopEnabled" />
+                </div>
+                <p class="text-sm text-om-gray-500 mb-3">Automatically end the test when a clear winner emerges.</p>
+
+                <div v-if="autoStopEnabled" class="flex flex-col gap-2.5">
+                  <div class="flex items-center gap-2 text-sm text-om-gray-600">
+                    <span>Declare winner at</span>
+                    <div class="relative">
+                      <input
+                        type="number"
+                        v-model.number="autoStopThreshold"
+                        min="50"
+                        max="100"
+                        step="1"
+                        class="w-20 pl-3 pr-7 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums"
+                      />
+                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
+                    </div>
+                    <span>chance to win</span>
+                  </div>
+
+                  <div class="flex items-center gap-2 text-sm text-om-gray-600">
+                    <span>Minimum conversion threshold:</span>
+                    <div class="relative">
+                      <input
+                        type="number"
+                        v-model.number="minConversionThreshold"
+                        min="0"
+                        step="1"
+                        class="w-20 pl-3 pr-3 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums"
+                      />
+                    </div>
+                    <span>conversions</span>
+                  </div>
+
+                  <div class="flex items-center gap-2 text-sm text-om-gray-600">
+                    <span>Minimum days running:</span>
+                    <div class="relative">
+                      <input
+                        type="number"
+                        v-model.number="minDaysRunning"
+                        min="0"
+                        step="1"
+                        class="w-20 pl-3 pr-3 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums"
+                      />
+                    </div>
+                    <span>days</span>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Vertical divider -->
+              <div class="w-px bg-om-gray-100"></div>
+
+              <!-- Right column: Traffic share -->
+              <section>
+                <h4 class="text-base font-semibold text-om-gray-700 mb-3">Traffic share</h4>
+
+                <div class="mb-3 space-y-2">
+                  <div class="flex items-center justify-between py-1">
+                    <span class="text-sm font-medium text-om-gray-700">Klaviyo Popup</span>
+                    <div class="relative">
+                      <input
+                        type="number"
+                        :value="variant1Traffic"
+                        @input="updateTrafficShare('v1', $event.target.value)"
+                        :disabled="trafficEvenlySplit"
+                        min="0"
+                        max="100"
+                        step="1"
+                        class="w-24 pl-3 pr-8 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums text-left disabled:cursor-not-allowed disabled:bg-om-gray-50 disabled:text-om-gray-500"
+                      />
+                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between py-1">
+                    <span class="text-sm font-medium text-om-gray-700">AI Variant</span>
+                    <div class="relative">
+                      <input
+                        type="number"
+                        :value="variant2Traffic"
+                        @input="updateTrafficShare('v2', $event.target.value)"
+                        :disabled="trafficEvenlySplit"
+                        min="0"
+                        max="100"
+                        step="1"
+                        class="w-24 pl-3 pr-8 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums text-left disabled:cursor-not-allowed disabled:bg-om-gray-50 disabled:text-om-gray-500"
+                      />
+                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between py-1">
+                    <span class="text-sm font-medium text-om-gray-500">Total</span>
+                    <span
+                      class="text-sm font-semibold tabular-nums"
+                      :class="trafficTotal === 100 ? 'text-om-gray-700' : 'text-red-500'"
+                    >{{ trafficTotal }}%</span>
+                  </div>
+                </div>
+
+                <div>
+                  <Checkbox :model-value="trafficEvenlySplit" @update:model-value="toggleEvenlySplit" label="Evenly split" />
+                  <p class="text-sm text-om-gray-500 mt-1">Equally distribute weight percentage across all groups</p>
+                </div>
+              </section>
+            </div>
+          </Accordion>
+
+          <!-- Goal -->
+          <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pl-4 pr-7 py-4">
+            <div class="flex items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-om-orange-100 flex items-center justify-center shrink-0">
+                  <Target :size="22" class="text-om-orange-400" />
+                </div>
+                <div>
+                  <h4 class="text-lg font-semibold text-om-gray-700">Primary goal</h4>
+                  <p class="text-sm text-om-gray-500 mt-1">The main conversion event used to measure this campaign's success</p>
+                </div>
+              </div>
+              <div class="w-64 shrink-0">
+                <Dropdown v-model="primaryGoal" :options="goalValues" />
+              </div>
+            </div>
+          </div>
+
           <!-- Email Notification Toggle -->
           <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pl-4 pr-7 py-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-om-orange-100 flex items-center justify-center shrink-0">
-                  <Mail :size="20" class="text-om-orange-400" />
+                <div class="w-12 h-12 rounded-xl bg-om-orange-100 flex items-center justify-center shrink-0">
+                  <Mail :size="22" class="text-om-orange-400" />
                 </div>
                 <div>
                   <h4 class="text-lg font-semibold text-om-gray-700">Email notification</h4>
