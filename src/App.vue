@@ -86,6 +86,7 @@ const onboardingHuRef = computed(() => viewRefs.onboardingHuRef)
 const taskCreationRef = computed(() => viewRefs.taskCreationRef)
 const wizardAnalysisRef = computed(() => viewRefs.wizardAnalysisRef)
 const publicWizardRef = computed(() => viewRefs.publicWizardRef)
+const publicWizardV2Ref = computed(() => viewRefs.publicWizardV2Ref)
 const homeOnboardingWizardRef = computed(() => viewRefs.homeOnboardingWizardRef)
 const wizardFlowRef = computed(() => viewRefs.wizardFlowRef)
 const imageWithBadgeRef = computed(() => viewRefs.imageWithBadgeRef)
@@ -186,6 +187,7 @@ const activeProps = computed(() => {
     'home-agentic': { registrationData: registrationData.value },
     'home-onboarding-wizard': { registrationData: registrationData.value },
     'public-wizard': { registrationData: registrationData.value, initialMessage: wizardMessage.value },
+    'public-wizard-v2': { registrationData: registrationData.value, initialMessage: wizardMessage.value },
     'wizard-flow': { registrationData: registrationData.value },
     'ppo-variable-setup': { selectedTypes: ppoWizardState.value.selectedTypes },
     'ppo-campaign-setup-preview': { selectedTypes: ppoWizardState.value.selectedTypes, variableConfigs: ppoWizardState.value.variableConfigs },
@@ -437,6 +439,11 @@ const activeEvents = computed(() => {
         if (!wizardMessage.value) wizardMessage.value = 'Demo website analysis'
         currentView.value = null; setTimeout(() => { currentView.value = 'public-wizard' }, 50)
       },
+      'go-public-wizard-v2': () => {
+        sessionKey.value++; flowSelected.value = true; registrationType.value = 'public-wizard'; publicWizardStep.value = 'url'
+        if (!wizardMessage.value) wizardMessage.value = 'Demo website analysis'
+        currentView.value = null; setTimeout(() => { currentView.value = 'public-wizard-v2' }, 50)
+      },
       'go-design-guide': () => { currentView.value = 'design-guide' },
       'go-image-with-badge': () => { flowSelected.value = true; registrationType.value = 'image-with-badge'; currentView.value = 'image-with-badge' },
       'go-chat-versions': () => { currentView.value = 'home-chat-versions' },
@@ -475,7 +482,8 @@ const activeEvents = computed(() => {
     'home-agentic': { 'menu-click': handleMenuClick, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to': (view, message) => { if (message) wizardMessage.value = message; handleDevNavigate(view) } },
     'home-onboarding-review': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'visitor-click': handleVisitorClick, 'navigate-to-review': () => { currentView.value = 'campaign-review' } },
     'home-onboarding-wizard': { 'menu-click': handleMenuClick, 'phase-changed': handlePhaseChanged, 'registration-completed': handlePublicWizardRegistrationCompleted },
-    'public-wizard': { 'phase-changed': handlePhaseChanged, 'registration-completed': handlePublicWizardRegistrationCompleted },
+    'public-wizard': { 'phase-changed': handlePhaseChanged, 'navigate-to': handleDevNavigate, 'registration-completed': handlePublicWizardRegistrationCompleted },
+    'public-wizard-v2': { 'phase-changed': handlePhaseChanged, 'navigate-to': handleDevNavigate, 'registration-completed': handlePublicWizardRegistrationCompleted },
     'wizard-flow': { 'phase-changed': handlePhaseChanged, 'registration-completed': handlePublicWizardRegistrationCompleted, 'menu-click': handleMenuClick },
     'audience': { 'menu-click': handleMenuClick, 'open-profile': (lead) => { selectedLead.value = lead; currentView.value = 'audience-profile' } },
     'audience-profile': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'audience' }, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' } },
@@ -658,6 +666,8 @@ const handleDevNavigate = (view) => {
     if (nav.registrationType) registrationType.value = nav.registrationType
     if (nav.clearWizardMessage) wizardMessage.value = ''
     if (nav.defaultWizardMessage && !wizardMessage.value) wizardMessage.value = nav.defaultWizardMessage
+    if ('mobileOnboardingVariant' in nav) mobileOnboardingVariant.value = nav.mobileOnboardingVariant
+    if ('useHuDesktopFlow' in nav) useHuDesktopFlow.value = nav.useHuDesktopFlow
     if (nav.extraState) {
       for (const [key, val] of Object.entries(nav.extraState)) {
         if (key === 'publicWizardStep') publicWizardStep.value = val

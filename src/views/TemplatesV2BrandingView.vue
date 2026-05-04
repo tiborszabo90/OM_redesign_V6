@@ -39,7 +39,7 @@
         </div>
 
         <!-- Original card -->
-        <div class="w-110 rounded-xl border-2 border-om-gray-200 overflow-hidden cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03] transition-all duration-200" @click="emit('navigate', 'editor')">
+        <div class="w-110 rounded-xl border-2 border-om-gray-200 overflow-hidden cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03] transition-all duration-200" @click="emit('navigate', 'wizard-quicktune')">
           <!-- Browser chrome dots with label -->
           <div class="relative flex items-center gap-1 px-3 py-2 bg-white border-b border-om-gray-200">
             <span class="w-2 h-2 rounded-full bg-gray-300 inline-block" />
@@ -56,7 +56,7 @@
         </div>
 
         <!-- Branded card -->
-        <div class="w-110 rounded-xl border-2 border-om-gray-200 overflow-hidden cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03] transition-all duration-200" @click="emit('navigate', 'editor')">
+        <div class="w-110 rounded-xl border-2 border-om-gray-200 overflow-hidden cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03] transition-all duration-200" @click="emit('navigate', 'wizard-quicktune')">
           <!-- Browser chrome dots with label -->
           <div class="relative flex items-center gap-1 px-3 py-2 bg-white border-b border-om-gray-200">
             <span class="w-2 h-2 rounded-full bg-gray-300 inline-block" />

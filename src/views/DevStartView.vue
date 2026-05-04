@@ -12,6 +12,7 @@
         <Button variant="outline" size="sm" @click="$emit('navigate', 'login')">Login</Button>
         <Button variant="outline" size="sm" @click="$emit('select', 'wizard')">Wizard</Button>
         <Button variant="outline" size="sm" @click="$emit('go-public-wizard')">Public Wizard</Button>
+        <Button variant="outline" size="sm" @click="$emit('go-public-wizard-v2')">Public Wizard V2</Button>
         <Button variant="outline" size="sm" @click="$emit('go-home-onboarding')">Home Onboarding</Button>
         <Button variant="outline" size="sm" @click="$emit('go-home')">Home</Button>
         <Button variant="outline" size="sm" @click="$emit('navigate', 'new-campaign')">New Campaign MVP</Button>
@@ -53,7 +54,7 @@ const props = defineProps({
   initialShowArchive: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['select', 'go-home', 'go-home-onboarding', 'go-public-wizard', 'go-design-guide', 'go-image-with-badge', 'go-chat-versions', 'go-editor', 'go-ai-texts-images', 'go-ai-texts-images-v2', 'navigate', 'show-archive'])
+const emit = defineEmits(['select', 'go-home', 'go-home-onboarding', 'go-public-wizard', 'go-public-wizard-v2', 'go-design-guide', 'go-image-with-badge', 'go-chat-versions', 'go-editor', 'go-ai-texts-images', 'go-ai-texts-images-v2', 'navigate', 'show-archive'])
 
 const showArchive = ref(props.initialShowArchive)
 

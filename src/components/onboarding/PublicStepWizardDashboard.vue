@@ -1541,6 +1541,10 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
+  skipStyleQuicktune: {
+    type: Boolean,
+    default: false
+  },
   hideRegistrationModal: {
     type: Boolean,
     default: false
@@ -1690,12 +1694,26 @@ const setupV4Observer = () => {
       },
       { threshold: 0.2 }
     )
-    useCaseRefs.value.forEach((el) => { if (el) observer.observe(el) })
+    useCaseRefs.value.forEach((el, idx) => {
+      if (!el) return
+      observer.observe(el)
+      const rect = el.getBoundingClientRect()
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        visibleUseCases.value[idx] = true
+      }
+    })
 
     const anchorCard = useCaseRefs.value[1] || useCaseRefs.value[0]
     if (anchorCard) {
       const container = getScrollContainer(anchorCard)
       const handlePaywallScroll = () => {
+        useCaseRefs.value.forEach((el, idx) => {
+          if (!el || visibleUseCases.value[idx]) return
+          const r = el.getBoundingClientRect()
+          if (r.top < window.innerHeight * 0.95 && r.bottom > 0) {
+            visibleUseCases.value[idx] = true
+          }
+        })
         if (registrationCompleted.value || props.hideRegistrationModal) return
         const rect = anchorCard.getBoundingClientRect()
         // Modal jelenik meg amikor a 2. kártya alja a viewport 60%-ánál feljebb kerül
@@ -2032,6 +2050,21 @@ const runAnalysis = () => {
     // With chat: skip success screen, go directly to style selection (3s after analysis successful)
     setTimeout(() => {
       showAnalysisContent.value = false
+      if (props.skipStyleQuicktune) {
+        showRecommendationV4.value = true
+        emit('phase-changed', 'wizard-recommendation-v4')
+        wizardChatMessages.value.push({ type: 'ai-success', message: 'Analysis complete!' })
+        scrollChatToBottom()
+        setTimeout(() => {
+          wizardChatMessages.value.push({
+            type: 'ai',
+            message: 'Here\'s your personalized optimization plan! 🚀\nPick the campaigns you\'d like to launch, or go with all of them for maximum impact.'
+          })
+          scrollChatToBottom()
+          setupV4Observer()
+        }, 500)
+        return
+      }
       showStyleSelection.value = true
       emit('phase-changed', 'wizard-style')
       wizardChatMessages.value.push({
@@ -2052,6 +2085,10 @@ const runAnalysis = () => {
     // Without chat: go to style selection 3s after analysis successful
     setTimeout(() => {
       showAnalysisContent.value = false
+      if (props.skipStyleQuicktune) {
+        emit('navigate-to', 'wizard-recommendation-v4')
+        return
+      }
       showStyleSelection.value = true
       emit('phase-changed', 'wizard-style')
     }, 14500)
@@ -2072,21 +2109,17 @@ const selectStyleAndContinue = (styleId) => {
 
 
 const confirmQuicktune = () => {
+  showQuicktune.value = false
+  showRecommendationV4.value = true
+  emit('phase-changed', 'wizard-recommendation-v4')
   if (props.showChat) {
-    // Stay inside the component to preserve chat state
-    showQuicktune.value = false
-    showRecommendationV4.value = true
-    emit('phase-changed', 'wizard-recommendation-v4')
-    // Add chat message for recommendation
     wizardChatMessages.value.push({
       type: 'ai',
       message: 'Here\'s your personalized optimization plan! 🚀\nPick the campaigns you\'d like to launch, or go with all of them for maximum impact.'
     })
     scrollChatToBottom()
-    setupV4Observer()
-  } else {
-    emit('navigate-to', 'wizard-recommendation-v4')
   }
+  nextTick(() => setupV4Observer())
 }
 
 const handleSubmit = () => {

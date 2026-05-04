@@ -105,7 +105,7 @@ const registrationViews = [
     section: null,
     hideLogo: true,
     keyPrefix: 'reg',
-    nav: { sessionReset: true, flowSelected: true },
+    nav: { sessionReset: true, flowSelected: true, mobileOnboardingVariant: null, useHuDesktopFlow: false },
   },
   {
     id: 'registration-hu',
@@ -115,7 +115,7 @@ const registrationViews = [
     section: null,
     hideLogo: true,
     keyPrefix: 'reg-hu',
-    nav: { sessionReset: true, flowSelected: true },
+    nav: { sessionReset: true, flowSelected: true, mobileOnboardingVariant: null, useHuDesktopFlow: true },
   },
   {
     id: 'registration-mobile',
@@ -125,7 +125,7 @@ const registrationViews = [
     section: null,
     hideLogo: true,
     keyPrefix: 'reg-mobile',
-    nav: { sessionReset: true, flowSelected: true },
+    nav: { sessionReset: true, flowSelected: true, mobileOnboardingVariant: 'en', useHuDesktopFlow: false },
   },
   {
     id: 'registration-mobile-hu',
@@ -135,7 +135,7 @@ const registrationViews = [
     section: null,
     hideLogo: true,
     keyPrefix: 'reg-mobile-hu',
-    nav: { sessionReset: true, flowSelected: true },
+    nav: { sessionReset: true, flowSelected: true, mobileOnboardingVariant: 'hu', useHuDesktopFlow: false },
   },
   {
     id: 'login',
@@ -407,6 +407,17 @@ const wizardViews = [
     hideLogo: true,
     keyPrefix: 'public-wizard',
     refName: 'publicWizardRef',
+    nav: { sessionReset: true, flowSelected: true, registrationType: 'public-wizard', clearWizardMessage: true, extraState: { publicWizardStep: 'url' } },
+  },
+  {
+    id: 'public-wizard-v2',
+    component: () => import('../views/PublicWizardV2View.vue'),
+    label: 'Public Wizard V2',
+    status: 'active',
+    section: null,
+    hideLogo: true,
+    keyPrefix: 'public-wizard-v2',
+    refName: 'publicWizardV2Ref',
     nav: { sessionReset: true, flowSelected: true, registrationType: 'public-wizard', clearWizardMessage: true, extraState: { publicWizardStep: 'url' } },
   },
   {
