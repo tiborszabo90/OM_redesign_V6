@@ -546,9 +546,107 @@
 
         <!-- Settings Tab Content -->
         <div v-if="activeTab === 'Settings'" class="space-y-4 pb-40">
-          <!-- Goal & A/B test -->
+          <!-- Who should see this campaign? -->
           <Accordion
-            title="Goal & A/B test"
+            id="settings-whoSee"
+            title="Targeting"
+            subtitle="Who should see this campaign?"
+            :open="openAccordion === 'whoSee'"
+            @toggle="toggleAccordion('whoSee')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
+          >
+            <template #icon><Users :size="20" class="text-om-orange-400" /></template>
+            <div class="trigger-timeline">
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3 mb-5">
+                    <div class="w-12 h-12 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <Globe :size="28" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">Smart product page targeting</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">The campaign runs on product pages where all variables are generated.</div>
+                    </div>
+                    <Button variant="outline" size="sm" class="shrink-0">Product catalog</Button>
+                  </div>
+                  <div class="flex gap-8 items-start overflow-hidden pl-15">
+                    <div class="w-96 shrink-0 px-5 py-5 bg-om-gray-50 flex items-center justify-center rounded-xl">
+                      <div class="flex items-center gap-4 w-full">
+                        <div class="relative w-20 h-20 shrink-0">
+                          <svg class="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+                            <circle cx="40" cy="40" r="32" fill="none" stroke="#e3e5e8" stroke-width="8" />
+                            <circle cx="40" cy="40" r="32" fill="none" stroke="#2CC896" stroke-width="8" stroke-linecap="round" :stroke-dasharray="`${(campaignProductPages / campaignTotalProducts) * 201.06} 201.06`" />
+                          </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-baseline gap-2">
+                            <span class="text-[2rem] font-light text-om-gray-700 tabular-nums leading-none font-['Funnel_Sans']">{{ campaignProductPages }}<span class="text-base text-om-gray-500 font-normal"> / {{ campaignTotalProducts }}</span></span>
+                            <span class="text-sm text-om-gray-500">product pages ready</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 pb-2 border-b border-om-gray-100 text-xs text-om-gray-500 font-medium">
+                        <span>Variable</span>
+                        <span>Type</span>
+                        <span class="text-right">Last updated</span>
+                        <span class="text-right">Ready</span>
+                      </div>
+                      <div class="flex flex-col">
+                        <div v-for="variable in allVariables" :key="'v2-' + variable.id" class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 py-2.5 cursor-pointer hover:bg-om-gray-50 rounded-lg transition-all items-center">
+                          <div class="flex items-center gap-2 min-w-0"><span class="text-sm text-om-gray-700 truncate">{{ variable.name }}</span></div>
+                          <div><Tag variant="outlined">{{ variable.type }}</Tag></div>
+                          <span class="text-xs text-om-gray-400 text-right">{{ variable.lastUpdated }}</span>
+                          <span class="text-base font-semibold text-om-gray-700 tabular-nums text-right">{{ variable.generated.split(' / ')[0] }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <Users :size="28" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">Returning / New</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">The campaign will appear to <span class="font-semibold text-om-gray-800">new visitors</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <Globe :size="28" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">Current page / URL</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">URL or its subpaths contains <span class="font-semibold text-om-gray-800">whiskey</span>, <span class="font-semibold text-om-gray-800">wine</span>, or <span class="font-semibold text-om-gray-800">beer</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="trigger-timeline-add pl-6 flex items-center justify-between gap-3">
+                <Button variant="outline" size="md">
+                  <template #icon><Plus :size="18" /></template>
+                  Add new rule
+                </Button>
+                <Button variant="outline" size="md">Save as segment</Button>
+              </div>
+            </div>
+          </Accordion>
+
+          <!-- A/B test -->
+          <Accordion
+            id="settings-abTest"
+            title="A/B test"
+            subtitle="Split traffic between variants and pick a winner automatically"
             :open="openAccordion === 'abTest'"
             @toggle="toggleAccordion('abTest')"
             icon-rounded="rounded-xl"
@@ -556,19 +654,10 @@
           >
             <template #icon><FlaskConical :size="20" class="text-om-orange-400" /></template>
             <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-16 items-stretch">
-              <!-- Left column: Primary goal + Auto-declare winner -->
+              <!-- Left column: Auto-declare winner -->
               <div class="flex flex-col gap-6">
-                <!-- Primary goal -->
-                <section>
-                  <h4 class="text-base font-semibold text-om-gray-700 mb-3">Primary goal</h4>
-                  <p class="text-sm text-om-gray-500 mb-3">The main conversion event used to measure this campaign's success.<br />Reports and variant comparisons default to this metric.</p>
-                  <div class="w-64">
-                    <Dropdown v-model="primaryGoal" :options="goalValues" />
-                  </div>
-                </section>
-
                 <!-- Auto-declare winner -->
-                <section class="pt-6 border-t border-om-gray-100">
+                <section>
                   <div class="flex items-center gap-3 mb-1">
                     <h4 class="text-base font-semibold text-om-gray-700">Auto-declare winner</h4>
                     <ToggleSwitch v-model="autoStopEnabled" />
@@ -664,115 +753,78 @@
             </div>
           </Accordion>
 
-          <!-- Who should see this campaign? -->
+          <!-- Primary goal -->
           <Accordion
-            title="Who should see this campaign?"
-            :open="openAccordion === 'whoSee'"
-            @toggle="toggleAccordion('whoSee')"
+            id="settings-goal"
+            title="Primary goal"
+            subtitle="The main conversion event used to measure this campaign's success"
+            :open="openAccordion === 'goal'"
+            @toggle="toggleAccordion('goal')"
             icon-rounded="rounded-xl"
             icon-bg="bg-om-orange-100"
           >
-            <template #icon><Users :size="20" class="text-om-orange-400" /></template>
-            <div class="trigger-timeline">
-              <div class="trigger-timeline-item">
-                <div class="trigger-card">
-                  <div class="flex items-center gap-3 mb-5">
-                    <div class="w-12 h-12 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
-                      <Globe :size="28" class="text-white" />
-                    </div>
-                    <div class="flex-1">
-                      <div class="text-sm font-semibold text-om-gray-700">Smart product page targeting</div>
-                      <div class="text-sm text-om-gray-500 mt-0.5">The campaign runs on product pages where all variables are generated.</div>
-                    </div>
-                    <Button variant="outline" size="sm" class="shrink-0">Product catalog</Button>
-                  </div>
-                  <div class="flex gap-8 items-start overflow-hidden pl-15">
-                    <div class="w-96 shrink-0 px-5 py-5 bg-om-gray-50 flex items-center justify-center rounded-xl">
-                      <div class="flex items-center gap-4 w-full">
-                        <div class="relative w-20 h-20 shrink-0">
-                          <svg class="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
-                            <circle cx="40" cy="40" r="32" fill="none" stroke="#e3e5e8" stroke-width="8" />
-                            <circle cx="40" cy="40" r="32" fill="none" stroke="#2CC896" stroke-width="8" stroke-linecap="round" :stroke-dasharray="`${(campaignProductPages / campaignTotalProducts) * 201.06} 201.06`" />
-                          </svg>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                          <div class="flex items-baseline gap-2">
-                            <span class="text-[2rem] font-light text-om-gray-700 tabular-nums leading-none font-['Funnel_Sans']">{{ campaignProductPages }}<span class="text-base text-om-gray-500 font-normal"> / {{ campaignTotalProducts }}</span></span>
-                            <span class="text-sm text-om-gray-500">product pages ready</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 pb-2 border-b border-om-gray-100 text-xs text-om-gray-500 font-medium">
-                        <span>Variable</span>
-                        <span>Type</span>
-                        <span class="text-right">Last updated</span>
-                        <span class="text-right">Ready</span>
-                      </div>
-                      <div class="flex flex-col">
-                        <div v-for="variable in allVariables" :key="'v2-' + variable.id" class="grid grid-cols-[1fr_80px_100px_80px] gap-3 px-3 py-2.5 cursor-pointer hover:bg-om-gray-50 rounded-lg transition-all items-center">
-                          <div class="flex items-center gap-2 min-w-0"><span class="text-sm text-om-gray-700 truncate">{{ variable.name }}</span></div>
-                          <div><Tag variant="outlined">{{ variable.type }}</Tag></div>
-                          <span class="text-xs text-om-gray-400 text-right">{{ variable.lastUpdated }}</span>
-                          <span class="text-base font-semibold text-om-gray-700 tabular-nums text-right">{{ variable.generated.split(' / ')[0] }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="trigger-timeline-item">
-                <div class="trigger-card">
-                  <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
-                      <Users :size="28" class="text-white" />
-                    </div>
-                    <div class="flex-1">
-                      <div class="text-sm font-semibold text-om-gray-700">Returning / New</div>
-                      <div class="text-sm text-om-gray-500 mt-0.5">The campaign will appear to <span class="font-semibold text-om-gray-800">new visitors</span></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="trigger-timeline-item">
-                <div class="trigger-card">
-                  <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
-                      <Globe :size="28" class="text-white" />
-                    </div>
-                    <div class="flex-1">
-                      <div class="text-sm font-semibold text-om-gray-700">Current page / URL</div>
-                      <div class="text-sm text-om-gray-500 mt-0.5">URL or its subpaths contains <span class="font-semibold text-om-gray-800">whiskey</span>, <span class="font-semibold text-om-gray-800">wine</span>, or <span class="font-semibold text-om-gray-800">beer</span></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="trigger-timeline-add pl-6 flex items-center justify-between gap-3">
-                <Button variant="outline" size="md">
-                  <template #icon><Plus :size="18" /></template>
-                  Add new rule
-                </Button>
-                <Button variant="outline" size="md">Save as segment</Button>
-              </div>
+            <template #icon><Target :size="20" class="text-om-orange-400" /></template>
+            <p class="text-sm text-om-gray-500 mb-3">Reports and variant comparisons default to this metric.</p>
+            <div class="w-64">
+              <Dropdown v-model="primaryGoal" :options="goalValues" />
             </div>
           </Accordion>
 
-          <!-- Email Notification Toggle -->
-          <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pl-4 pr-7 py-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-om-orange-100 flex items-center justify-center shrink-0">
-                  <Mail :size="20" class="text-om-orange-400" />
-                </div>
-                <div>
-                  <h4 class="text-lg font-semibold text-om-gray-700">Email notification</h4>
-                  <p class="text-sm text-om-gray-500 mt-1">Get notified when someone submits this campaign</p>
-                </div>
-              </div>
+          <!-- Email notification -->
+          <Accordion
+            id="settings-emailNotification"
+            title="Email notification"
+            subtitle="Get notified when someone submits this campaign"
+            :open="openAccordion === 'emailNotification'"
+            @toggle="toggleAccordion('emailNotification')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
+          >
+            <template #icon><Mail :size="20" class="text-om-orange-400" /></template>
+            <div class="flex items-center gap-3">
+              <h4 class="text-base font-semibold text-om-gray-700">Send email notifications</h4>
               <ToggleSwitch v-model="emailNotification" />
             </div>
-          </div>
+
+            <div v-if="emailNotification" class="mt-5">
+              <div v-if="notificationEmails.length" class="flex flex-wrap gap-2 mb-4">
+                <Tag
+                  v-for="entry in notificationEmails"
+                  :key="entry.email"
+                  variant="gray"
+                  :class="entry.status === 'pending' ? 'text-om-gray-600!' : ''"
+                >
+                  <template v-if="entry.status === 'pending'" #icon>
+                    <Hourglass :size="12" />
+                  </template>
+                  <span>{{ entry.email }}</span>
+                  <button
+                    type="button"
+                    class="ml-1 -mr-1 inline-flex items-center justify-center cursor-pointer opacity-70 hover:opacity-100"
+                    @click="removeNotificationEmail(entry.email)"
+                  >
+                    <X :size="12" />
+                  </button>
+                </Tag>
+              </div>
+
+              <div class="flex items-end gap-2">
+                <div class="w-80">
+                  <FormInput
+                    v-model="newNotificationEmail"
+                    label="Send notifications to"
+                    type="email"
+                    placeholder="Add email address"
+                    @keydown.enter.prevent="addNotificationEmail"
+                  />
+                </div>
+                <Button variant="primary" size="md" @click="addNotificationEmail">
+                  <template #icon><Plus :size="16" /></template>
+                  Add
+                </Button>
+              </div>
+            </div>
+          </Accordion>
         </div>
       </div>
     </template>
@@ -1331,9 +1383,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check, Ban, Info, Globe, FlaskConical, Mail, Zap } from 'lucide-vue-next'
+import { ref, reactive, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check, Ban, Info, Globe, FlaskConical, Mail, Zap, Hourglass } from 'lucide-vue-next'
 import Tag from '../components/shared/Tag.vue'
+import FormInput from '../components/shared/FormInput.vue'
 import ProductPagePreview from '../components/ppo/ProductPagePreview.vue'
 import Button from '../components/shared/Button.vue'
 import Chip from '../components/shared/Chip.vue'
@@ -1413,6 +1466,24 @@ onUnmounted(() => window.removeEventListener('hashchange', readTabFromHash))
 // Settings tab - Accordion state
 const openAccordion = ref(null)
 const emailNotification = ref(false)
+const notificationEmails = ref([
+  { email: 'product@optimonk.com', status: 'accepted' },
+])
+const newNotificationEmail = ref('')
+
+const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+
+const addNotificationEmail = () => {
+  const email = newNotificationEmail.value.trim()
+  if (email && isValidEmail(email) && !notificationEmails.value.some(e => e.email === email)) {
+    notificationEmails.value.push({ email, status: 'pending' })
+  }
+  newNotificationEmail.value = ''
+}
+
+const removeNotificationEmail = (email) => {
+  notificationEmails.value = notificationEmails.value.filter(e => e.email !== email)
+}
 
 // How many times accordion state
 const frequencyType = ref('maximum')
@@ -1430,6 +1501,9 @@ const toggleAccordion = (section) => {
 const openSettingsAccordion = (section) => {
   activeTab.value = 'Settings'
   openAccordion.value = section
+  nextTick(() => {
+    document.getElementById(`settings-${section}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
 }
 
 // Variants with inline variables

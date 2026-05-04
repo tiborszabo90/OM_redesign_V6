@@ -592,6 +592,7 @@
         <div v-if="activeTab === 'Settings'" class="space-y-4 pb-40">
           <!-- When would you like this campaign to show up? -->
           <Accordion
+            id="settings-showUp"
             title="Triggering"
             subtitle="When would you like this campaign to show up?"
             :open="openAccordion === 'showUp'"
@@ -655,6 +656,7 @@
 
           <!-- How many times should this campaign appear? -->
           <Accordion
+            id="settings-howMany"
             title="Frequency"
             subtitle="How many times should this campaign appear?"
             :open="openAccordion === 'howMany'"
@@ -730,6 +732,7 @@
 
           <!-- Who should see this campaign? -->
           <Accordion
+            id="settings-whoSee"
             title="Targeting"
             subtitle="Who should see this campaign?"
             :open="openAccordion === 'whoSee'"
@@ -777,6 +780,7 @@
 
           <!-- Where you would like to send the subscribers and campaign data? -->
           <Accordion
+            id="settings-sendData"
             title="Integrations"
             subtitle="Where you would like to send the subscribers and campaign data?"
             :open="openAccordion === 'sendData'"
@@ -801,6 +805,7 @@
 
           <!-- A/B test -->
           <Accordion
+            id="settings-abTest"
             title="A/B test"
             subtitle="Split traffic between variants and pick a winner automatically"
             :open="openAccordion === 'abTest'"
@@ -922,39 +927,78 @@
             </div>
           </Accordion>
 
-          <!-- Goal -->
-          <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pl-4 pr-7 py-4">
-            <div class="flex items-center justify-between gap-4">
-              <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-xl bg-om-orange-100 flex items-center justify-center shrink-0">
-                  <Target :size="22" class="text-om-orange-400" />
-                </div>
-                <div>
-                  <h4 class="text-lg font-semibold text-om-gray-700">Primary goal</h4>
-                  <p class="text-sm text-om-gray-500 mt-1">The main conversion event used to measure this campaign's success</p>
-                </div>
-              </div>
-              <div class="w-64 shrink-0">
-                <Dropdown v-model="primaryGoal" :options="goalValues" />
-              </div>
+          <!-- Primary goal -->
+          <Accordion
+            id="settings-goal"
+            title="Primary goal"
+            subtitle="The main conversion event used to measure this campaign's success"
+            :open="openAccordion === 'goal'"
+            @toggle="toggleAccordion('goal')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
+          >
+            <template #icon><Target :size="20" class="text-om-orange-400" /></template>
+            <p class="text-sm text-om-gray-500 mb-3">Reports and variant comparisons default to this metric.</p>
+            <div class="w-64">
+              <Dropdown v-model="primaryGoal" :options="goalValues" />
             </div>
-          </div>
+          </Accordion>
 
-          <!-- Email Notification Toggle -->
-          <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pl-4 pr-7 py-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-xl bg-om-orange-100 flex items-center justify-center shrink-0">
-                  <Mail :size="22" class="text-om-orange-400" />
-                </div>
-                <div>
-                  <h4 class="text-lg font-semibold text-om-gray-700">Email notification</h4>
-                  <p class="text-sm text-om-gray-500 mt-1">Get notified when someone submits this campaign</p>
-                </div>
-              </div>
+          <!-- Email notification -->
+          <Accordion
+            id="settings-emailNotification"
+            title="Email notification"
+            subtitle="Get notified when someone submits this campaign"
+            :open="openAccordion === 'emailNotification'"
+            @toggle="toggleAccordion('emailNotification')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
+          >
+            <template #icon><Mail :size="20" class="text-om-orange-400" /></template>
+            <div class="flex items-center gap-3">
+              <h4 class="text-base font-semibold text-om-gray-700">Send email notifications</h4>
               <ToggleSwitch v-model="emailNotification" />
             </div>
-          </div>
+
+            <div v-if="emailNotification" class="mt-5">
+              <div v-if="notificationEmails.length" class="flex flex-wrap gap-2 mb-4">
+                <Tag
+                  v-for="entry in notificationEmails"
+                  :key="entry.email"
+                  variant="gray"
+                  :class="entry.status === 'pending' ? 'text-om-gray-600!' : ''"
+                >
+                  <template v-if="entry.status === 'pending'" #icon>
+                    <Hourglass :size="12" />
+                  </template>
+                  <span>{{ entry.email }}</span>
+                  <button
+                    type="button"
+                    class="ml-1 -mr-1 inline-flex items-center justify-center cursor-pointer opacity-70 hover:opacity-100"
+                    @click="removeNotificationEmail(entry.email)"
+                  >
+                    <X :size="12" />
+                  </button>
+                </Tag>
+              </div>
+
+              <div class="flex items-end gap-2">
+                <div class="w-80">
+                  <FormInput
+                    v-model="newNotificationEmail"
+                    label="Send notifications to"
+                    type="email"
+                    placeholder="Add email address"
+                    @keydown.enter.prevent="addNotificationEmail"
+                  />
+                </div>
+                <Button variant="primary" size="md" @click="addNotificationEmail">
+                  <template #icon><Plus :size="16" /></template>
+                  Add
+                </Button>
+              </div>
+            </div>
+          </Accordion>
         </div>
       </div>
     </template>
@@ -1122,8 +1166,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Ban } from 'lucide-vue-next'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ChevronDown, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Ban, Hourglass } from 'lucide-vue-next'
 import Button from '../components/shared/Button.vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
@@ -1131,6 +1175,7 @@ import Dropdown from '../components/shared/Dropdown.vue'
 import Accordion from '../components/shared/Accordion.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
 import RadioButton from '../components/shared/RadioButton.vue'
+import FormInput from '../components/shared/FormInput.vue'
 import { VueDatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import ScrollTimePicker from '../components/shared/ScrollTimePicker.vue'
@@ -1168,6 +1213,24 @@ const isActive = ref(true)
 // Settings tab - Accordion state
 const openAccordion = ref(null)
 const emailNotification = ref(false)
+const notificationEmails = ref([
+  { email: 'product@optimonk.com', status: 'accepted' },
+])
+const newNotificationEmail = ref('')
+
+const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+
+const addNotificationEmail = () => {
+  const email = newNotificationEmail.value.trim()
+  if (email && isValidEmail(email) && !notificationEmails.value.some(e => e.email === email)) {
+    notificationEmails.value.push({ email, status: 'pending' })
+  }
+  newNotificationEmail.value = ''
+}
+
+const removeNotificationEmail = (email) => {
+  notificationEmails.value = notificationEmails.value.filter(e => e.email !== email)
+}
 
 // How many times accordion state
 const frequencyType = ref('maximum')
@@ -1185,6 +1248,9 @@ const toggleAccordion = (section) => {
 const openSettingsAccordion = (section) => {
   activeTab.value = 'Settings'
   openAccordion.value = section
+  nextTick(() => {
+    document.getElementById(`settings-${section}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
 }
 
 // Tab routing — each tab gets its own URL
