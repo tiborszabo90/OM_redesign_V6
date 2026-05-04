@@ -554,7 +554,7 @@ const activeEvents = computed(() => {
     'opportunity-detail': { 'menu-click': handleMenuClick, 'go-back': () => handleDevNavigate('analytics-v4') },
     'opportunities-all': { 'menu-click': handleMenuClick, 'go-back': () => handleDevNavigate('analytics-v4'), 'navigate-to-opportunity': handleNavigateToOpportunity },
     'templates-v1': { 'menu-click': handleMenuClick },
-    'templates-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'templates-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'spp-domain-selected': ({ type }) => { ppoWizardState.value.selectedTypes = [type]; currentView.value = 'ppo-loading' } },
     'templates-v2-essential-theme': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'templates-v2-branding': { navigate: handleDevNavigate },
     'templates-v3': { 'menu-click': handleMenuClick },
