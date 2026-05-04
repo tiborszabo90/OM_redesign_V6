@@ -599,7 +599,7 @@
             icon-rounded="rounded-xl"
             icon-bg="bg-om-orange-100"
           >
-              <template #icon><Clock :size="20" class="text-om-orange-400" /></template>
+              <template #icon><Zap :size="20" class="text-om-orange-400" /></template>
               <!-- Trigger Timeline -->
               <div class="trigger-timeline">
                 <!-- First trigger: On exit-intent -->
