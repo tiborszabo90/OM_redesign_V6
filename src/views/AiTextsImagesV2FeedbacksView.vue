@@ -544,7 +544,7 @@
 
           <div class="flex flex-col gap-3">
             <div
-              v-for="product in genProductsGeneratedPaged"
+              v-for="(product, i) in genProductsGeneratedPaged"
               :key="product.id"
               class="relative bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-4"
             >
@@ -553,7 +553,8 @@
                 Ready to use
               </Tag>
 
-              <div class="flex gap-4 items-stretch">
+              <div class="flex gap-3 items-stretch">
+                <span class="self-start pt-1 w-6 text-xs font-medium text-om-gray-400 tabular-nums shrink-0">#{{ (genGeneratedPage - 1) * genPerPage + i + 1 }}</span>
                 <!-- Product column -->
                 <div class="flex-[0_0_22%] min-w-0 flex flex-col pr-2">
                   <div class="w-full aspect-square bg-om-gray-100 rounded-lg overflow-hidden border border-om-gray-200 mb-3">

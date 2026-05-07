@@ -522,19 +522,19 @@
 
         <!-- Review tab content -->
         <div v-else-if="genTab === 'generated'">
-          <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
               <div class="relative">
                 <Search :size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-700" />
                 <input v-model="genSearch" type="text" placeholder="Search products..." class="pl-9 pr-4 py-1.5 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 w-44" />
               </div>
               <div class="relative">
-                <Button variant="secondary" size="sm" @click="cpShowFilters = !cpShowFilters">
+                <Button variant="secondary" size="sm" @click="genReviewShowFilters = !genReviewShowFilters">
                   <template #icon><SlidersHorizontal :size="15" /></template>
                   Filters
                   <span v-if="genReviewFilterCount > 0" class="ml-0.5 bg-om-orange-500 text-white text-[10px] font-semibold rounded-full w-3.5 h-3.5 flex items-center justify-center leading-none">{{ genReviewFilterCount }}</span>
                 </Button>
-                <div v-if="cpShowFilters" class="absolute top-full left-0 mt-2 bg-white border border-om-gray-200 rounded-xl shadow-lg p-4 z-20 flex flex-col gap-4 w-80">
+                <div v-if="genReviewShowFilters" class="absolute top-full left-0 mt-2 bg-white border border-om-gray-200 rounded-xl shadow-lg p-4 z-20 flex flex-col gap-4 w-80">
                   <div class="flex flex-col gap-1">
                     <span class="text-xs text-om-gray-500">Created</span>
                     <div class="flex items-center gap-2">
@@ -554,76 +554,54 @@
             <div
               v-for="(product, i) in genProductsGeneratedPaged"
               :key="product.id"
-              class="relative bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-4"
+              class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pl-4 flex items-stretch gap-3 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow"
+              @click="openProductModal(product, 'review')"
             >
-              <div class="flex gap-3 items-stretch">
-                <span class="self-start pt-1 w-6 text-xs font-medium text-om-gray-400 tabular-nums shrink-0">#{{ (genGeneratedPage - 1) * genPerPage + i + 1 }}</span>
-                <!-- Product column -->
-                <div class="flex-[0_0_22%] min-w-0 flex flex-col pr-2">
-                  <div class="w-full aspect-square bg-om-gray-100 rounded-lg overflow-hidden border border-om-gray-200 mb-3">
+              <span class="self-center w-6 text-xs font-medium text-om-gray-400 tabular-nums shrink-0">#{{ (genGeneratedPage - 1) * genPerPage + i + 1 }}</span>
+              <!-- Content split 50/50 -->
+              <div class="flex-1 min-w-0 flex items-stretch gap-0">
+                <!-- Left half: product thumbnail + info -->
+                <div class="flex items-center gap-3 w-1/2 pr-4">
+                  <div class="aspect-square h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
                     <img src="/product1.jpg" class="w-full h-full object-cover" />
                   </div>
-                  <p class="text-sm font-semibold text-om-gray-700 truncate">{{ product.name }}</p>
-                  <p class="text-xs text-om-gray-400 mt-0.5 line-clamp-2">{{ product.desc }}</p>
-                </div>
-
-                <!-- Generated image column -->
-                <div class="flex-[0_0_48%] min-w-0 flex flex-col">
-                  <div class="w-full aspect-video rounded-lg overflow-hidden bg-om-gray-50 relative">
-                    <img :src="getCurrentImage(product).src" class="w-full h-full object-cover transition-all duration-300" :class="[isRegeneratingId(product.id) ? 'blur-sm scale-105' : '', isIgnored(product.id) ? 'blur-[2px] grayscale' : '']" />
-                    <div v-if="isRegeneratingId(product.id)" class="absolute inset-0 bg-black/20 flex items-center justify-center">
-                      <svg class="animate-spin w-8 h-8 text-white" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                    </div>
-                    <div v-else-if="isIgnored(product.id)" class="absolute inset-0 bg-black/60 flex items-center justify-center">
-                      <EyeOff :size="40" class="text-white" />
-                    </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-om-gray-700">{{ product.name }}</p>
+                    <p class="text-xs text-om-gray-400 mt-0.5">{{ product.desc }}</p>
                   </div>
                 </div>
 
-                <!-- Instructions column -->
-                <div class="flex-1 min-w-0 flex flex-col">
-                  <textarea
-                    :value="feedbackByProduct[product.id] ?? ''"
-                    @input="feedbackByProduct[product.id] = $event.target.value"
-                    placeholder="Instructions for the next generation"
-                    rows="6"
-                    class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
-                  />
-                </div>
-              </div>
+                <!-- Divider -->
+                <div class="w-px bg-om-gray-100 shrink-0 self-stretch"></div>
 
-              <div class="absolute bottom-3 right-3 z-10 flex items-center gap-2">
-                <Button variant="secondary" size="sm" @click="toggleIgnore(product)">
-                  <template #icon>
-                    <Eye v-if="isIgnored(product.id)" :size="13" />
-                    <EyeOff v-else :size="13" />
-                  </template>
-                  {{ isIgnored(product.id) ? 'Restore' : 'Ignore' }}
-                </Button>
-                <Button variant="secondary" size="sm" :disabled="getHistory(product).length <= 1" @click="openHistoryModal(product)">
-                  <template #icon><History :size="13" /></template>
-                  History
-                </Button>
-                <Button variant="primary" size="sm" @click="regenerateFromReview(product)">
-                  <template #icon><Sparkles :size="13" /></template>
-                  Regenerate
-                </Button>
+                <!-- Right half: generated image + output info + status -->
+                <div class="flex items-center gap-4 w-1/2 pl-4">
+                  <div class="rounded-lg shrink-0 overflow-hidden relative" style="aspect-ratio: 16/9; height: 96px;">
+                    <img src="/product2.png" class="w-full h-full object-cover" :class="isIgnored(product.id) ? 'blur-[2px] grayscale' : ''" />
+                    <div v-if="isIgnored(product.id)" class="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <EyeOff :size="22" class="text-white" />
+                    </div>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-0.5">Output</p>
+                    <p class="text-sm text-om-gray-600">16:9 Image</p>
+                  </div>
+                  <Tag v-if="isIgnored(product.id)" variant="gray" class="shrink-0">
+                    <template #icon><EyeOff :size="12" /></template>
+                    Ignored
+                  </Tag>
+                  <Tag v-else variant="green" class="shrink-0">
+                    <template #icon><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></template>
+                    Ready to use
+                  </Tag>
+                </div>
               </div>
             </div>
           </div>
           <!-- Pagination -->
-          <div class="flex items-center justify-between px-1 py-4 mt-2 border-t border-om-gray-100">
-            <div class="flex items-center gap-3">
-              <span class="text-sm text-om-gray-500">View</span>
-              <div class="w-20">
-                <Dropdown v-model="genPerPageOption" :options="perPageOptions" size="sm" drop-up />
-              </div>
-              <span class="text-sm text-om-gray-500">{{ (genGeneratedPage - 1) * genPerPage + 1 }} - {{ Math.min(genGeneratedPage * genPerPage, genProductsGenerated.length) }}/{{ genProductsGenerated.length }}</span>
-            </div>
-            <div v-if="genGeneratedTotalPages > 1" class="flex items-center gap-1">
+          <div v-if="genGeneratedTotalPages > 1" class="flex items-center justify-between px-1 py-4 mt-2 border-t border-om-gray-100">
+            <span class="text-sm text-om-gray-400">Showing {{ (genGeneratedPage - 1) * genPerPage + 1 }} to {{ Math.min(genGeneratedPage * genPerPage, genProductsGenerated.length) }} of {{ genProductsGenerated.length }} entries</span>
+            <div class="flex items-center gap-1">
               <Button variant="ghost" size="sm" :disabled="genGeneratedPage === 1" @click="genGeneratedPage--">Previous</Button>
               <template v-for="p in genGeneratedTotalPages" :key="p">
                 <Button v-if="p <= 3 || p === genGeneratedTotalPages" variant="ghost" size="sm" :active="p === genGeneratedPage" @click="genGeneratedPage = p">{{ p }}</Button>
@@ -726,147 +704,189 @@
 
       <!-- Generation Product screen -->
       <div v-else-if="showGenerationProduct && selectedProduct" class="w-full max-w-[1400px] mx-auto -mt-3">
-        <!-- Back -->
-        <div class="flex items-center gap-2 mb-2">
-          <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-v2-generation')">
-            <template #icon><ArrowLeft :size="16" /></template>
-          </Button>
+        <!-- Header: back + title on left, prev/next on right -->
+        <div class="flex items-center justify-between gap-4 mb-4">
+          <div class="flex items-center gap-2 min-w-0">
+            <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-v2-generation')">
+              <template #icon><ArrowLeft :size="16" /></template>
+            </Button>
+            <h1 class="text-2xl font-semibold text-om-gray-700 truncate">{{ selectedProduct.name }}</h1>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <Button variant="secondary" size="sm" @click="toggleIgnore(selectedProduct)">
+              <template #icon>
+                <Eye v-if="isIgnored(selectedProduct.id)" :size="14" />
+                <EyeOff v-else :size="14" />
+              </template>
+              {{ isIgnored(selectedProduct.id) ? 'Restore' : 'Ignore' }}
+            </Button>
+            <span v-if="selectedProductIndex >= 0" class="text-sm text-om-gray-400 tabular-nums ml-2">{{ selectedProductIndex + 1 }} / {{ genProductsGenerated.length }}</span>
+            <Button variant="secondary" size="sm" :disabled="!hasPrevProduct" @click="goToPrevProduct">
+              <template #icon><ChevronLeft :size="14" /></template>
+              Previous
+            </Button>
+            <Button variant="secondary" size="sm" :disabled="!hasNextProduct" @click="goToNextProduct">
+              Next
+              <ChevronRight :size="14" />
+            </Button>
+          </div>
         </div>
-        <h1 class="text-2xl font-semibold text-om-gray-700 mb-4">{{ selectedProduct.name }}</h1>
         <div>
-                <!-- Two columns -->
-                <div class="grid grid-cols-[340px_1fr] gap-4 mb-4 items-stretch" style="height: 440px;">
-                  <!-- Left: Original Product -->
-                  <div class="flex flex-col min-h-0">
-                    <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-3">Original Product</p>
-                    <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden flex-1 flex flex-col">
-                      <div class="aspect-square bg-om-gray-100 overflow-hidden">
-                        <img src="/product1.jpg" class="w-full h-full object-cover" />
-                      </div>
-                      <div class="p-4 border-t border-om-gray-100">
-                        <h3 class="text-sm font-semibold text-om-gray-700 mb-3">{{ selectedProduct.name }}</h3>
-                        <div class="flex items-center justify-between">
-                          <span class="text-xs text-om-gray-400">SKU: OM-7-SE</span>
-                          <span class="text-sm font-semibold text-om-gray-700">$159.00</span>
-                        </div>
+          <!-- Review-tab entry: full-width generated preview + 1/3+2/3 card below -->
+          <template v-if="productEntrySource === 'review'">
+            <!-- Row 1: AI Generated Preview (full width) -->
+            <div class="flex flex-col mb-4">
+              <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-3 flex items-center gap-1.5">
+                <Wand2 :size="16" class="text-om-orange-400" />
+                AI Generated Preview
+              </p>
+              <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden relative" style="height: 500px;">
+                <template v-if="selectedProduct.status === 'generated'">
+                  <img src="/product2.png" class="w-full h-full object-contain transition-all duration-300" :class="[promptChanged ? 'blur-sm scale-105' : '', isIgnored(selectedProduct.id) ? 'blur-[2px] grayscale' : '']" />
+                  <Transition name="modal-fade">
+                    <div v-if="promptChanged" class="absolute inset-0 bg-black/20 flex flex-col items-center justify-center">
+                      <Button variant="primary" size="md" @click="regenerateProduct">
+                        <template #icon><Sparkles :size="14" /></template>
+                        Regenerate
+                      </Button>
+                      <div class="flex items-center gap-1.5 mt-3 text-sm font-medium text-white">
+                        <Coins :size="16" />
+                        Costs {{ selectedImagePreset?.credits ?? 15 }} credits
                       </div>
                     </div>
+                  </Transition>
+                  <div v-if="!promptChanged && isIgnored(selectedProduct.id)" class="absolute inset-0 bg-black/60 flex items-center justify-center">
+                    <EyeOff :size="40" class="text-white" />
                   </div>
+                </template>
+                <template v-else-if="selectedProduct.status === 'generating'">
+                  <div class="w-full h-full flex flex-col items-center justify-center gap-3">
+                    <svg class="animate-spin w-10 h-10 text-om-orange-500" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    <p class="text-sm text-om-gray-500">Generating...</p>
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="w-full h-full flex flex-col items-center justify-center gap-2">
+                    <svg class="w-8 h-8 text-om-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <p class="text-sm text-om-gray-400">Pending generation</p>
+                  </div>
+                </template>
+              </div>
+            </div>
 
-                  <!-- Right: AI Generated -->
-                  <div class="flex flex-col min-h-0">
-                    <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-3 flex items-center gap-1.5">
-                      <Wand2 :size="16" class="text-om-orange-400" />
-                      AI Generated Image
-                    </p>
-                    <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden flex-1 relative">
-                      <template v-if="selectedProduct.status === 'generated'">
-                        <img src="/product2.png" class="w-full h-full object-contain transition-all duration-300" :class="promptChanged ? 'blur-sm scale-105' : ''" />
-                        <Transition name="modal-fade">
-                          <div v-if="promptChanged" class="absolute inset-0 bg-black/20 flex flex-col items-center justify-center">
-                            <Button variant="primary" size="md" @click="regenerateProduct">
-                              <template #icon><Sparkles :size="14" /></template>
-                              Regenerate
-                            </Button>
-                            <div class="flex items-center gap-1.5 mt-3 text-sm font-medium text-white">
-                              <Coins :size="16" />
-                              Costs {{ selectedImagePreset?.credits ?? 15 }} credits
-                            </div>
-                          </div>
-                        </Transition>
-                      </template>
-                      <template v-else-if="selectedProduct.status === 'generating'">
-                        <div class="w-full h-full flex flex-col items-center justify-center gap-3">
-                          <svg class="animate-spin w-10 h-10 text-om-orange-500" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                          <p class="text-sm text-om-gray-500">Generating...</p>
-                        </div>
-                      </template>
-                      <template v-else>
-                        <div class="w-full h-full flex flex-col items-center justify-center gap-2">
-                          <svg class="w-8 h-8 text-om-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                          <p class="text-sm text-om-gray-400">Pending generation</p>
-                        </div>
-                      </template>
+            <!-- Row 2: Original Product (1/3) + Prompt Editor (2/3) in a single card -->
+            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5">
+              <div class="grid grid-cols-3 gap-5">
+                <!-- Left 1/3: Original Product -->
+                <div class="flex items-center gap-4">
+                  <div class="w-40 h-40 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
+                    <img src="/product1.jpg" class="w-full h-full object-cover" />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-1">Original Product</p>
+                    <h3 class="text-sm font-semibold text-om-gray-700 truncate">{{ selectedProduct.name }}</h3>
+                    <div class="flex items-center justify-between mt-1">
+                      <span class="text-xs text-om-gray-400">SKU: OM-7-SE</span>
+                      <span class="text-sm font-semibold text-om-gray-700">$159.00</span>
                     </div>
                   </div>
                 </div>
 
-                <!-- Prompt Editor -->
-                <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5">
-                  <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-semibold text-om-gray-700">Edit the prompt to customize the generation for this product.</h3>
-                    <Button variant="primary" size="sm" @click="regenerateProduct">
-                      <template #icon><Sparkles :size="13" /></template>
-                      Regenerate
-                    </Button>
-                  </div>
+                <!-- Right 2/3: Prompt Editor -->
+                <div class="col-span-2 flex flex-col">
+                  <h3 class="text-sm font-semibold text-om-gray-700 mb-2">Prompt Editor</h3>
                   <textarea
                     v-model="promptText"
-                    rows="3"
-                    class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
+                    rows="6"
+                    class="w-full flex-1 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
                   />
-                  <!-- {{ showAdvanced ? 'Basic Settings' : 'Advanced Settings' }} panel -->
-                  <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-3">
-                    <div class="grid grid-cols-2 gap-3 items-stretch">
-                      <!-- Col 1: Model + Ratio tags -->
-                      <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
-                        <div class="flex items-center gap-2">
-                          <Tag>Model: {{ promptModel }}</Tag>
-                          <Tag>Ratio: {{ promptRatio }}</Tag>
-                        </div>
-                      </div>
-                      <!-- Col 2: Usage location -->
-                      <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
-                        <p class="text-xs text-om-gray-500">Usage location</p>
-                        <div class="grid grid-cols-2 mt-0.5">
-                          <RadioButton v-model="pageType" value="product" label="Product page" />
-                          <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
-                        </div>
-                      </div>
-                    </div>
-                    <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
-                      <p class="text-xs text-om-gray-500">Available data sources</p>
-                      <div class="flex flex-wrap gap-1.5">
-                        <Tag v-for="src in dataSources" :key="src" variant="orange">{{ src }}</Tag>
-                      </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3 items-stretch">
-                      <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
-                        <span class="text-xs text-om-gray-500">Auto-generate prompt variables for products with missing data</span>
-                        <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
-                      </div>
-                      <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
-                        <span class="text-xs text-om-gray-500">Minimum description length (character)</span>
-                        <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white shrink-0" />
-                      </div>
-                    </div>
-                    <!-- Source images: separate block at bottom -->
-                    <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
-                      <p class="text-xs text-om-gray-500">Source images</p>
-                      <div class="flex gap-2 flex-wrap">
-                        <div
-                          v-for="img in availableSourceImages"
-                          :key="img.id"
-                          class="relative w-14 h-14 rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-150 shrink-0"
-                          :class="sourceImageSelected(img.id) ? 'border-om-orange-500 shadow-[0_0_0_2px_#FBD9CE]' : 'border-om-gray-200 hover:border-om-gray-300'"
-                          @click="toggleSourceImage(img)"
-                        >
-                          <img :src="img.src" class="w-full h-full object-cover" />
-                          <div v-if="sourceImageSelected(img.id)" class="absolute top-1 right-1 w-4 h-4 rounded-full bg-om-orange-500 flex items-center justify-center">
-                            <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <p class="text-xs text-om-gray-400 mt-2">Edit the prompt above to customize the generation. Changes will require regenerating the preview.</p>
+                </div>
+              </div>
+            </div>
+          </template>
 
-                  <div class="flex items-center justify-end mt-3">
-                    <Button variant="ghost" size="sm" @click="showAdvanced = !showAdvanced">{{ showAdvanced ? 'Basic Settings' : 'Advanced Settings' }} <component :is="showAdvanced ? ChevronUp : ChevronDown" :size="14" /></Button>
+          <!-- Choose-products entry: original side-by-side layout -->
+          <template v-else>
+            <!-- Two columns -->
+            <div class="grid grid-cols-[380px_1fr] gap-4 mb-4 items-stretch" style="height: 500px;">
+              <!-- Left: Original Product -->
+              <div class="flex flex-col min-h-0">
+                <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-3">Original Product</p>
+                <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden flex-1 flex flex-col">
+                  <div class="aspect-square bg-om-gray-100 overflow-hidden">
+                    <img src="/product1.jpg" class="w-full h-full object-cover" />
+                  </div>
+                  <div class="p-4 border-t border-om-gray-100">
+                    <h3 class="text-sm font-semibold text-om-gray-700 mb-3">{{ selectedProduct.name }}</h3>
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs text-om-gray-400">SKU: OM-7-SE</span>
+                      <span class="text-sm font-semibold text-om-gray-700">$159.00</span>
+                    </div>
                   </div>
                 </div>
+              </div>
+
+              <!-- Right: AI Generated -->
+              <div class="flex flex-col min-h-0">
+                <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-3 flex items-center gap-1.5">
+                  <Wand2 :size="16" class="text-om-orange-400" />
+                  AI Generated Preview
+                </p>
+                <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden flex-1 relative">
+                  <template v-if="selectedProduct.status === 'generated'">
+                    <img src="/product2.png" class="w-full h-full object-contain transition-all duration-300" :class="[promptChanged ? 'blur-sm scale-105' : '', isIgnored(selectedProduct.id) ? 'blur-[2px] grayscale' : '']" />
+                    <Transition name="modal-fade">
+                      <div v-if="promptChanged" class="absolute inset-0 bg-black/20 flex flex-col items-center justify-center">
+                        <Button variant="primary" size="md" @click="regenerateProduct">
+                          <template #icon><Sparkles :size="14" /></template>
+                          Regenerate
+                        </Button>
+                        <div class="flex items-center gap-1.5 mt-3 text-sm font-medium text-white">
+                          <Coins :size="16" />
+                          Costs {{ selectedImagePreset?.credits ?? 15 }} credits
+                        </div>
+                      </div>
+                    </Transition>
+                    <div v-if="!promptChanged && isIgnored(selectedProduct.id)" class="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <EyeOff :size="40" class="text-white" />
+                    </div>
+                  </template>
+                  <template v-else-if="selectedProduct.status === 'generating'">
+                    <div class="w-full h-full flex flex-col items-center justify-center gap-3">
+                      <svg class="animate-spin w-10 h-10 text-om-orange-500" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      <p class="text-sm text-om-gray-500">Generating...</p>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div class="w-full h-full flex flex-col items-center justify-center gap-2">
+                      <svg class="w-8 h-8 text-om-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      <p class="text-sm text-om-gray-400">Pending generation</p>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </div>
+
+            <!-- Prompt Editor -->
+            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold text-om-gray-700">Prompt Editor</h3>
+              </div>
+              <textarea
+                v-model="promptText"
+                rows="3"
+                class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
+              />
+              <p class="text-xs text-om-gray-400 mt-2">Edit the prompt above to customize the generation. Changes will require regenerating the preview.</p>
+            </div>
+          </template>
         </div>
 
       </div>
@@ -1844,6 +1864,7 @@ const genPerPage = computed(() => genPerPageOption.value?.value ?? 10)
 const genPage = ref(1)
 const genGeneratedPage = ref(1)
 const genProductsPaged = computed(() => genProducts.value.slice((genPage.value - 1) * genPerPage.value, genPage.value * genPerPage.value))
+const genReviewShowFilters = ref(false)
 const genShowIgnoredOnly = ref(false)
 const genProductsGenerated = computed(() => {
   const q = genSearch.value.trim().toLowerCase()
@@ -1866,6 +1887,12 @@ const genProductsGenerated = computed(() => {
 const genProductsGeneratedPaged = computed(() => genProductsGenerated.value.slice((genGeneratedPage.value - 1) * genPerPage.value, genGeneratedPage.value * genPerPage.value))
 const genTotalPages = computed(() => Math.ceil(genProducts.value.length / genPerPage.value))
 const genGeneratedTotalPages = computed(() => Math.ceil(genProductsGenerated.value.length / genPerPage.value))
+const genReviewFilterCount = computed(() => {
+  let count = 0
+  if (genCreatedFrom.value || genCreatedTo.value) count++
+  if (genShowIgnoredOnly.value) count++
+  return count
+})
 watch(genTab, () => { genPage.value = 1; genGeneratedPage.value = 1 })
 watch(genPerPage, () => { genPage.value = 1; genGeneratedPage.value = 1 })
 watch(genSearch, () => { genGeneratedPage.value = 1 })
@@ -1969,9 +1996,13 @@ const toggleSourceImage = (img) => {
 const modalOriginalPrompt = ref('')
 const modalOriginalSettings = ref(null)
 
-const openProductModal = (product) => {
+const productEntrySource = ref('choose')
+
+const openProductModal = (product, source = 'choose') => {
   if (product.status !== 'generated') return
+  productEntrySource.value = source
   selectedProduct.value = product
+  useProductImage.value = true
   modalOriginalPrompt.value = promptText.value
   modalOriginalSettings.value = {
     promptModel: promptModel.value,
@@ -1982,6 +2013,21 @@ const openProductModal = (product) => {
     useProductImage: useProductImage.value,
   }
   emit('navigate', 'ai-texts-images-v2-generation-product')
+}
+
+const selectedProductIndex = computed(() => {
+  if (!selectedProduct.value) return -1
+  return genProductsGenerated.value.findIndex(p => p.id === selectedProduct.value.id)
+})
+const hasPrevProduct = computed(() => selectedProductIndex.value > 0)
+const hasNextProduct = computed(() => selectedProductIndex.value >= 0 && selectedProductIndex.value < genProductsGenerated.value.length - 1)
+const goToPrevProduct = () => {
+  if (!hasPrevProduct.value) return
+  selectedProduct.value = genProductsGenerated.value[selectedProductIndex.value - 1]
+}
+const goToNextProduct = () => {
+  if (!hasNextProduct.value) return
+  selectedProduct.value = genProductsGenerated.value[selectedProductIndex.value + 1]
 }
 
 const promptChanged = computed(() => {
@@ -2056,12 +2102,6 @@ const cpActiveFilterCount = computed(() => {
   if (cpCategoryIsNot.value.length > 0) count++
   if (cpOnlyInStock.value) count++
   if (cpOnlyWithTraffic.value) count++
-  return count
-})
-const genReviewFilterCount = computed(() => {
-  let count = 0
-  if (genCreatedFrom.value || genCreatedTo.value) count++
-  if (genShowIgnoredOnly.value) count++
   return count
 })
 const cpFromText = ref(false)

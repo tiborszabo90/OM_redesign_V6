@@ -1042,6 +1042,14 @@ const settingsAiViews = [
     section: 'aiContent',
     hideLogo: true,
   },
+  {
+    id: 'settings-ai-texts-images-v2-next-product',
+    component: () => import('../views/SettingsView.vue'),
+    label: 'AI Texts & Images V2 (next product)',
+    status: 'active',
+    section: 'aiContent',
+    hideLogo: true,
+  },
 ]
 
 // ============================================================================

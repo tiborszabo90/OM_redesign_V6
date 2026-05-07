@@ -144,6 +144,15 @@
             />
           </template>
 
+          <!-- AI Texts & Images V2 Next Product embedded -->
+          <template v-else-if="activeSection === 'products-ai-texts-images-v2-next-product'">
+            <AiTextsImagesV2NextProductView
+              :screen="embeddedScreen"
+              :embedded="true"
+              @navigate="handleEmbeddedNavigateV2NextProduct"
+            />
+          </template>
+
           <!-- Placeholder for all other sections -->
           <template v-else>
             <h1 class="text-xl font-bold text-om-gray-700 mb-8">{{ currentSectionTitle }}</h1>
@@ -166,6 +175,7 @@ import AiTextsImagesV1View from './AiTextsImagesV1View.vue'
 import AiTextsImagesV2View from './AiTextsImagesV2View.vue'
 import AiTextsImagesV2FeedbacksView from './AiTextsImagesV2FeedbacksView.vue'
 import AiTextsImagesV2FeedbacksModalView from './AiTextsImagesV2FeedbacksModalView.vue'
+import AiTextsImagesV2NextProductView from './AiTextsImagesV2NextProductView.vue'
 
 const props = defineProps({
   initialSection: { type: String, default: 'personal-details' },
@@ -241,6 +251,7 @@ const sectionRouteMap = {
   'products-ai-texts-images-v2': 'settings-ai-texts-images-v2',
   'products-ai-texts-images-v2-feedbacks': 'settings-ai-texts-images-v2-feedbacks',
   'products-ai-texts-images-v2-feedbacks-modal': 'settings-ai-texts-images-v2-feedbacks-modal',
+  'products-ai-texts-images-v2-next-product': 'settings-ai-texts-images-v2-next-product',
 }
 
 const handleSectionClick = (id) => {
@@ -252,6 +263,9 @@ const handleSectionClick = (id) => {
     embeddedScreen.value = 'generation'
   }
   if (id === 'products-ai-texts-images-v2-feedbacks-modal') {
+    embeddedScreen.value = 'generation'
+  }
+  if (id === 'products-ai-texts-images-v2-next-product') {
     embeddedScreen.value = 'generation'
   }
   if (sectionRouteMap[id]) {
@@ -320,6 +334,13 @@ const handleEmbeddedNavigateV2Feedbacks = (route) => {
 const handleEmbeddedNavigateV2FeedbacksModal = (route) => {
   embeddedScreen.value = screenMapV2[route] ?? 'generation'
   emit('navigate', 'settings-' + route)
+}
+
+const handleEmbeddedNavigateV2NextProduct = (route) => {
+  // Internal screen changes stay inside the next-product frame.
+  // Bubbling up to App.vue would switch the URL to a generic v2 sub-route
+  // and remount the regular V2 view instead of NextProductView.
+  embeddedScreen.value = screenMapV2[route] ?? 'generation'
 }
 </script>
 
