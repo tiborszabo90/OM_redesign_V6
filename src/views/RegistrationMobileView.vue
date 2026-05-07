@@ -6,7 +6,7 @@
         <img
           src="/OM-Logo-primary-basic.svg"
           alt="OptiMonk"
-          class="absolute top-8 left-8 h-8"
+          class="absolute top-4 md:top-8 left-8 h-8"
         />
         <div class="w-full max-w-[516px]">
           <transition name="step-fade" mode="out-in">
@@ -14,7 +14,7 @@
 
             <!-- Back button -->
             <button
-              v-if="currentStep !== 'buttons'"
+              v-if="currentStep !== 'buttons' && currentStep !== 'email-form'"
               @click="goBack"
               class="flex items-center gap-1.5 text-sm text-[#8F97A4] hover:text-[#23262A] transition-colors mb-6"
             >
@@ -24,8 +24,8 @@
 
             <!-- Social login buttons view -->
             <template v-if="currentStep === 'buttons'">
-              <h2 class="text-4xl font-bold text-om-gray-700 mb-1 text-center">Create your free account</h2>
-              <p class="text-om-gray-500 mb-8 text-center">and unlock your full optimization plan</p>
+              <h2 class="text-2xl sm:text-4xl font-bold text-om-gray-700 mb-1 text-center">Create your free account</h2>
+              <p class="text-om-gray-500 mb-4 sm:mb-8 text-center">and unlock your full optimization plan</p>
 
               <div class="flex flex-col gap-3">
                 <Button variant="outline" size="lg" class="w-full" @click="currentStep = 'email-form'">
@@ -53,7 +53,7 @@
                 </Button>
               </div>
 
-              <p class="text-xs text-om-gray-400 text-center mt-6">
+              <p class="text-[10px] sm:text-xs text-om-gray-400 text-center mt-6">
                 By submitting this form, you agree to the
                 <a href="#" class="text-om-orange-500 hover:underline">Terms of Service</a>
                 and
@@ -63,8 +63,8 @@
 
             <!-- Email registration form view -->
             <template v-else-if="currentStep === 'email-form'">
-              <h2 class="text-4xl font-bold text-om-gray-700 mb-1 text-center">Create your free account</h2>
-              <p class="text-om-gray-500 mb-6 text-center">and unlock your full optimization plan</p>
+              <h2 class="text-2xl sm:text-4xl font-bold text-om-gray-700 mb-1 mt-2.5 md:mt-0 text-center">Create your free account</h2>
+              <p class="text-om-gray-500 mb-3 sm:mb-6 text-center">and unlock your full optimization plan</p>
 
               <form @submit.prevent="handleEmailSubmit" class="space-y-3">
                 <div class="flex flex-col sm:flex-row gap-3">
@@ -99,7 +99,7 @@
                     required
                     class="w-full px-3 py-2.5 border border-om-gray-200 rounded-xl focus:ring-2 focus:ring-om-orange-400 focus:border-transparent transition-colors text-om-gray-700 text-sm"
                   />
-                  <p class="text-xs text-om-gray-400 mt-1.5">You'll receive important alerts and notifications about your account.</p>
+                  <p class="text-[10px] sm:text-xs text-om-gray-400 mt-1.5">You'll receive important alerts and notifications about your account.</p>
                 </div>
 
                 <div>
@@ -134,7 +134,7 @@
                   Get Started
                 </button>
 
-                <p class="text-xs text-om-gray-400 text-center">
+                <p class="text-[10px] sm:text-xs text-om-gray-400 text-center">
                   By submitting this form, you agree to the
                   <a href="#" class="text-om-orange-500 hover:underline">Terms of Service</a>
                   and

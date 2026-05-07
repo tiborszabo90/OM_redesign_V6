@@ -6,7 +6,7 @@
         <!-- Header -->
         <div class="flex items-start justify-between mb-4">
           <div>
-            <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Black Friday 2025</h1>
+            <EditableTitle v-model="campaignName" />
             <p class="text-xs text-om-gray-400">www.mydomain.com</p>
           </div>
           <div class="flex items-center gap-2.5">
@@ -179,23 +179,9 @@
         <div v-if="activeTab === 'Overview'">
         <!-- Metrics Section -->
         <div class="bg-om-gray-100 rounded-xl mb-6 relative">
-          <div class="grid grid-cols-12 gap-4">
-          <!-- Conversion Uplift -->
-          <div class="col-span-3 pl-8 py-8">
-            <div class="text-base text-om-gray-600 mb-3">Conversion uplift</div>
-            <div class="flex items-end gap-2">
-              <span class="text-[3rem] font-light text-om-gray-700 leading-none font-['Funnel_Sans']">84.23%</span>
-              <TrendingUp :size="24" class="text-[#2CC896]" />
-            </div>
-          </div>
-
-          <!-- Divider -->
-          <div class="col-span-1 flex justify-center relative">
-            <div class="w-px bg-om-gray-200 absolute inset-y-0"></div>
-          </div>
-
+          <div class="grid grid-cols-[minmax(0,13fr)_minmax(0,8fr)_minmax(0,3fr)] gap-4">
           <!-- Key Metrics -->
-          <div class="col-span-5 py-8">
+          <div class="py-8 pl-8 pr-24">
             <div class="text-base text-om-gray-600 mb-4">Key metrics</div>
             <div class="flex items-center gap-4">
               <div class="flex-1">
@@ -219,113 +205,65 @@
             </div>
           </div>
 
-          <!-- Filters -->
-          <div class="col-span-3 flex flex-col justify-end gap-2.5 pr-8 py-8">
-            <!-- Time Period Dropdown -->
-            <Dropdown v-model="selectedTimePeriod" :options="timePeriodOptions">
-              <template #icon>
-                <Calendar :size="18" class="text-om-gray-400" />
-              </template>
-            </Dropdown>
+          <!-- Empty spacer -->
+          <div></div>
 
-            <!-- Goal Dropdown -->
-            <Dropdown v-model="selectedGoal" :options="goalOptions">
-              <template #icon>
-                <Target :size="18" class="text-om-gray-400" />
-              </template>
-            </Dropdown>
+          <!-- Filters -->
+          <div class="flex flex-col items-end justify-end gap-2.5 pr-8 py-8">
+            <div style="width: 208px">
+              <Dropdown key="time-period" v-model="selectedTimePeriod" :options="timePeriodOptions">
+                <template #icon>
+                  <Calendar :size="18" class="text-om-gray-400" />
+                </template>
+              </Dropdown>
+            </div>
+            <div style="width: 208px">
+              <Dropdown key="goal" v-model="selectedGoal" :options="goalOptions">
+                <template #icon>
+                  <Target :size="18" class="text-om-gray-400" />
+                </template>
+              </Dropdown>
+            </div>
           </div>
         </div>
         </div>
 
-        <!-- Variants Section -->
+        <!-- Variants Section (single variant, no A/B) -->
         <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 pt-5 pb-5 pl-5 pr-8">
-          <!-- Variants Table -->
-          <div class="space-y-0">
-            <!-- Header -->
-            <div class="grid grid-cols-12 gap-1 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
-              <div class="col-span-5">Variants</div>
-              <div class="col-span-1">Active</div>
-              <div class="col-span-1 text-right">Impression</div>
-              <div class="col-span-1 text-right">Submits</div>
-              <div class="col-span-1 text-right">Submit rate</div>
-              <div class="col-span-1 text-right">Uplift</div>
-              <div class="col-span-1 text-right">Chance to win</div>
-              <div class="col-span-1"></div>
-            </div>
+          <!-- Header -->
+          <div class="grid grid-cols-[2fr_1fr_1fr_1fr_36px] gap-3 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
+            <div>Variant</div>
+            <div class="text-right">Impression</div>
+            <div class="text-right">Submits</div>
+            <div class="text-right">Submit rate</div>
+            <div></div>
+          </div>
 
-            <!-- Variant Row 1 -->
-            <div class="grid grid-cols-12 gap-1 items-center py-3 border-b border-om-gray-100 group">
-              <div class="col-span-5 flex items-center gap-2.5">
-                <div
-                  class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
-                  @mouseenter="hoveredImage = 'variant1'"
-                  @mouseleave="hoveredImage = null"
-                >
-                  <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
-                  <!-- Tooltip -->
-                  <transition name="fade">
-                    <div v-if="hoveredImage === 'variant1'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
-                      <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-                        <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper Large" class="w-96 h-auto rounded-lg" />
-                      </div>
+          <!-- Variant Row 1 -->
+          <div class="grid grid-cols-[2fr_1fr_1fr_1fr_36px] gap-3 items-center py-4 group cursor-pointer" @click="$emit('navigate', 'editor')">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
+                @mouseenter="hoveredImage = 'variant1'"
+                @mouseleave="hoveredImage = null"
+              >
+                <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
+                <transition name="fade">
+                  <div v-if="hoveredImage === 'variant1'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
+                    <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
+                      <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper Large" class="w-96 h-auto rounded-lg" />
                     </div>
-                  </transition>
-                </div>
-                <span class="text-sm font-medium text-om-gray-700">Klaviyo Popup</span>
+                  </div>
+                </transition>
               </div>
-              <div class="col-span-1">
-                <ToggleSwitch v-model="variant1Active" />
-              </div>
-              <div class="col-span-1 text-base font-semibold text-om-gray-700 text-right">12,593</div>
-              <div class="col-span-1 text-base font-semibold text-om-gray-700 text-right">650</div>
-              <div class="col-span-1 text-base font-semibold text-om-gray-700 text-right">7.25%</div>
-              <div class="col-span-1 text-base font-semibold text-[#10B981] flex items-center gap-1 justify-end">
-                0.77%
-                <TrendingUp :size="16" class="text-[#2CC896]" />
-              </div>
-              <div class="col-span-1 text-base font-semibold text-om-gray-400 text-right">-</div>
-              <!-- Kebab Menu -->
-              <div class="col-span-1 flex items-center justify-end w-fit justify-self-end">
-                <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
-              </div>
+              <span class="text-sm font-medium text-om-gray-700">Variant 1</span>
             </div>
-
-            <!-- Variant Row 2 -->
-            <div class="grid grid-cols-12 gap-1 items-center py-3 group">
-              <div class="col-span-5 flex items-center gap-2.5">
-                <div
-                  class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
-                  @mouseenter="hoveredImage = 'variant2'"
-                  @mouseleave="hoveredImage = null"
-                >
-                  <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
-                  <!-- Tooltip -->
-                  <transition name="fade">
-                    <div v-if="hoveredImage === 'variant2'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
-                      <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-                        <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper Large" class="w-96 h-auto rounded-lg" />
-                      </div>
-                    </div>
-                  </transition>
-                </div>
-                <span class="text-sm font-medium text-om-gray-700">AI Variant</span>
-              </div>
-              <div class="col-span-1">
-                <ToggleSwitch v-model="variant2Active" />
-              </div>
-              <div class="col-span-1 text-base font-semibold text-om-gray-700 text-right">12,593</div>
-              <div class="col-span-1 text-base font-semibold text-om-gray-700 text-right">650</div>
-              <div class="col-span-1 text-base font-semibold text-om-gray-700 text-right">7.25%</div>
-              <div class="col-span-1 text-base font-semibold text-[#10B981] flex items-center gap-1 justify-end">
-                +86%
-                <TrendingUp :size="16" class="text-[#2CC896]" />
-              </div>
-              <div class="col-span-1 text-base font-semibold text-om-gray-400 text-right">9.23%</div>
-              <!-- Kebab Menu -->
-              <div class="col-span-1 flex items-center justify-end w-fit justify-self-end">
-                <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
-              </div>
+            <div class="text-base font-semibold text-om-gray-700 text-right">12,593</div>
+            <div class="text-base font-semibold text-om-gray-700 text-right">650</div>
+            <div class="text-base font-semibold text-om-gray-700 text-right">7.25%</div>
+            <!-- Kebab Menu -->
+            <div class="flex items-center justify-end" @click.stop>
+              <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
             </div>
           </div>
 
@@ -340,106 +278,103 @@
         </div>
 
         <!-- Campaign Settings Sections -->
-        <div class="space-y-5">
+        <div class="space-y-4">
+          <!-- Settings summary heading -->
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-om-gray-700">Settings summary</h2>
+            <Button variant="outline" size="sm" @click="activeTab = 'Settings'">Edit settings</Button>
+          </div>
+
           <!-- When will the popup show up -->
-          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('showUp')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">When will the popup show up</h3>
-            <div class="space-y-3">
-              <div class="flex items-start gap-3">
-                <div class="w-7 h-7 bg-om-gray-100 rounded flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="2" y="2" width="10" height="10" rx="2"/>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-medium text-om-gray-700">On exit-intent</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">When a visitor is about to leave your site</div>
+            <div class="trigger-timeline summary-timeline">
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <LogOut :size="22" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">On exit-intent</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">When a visitor is about to leave your site</div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="flex items-start gap-3">
-                <div class="w-7 h-7 bg-om-gray-100 rounded flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="2" y="2" width="10" height="10" rx="2"/>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-medium text-om-gray-700">After x seconds of inactivity</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">When a visitor is inactive for <span class="font-medium text-om-gray-700">20 seconds</span></div>
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <Clock :size="22" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">After 20s inactivity</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">When a visitor is inactive for <span class="font-semibold text-om-gray-800">20 seconds</span></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- How often can it appear -->
-          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('howMany')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">How often can it appear</h3>
-            <div class="grid grid-cols-3 gap-4">
-              <div class="flex items-start gap-3">
-                <div class="w-7 h-7 bg-om-orange-50 rounded flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#ED5A29" stroke-width="1.5">
-                    <circle cx="7" cy="7" r="5"/>
-                    <path d="M7 4v3l2 2"/>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-medium text-om-gray-700">How many times</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">Maximum 3 times</div>
-                </div>
-              </div>
-              <div class="flex items-start gap-3">
-                <div class="w-7 h-7 bg-om-gray-100 rounded flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M7 2v10M10 5l-3-3-3 3"/>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-medium text-om-gray-700">How frequently</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">Max 1 session(s) between two impressions</div>
+            <div class="grid grid-cols-3 gap-10 w-3/4 items-center">
+              <div class="trigger-timeline summary-timeline">
+                <div class="trigger-timeline-item">
+                  <div class="trigger-card">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                        <RefreshCw :size="22" class="text-white" />
+                      </div>
+                      <div class="flex-1">
+                        <div class="text-sm font-semibold text-om-gray-700">How many times</div>
+                        <div class="text-sm text-om-gray-500 mt-0.5">Maximum <span class="font-semibold text-om-gray-800">2 times</span></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="flex items-start gap-3">
-                <div class="w-7 h-7 bg-om-gray-100 rounded flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="2" y="2" width="10" height="10" rx="2"/>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-medium text-om-gray-700">Stop showing</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">After a visitor has converted in this campaign</div>
-                </div>
+              <div>
+                <div class="text-sm font-semibold text-om-gray-700">How frequently</div>
+                <div class="text-sm text-om-gray-500 mt-0.5">Min <span class="font-semibold text-om-gray-800">1 hour(s)</span> between two impressions</div>
+              </div>
+              <div>
+                <div class="text-sm font-semibold text-om-gray-700">Stop showing</div>
+                <div class="text-sm text-om-gray-500 mt-0.5">After a visitor has converted in this campaign</div>
               </div>
             </div>
           </div>
 
           <!-- Who should see the popup -->
-          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('whoSee')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">Who should see the popup</h3>
-            <div class="space-y-3">
-              <div class="flex items-start gap-3">
-                <div class="w-7 h-7 bg-om-orange-50 rounded flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#ED5A29" stroke-width="1.5">
-                    <rect x="2" y="3" width="10" height="8" rx="1"/>
-                    <path d="M4 3V2M10 3V2"/>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-medium text-om-gray-700">Spent on pages</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">The popup will appear to visitors who spent a minimum of <span class="font-medium text-om-gray-700">10 seconds</span> on the current subpage</div>
+            <div class="trigger-timeline summary-timeline">
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <Timer :size="22" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">Spent on pages</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">The popup will appear to visitors who spent a minimum of <span class="font-semibold text-om-gray-800">10 seconds</span> on the current subpage</div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="flex items-start gap-3">
-                <div class="w-7 h-7 bg-om-orange-50 rounded flex items-center justify-center shrink-0 mt-0.5">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#ED5A29" stroke-width="1.5">
-                    <rect x="2" y="3" width="10" height="8" rx="1"/>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-medium text-om-gray-700">Aktuális oldal / URL</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5 space-y-0.5">
-                    <div>A kampány egy aktuális oldal URL-jén és az altalanaihoz <span class="font-medium text-om-gray-700">cart</span></div>
-                    <div>vagy az aktuális oldal URL-jén vagy altalanaihoz <span class="font-medium text-om-gray-700">shop_cart</span></div>
-                    <div>vagy az aktuális oldal URL-jén vagy altalanaihoz <span class="font-medium text-om-gray-700">shop_reg</span></div>
-                    <div>vagy az aktuális oldal URL-jén vagy altalanaihoz <span class="font-medium text-om-gray-700">shop_category</span></div>
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <Globe :size="22" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">Current page / URL</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">URL or its subpaths contains <span class="font-semibold text-om-gray-800">cart</span>, <span class="font-semibold text-om-gray-800">shop_cart</span>, <span class="font-semibold text-om-gray-800">shop_reg</span>, or <span class="font-semibold text-om-gray-800">shop_category</span></div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -447,13 +382,11 @@
           </div>
 
           <!-- Integrations -->
-          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('sendData')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">Integrations</h3>
             <div class="flex items-center gap-3">
-              <div class="w-9 h-9 bg-[#FFE01B] rounded flex items-center justify-center">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="#000">
-                  <path d="M10 0C4.5 0 0 4.5 0 10s4.5 10 10 10 10-4.5 10-10S15.5 0 10 0zm4.1 13.8l-2.8-1.7v-5h1.3v4.3l2.4 1.4-.9.9z"/>
-                </svg>
+              <div class="w-10 h-10 bg-[#FFE01B] rounded-xl flex items-center justify-center shrink-0">
+                <img src="/icons/mailchimp.svg" alt="Mailchimp" class="w-6 h-6" />
               </div>
               <span class="text-sm font-medium text-om-gray-700">Mailchimp</span>
             </div>
@@ -462,16 +395,18 @@
         </div>
 
         <!-- Settings Tab Content -->
-        <div v-if="activeTab === 'Settings'" class="space-y-4">
+        <div v-if="activeTab === 'Settings'" class="space-y-4 pb-40">
           <!-- When would you like this campaign to show up? -->
           <Accordion
-            title="When would you like this campaign to show up?"
+            id="settings-showUp"
+            title="Triggering"
+            subtitle="When would you like this campaign to show up?"
             :open="openAccordion === 'showUp'"
             @toggle="toggleAccordion('showUp')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
           >
-            <template #icon>
-              <Clock :size="20" class="text-om-gray-600" />
-            </template>
+              <template #icon><Zap :size="20" class="text-om-orange-400" /></template>
               <!-- Trigger Timeline -->
               <div class="trigger-timeline">
                 <!-- First trigger: On exit-intent -->
@@ -516,32 +451,26 @@
                 </div>
 
                 <!-- Add new trigger on timeline -->
-                <div class="trigger-timeline-add">
-                  <button class="trigger-add-button">
-                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" class="shrink-0">
-                      <circle cx="11" cy="11" r="10" stroke="currentColor" stroke-width="1.5"/>
-                      <path d="M11 7v8M7 11h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
+                <div class="trigger-timeline-add pl-6">
+                  <Button variant="outline" size="md">
+                    <template #icon><Plus :size="18" /></template>
                     Add new trigger
-                  </button>
+                  </Button>
                 </div>
-              </div>
-
-              <!-- Next button -->
-              <div class="flex justify-end mt-6">
-                <Button variant="primary" size="sm">Next to Frequency</Button>
               </div>
           </Accordion>
 
           <!-- How many times should this campaign appear? -->
           <Accordion
-            title="How many times should this campaign appear?"
+            id="settings-howMany"
+            title="Frequency"
+            subtitle="How many times should this campaign appear?"
             :open="openAccordion === 'howMany'"
             @toggle="toggleAccordion('howMany')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
           >
-            <template #icon>
-              <RefreshCw :size="20" class="text-om-gray-600" />
-            </template>
+              <template #icon><RefreshCw :size="20" class="text-om-orange-400" /></template>
               <!-- How many times can this campaign appear -->
               <div class="mb-6">
                 <h4 class="text-sm font-semibold text-om-gray-700 mb-3">
@@ -550,7 +479,7 @@
                 <div class="space-y-2.5">
                   <RadioButton v-model="frequencyType" value="unlimited" label="Unlimited Times" />
                   <RadioButton v-model="frequencyType" value="maximum">
-                    Maximum
+                    <span class="text-sm text-om-gray-700">Maximum</span>
                     <input
                       type="number"
                       v-model="maxTimes"
@@ -570,7 +499,7 @@
                 <div class="space-y-2.5">
                   <RadioButton v-model="frequencyMode" value="asap" label="As soon as possible" />
                   <RadioButton v-model="frequencyMode" value="min">
-                    Min.
+                    <span class="text-sm text-om-gray-700">Minimum</span>
                     <input
                       type="number"
                       v-model="minValue"
@@ -599,52 +528,158 @@
                 <h4 class="text-sm font-semibold text-om-gray-700 mb-3">
                   When should <span class="font-normal text-om-gray-500">the campaign</span> stop showing <span class="font-normal text-om-gray-500">to the visitors?</span>
                 </h4>
-                <div class="space-y-2.5">
+                <div class="flex flex-col gap-2.5">
                   <Checkbox v-model="stopAfterClose" label="After a visitor has closed the campaign" />
                   <Checkbox v-model="stopAfterConvert" label="After a visitor has converted in this campaign" />
                 </div>
-              </div>
-
-              <!-- Next button -->
-              <div class="flex justify-end">
-                <Button variant="primary" size="sm">Next to Targeting</Button>
               </div>
           </Accordion>
 
           <!-- Who should see this campaign? -->
           <Accordion
-            title="Who should see this campaign?"
+            id="settings-whoSee"
+            title="Targeting"
+            subtitle="Who should see this campaign?"
             :open="openAccordion === 'whoSee'"
             @toggle="toggleAccordion('whoSee')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
           >
-            <template #icon>
-              <Users :size="20" class="text-om-gray-600" />
-            </template>
-            <p class="text-sm text-om-gray-500">Settings for targeting...</p>
+            <template #icon><Users :size="20" class="text-om-orange-400" /></template>
+            <div class="trigger-timeline">
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <Timer :size="28" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">Spent on pages</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">The popup will appear to visitors who spent a minimum of <span class="font-semibold text-om-gray-800">10 seconds</span> on the current subpage</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <Globe :size="28" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">Current page / URL</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">URL or its subpaths contains <span class="font-semibold text-om-gray-800">cart</span>, <span class="font-semibold text-om-gray-800">shop_cart</span>, <span class="font-semibold text-om-gray-800">shop_reg</span>, or <span class="font-semibold text-om-gray-800">shop_category</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="trigger-timeline-add pl-6 flex items-center justify-between gap-3">
+                <Button variant="outline" size="md">
+                  <template #icon><Plus :size="18" /></template>
+                  Add new rule
+                </Button>
+                <Button variant="outline" size="md">Save as segment</Button>
+              </div>
+            </div>
           </Accordion>
 
           <!-- Where you would like to send the subscribers and campaign data? -->
           <Accordion
-            title="Where you would like to send the subscribers and campaign data?"
+            id="settings-sendData"
+            title="Integrations"
+            subtitle="Where you would like to send the subscribers and campaign data?"
             :open="openAccordion === 'sendData'"
             @toggle="toggleAccordion('sendData')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
           >
-            <template #icon>
-              <Send :size="20" class="text-om-gray-600" />
-            </template>
-            <p class="text-sm text-om-gray-500">Settings for integrations and data sending...</p>
+            <template #icon><Send :size="20" class="text-om-orange-400" /></template>
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 bg-[#FFE01B] rounded-xl flex items-center justify-center">
+                <img src="/icons/mailchimp.svg" alt="Mailchimp" class="w-7 h-7" />
+              </div>
+              <span class="text-sm font-medium text-om-gray-700">Mailchimp</span>
+            </div>
+            <div class="mt-8">
+              <Button variant="outline" size="md">
+                <template #icon><Plus :size="18" /></template>
+                Add new integration
+              </Button>
+            </div>
           </Accordion>
 
-          <!-- Email Notification Toggle -->
-          <div class="bg-om-gray-100 rounded-lg px-5 py-3">
-            <div class="flex items-center justify-between">
-              <div>
-                <h4 class="text-base font-semibold text-om-gray-700">Email notification</h4>
-                <p class="text-sm text-om-gray-500 mt-1">Get notified when someone submits this campaign</p>
-              </div>
+          <!-- Primary goal -->
+          <Accordion
+            id="settings-goal"
+            title="Primary goal"
+            subtitle="The main conversion event used to measure this campaign's success"
+            :open="openAccordion === 'goal'"
+            @toggle="toggleAccordion('goal')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
+          >
+            <template #icon><Target :size="20" class="text-om-orange-400" /></template>
+            <p class="text-sm text-om-gray-500 mb-3">Reports and variant comparisons default to this metric.</p>
+            <div class="w-64">
+              <Dropdown v-model="primaryGoal" :options="goalValues" />
+            </div>
+          </Accordion>
+
+          <!-- Email notification -->
+          <Accordion
+            id="settings-emailNotification"
+            title="Email notification"
+            subtitle="Get notified when someone submits this campaign"
+            :open="openAccordion === 'emailNotification'"
+            @toggle="toggleAccordion('emailNotification')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
+          >
+            <template #icon><Mail :size="20" class="text-om-orange-400" /></template>
+            <div class="flex items-center gap-3">
+              <h4 class="text-base font-semibold text-om-gray-700">Send email notifications</h4>
               <ToggleSwitch v-model="emailNotification" />
             </div>
-          </div>
+
+            <div v-if="emailNotification" class="mt-5">
+              <div v-if="notificationEmails.length" class="flex flex-wrap gap-2 mb-4">
+                <Tag
+                  v-for="entry in notificationEmails"
+                  :key="entry.email"
+                  variant="gray"
+                  :class="entry.status === 'pending' ? 'text-om-gray-600!' : ''"
+                >
+                  <template v-if="entry.status === 'pending'" #icon>
+                    <Hourglass :size="12" />
+                  </template>
+                  <span>{{ entry.email }}</span>
+                  <button
+                    type="button"
+                    class="ml-1 -mr-1 inline-flex items-center justify-center cursor-pointer opacity-70 hover:opacity-100"
+                    @click="removeNotificationEmail(entry.email)"
+                  >
+                    <X :size="12" />
+                  </button>
+                </Tag>
+              </div>
+
+              <div class="flex items-end gap-2">
+                <div class="w-80">
+                  <FormInput
+                    v-model="newNotificationEmail"
+                    label="Send notifications to"
+                    type="email"
+                    placeholder="Add email address"
+                    @keydown.enter.prevent="addNotificationEmail"
+                  />
+                </div>
+                <Button variant="primary" size="md" @click="addNotificationEmail">
+                  <template #icon><Plus :size="16" /></template>
+                  Add
+                </Button>
+              </div>
+            </div>
+          </Accordion>
         </div>
       </div>
     </template>
@@ -812,8 +847,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { ChevronDown, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X } from 'lucide-vue-next'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ChevronDown, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, LogOut, Timer, Globe, Plus, Mail, Zap, Hourglass } from 'lucide-vue-next'
 import Button from '../components/shared/Button.vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
@@ -825,10 +860,14 @@ import { VueDatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import ScrollTimePicker from '../components/shared/ScrollTimePicker.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
+import EditableTitle from '../components/shared/EditableTitle.vue'
+import Tag from '../components/shared/Tag.vue'
+import FormInput from '../components/shared/FormInput.vue'
 
 defineEmits(['menu-click', 'navigate-to-review'])
 
 const isChatOpen = ref(false)
+const campaignName = ref('Campaign #1')
 
 const chatSuggestions = [
   'How is this campaign performing?',
@@ -860,6 +899,28 @@ watch(isActive, (val) => {
 // Settings tab - Accordion state
 const openAccordion = ref(null)
 const emailNotification = ref(false)
+const notificationEmails = ref([
+  { email: 'product@optimonk.com', status: 'accepted' },
+])
+const newNotificationEmail = ref('')
+
+const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+
+const addNotificationEmail = () => {
+  const email = newNotificationEmail.value.trim()
+  if (email && isValidEmail(email) && !notificationEmails.value.some(e => e.email === email)) {
+    notificationEmails.value.push({ email, status: 'pending' })
+  }
+  newNotificationEmail.value = ''
+}
+
+const removeNotificationEmail = (email) => {
+  notificationEmails.value = notificationEmails.value.filter(e => e.email !== email)
+}
+
+// Primary goal
+const primaryGoal = ref('Submit')
+const goalValues = ['Submit', 'Order', 'Add to cart', 'Email capture', 'Phone capture']
 
 // How many times accordion state
 const frequencyType = ref('maximum')
@@ -874,9 +935,49 @@ const toggleAccordion = (section) => {
   openAccordion.value = openAccordion.value === section ? null : section
 }
 
-// Variant active states
-const variant1Active = ref(true)
-const variant2Active = ref(true)
+const openSettingsAccordion = (section) => {
+  activeTab.value = 'Settings'
+  openAccordion.value = section
+  nextTick(() => {
+    document.getElementById(`settings-${section}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
+}
+
+// Tab routing — each tab gets its own URL
+const VIEW_SLUG = 'campaign-new'
+const TAB_SLUGS = { Overview: '', Settings: 'settings', Submits: 'submits', Analytics: 'analytics' }
+const SLUG_TO_TAB = { '': 'Overview', settings: 'Settings', submits: 'Submits', analytics: 'Analytics' }
+
+const getTabFromHash = () => {
+  const hash = window.location.hash.replace('#/', '').replace('#', '')
+  const parts = hash.split('/')
+  if (parts[0] !== VIEW_SLUG) return 'Overview'
+  return SLUG_TO_TAB[parts[1] || ''] || 'Overview'
+}
+
+const updateHashForTab = (tab) => {
+  const tabSlug = TAB_SLUGS[tab] || ''
+  const newHash = '/' + VIEW_SLUG + (tabSlug ? '/' + tabSlug : '')
+  if (window.location.hash !== '#' + newHash) {
+    window.location.hash = newHash
+  }
+}
+
+const handleTabHashChange = () => {
+  const newTab = getTabFromHash()
+  if (newTab !== activeTab.value) activeTab.value = newTab
+}
+
+watch(activeTab, (newTab) => { updateHashForTab(newTab) })
+
+onMounted(() => {
+  activeTab.value = getTabFromHash()
+  window.addEventListener('hashchange', handleTabHashChange)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('hashchange', handleTabHashChange)
+})
 
 // Hover states for image preview
 const hoveredImage = ref(null)
@@ -1081,20 +1182,10 @@ input[type="time"]::-webkit-clear-button {
   padding-left: 28px;
 }
 
-/* Continuous vertical line (trunk) */
-.trigger-timeline::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 21px;
-  width: 3px;
-  background: #D5D8DD;
-  border-radius: 2px;
-}
-
 /* Timeline items with horizontal branch */
-.trigger-timeline-item {
+.trigger-timeline-item,
+.trigger-timeline-or,
+.trigger-timeline-add {
   position: relative;
 }
 
@@ -1102,10 +1193,53 @@ input[type="time"]::-webkit-clear-button {
   content: '';
   position: absolute;
   left: -28px;
-  top: 50%;
+  top: 44px;
   width: 24px;
   height: 3px;
   background: #D5D8DD;
+}
+
+.trigger-timeline.summary-timeline .trigger-timeline-item::before {
+  top: 40px;
+}
+
+/* Trunk segments — each direct child draws its own slice */
+.trigger-timeline-item::after,
+.trigger-timeline-or::after {
+  content: '';
+  position: absolute;
+  left: -28px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #D5D8DD;
+}
+
+/* Add button trunk: fills its own margin-top gap and stops at its branch */
+.trigger-timeline-add::after {
+  content: '';
+  position: absolute;
+  left: -28px;
+  top: -1.5rem;
+  bottom: 50%;
+  width: 3px;
+  background: #D5D8DD;
+}
+
+/* When no add button follows, last item caps trunk at its branch */
+.trigger-timeline:not(:has(.trigger-timeline-add)) .trigger-timeline-item:last-child::after {
+  bottom: 50%;
+}
+
+/* Rounded caps at the very ends of the trunk */
+.trigger-timeline > *:first-child::after {
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+}
+
+.trigger-timeline > *:last-child::after {
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
 }
 
 .trigger-card {
@@ -1114,9 +1248,13 @@ input[type="time"]::-webkit-clear-button {
   cursor: pointer;
 }
 
+/* Summary timeline: trunk caps at the bottom branch but keeps the top overhang */
+.trigger-timeline.summary-timeline > .trigger-timeline-item:last-child::after {
+  bottom: 50%;
+}
+
 /* OR section */
 .trigger-timeline-or {
-  position: relative;
   display: flex;
   align-items: center;
   height: 2.75rem;
@@ -1138,7 +1276,6 @@ input[type="time"]::-webkit-clear-button {
 
 /* Add trigger */
 .trigger-timeline-add {
-  position: relative;
   margin-top: 1.5rem;
 }
 

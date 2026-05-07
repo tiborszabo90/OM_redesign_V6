@@ -66,6 +66,8 @@ const devNavOpen = ref(true)
 const devStartShowArchive = ref(false)
 const wizardMessage = ref('')
 const wizardPhase = ref(null)
+const mobileOnboardingVariant = ref(null) // null | 'en' | 'hu'
+const useHuDesktopFlow = ref(false)
 
 // View refs — keyed by refName from registry
 const viewRefs = {}
@@ -78,9 +80,13 @@ const setViewRef = (el) => {
 
 // Backwards-compatible ref accessors
 const onboardingRef = computed(() => viewRefs.onboardingRef)
+const onboardingMobileRef = computed(() => viewRefs.onboardingMobileRef)
+const onboardingMobileHuRef = computed(() => viewRefs.onboardingMobileHuRef)
+const onboardingHuRef = computed(() => viewRefs.onboardingHuRef)
 const taskCreationRef = computed(() => viewRefs.taskCreationRef)
 const wizardAnalysisRef = computed(() => viewRefs.wizardAnalysisRef)
 const publicWizardRef = computed(() => viewRefs.publicWizardRef)
+const publicWizardV2Ref = computed(() => viewRefs.publicWizardV2Ref)
 const homeOnboardingWizardRef = computed(() => viewRefs.homeOnboardingWizardRef)
 const wizardFlowRef = computed(() => viewRefs.wizardFlowRef)
 const imageWithBadgeRef = computed(() => viewRefs.imageWithBadgeRef)
@@ -161,6 +167,11 @@ const activeProps = computed(() => {
     'dev-start': { initialShowArchive: devStartShowArchive.value },
     'registration-v1': { registrationType: registrationType.value },
     'onboarding': { registrationData: registrationData.value, registrationType: registrationType.value },
+    'onboarding-mobile': { registrationData: registrationData.value, registrationType: registrationType.value },
+    'onboarding-mobile-hu': { registrationData: registrationData.value, registrationType: registrationType.value },
+    'onboarding-hu': { registrationData: registrationData.value, registrationType: registrationType.value },
+    'registration-mobile-hu': {},
+    'shopify-account-choice': { registrationData: registrationData.value },
     'task-creation': { registrationData: registrationData.value },
     'home-old': { registrationData: registrationData.value },
     'chat-create-popup-v1': { registrationData: registrationData.value },
@@ -178,7 +189,11 @@ const activeProps = computed(() => {
     'home-agentic': { registrationData: registrationData.value },
     'home-onboarding-wizard': { registrationData: registrationData.value },
     'public-wizard': { registrationData: registrationData.value, initialMessage: wizardMessage.value },
+    'public-wizard-v2': { registrationData: registrationData.value, initialMessage: wizardMessage.value },
     'wizard-flow': { registrationData: registrationData.value },
+    'ppo-loading': { selectedTypes: ppoWizardState.value.selectedTypes },
+    'ppo-loading-summary': { selectedTypes: ['product-summary'] },
+    'ppo-loading-badge': { selectedTypes: ['image-badge'] },
     'ppo-variable-setup': { selectedTypes: ppoWizardState.value.selectedTypes },
     'ppo-campaign-setup-preview': { selectedTypes: ppoWizardState.value.selectedTypes, variableConfigs: ppoWizardState.value.variableConfigs },
     'ppo-campaign-setup-preview-v2': { selectedTypes: ['product-summary'] },
@@ -211,6 +226,7 @@ const activeProps = computed(() => {
     'wizard-recommendation-v3': { registrationData: registrationData.value, startAtRecommendationV3: true },
     'wizard-recommendation-v4': { registrationData: registrationData.value, startAtRecommendationV4: true },
     'wizard-recommendation-v5': { registrationData: registrationData.value, startAtRecommendationV5: true },
+    'wizard-recommendation-public-v2': { registrationData: registrationData.value, startAtRecommendationV4: true, noChat: true },
     'settings': { initialSection: settingsInitialSection.value, initialScreen: 'list' },
   }
 
@@ -263,7 +279,15 @@ const handlePhaseChanged = (phase) => {
 
 const handleRegistrationComplete = (data) => {
   registrationData.value = data
-  currentView.value = 'onboarding'
+  if (mobileOnboardingVariant.value === 'hu') {
+    currentView.value = 'onboarding-mobile-hu'
+  } else if (mobileOnboardingVariant.value === 'en') {
+    currentView.value = 'onboarding-mobile'
+  } else if (useHuDesktopFlow.value) {
+    currentView.value = 'onboarding-hu'
+  } else {
+    currentView.value = 'onboarding'
+  }
 }
 
 const handleOnboardingComplete = () => {
@@ -427,6 +451,11 @@ const activeEvents = computed(() => {
         if (!wizardMessage.value) wizardMessage.value = 'Demo website analysis'
         currentView.value = null; setTimeout(() => { currentView.value = 'public-wizard' }, 50)
       },
+      'go-public-wizard-v2': () => {
+        sessionKey.value++; flowSelected.value = true; registrationType.value = 'public-wizard'; publicWizardStep.value = 'url'
+        if (!wizardMessage.value) wizardMessage.value = 'Demo website analysis'
+        currentView.value = null; setTimeout(() => { currentView.value = 'public-wizard-v2' }, 50)
+      },
       'go-design-guide': () => { currentView.value = 'design-guide' },
       'go-image-with-badge': () => { flowSelected.value = true; registrationType.value = 'image-with-badge'; currentView.value = 'image-with-badge' },
       'go-chat-versions': () => { currentView.value = 'home-chat-versions' },
@@ -437,10 +466,29 @@ const activeEvents = computed(() => {
       'show-archive': handleShowArchive,
     },
     'registration': { complete: handleRegistrationComplete },
+    'registration-hu': { complete: handleRegistrationComplete },
+    'registration-mobile': { complete: handleRegistrationComplete },
+    'registration-mobile-hu': { complete: handleRegistrationComplete },
     'registration-v1': { complete: handleRegistrationComplete },
     'registration-v2': { complete: handleRegistrationComplete },
     'login': { complete: () => { currentView.value = 'home-old' }, 'go-to-register': () => { currentView.value = 'registration' }, 'forgot-password': () => {} },
+    'shopify-account-choice': {
+      'create-account': () => {
+        sessionKey.value++
+        registrationType.value = 'shopify'
+        currentView.value = null
+        setTimeout(() => { currentView.value = 'onboarding' }, 50)
+      },
+      'login': () => {
+        sessionKey.value++
+        currentView.value = null
+        setTimeout(() => { currentView.value = 'login' }, 50)
+      },
+    },
     'onboarding': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated },
+    'onboarding-mobile': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated, 'sign-out': () => handleDevNavigate('dev-start') },
+    'onboarding-mobile-hu': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated, 'sign-out': () => handleDevNavigate('dev-start') },
+    'onboarding-hu': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated },
     'task-creation': { 'task-created': handleTaskCreated },
     'home-old': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
     'chat-create-popup-v1': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
@@ -459,13 +507,14 @@ const activeEvents = computed(() => {
     'home-agentic': { 'menu-click': handleMenuClick, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to': (view, message) => { if (message) wizardMessage.value = message; handleDevNavigate(view) } },
     'home-onboarding-review': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'visitor-click': handleVisitorClick, 'navigate-to-review': () => { currentView.value = 'campaign-review' } },
     'home-onboarding-wizard': { 'menu-click': handleMenuClick, 'phase-changed': handlePhaseChanged, 'registration-completed': handlePublicWizardRegistrationCompleted },
-    'public-wizard': { 'phase-changed': handlePhaseChanged, 'registration-completed': handlePublicWizardRegistrationCompleted },
+    'public-wizard': { 'phase-changed': handlePhaseChanged, 'navigate-to': handleDevNavigate, 'registration-completed': handlePublicWizardRegistrationCompleted },
+    'public-wizard-v2': { 'phase-changed': handlePhaseChanged, 'navigate-to': handleDevNavigate, 'registration-completed': handlePublicWizardRegistrationCompleted },
     'wizard-flow': { 'phase-changed': handlePhaseChanged, 'registration-completed': handlePublicWizardRegistrationCompleted, 'menu-click': handleMenuClick },
     'audience': { 'menu-click': handleMenuClick, 'open-profile': (lead) => { selectedLead.value = lead; currentView.value = 'audience-profile' } },
     'audience-profile': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'audience' }, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' } },
     'campaigns': { 'menu-click': handleMenuClick },
     'campaigns-v2': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },
-    'campaigns-v3': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-campaign-single': () => { currentView.value = 'campaign-page-single' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail-v2' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },
+    'campaigns-v3': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-campaign-single': () => { currentView.value = 'campaign-page-single' }, 'navigate-to-campaign-new': () => { currentView.value = 'campaign-page-with-review' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail-v3' }, 'navigate-to-ppo-detail-single': () => { currentView.value = 'ppo-campaign-detail-v3-single' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },
     'campaigns-empty': { 'menu-click': handleMenuClick },
     'new-campaign': { 'menu-click': handleMenuClick, back: () => { currentView.value = previousView.value || 'campaigns-v3' }, navigate: handleDevNavigate },
     'ppo-loading': { 'menu-click': handleMenuClick, done: () => {
@@ -476,6 +525,8 @@ const activeEvents = computed(() => {
         currentView.value = 'ppo-campaign-setup-preview-v3'
       }
     } },
+    'ppo-loading-summary': { 'menu-click': handleMenuClick, done: () => {} },
+    'ppo-loading-badge': { 'menu-click': handleMenuClick, done: () => {} },
     'ppo-no-product-page': { 'menu-click': handleMenuClick, 'go-to-new-campaign': () => { currentView.value = 'new-campaign' } },
     'optimize-website': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'new-campaign' }, navigate: handleDevNavigate, select: (type) => { if (type === 'smart-product-page') currentView.value = 'ppo-campaign-flow-mvp' } },
     'product-page-optimizer': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'optimize-website' }, next: (types) => { ppoWizardState.value.selectedTypes = types; currentView.value = 'ppo-variable-setup' } },
@@ -500,6 +551,7 @@ const activeEvents = computed(() => {
     'ppo-campaign-detail-v3-single-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-campaign-detail-v3-single-v3': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-campaign-detail-v3-single-v4': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'ppo-campaign-detail-v3-single-v5': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-variant-detail-v1': { back: () => { currentView.value = 'ppo-campaign-detail' }, next: () => { currentView.value = 'ppo-campaign-detail' } },
     'ppo-variant-detail-v2': { back: () => { currentView.value = 'ppo-campaign-detail-v2' }, next: () => { currentView.value = 'ppo-campaign-detail-v2' } },
     // PPO V1
@@ -524,7 +576,7 @@ const activeEvents = computed(() => {
     'opportunity-detail': { 'menu-click': handleMenuClick, 'go-back': () => handleDevNavigate('analytics-v4') },
     'opportunities-all': { 'menu-click': handleMenuClick, 'go-back': () => handleDevNavigate('analytics-v4'), 'navigate-to-opportunity': handleNavigateToOpportunity },
     'templates-v1': { 'menu-click': handleMenuClick },
-    'templates-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'templates-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'spp-domain-selected': ({ type }) => { ppoWizardState.value.selectedTypes = [type]; currentView.value = 'ppo-loading' } },
     'templates-v2-essential-theme': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'templates-v2-branding': { navigate: handleDevNavigate },
     'templates-v3': { 'menu-click': handleMenuClick },
@@ -537,7 +589,9 @@ const activeEvents = computed(() => {
     'wizard-recommendation-v3': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
     'wizard-recommendation-v4': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
     'wizard-recommendation-v5': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
-    'editor': { 'go-back': () => handleDevNavigate('campaign-page-v1') },
+    'wizard-recommendation-public-v2': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
+    'editor': { 'go-back': () => handleDevNavigate('campaign-page-v1'), 'save-and-exit': () => handleDevNavigate('campaign-settings-step') },
+    'campaign-settings-step': { 'menu-click': handleMenuClick, next: () => handleDevNavigate('campaign-page-with-review') },
     'wizard': { submit: handleWizardSubmit },
   }
 
@@ -560,7 +614,7 @@ const activeEvents = computed(() => {
 // ============================================================================
 // Navigation
 // ============================================================================
-const wizardPhases = ['wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation-v4']
+const wizardPhases = ['wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation-v4', 'wizard-recommendation-public-v2']
 
 const handleDevNavigate = (view) => {
   // Internal wizard navigation (preserve state, no view change)
@@ -625,6 +679,8 @@ const handleDevNavigate = (view) => {
     registrationData.value = null
     createdTasks.value = []
     wizardMessage.value = ''
+    mobileOnboardingVariant.value = null
+    useHuDesktopFlow.value = false
     setTimeout(() => { currentView.value = 'dev-start' }, 50)
     return
   }
@@ -638,6 +694,8 @@ const handleDevNavigate = (view) => {
     if (nav.registrationType) registrationType.value = nav.registrationType
     if (nav.clearWizardMessage) wizardMessage.value = ''
     if (nav.defaultWizardMessage && !wizardMessage.value) wizardMessage.value = nav.defaultWizardMessage
+    if ('mobileOnboardingVariant' in nav) mobileOnboardingVariant.value = nav.mobileOnboardingVariant
+    if ('useHuDesktopFlow' in nav) useHuDesktopFlow.value = nav.useHuDesktopFlow
     if (nav.extraState) {
       for (const [key, val] of Object.entries(nav.extraState)) {
         if (key === 'publicWizardStep') publicWizardStep.value = val
@@ -659,7 +717,9 @@ const handleDevNavigate = (view) => {
 const handleDevStartSelect = (type) => {
   sessionKey.value++
   flowSelected.value = true
-  registrationType.value = type
+  mobileOnboardingVariant.value = type === 'mobile' ? 'en' : type === 'mobile-hu' ? 'hu' : null
+  useHuDesktopFlow.value = type === 'email-hu'
+  registrationType.value = (type === 'mobile' || type === 'mobile-hu' || type === 'email-hu') ? 'email' : type
   currentView.value = null
   setTimeout(() => {
     if (type === 'wizard') {
@@ -669,7 +729,14 @@ const handleDevStartSelect = (type) => {
       registrationType.value = 'image-with-badge'
       currentView.value = 'image-with-badge'
     } else if (type === 'shopify') {
-      currentView.value = 'onboarding'
+      registrationType.value = 'shopify'
+      currentView.value = 'shopify-account-choice'
+    } else if (type === 'mobile') {
+      currentView.value = 'registration-mobile'
+    } else if (type === 'mobile-hu') {
+      currentView.value = 'registration-mobile-hu'
+    } else if (type === 'email-hu') {
+      currentView.value = 'registration-hu'
     } else {
       currentView.value = 'registration'
     }
@@ -678,16 +745,24 @@ const handleDevStartSelect = (type) => {
 
 const handleDevGoToStep = async (step) => {
   flowSelected.value = true
-  if (currentView.value !== 'onboarding') {
+  const targetView = mobileOnboardingVariant.value === 'hu' ? 'onboarding-mobile-hu'
+                    : mobileOnboardingVariant.value === 'en' ? 'onboarding-mobile'
+                    : useHuDesktopFlow.value ? 'onboarding-hu'
+                    : 'onboarding'
+  const refKey = mobileOnboardingVariant.value === 'hu' ? 'onboardingMobileHuRef'
+                : mobileOnboardingVariant.value === 'en' ? 'onboardingMobileRef'
+                : useHuDesktopFlow.value ? 'onboardingHuRef'
+                : 'onboardingRef'
+  if (currentView.value !== targetView) {
     sessionKey.value++
     currentView.value = null
     await nextTick()
     setTimeout(() => {
-      currentView.value = 'onboarding'
-      setTimeout(() => { viewRefs.onboardingRef?.devGoToStep(step) }, 350)
+      currentView.value = targetView
+      setTimeout(() => { viewRefs[refKey]?.devGoToStep(step) }, 350)
     }, 50)
   } else {
-    viewRefs.onboardingRef?.devGoToStep(step)
+    viewRefs[refKey]?.devGoToStep(step)
   }
 }
 
@@ -762,7 +837,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
 <template>
   <div class="h-screen-safe flex flex-col">
     <!-- Global Logo -->
-    <div v-if="showLogo" class="pt-8 pl-8 shrink-0">
+    <div v-if="showLogo" class="pt-4 md:pt-8 pl-8 shrink-0">
       <img src="/OM-Logo-primary-basic.svg" alt="OptiMonk" class="h-8" />
     </div>
 

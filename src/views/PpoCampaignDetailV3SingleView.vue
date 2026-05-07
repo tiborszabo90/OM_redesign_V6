@@ -9,7 +9,7 @@
               <ArrowLeft :size="18" />
             </button>
             <div class="h-5 w-px bg-om-gray-200" />
-            <div class="flex flex-col"><span class="font-semibold text-om-gray-700 text-sm">Variables</span><span class="text-xs text-om-gray-400">Product Summary 1</span></div>
+            <div class="flex flex-col"><span class="font-semibold text-om-gray-700 text-sm">Variables</span><span class="text-xs text-om-gray-400">Product Summary 2</span></div>
           </div>
           <div class="flex-1 flex items-center justify-between px-6 py-3 gap-8 min-w-0">
             <Dropdown v-model="selectedProductPage" :options="productPageOptions" size="sm" class="min-w-0" />
@@ -126,7 +126,7 @@
         <!-- Header -->
         <div class="flex items-start justify-between mb-4">
           <div>
-            <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Product Summary 1</h1>
+            <EditableTitle v-model="campaignName" />
             <p class="text-xs text-om-gray-400">www.mydomain.com</p>
           </div>
           <div class="flex items-center gap-2.5">
@@ -287,9 +287,9 @@
         <div v-if="activeTab === 'Overview'">
         <!-- Metrics Section -->
         <div class="bg-om-gray-100 rounded-xl mb-6 relative">
-          <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-4">
+          <div class="grid grid-cols-[minmax(0,13fr)_minmax(0,8fr)_minmax(0,3fr)] gap-4">
           <!-- Key Metrics -->
-          <div class="pl-8 py-8 pr-24">
+          <div class="py-8 pl-8 pr-24">
             <div class="text-base text-om-gray-600 mb-4">Key metrics</div>
             <div class="flex items-center gap-4">
               <div class="flex-1">
@@ -312,6 +312,9 @@
               </div>
             </div>
           </div>
+
+          <!-- Empty spacer -->
+          <div></div>
 
           <!-- Filters -->
           <div class="flex flex-col items-end justify-end gap-2.5 pr-8 py-8">
@@ -411,12 +414,13 @@
           </div>
 
           <!-- Add Variant Button -->
-          <div class="mt-4">
-            <button class="flex items-center gap-2 text-sm text-om-orange-500 font-medium hover:text-om-orange-600 cursor-pointer">
-              <Plus :size="16" />
-              Add variant
-            </button>
-          </div>
+          <button class="mt-4 flex items-center gap-2 text-sm text-om-orange-500 font-medium hover:text-om-orange-600 cursor-pointer">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="8" cy="8" r="7"/>
+              <path d="M8 5v6M5 8h6"/>
+            </svg>
+            Add A/B test variant
+          </button>
         </div>
 
         <!-- Campaign Settings Sections -->
@@ -488,102 +492,11 @@
 
         <!-- Settings Tab Content -->
         <div v-if="activeTab === 'Settings'" class="space-y-4 pb-40">
-          <!-- Primary goal -->
-          <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pl-4 pr-7 py-4 flex items-center justify-between gap-6">
-            <div class="flex items-center gap-3 flex-1 min-w-0">
-              <div class="w-10 h-10 rounded-xl bg-om-orange-100 flex items-center justify-center shrink-0">
-                <Target :size="20" class="text-om-orange-400" />
-              </div>
-              <div class="flex-1 min-w-0">
-                <h3 class="text-lg font-semibold text-om-gray-700 leading-tight">Primary goal</h3>
-                <p class="text-sm text-om-gray-500 mt-0.5">The main conversion event used to measure this campaign's success. Reports and variant comparisons default to this metric.</p>
-              </div>
-            </div>
-            <div class="w-64 shrink-0">
-              <Dropdown v-model="primaryGoal" :options="goalValues" />
-            </div>
-          </div>
-
-          <!-- A/B test -->
-          <Accordion
-            title="A/B test"
-            :open="openAccordion === 'abTest'"
-            @toggle="toggleAccordion('abTest')"
-            icon-rounded="rounded-xl"
-            icon-bg="bg-om-orange-100"
-          >
-            <template #icon><FlaskConical :size="20" class="text-om-orange-400" /></template>
-            <div class="grid grid-cols-2 gap-8">
-              <!-- Traffic share -->
-              <section>
-                <h4 class="text-base font-semibold text-om-gray-700 mb-3">Traffic share</h4>
-
-                <div class="mb-3 space-y-2">
-                  <div v-for="(variant, idx) in variants" :key="variant.id" class="flex items-center justify-between py-1">
-                    <span class="text-sm font-medium text-om-gray-700">{{ variant.name }}</span>
-                    <div class="relative">
-                      <input
-                        type="number"
-                        :value="variant.traffic"
-                        @input="updateVariantTraffic(idx, $event.target.value)"
-                        :disabled="trafficEvenlySplit"
-                        min="0"
-                        max="100"
-                        step="1"
-                        class="w-20 pl-3 pr-8 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums text-right disabled:cursor-not-allowed disabled:bg-om-gray-50 disabled:text-om-gray-500"
-                      />
-                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
-                    </div>
-                  </div>
-                  <div class="flex items-center justify-between py-1 border-t border-om-gray-100 pt-2 mt-1">
-                    <span class="text-sm font-medium text-om-gray-500">Total</span>
-                    <span
-                      class="text-sm font-semibold tabular-nums"
-                      :class="trafficTotal === 100 ? 'text-om-gray-700' : 'text-red-500'"
-                    >{{ trafficTotal }}%</span>
-                  </div>
-                </div>
-
-                <div>
-                  <Checkbox :model-value="trafficEvenlySplit" @update:model-value="toggleEvenlySplit" label="Evenly split" />
-                  <p class="text-sm text-om-gray-500 mt-1">Equally distribute weight percentage across all groups</p>
-                </div>
-              </section>
-
-              <!-- Auto-declare winner -->
-              <section class="pl-8 border-l border-om-gray-100">
-                <h4 class="text-base font-semibold text-om-gray-700 mb-3">Auto-declare winner</h4>
-
-                <div class="flex items-center gap-3">
-                  <ToggleSwitch v-model="autoStopEnabled" />
-                  <div
-                    class="flex items-center gap-2 text-sm text-om-gray-600 transition-opacity"
-                    :class="{ 'opacity-50': !autoStopEnabled }"
-                  >
-                    <span>Declare winner at</span>
-                    <div class="relative">
-                      <input
-                        type="number"
-                        v-model.number="autoStopThreshold"
-                        :disabled="!autoStopEnabled"
-                        min="50"
-                        max="100"
-                        step="1"
-                        class="w-20 pl-3 pr-7 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums disabled:cursor-not-allowed disabled:bg-om-gray-50"
-                      />
-                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
-                    </div>
-                    <span>chance to win</span>
-                  </div>
-                </div>
-                <p class="text-sm text-om-gray-500 mt-2">Once a variant reaches this chance to win, losing variants are turned off and only the winner keeps running.</p>
-              </section>
-            </div>
-          </Accordion>
-
           <!-- Who should see this campaign? -->
           <Accordion
-            title="Who should see this campaign?"
+            id="settings-whoSee"
+            title="Targeting"
+            subtitle="Who should see this campaign?"
             :open="openAccordion === 'whoSee'"
             @toggle="toggleAccordion('whoSee')"
             icon-rounded="rounded-xl"
@@ -675,21 +588,78 @@
             </div>
           </Accordion>
 
-          <!-- Email Notification Toggle -->
-          <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pl-4 pr-7 py-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-om-orange-100 flex items-center justify-center shrink-0">
-                  <Mail :size="20" class="text-om-orange-400" />
-                </div>
-                <div>
-                  <h4 class="text-lg font-semibold text-om-gray-700">Email notification</h4>
-                  <p class="text-sm text-om-gray-500 mt-1">Get notified when someone submits this campaign</p>
-                </div>
-              </div>
+          <!-- Primary goal -->
+          <Accordion
+            id="settings-goal"
+            title="Primary goal"
+            subtitle="The main conversion event used to measure this campaign's success"
+            :open="openAccordion === 'goal'"
+            @toggle="toggleAccordion('goal')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
+          >
+            <template #icon><Target :size="20" class="text-om-orange-400" /></template>
+            <p class="text-sm text-om-gray-500 mb-3">Reports and variant comparisons default to this metric.</p>
+            <div class="w-64">
+              <Dropdown v-model="primaryGoal" :options="goalValues" />
+            </div>
+          </Accordion>
+
+          <!-- Email notification -->
+          <Accordion
+            id="settings-emailNotification"
+            title="Email notification"
+            subtitle="Get notified when someone submits this campaign"
+            :open="openAccordion === 'emailNotification'"
+            @toggle="toggleAccordion('emailNotification')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
+          >
+            <template #icon><Mail :size="20" class="text-om-orange-400" /></template>
+            <div class="flex items-center gap-3">
+              <h4 class="text-base font-semibold text-om-gray-700">Send email notifications</h4>
               <ToggleSwitch v-model="emailNotification" />
             </div>
-          </div>
+
+            <div v-if="emailNotification" class="mt-5">
+              <div v-if="notificationEmails.length" class="flex flex-wrap gap-2 mb-4">
+                <Tag
+                  v-for="entry in notificationEmails"
+                  :key="entry.email"
+                  variant="gray"
+                  :class="entry.status === 'pending' ? 'text-om-gray-600!' : ''"
+                >
+                  <template v-if="entry.status === 'pending'" #icon>
+                    <Hourglass :size="12" />
+                  </template>
+                  <span>{{ entry.email }}</span>
+                  <button
+                    type="button"
+                    class="ml-1 -mr-1 inline-flex items-center justify-center cursor-pointer opacity-70 hover:opacity-100"
+                    @click="removeNotificationEmail(entry.email)"
+                  >
+                    <X :size="12" />
+                  </button>
+                </Tag>
+              </div>
+
+              <div class="flex items-end gap-2">
+                <div class="w-80">
+                  <FormInput
+                    v-model="newNotificationEmail"
+                    label="Send notifications to"
+                    type="email"
+                    placeholder="Add email address"
+                    @keydown.enter.prevent="addNotificationEmail"
+                  />
+                </div>
+                <Button variant="primary" size="md" @click="addNotificationEmail">
+                  <template #icon><Plus :size="16" /></template>
+                  Add
+                </Button>
+              </div>
+            </div>
+          </Accordion>
         </div>
       </div>
     </template>
@@ -1248,9 +1218,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check, Ban, Info, Globe, FlaskConical, Mail, Zap } from 'lucide-vue-next'
+import { ref, reactive, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check, Ban, Info, Globe, Mail, Zap, Hourglass } from 'lucide-vue-next'
 import Tag from '../components/shared/Tag.vue'
+import FormInput from '../components/shared/FormInput.vue'
 import ProductPagePreview from '../components/ppo/ProductPagePreview.vue'
 import Button from '../components/shared/Button.vue'
 import Chip from '../components/shared/Chip.vue'
@@ -1264,6 +1235,7 @@ import { VueDatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import ScrollTimePicker from '../components/shared/ScrollTimePicker.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
+import EditableTitle from '../components/shared/EditableTitle.vue'
 
 const props = defineProps({
   showPlacement: { type: Boolean, default: false },
@@ -1272,6 +1244,7 @@ const props = defineProps({
 const emit = defineEmits(['menu-click', 'navigate'])
 
 const isChatOpen = ref(false)
+const campaignName = ref('Product Summary 2')
 
 const chatSuggestions = [
   'How is this campaign performing?',
@@ -1296,7 +1269,7 @@ const activeTab = ref('Overview')
 const isActive = ref(true)
 
 // Tab routing — each tab gets its own URL
-const VIEW_SLUG = 'ppo-campaign-detail-v2'
+const VIEW_SLUG = 'ppo-campaign-detail-v3-single'
 const TAB_SLUGS = { Overview: '', Settings: 'settings', Analytics: 'analytics' }
 const SLUG_TO_TAB = { '': 'Overview', settings: 'Settings', analytics: 'Analytics' }
 
@@ -1334,6 +1307,24 @@ onUnmounted(() => {
 // Settings tab - Accordion state
 const openAccordion = ref(null)
 const emailNotification = ref(false)
+const notificationEmails = ref([
+  { email: 'product@optimonk.com', status: 'accepted' },
+])
+const newNotificationEmail = ref('')
+
+const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+
+const addNotificationEmail = () => {
+  const email = newNotificationEmail.value.trim()
+  if (email && isValidEmail(email) && !notificationEmails.value.some(e => e.email === email)) {
+    notificationEmails.value.push({ email, status: 'pending' })
+  }
+  newNotificationEmail.value = ''
+}
+
+const removeNotificationEmail = (email) => {
+  notificationEmails.value = notificationEmails.value.filter(e => e.email !== email)
+}
 
 // How many times accordion state
 const frequencyType = ref('maximum')
@@ -1351,13 +1342,16 @@ const toggleAccordion = (section) => {
 const openSettingsAccordion = (section) => {
   activeTab.value = 'Settings'
   openAccordion.value = section
+  nextTick(() => {
+    document.getElementById(`settings-${section}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
 }
 
 // Variants with inline variables (single variant — no A/B test)
 const variants = reactive([
   {
     id: 'v1',
-    name: 'Product summary 1',
+    name: 'Product Summary 2',
     active: true,
     expanded: true,
     visitors: '12,593',
@@ -1752,29 +1746,6 @@ const currentKpis = computed(() => {
   const key = typeof selectedGoal.value === 'object' ? selectedGoal.value?.value : selectedGoal.value
   return kpiByGoal[key] || kpiByGoal['Order']
 })
-
-// A/B test settings
-const autoStopEnabled = ref(false)
-const autoStopThreshold = ref(95)
-const trafficEvenlySplit = ref(true)
-
-const updateVariantTraffic = (index, value) => {
-  const v = Math.max(0, Math.min(100, Number(value) || 0))
-  variants[index].traffic = v
-}
-
-const trafficTotal = computed(() =>
-  variants.reduce((sum, v) => sum + Number(v.traffic || 0), 0)
-)
-
-const toggleEvenlySplit = () => {
-  trafficEvenlySplit.value = !trafficEvenlySplit.value
-  if (trafficEvenlySplit.value) {
-    const even = Math.floor(100 / variants.length)
-    const remainder = 100 - (even * variants.length)
-    variants.forEach((v, i) => { v.traffic = i === 0 ? even + remainder : even })
-  }
-}
 
 const handleLogoClick = () => {
   // Navigate back to home

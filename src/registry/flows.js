@@ -11,6 +11,15 @@ export const flowDefinitions = {
       { id: 'wizard-recommendation-v4', label: 'Recommendation' },
     ],
   },
+  'public-wizard-v2': {
+    registrationType: 'public-wizard-v2',
+    steps: [
+      { id: 'public-wizard-url', label: 'URL Input' },
+      { id: 'public-wizard-chat', label: 'Goal Input' },
+      { id: 'wizard-analysis', label: 'Analysis' },
+      { id: 'wizard-recommendation-public-v2', label: 'Recommendation' },
+    ],
+  },
   'wizard': {
     registrationType: 'wizard',
     steps: [

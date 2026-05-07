@@ -12,8 +12,10 @@
   <transition name="slide-up">
     <div
       v-if="isOpen"
-      class="fixed bottom-0 left-0 right-0 bg-[#23262A] text-white py-2 px-4 z-50 flex items-center justify-center gap-2"
+      class="fixed bottom-0 left-0 right-0 bg-[#23262A] text-white py-2 px-2 md:px-4 z-50 flex items-center justify-center gap-2"
     >
+      <!-- Desktop-only: full nav contents -->
+      <div class="hidden md:flex items-center gap-2 flex-wrap justify-center">
       <!-- Flow type indicator -->
       <span v-if="flowSelected" class="text-xs text-[#8F97A4] capitalize">
         {{ registrationType }}:
@@ -76,11 +78,11 @@
         </template>
 
         <!-- Email/Shopify flow (only on registration/onboarding/task views) -->
-        <template v-else-if="['registration', 'onboarding', 'task-creation'].includes(currentView)">
+        <template v-else-if="['registration', 'registration-hu', 'registration-mobile', 'registration-mobile-hu', 'shopify-account-choice', 'onboarding', 'onboarding-hu', 'onboarding-mobile', 'onboarding-mobile-hu', 'task-creation'].includes(currentView)">
           <button
             v-if="registrationType === 'email'"
-            @click="$emit('navigate', 'registration')"
-            :class="stepClass(currentView === 'registration')"
+            @click="$emit('navigate', (currentView === 'registration-hu' || currentView === 'onboarding-hu') ? 'registration-hu' : (currentView === 'registration-mobile-hu' || currentView === 'onboarding-mobile-hu') ? 'registration-mobile-hu' : (currentView === 'registration-mobile' || currentView === 'onboarding-mobile') ? 'registration-mobile' : 'registration')"
+            :class="stepClass(['registration', 'registration-hu', 'registration-mobile', 'registration-mobile-hu'].includes(currentView))"
           >Registration</button>
           <!-- Onboarding steps -->
           <div class="flex items-center gap-1 ml-2">
@@ -91,7 +93,7 @@
               @click="$emit('go-to-step', step)"
               :class="[
                 'w-8 h-8 text-sm rounded transition-colors flex items-center justify-center cursor-pointer',
-                currentView === 'onboarding' && currentStep === step ? 'bg-[#ED5A29] text-white' : 'bg-[#505763] hover:bg-[#8F97A4]'
+                ['onboarding', 'onboarding-hu', 'onboarding-mobile', 'onboarding-mobile-hu'].includes(currentView) && currentStep === step ? 'bg-[#ED5A29] text-white' : 'bg-[#505763] hover:bg-[#8F97A4]'
               ]"
             >{{ step }}</button>
           </div>
@@ -170,6 +172,8 @@
         <Loader2 v-else :size="13" class="animate-spin" />
         {{ exportState === 'copied' ? 'Copied!' : exportState === 'loading' ? 'Exporting...' : 'Export to AI' }}
       </button>
+      </div>
+      <!-- end desktop-only contents -->
 
       <!-- Reset button -->
       <button

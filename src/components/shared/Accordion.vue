@@ -1,5 +1,5 @@
 <template>
-  <div :class="['relative bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] transition-shadow duration-300 ease-in-out overflow-hidden', disabled ? 'opacity-50' : 'hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)]']">
+  <div :class="['relative bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] transition-shadow duration-300 ease-in-out', open ? 'overflow-visible' : 'overflow-hidden', disabled ? 'opacity-50' : 'hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)]']">
     <button
       @click="!disabled && $emit('toggle')"
       :class="['w-full pl-4 pr-7 py-4 flex items-center justify-between text-left transition-colors rounded-2xl', disabled ? 'cursor-not-allowed' : 'cursor-pointer']"
@@ -10,7 +10,10 @@
             <slot name="icon" />
           </div>
         </div>
-        <span :class="['text-lg font-semibold', disabled ? 'text-om-gray-500' : 'text-om-gray-700']">{{ title }}</span>
+        <div class="flex flex-col">
+          <span :class="['text-lg font-semibold', disabled ? 'text-om-gray-500' : 'text-om-gray-700']">{{ title }}</span>
+          <span v-if="subtitle" :class="['text-sm font-normal mt-0.5', disabled ? 'text-om-gray-400' : 'text-om-gray-500']">{{ subtitle }}</span>
+        </div>
       </div>
       <div class="flex items-center gap-3 shrink-0">
         <slot name="meta" />
@@ -21,7 +24,7 @@
         />
       </div>
     </button>
-    <div v-if="open" :class="['pb-8 pt-2 pr-7', hasIcon ? 'pl-17' : 'pl-7']">
+    <div v-if="open" :class="['pb-8 pt-2 pr-7', hasIcon ? 'pl-19' : 'pl-7']">
       <slot />
     </div>
   </div>
@@ -39,6 +42,10 @@ defineProps({
     type: String,
     required: true
   },
+  subtitle: {
+    type: String,
+    default: ''
+  },
   open: {
     type: Boolean,
     default: false
@@ -49,7 +56,7 @@ defineProps({
   },
   iconSize: {
     type: String,
-    default: 'w-10 h-10'
+    default: 'w-12 h-12'
   },
   iconRounded: {
     type: String,
@@ -66,7 +73,7 @@ defineEmits(['toggle'])
 
 <style scoped>
 .accordion-icon :deep(svg) {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
 }
 </style>

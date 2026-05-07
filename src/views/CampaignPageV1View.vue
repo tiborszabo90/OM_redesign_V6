@@ -6,7 +6,7 @@
         <!-- Header -->
         <div class="flex items-start justify-between mb-4">
           <div>
-            <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Black Friday 2025</h1>
+            <EditableTitle v-model="campaignName" />
             <p class="text-xs text-om-gray-400">www.mydomain.com</p>
           </div>
           <div class="flex items-center gap-2.5">
@@ -137,32 +137,13 @@
         <div v-if="activeTab === 'Overview'">
         <!-- Metrics Section -->
         <div class="bg-om-gray-100 rounded-xl mb-6 relative">
-          <div class="grid grid-cols-[minmax(0,12fr)_minmax(0,9fr)_minmax(0,3fr)] gap-4">
+          <div class="grid grid-cols-[minmax(0,8fr)_minmax(0,13fr)_minmax(0,3fr)] gap-4">
           <!-- Conversion Uplift -->
           <div class="pl-8 py-8">
             <div class="text-base text-om-gray-600 mb-3">Conversion uplift</div>
-            <div class="flex items-center gap-5">
-              <div class="flex items-end gap-2 shrink-0">
-                <span class="text-[3rem] font-light text-om-gray-700 leading-none font-['Funnel_Sans']">+18.52%</span>
-                <TrendingUp :size="24" class="text-[#2CC896]" />
-              </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold text-om-gray-600 whitespace-nowrap">A/B test running</span>
-                  <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
-                  </span>
-                  <Button v-if="autoStopEnabled" variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">
-                    <template #icon><Zap :size="14" /></template>
-                    Declare winner at {{ autoStopThreshold }}%
-                  </Button>
-                </div>
-                <div class="text-sm text-om-gray-500 -mt-0.5 whitespace-nowrap">
-                  <span class="font-medium text-om-gray-600">AI Variant</span>
-                  leading · 9.23% chance to win
-                </div>
-              </div>
+            <div class="flex items-end gap-2">
+              <span class="text-[3rem] font-light text-om-gray-700 leading-none font-['Funnel_Sans']">+18.52%</span>
+              <TrendingUp :size="24" class="text-[#2CC896]" />
             </div>
           </div>
 
@@ -213,6 +194,38 @@
             </div>
           </div>
         </div>
+        </div>
+
+        <!-- A/B Test Status Banner -->
+        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 px-8 py-4">
+          <div class="flex items-center justify-between gap-6 flex-wrap">
+            <!-- Left: status + winner -->
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 rounded-full bg-[#D6F5EC] flex items-center justify-center shrink-0">
+                <FlaskConical :size="20" class="text-[#10B981]" />
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-semibold text-om-gray-700">A/B test running</span>
+                  <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
+                  </span>
+                </div>
+                <div class="text-sm text-om-gray-500 mt-0.5">
+                  <span class="font-medium text-om-gray-700">AI Variant</span>
+                  is leading by <span class="font-semibold text-[#10B981]">+18.52%</span>
+                  (9.23% chance to win)
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Declare winner button -->
+            <Button variant="ghost" size="sm" @click="openSettingsAccordion('abTest')">
+              <template #icon><Zap :size="14" /></template>
+              Declare winner at {{ autoStopThreshold }}%
+            </Button>
+          </div>
         </div>
 
         <!-- Variants Section -->
@@ -575,126 +588,78 @@
           </div>
         </div>
 
+        <!-- Analytics Tab Content -->
+        <CampaignAnalyticsTab v-if="activeTab === 'Analytics'">
+          <template #funnel>
+            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5">
+              <div class="flex items-center justify-between mb-1 px-8">
+                <h2 class="text-xl font-semibold text-om-gray-700">Funnel breakdown</h2>
+                <div class="flex items-center gap-3 text-[12px] text-om-gray-500">
+                  <span class="flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#FF6A45]"></span>
+                    Variant A
+                  </span>
+                  <span class="flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#5B7CFA]"></span>
+                    Variant B
+                  </span>
+                </div>
+              </div>
+              <div class="text-[13px] text-om-gray-500 mb-5 px-8">Impressions of each page in this popup, with drop-off between steps. Compared across A/B variants.</div>
+              <div class="px-5 flex items-stretch gap-0">
+                <template v-for="(step, idx) in abFunnelSteps" :key="step.id">
+                  <div class="flex-1 rounded-xl border border-om-gray-200 px-4 py-2.5 flex flex-col gap-2 min-w-0">
+                    <div class="text-[13px] font-medium text-om-gray-500 truncate">{{ step.name }}</div>
+                    <!-- Variant A -->
+                    <div class="flex flex-col gap-1">
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] font-semibold text-[#FF6A45] uppercase tracking-wide">A</span>
+                        <span class="text-sm font-semibold text-om-gray-700 tabular-nums">{{ step.a.toLocaleString() }}</span>
+                      </div>
+                      <div class="h-1.5 rounded-full bg-om-gray-100 overflow-hidden">
+                        <div class="h-full rounded-full bg-[#FF6A45]" :style="{ width: abFunnelShare(step, 'a') + '%' }"></div>
+                      </div>
+                    </div>
+                    <!-- Variant B -->
+                    <div class="flex flex-col gap-1">
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] font-semibold text-[#5B7CFA] uppercase tracking-wide">B</span>
+                        <span class="text-sm font-semibold text-om-gray-700 tabular-nums">{{ step.b.toLocaleString() }}</span>
+                      </div>
+                      <div class="h-1.5 rounded-full bg-om-gray-100 overflow-hidden">
+                        <div class="h-full rounded-full bg-[#5B7CFA]" :style="{ width: abFunnelShare(step, 'b') + '%' }"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    v-if="idx < abFunnelSteps.length - 1"
+                    class="flex flex-col items-center justify-center px-3 shrink-0"
+                  >
+                    <ArrowRight :size="32" class="text-om-gray-300" />
+                    <div class="flex flex-col items-center gap-0.5 mt-1.5">
+                      <div class="text-[12px] font-semibold text-[#FF6A45] tabular-nums whitespace-nowrap">A: -{{ abFunnelDropOff(idx + 1, 'a') }}%</div>
+                      <div class="text-[12px] font-semibold text-[#5B7CFA] tabular-nums whitespace-nowrap">B: -{{ abFunnelDropOff(idx + 1, 'b') }}%</div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </CampaignAnalyticsTab>
+
         <!-- Settings Tab Content -->
         <div v-if="activeTab === 'Settings'" class="space-y-4 pb-40">
-          <!-- Primary goal -->
-          <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pl-4 pr-7 py-4 flex items-center justify-between gap-6">
-            <div class="flex items-center gap-3 flex-1 min-w-0">
-              <div class="w-10 h-10 rounded-xl bg-om-orange-100 flex items-center justify-center shrink-0">
-                <Target :size="20" class="text-om-orange-400" />
-              </div>
-              <div class="flex-1 min-w-0">
-                <h3 class="text-lg font-semibold text-om-gray-700 leading-tight">Primary goal</h3>
-                <p class="text-sm text-om-gray-500 mt-0.5">The main conversion event used to measure this campaign's success. Reports and variant comparisons default to this metric.</p>
-              </div>
-            </div>
-            <div class="w-64 shrink-0">
-              <Dropdown v-model="primaryGoal" :options="goalValues" />
-            </div>
-          </div>
-
-          <!-- A/B test -->
-          <Accordion
-            title="A/B test"
-            :open="openAccordion === 'abTest'"
-            @toggle="toggleAccordion('abTest')"
-            icon-rounded="rounded-xl"
-            icon-bg="bg-om-orange-100"
-          >
-            <template #icon><FlaskConical :size="20" class="text-om-orange-400" /></template>
-            <div class="grid grid-cols-2 gap-8">
-              <!-- Traffic share -->
-              <section>
-                <h4 class="text-base font-semibold text-om-gray-700 mb-3">Traffic share</h4>
-
-                <div class="mb-3 space-y-2">
-                  <div class="flex items-center justify-between py-1">
-                    <span class="text-sm font-medium text-om-gray-700">Klaviyo Popup</span>
-                    <div class="relative">
-                      <input
-                        type="number"
-                        :value="variant1Traffic"
-                        @input="updateTrafficShare('v1', $event.target.value)"
-                        :disabled="trafficEvenlySplit"
-                        min="0"
-                        max="100"
-                        step="1"
-                        class="w-20 pl-3 pr-8 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums text-right disabled:cursor-not-allowed disabled:bg-om-gray-50 disabled:text-om-gray-500"
-                      />
-                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
-                    </div>
-                  </div>
-                  <div class="flex items-center justify-between py-1">
-                    <span class="text-sm font-medium text-om-gray-700">AI Variant</span>
-                    <div class="relative">
-                      <input
-                        type="number"
-                        :value="variant2Traffic"
-                        @input="updateTrafficShare('v2', $event.target.value)"
-                        :disabled="trafficEvenlySplit"
-                        min="0"
-                        max="100"
-                        step="1"
-                        class="w-20 pl-3 pr-8 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums text-right disabled:cursor-not-allowed disabled:bg-om-gray-50 disabled:text-om-gray-500"
-                      />
-                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
-                    </div>
-                  </div>
-                  <div class="flex items-center justify-between py-1 border-t border-om-gray-100 pt-2 mt-1">
-                    <span class="text-sm font-medium text-om-gray-500">Total</span>
-                    <span
-                      class="text-sm font-semibold tabular-nums"
-                      :class="trafficTotal === 100 ? 'text-om-gray-700' : 'text-red-500'"
-                    >{{ trafficTotal }}%</span>
-                  </div>
-                </div>
-
-                <div>
-                  <Checkbox :model-value="trafficEvenlySplit" @update:model-value="toggleEvenlySplit" label="Evenly split" />
-                  <p class="text-sm text-om-gray-500 mt-1">Equally distribute weight percentage across all groups</p>
-                </div>
-              </section>
-
-              <!-- Auto-declare winner -->
-              <section class="pl-8 border-l border-om-gray-100">
-                <h4 class="text-base font-semibold text-om-gray-700 mb-3">Auto-declare winner</h4>
-
-                <div class="flex items-center gap-3">
-                  <ToggleSwitch v-model="autoStopEnabled" />
-                  <div
-                    class="flex items-center gap-2 text-sm text-om-gray-600 transition-opacity"
-                    :class="{ 'opacity-50': !autoStopEnabled }"
-                  >
-                    <span>Declare winner at</span>
-                    <div class="relative">
-                      <input
-                        type="number"
-                        v-model.number="autoStopThreshold"
-                        :disabled="!autoStopEnabled"
-                        min="50"
-                        max="100"
-                        step="1"
-                        class="w-20 pl-3 pr-7 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums disabled:cursor-not-allowed disabled:bg-om-gray-50"
-                      />
-                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
-                    </div>
-                    <span>chance to win</span>
-                  </div>
-                </div>
-                <p class="text-sm text-om-gray-500 mt-2">Once a variant reaches this chance to win, losing variants are turned off and only the winner keeps running.</p>
-              </section>
-            </div>
-          </Accordion>
-
           <!-- When would you like this campaign to show up? -->
           <Accordion
-            title="When would you like this campaign to show up?"
+            id="settings-showUp"
+            title="Triggering"
+            subtitle="When would you like this campaign to show up?"
             :open="openAccordion === 'showUp'"
             @toggle="toggleAccordion('showUp')"
             icon-rounded="rounded-xl"
             icon-bg="bg-om-orange-100"
           >
-              <template #icon><Clock :size="20" class="text-om-orange-400" /></template>
+              <template #icon><Zap :size="20" class="text-om-orange-400" /></template>
               <!-- Trigger Timeline -->
               <div class="trigger-timeline">
                 <!-- First trigger: On exit-intent -->
@@ -750,7 +715,9 @@
 
           <!-- How many times should this campaign appear? -->
           <Accordion
-            title="How many times should this campaign appear?"
+            id="settings-howMany"
+            title="Frequency"
+            subtitle="How many times should this campaign appear?"
             :open="openAccordion === 'howMany'"
             @toggle="toggleAccordion('howMany')"
             icon-rounded="rounded-xl"
@@ -824,7 +791,9 @@
 
           <!-- Who should see this campaign? -->
           <Accordion
-            title="Who should see this campaign?"
+            id="settings-whoSee"
+            title="Targeting"
+            subtitle="Who should see this campaign?"
             :open="openAccordion === 'whoSee'"
             @toggle="toggleAccordion('whoSee')"
             icon-rounded="rounded-xl"
@@ -870,7 +839,9 @@
 
           <!-- Where you would like to send the subscribers and campaign data? -->
           <Accordion
-            title="Where you would like to send the subscribers and campaign data?"
+            id="settings-sendData"
+            title="Integrations"
+            subtitle="Where you would like to send the subscribers and campaign data?"
             :open="openAccordion === 'sendData'"
             @toggle="toggleAccordion('sendData')"
             icon-rounded="rounded-xl"
@@ -891,21 +862,202 @@
             </div>
           </Accordion>
 
-          <!-- Email Notification Toggle -->
-          <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pl-4 pr-7 py-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-om-orange-100 flex items-center justify-center shrink-0">
-                  <Mail :size="20" class="text-om-orange-400" />
+          <!-- A/B test -->
+          <Accordion
+            id="settings-abTest"
+            title="A/B test"
+            subtitle="Split traffic between variants and pick a winner automatically"
+            :open="openAccordion === 'abTest'"
+            @toggle="toggleAccordion('abTest')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
+          >
+            <template #icon><FlaskConical :size="20" class="text-om-orange-400" /></template>
+            <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-16 items-stretch">
+              <!-- Left column: Auto-declare winner -->
+              <section>
+                <div class="flex items-center gap-3 mb-1">
+                  <h4 class="text-base font-semibold text-om-gray-700">Auto-declare winner</h4>
+                  <ToggleSwitch v-model="autoStopEnabled" />
                 </div>
+                <p class="text-sm text-om-gray-500 mb-3">Automatically end the test when a clear winner emerges.</p>
+
+                <div v-if="autoStopEnabled" class="flex flex-col gap-2.5">
+                  <div class="flex items-center gap-2 text-sm text-om-gray-600">
+                    <span>Declare winner at</span>
+                    <div class="relative">
+                      <input
+                        type="number"
+                        v-model.number="autoStopThreshold"
+                        min="50"
+                        max="100"
+                        step="1"
+                        class="w-20 pl-3 pr-7 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums"
+                      />
+                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
+                    </div>
+                    <span>chance to win</span>
+                  </div>
+
+                  <div class="flex items-center gap-2 text-sm text-om-gray-600">
+                    <span>Minimum conversion threshold:</span>
+                    <div class="relative">
+                      <input
+                        type="number"
+                        v-model.number="minConversionThreshold"
+                        min="0"
+                        step="1"
+                        class="w-20 pl-3 pr-3 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums"
+                      />
+                    </div>
+                    <span>conversions</span>
+                  </div>
+
+                  <div class="flex items-center gap-2 text-sm text-om-gray-600">
+                    <span>Minimum days running:</span>
+                    <div class="relative">
+                      <input
+                        type="number"
+                        v-model.number="minDaysRunning"
+                        min="0"
+                        step="1"
+                        class="w-20 pl-3 pr-3 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums"
+                      />
+                    </div>
+                    <span>days</span>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Vertical divider -->
+              <div class="w-px bg-om-gray-100"></div>
+
+              <!-- Right column: Traffic share -->
+              <section>
+                <h4 class="text-base font-semibold text-om-gray-700 mb-3">Traffic share</h4>
+
+                <div class="mb-3 space-y-2">
+                  <div class="flex items-center justify-between py-1">
+                    <span class="text-sm font-medium text-om-gray-700">Klaviyo Popup</span>
+                    <div class="relative">
+                      <input
+                        type="number"
+                        :value="variant1Traffic"
+                        @input="updateTrafficShare('v1', $event.target.value)"
+                        :disabled="trafficEvenlySplit"
+                        min="0"
+                        max="100"
+                        step="1"
+                        class="w-24 pl-3 pr-8 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums text-left disabled:cursor-not-allowed disabled:bg-om-gray-50 disabled:text-om-gray-500"
+                      />
+                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between py-1">
+                    <span class="text-sm font-medium text-om-gray-700">AI Variant</span>
+                    <div class="relative">
+                      <input
+                        type="number"
+                        :value="variant2Traffic"
+                        @input="updateTrafficShare('v2', $event.target.value)"
+                        :disabled="trafficEvenlySplit"
+                        min="0"
+                        max="100"
+                        step="1"
+                        class="w-24 pl-3 pr-8 py-1.5 text-sm text-om-gray-700 bg-white border border-om-gray-200 rounded-lg focus:outline-none focus:border-om-orange-500 tabular-nums text-left disabled:cursor-not-allowed disabled:bg-om-gray-50 disabled:text-om-gray-500"
+                      />
+                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-om-gray-500 pointer-events-none">%</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between py-1">
+                    <span class="text-sm font-medium text-om-gray-500">Total</span>
+                    <span
+                      class="text-sm font-semibold tabular-nums"
+                      :class="trafficTotal === 100 ? 'text-om-gray-700' : 'text-red-500'"
+                    >{{ trafficTotal }}%</span>
+                  </div>
+                </div>
+
                 <div>
-                  <h4 class="text-lg font-semibold text-om-gray-700">Email notification</h4>
-                  <p class="text-sm text-om-gray-500 mt-1">Get notified when someone submits this campaign</p>
+                  <Checkbox :model-value="trafficEvenlySplit" @update:model-value="toggleEvenlySplit" label="Evenly split" />
+                  <p class="text-sm text-om-gray-500 mt-1">Equally distribute weight percentage across all groups</p>
                 </div>
-              </div>
+              </section>
+            </div>
+          </Accordion>
+
+          <!-- Primary goal -->
+          <Accordion
+            id="settings-goal"
+            title="Primary goal"
+            subtitle="The main conversion event used to measure this campaign's success"
+            :open="openAccordion === 'goal'"
+            @toggle="toggleAccordion('goal')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
+          >
+            <template #icon><Target :size="20" class="text-om-orange-400" /></template>
+            <p class="text-sm text-om-gray-500 mb-3">Reports and variant comparisons default to this metric.</p>
+            <div class="w-64">
+              <Dropdown v-model="primaryGoal" :options="goalValues" />
+            </div>
+          </Accordion>
+
+          <!-- Email notification -->
+          <Accordion
+            id="settings-emailNotification"
+            title="Email notification"
+            subtitle="Get notified when someone submits this campaign"
+            :open="openAccordion === 'emailNotification'"
+            @toggle="toggleAccordion('emailNotification')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
+          >
+            <template #icon><Mail :size="20" class="text-om-orange-400" /></template>
+            <div class="flex items-center gap-3">
+              <h4 class="text-base font-semibold text-om-gray-700">Send email notifications</h4>
               <ToggleSwitch v-model="emailNotification" />
             </div>
-          </div>
+
+            <div v-if="emailNotification" class="mt-5">
+              <div v-if="notificationEmails.length" class="flex flex-wrap gap-2 mb-4">
+                <Tag
+                  v-for="entry in notificationEmails"
+                  :key="entry.email"
+                  variant="gray"
+                  :class="entry.status === 'pending' ? 'text-om-gray-600!' : ''"
+                >
+                  <template v-if="entry.status === 'pending'" #icon>
+                    <Hourglass :size="12" />
+                  </template>
+                  <span>{{ entry.email }}</span>
+                  <button
+                    type="button"
+                    class="ml-1 -mr-1 inline-flex items-center justify-center cursor-pointer opacity-70 hover:opacity-100"
+                    @click="removeNotificationEmail(entry.email)"
+                  >
+                    <X :size="12" />
+                  </button>
+                </Tag>
+              </div>
+
+              <div class="flex items-end gap-2">
+                <div class="w-80">
+                  <FormInput
+                    v-model="newNotificationEmail"
+                    label="Send notifications to"
+                    type="email"
+                    placeholder="Add email address"
+                    @keydown.enter.prevent="addNotificationEmail"
+                  />
+                </div>
+                <Button variant="primary" size="md" @click="addNotificationEmail">
+                  <template #icon><Plus :size="16" /></template>
+                  Add
+                </Button>
+              </div>
+            </div>
+          </Accordion>
         </div>
       </div>
     </template>
@@ -1073,8 +1225,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Ban } from 'lucide-vue-next'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ChevronDown, ChevronRight, ArrowRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Ban, Hourglass } from 'lucide-vue-next'
 import Button from '../components/shared/Button.vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
@@ -1082,15 +1234,19 @@ import Dropdown from '../components/shared/Dropdown.vue'
 import Accordion from '../components/shared/Accordion.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
 import RadioButton from '../components/shared/RadioButton.vue'
+import FormInput from '../components/shared/FormInput.vue'
 import { VueDatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import ScrollTimePicker from '../components/shared/ScrollTimePicker.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
+import EditableTitle from '../components/shared/EditableTitle.vue'
 import Tag from '../components/shared/Tag.vue'
+import CampaignAnalyticsTab from '../components/shared/CampaignAnalyticsTab.vue'
 
 const emit = defineEmits(['menu-click', 'navigate'])
 
 const isChatOpen = ref(false)
+const campaignName = ref('Campaign #1')
 
 const chatSuggestions = [
   'How is this campaign performing?',
@@ -1112,11 +1268,47 @@ const chatAiResponses = {
 }
 
 const activeTab = ref('Overview')
+
+// A/B funnel breakdown
+const abFunnelSteps = [
+  { id: 'mainpage', name: 'Mainpage', a: 728, b: 728 },
+  { id: 'email', name: 'Email', a: 312, b: 300 },
+  { id: 'phone', name: 'Phone', a: 128, b: 120 },
+  { id: 'thank-you', name: 'Thank You page', a: 65, b: 60 },
+]
+const abFunnelShare = (step, variant) => {
+  const max = abFunnelSteps[0][variant] || 1
+  return ((step[variant] / max) * 100).toFixed(1)
+}
+const abFunnelDropOff = (idx, variant) => {
+  const prev = abFunnelSteps[idx - 1]?.[variant]
+  const curr = abFunnelSteps[idx]?.[variant]
+  if (!prev) return '0.0'
+  return (((prev - curr) / prev) * 100).toFixed(1)
+}
 const isActive = ref(true)
 
 // Settings tab - Accordion state
 const openAccordion = ref(null)
 const emailNotification = ref(false)
+const notificationEmails = ref([
+  { email: 'product@optimonk.com', status: 'accepted' },
+])
+const newNotificationEmail = ref('')
+
+const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+
+const addNotificationEmail = () => {
+  const email = newNotificationEmail.value.trim()
+  if (email && isValidEmail(email) && !notificationEmails.value.some(e => e.email === email)) {
+    notificationEmails.value.push({ email, status: 'pending' })
+  }
+  newNotificationEmail.value = ''
+}
+
+const removeNotificationEmail = (email) => {
+  notificationEmails.value = notificationEmails.value.filter(e => e.email !== email)
+}
 
 // How many times accordion state
 const frequencyType = ref('maximum')
@@ -1134,6 +1326,9 @@ const toggleAccordion = (section) => {
 const openSettingsAccordion = (section) => {
   activeTab.value = 'Settings'
   openAccordion.value = section
+  nextTick(() => {
+    document.getElementById(`settings-${section}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
 }
 
 // Tab routing — each tab gets its own URL
@@ -1299,6 +1494,8 @@ const handleSubmitsExport = () => {}
 const primaryGoal = ref('Submit')
 const autoStopEnabled = ref(true)
 const autoStopThreshold = ref(95)
+const minConversionThreshold = ref(100)
+const minDaysRunning = ref(3)
 const goalValues = ['Submit', 'Order', 'Add to cart', 'Email capture', 'Phone capture']
 const selectedGoal = ref('Submit')
 const goalOptions = computed(() =>

@@ -4875,7 +4875,7 @@ const allTrafficSources = [
   }
 
   .devices-traffic-row.traffic-referring-row {
-    grid-template-columns: 55% 45%;
+    grid-template-columns: 55fr 45fr;
   }
 
   .devices-traffic-row.single-column {

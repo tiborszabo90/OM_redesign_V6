@@ -6,7 +6,7 @@
         <img
           src="/OM-Logo-primary-basic.svg"
           alt="OptiMonk"
-          class="absolute top-8 left-8 h-8"
+          class="absolute top-4 md:top-8 left-8 h-8"
         />
         <div class="w-full max-w-[516px]">
           <transition name="step-fade" mode="out-in">
@@ -14,23 +14,23 @@
 
             <!-- Back button -->
             <button
-              v-if="currentStep !== 'buttons'"
+              v-if="currentStep !== 'buttons' && currentStep !== 'email-form'"
               @click="goBack"
               class="flex items-center gap-1.5 text-sm text-[#8F97A4] hover:text-[#23262A] transition-colors mb-6"
             >
               <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-              Back
+              Vissza
             </button>
 
             <!-- Social login buttons view -->
             <template v-if="currentStep === 'buttons'">
-              <h2 class="text-4xl font-bold text-om-gray-700 mb-1 text-center">Create your free account</h2>
-              <p class="text-om-gray-500 mb-8 text-center">and unlock your full optimization plan</p>
+              <h2 class="text-2xl sm:text-4xl font-bold text-om-gray-700 mb-1 text-center">Teszteld 14 napig kockázatmentesen</h2>
+              <p class="text-sm text-om-gray-500 mb-4 sm:mb-8 text-center">Nem kérünk kártyaadatot. Nincs apró betűs rész.<br>Csak eredmények.</p>
 
               <div class="flex flex-col gap-3">
                 <Button variant="outline" size="lg" class="w-full" @click="currentStep = 'email-form'">
                   <template #icon><Mail :size="18" /></template>
-                  Continue with Email
+                  Folytatás e-maillel
                 </Button>
 
                 <Button variant="outline" size="lg" class="w-full" @click="emit('complete', formData)">
@@ -42,48 +42,42 @@
                       <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
                     </svg>
                   </template>
-                  Continue with Google
+                  Folytatás Google-lel
                 </Button>
 
-                <Button variant="outline" size="lg" class="w-full">
-                  <template #icon>
-                    <img src="/icons/shopify-logo.svg" alt="Shopify" class="w-4.5 h-4.5 object-contain" />
-                  </template>
-                  Continue with Shopify
-                </Button>
               </div>
 
-              <p class="text-xs text-om-gray-400 text-center mt-6">
-                By submitting this form, you agree to the
-                <a href="#" class="text-om-orange-500 hover:underline">Terms of Service</a>
-                and
-                <a href="#" class="text-om-orange-500 hover:underline">Privacy Policy</a>.
+              <p class="text-[10px] sm:text-xs text-om-gray-400 text-center mt-6">
+                Az űrlap elküldésével elfogadod a
+                <a href="#" class="text-om-orange-500 hover:underline">Szolgáltatási Feltételeket</a>
+                és az
+                <a href="#" class="text-om-orange-500 hover:underline">Adatvédelmi Nyilatkozatot</a>.
               </p>
             </template>
 
             <!-- Email registration form view -->
             <template v-else-if="currentStep === 'email-form'">
-              <h2 class="text-4xl font-bold text-om-gray-700 mb-1 text-center">Create your free account</h2>
-              <p class="text-om-gray-500 mb-6 text-center">and unlock your full optimization plan</p>
+              <h2 class="text-2xl sm:text-4xl font-bold text-om-gray-700 mb-1 mt-2.5 md:mt-0 text-center">Teszteld 14 napig kockázatmentesen</h2>
+              <p class="text-sm text-om-gray-500 mb-3 sm:mb-6 text-center">Nem kérünk kártyaadatot. Nincs apró betűs rész.<br>Csak eredmények.</p>
 
               <form @submit.prevent="handleEmailSubmit" class="space-y-3">
                 <div class="flex flex-col sm:flex-row gap-3">
                   <div class="flex-1">
-                    <label class="block text-sm font-medium text-om-gray-700 mb-1.5">First name</label>
+                    <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Keresztnév</label>
                     <input
                       v-model="formData.firstName"
                       type="text"
-                      placeholder="John"
+                      placeholder="János"
                       required
                       class="w-full px-3 py-2.5 border border-om-gray-200 rounded-xl focus:ring-2 focus:ring-om-orange-400 focus:border-transparent transition-colors text-om-gray-700 text-sm"
                     />
                   </div>
                   <div class="flex-1">
-                    <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Last name</label>
+                    <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Vezetéknév</label>
                     <input
                       v-model="formData.lastName"
                       type="text"
-                      placeholder="Doe"
+                      placeholder="Kovács"
                       required
                       class="w-full px-3 py-2.5 border border-om-gray-200 rounded-xl focus:ring-2 focus:ring-om-orange-400 focus:border-transparent transition-colors text-om-gray-700 text-sm"
                     />
@@ -91,23 +85,23 @@
                 </div>
 
                 <div>
-                  <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Business email</label>
+                  <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Céges e-mail cím</label>
                   <input
                     v-model="formData.email"
                     type="email"
-                    placeholder="john@company.com"
+                    placeholder="janos@cegnev.hu"
                     required
                     class="w-full px-3 py-2.5 border border-om-gray-200 rounded-xl focus:ring-2 focus:ring-om-orange-400 focus:border-transparent transition-colors text-om-gray-700 text-sm"
                   />
-                  <p class="text-xs text-om-gray-400 mt-1.5">You'll receive important alerts and notifications about your account.</p>
+                  <p class="text-[10px] sm:text-xs text-om-gray-400 mt-1.5">Fontos értesítéseket és tájékoztatókat fogsz kapni a fiókoddal kapcsolatban.</p>
                 </div>
 
                 <div>
-                  <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Password (8+ characters)</label>
+                  <label class="block text-sm font-medium text-om-gray-700 mb-1.5">Jelszó (legalább 8 karakter)</label>
                   <input
                     v-model="formData.password"
                     type="password"
-                    placeholder="Enter your password"
+                    placeholder="Add meg a jelszavad"
                     minlength="8"
                     required
                     class="w-full px-3 py-2.5 border border-om-gray-200 rounded-xl focus:ring-2 focus:ring-om-orange-400 focus:border-transparent transition-colors text-om-gray-700 text-sm"
@@ -131,14 +125,14 @@
                   type="submit"
                   class="w-full py-3 bg-om-orange-500 text-white font-medium rounded-xl hover:bg-om-orange-600 transition-colors cursor-pointer text-sm"
                 >
-                  Get Started
+                  Kezdés
                 </button>
 
-                <p class="text-xs text-om-gray-400 text-center">
-                  By submitting this form, you agree to the
-                  <a href="#" class="text-om-orange-500 hover:underline">Terms of Service</a>
-                  and
-                  <a href="#" class="text-om-orange-500 hover:underline">Privacy Policy</a>.
+                <p class="text-[10px] sm:text-xs text-om-gray-400 text-center">
+                  Az űrlap elküldésével elfogadod a
+                  <a href="#" class="text-om-orange-500 hover:underline">Szolgáltatási Feltételeket</a>
+                  és az
+                  <a href="#" class="text-om-orange-500 hover:underline">Adatvédelmi Nyilatkozatot</a>.
                 </p>
               </form>
             </template>
@@ -189,7 +183,7 @@
       <div class="hidden md:flex flex-1 bg-om-peach-50 overflow-hidden relative">
         <img src="/monk-hi-user.svg" alt="" class="absolute top-1/6 -right-12 w-64 -rotate-50 pointer-events-none monk-slide-in" />
         <div class="w-full flex flex-col justify-center pl-16 lg:pl-24 why-join-content reg-right-pad relative z-10">
-          <h2 class="text-om-gray-700 font-bold text-2xl mb-10">Why join us?</h2>
+          <h2 class="text-om-gray-700 font-bold text-2xl mb-10">Miért csatlakozz hozzánk?</h2>
           <ul class="space-y-4 mb-10">
             <li v-for="item in whyJoinItems" :key="item" class="flex items-center gap-3">
               <span class="shrink-0 w-6 h-6 rounded-full bg-om-orange-500 flex items-center justify-center">
@@ -204,7 +198,7 @@
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
               </svg>
             </div>
-            <span class="text-om-gray-600 text-base">Trusted by 30,000+ businesses</span>
+            <span class="text-om-gray-600 text-base">30 000+ vállalkozás bízik bennünk</span>
           </div>
           <div class="bg-om-peach-100 rounded-2xl p-6">
             <div class="grid grid-cols-3 gap-3">
@@ -260,13 +254,13 @@ const passwordStrength = computed(() => {
 
 const strengthColors = { 0: 'bg-om-gray-200', 1: 'bg-red-400', 2: 'bg-orange-400', 3: 'bg-yellow-400', 4: 'bg-green-500' }
 const strengthTextColors = { 0: 'text-om-gray-400', 1: 'text-red-500', 2: 'text-orange-500', 3: 'text-yellow-600', 4: 'text-green-600' }
-const strengthLabels = { 0: '', 1: 'Weak', 2: 'Fair', 3: 'Good', 4: 'Strong' }
+const strengthLabels = { 0: '', 1: 'Gyenge', 2: 'Megfelelő', 3: 'Jó', 4: 'Erős' }
 
 const whyJoinItems = [
-  'No. 1 rated popup builder according to G2',
-  'AI-powered conversion insights',
-  'Real-time performance tracking',
-  '100+ optimization solutions',
+  'A G2 szerint a #1 értékelésű popup-készítő',
+  'AI-alapú konverziós elemzések',
+  'Valós idejű teljesítménykövetés',
+  '100+ optimalizációs megoldás',
 ]
 
 const trustedLogos = [

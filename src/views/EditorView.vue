@@ -87,7 +87,7 @@
         <button class="p-1.5 text-gray-300 cursor-not-allowed" disabled><Redo2 :size="16" /></button>
         <Button variant="ghost" size="sm">Cancel</Button>
         <Button variant="outline" size="sm">Save</Button>
-        <Button variant="primary" size="sm">Save &amp; Exit</Button>
+        <Button variant="primary" size="sm" @click="$emit('save-and-exit')">Save &amp; Exit</Button>
       </div>
     </div>
 
@@ -192,7 +192,7 @@ const props = defineProps({
   }
 })
 
-defineEmits(['go-back'])
+defineEmits(['go-back', 'save-and-exit'])
 
 const device = ref('desktop')
 const activeSidebarItem = ref('elements')

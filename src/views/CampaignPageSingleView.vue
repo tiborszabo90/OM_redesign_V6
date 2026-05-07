@@ -6,7 +6,7 @@
         <!-- Header -->
         <div class="flex items-start justify-between mb-4">
           <div>
-            <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Black Friday 2025</h1>
+            <EditableTitle v-model="campaignName" />
             <p class="text-xs text-om-gray-400">www.mydomain.com</p>
           </div>
           <div class="flex items-center gap-2.5">
@@ -137,31 +137,34 @@
         <div v-if="activeTab === 'Overview'">
         <!-- Metrics Section -->
         <div class="bg-om-gray-100 rounded-xl mb-6 relative">
-          <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-4">
+          <div class="grid grid-cols-[minmax(0,13fr)_minmax(0,8fr)_minmax(0,3fr)] gap-4">
           <!-- Key Metrics -->
-          <div class="py-8 pl-8 pr-8">
+          <div class="py-8 pl-8 pr-24">
             <div class="text-base text-om-gray-600 mb-4">Key metrics</div>
             <div class="flex items-center gap-4">
-              <div class="shrink-0 w-24">
+              <div class="flex-1">
                 <div class="text-xs text-om-gray-400 mb-0.5">Impressions</div>
                 <div class="text-xl font-semibold text-om-gray-700">1,456</div>
               </div>
               <svg width="12" height="44" viewBox="0 0 12 44" fill="none" class="text-om-gray-300">
                 <path d="M2 4L10 22L2 40" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              <div class="shrink-0 w-24">
+              <div class="flex-1">
                 <div class="text-xs text-om-gray-400 mb-0.5">Submits</div>
                 <div class="text-xl font-semibold text-om-gray-700">125</div>
               </div>
               <svg width="12" height="44" viewBox="0 0 12 44" fill="none" class="text-om-gray-300">
                 <path d="M2 4L10 22L2 40" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              <div class="shrink-0 w-24">
+              <div class="flex-1">
                 <div class="text-xs text-om-gray-400 mb-0.5">Submit rate</div>
                 <div class="text-xl font-semibold text-om-gray-700">8.37%</div>
               </div>
             </div>
           </div>
+
+          <!-- Empty spacer -->
+          <div></div>
 
           <!-- Filters -->
           <div class="flex flex-col items-end justify-end gap-2.5 pr-8 py-8">
@@ -188,47 +191,40 @@
 
         <!-- Variants Section -->
         <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 pt-5 pb-5 pl-5 pr-8">
-          <!-- Variants Table -->
-          <div class="space-y-0">
-            <!-- Header -->
-            <div class="grid grid-cols-[1fr_80px_120px_120px_120px_36px] gap-6 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
-              <div>Variants</div>
-              <div>Active</div>
-              <div class="text-right">Impression</div>
-              <div class="text-right">Submits</div>
-              <div class="text-right">Submit rate</div>
-              <div></div>
-            </div>
+          <!-- Header -->
+          <div class="grid grid-cols-[2fr_1fr_1fr_1fr_36px] gap-3 text-xs text-om-gray-500 font-medium pb-3 border-b border-om-gray-100">
+            <div>Variant</div>
+            <div class="text-right">Impression</div>
+            <div class="text-right">Submits</div>
+            <div class="text-right">Submit rate</div>
+            <div></div>
+          </div>
 
-            <!-- Variant Row 1 -->
-            <div class="grid grid-cols-[1fr_80px_120px_120px_120px_36px] gap-6 items-center py-3 group cursor-pointer" @click="emit('navigate', 'editor')">
-              <div class="flex items-center gap-2.5">
-                <div
-                  class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
-                  @mouseenter="handleThumbEnter($event, 'variant1')"
-                  @mouseleave="handleThumbLeave()"
-                >
-                  <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper" class="w-full h-full object-cover" />
-                  <transition name="fade">
-                    <div v-if="hoveredImage === 'variant1'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
-                      <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
-                        <img src="/campaigns/cart-abandonment-stopper.png" alt="Cart Abandonment Stopper Large" class="w-96 h-auto rounded-lg" />
-                      </div>
+          <!-- Variant Row 1 -->
+          <div class="grid grid-cols-[2fr_1fr_1fr_1fr_36px] gap-3 items-center py-4 group cursor-pointer" @click="emit('navigate', 'editor')">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-36 h-24 bg-om-gray-100 rounded overflow-hidden shrink-0 border border-om-gray-200 relative"
+                @mouseenter="handleThumbEnter($event, 'variant1')"
+                @mouseleave="handleThumbLeave()"
+              >
+                <img src="/campaigns/lucky-wheel.png" alt="Lucky Wheel" class="w-full h-full object-cover" />
+                <transition name="fade">
+                  <div v-if="hoveredImage === 'variant1'" class="fixed z-50 pointer-events-none" :style="tooltipStyle">
+                    <div class="bg-white rounded-xl shadow-2xl border border-om-gray-200 p-3">
+                      <img src="/campaigns/lucky-wheel.png" alt="Lucky Wheel Large" class="w-96 h-auto rounded-lg" />
                     </div>
-                  </transition>
-                </div>
-                <span class="text-sm font-medium text-om-gray-700">Klaviyo Popup</span>
+                  </div>
+                </transition>
               </div>
-              <div @click.stop>
-                <ToggleSwitch v-model="variant1Active" />
-              </div>
-              <div class="text-base font-semibold text-om-gray-700 text-right">1,456</div>
-              <div class="text-base font-semibold text-om-gray-700 text-right">125</div>
-              <div class="text-base font-semibold text-om-gray-700 text-right">8.37%</div>
-              <!-- Kebab Menu -->
-              <div class="flex items-center justify-end">
-                <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
-              </div>
+              <span class="text-sm font-medium text-om-gray-700">Lucky Wheel</span>
+            </div>
+            <div class="text-base font-semibold text-om-gray-700 text-right">1,456</div>
+            <div class="text-base font-semibold text-om-gray-700 text-right">125</div>
+            <div class="text-base font-semibold text-om-gray-700 text-right">8.37%</div>
+            <!-- Kebab Menu -->
+            <div class="flex items-center justify-end" @click.stop>
+              <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
             </div>
           </div>
 
@@ -253,23 +249,31 @@
           <!-- When will the popup show up -->
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('showUp')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">When will the popup show up</h3>
-            <div class="space-y-4">
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
-                  <LogOut :size="20" class="text-white" />
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-semibold text-om-gray-700">On exit-intent</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">When a visitor is about to leave your site</div>
+            <div class="trigger-timeline summary-timeline">
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <LogOut :size="22" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">On exit-intent</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">When a visitor is about to leave your site</div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
-                  <Clock :size="20" class="text-white" />
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-semibold text-om-gray-700">After 20s inactivity</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">When a visitor is inactive for <span class="font-semibold text-om-gray-800">20 seconds</span></div>
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <Clock :size="22" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">After 20s inactivity</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">When a visitor is inactive for <span class="font-semibold text-om-gray-800">20 seconds</span></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -278,23 +282,29 @@
           <!-- How often can it appear -->
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('howMany')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">How often can it appear</h3>
-            <div class="grid grid-cols-3 gap-10 w-3/4">
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
-                  <RefreshCw :size="20" class="text-white" />
-                </div>
-                <div>
-                  <div class="text-sm font-semibold text-om-gray-700">How many times</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">Maximum 2 times</div>
+            <div class="grid grid-cols-3 gap-10 w-3/4 items-center">
+              <div class="trigger-timeline summary-timeline">
+                <div class="trigger-timeline-item">
+                  <div class="trigger-card">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                        <RefreshCw :size="22" class="text-white" />
+                      </div>
+                      <div class="flex-1">
+                        <div class="text-sm font-semibold text-om-gray-700">How many times</div>
+                        <div class="text-sm text-om-gray-500 mt-0.5">Maximum <span class="font-semibold text-om-gray-800">2 times</span></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div>
                 <div class="text-sm font-semibold text-om-gray-700">How frequently</div>
-                <div class="text-xs text-om-gray-500 mt-0.5">Min 1 hour(s) between two impressions</div>
+                <div class="text-sm text-om-gray-500 mt-0.5">Min <span class="font-semibold text-om-gray-800">1 hour(s)</span> between two impressions</div>
               </div>
               <div>
-                <div class="text-sm font-semibold text-om-gray-700">Stop Showing</div>
-                <div class="text-xs text-om-gray-500 mt-0.5">After a visitor has converted in this campaign</div>
+                <div class="text-sm font-semibold text-om-gray-700">Stop showing</div>
+                <div class="text-sm text-om-gray-500 mt-0.5">After a visitor has converted in this campaign</div>
               </div>
             </div>
           </div>
@@ -302,23 +312,31 @@
           <!-- Who should see the popup -->
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('whoSee')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">Who should see the popup</h3>
-            <div class="space-y-4">
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
-                  <Timer :size="20" class="text-white" />
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-semibold text-om-gray-700">Spent on pages</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">The popup will appear to visitors who spent a minimum of <span class="font-semibold text-om-gray-800">10 seconds</span> on the current subpage</div>
+            <div class="trigger-timeline summary-timeline">
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <Timer :size="22" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">Spent on pages</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">The popup will appear to visitors who spent a minimum of <span class="font-semibold text-om-gray-800">10 seconds</span> on the current subpage</div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
-                  <Globe :size="20" class="text-white" />
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-semibold text-om-gray-700">Current page / URL</div>
-                  <div class="text-xs text-om-gray-500 mt-0.5">URL or its subpaths contains <span class="font-semibold text-om-gray-800">cart</span>, <span class="font-semibold text-om-gray-800">shop_cart</span>, <span class="font-semibold text-om-gray-800">shop_reg</span>, or <span class="font-semibold text-om-gray-800">shop_category</span></div>
+              <div class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <Globe :size="22" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">Current page / URL</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">URL or its subpaths contains <span class="font-semibold text-om-gray-800">cart</span>, <span class="font-semibold text-om-gray-800">shop_cart</span>, <span class="font-semibold text-om-gray-800">shop_reg</span>, or <span class="font-semibold text-om-gray-800">shop_category</span></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -328,8 +346,8 @@
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5 cursor-pointer hover:shadow-[0_2px_8px_2px_rgb(0_0_0/0.07)] transition-shadow" @click="openSettingsAccordion('sendData')">
             <h3 class="text-base font-semibold text-om-gray-700 mb-4">Integrations</h3>
             <div class="flex items-center gap-3">
-              <div class="w-9 h-9 bg-[#FFE01B] rounded flex items-center justify-center shrink-0">
-                <img src="/icons/mailchimp.svg" alt="Mailchimp" class="w-5 h-5" />
+              <div class="w-10 h-10 bg-[#FFE01B] rounded-xl flex items-center justify-center shrink-0">
+                <img src="/icons/mailchimp.svg" alt="Mailchimp" class="w-6 h-6" />
               </div>
               <span class="text-sm font-medium text-om-gray-700">Mailchimp</span>
             </div>
@@ -473,439 +491,21 @@
         </div>
 
         <!-- Analytics Tab Content -->
-        <div v-if="activeTab === 'Analytics'" class="space-y-5 pb-40">
-          <!-- Filters bar -->
-          <div class="flex items-center justify-between gap-4 flex-wrap">
-            <!-- Segments + predefined filter chips + Add filter + Save as segment -->
-            <div class="flex items-center gap-2 flex-wrap">
-              <!-- Segments button -->
-              <div class="relative">
-                <button
-                  @click="toggleSegmentsDropdown"
-                  :class="['px-3 h-10 flex items-center gap-1.5 rounded-lg text-sm cursor-pointer transition-all duration-200 ease-out', showSegmentsDropdown ? 'bg-om-gray-200 text-om-gray-700' : 'bg-om-gray-100 text-om-gray-500 hover:bg-om-gray-200 hover:text-om-gray-700']"
-                >
-                  <Users :size="16" />
-                  <span class="text-om-gray-700">{{ activeSegmentName }}</span>
-                  <ChevronDown :size="14" class="text-om-gray-400" />
-                </button>
-                <div v-if="showSegmentsDropdown" class="fixed inset-0 z-10" @click="closeSegmentsDropdown" />
-                <div v-if="showSegmentsDropdown" class="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-20 w-[300px]">
-                  <div class="py-1 max-h-[280px] overflow-y-auto">
-                    <div
-                      :class="['w-full px-3 py-2 hover:bg-om-gray-50 transition-colors flex items-center gap-2 cursor-pointer', activeSegmentName === 'All visitors' ? 'bg-om-gray-50' : '']"
-                      @click="loadAllVisitors"
-                    >
-                      <Users :size="14" class="text-om-gray-400 shrink-0" />
-                      <div class="flex-1 min-w-0">
-                        <div class="text-sm text-om-gray-700 truncate">All visitors</div>
-                        <div class="text-xs text-om-gray-400 truncate">No filters</div>
-                      </div>
-                    </div>
-                    <div
-                      v-for="seg in savedSegments"
-                      :key="seg.id"
-                      :class="['group w-full px-3 py-2 hover:bg-om-gray-50 transition-colors flex items-center gap-2 cursor-pointer', activeSegmentName === seg.name ? 'bg-om-gray-50' : '']"
-                      @click="loadSegment(seg)"
-                    >
-                      <Users :size="14" class="text-om-gray-400 shrink-0" />
-                      <div class="flex-1 min-w-0">
-                        <div class="text-sm text-om-gray-700 truncate">{{ seg.name }}</div>
-                        <div class="text-xs text-om-gray-400 truncate">{{ seg.filters.length }} filter{{ seg.filters.length > 1 ? 's' : '' }}</div>
-                      </div>
-                      <button
-                        class="w-6 h-6 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 hover:bg-om-gray-200 text-om-gray-400 hover:text-om-gray-700 transition-all shrink-0"
-                        @click.stop="deleteSegment(seg.id)"
-                      >
-                        <Trash2 :size="14" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Predefined filter chips -->
-              <div
-                v-for="(f, idx) in predefinedFilters"
-                :key="f.value"
-                class="group relative flex items-center"
-              >
-                <button
-                  @click="editFilter(f, idx)"
-                  class="inline-flex items-center gap-1.5 px-3 h-10 rounded-lg bg-om-orange-100 text-om-orange-600 text-sm font-medium cursor-pointer hover:bg-om-orange-200 transition-colors"
-                >
-                  {{ f.label }}
-                  <span class="inline-flex items-center overflow-hidden transition-all duration-200 ease-out w-0 group-hover:w-4 group-hover:ml-1">
-                    <X
-                      :size="14"
-                      class="shrink-0 text-om-orange-400 hover:text-om-orange-700"
-                      @click.stop="removePredefinedFilter(f.value)"
-                    />
-                  </span>
-                </button>
-                <div v-if="showAddFilterDropdown && editingFilterIndex === idx" class="fixed inset-0 z-10" @click="closeFilterDropdown" />
-                <div v-if="showAddFilterDropdown && editingFilterIndex === idx" class="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-20 w-[280px]">
-                  <div class="px-3 pt-3 pb-2">
-                    <div class="flex items-center gap-2 mb-2">
-                      <span class="text-xs font-medium text-om-gray-400 uppercase tracking-wide">{{ selectedFilterCategory?.label }}</span>
-                    </div>
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                      <button
-                        v-for="cond in filterConditions"
-                        :key="cond.value"
-                        @click="selectedFilterCondition = cond.value"
-                        :class="['px-2.5 py-1 rounded-md text-xs cursor-pointer transition-all duration-150', selectedFilterCondition === cond.value ? 'bg-om-gray-200 text-om-gray-700 font-medium' : 'bg-om-gray-100 text-om-gray-500 hover:bg-om-gray-200']"
-                      >{{ cond.label }}</button>
-                    </div>
-                  </div>
-                  <div v-if="showValuesSearch" class="px-3 pb-2">
-                    <div class="relative">
-                      <Search :size="14" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-om-gray-400 pointer-events-none" />
-                      <input v-model="filterDropdownSearch" type="text" :placeholder="`Search ${selectedFilterCategory?.label.toLowerCase()}...`" class="w-full pl-8 pr-3 h-8 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300" />
-                    </div>
-                  </div>
-                  <div v-if="isFreeTextMode" class="px-3 pt-2 pb-1">
-                    <div class="flex gap-1.5">
-                      <input v-model="freeTextInput" type="text" placeholder="Type a value..." class="flex-1 px-2.5 h-8 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300" @keydown.enter="addFreeTextValue" />
-                      <button @click="addFreeTextValue" class="px-2.5 h-8 rounded-lg bg-om-gray-100 text-om-gray-500 text-sm hover:bg-om-gray-200 transition-colors">Add</button>
-                    </div>
-                    <div v-if="filterDropdownSelected.length > 0" class="flex flex-wrap gap-1.5 mt-2">
-                      <span v-for="val in filterDropdownSelected" :key="val" class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-om-orange-100 text-om-orange-600 text-xs font-medium">
-                        {{ val }}
-                        <X :size="12" class="cursor-pointer hover:text-om-orange-700" @click="toggleFilterValue(val)" />
-                      </span>
-                    </div>
-                  </div>
-                  <div class="py-1">
-                    <label v-for="val in filteredValues" :key="val" class="w-full px-3 py-2 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors flex items-center gap-2.5 cursor-pointer">
-                      <Checkbox :model-value="filterDropdownSelected.includes(val)" size="sm" @update:model-value="toggleFilterValue(val)" />
-                      <span>{{ val }}</span>
-                    </label>
-                  </div>
-                  <div v-if="filterDropdownSelected.length > 0" class="px-3 py-2 border-t border-om-gray-100">
-                    <Button variant="primary" size="sm" class="w-full" @click="applyDropdownFilter">
-                      Apply {{ filterDropdownSelected.length }} filter{{ filterDropdownSelected.length > 1 ? 's' : '' }}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Add filter button -->
-              <div class="relative">
-                <button
-                  @click="toggleFilterDropdown"
-                  :class="['px-3 h-10 flex items-center gap-1.5 rounded-lg text-sm cursor-pointer transition-all duration-200 ease-out', showAddFilterDropdown && editingFilterIndex === null ? 'bg-om-gray-200 text-om-gray-700' : 'bg-om-gray-100 text-om-gray-500 hover:bg-om-gray-200 hover:text-om-gray-700']"
-                >
-                  <Plus :size="16" />
-                  <span class="text-om-gray-700">Filter</span>
-                </button>
-                <div v-if="showAddFilterDropdown && editingFilterIndex === null" class="fixed inset-0 z-10" @click="closeFilterDropdown" />
-                <div v-if="showAddFilterDropdown && editingFilterIndex === null" class="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-20 w-[280px]">
-                  <div v-if="filterDropdownStep === 'values'" class="px-3 pt-3 pb-2">
-                    <div class="flex items-center gap-2 mb-2">
-                      <button @click="filterDropdownStep = 'categories'" class="w-6 h-6 flex items-center justify-center rounded hover:bg-om-gray-100 text-om-gray-400 transition-colors">
-                        <ChevronLeft :size="16" />
-                      </button>
-                      <span class="text-xs font-medium text-om-gray-400 uppercase tracking-wide">{{ selectedFilterCategory?.label }}</span>
-                    </div>
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                      <button v-for="cond in filterConditions" :key="cond.value" @click="selectedFilterCondition = cond.value" :class="['px-2.5 py-1 rounded-md text-xs cursor-pointer transition-all duration-150', selectedFilterCondition === cond.value ? 'bg-om-gray-200 text-om-gray-700 font-medium' : 'bg-om-gray-100 text-om-gray-500 hover:bg-om-gray-200']">{{ cond.label }}</button>
-                    </div>
-                  </div>
-                  <div v-if="filterDropdownStep === 'categories' || showValuesSearch" class="px-3 pt-3 pb-2">
-                    <div class="relative">
-                      <Search :size="14" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-om-gray-400 pointer-events-none" />
-                      <input v-model="filterDropdownSearch" type="text" :placeholder="filterDropdownStep === 'categories' ? 'Search filters...' : `Search ${selectedFilterCategory?.label.toLowerCase()}...`" class="w-full pl-8 pr-3 h-8 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300" />
-                    </div>
-                  </div>
-                  <div v-if="filterDropdownStep === 'categories'" class="py-1">
-                    <button v-for="cat in filteredCategories" :key="cat.value" @click="selectFilterCategory(cat)" class="w-full px-3 py-2 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors flex items-center gap-2">
-                      <component :is="cat.icon" :size="16" class="text-om-gray-400 shrink-0" />
-                      {{ cat.label }}
-                    </button>
-                  </div>
-                  <div v-if="filterDropdownStep === 'values' && isFreeTextMode" class="px-3 py-2">
-                    <div class="flex gap-1.5">
-                      <input v-model="freeTextInput" type="text" placeholder="Type a value..." class="flex-1 px-2.5 h-8 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300" @keydown.enter="addFreeTextValue" />
-                      <button @click="addFreeTextValue" class="px-2.5 h-8 rounded-lg bg-om-gray-100 text-om-gray-500 text-sm hover:bg-om-gray-200 transition-colors">Add</button>
-                    </div>
-                    <div v-if="filterDropdownSelected.length > 0" class="flex flex-wrap gap-1.5 mt-2">
-                      <span v-for="val in filterDropdownSelected" :key="val" class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-om-orange-100 text-om-orange-600 text-xs font-medium">
-                        {{ val }}
-                        <X :size="12" class="cursor-pointer hover:text-om-orange-700" @click="toggleFilterValue(val)" />
-                      </span>
-                    </div>
-                  </div>
-                  <div v-if="filterDropdownStep === 'values' && !isFreeTextMode" class="py-1">
-                    <label v-for="val in filteredValues" :key="val" class="w-full px-3 py-2 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors flex items-center gap-2.5 cursor-pointer">
-                      <Checkbox :model-value="filterDropdownSelected.includes(val)" size="sm" @update:model-value="toggleFilterValue(val)" />
-                      <span>{{ val }}</span>
-                    </label>
-                  </div>
-                  <div v-if="filterDropdownStep === 'values' && filterDropdownSelected.length > 0" class="px-3 py-2 border-t border-om-gray-100">
-                    <Button variant="primary" size="sm" class="w-full" @click="applyDropdownFilter">
-                      Apply {{ filterDropdownSelected.length }} filter{{ filterDropdownSelected.length > 1 ? 's' : '' }}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Save as segment button -->
-              <div v-if="predefinedFilters.length > 0" class="relative">
-                <button
-                  @click="toggleSaveSegmentPopover"
-                  :class="['px-3 h-10 flex items-center gap-1.5 rounded-lg text-sm cursor-pointer transition-all duration-200 ease-out', showSaveSegmentPopover ? 'bg-om-gray-200 text-om-gray-700' : 'bg-om-gray-100 text-om-gray-500 hover:bg-om-gray-200 hover:text-om-gray-700']"
-                >
-                  <Save :size="16" />
-                  <span class="text-om-gray-700">Save as segment</span>
-                </button>
-                <div v-if="showSaveSegmentPopover" class="fixed inset-0 z-10" @click="closeSaveSegmentPopover" />
-                <div v-if="showSaveSegmentPopover" class="absolute top-full right-0 mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-20 w-[300px] p-3">
-                  <div class="text-xs font-medium text-om-gray-400 uppercase tracking-wide mb-2">Save current filters</div>
-                  <div class="flex gap-1.5">
-                    <input v-model="newSegmentName" type="text" placeholder="Segment name..." class="flex-1 px-2.5 h-8 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300" @keydown.enter="saveCurrentAsSegment" />
-                    <Button variant="primary" size="sm" :disabled="!newSegmentName.trim()" @click="saveCurrentAsSegment">Save</Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Time period -->
-            <div style="width: 208px">
-              <Dropdown key="analytics-time-period" v-model="analyticsTimePeriod" :options="timePeriodOptions">
-                <template #icon><Calendar :size="18" class="text-om-gray-400" /></template>
-              </Dropdown>
-            </div>
-          </div>
-
-          <!-- Trend Chart -->
-          <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] px-5 pb-5">
-            <div class="flex items-stretch border-b border-om-gray-200 mb-4">
-              <button
-                v-for="tab in analyticsTabs"
-                :key="tab.id"
-                class="flex-1 min-w-35 text-left px-3 py-5 border-b-[3px] transition-all duration-200 cursor-pointer"
-                :class="analyticsMetric === tab.id ? 'border-om-orange-500' : 'border-transparent hover:bg-om-gray-50'"
-                @click="analyticsMetric = tab.id"
-              >
-                <div class="text-xs font-medium text-om-gray-600/80 mb-2.5">{{ tab.title }}</div>
-                <div class="flex items-baseline gap-2">
-                  <div class="text-base font-medium text-om-gray-600">{{ tab.value }}</div>
-                  <div class="text-[11px] font-normal text-[#239E77] flex items-center gap-1">
-                    <TrendingUp :size="12" /> {{ tab.change }}
-                  </div>
-                </div>
-              </button>
-            </div>
-            <VueApexCharts
-              :key="analyticsMetric"
-              type="area"
-              height="280"
-              :options="analyticsChartOptions"
-              :series="analyticsChartSeries"
-            />
-          </div>
-
-          <!-- Insights (Top Optimization Opportunities) -->
-          <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5">
-            <div class="flex items-center justify-between pr-5 pl-8 mb-4">
-              <h2 class="text-xl font-semibold text-om-gray-700">Insights</h2>
-              <button class="text-sm font-medium text-om-gray-500 hover:text-om-gray-700 transition-colors cursor-pointer">View all</button>
-            </div>
-            <div class="flex flex-col px-5">
-              <div
-                v-for="opp in analyticsInsights"
-                :key="opp.id"
-                class="flex items-center justify-between gap-4 px-3 py-3 cursor-pointer hover:bg-om-gray-100 rounded-lg transition-colors relative"
-              >
-                <div class="flex-1 min-w-0 flex flex-col gap-1">
-                  <div class="flex items-center gap-2.5">
-                    <div class="text-sm font-medium text-om-gray-700">{{ opp.name }}</div>
-                    <div
-                      :class="['text-xs font-normal px-2 py-0.5 rounded-full whitespace-nowrap shrink-0', opp.level === 'high' ? 'bg-[#FFF0EB] text-[#C94B14]' : 'bg-[#FFF8E6] text-[#9A6400]']"
-                    >{{ opp.value }}</div>
-                  </div>
-                  <div class="text-[0.8125rem] text-om-gray-500 leading-snug">{{ opp.description }}</div>
-                </div>
-                <ChevronRight :size="16" class="text-om-gray-300 shrink-0" />
-              </div>
-            </div>
-          </div>
-
-          <!-- Devices + New vs Returning Row -->
-          <div class="grid grid-cols-1 min-[1200px]:grid-cols-2 gap-6">
-            <!-- Devices -->
-            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5 overflow-hidden min-w-0">
-              <h2 class="text-xl font-semibold text-om-gray-700 mb-5 px-8">Devices</h2>
-              <!-- Header row -->
-              <div class="flex items-center h-10 border-b border-om-gray-200">
-                <div class="flex-[0_0_40%] min-w-0 max-w-[40%] flex items-center">
-                  <div class="w-full py-3 px-8 text-[13px] font-normal text-om-gray-500">Device type</div>
-                </div>
-                <div class="flex-[0_0_60%] min-w-0 max-w-[60%] flex items-center">
-                  <div class="flex-1 py-3 px-4 text-right text-[13px] font-normal text-om-gray-500">Impressions</div>
-                  <div class="flex-1 py-3 px-4 text-right text-[13px] font-normal text-om-gray-500">Submits</div>
-                  <div class="flex-1 py-3 px-4 pr-8 text-right text-[13px] font-normal text-om-gray-500">Submit rate</div>
-                </div>
-              </div>
-              <!-- Data rows -->
-              <div
-                v-for="d in analyticsDevices"
-                :key="d.type"
-                class="flex items-center h-11 border-b border-[#F3F4F6] cursor-pointer hover:bg-[#F9FAFB] transition-colors"
-              >
-                <div class="flex-[0_0_40%] min-w-0 max-w-[40%] flex items-center">
-                  <div class="w-full px-8 flex items-center min-w-0">
-                    <span class="text-[13px] text-om-gray-700 truncate">{{ d.type }}</span>
-                  </div>
-                </div>
-                <div class="flex-[0_0_60%] min-w-0 max-w-[60%] flex items-center">
-                  <div class="flex-1 px-4 text-right text-[13px] text-om-gray-700 tabular-nums">{{ d.impressions.toLocaleString() }}</div>
-                  <div class="flex-1 px-4 text-right text-[13px] text-om-gray-700 tabular-nums">{{ d.submits }}</div>
-                  <div class="flex-1 px-4 pr-8 text-right text-[13px] text-om-gray-700 tabular-nums">{{ d.submitRate }}</div>
-                </div>
-              </div>
-              <!-- Devices chart -->
-              <div class="px-5 pt-2">
-                <VueApexCharts type="bar" height="120" :options="devicesChartOptions" :series="devicesChartSeries" />
-              </div>
-            </div>
-
-            <!-- New vs Returning -->
-            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5 overflow-hidden min-w-0">
-              <h2 class="text-xl font-semibold text-om-gray-700 mb-5 px-8">New vs Returning Visitors</h2>
-              <div class="flex items-center h-10 border-b border-om-gray-200">
-                <div class="flex-[0_0_40%] min-w-0 max-w-[40%] flex items-center">
-                  <div class="w-full py-3 px-8 text-[13px] font-normal text-om-gray-500">Visitor type</div>
-                </div>
-                <div class="flex-[0_0_60%] min-w-0 max-w-[60%] flex items-center">
-                  <div class="flex-1 py-3 px-4 text-right text-[13px] font-normal text-om-gray-500">Impressions</div>
-                  <div class="flex-1 py-3 px-4 text-right text-[13px] font-normal text-om-gray-500">Submits</div>
-                  <div class="flex-1 py-3 px-4 pr-8 text-right text-[13px] font-normal text-om-gray-500">Submit rate</div>
-                </div>
-              </div>
-              <div
-                v-for="v in analyticsVisitorTypes"
-                :key="v.type"
-                class="flex items-center h-11 border-b border-[#F3F4F6] cursor-pointer hover:bg-[#F9FAFB] transition-colors"
-              >
-                <div class="flex-[0_0_40%] min-w-0 max-w-[40%] flex items-center">
-                  <div class="w-full px-8 flex items-center min-w-0">
-                    <span class="text-[13px] text-om-gray-700 truncate">{{ v.type }}</span>
-                  </div>
-                </div>
-                <div class="flex-[0_0_60%] min-w-0 max-w-[60%] flex items-center">
-                  <div class="flex-1 px-4 text-right text-[13px] text-om-gray-700 tabular-nums">{{ v.impressions.toLocaleString() }}</div>
-                  <div class="flex-1 px-4 text-right text-[13px] text-om-gray-700 tabular-nums">{{ v.submits }}</div>
-                  <div class="flex-1 px-4 pr-8 text-right text-[13px] text-om-gray-700 tabular-nums">{{ v.submitRate }}</div>
-                </div>
-              </div>
-              <!-- Visitor types chart -->
-              <div class="px-5 pt-2">
-                <VueApexCharts type="bar" height="120" :options="visitorTypesChartOptions" :series="visitorTypesChartSeries" />
-              </div>
-            </div>
-          </div>
-
-          <!-- Countries + Pages Row -->
-          <div class="grid grid-cols-1 min-[1200px]:grid-cols-2 gap-6">
-            <!-- Countries -->
-            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5 overflow-hidden min-w-0">
-              <div class="flex items-center justify-between mb-5 px-8">
-                <h2 class="text-xl font-semibold text-om-gray-700">Countries</h2>
-                <button class="px-5 py-2 rounded-lg text-sm font-medium text-om-gray-600 hover:bg-om-gray-100 hover:text-om-gray-700 transition-all cursor-pointer">View All</button>
-              </div>
-              <div class="flex items-center h-10 border-b border-om-gray-200">
-                <div class="flex-[0_0_40%] min-w-0 max-w-[40%] flex items-center">
-                  <div class="w-full py-3 px-8 text-[13px] font-normal text-om-gray-500">Country</div>
-                </div>
-                <div class="flex-[0_0_60%] min-w-0 max-w-[60%] flex items-center">
-                  <div class="flex-1 py-3 px-4 text-right text-[13px] font-normal text-om-gray-500">Impressions</div>
-                  <div class="flex-1 py-3 px-4 text-right text-[13px] font-normal text-om-gray-500">Submits</div>
-                  <div class="flex-1 py-3 px-4 pr-8 text-right text-[13px] font-normal text-om-gray-500">Submit rate</div>
-                </div>
-              </div>
-              <div
-                v-for="c in analyticsCountries"
-                :key="c.name"
-                class="flex items-center h-11 border-b border-[#F3F4F6] cursor-pointer hover:bg-[#F9FAFB] transition-colors"
-              >
-                <div class="flex-[0_0_40%] min-w-0 max-w-[40%] flex items-center">
-                  <div class="w-full px-8 flex items-center gap-2 min-w-0">
-                    <img v-if="getFlagUrl(c.name)" :src="getFlagUrl(c.name)" :alt="c.name" class="w-5 h-5 rounded-full object-cover shrink-0 ring-1 ring-om-gray-200" />
-                    <span class="text-[13px] text-om-gray-700 truncate">{{ c.name }}</span>
-                  </div>
-                </div>
-                <div class="flex-[0_0_60%] min-w-0 max-w-[60%] flex items-center">
-                  <div class="flex-1 px-4 text-right text-[13px] text-om-gray-700 tabular-nums">{{ c.impressions.toLocaleString() }}</div>
-                  <div class="flex-1 px-4 text-right text-[13px] text-om-gray-700 tabular-nums">{{ c.submits }}</div>
-                  <div class="flex-1 px-4 pr-8 text-right text-[13px] text-om-gray-700 tabular-nums">{{ c.submitRate }}</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Visited pages -->
-            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5 overflow-hidden min-w-0">
-              <div class="flex items-center justify-between mb-5 px-8">
-                <h2 class="text-xl font-semibold text-om-gray-700">Visited Pages</h2>
-                <button class="px-5 py-2 rounded-lg text-sm font-medium text-om-gray-600 hover:bg-om-gray-100 hover:text-om-gray-700 transition-all cursor-pointer">View All</button>
-              </div>
-              <div class="flex items-center h-10 border-b border-om-gray-200">
-                <div class="flex-[0_0_40%] min-w-0 max-w-[40%] flex items-center">
-                  <div class="w-full py-3 px-8 text-[13px] font-normal text-om-gray-500">Page</div>
-                </div>
-                <div class="flex-[0_0_60%] min-w-0 max-w-[60%] flex items-center">
-                  <div class="flex-1 py-3 px-4 text-right text-[13px] font-normal text-om-gray-500">Impressions</div>
-                  <div class="flex-1 py-3 px-4 text-right text-[13px] font-normal text-om-gray-500">Submits</div>
-                  <div class="flex-1 py-3 px-4 pr-8 text-right text-[13px] font-normal text-om-gray-500">Submit rate</div>
-                </div>
-              </div>
-              <div
-                v-for="p in analyticsPages"
-                :key="p.url"
-                class="flex items-center h-11 border-b border-[#F3F4F6] cursor-pointer hover:bg-[#F9FAFB] transition-colors"
-              >
-                <div class="flex-[0_0_40%] min-w-0 max-w-[40%] flex items-center">
-                  <div class="w-full px-8 flex items-center min-w-0">
-                    <span class="text-[13px] text-om-gray-700 truncate">{{ p.url }}</span>
-                  </div>
-                </div>
-                <div class="flex-[0_0_60%] min-w-0 max-w-[60%] flex items-center">
-                  <div class="flex-1 px-4 text-right text-[13px] text-om-gray-700 tabular-nums">{{ p.impressions.toLocaleString() }}</div>
-                  <div class="flex-1 px-4 text-right text-[13px] text-om-gray-700 tabular-nums">{{ p.submits }}</div>
-                  <div class="flex-1 px-4 pr-8 text-right text-[13px] text-om-gray-700 tabular-nums">{{ p.submitRate }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <CampaignAnalyticsTab v-if="activeTab === 'Analytics'" />
 
         <!-- Settings Tab Content -->
         <div v-if="activeTab === 'Settings'" class="space-y-4 pb-40">
-          <!-- Primary goal -->
-          <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pl-4 pr-7 py-4 flex items-center justify-between gap-6">
-            <div class="flex items-center gap-3 flex-1 min-w-0">
-              <div class="w-10 h-10 rounded-xl bg-om-orange-100 flex items-center justify-center shrink-0">
-                <Target :size="20" class="text-om-orange-400" />
-              </div>
-              <div class="flex-1 min-w-0">
-                <h3 class="text-lg font-semibold text-om-gray-700 leading-tight">Primary goal</h3>
-                <p class="text-sm text-om-gray-500 mt-0.5">The main conversion event used to measure this campaign's success. Reports and variant comparisons default to this metric.</p>
-              </div>
-            </div>
-            <div class="w-64 shrink-0">
-              <Dropdown v-model="primaryGoal" :options="goalValues" />
-            </div>
-          </div>
-
           <!-- When would you like this campaign to show up? -->
           <Accordion
-            title="When would you like this campaign to show up?"
+            id="settings-showUp"
+            title="Triggering"
+            subtitle="When would you like this campaign to show up?"
             :open="openAccordion === 'showUp'"
             @toggle="toggleAccordion('showUp')"
             icon-rounded="rounded-xl"
             icon-bg="bg-om-orange-100"
           >
-              <template #icon><Clock :size="20" class="text-om-orange-400" /></template>
+              <template #icon><Zap :size="20" class="text-om-orange-400" /></template>
               <!-- Trigger Timeline -->
               <div class="trigger-timeline">
                 <!-- First trigger: On exit-intent -->
@@ -961,7 +561,9 @@
 
           <!-- How many times should this campaign appear? -->
           <Accordion
-            title="How many times should this campaign appear?"
+            id="settings-howMany"
+            title="Frequency"
+            subtitle="How many times should this campaign appear?"
             :open="openAccordion === 'howMany'"
             @toggle="toggleAccordion('howMany')"
             icon-rounded="rounded-xl"
@@ -1035,7 +637,9 @@
 
           <!-- Who should see this campaign? -->
           <Accordion
-            title="Who should see this campaign?"
+            id="settings-whoSee"
+            title="Targeting"
+            subtitle="Who should see this campaign?"
             :open="openAccordion === 'whoSee'"
             @toggle="toggleAccordion('whoSee')"
             icon-rounded="rounded-xl"
@@ -1046,12 +650,12 @@
               <div class="trigger-timeline-item">
                 <div class="trigger-card">
                   <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
+                    <div class="w-12 h-12 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
                       <Timer :size="28" class="text-white" />
                     </div>
                     <div class="flex-1">
                       <div class="text-sm font-semibold text-om-gray-700">Spent on pages</div>
-                      <div class="text-xs text-om-gray-500 mt-0.5">The popup will appear to visitors who spent a minimum of <span class="font-semibold text-om-gray-800">10 seconds</span> on the current subpage</div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">The popup will appear to visitors who spent a minimum of <span class="font-semibold text-om-gray-800">10 seconds</span> on the current subpage</div>
                     </div>
                   </div>
                 </div>
@@ -1059,12 +663,12 @@
               <div class="trigger-timeline-item">
                 <div class="trigger-card">
                   <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-om-orange-400 rounded flex items-center justify-center shrink-0">
+                    <div class="w-12 h-12 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
                       <Globe :size="28" class="text-white" />
                     </div>
                     <div class="flex-1">
                       <div class="text-sm font-semibold text-om-gray-700">Current page / URL</div>
-                      <div class="text-xs text-om-gray-500 mt-0.5">URL or its subpaths contains <span class="font-semibold text-om-gray-800">cart</span>, <span class="font-semibold text-om-gray-800">shop_cart</span>, <span class="font-semibold text-om-gray-800">shop_reg</span>, or <span class="font-semibold text-om-gray-800">shop_category</span></div>
+                      <div class="text-sm text-om-gray-500 mt-0.5">URL or its subpaths contains <span class="font-semibold text-om-gray-800">cart</span>, <span class="font-semibold text-om-gray-800">shop_cart</span>, <span class="font-semibold text-om-gray-800">shop_reg</span>, or <span class="font-semibold text-om-gray-800">shop_category</span></div>
                     </div>
                   </div>
                 </div>
@@ -1081,7 +685,9 @@
 
           <!-- Where you would like to send the subscribers and campaign data? -->
           <Accordion
-            title="Where you would like to send the subscribers and campaign data?"
+            id="settings-sendData"
+            title="Integrations"
+            subtitle="Where you would like to send the subscribers and campaign data?"
             :open="openAccordion === 'sendData'"
             @toggle="toggleAccordion('sendData')"
             icon-rounded="rounded-xl"
@@ -1089,7 +695,7 @@
           >
             <template #icon><Send :size="20" class="text-om-orange-400" /></template>
             <div class="flex items-center gap-3">
-              <div class="w-12 h-12 bg-[#FFE01B] rounded flex items-center justify-center">
+              <div class="w-12 h-12 bg-[#FFE01B] rounded-xl flex items-center justify-center">
                 <img src="/icons/mailchimp.svg" alt="Mailchimp" class="w-7 h-7" />
               </div>
               <span class="text-sm font-medium text-om-gray-700">Mailchimp</span>
@@ -1102,21 +708,78 @@
             </div>
           </Accordion>
 
-          <!-- Email Notification Toggle -->
-          <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pl-4 pr-7 py-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-om-orange-100 flex items-center justify-center shrink-0">
-                  <Mail :size="20" class="text-om-orange-400" />
-                </div>
-                <div>
-                  <h4 class="text-lg font-semibold text-om-gray-700">Email notification</h4>
-                  <p class="text-sm text-om-gray-500 mt-1">Get notified when someone submits this campaign</p>
-                </div>
-              </div>
+          <!-- Primary goal -->
+          <Accordion
+            id="settings-goal"
+            title="Primary goal"
+            subtitle="The main conversion event used to measure this campaign's success"
+            :open="openAccordion === 'goal'"
+            @toggle="toggleAccordion('goal')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
+          >
+            <template #icon><Target :size="20" class="text-om-orange-400" /></template>
+            <p class="text-sm text-om-gray-500 mb-3">Reports and variant comparisons default to this metric.</p>
+            <div class="w-64">
+              <Dropdown v-model="primaryGoal" :options="goalValues" />
+            </div>
+          </Accordion>
+
+          <!-- Email notification -->
+          <Accordion
+            id="settings-emailNotification"
+            title="Email notification"
+            subtitle="Get notified when someone submits this campaign"
+            :open="openAccordion === 'emailNotification'"
+            @toggle="toggleAccordion('emailNotification')"
+            icon-rounded="rounded-xl"
+            icon-bg="bg-om-orange-100"
+          >
+            <template #icon><Mail :size="20" class="text-om-orange-400" /></template>
+            <div class="flex items-center gap-3">
+              <h4 class="text-base font-semibold text-om-gray-700">Send email notifications</h4>
               <ToggleSwitch v-model="emailNotification" />
             </div>
-          </div>
+
+            <div v-if="emailNotification" class="mt-5">
+              <div v-if="notificationEmails.length" class="flex flex-wrap gap-2 mb-4">
+                <Tag
+                  v-for="entry in notificationEmails"
+                  :key="entry.email"
+                  variant="gray"
+                  :class="entry.status === 'pending' ? 'text-om-gray-600!' : ''"
+                >
+                  <template v-if="entry.status === 'pending'" #icon>
+                    <Hourglass :size="12" />
+                  </template>
+                  <span>{{ entry.email }}</span>
+                  <button
+                    type="button"
+                    class="ml-1 -mr-1 inline-flex items-center justify-center cursor-pointer opacity-70 hover:opacity-100"
+                    @click="removeNotificationEmail(entry.email)"
+                  >
+                    <X :size="12" />
+                  </button>
+                </Tag>
+              </div>
+
+              <div class="flex items-end gap-2">
+                <div class="w-80">
+                  <FormInput
+                    v-model="newNotificationEmail"
+                    label="Send notifications to"
+                    type="email"
+                    placeholder="Add email address"
+                    @keydown.enter.prevent="addNotificationEmail"
+                  />
+                </div>
+                <Button variant="primary" size="md" @click="addNotificationEmail">
+                  <template #icon><Plus :size="16" /></template>
+                  Add
+                </Button>
+              </div>
+            </div>
+          </Accordion>
         </div>
       </div>
     </template>
@@ -1284,8 +947,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
-import { ChevronDown, ChevronLeft, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Trash2, Save, MousePointerClick, Languages, Laptop, AppWindow } from 'lucide-vue-next'
+import { ref, reactive, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Trash2, Save, MousePointerClick, Languages, Laptop, AppWindow, Ban, Hourglass } from 'lucide-vue-next'
 import Button from '../components/shared/Button.vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
@@ -1297,12 +960,16 @@ import { VueDatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import ScrollTimePicker from '../components/shared/ScrollTimePicker.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
+import EditableTitle from '../components/shared/EditableTitle.vue'
 import Tag from '../components/shared/Tag.vue'
+import FormInput from '../components/shared/FormInput.vue'
 import VueApexCharts from 'vue3-apexcharts'
+import CampaignAnalyticsTab from '../components/shared/CampaignAnalyticsTab.vue'
 
 const emit = defineEmits(['menu-click', 'navigate'])
 
 const isChatOpen = ref(false)
+const campaignName = ref('Lucky Wheel')
 
 const chatSuggestions = [
   'How is this campaign performing?',
@@ -1329,6 +996,24 @@ const isActive = ref(true)
 // Settings tab - Accordion state
 const openAccordion = ref(null)
 const emailNotification = ref(false)
+const notificationEmails = ref([
+  { email: 'product@optimonk.com', status: 'accepted' },
+])
+const newNotificationEmail = ref('')
+
+const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+
+const addNotificationEmail = () => {
+  const email = newNotificationEmail.value.trim()
+  if (email && isValidEmail(email) && !notificationEmails.value.some(e => e.email === email)) {
+    notificationEmails.value.push({ email, status: 'pending' })
+  }
+  newNotificationEmail.value = ''
+}
+
+const removeNotificationEmail = (email) => {
+  notificationEmails.value = notificationEmails.value.filter(e => e.email !== email)
+}
 
 // How many times accordion state
 const frequencyType = ref('maximum')
@@ -1346,6 +1031,9 @@ const toggleAccordion = (section) => {
 const openSettingsAccordion = (section) => {
   activeTab.value = 'Settings'
   openAccordion.value = section
+  nextTick(() => {
+    document.getElementById(`settings-${section}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
 }
 
 // Tab routing — each tab gets its own URL
@@ -1438,408 +1126,6 @@ const tooltipStyle = computed(() => {
 const selectedTimePeriod = ref('Last 30 days')
 const timePeriodOptions = ['Last 7 days', 'Last 30 days', 'Last 90 days', 'Last 12 months']
 
-// Analytics tab — visitor segments & filters
-const predefinedFilters = reactive([])
-const activePredefinedFilter = ref(null)
-const showAddFilterDropdown = ref(false)
-const filterDropdownStep = ref('categories')
-const filterDropdownSearch = ref('')
-const selectedFilterCategory = ref(null)
-const filterDropdownSelected = ref([])
-const editingFilterIndex = ref(null)
-const freeTextInput = ref('')
-const selectedFilterCondition = ref('is')
-
-const allFilterOptions = [
-  { value: 'device', label: 'Device', icon: Smartphone, values: ['Mobile', 'Desktop', 'Tablet'] },
-  { value: 'traffic-source', label: 'Traffic source', icon: Globe, values: ['Google', 'Facebook', 'Instagram', 'Direct', 'Email', 'TikTok', 'Twitter/X', 'LinkedIn'] },
-  { value: 'country', label: 'Country', icon: Globe, values: ['Hungary', 'United States', 'Germany', 'United Kingdom', 'France', 'Austria', 'Romania', 'Slovakia'] },
-  { value: 'visitor-type', label: 'Visitor type', icon: MousePointerClick, values: ['New visitors', 'Returning visitors'] },
-  { value: 'landing-page', label: 'Landing page', icon: Search, freeText: true, values: ['/home', '/products', '/cart', '/checkout', '/collections/new', '/about', '/contact'] },
-  { value: 'browser-language', label: 'Browser language', icon: Languages, values: ['en', 'hu', 'de', 'fr', 'es', 'ro', 'sk', 'pl'] },
-  { value: 'operating-system', label: 'Operating system', icon: Laptop, values: ['Windows', 'macOS', 'iOS', 'Android', 'Linux'] },
-  { value: 'browser', label: 'Browser', icon: AppWindow, values: ['Chrome', 'Safari', 'Firefox', 'Edge', 'Opera', 'Samsung Internet'] },
-]
-
-const allFilterConditions = [
-  { value: 'is', label: 'Is' },
-  { value: 'is-not', label: 'Is not' },
-  { value: 'contains', label: 'Contains' },
-  { value: 'not-contains', label: 'Does not contain' },
-]
-
-const filteredCategories = computed(() => {
-  const q = filterDropdownSearch.value.toLowerCase()
-  if (!q) return allFilterOptions
-  return allFilterOptions.filter(c => c.label.toLowerCase().includes(q))
-})
-
-const filteredValues = computed(() => {
-  if (!selectedFilterCategory.value) return []
-  const q = filterDropdownSearch.value.toLowerCase()
-  const vals = selectedFilterCategory.value.values
-  if (!q) return vals
-  return vals.filter(v => v.toLowerCase().includes(q))
-})
-
-const filterConditions = computed(() => {
-  const cat = selectedFilterCategory.value
-  if (cat?.freeText) return allFilterConditions
-  return allFilterConditions.filter(c => c.value === 'is' || c.value === 'is-not')
-})
-
-const isFreeTextMode = computed(() => !!selectedFilterCategory.value?.freeText)
-const showValuesSearch = computed(() => {
-  const cat = selectedFilterCategory.value
-  return !isFreeTextMode.value && cat && cat.values.length >= 10
-})
-
-const toggleFilterDropdown = () => {
-  showAddFilterDropdown.value = !showAddFilterDropdown.value
-  if (showAddFilterDropdown.value) {
-    filterDropdownStep.value = 'categories'
-    filterDropdownSearch.value = ''
-    selectedFilterCategory.value = null
-    filterDropdownSelected.value = []
-    editingFilterIndex.value = null
-  }
-}
-const closeFilterDropdown = () => { showAddFilterDropdown.value = false }
-
-const addFreeTextValue = () => {
-  const val = freeTextInput.value.trim()
-  if (val && !filterDropdownSelected.value.includes(val)) filterDropdownSelected.value.push(val)
-  freeTextInput.value = ''
-}
-
-const selectFilterCategory = (cat) => {
-  selectedFilterCategory.value = cat
-  filterDropdownStep.value = 'values'
-  filterDropdownSearch.value = ''
-  filterDropdownSelected.value = []
-  selectedFilterCondition.value = 'is'
-}
-
-const toggleFilterValue = (val) => {
-  const idx = filterDropdownSelected.value.indexOf(val)
-  if (idx >= 0) filterDropdownSelected.value.splice(idx, 1)
-  else filterDropdownSelected.value.push(val)
-}
-
-const buildFilterLabel = (catLabel, condLabel, values) => {
-  const valStr = values.length <= 2 ? values.join(', ') : `${values.length} selected`
-  return `${catLabel} ${condLabel.toLowerCase()} ${valStr}`
-}
-
-const applyDropdownFilter = () => {
-  const cat = selectedFilterCategory.value
-  const cond = allFilterConditions.find(c => c.value === selectedFilterCondition.value)
-  const vals = [...filterDropdownSelected.value]
-  const label = buildFilterLabel(cat.label, cond.label, vals)
-  if (editingFilterIndex.value !== null) {
-    const f = predefinedFilters[editingFilterIndex.value]
-    f.category = cat.value
-    f.condition = selectedFilterCondition.value
-    f.selectedValues = vals
-    f.label = label
-    f.value = `${cat.value}-${selectedFilterCondition.value}-${vals.join(',')}`
-    editingFilterIndex.value = null
-  } else {
-    predefinedFilters.push({
-      value: `${cat.value}-${selectedFilterCondition.value}-${vals.join(',')}`,
-      label,
-      category: cat.value,
-      condition: selectedFilterCondition.value,
-      selectedValues: vals,
-    })
-  }
-  showAddFilterDropdown.value = false
-}
-
-const editFilter = (f, idx) => {
-  editingFilterIndex.value = idx
-  const cat = allFilterOptions.find(o => o.value === f.category)
-  selectedFilterCategory.value = cat
-  selectedFilterCondition.value = f.condition
-  filterDropdownSelected.value = [...f.selectedValues]
-  filterDropdownStep.value = 'values'
-  filterDropdownSearch.value = ''
-  showAddFilterDropdown.value = true
-}
-
-const removePredefinedFilter = (value) => {
-  predefinedFilters.splice(predefinedFilters.findIndex(f => f.value === value), 1)
-  if (activePredefinedFilter.value === value) activePredefinedFilter.value = null
-  if (predefinedFilters.length === 0) activeSegmentName.value = 'All visitors'
-}
-
-// Saved segments
-const savedSegments = ref([
-  {
-    id: 'seg-mobile-hu',
-    name: 'Mobile visitors – Hungary',
-    filters: [
-      { value: 'device-is-Mobile', label: 'Device is Mobile', category: 'device', condition: 'is', selectedValues: ['Mobile'] },
-      { value: 'country-is-Hungary', label: 'Country is Hungary', category: 'country', condition: 'is', selectedValues: ['Hungary'] },
-    ],
-  },
-  {
-    id: 'seg-returning-desktop',
-    name: 'Returning desktop buyers',
-    filters: [
-      { value: 'device-is-Desktop', label: 'Device is Desktop', category: 'device', condition: 'is', selectedValues: ['Desktop'] },
-      { value: 'visitor-type-is-Returning visitors', label: 'Visitor type is Returning visitors', category: 'visitor-type', condition: 'is', selectedValues: ['Returning visitors'] },
-    ],
-  },
-])
-const showSegmentsDropdown = ref(false)
-const showSaveSegmentPopover = ref(false)
-const newSegmentName = ref('')
-const activeSegmentName = ref('All visitors')
-
-const toggleSegmentsDropdown = () => {
-  showSegmentsDropdown.value = !showSegmentsDropdown.value
-  if (showSegmentsDropdown.value) {
-    showAddFilterDropdown.value = false
-    showSaveSegmentPopover.value = false
-  }
-}
-const closeSegmentsDropdown = () => { showSegmentsDropdown.value = false }
-
-const toggleSaveSegmentPopover = () => {
-  showSaveSegmentPopover.value = !showSaveSegmentPopover.value
-  if (showSaveSegmentPopover.value) {
-    newSegmentName.value = ''
-    showAddFilterDropdown.value = false
-    showSegmentsDropdown.value = false
-  }
-}
-const closeSaveSegmentPopover = () => {
-  showSaveSegmentPopover.value = false
-  newSegmentName.value = ''
-}
-const saveCurrentAsSegment = () => {
-  const name = newSegmentName.value.trim()
-  if (!name || predefinedFilters.length === 0) return
-  savedSegments.value.push({
-    id: `seg-${Date.now()}`,
-    name,
-    filters: predefinedFilters.map(f => ({ ...f, selectedValues: [...f.selectedValues] })),
-  })
-  activeSegmentName.value = name
-  newSegmentName.value = ''
-  showSaveSegmentPopover.value = false
-}
-const loadSegment = (seg) => {
-  predefinedFilters.splice(0, predefinedFilters.length,
-    ...seg.filters.map(f => ({ ...f, selectedValues: [...f.selectedValues] }))
-  )
-  activePredefinedFilter.value = null
-  activeSegmentName.value = seg.name
-  showSegmentsDropdown.value = false
-}
-const loadAllVisitors = () => {
-  predefinedFilters.splice(0, predefinedFilters.length)
-  activePredefinedFilter.value = null
-  activeSegmentName.value = 'All visitors'
-  showSegmentsDropdown.value = false
-}
-const deleteSegment = (id) => {
-  const seg = savedSegments.value.find(s => s.id === id)
-  const idx = savedSegments.value.findIndex(s => s.id === id)
-  if (idx >= 0) savedSegments.value.splice(idx, 1)
-  if (seg && activeSegmentName.value === seg.name) {
-    activeSegmentName.value = 'All visitors'
-    predefinedFilters.splice(0, predefinedFilters.length)
-  }
-}
-
-// Analytics tab state
-const analyticsTimePeriod = ref('Last 30 days')
-const analyticsMetric = ref('impressions')
-const analyticsTabs = [
-  { id: 'impressions', title: 'Impressions', value: '1,456', change: '+12.4%', isPositive: true },
-  { id: 'submits', title: 'Submits', value: '125', change: '+8.7%', isPositive: true },
-  { id: 'submitRate', title: 'Submit rate', value: '8.37%', change: '+2.1%', isPositive: true },
-]
-
-const analyticsChartData = {
-  impressions: [42, 58, 65, 51, 72, 88, 76, 82, 95, 71, 68, 84, 90, 102, 88, 95, 110, 98, 112, 105, 118, 94, 101, 115, 122, 108, 125, 132, 119, 128],
-  submits: [3, 5, 4, 6, 5, 7, 6, 5, 8, 6, 5, 7, 8, 9, 7, 8, 10, 9, 11, 8, 10, 7, 9, 11, 12, 10, 13, 14, 11, 13],
-  submitRate: [7.1, 8.6, 6.2, 11.8, 6.9, 8.0, 7.9, 6.1, 8.4, 8.5, 7.4, 8.3, 8.9, 8.8, 8.0, 8.4, 9.1, 9.2, 9.8, 7.6, 8.5, 7.4, 8.9, 9.6, 9.8, 9.3, 10.4, 10.6, 9.2, 10.2],
-}
-const analyticsChartDates = Array.from({ length: 30 }, (_, i) => {
-  const d = new Date(2026, 2, 25 - (29 - i))
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-})
-
-const analyticsChartSeries = computed(() => {
-  const tab = analyticsTabs.find(t => t.id === analyticsMetric.value)
-  return [{ name: tab.title, data: analyticsChartData[analyticsMetric.value] }]
-})
-
-const analyticsChartOptions = computed(() => ({
-  chart: { type: 'area', height: 280, toolbar: { show: false }, zoom: { enabled: false } },
-  dataLabels: { enabled: false },
-  stroke: { curve: 'smooth', width: 2, colors: ['#ed5a29'] },
-  fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.05, stops: [0, 90, 100] }, colors: ['#ed5a29'] },
-  grid: { borderColor: '#f1f2f4', strokeDashArray: 0, xaxis: { lines: { show: false } }, yaxis: { lines: { show: true } } },
-  xaxis: {
-    type: 'category',
-    categories: analyticsChartDates.map((d, i) => i % 3 === 0 ? d : ''),
-    labels: { show: true, rotate: -45, rotateAlways: false, hideOverlappingLabels: true, style: { colors: '#9ba2ad', fontSize: '11px' } },
-    axisBorder: { show: false },
-    axisTicks: { show: false },
-    tooltip: { enabled: false },
-  },
-  yaxis: {
-    labels: {
-      formatter: (v) => analyticsMetric.value === 'submitRate' ? v.toFixed(1) + '%' : Math.round(v).toLocaleString(),
-      style: { colors: '#9ba2ad', fontSize: '12px' },
-    },
-  },
-  tooltip: {
-    enabled: true,
-    custom: function ({ series, seriesIndex, dataPointIndex }) {
-      const value = series[seriesIndex][dataPointIndex]
-      const date = analyticsChartDates[dataPointIndex]
-      const tab = analyticsTabs.find(t => t.id === analyticsMetric.value)
-      const fmt = analyticsMetric.value === 'submitRate' ? value.toFixed(2) + '%' : Math.round(value).toLocaleString()
-      return `<div style="padding: 8px 12px; background: white; border: 1px solid #e3e5e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <div style="color: #9ba2ad; font-weight: 400; font-size: 11px; margin-bottom: 4px;">${date}, 2026</div>
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <span style="width: 8px; height: 8px; background: #ed5a29; border-radius: 50%; display: inline-block;"></span>
-          <span style="color: #505763; font-weight: 500;">${tab.title}: ${fmt}</span>
-        </div>
-      </div>`
-    },
-  },
-  markers: { size: 0, hover: { size: 5 } },
-}))
-
-const analyticsInsights = [
-  {
-    id: 1,
-    name: 'Mobile drop-off at checkout',
-    description: 'Mobile submit rate (7.44%) lags desktop by 19.6% — recovering the gap could add ~10 submits / month.',
-    value: '+$1,200/month',
-    level: 'high',
-  },
-  {
-    id: 2,
-    name: 'Returning visitors over-index',
-    description: 'Returning visitors convert 33% better than new ones — consider a dedicated segment for retargeting.',
-    value: '+$820/month',
-    level: 'medium',
-  },
-  {
-    id: 3,
-    name: 'Campaign missing on /products',
-    description: '/products drives 134 impressions but sees a 4.48% submit rate — tune the trigger or re-test placement.',
-    value: '+$540/month',
-    level: 'medium',
-  },
-]
-
-const analyticsDevices = [
-  { type: 'Desktop', impressions: 842, submits: 78, submitRate: '9.26%', share: 62.0 },
-  { type: 'Mobile', impressions: 524, submits: 39, submitRate: '7.44%', share: 38.0 },
-]
-
-const devicesChartSeries = [{ name: 'Submits', data: analyticsDevices.map(d => d.submits) }]
-const devicesChartOptions = {
-  chart: { type: 'bar', toolbar: { show: false }, fontFamily: 'inherit' },
-  plotOptions: { bar: { borderRadius: 6, barHeight: '60%', distributed: true, horizontal: true } },
-  colors: ['#FF6A45', '#FF9E89', '#FFD2C4'],
-  dataLabels: { enabled: false },
-  legend: { show: false },
-  xaxis: {
-    categories: analyticsDevices.map(d => d.type),
-    axisBorder: { show: false },
-    axisTicks: { show: false },
-    labels: { style: { colors: '#9CA3AF', fontSize: '12px' }, formatter: (val) => val >= 1000 ? `${(val / 1000).toFixed(0)}K` : val },
-  },
-  yaxis: { labels: { show: true, style: { colors: '#6B7280', fontSize: '13px' } } },
-  grid: { borderColor: '#F3F4F6', strokeDashArray: 4, yaxis: { lines: { show: false } } },
-  tooltip: {
-    custom: ({ series, seriesIndex, dataPointIndex, w }) => {
-      const value = series[seriesIndex][dataPointIndex]
-      const label = w.globals.labels[dataPointIndex]
-      return `<div style="padding: 8px 12px; background: white; border: 1px solid #e3e5e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <span style="width: 8px; height: 8px; background: #ed5a29; border-radius: 50%; display: inline-block;"></span>
-          <span style="color: #505763; font-weight: 500;">${label}: ${value.toLocaleString()}</span>
-        </div>
-      </div>`
-    },
-  },
-}
-const analyticsVisitorTypes = [
-  { type: 'New visitors', impressions: 1012, submits: 79, submitRate: '7.81%', share: 69.5 },
-  { type: 'Returning visitors', impressions: 444, submits: 46, submitRate: '10.36%', share: 30.5 },
-]
-
-const visitorTypesChartSeries = [{ name: 'Submits', data: analyticsVisitorTypes.map(v => v.submits) }]
-const visitorTypesChartOptions = {
-  chart: { type: 'bar', toolbar: { show: false }, fontFamily: 'inherit' },
-  plotOptions: { bar: { borderRadius: 6, barHeight: '60%', distributed: true, horizontal: true } },
-  colors: ['#FF6A45', '#FF9E89'],
-  dataLabels: { enabled: false },
-  legend: { show: false },
-  xaxis: {
-    categories: ['New', 'Returning'],
-    axisBorder: { show: false },
-    axisTicks: { show: false },
-    labels: { style: { colors: '#9CA3AF', fontSize: '12px' }, formatter: (val) => val >= 1000 ? `${(val / 1000).toFixed(0)}K` : val },
-  },
-  yaxis: { labels: { show: true, style: { colors: '#6B7280', fontSize: '13px' } } },
-  grid: { borderColor: '#F3F4F6', strokeDashArray: 4, yaxis: { lines: { show: false } } },
-  tooltip: {
-    custom: ({ series, seriesIndex, dataPointIndex, w }) => {
-      const value = series[seriesIndex][dataPointIndex]
-      const label = w.globals.labels[dataPointIndex]
-      return `<div style="padding: 8px 12px; background: white; border: 1px solid #e3e5e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <span style="width: 8px; height: 8px; background: #ed5a29; border-radius: 50%; display: inline-block;"></span>
-          <span style="color: #505763; font-weight: 500;">${label}: ${value.toLocaleString()}</span>
-        </div>
-      </div>`
-    },
-  },
-}
-const analyticsCountries = [
-  { name: 'United States', impressions: 624, submits: 58, submitRate: '9.29%', share: 42.9 },
-  { name: 'United Kingdom', impressions: 285, submits: 24, submitRate: '8.42%', share: 19.6 },
-  { name: 'Germany', impressions: 198, submits: 16, submitRate: '8.08%', share: 13.6 },
-  { name: 'Canada', impressions: 142, submits: 12, submitRate: '8.45%', share: 9.8 },
-  { name: 'Australia', impressions: 98, submits: 8, submitRate: '8.16%', share: 6.7 },
-]
-
-const countryCodeMap = {
-  'United States': 'US',
-  'United Kingdom': 'GB',
-  'Germany': 'DE',
-  'Canada': 'CA',
-  'Australia': 'AU',
-  'Hungary': 'HU',
-  'France': 'FR',
-  'Austria': 'AT',
-  'Romania': 'RO',
-  'Slovakia': 'SK',
-  'Netherlands': 'NL',
-  'Sweden': 'SE',
-}
-const getFlagUrl = (country) => {
-  const code = countryCodeMap[country]
-  return code ? `https://flagcdn.com/w40/${code.toLowerCase()}.png` : null
-}
-const analyticsPages = [
-  { url: '/cart', impressions: 586, submits: 61, submitRate: '10.41%', share: 40.2 },
-  { url: '/checkout', impressions: 412, submits: 38, submitRate: '9.22%', share: 28.3 },
-  { url: '/products/bestsellers', impressions: 248, submits: 17, submitRate: '6.85%', share: 17.0 },
-  { url: '/products', impressions: 134, submits: 6, submitRate: '4.48%', share: 9.2 },
-  { url: '/collections/new', impressions: 76, submits: 3, submitRate: '3.95%', share: 5.2 },
-]
 
 // Submits tab state
 const submitsSearch = ref('')
@@ -2117,20 +1403,10 @@ input[type="time"]::-webkit-clear-button {
   padding-left: 28px;
 }
 
-/* Continuous vertical line (trunk) */
-.trigger-timeline::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 26px;
-  width: 3px;
-  background: #D5D8DD;
-  border-radius: 2px;
-}
-
 /* Timeline items with horizontal branch */
-.trigger-timeline-item {
+.trigger-timeline-item,
+.trigger-timeline-or,
+.trigger-timeline-add {
   position: relative;
 }
 
@@ -2138,10 +1414,54 @@ input[type="time"]::-webkit-clear-button {
   content: '';
   position: absolute;
   left: -28px;
-  top: 50%;
+  top: 44px;
   width: 24px;
   height: 3px;
   background: #D5D8DD;
+}
+
+.trigger-timeline.summary-timeline .trigger-timeline-item::before {
+  top: 40px;
+}
+
+/* Trunk segments — each direct child draws its own slice, so margins between
+   them are bridged and no parent-level overhang can appear. */
+.trigger-timeline-item::after,
+.trigger-timeline-or::after {
+  content: '';
+  position: absolute;
+  left: -28px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #D5D8DD;
+}
+
+/* Add button trunk: fills its own margin-top gap and stops at its branch */
+.trigger-timeline-add::after {
+  content: '';
+  position: absolute;
+  left: -28px;
+  top: -1.5rem;
+  bottom: 50%;
+  width: 3px;
+  background: #D5D8DD;
+}
+
+/* When no add button follows, last item caps trunk at its branch */
+.trigger-timeline:not(:has(.trigger-timeline-add)) .trigger-timeline-item:last-child::after {
+  bottom: 50%;
+}
+
+/* Rounded caps at the very ends of the trunk */
+.trigger-timeline > *:first-child::after {
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+}
+
+.trigger-timeline > *:last-child::after {
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
 }
 
 .trigger-card {

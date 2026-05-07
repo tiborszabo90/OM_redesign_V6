@@ -381,6 +381,102 @@
             </div>
 
             <template v-else>
+
+            <!-- Active filter chips (Embedded message type) -->
+            <div v-if="embeddedActive" class="filter-chips-row">
+              <div class="group relative flex items-center">
+                <button
+                  class="inline-flex items-center gap-1.5 px-3 h-10 rounded-lg bg-om-orange-100 text-om-orange-600 text-sm font-medium cursor-pointer hover:bg-om-orange-200 transition-colors"
+                >
+                  Embedded
+                  <span class="inline-flex items-center overflow-hidden transition-all duration-200 ease-out w-0 group-hover:w-4 group-hover:ml-1">
+                    <X
+                      :size="14"
+                      class="shrink-0 text-om-orange-400 hover:text-om-orange-700"
+                      @click.stop="messageType.beagyazhato = false"
+                    />
+                  </span>
+                </button>
+              </div>
+              <button
+                v-if="activeMessageTypeCount > 1"
+                class="text-sm font-medium text-om-orange-600 hover:text-om-orange-700 cursor-pointer"
+                @click="clearMessageTypeFilters"
+              >
+                Clear all
+              </button>
+            </div>
+
+            <!-- Embedded filtered view -->
+            <template v-if="embeddedActive">
+              <!-- My theme Telekom (3 templates with titles) -->
+              <div class="embedded-my-theme">
+                <div class="embedded-section-header">
+                  <h2 class="embedded-section-title">My theme Telekom</h2>
+                  <a class="embedded-see-all">See all <ChevronRight :size="16" /></a>
+                </div>
+                <div class="telekom-grid">
+                  <div v-for="uc in embeddedUsecases.slice(0, 3)" :key="`emb-tk-${uc.label}`" class="telekom-card">
+                    <div class="telekom-image-wrapper embedded-card-image">
+                      <span class="embedded-badge">Embedded</span>
+                    </div>
+                    <h3 class="telekom-title">{{ uc.label }}</h3>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Smart Product Page section -->
+              <div class="embedded-usecase-section">
+                <div class="embedded-section-header">
+                  <h2 class="embedded-section-title">Smart Product Page</h2>
+                </div>
+                <div class="spp-tile-grid">
+                  <div class="spp-tile" @click="openSppDomainModal('product-summary')">
+                    <div class="spp-tile-art">
+                      <img src="/summary.svg" alt="Product Summary" />
+                    </div>
+                    <div class="spp-tile-body">
+                      <h3 class="spp-tile-title">Product Summary</h3>
+                      <p class="spp-tile-desc">Lifestyle image, headline, and benefit list combined into one full product block.</p>
+                    </div>
+                  </div>
+                  <div class="spp-tile" @click="openSppDomainModal('image-badge')">
+                    <div class="spp-tile-art">
+                      <img src="/badge.svg?v=2" alt="Image with Badge" />
+                    </div>
+                    <div class="spp-tile-body">
+                      <h3 class="spp-tile-title">Image with Badge</h3>
+                      <p class="spp-tile-desc">Lifestyle product image with a short headline and an icon badge overlay.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Use case rows -->
+              <div
+                v-for="usecase in embeddedUsecases"
+                :key="`emb-uc-${usecase.label}`"
+                class="embedded-usecase-section"
+              >
+                <div class="embedded-section-header">
+                  <div>
+                    <h2 class="embedded-section-title">{{ usecase.label }}</h2>
+                    <p class="embedded-usecase-subtitle">{{ usecase.subtitle }}</p>
+                  </div>
+                  <a class="embedded-see-all">See all <ChevronRight :size="16" /></a>
+                </div>
+                <div class="embedded-templates-grid">
+                  <div v-for="n in 3" :key="`${usecase.label}-${n}`" class="embedded-template-card">
+                    <div class="embedded-card-image">
+                      <span class="embedded-badge">Embedded</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- Default view (no embedded filter) -->
+            <template v-else>
             <!-- Popup Types -->
             <div class="popup-types">
               <div class="popup-type-box">
@@ -399,7 +495,7 @@
                 <img src="/templates/type-side.svg" alt="Sidemessage" class="popup-type-icon" />
                 <span class="popup-type-label">Sidemessage</span>
               </div>
-              <div class="popup-type-box">
+              <div class="popup-type-box" @click="messageType.beagyazhato = true">
                 <img src="/templates/type-embedded.svg" alt="Embedded" class="popup-type-icon" />
                 <span class="popup-type-label">Embedded</span>
               </div>
@@ -473,6 +569,7 @@
                   v-for="item in usecaseItems.slice(0, 3)"
                   :key="item.image"
                   class="usecase-card-v2"
+                  @click="item.sppType && openSppDomainModal(item.sppType)"
                 >
                   <div class="usecase-card-v2-image">
                     <img :src="item.image" :alt="item.label" />
@@ -504,25 +601,40 @@
 
             </template>
             </template>
+            </template>
           </main>
         </div>
         </div>
       </template>
     </DashboardLayout>
+    <DomainSelectorModal v-model="showSppDomainModal" @select="handleSppDomainSelected" />
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import { Check, ChevronRight, Home, Paintbrush, FolderOpen, Edit, Search } from 'lucide-vue-next'
+import { ref, computed, watch } from 'vue'
+import { Check, ChevronRight, Home, Paintbrush, FolderOpen, Edit, Search, X } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
+import DomainSelectorModal from '../components/shared/DomainSelectorModal.vue'
 
 const props = defineProps({
   initialFamily: { type: String, default: null },
 })
 
-const emit = defineEmits(['menu-click', 'navigate'])
+const emit = defineEmits(['menu-click', 'navigate', 'spp-domain-selected'])
+
+const showSppDomainModal = ref(false)
+const selectedSppType = ref(null)
+
+const openSppDomainModal = (type) => {
+  selectedSppType.value = type
+  showSppDomainModal.value = true
+}
+
+const handleSppDomainSelected = (domain) => {
+  emit('spp-domain-selected', { type: selectedSppType.value, domain })
+}
 
 const handleMenuClick = (menuId) => {
   emit('menu-click', menuId)
@@ -558,6 +670,25 @@ const messageType = ref({
   popup: false,
   sidemessage: false
 })
+
+const embeddedActive = computed(() => messageType.value.beagyazhato)
+const activeMessageTypeCount = computed(() => Object.values(messageType.value).filter(Boolean).length)
+
+const clearMessageTypeFilters = () => {
+  messageType.value.beagyazhato = false
+  messageType.value.stickyBar = false
+  messageType.value.popup = false
+  messageType.value.sidemessage = false
+}
+
+// Curated use cases relevant to Embedded message type
+const embeddedUsecases = [
+  { label: 'Conversational Popup', subtitle: 'Segment and guide your visitors while building your list' },
+  { label: 'Countdown Offer', subtitle: 'Stop visitors from abandoning their cart with a last-minute offer' },
+  { label: 'Embedded List Builder', subtitle: 'Collect emails without interrupting the user experience' },
+  { label: 'Embedded Product Recommender', subtitle: 'Recommend relevant products in blog articles' },
+  { label: 'Lead Magnet', subtitle: 'Grow your email list by offering valuable content in the form of ebooks' },
+]
 
 // Family selection
 const activeTab = ref('all')
@@ -643,6 +774,7 @@ const handleSeasonsScroll = () => {
 // First 6: named images (first 2 rows)
 const usecaseItems = [
   // Row 1-2: Named/featured use cases
+  { image: '/summary.svg', label: 'Product Summary', subtitle: 'A lifestyle product image, a headline and a benefit list combined into one block.', sppType: 'product-summary' },
   { image: '/usecases/SmartDiscountPopup.png', label: 'Smart Discount Popup', subtitle: 'The most effective list-building popup formula' },
   { image: '/usecases/Luckywheel.png', label: 'Lucky Wheel', subtitle: 'Gamify list-building popups to increase new visitor engagement' },
   { image: '/usecases/CartAbandonmentStopper.png', label: 'Cart Abandonment Stopper', subtitle: 'Offer a discount for cart abandoners' },
@@ -1108,6 +1240,171 @@ const usecaseItems = [
   font-size: 0.875rem;
   color: #6B7280;
   line-height: 1.5;
+}
+
+/* Embedded filter chips row */
+.filter-chips-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 3rem 1.5rem 3rem;
+}
+
+/* Embedded filtered view */
+.embedded-my-theme,
+.embedded-usecase-section {
+  padding: 1.25rem 3rem 1.75rem 3rem;
+}
+
+.embedded-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+}
+
+.embedded-section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.embedded-usecase-subtitle {
+  font-size: 0.9375rem;
+  color: #6B7280;
+  margin: 0.25rem 0 0 0;
+}
+
+.embedded-see-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ED5A29;
+  cursor: pointer;
+  white-space: nowrap;
+  margin-top: 0.25rem;
+}
+
+.embedded-see-all:hover {
+  text-decoration: underline;
+}
+
+.embedded-templates-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.embedded-template-card {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.embedded-card-image {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #F3F4F6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+/* ───── Smart Product Page tiles ───── */
+.spp-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+.spp-tile {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background-color: #FEF7F3;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.spp-tile-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  transform: translateX(-0.75rem);
+}
+
+.spp-tile-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.spp-tile:hover .spp-tile-art img {
+  transform: scale(1.05);
+}
+
+.spp-tile-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.spp-tile-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #23262A;
+  margin: 0;
+}
+
+.spp-tile-desc {
+  font-size: 0.875rem;
+  color: #4B5563;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.spp-tile-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ED5A29;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.spp-tile-cta:hover {
+  text-decoration: underline;
+}
+
+.embedded-template-card:hover .embedded-card-image,
+.telekom-card:hover .embedded-card-image {
+  transform: scale(1.02);
+}
+
+.embedded-badge {
+  position: absolute;
+  bottom: 0.625rem;
+  right: 0.625rem;
+  padding: 0.25rem 0.625rem;
+  background-color: rgba(107, 114, 128, 0.7);
+  color: #FFFFFF;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 4px;
 }
 
 /* My Theme Telekom */
