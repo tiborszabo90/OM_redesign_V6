@@ -170,6 +170,7 @@ const activeProps = computed(() => {
     'onboarding-mobile-hu': { registrationData: registrationData.value, registrationType: registrationType.value },
     'onboarding-hu': { registrationData: registrationData.value, registrationType: registrationType.value },
     'registration-mobile-hu': {},
+    'shopify-account-choice': { registrationData: registrationData.value },
     'task-creation': { registrationData: registrationData.value },
     'home-old': { registrationData: registrationData.value },
     'chat-create-popup-v1': { registrationData: registrationData.value },
@@ -224,6 +225,7 @@ const activeProps = computed(() => {
     'wizard-recommendation-v3': { registrationData: registrationData.value, startAtRecommendationV3: true },
     'wizard-recommendation-v4': { registrationData: registrationData.value, startAtRecommendationV4: true },
     'wizard-recommendation-v5': { registrationData: registrationData.value, startAtRecommendationV5: true },
+    'wizard-recommendation-public-v2': { registrationData: registrationData.value, startAtRecommendationV4: true, noChat: true },
     'settings': { initialSection: settingsInitialSection.value, initialScreen: 'list' },
   }
 
@@ -463,6 +465,19 @@ const activeEvents = computed(() => {
     'registration-v1': { complete: handleRegistrationComplete },
     'registration-v2': { complete: handleRegistrationComplete },
     'login': { complete: () => { currentView.value = 'home-old' }, 'go-to-register': () => { currentView.value = 'registration' }, 'forgot-password': () => {} },
+    'shopify-account-choice': {
+      'create-account': () => {
+        sessionKey.value++
+        registrationType.value = 'shopify'
+        currentView.value = null
+        setTimeout(() => { currentView.value = 'onboarding' }, 50)
+      },
+      'login': () => {
+        sessionKey.value++
+        currentView.value = null
+        setTimeout(() => { currentView.value = 'login' }, 50)
+      },
+    },
     'onboarding': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated },
     'onboarding-mobile': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated, 'sign-out': () => handleDevNavigate('dev-start') },
     'onboarding-mobile-hu': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated, 'sign-out': () => handleDevNavigate('dev-start') },
@@ -567,6 +582,7 @@ const activeEvents = computed(() => {
     'wizard-recommendation-v3': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
     'wizard-recommendation-v4': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
     'wizard-recommendation-v5': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
+    'wizard-recommendation-public-v2': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
     'editor': { 'go-back': () => handleDevNavigate('campaign-page-v1'), 'save-and-exit': () => handleDevNavigate('campaign-settings-step') },
     'campaign-settings-step': { 'menu-click': handleMenuClick, next: () => handleDevNavigate('campaign-page-with-review') },
     'wizard': { submit: handleWizardSubmit },
@@ -591,7 +607,7 @@ const activeEvents = computed(() => {
 // ============================================================================
 // Navigation
 // ============================================================================
-const wizardPhases = ['wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation-v4']
+const wizardPhases = ['wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation-v4', 'wizard-recommendation-public-v2']
 
 const handleDevNavigate = (view) => {
   // Internal wizard navigation (preserve state, no view change)
@@ -706,7 +722,8 @@ const handleDevStartSelect = (type) => {
       registrationType.value = 'image-with-badge'
       currentView.value = 'image-with-badge'
     } else if (type === 'shopify') {
-      currentView.value = 'onboarding'
+      registrationType.value = 'shopify'
+      currentView.value = 'shopify-account-choice'
     } else if (type === 'mobile') {
       currentView.value = 'registration-mobile'
     } else if (type === 'mobile-hu') {

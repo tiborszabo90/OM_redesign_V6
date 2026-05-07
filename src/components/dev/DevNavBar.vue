@@ -78,7 +78,7 @@
         </template>
 
         <!-- Email/Shopify flow (only on registration/onboarding/task views) -->
-        <template v-else-if="['registration', 'registration-hu', 'registration-mobile', 'registration-mobile-hu', 'onboarding', 'onboarding-hu', 'onboarding-mobile', 'onboarding-mobile-hu', 'task-creation'].includes(currentView)">
+        <template v-else-if="['registration', 'registration-hu', 'registration-mobile', 'registration-mobile-hu', 'shopify-account-choice', 'onboarding', 'onboarding-hu', 'onboarding-mobile', 'onboarding-mobile-hu', 'task-creation'].includes(currentView)">
           <button
             v-if="registrationType === 'email'"
             @click="$emit('navigate', (currentView === 'registration-hu' || currentView === 'onboarding-hu') ? 'registration-hu' : (currentView === 'registration-mobile-hu' || currentView === 'onboarding-mobile-hu') ? 'registration-mobile-hu' : (currentView === 'registration-mobile' || currentView === 'onboarding-mobile') ? 'registration-mobile' : 'registration')"

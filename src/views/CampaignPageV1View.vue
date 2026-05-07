@@ -588,6 +588,9 @@
           </div>
         </div>
 
+        <!-- Analytics Tab Content -->
+        <CampaignAnalyticsTab v-if="activeTab === 'Analytics'" />
+
         <!-- Settings Tab Content -->
         <div v-if="activeTab === 'Settings'" class="space-y-4 pb-40">
           <!-- When would you like this campaign to show up? -->
@@ -1182,6 +1185,7 @@ import ScrollTimePicker from '../components/shared/ScrollTimePicker.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
 import EditableTitle from '../components/shared/EditableTitle.vue'
 import Tag from '../components/shared/Tag.vue'
+import CampaignAnalyticsTab from '../components/shared/CampaignAnalyticsTab.vue'
 
 const emit = defineEmits(['menu-click', 'navigate'])
 

@@ -1548,6 +1548,10 @@ const props = defineProps({
   hideRegistrationModal: {
     type: Boolean,
     default: false
+  },
+  recommendationPhaseId: {
+    type: String,
+    default: 'wizard-recommendation-v4'
   }
 })
 
@@ -2052,7 +2056,7 @@ const runAnalysis = () => {
       showAnalysisContent.value = false
       if (props.skipStyleQuicktune) {
         showRecommendationV4.value = true
-        emit('phase-changed', 'wizard-recommendation-v4')
+        emit('phase-changed', props.recommendationPhaseId)
         wizardChatMessages.value.push({ type: 'ai-success', message: 'Analysis complete!' })
         scrollChatToBottom()
         setTimeout(() => {
@@ -2086,7 +2090,7 @@ const runAnalysis = () => {
     setTimeout(() => {
       showAnalysisContent.value = false
       if (props.skipStyleQuicktune) {
-        emit('navigate-to', 'wizard-recommendation-v4')
+        emit('navigate-to', props.recommendationPhaseId)
         return
       }
       showStyleSelection.value = true
@@ -2111,7 +2115,7 @@ const selectStyleAndContinue = (styleId) => {
 const confirmQuicktune = () => {
   showQuicktune.value = false
   showRecommendationV4.value = true
-  emit('phase-changed', 'wizard-recommendation-v4')
+  emit('phase-changed', props.recommendationPhaseId)
   if (props.showChat) {
     wizardChatMessages.value.push({
       type: 'ai',
@@ -2235,7 +2239,7 @@ const navigateToPhase = (phase) => {
     showStyleSelection.value = true
   } else if (phase === 'wizard-quicktune') {
     showQuicktune.value = true
-  } else if (phase === 'wizard-recommendation-v4') {
+  } else if (phase === 'wizard-recommendation-v4' || phase === props.recommendationPhaseId) {
     showRecommendationV4.value = true
     setupV4Observer()
   }

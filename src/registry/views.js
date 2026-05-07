@@ -148,6 +148,16 @@ const registrationViews = [
     nav: { sessionReset: true, flowSelected: true },
   },
   {
+    id: 'shopify-account-choice',
+    component: () => import('../views/ShopifyAccountChoiceView.vue'),
+    label: 'Shopify Account Choice',
+    status: 'active',
+    section: null,
+    hideLogo: true,
+    keyPrefix: 'shopify-choice',
+    nav: { sessionReset: true, flowSelected: true, registrationType: 'shopify' },
+  },
+  {
     id: 'registration-v1',
     component: () => import('../views/RegistrationV1View.vue'),
     label: 'Registration V1',
@@ -418,7 +428,7 @@ const wizardViews = [
     hideLogo: true,
     keyPrefix: 'public-wizard-v2',
     refName: 'publicWizardV2Ref',
-    nav: { sessionReset: true, flowSelected: true, registrationType: 'public-wizard', clearWizardMessage: true, extraState: { publicWizardStep: 'url' } },
+    nav: { sessionReset: true, flowSelected: true, registrationType: 'public-wizard-v2', clearWizardMessage: true, extraState: { publicWizardStep: 'url' } },
   },
   {
     id: 'wizard-flow',
@@ -530,6 +540,16 @@ const wizardViews = [
     section: null,
     hideLogo: true,
     keyPrefix: 'wizard-recommendation-v5',
+    nav: { sessionReset: true, flowSelected: true },
+  },
+  {
+    id: 'wizard-recommendation-public-v2',
+    component: () => import('../views/WizardAnalysisView.vue'),
+    label: 'Recommendation (Public V2)',
+    status: 'active',
+    section: null,
+    hideLogo: true,
+    keyPrefix: 'wizard-recommendation-public-v2',
     nav: { sessionReset: true, flowSelected: true },
   },
 ]
