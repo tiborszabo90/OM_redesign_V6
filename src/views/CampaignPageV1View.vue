@@ -215,7 +215,7 @@
                 <div class="text-sm text-om-gray-500 mt-0.5">
                   <span class="font-medium text-om-gray-700">AI Variant</span>
                   is leading by <span class="font-semibold text-[#10B981]">+18.52%</span>
-                  (9.23% chance to win)
+                  (77.6% chance to win)
                 </div>
               </div>
             </div>
@@ -274,10 +274,7 @@
               <div class="text-base font-semibold text-om-gray-700 text-right">{{ currentKpis.variant1.v1 }}</div>
               <div class="text-base font-semibold text-om-gray-700 text-right">{{ currentKpis.variant1.v2 }}</div>
               <div class="text-base font-semibold text-om-gray-700 text-right">{{ currentKpis.variant1.v3 }}</div>
-              <div class="text-base font-semibold text-[#10B981] flex items-center gap-1 justify-end">
-                0.77%
-                <TrendingUp :size="16" class="text-[#2CC896]" />
-              </div>
+              <div class="text-base font-semibold text-om-gray-400 text-right">-</div>
               <div class="text-base font-semibold text-om-gray-400 text-right">-</div>
               <!-- Kebab Menu -->
               <div class="flex items-center justify-end">
@@ -318,7 +315,7 @@
                 +18.52%
                 <TrendingUp :size="16" class="text-[#2CC896]" />
               </div>
-              <div class="text-base font-semibold text-om-gray-400 text-right">9.23%</div>
+              <div class="text-base font-semibold text-om-gray-400 text-right">77.6%</div>
               <!-- Kebab Menu -->
               <div class="flex items-center justify-end">
                 <Button variant="ghost" size="sm" icon-only class="opacity-0 group-hover:opacity-100 transition-opacity"><template #icon><MoreVertical :size="20" /></template></Button>
@@ -589,61 +586,295 @@
         </div>
 
         <!-- Analytics Tab Content -->
-        <CampaignAnalyticsTab v-if="activeTab === 'Analytics'">
+        <CampaignAnalyticsTab v-if="activeTab === 'Analytics'" :hide-insights="true">
           <template #funnel>
-            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5">
-              <div class="flex items-center justify-between mb-1 px-8">
-                <h2 class="text-xl font-semibold text-om-gray-700">Funnel breakdown</h2>
-                <div class="flex items-center gap-3 text-[12px] text-om-gray-500">
-                  <span class="flex items-center gap-1.5">
-                    <span class="w-2.5 h-2.5 rounded-full bg-[#FF6A45]"></span>
-                    Variant A
-                  </span>
-                  <span class="flex items-center gap-1.5">
-                    <span class="w-2.5 h-2.5 rounded-full bg-[#5B7CFA]"></span>
-                    Variant B
-                  </span>
+            <!-- Top Optimization Opportunities -->
+            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5 min-w-0 mb-6">
+              <div class="flex items-center justify-between pr-5 pl-8 mb-4">
+                <h2 class="text-xl font-semibold text-om-gray-700">Top Optimization Opportunities</h2>
+                <button class="text-sm font-medium text-om-gray-500 hover:text-om-gray-700 transition-colors cursor-pointer">View all</button>
+              </div>
+              <div class="grid grid-cols-1 min-[900px]:grid-cols-2 gap-4 px-7">
+                <div
+                  v-for="opp in abTestInsights"
+                  :key="opp.id"
+                  class="flex items-start gap-4 p-4 bg-white rounded-xl border-2 border-om-gray-200 cursor-pointer transition-all hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] min-w-0"
+                >
+                  <div class="w-11 h-11 rounded-lg bg-[#FFF0EB] text-[#C94B14] flex items-center justify-center shrink-0">
+                    <component :is="insightIcons[opp.id] || Sparkles" :size="22" />
+                  </div>
+                  <div class="flex-1 min-w-0 flex flex-col gap-1.5">
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="text-[0.9375rem] font-semibold text-om-gray-700 leading-snug flex-1 min-w-0">{{ opp.name }}</div>
+                      <div :class="['text-[0.6875rem] font-semibold px-3 py-0.5 rounded-full whitespace-nowrap shrink-0', opp.level === 'high' ? 'bg-[#FFF0EB] text-[#C94B14]' : opp.level === 'medium' ? 'bg-[#FFF8E6] text-[#9A6400]' : 'bg-[#F1F2F4] text-[#6B7280]']">{{ opp.value }} impact</div>
+                    </div>
+                    <p v-if="opp.campaign" class="text-[0.8125rem] text-om-gray-600 leading-relaxed m-0">
+                      <strong class="text-om-gray-700 font-semibold">Campaign:</strong> {{ opp.campaign }}
+                    </p>
+                    <div class="text-[0.8125rem] text-om-gray-500 leading-snug">{{ opp.description }}</div>
+                  </div>
                 </div>
               </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5">
+              <div class="px-8 mb-1">
+                <h2 class="text-xl font-semibold text-om-gray-700">Funnel breakdown</h2>
+              </div>
               <div class="text-[13px] text-om-gray-500 mb-5 px-8">Impressions of each page in this popup, with drop-off between steps. Compared across A/B variants.</div>
-              <div class="px-5 flex items-stretch gap-0">
-                <template v-for="(step, idx) in abFunnelSteps" :key="step.id">
-                  <div class="flex-1 rounded-xl border border-om-gray-200 px-4 py-2.5 flex flex-col gap-2 min-w-0">
-                    <div class="text-[13px] font-medium text-om-gray-500 truncate">{{ step.name }}</div>
-                    <!-- Variant A -->
-                    <div class="flex flex-col gap-1">
-                      <div class="flex items-center gap-1.5">
-                        <span class="text-[10px] font-semibold text-[#FF6A45] uppercase tracking-wide">A</span>
-                        <span class="text-sm font-semibold text-om-gray-700 tabular-nums">{{ step.a.toLocaleString() }}</span>
+              <div class="flex flex-col gap-6">
+                <div v-for="variant in abFunnelVariants" :key="variant.id" class="flex flex-col gap-3">
+                  <div class="px-8 flex items-center gap-2">
+                    <span class="text-sm font-medium text-om-gray-700">{{ variant.name }}</span>
+                    <span class="text-[12px] text-om-gray-500 tabular-nums">{{ variant.traffic }}% traffic</span>
+                    <span
+                      v-if="variant.uplift"
+                      class="inline-flex items-center gap-1 text-[12px] font-semibold text-[#10B981] tabular-nums"
+                    >
+                      {{ variant.uplift }}
+                      <TrendingUp :size="12" class="text-[#2CC896]" />
+                    </span>
+                  </div>
+                  <div class="px-5 flex items-stretch gap-0">
+                    <template v-for="(step, idx) in variant.steps" :key="step.id">
+                      <div class="flex-1 rounded-xl border border-om-gray-200 px-4 py-2.5 flex flex-col gap-1 min-w-0">
+                        <div class="text-[13px] font-medium text-om-gray-500 truncate">{{ step.name }}</div>
+                        <div class="text-base font-semibold text-om-gray-700 tabular-nums">{{ step.impressions.toLocaleString() }}</div>
+                        <div class="h-1.5 rounded-full bg-om-gray-100 overflow-hidden">
+                          <div class="h-full rounded-full" :style="{ width: variantStepShare(variant, step) + '%', background: variant.color }"></div>
+                        </div>
                       </div>
-                      <div class="h-1.5 rounded-full bg-om-gray-100 overflow-hidden">
-                        <div class="h-full rounded-full bg-[#FF6A45]" :style="{ width: abFunnelShare(step, 'a') + '%' }"></div>
+                      <div
+                        v-if="idx < variant.steps.length - 1"
+                        class="flex flex-col items-center justify-center px-3 shrink-0"
+                      >
+                        <ArrowRight :size="32" class="text-om-gray-300" />
+                        <div class="text-sm font-semibold text-om-gray-500 tabular-nums mt-1.5 whitespace-nowrap">-{{ variantStepDropOff(variant, idx + 1) }}%</div>
                       </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- A/B Test Results + Insights stacked -->
+            <div class="flex flex-col gap-6">
+              <!-- A/B Test Results — Version 1: comparison table -->
+              <div v-if="props.abTestVersion === 'comparison'" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5 min-w-0">
+                <div class="px-8 mb-5">
+                  <h2 class="text-xl font-semibold text-om-gray-700">A/B Test Results</h2>
+                </div>
+
+                <!-- Comparison table -->
+                <div class="px-8">
+                  <div class="grid grid-cols-[1fr_220px_220px] gap-10 pb-4 border-b border-om-gray-200">
+                    <div class="text-sm text-om-gray-700 leading-relaxed pr-36">
+                      Estimated more than <strong class="font-semibold">{{ abTestProgressNeeded }} submits</strong> needed to reach statistically significant 95% win chance.
+                      <span class="text-om-gray-500">&gt;45 days left (based on your current traffic)</span>
                     </div>
-                    <!-- Variant B -->
-                    <div class="flex flex-col gap-1">
-                      <div class="flex items-center gap-1.5">
-                        <span class="text-[10px] font-semibold text-[#5B7CFA] uppercase tracking-wide">B</span>
-                        <span class="text-sm font-semibold text-om-gray-700 tabular-nums">{{ step.b.toLocaleString() }}</span>
-                      </div>
-                      <div class="h-1.5 rounded-full bg-om-gray-100 overflow-hidden">
-                        <div class="h-full rounded-full bg-[#5B7CFA]" :style="{ width: abFunnelShare(step, 'b') + '%' }"></div>
+                    <div class="flex flex-col items-start gap-1.5">
+                      <span class="text-[13px] font-semibold text-om-gray-600 whitespace-nowrap">Klaviyo Popup</span>
+                      <div class="text-2xl font-semibold text-om-gray-400 tabular-nums">-</div>
+                    </div>
+                    <div class="flex flex-col items-start gap-1.5">
+                      <span class="text-[13px] font-semibold text-om-gray-600 whitespace-nowrap">AI Variant</span>
+                      <div class="flex items-baseline gap-1.5">
+                        <span class="text-2xl font-semibold text-[#239E77] tabular-nums">{{ abTestProbB }}%</span>
+                        <span class="text-[11px] text-om-gray-400 whitespace-nowrap">chance to win</span>
                       </div>
                     </div>
                   </div>
                   <div
-                    v-if="idx < abFunnelSteps.length - 1"
-                    class="flex flex-col items-center justify-center px-3 shrink-0"
+                    v-for="metric in abTestMetrics"
+                    :key="metric.id"
+                    class="grid grid-cols-[1fr_220px_220px] gap-10 items-center py-2.5 px-3 -mx-3 border-b border-[#F3F4F6] last:border-b-0 hover:bg-om-gray-50 rounded-lg transition-colors cursor-default"
                   >
-                    <ArrowRight :size="32" class="text-om-gray-300" />
-                    <div class="flex flex-col items-center gap-0.5 mt-1.5">
-                      <div class="text-[12px] font-semibold text-[#FF6A45] tabular-nums whitespace-nowrap">A: -{{ abFunnelDropOff(idx + 1, 'a') }}%</div>
-                      <div class="text-[12px] font-semibold text-[#5B7CFA] tabular-nums whitespace-nowrap">B: -{{ abFunnelDropOff(idx + 1, 'b') }}%</div>
+                    <div class="flex items-center gap-2 min-w-0">
+                      <span class="text-[13px] text-om-gray-500 truncate">{{ metric.label }}</span>
+                      <span v-if="metric.isTestGoal" class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-om-gray-100 text-om-gray-600 shrink-0">Primary goal</span>
+                    </div>
+                    <div class="text-base font-semibold text-om-gray-700 tabular-nums text-left">{{ formatMetricValue(metric.valueA, metric.format) }}</div>
+                    <div class="flex items-center justify-start gap-2">
+                      <span class="text-base font-semibold text-om-gray-700 tabular-nums">{{ formatMetricValue(metric.valueB, metric.format) }}</span>
+                      <span
+                        v-if="metric.delta !== 0"
+                        class="inline-flex items-center gap-0.5 text-[12px] font-medium tabular-nums whitespace-nowrap"
+                        :class="metric.delta > 0 ? 'text-[#239E77]' : 'text-[#C94B14]'"
+                      >
+                        <component :is="metric.delta > 0 ? TrendingUp : TrendingDown" :size="12" />
+                        {{ metric.delta > 0 ? '+' : '' }}{{ metric.delta }}%
+                      </span>
                     </div>
                   </div>
-                </template>
+                </div>
               </div>
+
+              <!-- A/B Test Results — Version 2: pivoted (metrics as columns, variants as rows) -->
+              <div v-if="props.abTestVersion === 'pivoted'" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5 min-w-0">
+                <div class="px-8 mb-5">
+                  <h2 class="text-xl font-semibold text-om-gray-700">A/B Test Results</h2>
+                </div>
+
+                <!-- Win conditions (compact chips) — when auto-declare is on -->
+                <div v-if="autoStopEnabled" class="px-8 mb-5">
+                  <div class="pb-4 border-b border-om-gray-200">
+                    <p class="text-sm text-om-gray-700">
+                      All <strong class="font-semibold">3 conditions</strong> must be met to auto-declare a winner.
+                      <span class="text-om-gray-500">Estimated <strong class="font-semibold text-om-gray-700">~125 more submits</strong> needed to reach {{ autoStopThreshold }}% win chance — about <strong class="font-semibold text-om-gray-700">45 more days</strong> at current traffic.</span>
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Significance summary — when auto-declare is off -->
+                <div v-else class="px-8 mb-5">
+                  <div class="pb-4 border-b border-om-gray-200">
+                    <p class="text-sm text-om-gray-700">
+                      Estimated more than <strong class="font-semibold">{{ abTestProgressNeeded }} submits</strong> needed to reach statistically significant 95% win chance.
+                      <span class="text-om-gray-500">&gt;45 days left (based on your current traffic)</span>
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Pivoted table -->
+                <div class="px-8 overflow-x-auto">
+                  <div class="min-w-[900px]">
+                    <!-- Header: metric columns -->
+                    <div class="grid grid-cols-[180px_repeat(6,_1fr)] gap-4 pb-3 border-b border-om-gray-200">
+                      <div></div>
+                      <div
+                        v-for="metric in abTestMetrics"
+                        :key="'h-' + metric.id"
+                        class="flex items-center gap-2 flex-wrap"
+                      >
+                        <span class="text-[11px] font-medium text-om-gray-500 leading-tight">{{ metric.label }}</span>
+                        <span v-if="metric.isTestGoal" class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-om-gray-100 text-om-gray-600 shrink-0">Primary goal</span>
+                      </div>
+                    </div>
+
+                    <!-- Variant 1 (Klaviyo Popup) -->
+                    <div class="grid grid-cols-[180px_repeat(6,_1fr)] gap-4 items-center py-4 px-3 -mx-3 border-b border-[#F3F4F6] hover:bg-om-gray-50 rounded-lg transition-colors cursor-default">
+                      <div class="flex flex-col gap-0.5">
+                        <span class="text-sm font-semibold text-om-gray-700">Klaviyo Popup</span>
+                        <span class="text-[11px] text-om-gray-400 tabular-nums">-</span>
+                      </div>
+                      <div
+                        v-for="metric in abTestMetrics"
+                        :key="'v1-' + metric.id"
+                        class="flex flex-col gap-1.5"
+                      >
+                        <span class="text-base font-semibold text-om-gray-700 tabular-nums">{{ formatMetricValue(metric.valueA, metric.format) }}</span>
+                        <div class="h-2.5 rounded-full" :style="{ width: (pivotBarPct(metric, metric.valueA) * 0.6) + '%', background: '#FF9E89' }"></div>
+                      </div>
+                    </div>
+
+                    <!-- Variant 2 (AI Variant) -->
+                    <div class="grid grid-cols-[180px_repeat(6,_1fr)] gap-4 items-center py-4 px-3 -mx-3 hover:bg-om-gray-50 rounded-lg transition-colors cursor-default">
+                      <div class="flex flex-col gap-0.5">
+                        <span class="text-sm font-semibold text-om-gray-700">AI Variant</span>
+                        <span class="text-[11px] text-om-gray-400"><span class="text-[#239E77] font-semibold tabular-nums">{{ abTestProbB }}%</span> chance to win</span>
+                      </div>
+                      <div
+                        v-for="metric in abTestMetrics"
+                        :key="'v2-' + metric.id"
+                        class="flex flex-col gap-1.5"
+                      >
+                        <div class="flex items-baseline gap-1.5 flex-wrap">
+                          <span class="text-base font-semibold text-om-gray-700 tabular-nums">{{ formatMetricValue(metric.valueB, metric.format) }}</span>
+                          <span
+                            v-if="metric.delta !== 0"
+                            class="inline-flex items-center gap-0.5 text-[11px] font-medium tabular-nums"
+                            :class="metric.delta > 0 ? 'text-[#239E77]' : 'text-[#C94B14]'"
+                          >
+                            <component :is="metric.delta > 0 ? TrendingUp : TrendingDown" :size="11" />
+                            {{ metric.delta > 0 ? '+' : '' }}{{ metric.delta }}%
+                          </span>
+                        </div>
+                        <div class="h-2.5 rounded-full" :style="{ width: (pivotBarPct(metric, metric.valueB) * 0.6) + '%', background: '#FF6A45' }"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- A/B Test Results — Version 3: bar chart cards -->
+              <div v-if="props.abTestVersion === 'bar-chart'" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5 min-w-0">
+                <div class="px-8 mb-5">
+                  <h2 class="text-xl font-semibold text-om-gray-700">A/B Test Results</h2>
+                </div>
+
+                <!-- Significance summary -->
+                <div class="px-8 mb-7">
+                  <p class="text-sm text-om-gray-700">
+                    Estimated more than <strong class="font-semibold">{{ abTestProgressNeeded }} submits</strong> needed to reach statistically significant 95% win chance.
+                    <span class="text-om-gray-500">&gt;45 days left (based on your current traffic)</span>
+                  </p>
+                </div>
+
+                <!-- Metric cards grid -->
+                <div class="grid grid-cols-6 gap-3 px-8">
+                  <div
+                    v-for="metric in abTestBarMetrics"
+                    :key="'bar-' + metric.id"
+                    class="min-w-0 border border-om-gray-200 rounded-xl px-3 py-2.5"
+                  >
+                    <div class="flex items-start justify-between mb-3 gap-2">
+                      <span class="text-[12px] text-om-gray-500">{{ metric.label }}</span>
+                      <span v-if="metric.isTestGoal" class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-om-gray-100 text-om-gray-600 shrink-0">Primary goal</span>
+                    </div>
+                    <!-- Custom HTML bar chart -->
+                    <div class="flex w-full">
+                      <!-- Variant A column -->
+                      <div class="flex-1 flex flex-col items-center" style="gap: 6px;">
+                        <span class="text-[13px] font-semibold text-om-gray-700 tabular-nums" style="line-height: 16px;">{{ formatMetricValue(metric.valueA, metric.format) }}</span>
+                        <span class="text-[11px]" style="visibility: hidden; line-height: 14px;">·</span>
+                        <div style="height: 100px; display: flex; align-items: flex-end;">
+                          <div
+                            :style="{
+                              height: barHeightPx(metric, metric.valueA) + 'px',
+                              width: '36px',
+                              minHeight: '4px',
+                              backgroundColor: '#FF9E89',
+                              borderTopLeftRadius: '6px',
+                              borderTopRightRadius: '6px',
+                            }"
+                          ></div>
+                        </div>
+                        <span class="text-[11px] text-om-gray-400">Klaviyo Popup</span>
+                      </div>
+                      <!-- Variant B column -->
+                      <div class="flex-1 flex flex-col items-center" style="gap: 6px;">
+                        <span class="text-[13px] font-semibold text-om-gray-700 tabular-nums" style="line-height: 16px;">{{ formatMetricValue(metric.valueB, metric.format) }}</span>
+                        <span
+                          v-if="metric.delta !== 0"
+                          class="inline-flex items-center gap-0.5 text-[11px] font-medium tabular-nums"
+                          :class="metric.delta > 0 ? 'text-[#239E77]' : 'text-[#C94B14]'"
+                          style="line-height: 14px;"
+                        >
+                          <component :is="metric.delta > 0 ? TrendingUp : TrendingDown" :size="11" />
+                          {{ metric.delta > 0 ? '+' : '' }}{{ metric.delta }}%
+                        </span>
+                        <span v-else class="text-[11px]" style="visibility: hidden; line-height: 14px;">·</span>
+                        <div style="height: 100px; display: flex; align-items: flex-end;">
+                          <div
+                            :style="{
+                              height: barHeightPx(metric, metric.valueB) + 'px',
+                              width: '36px',
+                              minHeight: '4px',
+                              backgroundColor: '#FF6A45',
+                              borderTopLeftRadius: '6px',
+                              borderTopRightRadius: '6px',
+                            }"
+                          ></div>
+                        </div>
+                        <span class="text-[11px] text-om-gray-400">AI Variant</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
+
           </template>
         </CampaignAnalyticsTab>
 
@@ -1226,7 +1457,9 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { ChevronDown, ChevronRight, ArrowRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Ban, Hourglass } from 'lucide-vue-next'
+import { ChevronDown, ChevronRight, ArrowRight, TrendingUp, TrendingDown, AlertTriangle, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Ban, Hourglass, MessageCircle, MousePointerClick, Filter, RotateCw, Facebook, Route, Tag as TagIcon, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Truck } from 'lucide-vue-next'
+import VueApexCharts from 'vue3-apexcharts'
+import { croInsights } from '../data/croInsights.js'
 import Button from '../components/shared/Button.vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
@@ -1243,6 +1476,9 @@ import EditableTitle from '../components/shared/EditableTitle.vue'
 import Tag from '../components/shared/Tag.vue'
 import CampaignAnalyticsTab from '../components/shared/CampaignAnalyticsTab.vue'
 
+const props = defineProps({
+  abTestVersion: { type: String, default: 'comparison' }, // 'comparison' | 'pivoted' | 'bar-chart'
+})
 const emit = defineEmits(['menu-click', 'navigate'])
 
 const isChatOpen = ref(false)
@@ -1270,22 +1506,149 @@ const chatAiResponses = {
 const activeTab = ref('Overview')
 
 // A/B funnel breakdown
-const abFunnelSteps = [
-  { id: 'mainpage', name: 'Mainpage', a: 728, b: 728 },
-  { id: 'email', name: 'Email', a: 312, b: 300 },
-  { id: 'phone', name: 'Phone', a: 128, b: 120 },
-  { id: 'thank-you', name: 'Thank You page', a: 65, b: 60 },
-]
-const abFunnelShare = (step, variant) => {
-  const max = abFunnelSteps[0][variant] || 1
-  return ((step[variant] / max) * 100).toFixed(1)
+const abFunnelVariants = computed(() => [
+  {
+    id: 'variant1',
+    label: 'Variant 1',
+    name: 'Klaviyo Popup',
+    image: '/campaigns/cart-abandonment-stopper.png',
+    traffic: variant1Traffic.value,
+    active: variant1Active.value,
+    uplift: null,
+    color: '#FF6A45',
+    steps: [
+      { id: 'mainpage', name: 'Mainpage', impressions: 728 },
+      { id: 'email', name: 'Email', impressions: 312 },
+      { id: 'phone', name: 'Phone', impressions: 128 },
+      { id: 'thank-you', name: 'Thank You page', impressions: 57 },
+    ],
+  },
+  {
+    id: 'variant2',
+    label: 'Variant 2',
+    name: 'AI Variant',
+    image: '/campaigns/cart-abandonment-stopper.png',
+    traffic: variant2Traffic.value,
+    active: variant2Active.value,
+    uplift: '+18.52%',
+    color: '#FF6A45',
+    steps: [
+      { id: 'mainpage', name: 'Mainpage', impressions: 728 },
+      { id: 'discount', name: 'Discount reveal', impressions: 474 },
+      { id: 'email', name: 'Email', impressions: 312 },
+      { id: 'thank-you', name: 'Thank You page', impressions: 68 },
+    ],
+  },
+])
+const variantStepShare = (variant, step) => {
+  const max = variant.steps[0]?.impressions || 1
+  return ((step.impressions / max) * 100).toFixed(1)
 }
-const abFunnelDropOff = (idx, variant) => {
-  const prev = abFunnelSteps[idx - 1]?.[variant]
-  const curr = abFunnelSteps[idx]?.[variant]
+const variantStepDropOff = (variant, idx) => {
+  const prev = variant.steps[idx - 1]?.impressions
+  const curr = variant.steps[idx]?.impressions
   if (!prev) return '0.0'
   return (((prev - curr) / prev) * 100).toFixed(1)
 }
+
+// A/B Test Results
+const abTestCriteria = computed(() => [
+  { id: 'conversions', label: 'Minimum conversions', current: 125, target: minConversionThreshold.value, format: 'number', unit: 'conversions' },
+  { id: 'days', label: 'Minimum days running', current: 12, target: minDaysRunning.value, format: 'number', unit: 'days' },
+  { id: 'chance', label: 'Win chance', current: 77.6, target: autoStopThreshold.value, format: 'percent' },
+])
+const isCriterionMet = (c) => c.current >= c.target
+const formatCriterionValue = (c, val) => c.format === 'percent' ? val + '%' : val + (c.unit ? ' ' + c.unit : '')
+
+const abTestProgressNeeded = 250
+const abTestProgressCurrent = 125
+const abTestProgressPct = Math.min(100, (abTestProgressCurrent / abTestProgressNeeded) * 100)
+const insightIcons = {
+  1: MessageCircle, 2: MousePointerClick, 3: Filter, 4: FlaskConical, 5: Monitor,
+  6: Clock, 7: RotateCw, 8: Facebook, 9: Target, 10: Search,
+  11: Route, 12: TagIcon, 13: Sparkles, 14: LayoutGrid, 15: Layers,
+  16: Info, 17: ClipboardList, 18: ShieldAlert, 19: Smartphone, 20: Eye,
+  21: Wand2, 22: ArrowDown, 23: BarChart3, 24: ShieldCheck, 25: Globe, 26: Truck,
+}
+const abTestImpactPriority = { 'High': 4, 'Large': 4, 'Medium to large': 3, 'Medium': 2, 'Low': 1 }
+const abTestInsights = computed(() =>
+  [...croInsights]
+    .sort((a, b) => (abTestImpactPriority[b.value] ?? 0) - (abTestImpactPriority[a.value] ?? 0) || a.id - b.id)
+    .slice(0, 4)
+)
+const abTestProbA = 22.4
+const abTestProbB = 77.6
+const abTestMetrics = [
+  { id: 'submit-rate', label: 'Submit rate', delta: 19.3, isTestGoal: true, valueA: 7.83, valueB: 9.34, format: 'percent' },
+  { id: 'email-captures', label: 'Email captures', delta: 22.0, isTestGoal: false, valueA: 50, valueB: 61, format: 'number' },
+  { id: 'phone-captures', label: 'Phone captures', delta: -9.1, isTestGoal: false, valueA: 22, valueB: 20, format: 'number' },
+  { id: 'coupon-redeem', label: 'Coupon redemptions', delta: 28.1, isTestGoal: false, valueA: 32, valueB: 41, format: 'number' },
+  { id: 'revenue', label: 'Revenue', delta: 25.8, isTestGoal: false, valueA: 1420, valueB: 1786, format: 'currency' },
+  { id: 'rev-per-visitor', label: 'Revenue per visitor', delta: 25.6, isTestGoal: false, valueA: 1.95, valueB: 2.45, format: 'currency2' },
+]
+const formatMetricValue = (val, format) => {
+  if (format === 'percent') return val.toFixed(2) + '%'
+  if (format === 'currency') return '$' + val.toLocaleString()
+  if (format === 'currency2') return '$' + val.toFixed(2)
+  return val.toLocaleString()
+}
+const abTestBarMetricIds = ['submit-rate', 'phone-captures', 'email-captures', 'coupon-redeem', 'revenue', 'rev-per-visitor']
+const abTestBarMetrics = abTestMetrics.filter(m => abTestBarMetricIds.includes(m.id))
+const barHeightPx = (metric, value) => {
+  const max = Math.max(metric.valueA, metric.valueB)
+  if (!max) return 0
+  return Math.round((value / max) * 100)
+}
+const pivotBarPct = (metric, value) => {
+  const max = Math.max(metric.valueA, metric.valueB)
+  if (!max) return 0
+  return ((value / max) * 100).toFixed(1)
+}
+const abTestVariantColors = ['#FF9E89', '#FF6A45']
+const buildAbBarOptions = (metric) => ({
+  chart: { type: 'bar', toolbar: { show: false }, fontFamily: 'inherit', parentHeightOffset: 0, offsetX: 0, offsetY: 0 },
+  plotOptions: {
+    bar: {
+      distributed: true,
+      borderRadius: 3,
+      columnWidth: '45%',
+      dataLabels: { position: 'top' },
+    },
+  },
+  colors: abTestVariantColors,
+  dataLabels: {
+    enabled: true,
+    offsetY: -20,
+    formatter: (val) => formatMetricValue(val, metric.format),
+    style: { fontSize: '12px', fontWeight: '600', colors: ['#505763'] },
+    background: { enabled: false },
+  },
+  legend: { show: false },
+  states: { hover: { filter: { type: 'none' } }, active: { filter: { type: 'none' } } },
+  xaxis: {
+    categories: ['Klaviyo Popup', 'AI Variant'],
+    axisBorder: { show: false },
+    axisTicks: { show: false },
+    crosshairs: { show: false },
+    tooltip: { enabled: false },
+    labels: { rotate: 0, offsetY: -4, style: { colors: '#9CA3AF', fontSize: '11px' } },
+  },
+  yaxis: { show: false },
+  grid: { show: false, padding: { top: 24, right: 0, bottom: 0, left: 0 } },
+  tooltip: {
+    custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+      const value = series[seriesIndex][dataPointIndex]
+      const label = dataPointIndex === 0 ? 'A · Klaviyo Popup' : 'B · AI Variant'
+      const fmt = formatMetricValue(value, metric.format)
+      return `<div style="padding: 8px 12px; background: white; border: 1px solid #e3e5e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="width: 8px; height: 8px; background: ${w.globals.colors[dataPointIndex]}; border-radius: 50%; display: inline-block;"></span>
+          <span style="color: #505763; font-weight: 500;">${label}: ${fmt}</span>
+        </div>
+      </div>`
+    },
+  },
+})
 const isActive = ref(true)
 
 // Settings tab - Accordion state
@@ -1332,7 +1695,11 @@ const openSettingsAccordion = (section) => {
 }
 
 // Tab routing — each tab gets its own URL
-const VIEW_SLUG = 'campaign-detail'
+const VIEW_SLUG = (() => {
+  const hash = window.location.hash.replace('#/', '').replace('#', '')
+  const slug = hash.split('/')[0]
+  return slug || 'campaign-detail'
+})()
 const TAB_SLUGS = { Overview: '', Settings: 'settings', Submits: 'submits', Analytics: 'analytics' }
 const SLUG_TO_TAB = { '': 'Overview', settings: 'Settings', submits: 'Submits', analytics: 'Analytics' }
 
@@ -1494,7 +1861,7 @@ const handleSubmitsExport = () => {}
 const primaryGoal = ref('Submit')
 const autoStopEnabled = ref(true)
 const autoStopThreshold = ref(95)
-const minConversionThreshold = ref(100)
+const minConversionThreshold = ref(200)
 const minDaysRunning = ref(3)
 const goalValues = ['Submit', 'Order', 'Add to cart', 'Email capture', 'Phone capture']
 const selectedGoal = ref('Submit')
@@ -1509,8 +1876,8 @@ const kpiByGoal = {
   'Submit': {
     label1: 'Impressions', value1: '1,456', label2: 'Submits',         value2: '125', label3: 'Submit rate', value3: '8.37%',
     h1: 'Impression', h2: 'Submits', h3: 'Submit rate',
-    variant1: { v1: '12,593', v2: '650', v3: '7.25%' },
-    variant2: { v1: '12,593', v2: '650', v3: '7.25%' },
+    variant1: { v1: '728', v2: '57', v3: '7.83%' },
+    variant2: { v1: '728', v2: '68', v3: '9.34%' },
   },
   'Order': {
     label1: 'Visitors', value1: '3,812', label2: 'Orders',             value2: '128', label3: 'Order rate', value3: '3.36%',

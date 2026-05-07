@@ -16,12 +16,14 @@
         <Button variant="outline" size="sm" @click="$emit('go-home-onboarding')">Home Onboarding</Button>
         <Button variant="outline" size="sm" @click="$emit('go-home')">Home</Button>
         <Button variant="outline" size="sm" @click="$emit('navigate', 'new-campaign')">New Campaign MVP</Button>
+        <Button variant="outline" size="sm" @click="$emit('navigate', 'campaign-page-v1')">Campaign Page (A/B)</Button>
         <Button variant="outline" size="sm" @click="$emit('go-design-guide')">Design Guide</Button>
         <Button variant="outline" size="sm" @click="$emit('go-image-with-badge')">Image with Badge</Button>
         <Button variant="outline" size="sm" @click="$emit('go-chat-versions')">Chat Versions</Button>
         <Button variant="outline" size="sm" @click="$emit('go-editor')">Editor</Button>
         <Button variant="outline" size="sm" @click="$emit('go-ai-texts-images')">AI Texts &amp; Images V1</Button>
         <Button variant="outline" size="sm" @click="$emit('go-ai-texts-images-v2')">AI Texts &amp; Images V2</Button>
+        <Button variant="outline" size="sm" @click="$emit('navigate', 'cro-email-template')">CRO Email Template</Button>
         <Button variant="outline" size="sm" @click="openArchive">Archive</Button>
       </div>
 

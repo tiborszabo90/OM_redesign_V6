@@ -490,6 +490,9 @@
         </div>
         </div>
 
+        <!-- Analytics Tab Content -->
+        <CampaignAnalyticsTab v-if="activeTab === 'Analytics'" :hide-funnel="true" />
+
         <!-- Settings Tab Content -->
         <div v-if="activeTab === 'Settings'" class="space-y-4 pb-40">
           <!-- Who should see this campaign? -->
@@ -1236,6 +1239,7 @@ import '@vuepic/vue-datepicker/dist/main.css'
 import ScrollTimePicker from '../components/shared/ScrollTimePicker.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
 import EditableTitle from '../components/shared/EditableTitle.vue'
+import CampaignAnalyticsTab from '../components/shared/CampaignAnalyticsTab.vue'
 
 const props = defineProps({
   showPlacement: { type: Boolean, default: false },
