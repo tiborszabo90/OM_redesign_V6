@@ -589,7 +589,63 @@
         </div>
 
         <!-- Analytics Tab Content -->
-        <CampaignAnalyticsTab v-if="activeTab === 'Analytics'" />
+        <CampaignAnalyticsTab v-if="activeTab === 'Analytics'">
+          <template #funnel>
+            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5">
+              <div class="flex items-center justify-between mb-1 px-8">
+                <h2 class="text-xl font-semibold text-om-gray-700">Funnel breakdown</h2>
+                <div class="flex items-center gap-3 text-[12px] text-om-gray-500">
+                  <span class="flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#FF6A45]"></span>
+                    Variant A
+                  </span>
+                  <span class="flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#5B7CFA]"></span>
+                    Variant B
+                  </span>
+                </div>
+              </div>
+              <div class="text-[13px] text-om-gray-500 mb-5 px-8">Impressions of each page in this popup, with drop-off between steps. Compared across A/B variants.</div>
+              <div class="px-5 flex items-stretch gap-0">
+                <template v-for="(step, idx) in abFunnelSteps" :key="step.id">
+                  <div class="flex-1 rounded-xl border border-om-gray-200 px-4 py-2.5 flex flex-col gap-2 min-w-0">
+                    <div class="text-[13px] font-medium text-om-gray-500 truncate">{{ step.name }}</div>
+                    <!-- Variant A -->
+                    <div class="flex flex-col gap-1">
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] font-semibold text-[#FF6A45] uppercase tracking-wide">A</span>
+                        <span class="text-sm font-semibold text-om-gray-700 tabular-nums">{{ step.a.toLocaleString() }}</span>
+                      </div>
+                      <div class="h-1.5 rounded-full bg-om-gray-100 overflow-hidden">
+                        <div class="h-full rounded-full bg-[#FF6A45]" :style="{ width: abFunnelShare(step, 'a') + '%' }"></div>
+                      </div>
+                    </div>
+                    <!-- Variant B -->
+                    <div class="flex flex-col gap-1">
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] font-semibold text-[#5B7CFA] uppercase tracking-wide">B</span>
+                        <span class="text-sm font-semibold text-om-gray-700 tabular-nums">{{ step.b.toLocaleString() }}</span>
+                      </div>
+                      <div class="h-1.5 rounded-full bg-om-gray-100 overflow-hidden">
+                        <div class="h-full rounded-full bg-[#5B7CFA]" :style="{ width: abFunnelShare(step, 'b') + '%' }"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    v-if="idx < abFunnelSteps.length - 1"
+                    class="flex flex-col items-center justify-center px-3 shrink-0"
+                  >
+                    <ArrowRight :size="32" class="text-om-gray-300" />
+                    <div class="flex flex-col items-center gap-0.5 mt-1.5">
+                      <div class="text-[12px] font-semibold text-[#FF6A45] tabular-nums whitespace-nowrap">A: -{{ abFunnelDropOff(idx + 1, 'a') }}%</div>
+                      <div class="text-[12px] font-semibold text-[#5B7CFA] tabular-nums whitespace-nowrap">B: -{{ abFunnelDropOff(idx + 1, 'b') }}%</div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </CampaignAnalyticsTab>
 
         <!-- Settings Tab Content -->
         <div v-if="activeTab === 'Settings'" class="space-y-4 pb-40">
@@ -1170,7 +1226,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { ChevronDown, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Ban, Hourglass } from 'lucide-vue-next'
+import { ChevronDown, ChevronRight, ArrowRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Ban, Hourglass } from 'lucide-vue-next'
 import Button from '../components/shared/Button.vue'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
@@ -1212,6 +1268,24 @@ const chatAiResponses = {
 }
 
 const activeTab = ref('Overview')
+
+// A/B funnel breakdown
+const abFunnelSteps = [
+  { id: 'mainpage', name: 'Mainpage', a: 728, b: 728 },
+  { id: 'email', name: 'Email', a: 312, b: 300 },
+  { id: 'phone', name: 'Phone', a: 128, b: 120 },
+  { id: 'thank-you', name: 'Thank You page', a: 65, b: 60 },
+]
+const abFunnelShare = (step, variant) => {
+  const max = abFunnelSteps[0][variant] || 1
+  return ((step[variant] / max) * 100).toFixed(1)
+}
+const abFunnelDropOff = (idx, variant) => {
+  const prev = abFunnelSteps[idx - 1]?.[variant]
+  const curr = abFunnelSteps[idx]?.[variant]
+  if (!prev) return '0.0'
+  return (((prev - curr) / prev) * 100).toFixed(1)
+}
 const isActive = ref(true)
 
 // Settings tab - Accordion state

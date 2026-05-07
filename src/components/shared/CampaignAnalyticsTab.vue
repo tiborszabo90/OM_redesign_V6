@@ -231,30 +231,32 @@
     </div>
 
     <!-- Funnel breakdown -->
-    <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5">
-      <div class="px-8 mb-1">
-        <h2 class="text-xl font-semibold text-om-gray-700">Funnel breakdown</h2>
-      </div>
-      <div class="text-[13px] text-om-gray-500 mb-5 px-8">Impressions of each page in this popup, with drop-off between steps.</div>
-      <div class="px-5 flex items-stretch gap-0">
-        <template v-for="(step, idx) in funnelSteps" :key="step.id">
-          <div class="flex-1 rounded-xl border border-om-gray-200 px-4 py-2.5 flex flex-col gap-1 min-w-0">
-            <div class="text-[13px] font-medium text-om-gray-500 truncate">{{ step.name }}</div>
-            <div class="text-base font-semibold text-om-gray-700 tabular-nums">{{ step.impressions.toLocaleString() }}</div>
-            <div class="h-1.5 rounded-full bg-om-gray-100 overflow-hidden">
-              <div class="h-full rounded-full bg-om-orange-500" :style="{ width: funnelShare(step) + '%' }"></div>
+    <slot name="funnel">
+      <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5">
+        <div class="px-8 mb-1">
+          <h2 class="text-xl font-semibold text-om-gray-700">Funnel breakdown</h2>
+        </div>
+        <div class="text-[13px] text-om-gray-500 mb-5 px-8">Impressions of each page in this popup, with drop-off between steps.</div>
+        <div class="px-5 flex items-stretch gap-0">
+          <template v-for="(step, idx) in funnelSteps" :key="step.id">
+            <div class="flex-1 rounded-xl border border-om-gray-200 px-4 py-2.5 flex flex-col gap-1 min-w-0">
+              <div class="text-[13px] font-medium text-om-gray-500 truncate">{{ step.name }}</div>
+              <div class="text-base font-semibold text-om-gray-700 tabular-nums">{{ step.impressions.toLocaleString() }}</div>
+              <div class="h-1.5 rounded-full bg-om-gray-100 overflow-hidden">
+                <div class="h-full rounded-full bg-om-orange-500" :style="{ width: funnelShare(step) + '%' }"></div>
+              </div>
             </div>
-          </div>
-          <div
-            v-if="idx < funnelSteps.length - 1"
-            class="flex flex-col items-center justify-center px-3 shrink-0"
-          >
-            <ArrowRight :size="32" class="text-om-gray-300" />
-            <div class="text-sm font-semibold text-om-gray-500 tabular-nums mt-1.5 whitespace-nowrap">-{{ funnelDropOff(idx + 1) }}%</div>
-          </div>
-        </template>
+            <div
+              v-if="idx < funnelSteps.length - 1"
+              class="flex flex-col items-center justify-center px-3 shrink-0"
+            >
+              <ArrowRight :size="32" class="text-om-gray-300" />
+              <div class="text-sm font-semibold text-om-gray-500 tabular-nums mt-1.5 whitespace-nowrap">-{{ funnelDropOff(idx + 1) }}%</div>
+            </div>
+          </template>
+        </div>
       </div>
-    </div>
+    </slot>
 
     <!-- Insights -->
     <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5">

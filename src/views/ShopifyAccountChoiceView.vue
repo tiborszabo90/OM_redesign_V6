@@ -29,7 +29,6 @@
         <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
           <ChoiceCard
             title="Create new OptiMonk account"
-            description="First time here"
             @click="emit('create-account')"
           >
             <template #icon><Plus :size="22" /></template>
@@ -37,7 +36,6 @@
 
           <ChoiceCard
             title="Login to my OptiMonk account"
-            description="Connect existing account"
             @click="emit('login')"
           >
             <template #icon><KeyRound :size="22" /></template>

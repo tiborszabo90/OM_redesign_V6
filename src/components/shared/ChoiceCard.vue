@@ -13,7 +13,7 @@
       <slot name="icon" />
     </div>
     <div class="min-w-0">
-      <h3 class="text-base font-normal text-om-gray-700 mb-1">{{ title }}</h3>
+      <h3 class="text-base font-semibold text-om-gray-700 mb-1">{{ title }}</h3>
       <p v-if="description" class="text-xs text-om-gray-500">{{ description }}</p>
     </div>
   </button>
