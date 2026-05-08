@@ -47,6 +47,7 @@
       <StepUseCase
         v-model="formData"
         skip-label="Back to homepage"
+        :single-line="true"
         @auto-next="handleUseCaseSubmit"
         @skip-to-dashboard="step = 'url'"
       />

@@ -32,6 +32,15 @@
           <span class="text-[#505763] mx-1">|</span>
         </template>
 
+        <!-- Public Wizard V2 flow -->
+        <template v-else-if="registrationType === 'public-wizard-v2'">
+          <button v-for="step in publicWizardV2Steps" :key="step.id"
+            @click="$emit('navigate', step.id)"
+            :class="stepClass(publicWizardStep === step.id)"
+          >{{ step.label }}</button>
+          <span class="text-[#505763] mx-1">|</span>
+        </template>
+
         <!-- Wizard flow -->
         <template v-else-if="registrationType === 'wizard'">
           <button v-for="step in wizardSteps" :key="step.id"
@@ -228,6 +237,7 @@ const toggleOpen = (value) => {
 
 // --- Flow step data (from registry) ---
 const publicWizardSteps = flowDefinitions['public-wizard'].steps
+const publicWizardV2Steps = flowDefinitions['public-wizard-v2'].steps
 const wizardSteps = flowDefinitions['wizard'].steps
 
 const imageBadgeFlow = flowDefinitions['image-with-badge']

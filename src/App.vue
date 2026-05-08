@@ -483,7 +483,7 @@ const activeEvents = computed(() => {
         currentView.value = null; setTimeout(() => { currentView.value = 'public-wizard' }, 50)
       },
       'go-public-wizard-v2': () => {
-        sessionKey.value++; flowSelected.value = true; registrationType.value = 'public-wizard'; publicWizardStep.value = 'url'
+        sessionKey.value++; flowSelected.value = true; registrationType.value = 'public-wizard-v2'; publicWizardStep.value = 'url'
         if (!wizardMessage.value) wizardMessage.value = 'Demo website analysis'
         currentView.value = null; setTimeout(() => { currentView.value = 'public-wizard-v2' }, 50)
       },
@@ -668,15 +668,22 @@ const handleDevNavigate = (view) => {
   if (view === 'public-wizard-url') {
     publicWizardStep.value = 'url'
     viewRefs.publicWizardRef?.navigateToStep('url')
+    viewRefs.publicWizardV2Ref?.navigateToStep('url')
     return
   }
   if (view === 'public-wizard-chat') {
     publicWizardStep.value = 'chat'
     viewRefs.publicWizardRef?.navigateToStep('chat')
+    viewRefs.publicWizardV2Ref?.navigateToStep('chat')
     return
   }
   if (currentView.value === 'public-wizard' && wizardPhases.includes(view) && viewRefs.publicWizardRef) {
     viewRefs.publicWizardRef.navigateToPhase(view)
+    publicWizardStep.value = view
+    return
+  }
+  if (currentView.value === 'public-wizard-v2' && wizardPhases.includes(view) && view !== 'wizard-recommendation-public-v2' && viewRefs.publicWizardV2Ref) {
+    viewRefs.publicWizardV2Ref.navigateToPhase(view)
     publicWizardStep.value = view
     return
   }

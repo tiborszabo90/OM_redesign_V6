@@ -550,7 +550,7 @@ const wizardViews = [
     section: null,
     hideLogo: true,
     keyPrefix: 'wizard-recommendation-public-v2',
-    nav: { sessionReset: true, flowSelected: true },
+    nav: { sessionReset: true, flowSelected: true, registrationType: 'public-wizard-v2', extraState: { publicWizardStep: 'wizard-recommendation-public-v2' } },
   },
 ]
 
