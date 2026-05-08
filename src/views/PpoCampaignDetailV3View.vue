@@ -562,7 +562,7 @@
                 <!-- Comparison table — 3 variants -->
                 <div class="px-8">
                   <div class="grid grid-cols-[1fr_200px_200px_200px] gap-10 pb-4 border-b border-om-gray-200">
-                    <div class="text-sm text-om-gray-700 leading-relaxed pr-36">
+                    <div class="text-sm text-om-gray-700 leading-relaxed pr-16">
                       Estimated more than <strong class="font-semibold">{{ ppoTestProgressNeeded.toLocaleString() }} orders</strong> needed to reach statistically significant 95% win chance.
                       <span class="text-om-gray-500">~14 days left (based on your current traffic)</span>
                     </div>
