@@ -491,7 +491,12 @@
         </div>
 
         <!-- Analytics Tab Content -->
-        <CampaignAnalyticsTab v-if="activeTab === 'Analytics'" :hide-funnel="true" />
+        <CampaignAnalyticsTab
+          v-if="activeTab === 'Analytics'"
+          :hide-funnel="true"
+          @navigate-to-opportunity="emit('navigate-to-opportunity', $event)"
+          @navigate-to-opportunities="emit('navigate-to-opportunities')"
+        />
 
         <!-- Settings Tab Content -->
         <div v-if="activeTab === 'Settings'" class="space-y-4 pb-40">
@@ -1245,7 +1250,7 @@ const props = defineProps({
   showPlacement: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['menu-click', 'navigate'])
+const emit = defineEmits(['menu-click', 'navigate', 'navigate-to-opportunity', 'navigate-to-opportunities'])
 
 const isChatOpen = ref(false)
 const campaignName = ref('Product Summary 2')

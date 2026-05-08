@@ -359,6 +359,11 @@ const handleNavigateToOpportunitiesV4 = () => {
   handleDevNavigate('opportunities-all-v4')
 }
 
+const handleNavigateToOppsV4FirstCampaign = () => {
+  selectedOpportunityId.value = null
+  handleDevNavigate('opportunities-all-v4')
+}
+
 const handleNavigateToGoal = (g) => {
   handleDevNavigate('analytics-v4' + (g === 'submits' ? '' : '-' + g))
 }
@@ -422,7 +427,7 @@ const handleMenuClick = (menuId) => {
     }
   } else if (menuId === 'insights') {
     const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-review', 'home-onboarding-wizard', 'wizard-flow', 'campaigns-empty', 'analytics-empty']
-    currentView.value = onboardingViews.includes(currentView.value) ? 'analytics-empty' : 'analytics-v4'
+    currentView.value = onboardingViews.includes(currentView.value) ? 'analytics-empty' : 'analytics-v4-opps-v2'
   } else if (menuId === 'campaign-page') {
     currentView.value = 'campaign-page-v1'
   } else if (menuId === 'audience') {
@@ -570,17 +575,19 @@ const activeEvents = computed(() => {
     'ppo-campaign-setup-preview-v2': { back: () => { currentView.value = 'ppo-campaign-flow-mvp' }, next: () => { currentView.value = 'ppo-campaign-detail-v2' } },
     'ppo-campaign-setup-preview-v3': { back: () => { currentView.value = 'ppo-campaign-flow-mvp' }, next: () => { currentView.value = 'ppo-campaign-detail-v2' } },
     'ppo-generation': { back: () => { currentView.value = 'ppo-campaign-setup-preview' }, create: () => { currentView.value = 'ppo-campaign-detail' } },
-    'campaign-page-v1': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
-    'campaign-page-v1-pivoted': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
-    'campaign-page-v1-bar-chart': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'campaign-page-v1': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'campaign-page-v1-pivoted': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'campaign-page-v1-bar-chart': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
     'campaign-page-v2-mark': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
-    'campaign-page-single': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
-    'campaign-page-single-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'campaign-page-single': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'campaign-page-single-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
     'ppo-campaign-detail': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-placement': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-campaign-detail-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
-    'ppo-campaign-detail-v3': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
-    'ppo-campaign-detail-v3-single': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'ppo-campaign-detail-v3': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'ppo-campaign-detail-v3-pivoted': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'ppo-campaign-detail-v3-bar-chart': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'ppo-campaign-detail-v3-single': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
     'ppo-campaign-detail-v3-single-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-campaign-detail-v3-single-v3': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-campaign-detail-v3-single-v4': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },

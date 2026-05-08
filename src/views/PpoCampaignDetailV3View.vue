@@ -545,7 +545,11 @@
         </div>
 
         <!-- Analytics Tab Content -->
-        <CampaignAnalyticsTab v-if="activeTab === 'Analytics'">
+        <CampaignAnalyticsTab
+          v-if="activeTab === 'Analytics'"
+          @navigate-to-opportunity="emit('navigate-to-opportunity', $event)"
+          @navigate-to-opportunities="emit('navigate-to-opportunities')"
+        >
           <template #funnel>
             <!-- A/B Test Results -->
             <div class="flex flex-col gap-6">
@@ -1623,7 +1627,7 @@ const props = defineProps({
   abTestVersion: { type: String, default: 'comparison' }, // 'comparison' | 'pivoted' | 'bar-chart'
 })
 
-const emit = defineEmits(['menu-click', 'navigate'])
+const emit = defineEmits(['menu-click', 'navigate', 'navigate-to-opportunity', 'navigate-to-opportunities'])
 
 const isChatOpen = ref(false)
 const campaignName = ref('Product Summary 1')

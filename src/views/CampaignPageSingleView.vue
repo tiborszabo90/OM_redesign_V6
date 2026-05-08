@@ -491,7 +491,11 @@
         </div>
 
         <!-- Analytics Tab Content -->
-        <CampaignAnalyticsTab v-if="activeTab === 'Analytics'" />
+        <CampaignAnalyticsTab
+          v-if="activeTab === 'Analytics'"
+          @navigate-to-opportunity="emit('navigate-to-opportunity', $event)"
+          @navigate-to-opportunities="emit('navigate-to-opportunities')"
+        />
 
         <!-- Settings Tab Content -->
         <div v-if="activeTab === 'Settings'" class="space-y-4 pb-40">
@@ -966,7 +970,7 @@ import FormInput from '../components/shared/FormInput.vue'
 import VueApexCharts from 'vue3-apexcharts'
 import CampaignAnalyticsTab from '../components/shared/CampaignAnalyticsTab.vue'
 
-const emit = defineEmits(['menu-click', 'navigate'])
+const emit = defineEmits(['menu-click', 'navigate', 'navigate-to-opportunity', 'navigate-to-opportunities'])
 
 const isChatOpen = ref(false)
 const campaignName = ref('Lucky Wheel')

@@ -586,19 +586,25 @@
         </div>
 
         <!-- Analytics Tab Content -->
-        <CampaignAnalyticsTab v-if="activeTab === 'Analytics'" :hide-insights="true">
+        <CampaignAnalyticsTab
+          v-if="activeTab === 'Analytics'"
+          :hide-insights="true"
+          @navigate-to-opportunity="emit('navigate-to-opportunity', $event)"
+          @navigate-to-opportunities="emit('navigate-to-opportunities')"
+        >
           <template #funnel>
             <!-- Top Optimization Opportunities -->
             <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5 min-w-0 mb-6">
               <div class="flex items-center justify-between pr-5 pl-8 mb-4">
                 <h2 class="text-xl font-semibold text-om-gray-700">Top Optimization Opportunities</h2>
-                <button class="text-sm font-medium text-om-gray-500 hover:text-om-gray-700 transition-colors cursor-pointer">View all</button>
+                <button class="text-sm font-medium text-om-gray-500 hover:text-om-gray-700 transition-colors cursor-pointer" @click="emit('navigate-to-opportunities')">View all</button>
               </div>
               <div class="grid grid-cols-1 min-[900px]:grid-cols-2 gap-4 px-7">
                 <div
                   v-for="opp in abTestInsights"
                   :key="opp.id"
                   class="flex items-start gap-4 p-4 bg-white rounded-xl border-2 border-om-gray-200 cursor-pointer transition-all hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] min-w-0"
+                  @click="emit('navigate-to-opportunity', opp.id)"
                 >
                   <div class="w-11 h-11 rounded-lg bg-[#FFF0EB] text-[#C94B14] flex items-center justify-center shrink-0">
                     <component :is="insightIcons[opp.id] || Sparkles" :size="22" />
@@ -1479,7 +1485,7 @@ import CampaignAnalyticsTab from '../components/shared/CampaignAnalyticsTab.vue'
 const props = defineProps({
   abTestVersion: { type: String, default: 'comparison' }, // 'comparison' | 'pivoted' | 'bar-chart'
 })
-const emit = defineEmits(['menu-click', 'navigate'])
+const emit = defineEmits(['menu-click', 'navigate', 'navigate-to-opportunity', 'navigate-to-opportunities'])
 
 const isChatOpen = ref(false)
 const campaignName = ref('Campaign #1')
