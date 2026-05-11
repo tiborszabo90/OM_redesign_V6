@@ -2,13 +2,17 @@
   <div class="relative w-full" ref="dropdownRef" :style="lockedWidth ? { width: lockedWidth } : {}">
     <button
       type="button"
-      @click="isOpen = !isOpen"
+      :disabled="disabled"
+      @click="!disabled && (isOpen = !isOpen)"
       :class="[
-        'dropdown-select w-full text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 cursor-pointer bg-white text-left transition-colors border border-om-gray-200',
+        'dropdown-select w-full text-sm focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 text-left transition-colors border border-om-gray-200',
         hasIcon ? 'pl-9 pr-8 h-10 rounded-lg flex items-center' : '',
         !hasIcon && size === 'default' ? 'px-4 pr-8 h-10 rounded-lg flex items-center' : '',
         !hasIcon && size === 'sm' ? 'px-3 pr-8 py-1.5 rounded-lg' : '',
-        isOpen ? 'border-om-orange-300' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'
+        disabled
+          ? 'bg-om-gray-100 text-om-gray-400 cursor-not-allowed'
+          : 'bg-white text-[#23262A] cursor-pointer',
+        !disabled && (isOpen ? 'border-om-orange-300' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]')
       ]"
       :style="buttonStyle"
     >
@@ -43,7 +47,7 @@
       <div
         v-if="isOpen"
         :class="[
-          'absolute z-10 w-full bg-white border border-[#D5D8DD] shadow-lg overflow-hidden rounded-lg',
+          'absolute z-10 w-full bg-white border border-[#D5D8DD] shadow-lg rounded-lg max-h-72 overflow-y-auto',
           props.dropUp ? 'bottom-full mb-1' : 'mt-0'
         ]"
       >
@@ -93,6 +97,10 @@ const props = defineProps({
     validator: (v) => ['default', 'sm'].includes(v)
   },
   dropUp: {
+    type: Boolean,
+    default: false
+  },
+  disabled: {
     type: Boolean,
     default: false
   }

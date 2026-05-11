@@ -28,7 +28,7 @@ const aiScreenSuffixes = [
 ]
 
 const aiV2ScreenSuffixes = [
-  ...aiScreenSuffixes, '-generation-product',
+  ...aiScreenSuffixes, '-generation-product', '-workflow-presets', '-workflow-editor', '-workflow-generation',
 ]
 
 function generateAiSubViews(baseId, component, label, section) {

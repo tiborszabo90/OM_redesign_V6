@@ -28,7 +28,7 @@
             </Button>
           </div>
 
-          <div :class="['px-6 overflow-y-auto', bodyPaddingClass]">
+          <div :class="['px-6', overflowVisible ? 'overflow-visible' : 'overflow-y-auto', bodyPaddingClass]">
             <slot />
           </div>
 
@@ -61,7 +61,8 @@ const props = defineProps({
   closeOnBackdrop: { type: Boolean, default: true },
   closeOnEsc: { type: Boolean, default: true },
   hideClose: { type: Boolean, default: false },
-  dividers: { type: Boolean, default: false }
+  dividers: { type: Boolean, default: false },
+  overflowVisible: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['update:modelValue', 'close'])

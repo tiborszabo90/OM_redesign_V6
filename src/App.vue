@@ -150,6 +150,9 @@ const settingsScreenMap = {
   'choose-products': 'choose-products', 'generation': 'generation',
   'generation-product': 'generation-product', 'add-products': 'add-products',
   'text-presets': 'text-presets', 'text-preview': 'text-preview', 'text-generation': 'text-generation',
+  'workflow-presets': 'workflow-presets',
+  'workflow-editor': 'workflow-editor',
+  'workflow-generation': 'workflow-generation',
 }
 
 function resolveAiScreen(viewId, prefix) {

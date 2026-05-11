@@ -320,6 +320,9 @@ const screenMapV2 = {
   'ai-texts-images-v2-text-presets': 'text-presets',
   'ai-texts-images-v2-text-preview': 'text-preview',
   'ai-texts-images-v2-text-generation': 'text-generation',
+  'ai-texts-images-v2-workflow-presets': 'workflow-presets',
+  'ai-texts-images-v2-workflow-editor': 'workflow-editor',
+  'ai-texts-images-v2-workflow-generation': 'workflow-generation',
 }
 const handleEmbeddedNavigateV2 = (route) => {
   embeddedScreen.value = screenMapV2[route] ?? 'list'
