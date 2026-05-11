@@ -91,6 +91,7 @@
         :initial-message="finalMessage"
         :show-chat="false"
         :skip-style-quicktune="true"
+        :hide-registration-modal="true"
         recommendation-phase-id="wizard-recommendation-public-v2"
         @task-created="(task) => emit('task-created', task)"
         @navigate-to="(view) => emit('navigate-to', view)"

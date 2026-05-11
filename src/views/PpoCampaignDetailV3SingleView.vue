@@ -490,6 +490,14 @@
         </div>
         </div>
 
+        <!-- Analytics Tab Content -->
+        <CampaignAnalyticsTab
+          v-if="activeTab === 'Analytics'"
+          :hide-funnel="true"
+          @navigate-to-opportunity="emit('navigate-to-opportunity', $event)"
+          @navigate-to-opportunities="emit('navigate-to-opportunities')"
+        />
+
         <!-- Settings Tab Content -->
         <div v-if="activeTab === 'Settings'" class="space-y-4 pb-40">
           <!-- Who should see this campaign? -->
@@ -1236,12 +1244,13 @@ import '@vuepic/vue-datepicker/dist/main.css'
 import ScrollTimePicker from '../components/shared/ScrollTimePicker.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
 import EditableTitle from '../components/shared/EditableTitle.vue'
+import CampaignAnalyticsTab from '../components/shared/CampaignAnalyticsTab.vue'
 
 const props = defineProps({
   showPlacement: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['menu-click', 'navigate'])
+const emit = defineEmits(['menu-click', 'navigate', 'navigate-to-opportunity', 'navigate-to-opportunities'])
 
 const isChatOpen = ref(false)
 const campaignName = ref('Product Summary 2')

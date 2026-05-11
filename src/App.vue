@@ -97,13 +97,27 @@ const displayView = computed(() => wizardPhase.value || currentView.value || '')
 // URL hash sync
 // ============================================================================
 let skipHashChange = false
+// Slug families that share tab suffixes (settings/analytics/submits)
+const tabPreservingFamilies = [
+  ['campaign-detail', 'campaign-detail-pivoted', 'campaign-detail-bar-chart'],
+  ['ppo-campaign-detail-v3', 'ppo-campaign-detail-v3-pivoted', 'ppo-campaign-detail-v3-bar-chart'],
+]
+const sameFamily = (slugA, slugB) =>
+  tabPreservingFamilies.some(family => family.includes(slugA) && family.includes(slugB))
+
 watch(displayView, (view) => {
   if (view && view !== 'null') {
     const currentHash = window.location.hash.replace('#/', '').replace('#', '')
     const targetSlug = viewToSlug[view] || view
     if (currentHash.startsWith(targetSlug + '/') || currentHash === targetSlug) return
     skipHashChange = true
-    window.location.hash = '/' + targetSlug
+    // Preserve tab suffix when switching within the same view family
+    const currentParts = currentHash.split('/')
+    const currentSlug = currentParts[0]
+    const subpath = (currentParts.length > 1 && sameFamily(currentSlug, targetSlug))
+      ? '/' + currentParts.slice(1).join('/')
+      : ''
+    window.location.hash = '/' + targetSlug + subpath
     skipHashChange = false
   }
 })
@@ -213,13 +227,21 @@ const activeProps = computed(() => {
     'ppo-v1-variant-detail-v1': { variant: 'variant1' },
     'ppo-v1-variant-detail-v2': { variant: 'variant2' },
     'analytics-v4': { goal: 'submits' },
+    'analytics-v4-opps-v2': { goal: 'submits' },
     'analytics-v4-purchase': { goal: 'purchase' },
     'analytics-v4-add-to-cart': { goal: 'add-to-cart' },
     'analytics-v4-email-capture': { goal: 'email-capture' },
     'analytics-v4-phone-capture': { goal: 'phone-capture' },
     'editor': { chatHistory: editorChatHistory.value },
     'opportunity-detail': { opportunityId: selectedOpportunityId.value },
+    'opportunities-all-v4': { initialInsightId: selectedOpportunityId.value },
     'audience-profile': { lead: selectedLead.value },
+    'campaign-page-v1': { abTestVersion: 'comparison' },
+    'campaign-page-v1-pivoted': { abTestVersion: 'pivoted' },
+    'campaign-page-v1-bar-chart': { abTestVersion: 'bar-chart' },
+    'ppo-campaign-detail-v3': { abTestVersion: 'comparison' },
+    'ppo-campaign-detail-v3-pivoted': { abTestVersion: 'pivoted' },
+    'ppo-campaign-detail-v3-bar-chart': { abTestVersion: 'bar-chart' },
     'templates-v2-essential-theme': { initialFamily: 'essential' },
     'wizard-analysis': { registrationData: registrationData.value, initialMessage: wizardMessage.value },
     'wizard-analysis-no-chat': { registrationData: registrationData.value, initialMessage: wizardMessage.value, noChat: true },
@@ -331,6 +353,20 @@ const handleNavigateToOpportunities = () => {
   handleDevNavigate('opportunities-all')
 }
 
+const handleNavigateToOpportunityV4 = (id) => {
+  selectedOpportunityId.value = id
+  handleDevNavigate('opportunities-all-v4')
+}
+
+const handleNavigateToOpportunitiesV4 = () => {
+  handleDevNavigate('opportunities-all-v4')
+}
+
+const handleNavigateToOppsV4FirstCampaign = () => {
+  selectedOpportunityId.value = null
+  handleDevNavigate('opportunities-all-v4')
+}
+
 const handleNavigateToGoal = (g) => {
   handleDevNavigate('analytics-v4' + (g === 'submits' ? '' : '-' + g))
 }
@@ -394,7 +430,7 @@ const handleMenuClick = (menuId) => {
     }
   } else if (menuId === 'insights') {
     const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-review', 'home-onboarding-wizard', 'wizard-flow', 'campaigns-empty', 'analytics-empty']
-    currentView.value = onboardingViews.includes(currentView.value) ? 'analytics-empty' : 'analytics-v4'
+    currentView.value = onboardingViews.includes(currentView.value) ? 'analytics-empty' : 'analytics-v4-opps-v2'
   } else if (menuId === 'campaign-page') {
     currentView.value = 'campaign-page-v1'
   } else if (menuId === 'audience') {
@@ -455,7 +491,7 @@ const activeEvents = computed(() => {
         currentView.value = null; setTimeout(() => { currentView.value = 'public-wizard' }, 50)
       },
       'go-public-wizard-v2': () => {
-        sessionKey.value++; flowSelected.value = true; registrationType.value = 'public-wizard'; publicWizardStep.value = 'url'
+        sessionKey.value++; flowSelected.value = true; registrationType.value = 'public-wizard-v2'; publicWizardStep.value = 'url'
         if (!wizardMessage.value) wizardMessage.value = 'Demo website analysis'
         currentView.value = null; setTimeout(() => { currentView.value = 'public-wizard-v2' }, 50)
       },
@@ -542,15 +578,19 @@ const activeEvents = computed(() => {
     'ppo-campaign-setup-preview-v2': { back: () => { currentView.value = 'ppo-campaign-flow-mvp' }, next: () => { currentView.value = 'ppo-campaign-detail-v2' } },
     'ppo-campaign-setup-preview-v3': { back: () => { currentView.value = 'ppo-campaign-flow-mvp' }, next: () => { currentView.value = 'ppo-campaign-detail-v2' } },
     'ppo-generation': { back: () => { currentView.value = 'ppo-campaign-setup-preview' }, create: () => { currentView.value = 'ppo-campaign-detail' } },
-    'campaign-page-v1': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'campaign-page-v1': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'campaign-page-v1-pivoted': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'campaign-page-v1-bar-chart': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
     'campaign-page-v2-mark': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
-    'campaign-page-single': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
-    'campaign-page-single-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'campaign-page-single': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'campaign-page-single-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
     'ppo-campaign-detail': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-placement': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-campaign-detail-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
-    'ppo-campaign-detail-v3': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
-    'ppo-campaign-detail-v3-single': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
+    'ppo-campaign-detail-v3': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'ppo-campaign-detail-v3-pivoted': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'ppo-campaign-detail-v3-bar-chart': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'ppo-campaign-detail-v3-single': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
     'ppo-campaign-detail-v3-single-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-campaign-detail-v3-single-v3': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
     'ppo-campaign-detail-v3-single-v4': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
@@ -571,6 +611,12 @@ const activeEvents = computed(() => {
     'analytics-v2': { 'menu-click': handleMenuClick },
     'analytics-v3': { 'menu-click': handleMenuClick, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities },
     'analytics-v4': analyticsV4Events,
+    'analytics-v4-opps-v2': {
+      'menu-click': handleMenuClick,
+      'navigate-to-opportunity': handleNavigateToOpportunityV4,
+      'navigate-to-opportunities': handleNavigateToOpportunitiesV4,
+      'navigate-to-goal': handleNavigateToGoal,
+    },
     'analytics-v4-purchase': analyticsV4Events,
     'analytics-v4-add-to-cart': analyticsV4Events,
     'analytics-v4-email-capture': analyticsV4Events,
@@ -578,6 +624,9 @@ const activeEvents = computed(() => {
     'analytics-empty': { 'menu-click': handleMenuClick },
     'opportunity-detail': { 'menu-click': handleMenuClick, 'go-back': () => handleDevNavigate('analytics-v4') },
     'opportunities-all': { 'menu-click': handleMenuClick, 'go-back': () => handleDevNavigate('analytics-v4'), 'navigate-to-opportunity': handleNavigateToOpportunity },
+    'opportunities-all-v2': { 'menu-click': handleMenuClick, 'go-back': () => handleDevNavigate('analytics-v4'), 'navigate-to-opportunity': handleNavigateToOpportunity },
+    'opportunities-all-v4': { 'menu-click': handleMenuClick, 'go-back': () => handleDevNavigate('analytics-v4-opps-v2') },
+    'cro-email-template': { 'go-back': () => handleDevNavigate('dev-start') },
     'templates-v1': { 'menu-click': handleMenuClick },
     'templates-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'spp-domain-selected': ({ type }) => { ppoWizardState.value.selectedTypes = [type]; currentView.value = 'ppo-loading' } },
     'templates-v2-essential-theme': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
@@ -629,15 +678,22 @@ const handleDevNavigate = (view) => {
   if (view === 'public-wizard-url') {
     publicWizardStep.value = 'url'
     viewRefs.publicWizardRef?.navigateToStep('url')
+    viewRefs.publicWizardV2Ref?.navigateToStep('url')
     return
   }
   if (view === 'public-wizard-chat') {
     publicWizardStep.value = 'chat'
     viewRefs.publicWizardRef?.navigateToStep('chat')
+    viewRefs.publicWizardV2Ref?.navigateToStep('chat')
     return
   }
   if (currentView.value === 'public-wizard' && wizardPhases.includes(view) && viewRefs.publicWizardRef) {
     viewRefs.publicWizardRef.navigateToPhase(view)
+    publicWizardStep.value = view
+    return
+  }
+  if (currentView.value === 'public-wizard-v2' && wizardPhases.includes(view) && view !== 'wizard-recommendation-public-v2' && viewRefs.publicWizardV2Ref) {
+    viewRefs.publicWizardV2Ref.navigateToPhase(view)
     publicWizardStep.value = view
     return
   }

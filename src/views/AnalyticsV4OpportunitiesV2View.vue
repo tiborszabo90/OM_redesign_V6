@@ -409,23 +409,24 @@
             <h2 class="section-title">Top Optimization Opportunities</h2>
             <button class="view-all-btn" @click="emit('navigate-to-opportunities')">View all</button>
           </div>
-          <div class="opportunities-list">
+          <div class="opp-grid">
             <div
               v-for="opp in optimizationOpportunities"
               :key="opp.id"
-              class="opportunity-item"
+              class="opp-card"
               @click="emit('navigate-to-opportunity', opp.id)"
             >
-              <div class="opportunity-info">
-                <div class="opportunity-header">
-                  <div class="opportunity-name">{{ opp.name }}</div>
-                  <div :class="['opportunity-badge', `badge-${opp.level}`]">{{ opp.value }}</div>
-                </div>
-                <div v-if="opp.campaign" class="opportunity-campaign">{{ opp.campaign }}</div>
-                <div class="opportunity-desc">{{ opp.description }}</div>
+              <div class="opp-icon">
+                <component :is="insightIcons[opp.id]" :size="22" />
               </div>
-              <ChevronRight :size="16" class="opportunity-chevron" />
-
+              <div class="opp-info">
+                <div class="opp-header">
+                  <div class="opp-name">{{ opp.name }}</div>
+                  <div :class="['opp-badge', `badge-${opp.level}`]">{{ opp.value }} impact</div>
+                </div>
+                <p v-if="opp.campaign" class="opp-campaign"><strong>Campaign:</strong> {{ opp.campaign }}</p>
+                <div class="opp-desc">{{ opp.description }}</div>
+              </div>
             </div>
           </div>
         </div>
@@ -1843,7 +1844,36 @@
 
 <script setup>
 import { ref, reactive, computed, watch, nextTick } from 'vue'
-import { ExternalLink, ChevronDown, ChevronRight, ChevronLeft, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X, Dice5, Search, Download, Plus, Monitor, Globe, Tag, MousePointerClick, BarChart3, Smartphone, FileText, Languages, Laptop, Link, Megaphone, AppWindow, Users, Save, Trash2 } from 'lucide-vue-next'
+import { ExternalLink, ChevronDown, ChevronRight, ChevronLeft, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X, Dice5, Search, Download, Plus, Monitor, Globe, Tag, MousePointerClick, BarChart3, Smartphone, FileText, Languages, Laptop, Link, Megaphone, AppWindow, Users, Save, Trash2, MessageCircle, Filter, FlaskConical, Clock, RotateCw, Facebook, Route, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, ShieldCheck, Truck } from 'lucide-vue-next'
+
+const insightIcons = {
+  1: MessageCircle,
+  2: MousePointerClick,
+  3: Filter,
+  4: FlaskConical,
+  5: Monitor,
+  6: Clock,
+  7: RotateCw,
+  8: Facebook,
+  9: Target,
+  10: Search,
+  11: Route,
+  12: Tag,
+  13: Sparkles,
+  14: LayoutGrid,
+  15: Layers,
+  16: Info,
+  17: ClipboardList,
+  18: ShieldAlert,
+  19: Smartphone,
+  20: Eye,
+  21: Wand2,
+  22: ArrowDown,
+  23: BarChart3,
+  24: ShieldCheck,
+  25: Globe,
+  26: Truck,
+}
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
@@ -1885,7 +1915,7 @@ const impactPriority = { Large: 5, 'Medium to large': 4, Medium: 3, 'Small to me
 const optimizationOpportunities = computed(() =>
   [...croInsights]
     .sort((a, b) => (impactPriority[b.value] ?? 0) - (impactPriority[a.value] ?? 0) || a.id - b.id)
-    .slice(0, 5)
+    .slice(0, 4)
 )
 
 const activeTab = ref('conversion-rate')
@@ -4708,7 +4738,96 @@ const allTrafficSources = [
   flex: 0 0 320px;
 }
 
-/* Optimization Opportunities */
+/* Optimization Opportunities — 2x2 grid */
+.opp-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 0 28px;
+}
+
+.opp-card {
+  display: flex;
+  align-items: flex-start;
+  cursor: pointer;
+  padding: 16px;
+  gap: 16px;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid #E5E7EB;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 0;
+}
+
+.opp-card:hover {
+  border-color: #ED5A29;
+  box-shadow: 0 4px 14px rgba(237, 90, 41, 0.4);
+}
+
+.opp-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #FFF0EB;
+  color: #C94B14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.opp-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.opp-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.opp-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #23262A;
+  line-height: 1.4;
+  flex: 1;
+  min-width: 0;
+}
+
+.opp-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.opp-campaign {
+  font-size: 0.8125rem;
+  color: #3F4248;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.opp-campaign strong {
+  color: #23262A;
+  font-weight: 600;
+}
+
+.opp-desc {
+  font-size: 0.8125rem;
+  color: #6B7280;
+  line-height: 1.5;
+}
+
+/* Old opportunity styles (kept for compatibility) */
 .opportunities-list {
   display: flex;
   flex-direction: column;
@@ -4731,7 +4850,7 @@ const allTrafficSources = [
   content: '';
   position: absolute;
   top: 0;
-  left: 12px;
+  left: 60px;
   right: 12px;
   height: 1px;
   background: #F1F2F4;
@@ -4740,6 +4859,18 @@ const allTrafficSources = [
 .opportunity-item:hover {
   background: #F1F2F4;
   border-radius: 8px;
+}
+
+.opportunity-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #FFF0EB;
+  color: #C94B14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .opportunity-info {
@@ -4762,10 +4893,15 @@ const allTrafficSources = [
   color: #23262A;
 }
 
-.opportunity-campaign {
-  font-size: 0.75rem;
-  color: #9CA3AF;
-  margin-top: 2px;
+.opportunity-campaign-tag {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #F1F2F4;
+  color: #4B5563;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .opportunity-desc {

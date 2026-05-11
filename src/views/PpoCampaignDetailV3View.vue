@@ -544,6 +544,224 @@
         </div>
         </div>
 
+        <!-- Analytics Tab Content -->
+        <CampaignAnalyticsTab
+          v-if="activeTab === 'Analytics'"
+          @navigate-to-opportunity="emit('navigate-to-opportunity', $event)"
+          @navigate-to-opportunities="emit('navigate-to-opportunities')"
+        >
+          <template #funnel>
+            <!-- A/B Test Results -->
+            <div class="flex flex-col gap-6">
+              <!-- Version 1: Comparison table (variants as columns, metrics as rows) -->
+              <div v-if="props.abTestVersion === 'comparison'" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5 min-w-0">
+                <div class="px-8 mb-5">
+                  <h2 class="text-xl font-semibold text-om-gray-700">A/B Test Results</h2>
+                </div>
+
+                <!-- Comparison table — 3 variants -->
+                <div class="px-8">
+                  <div class="grid grid-cols-[1fr_200px_200px_200px] gap-10 pb-4 border-b border-om-gray-200">
+                    <div class="text-sm text-om-gray-700 leading-relaxed pr-16">
+                      Estimated more than <strong class="font-semibold">{{ ppoTestProgressNeeded.toLocaleString() }} orders</strong> needed to reach statistically significant 95% win chance.
+                      <span class="text-om-gray-500">~14 days left (based on your current traffic)</span>
+                    </div>
+                    <div class="flex flex-col items-start gap-1.5">
+                      <span class="text-[13px] font-semibold text-om-gray-600 whitespace-nowrap">{{ ppoVariantConfig.control.label }}</span>
+                      <div class="text-2xl font-semibold text-om-gray-400 tabular-nums">-</div>
+                    </div>
+                    <div class="flex flex-col items-start gap-1.5">
+                      <span class="text-[13px] font-semibold text-om-gray-600 whitespace-nowrap">{{ ppoVariantConfig.v1.label }}</span>
+                      <div class="flex items-baseline gap-1.5">
+                        <span class="text-2xl font-semibold text-[#239E77] tabular-nums">{{ ppoVariantConfig.v1.chanceToWin }}%</span>
+                        <span class="text-[11px] text-om-gray-400 whitespace-nowrap">chance to win</span>
+                      </div>
+                    </div>
+                    <div class="flex flex-col items-start gap-1.5">
+                      <span class="text-[13px] font-semibold text-om-gray-600 whitespace-nowrap">{{ ppoVariantConfig.v2.label }}</span>
+                      <div class="flex items-baseline gap-1.5">
+                        <span class="text-2xl font-semibold text-om-gray-700 tabular-nums">{{ ppoVariantConfig.v2.chanceToWin }}%</span>
+                        <span class="text-[11px] text-om-gray-400 whitespace-nowrap">chance to win</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    v-for="metric in ppoTestMetrics"
+                    :key="metric.id"
+                    class="grid grid-cols-[1fr_200px_200px_200px] gap-10 items-center py-2.5 px-3 -mx-3 border-b border-[#F3F4F6] last:border-b-0 hover:bg-om-gray-50 rounded-lg transition-colors cursor-default"
+                  >
+                    <div class="flex items-center gap-2 min-w-0">
+                      <span class="text-[13px] text-om-gray-500 truncate">{{ metric.label }}</span>
+                      <span v-if="metric.isPrimary" class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-om-gray-100 text-om-gray-600 shrink-0">Primary goal</span>
+                    </div>
+                    <div class="text-base font-semibold text-om-gray-700 tabular-nums text-left">{{ formatPpoMetric(metric.valueControl, metric.format) }}</div>
+                    <div class="flex items-center justify-start gap-2 flex-wrap">
+                      <span class="text-base font-semibold text-om-gray-700 tabular-nums">{{ formatPpoMetric(metric.valueV1, metric.format) }}</span>
+                      <span
+                        v-if="ppoUpliftPct(metric.valueControl, metric.valueV1) !== 0"
+                        class="inline-flex items-center gap-0.5 text-[12px] font-medium tabular-nums whitespace-nowrap"
+                        :class="ppoUpliftPct(metric.valueControl, metric.valueV1) > 0 ? 'text-[#239E77]' : 'text-[#C94B14]'"
+                      >
+                        <component :is="ppoUpliftPct(metric.valueControl, metric.valueV1) > 0 ? TrendingUp : TrendingDown" :size="12" />
+                        {{ ppoUpliftPct(metric.valueControl, metric.valueV1) > 0 ? '+' : '' }}{{ ppoUpliftPct(metric.valueControl, metric.valueV1) }}%
+                      </span>
+                    </div>
+                    <div class="flex items-center justify-start gap-2 flex-wrap">
+                      <span class="text-base font-semibold text-om-gray-700 tabular-nums">{{ formatPpoMetric(metric.valueV2, metric.format) }}</span>
+                      <span
+                        v-if="ppoUpliftPct(metric.valueControl, metric.valueV2) !== 0"
+                        class="inline-flex items-center gap-0.5 text-[12px] font-medium tabular-nums whitespace-nowrap"
+                        :class="ppoUpliftPct(metric.valueControl, metric.valueV2) > 0 ? 'text-[#239E77]' : 'text-[#C94B14]'"
+                      >
+                        <component :is="ppoUpliftPct(metric.valueControl, metric.valueV2) > 0 ? TrendingUp : TrendingDown" :size="12" />
+                        {{ ppoUpliftPct(metric.valueControl, metric.valueV2) > 0 ? '+' : '' }}{{ ppoUpliftPct(metric.valueControl, metric.valueV2) }}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Version 2: Pivoted (metrics as columns, variants as rows) -->
+              <div v-if="props.abTestVersion === 'pivoted'" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5 min-w-0">
+                <div class="px-8 mb-5">
+                  <h2 class="text-xl font-semibold text-om-gray-700">A/B Test Results</h2>
+                </div>
+                <div class="px-8 mb-4">
+                  <p class="text-sm text-om-gray-700">
+                    Estimated more than <strong class="font-semibold">{{ ppoTestProgressNeeded.toLocaleString() }} orders</strong> needed to reach statistically significant 95% win chance.
+                    <span class="text-om-gray-500">~14 days left (based on your current traffic)</span>
+                  </p>
+                </div>
+                <div class="px-8 overflow-x-auto">
+                  <div class="min-w-[1000px]">
+                    <!-- Header: metric columns -->
+                    <div class="grid grid-cols-[180px_repeat(6,_1fr)] gap-4 pb-3 border-b border-om-gray-200">
+                      <div></div>
+                      <div
+                        v-for="metric in ppoTestMetrics"
+                        :key="'h-' + metric.id"
+                        class="flex items-center gap-2 flex-wrap"
+                      >
+                        <span class="text-[11px] font-medium text-om-gray-500 leading-tight">{{ metric.label }}</span>
+                        <span v-if="metric.isPrimary" class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-om-gray-100 text-om-gray-600 shrink-0">Primary goal</span>
+                      </div>
+                    </div>
+                    <!-- Variant rows -->
+                    <div
+                      v-for="(variantKey, idx) in ['control', 'v1', 'v2']"
+                      :key="variantKey"
+                      class="grid grid-cols-[180px_repeat(6,_1fr)] gap-4 items-center py-4 px-3 -mx-3 border-b border-[#F3F4F6] last:border-b-0 hover:bg-om-gray-50 rounded-lg transition-colors cursor-default"
+                    >
+                      <div class="flex flex-col gap-0.5">
+                        <span class="text-sm font-semibold text-om-gray-700">{{ ppoVariantConfig[variantKey].label }}</span>
+                        <span v-if="variantKey === 'control'" class="text-[11px] text-om-gray-400 tabular-nums">-</span>
+                        <span v-else class="text-[11px] text-om-gray-400">
+                          <span :class="['tabular-nums font-semibold', variantKey === 'v1' ? 'text-[#239E77]' : 'text-om-gray-600']">{{ ppoVariantConfig[variantKey].chanceToWin }}%</span> chance to win
+                        </span>
+                      </div>
+                      <div
+                        v-for="metric in ppoTestMetrics"
+                        :key="variantKey + '-' + metric.id"
+                        class="flex flex-col gap-1.5"
+                      >
+                        <div class="flex items-baseline gap-1.5 flex-wrap">
+                          <span class="text-base font-semibold text-om-gray-700 tabular-nums">{{ formatPpoMetric(metric['value' + (variantKey === 'control' ? 'Control' : variantKey === 'v1' ? 'V1' : 'V2')], metric.format) }}</span>
+                          <span
+                            v-if="variantKey !== 'control' && ppoUpliftPct(metric.valueControl, metric['value' + (variantKey === 'v1' ? 'V1' : 'V2')]) !== 0"
+                            class="inline-flex items-center gap-0.5 text-[11px] font-medium tabular-nums"
+                            :class="ppoUpliftPct(metric.valueControl, metric['value' + (variantKey === 'v1' ? 'V1' : 'V2')]) > 0 ? 'text-[#239E77]' : 'text-[#C94B14]'"
+                          >
+                            <component :is="ppoUpliftPct(metric.valueControl, metric['value' + (variantKey === 'v1' ? 'V1' : 'V2')]) > 0 ? TrendingUp : TrendingDown" :size="11" />
+                            {{ ppoUpliftPct(metric.valueControl, metric['value' + (variantKey === 'v1' ? 'V1' : 'V2')]) > 0 ? '+' : '' }}{{ ppoUpliftPct(metric.valueControl, metric['value' + (variantKey === 'v1' ? 'V1' : 'V2')]) }}%
+                          </span>
+                        </div>
+                        <div class="h-2.5 rounded-full" :style="{ width: (ppoPivotBarPct(metric, metric['value' + (variantKey === 'control' ? 'Control' : variantKey === 'v1' ? 'V1' : 'V2')]) * 0.6) + '%', background: variantKey === 'control' ? '#94A3B8' : variantKey === 'v1' ? '#FF6A45' : '#FF9E89' }"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Version 3: Bar chart cards -->
+              <div v-if="props.abTestVersion === 'bar-chart'" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5 min-w-0">
+                <div class="px-8 mb-5">
+                  <h2 class="text-xl font-semibold text-om-gray-700">A/B Test Results</h2>
+                </div>
+                <div class="px-8 mb-7">
+                  <p class="text-sm text-om-gray-700">
+                    Estimated more than <strong class="font-semibold">{{ ppoTestProgressNeeded.toLocaleString() }} orders</strong> needed to reach statistically significant 95% win chance.
+                    <span class="text-om-gray-500">~14 days left (based on your current traffic)</span>
+                  </p>
+                </div>
+                <div class="grid grid-cols-3 gap-3 px-8">
+                  <div
+                    v-for="metric in ppoTestMetrics"
+                    :key="'bar-' + metric.id"
+                    class="min-w-0 border border-om-gray-200 rounded-xl px-3 py-2.5"
+                  >
+                    <div class="flex items-start justify-between mb-3 gap-2">
+                      <span class="text-[12px] text-om-gray-500">{{ metric.label }}</span>
+                      <span v-if="metric.isPrimary" class="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-om-gray-100 text-om-gray-600 shrink-0">Primary goal</span>
+                    </div>
+                    <!-- Stats row aligned with bar columns -->
+                    <div class="flex w-full mb-1.5">
+                      <div class="flex-1 flex flex-col items-center" style="gap: 2px;">
+                        <span class="text-[12px] font-semibold text-om-gray-700 tabular-nums">{{ formatPpoMetric(metric.valueControl, metric.format) }}</span>
+                        <span class="text-[10px] invisible">·</span>
+                      </div>
+                      <div class="flex-1 flex flex-col items-center" style="gap: 2px;">
+                        <span class="text-[12px] font-semibold text-om-gray-700 tabular-nums">{{ formatPpoMetric(metric.valueV1, metric.format) }}</span>
+                        <span
+                          v-if="ppoUpliftPct(metric.valueControl, metric.valueV1) !== 0"
+                          class="inline-flex items-center gap-0.5 text-[10px] font-medium tabular-nums"
+                          :class="ppoUpliftPct(metric.valueControl, metric.valueV1) > 0 ? 'text-[#239E77]' : 'text-[#C94B14]'"
+                        >
+                          <component :is="ppoUpliftPct(metric.valueControl, metric.valueV1) > 0 ? TrendingUp : TrendingDown" :size="10" />
+                          {{ ppoUpliftPct(metric.valueControl, metric.valueV1) > 0 ? '+' : '' }}{{ ppoUpliftPct(metric.valueControl, metric.valueV1) }}%
+                        </span>
+                        <span v-else class="text-[10px] invisible">·</span>
+                      </div>
+                      <div class="flex-1 flex flex-col items-center" style="gap: 2px;">
+                        <span class="text-[12px] font-semibold text-om-gray-700 tabular-nums">{{ formatPpoMetric(metric.valueV2, metric.format) }}</span>
+                        <span
+                          v-if="ppoUpliftPct(metric.valueControl, metric.valueV2) !== 0"
+                          class="inline-flex items-center gap-0.5 text-[10px] font-medium tabular-nums"
+                          :class="ppoUpliftPct(metric.valueControl, metric.valueV2) > 0 ? 'text-[#239E77]' : 'text-[#C94B14]'"
+                        >
+                          <component :is="ppoUpliftPct(metric.valueControl, metric.valueV2) > 0 ? TrendingUp : TrendingDown" :size="10" />
+                          {{ ppoUpliftPct(metric.valueControl, metric.valueV2) > 0 ? '+' : '' }}{{ ppoUpliftPct(metric.valueControl, metric.valueV2) }}%
+                        </span>
+                        <span v-else class="text-[10px] invisible">·</span>
+                      </div>
+                    </div>
+                    <!-- Bars -->
+                    <div class="flex w-full">
+                      <div class="flex-1 flex flex-col items-center" style="gap: 6px;">
+                        <div class="flex items-end justify-center" style="height: 100px;">
+                          <div :style="{ height: ppoBarHeightPx(metric, metric.valueControl) + 'px', width: '28px', minHeight: '4px', backgroundColor: '#94A3B8', borderTopLeftRadius: '4px', borderTopRightRadius: '4px' }"></div>
+                        </div>
+                        <span class="text-[10px] text-om-gray-400">Control</span>
+                      </div>
+                      <div class="flex-1 flex flex-col items-center" style="gap: 6px;">
+                        <div class="flex items-end justify-center" style="height: 100px;">
+                          <div :style="{ height: ppoBarHeightPx(metric, metric.valueV1) + 'px', width: '28px', minHeight: '4px', backgroundColor: '#FF6A45', borderTopLeftRadius: '4px', borderTopRightRadius: '4px' }"></div>
+                        </div>
+                        <span class="text-[10px] text-om-gray-400 truncate">V1</span>
+                      </div>
+                      <div class="flex-1 flex flex-col items-center" style="gap: 6px;">
+                        <div class="flex items-end justify-center" style="height: 100px;">
+                          <div :style="{ height: ppoBarHeightPx(metric, metric.valueV2) + 'px', width: '28px', minHeight: '4px', backgroundColor: '#FF9E89', borderTopLeftRadius: '4px', borderTopRightRadius: '4px' }"></div>
+                        </div>
+                        <span class="text-[10px] text-om-gray-400 truncate">V2</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </CampaignAnalyticsTab>
+
         <!-- Settings Tab Content -->
         <div v-if="activeTab === 'Settings'" class="space-y-4 pb-40">
           <!-- Who should see this campaign? -->
@@ -1384,7 +1602,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check, Ban, Info, Globe, FlaskConical, Mail, Zap, Hourglass } from 'lucide-vue-next'
+import { ChevronDown, ChevronUp, ChevronRight, TrendingUp, TrendingDown, ArrowRight, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, Plus, ImageIcon, Search, SlidersHorizontal, Upload, ArrowLeft, Wand2, Sparkles, Eye, SquareDashedMousePointer, Trash2, Type, Pencil, ChevronsUp, ChevronsDown, Minus, Check, Ban, Info, Globe, FlaskConical, Mail, Zap, Hourglass } from 'lucide-vue-next'
 import Tag from '../components/shared/Tag.vue'
 import FormInput from '../components/shared/FormInput.vue'
 import ProductPagePreview from '../components/ppo/ProductPagePreview.vue'
@@ -1401,12 +1619,15 @@ import '@vuepic/vue-datepicker/dist/main.css'
 import ScrollTimePicker from '../components/shared/ScrollTimePicker.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
 import EditableTitle from '../components/shared/EditableTitle.vue'
+import CampaignAnalyticsTab from '../components/shared/CampaignAnalyticsTab.vue'
+import { croInsights } from '../data/croInsights.js'
 
 const props = defineProps({
   showPlacement: { type: Boolean, default: false },
+  abTestVersion: { type: String, default: 'comparison' }, // 'comparison' | 'pivoted' | 'bar-chart'
 })
 
-const emit = defineEmits(['menu-click', 'navigate'])
+const emit = defineEmits(['menu-click', 'navigate', 'navigate-to-opportunity', 'navigate-to-opportunities'])
 
 const isChatOpen = ref(false)
 const campaignName = ref('Product Summary 1')
@@ -1430,28 +1651,78 @@ const chatAiResponses = {
   'How does this compare to my other campaigns?': 'Compared to your other active campaigns, **Black Friday 2025** ranks:\n\n- **#2** in conversion rate (5.2% vs Smart Discount\'s 8.37%)\n- **#1** in total impressions\n- **#1** in supported revenue\n\nIt\'s your highest-volume campaign. Even a 1% improvement in conversion rate would add ~240,000 HUF in supported revenue.',
 }
 
-const activeTab = ref('Overview')
+const activeTab = ref('Analytics')
+
+// PPO A/B Test Results
+const ppoTestProgressNeeded = 1500
+const ppoTestProgressCurrent = 1086
+const ppoTestProgressPct = Math.min(100, (ppoTestProgressCurrent / ppoTestProgressNeeded) * 100)
+const ppoBarHeightPx = (metric, value) => {
+  const max = Math.max(metric.valueControl, metric.valueV1, metric.valueV2)
+  if (!max) return 0
+  return Math.round((value / max) * 100)
+}
+const ppoPivotBarPct = (metric, value) => {
+  const max = Math.max(metric.valueControl, metric.valueV1, metric.valueV2)
+  if (!max) return 0
+  return ((value / max) * 100).toFixed(1)
+}
+const ppoTestMetrics = [
+  { id: 'add-to-cart-rate', label: 'Add to cart rate', isPrimary: true, valueControl: 3.27, valueV1: 7.25, valueV2: 5.83, format: 'percent' },
+  { id: 'orders', label: 'Orders', isPrimary: false, valueControl: 264, valueV1: 432, valueV2: 376, format: 'number' },
+  { id: 'order-rate', label: 'Order rate', isPrimary: false, valueControl: 2.10, valueV1: 3.43, valueV2: 3.03, format: 'percent' },
+  { id: 'revenue', label: 'Revenue', isPrimary: false, valueControl: 18450, valueV1: 30780, valueV2: 26890, format: 'currency' },
+  { id: 'aov', label: 'Average order value', isPrimary: false, valueControl: 69.89, valueV1: 71.25, valueV2: 71.52, format: 'currency2' },
+  { id: 'rev-per-visitor', label: 'Revenue per visitor', isPrimary: false, valueControl: 1.47, valueV1: 2.44, valueV2: 2.17, format: 'currency2' },
+]
+const ppoVariantConfig = {
+  control: { label: 'Control', isWinner: false, chanceToWin: '-', uplift: '-' },
+  v1: { label: 'Product summary 1', isWinner: true, chanceToWin: 91.2, uplift: 12.77 },
+  v2: { label: 'Product summary 2', isWinner: false, chanceToWin: 67.4, uplift: 0.34 },
+}
+const formatPpoMetric = (val, format) => {
+  if (format === 'percent') return val.toFixed(2) + '%'
+  if (format === 'currency') return '$' + val.toLocaleString()
+  if (format === 'currency2') return '$' + val.toFixed(2)
+  return val.toLocaleString()
+}
+const ppoUpliftPct = (control, variant) => {
+  if (!control) return 0
+  return Number((((variant - control) / control) * 100).toFixed(1))
+}
+
+const ppoImpactPriority = { 'High': 4, 'Large': 4, 'Medium to large': 3, 'Medium': 2, 'Low': 1 }
+const ppoTestInsights = computed(() =>
+  [...croInsights]
+    .sort((a, b) => (ppoImpactPriority[b.value] ?? 0) - (ppoImpactPriority[a.value] ?? 0) || a.id - b.id)
+    .slice(0, 3)
+)
 const isActive = ref(true)
 
 // --- URL <-> tab sync (deep-link the Settings/Analytics tabs) ---
 const TAB_SUFFIXES = { Overview: '', Settings: '/settings', Analytics: '/analytics' }
 const SUFFIX_TO_TAB = { settings: 'Settings', analytics: 'Analytics' }
+const PPO_V3_SLUGS = ['ppo-campaign-detail-v3', 'ppo-campaign-detail-v3-pivoted', 'ppo-campaign-detail-v3-bar-chart']
+const VIEW_SLUG = (() => {
+  const hash = window.location.hash.replace(/^#\/?/, '')
+  const slug = hash.split('/')[0]
+  return PPO_V3_SLUGS.includes(slug) ? slug : 'ppo-campaign-detail-v3'
+})()
 
 const readTabFromHash = () => {
   const hash = window.location.hash.replace(/^#\/?/, '')
   const parts = hash.split('/')
-  if (parts[0] !== 'ppo-campaign-detail-v3') return
+  if (!PPO_V3_SLUGS.includes(parts[0])) return
   const suffix = parts[1]
-  activeTab.value = SUFFIX_TO_TAB[suffix] || 'Overview'
+  activeTab.value = SUFFIX_TO_TAB[suffix] || 'Analytics'
 }
 
 watch(activeTab, (tab) => {
   const hash = window.location.hash.replace(/^#\/?/, '')
-  // Only sync URL when actually viewing the V3 page (parent slug match,
-  // and not a longer slug like ppo-campaign-detail-v3-single).
+  // Only sync URL when actually viewing the V3 page (parent slug match)
   const parts = hash.split('/')
-  if (parts[0] !== 'ppo-campaign-detail-v3') return
-  const next = '/ppo-campaign-detail-v3' + (TAB_SUFFIXES[tab] || '')
+  if (!PPO_V3_SLUGS.includes(parts[0])) return
+  const next = '/' + parts[0] + (TAB_SUFFIXES[tab] || '')
   if (window.location.hash !== '#' + next) {
     window.location.hash = next
   }

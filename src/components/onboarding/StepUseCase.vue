@@ -13,7 +13,17 @@
 
     <!-- Input area -->
     <div class="relative">
+      <input
+        v-if="singleLine"
+        ref="textareaRef"
+        v-model="message"
+        type="text"
+        @keydown.enter.exact.prevent="handleSubmit"
+        class="w-full px-4 py-3 border border-[#D5D8DD] rounded-xl focus:ring-2 focus:ring-[#8F97A4] focus:border-transparent transition-colors text-[#23262A] pr-12 bg-white"
+        :placeholder="currentPlaceholder"
+      />
       <textarea
+        v-else
         ref="textareaRef"
         v-model="message"
         rows="4"
@@ -26,11 +36,12 @@
         @click="handleSubmit"
         :disabled="!message?.trim()"
         :class="[
-          'absolute bottom-3 right-1.5 w-8 h-8 rounded-lg flex items-center justify-center transition-colors',
+          'absolute w-8 h-8 rounded-lg flex items-center justify-center transition-colors',
+          singleLine ? 'top-1/2 -translate-y-1/2 right-1.5' : 'bottom-3 right-1.5',
           message?.trim() ? 'bg-[#ED5A29] text-white cursor-pointer' : 'bg-[#E3E5E8] text-[#8F97A4] cursor-default'
         ]"
       >
-        <ArrowUp :size="16" />
+        <component :is="singleLine ? ArrowRight : ArrowUp" :size="16" />
       </button>
     </div>
 
@@ -52,7 +63,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import Button from '../shared/Button.vue'
-import { Mail, ShoppingCart, TrendingUp, ArrowUp } from 'lucide-vue-next'
+import { Mail, ShoppingCart, TrendingUp, ArrowUp, ArrowRight } from 'lucide-vue-next'
 
 const props = defineProps({
   modelValue: {
@@ -62,6 +73,10 @@ const props = defineProps({
   skipLabel: {
     type: String,
     default: 'Skip to homepage'
+  },
+  singleLine: {
+    type: Boolean,
+    default: false
   }
 })
 

@@ -12,27 +12,54 @@
             >
               <ChevronLeft :size="20" />
             </button>
-            <h1 class="text-2xl font-semibold text-om-gray-700">All Optimization Opportunities</h1>
+            <div>
+              <h1 class="text-2xl font-semibold text-om-gray-700 leading-tight">All Optimization Opportunities</h1>
+              <div class="flex items-center gap-1.5 mt-1 text-sm text-om-gray-500">
+                <div class="w-4 h-4 rounded-full bg-[#7AAF8A] flex items-center justify-center shrink-0">
+                  <Dice5 :size="10" class="text-white" />
+                </div>
+                <span>Insights for <span class="font-medium text-om-gray-700">{{ activeDomain }}</span></span>
+              </div>
+            </div>
           </div>
-          <span class="text-sm text-om-gray-400">{{ allOpportunities.length }} opportunities</span>
+          <span class="text-sm text-om-gray-400">{{ croInsights.length }} insights</span>
         </div>
 
-        <!-- Opportunities list -->
+        <!-- Filters & Sort -->
+        <div class="flex items-center justify-between gap-4 mb-3 flex-wrap">
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-xs text-om-gray-500">Campaign</span>
+            <div class="w-[320px]">
+              <Dropdown v-model="activeCampaignFilter" :options="campaignFilters" size="sm" />
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-xs text-om-gray-500">Sort by</span>
+            <div class="w-55">
+              <Dropdown v-model="activeSort" :options="sortOptions" size="sm" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Insights list -->
         <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-2 pb-2">
           <div class="opportunities-list">
             <div
-              v-for="opp in allOpportunities"
-              :key="opp.id"
+              v-for="insight in visibleInsights"
+              :key="insight.id"
               class="opportunity-item"
-              @click="$emit('navigate-to-opportunity', opp.id)"
+              @click="$emit('navigate-to-opportunity', insight.id)"
             >
-              <div class="opportunity-number">{{ opp.id }}</div>
+              <div class="opportunity-number">{{ insight.id }}</div>
               <div class="opportunity-info">
                 <div class="opportunity-header">
-                  <div class="opportunity-name">{{ opp.name }}</div>
-                  <div :class="['opportunity-badge', `badge-${opp.level}`]">{{ opp.value }}</div>
+                  <div class="opportunity-name">{{ insight.name }}</div>
+                  <div :class="['opportunity-badge', `badge-${insight.level}`]">{{ insight.value }}</div>
                 </div>
-                <div class="opportunity-desc">{{ opp.description }}</div>
+                <div class="opportunity-meta">
+                  <Tag variant="gray-muted">{{ insight.campaign }}</Tag>
+                  <span class="opportunity-desc">{{ insight.description }}</span>
+                </div>
               </div>
               <ChevronRight :size="16" class="opportunity-chevron" />
             </div>
@@ -49,101 +76,82 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { ref, computed } from 'vue'
+import { ChevronLeft, ChevronRight, Dice5 } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
+import Tag from '../components/shared/Tag.vue'
+import Dropdown from '../components/shared/Dropdown.vue'
+import { croInsights } from '../data/croInsights.js'
 
 defineEmits(['menu-click', 'go-back', 'navigate-to-opportunity'])
 
 const isChatOpen = ref(false)
+const activeDomain = ref('reflexshop.hu')
+const activeCampaignFilter = ref('all')
+
+const sortOptions = [
+  { value: 'id-asc', label: 'Order from agent' },
+  { value: 'impact-desc', label: 'Impact (high to low)' },
+  { value: 'impact-asc', label: 'Impact (low to high)' },
+  { value: 'campaign-asc', label: 'Campaign (A–Z)' },
+  { value: 'name-asc', label: 'Name (A–Z)' },
+]
+const activeSort = ref('id-asc')
+
+const impactPriority = { Large: 5, 'Medium to large': 4, Medium: 3, 'Small to medium': 2, Small: 1 }
+
+const campaignFilters = computed(() => {
+  const counts = croInsights.reduce((acc, insight) => {
+    acc[insight.campaign] = (acc[insight.campaign] || 0) + 1
+    return acc
+  }, {})
+  const campaignEntries = Object.entries(counts)
+    .sort(([, a], [, b]) => b - a)
+    .map(([campaign, count]) => ({ value: campaign, label: `${campaign} (${count})` }))
+  return [{ value: 'all', label: `All campaigns (${croInsights.length})` }, ...campaignEntries]
+})
+
+const visibleInsights = computed(() => {
+  const filtered = activeCampaignFilter.value === 'all'
+    ? [...croInsights]
+    : croInsights.filter(insight => insight.campaign === activeCampaignFilter.value)
+
+  const sortKey = activeSort.value
+  const sorted = [...filtered]
+  switch (sortKey) {
+    case 'impact-asc':
+      sorted.sort((a, b) => (impactPriority[a.value] ?? 0) - (impactPriority[b.value] ?? 0) || a.id - b.id)
+      break
+    case 'id-asc':
+      sorted.sort((a, b) => a.id - b.id)
+      break
+    case 'campaign-asc':
+      sorted.sort((a, b) => a.campaign.localeCompare(b.campaign) || a.id - b.id)
+      break
+    case 'name-asc':
+      sorted.sort((a, b) => a.name.localeCompare(b.name))
+      break
+    case 'impact-desc':
+    default:
+      sorted.sort((a, b) => (impactPriority[b.value] ?? 0) - (impactPriority[a.value] ?? 0) || a.id - b.id)
+  }
+  return sorted
+})
 
 const chatSuggestions = [
-  'Which opportunity has the highest revenue impact?',
-  'Where should I start first?',
-  'Which ones are quickest to implement?',
-  'How much total revenue am I leaving on the table?',
+  'Which insights have the highest expected impact?',
+  'Which insights affect PX_01?',
+  'Which ones are quickest to validate?',
+  'Which insights propose entirely new campaigns?',
 ]
 
 const chatAiResponses = {
-  'Which opportunity has the highest revenue impact?': 'The single highest-impact opportunity is **#9 — "Vásárlói Klub" Conversion Popup** at +4.6M Ft/month, driven by the 170K monthly visitors who aren\'t yet club members.\n\nClose behind are **#2 — Fix the Facebook Traffic Conversion Gap** (+3.7M Ft/month) and **#7 — Search-to-Purchase Optimization** (+3.7M Ft/month).\n\nThese three alone represent over 12M Ft/month in recoverable revenue.',
-  'Where should I start first?': 'I\'d prioritize by impact-to-effort ratio:\n\n**Start immediately (low effort, high impact):**\n- **#3 — Scale the A/B test winner** — just stop the losing variant, no new campaign needed\n- **#2 — Facebook welcome campaign** — one new targeted popup\n\n**Next (medium effort, very high impact):**\n- **#1 — Mobile Abandonment Stopper** — adapt your existing best campaign to mobile\n- **#9 — Vásárlói Klub popup** — new campaign with proven multi-step format\n\nThese four alone can deliver 11M+ Ft/month in additional revenue.',
-  'Which ones are quickest to implement?': '**Fastest wins (can be live in 1–2 days):**\n- **#3** — Stop the losing A/B variant. One click in your campaign settings.\n- **#2** — Create a UTM-targeted welcome bar for Facebook visitors using an existing template.\n- **#4** — Deactivate the zero-converting dynamic content campaign.\n\n**Medium speed (3–5 days):**\n- **#1** — Mobile variant of your Smart Abandonment Stopper\n- **#9** — "Join the Club" multi-step popup\n\nAll others require more planning around content, targeting rules, or seasonal timing.',
-  'How much total revenue am I leaving on the table?': 'Across all 10 opportunities, the estimated recoverable revenue is:\n\n**High-confidence estimates:** ~21.4M Ft/month\n- #1: +2.5M, #2: +3.7M, #3: +945K, #4: +2.3M, #5: +3.0M\n- #7: +3.7M, #9: +4.6M, #10: +2.9M\n\n**Additional upside:** +435K Ft/month (#6) + 2-4M Ft/year (#8)\n\nEven capturing 30–40% of this conservatively represents **6–8M Ft additional monthly revenue**.',
+  'Which insights have the highest expected impact?': 'Six insights are flagged as **Large** or **Medium to large** impact:\n\n- **#8 — Facebook-specific onsite experience** (Large)\n- **#18 — Fix abandonment stopper checkout exclusions** (Large)\n- **#19 — Mobile abandonment stopper** (Large)\n- **#2 — Shopping CTA on PX_01 thank-you page** (Medium to large)\n- **#13 — Scale "mi az új?" recommender** (Medium to large)\n- **#24 — Price-comparison visitor reassurance** (Medium to large)\n\nThese touch your largest traffic sources and your strongest existing campaign mechanic.',
+  'Which insights affect PX_01?': 'Seven insights focus on **PX_01 — Feliratkozó popup ajándék**:\n\n- **#1** — Clarify gift/coupon/puzzle messaging\n- **#2** — Add a shopping CTA to the thank-you page\n- **#3** — Tighten exclusions on jobs and login pages\n- **#4** — Refresh the A/B test after recent edits\n- **#5** — Build a desktop-specific variant\n- **#6** — Test a secondary trigger or teaser\n- **#7** — Resolve the returning-visitor anomaly\n\nPlus **#15** flags a sequencing overlap between PX_01 and the "mi az új?" recommender.',
+  'Which ones are quickest to validate?': 'Insights with mostly inspection-only validation steps (no new test required):\n\n- **#3** — Pull PX_01 page-level impressions and check current exclusions\n- **#7** — Verify visitor-status logic in OptiMonk\n- **#18** — Map cart and checkout URLs against current exclusion rules\n- **#20** — Reproduce the abandonment popup with a real cart and screenshot\n- **#26** — Confirm Wolt offer status and live copy\n\nEach should take well under a day to validate before any campaign change.',
+  'Which insights propose entirely new campaigns?': 'Seven insights are new-campaign ideas rather than tweaks:\n\n- **#8** — Facebook-specific experience\n- **#9** — UTM-targeted rescue messages\n- **#10** — Guided discovery on `/shop_search.php`\n- **#11** — Routing message on `/shop_artforum.php`\n- **#12** — Sale-page guidance on `/akcios-termekek`\n- **#24** — Price-comparison visitor reassurance\n- **#25** — Geo-targeted reassurance for Austria/Germany\n\nThe other 19 are tweaks to existing campaigns.',
 }
-
-const allOpportunities = [
-  {
-    id: 1,
-    name: 'Deploy Smart Abandonment Stopper on Mobile',
-    description: 'Top-performing campaign (7.67% purchase rate) runs on desktop only — 130K mobile visitors are completely untouched.',
-    value: '+2.5M Ft/month',
-    level: 'high',
-  },
-  {
-    id: 2,
-    name: 'Fix the Facebook Traffic Conversion Gap',
-    description: 'Facebook is the #1 traffic source (34,811 visitors) but converts at just 0.72%, far below the 2.17% site average.',
-    value: '+3.7M Ft/month',
-    level: 'high',
-  },
-  {
-    id: 3,
-    name: 'Scale the Winning Email Subscription Variant',
-    description: 'A/B test winner outperforms loser by 70.7% — yet the losing variant still receives 50% of traffic.',
-    value: '+945K Ft/month',
-    level: 'medium',
-  },
-  {
-    id: 4,
-    name: 'Replace Zero-Converting Dynamic Content Campaign',
-    description: '57K visitors, 261K impressions, zero purchases — the most-shown campaign generates no measurable value.',
-    value: '+2.3M Ft/month',
-    level: 'high',
-  },
-  {
-    id: 5,
-    name: 'Build a Mobile-First Cart Abandonment Flow',
-    description: '61% of cart visitors leave without buying, with no recovery mechanism for mobile users (76% of all traffic).',
-    value: '+3.0M Ft/month',
-    level: 'high',
-  },
-  {
-    id: 6,
-    name: 'Enhance the Funko Upsell/Cross-sell Campaign',
-    description: 'Funko upsell has 0.14% purchase rate while the category sits at 4.55% — well below the board game category at 7.10%.',
-    value: '+435K Ft/month',
-    level: 'medium',
-  },
-  {
-    id: 7,
-    name: 'Implement Search-to-Purchase Optimization',
-    description: 'Search is the most visited page (81,574 pageviews, 6.94% purchase rate) but 93% of searchers still leave without buying.',
-    value: '+3.7M Ft/month',
-    level: 'high',
-  },
-  {
-    id: 8,
-    name: 'Create a Seasonal/Valentine\'s Day Urgency Campaign',
-    description: 'Valentine\'s Day page drew 2,161 visitors but converted at only 0.28% — no urgency, no gift guidance, no special incentive.',
-    value: '2-4M Ft/year',
-    level: 'medium',
-  },
-  {
-    id: 9,
-    name: 'Launch a "Vásárlói Klub" Conversion Popup',
-    description: 'No dedicated campaign converts visitors into club members despite the prominent 7% discount benefit on every page.',
-    value: '+4.6M Ft/month',
-    level: 'high',
-  },
-  {
-    id: 10,
-    name: 'Improve the olcsobbat/Price Comparison Visitor Experience',
-    description: 'Olcsobbat drives 26,671 visitors at 3.19% conversion — the highest among large sources — yet has no dedicated welcome campaign.',
-    value: '+2.9M Ft/month',
-    level: 'high',
-  },
-]
 </script>
 
 <style scoped>
@@ -217,7 +225,7 @@ const allOpportunities = [
 .opportunity-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
   flex: 1;
 }
@@ -232,6 +240,13 @@ const allOpportunities = [
   font-size: 0.875rem;
   font-weight: 500;
   color: #23262A;
+}
+
+.opportunity-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .opportunity-desc {
@@ -257,6 +272,11 @@ const allOpportunities = [
 .badge-medium {
   background: #FFF8E6;
   color: #9A6400;
+}
+
+.badge-low {
+  background: #F1F2F4;
+  color: #6B7280;
 }
 
 .opportunity-chevron {

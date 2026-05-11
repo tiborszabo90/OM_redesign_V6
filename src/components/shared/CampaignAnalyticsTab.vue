@@ -230,8 +230,38 @@
       />
     </div>
 
+    <!-- Top Optimization Opportunities -->
+    <div v-if="!hideInsights" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5">
+      <div class="flex items-center justify-between pr-5 pl-8 mb-4">
+        <h2 class="text-xl font-semibold text-om-gray-700">Top Optimization Opportunities</h2>
+        <button class="text-sm font-medium text-om-gray-500 hover:text-om-gray-700 transition-colors cursor-pointer" @click="emit('navigate-to-opportunities')">View all</button>
+      </div>
+      <div class="grid grid-cols-1 min-[900px]:grid-cols-2 gap-4 px-7">
+        <div
+          v-for="opp in topOpportunities"
+          :key="opp.id"
+          class="flex items-start gap-4 p-4 bg-white rounded-xl border-2 border-om-gray-200 cursor-pointer transition-all hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] min-w-0"
+          @click="emit('navigate-to-opportunity', opp.id)"
+        >
+          <div class="w-11 h-11 rounded-lg bg-[#FFF0EB] text-[#C94B14] flex items-center justify-center shrink-0">
+            <component :is="insightIcons[opp.id] || Sparkles" :size="22" />
+          </div>
+          <div class="flex-1 min-w-0 flex flex-col gap-1.5">
+            <div class="flex items-start justify-between gap-3">
+              <div class="text-[0.9375rem] font-semibold text-om-gray-700 leading-snug flex-1 min-w-0">{{ opp.name }}</div>
+              <div :class="['text-[0.6875rem] font-semibold px-3 py-0.5 rounded-full whitespace-nowrap shrink-0', opp.level === 'high' ? 'bg-[#FFF0EB] text-[#C94B14]' : opp.level === 'medium' ? 'bg-[#FFF8E6] text-[#9A6400]' : 'bg-[#F1F2F4] text-[#6B7280]']">{{ opp.value }} impact</div>
+            </div>
+            <p v-if="opp.campaign" class="text-[0.8125rem] text-om-gray-600 leading-relaxed m-0">
+              <strong class="text-om-gray-700 font-semibold">Campaign:</strong> {{ opp.campaign }}
+            </p>
+            <div class="text-[0.8125rem] text-om-gray-500 leading-snug">{{ opp.description }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Funnel breakdown -->
-    <slot name="funnel">
+    <slot v-if="!hideFunnel" name="funnel">
       <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5">
         <div class="px-8 mb-1">
           <h2 class="text-xl font-semibold text-om-gray-700">Funnel breakdown</h2>
@@ -257,30 +287,6 @@
         </div>
       </div>
     </slot>
-
-    <!-- Insights -->
-    <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5">
-      <div class="flex items-center justify-between pr-5 pl-8 mb-4">
-        <h2 class="text-xl font-semibold text-om-gray-700">Insights</h2>
-        <button class="text-sm font-medium text-om-gray-500 hover:text-om-gray-700 transition-colors cursor-pointer">View all</button>
-      </div>
-      <div class="flex flex-col px-5">
-        <div
-          v-for="opp in analyticsInsights"
-          :key="opp.id"
-          class="flex items-center justify-between gap-4 px-3 py-3 cursor-pointer hover:bg-om-gray-100 rounded-lg transition-colors relative"
-        >
-          <div class="flex-1 min-w-0 flex flex-col gap-1">
-            <div class="flex items-center gap-2.5">
-              <div class="text-sm font-medium text-om-gray-700">{{ opp.name }}</div>
-              <div :class="['text-xs font-normal px-2 py-0.5 rounded-full whitespace-nowrap shrink-0', opp.level === 'high' ? 'bg-[#FFF0EB] text-[#C94B14]' : 'bg-[#FFF8E6] text-[#9A6400]']">{{ opp.value }}</div>
-            </div>
-            <div class="text-[0.8125rem] text-om-gray-500 leading-snug">{{ opp.description }}</div>
-          </div>
-          <ChevronRight :size="16" class="text-om-gray-300 shrink-0" />
-        </div>
-      </div>
-    </div>
 
     <!-- Devices + New vs Returning Row -->
     <div class="grid grid-cols-1 min-[1200px]:grid-cols-2 gap-6">
@@ -693,7 +699,14 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
-import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, TrendingUp, Calendar, Users, Smartphone, X, Globe, Plus, Search, Save, Trash2, MousePointerClick, Languages, Laptop, AppWindow } from 'lucide-vue-next'
+
+defineProps({
+  hideInsights: { type: Boolean, default: false },
+  hideFunnel: { type: Boolean, default: false },
+})
+const emit = defineEmits(['navigate-to-opportunity', 'navigate-to-opportunities'])
+import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, TrendingUp, Calendar, Users, Smartphone, X, Globe, Plus, Search, Save, Trash2, MousePointerClick, Languages, Laptop, AppWindow, MessageCircle, Filter, FlaskConical, Monitor, Clock, RotateCw, Facebook, Target, Route, Tag as TagIcon, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Truck } from 'lucide-vue-next'
+import { croInsights } from '../../data/croInsights.js'
 import VueApexCharts from 'vue3-apexcharts'
 import Button from './Button.vue'
 import Checkbox from './Checkbox.vue'
@@ -984,12 +997,20 @@ const funnelDropOff = (idx) => {
   return (((prev - curr) / prev) * 100).toFixed(1)
 }
 
-// Insights
-const analyticsInsights = [
-  { id: 1, name: 'Mobile drop-off at checkout', description: 'Mobile submit rate (7.44%) lags desktop by 19.6% — recovering the gap could add ~10 submits / month.', value: '+$1,200/month', level: 'high' },
-  { id: 2, name: 'Returning visitors over-index', description: 'Returning visitors convert 33% better than new ones — consider a dedicated segment for retargeting.', value: '+$820/month', level: 'medium' },
-  { id: 3, name: 'Campaign missing on /products', description: '/products drives 134 impressions but sees a 4.48% submit rate — tune the trigger or re-test placement.', value: '+$540/month', level: 'medium' },
-]
+// Top Optimization Opportunities (uses croInsights, sorted by impact)
+const insightIcons = {
+  1: MessageCircle, 2: MousePointerClick, 3: Filter, 4: FlaskConical, 5: Monitor,
+  6: Clock, 7: RotateCw, 8: Facebook, 9: Target, 10: Search,
+  11: Route, 12: TagIcon, 13: Sparkles, 14: LayoutGrid, 15: Layers,
+  16: Info, 17: ClipboardList, 18: ShieldAlert, 19: Smartphone, 20: Eye,
+  21: Wand2, 22: ArrowDown, 23: BarChart3, 24: ShieldCheck, 25: Globe, 26: Truck,
+}
+const opportunityImpactPriority = { 'High': 4, 'Large': 4, 'Medium to large': 3, 'Medium': 2, 'Low': 1 }
+const topOpportunities = computed(() =>
+  [...croInsights]
+    .sort((a, b) => (opportunityImpactPriority[b.value] ?? 0) - (opportunityImpactPriority[a.value] ?? 0) || a.id - b.id)
+    .slice(0, 4)
+)
 
 // Devices
 const analyticsDevices = [
