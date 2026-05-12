@@ -802,6 +802,15 @@ const analyticsViews = [
     slug: 'analytics-opps-v2',
   },
   {
+    id: 'analytics-v4-opps-v3',
+    component: () => import('../views/AnalyticsV4OpportunitiesV3View.vue'),
+    label: 'Analytics (Opps V3)',
+    status: 'active',
+    section: 'analytics',
+    hideLogo: true,
+    slug: 'analytics-opps-v3',
+  },
+  {
     id: 'analytics-v4-purchase',
     component: () => import('../views/AnalyticsV4View.vue'),
     label: 'Analytics (Purchase)',

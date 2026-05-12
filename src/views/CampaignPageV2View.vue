@@ -342,7 +342,7 @@
               Based on this campaign's performance and visitor behavior, we've spotted concrete opportunities to lift its conversion rate. Check them out and decide where to focus first.
             </p>
           </div>
-          <Button variant="primary" size="md" class="shrink-0 ml-20" @click="emit('navigate-to-opportunities')">
+          <Button variant="secondary" size="md" class="shrink-0 ml-20" @click="emit('navigate-to-opportunities')">
             <template #icon><ArrowUpRight :size="16" /></template>
             View insights
           </Button>

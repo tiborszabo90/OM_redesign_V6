@@ -230,6 +230,7 @@ const activeProps = computed(() => {
     'ppo-v1-variant-detail-v2': { variant: 'variant2' },
     'analytics-v4': { goal: 'submits' },
     'analytics-v4-opps-v2': { goal: 'submits' },
+    'analytics-v4-opps-v3': { goal: 'submits' },
     'analytics-v4-purchase': { goal: 'purchase' },
     'analytics-v4-add-to-cart': { goal: 'add-to-cart' },
     'analytics-v4-email-capture': { goal: 'email-capture' },
@@ -620,6 +621,12 @@ const activeEvents = computed(() => {
     'analytics-v3': { 'menu-click': handleMenuClick, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities },
     'analytics-v4': analyticsV4Events,
     'analytics-v4-opps-v2': {
+      'menu-click': handleMenuClick,
+      'navigate-to-opportunity': handleNavigateToOpportunityV4,
+      'navigate-to-opportunities': handleNavigateToOpportunitiesV4,
+      'navigate-to-goal': handleNavigateToGoal,
+    },
+    'analytics-v4-opps-v3': {
       'menu-click': handleMenuClick,
       'navigate-to-opportunity': handleNavigateToOpportunityV4,
       'navigate-to-opportunities': handleNavigateToOpportunitiesV4,

@@ -85,7 +85,7 @@
                   Based on your site's traffic, campaign performance, and visitor behavior, we've spotted concrete opportunities to lift your conversion rate. Check them out and decide where to focus first.
                 </p>
               </div>
-              <Button variant="primary" size="sm" @click="emit('navigate-to-opportunities')">
+              <Button variant="secondary" size="sm" @click="emit('navigate-to-opportunities')">
                 <template #icon><ArrowUpRight :size="16" /></template>
                 View insights
               </Button>
