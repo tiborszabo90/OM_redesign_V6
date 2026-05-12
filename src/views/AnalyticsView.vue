@@ -1,6 +1,6 @@
 <template>
   <DashboardLayout
-    active-menu-item="insights"
+    active-menu-item="analytics"
     :no-content-padding="true"
     @menu-click="$emit('menu-click', $event)"
   >

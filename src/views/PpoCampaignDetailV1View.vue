@@ -47,7 +47,7 @@
                 </div>
                 <!-- Selected state content (inside card) -->
                 <div v-if="selectedVariableId === variable.id" class="px-4 pb-3 flex flex-col gap-2">
-                  <Button variant="outline" size="sm" class="w-full" @click.stop="openVariableModal(variable)">
+                  <Button variant="secondary" size="sm" class="w-full" @click.stop="openVariableModal(variable)">
                     <template #icon><Pencil :size="13" /></template>
                     Edit variable
                   </Button>
@@ -65,7 +65,7 @@
                         {{ pos.label }}
                       </button>
                     </div>
-                    <Button variant="outline" size="sm" class="w-full mt-3" @click.stop>
+                    <Button variant="secondary" size="sm" class="w-full mt-3" @click.stop>
                       <template #icon><SquareDashedMousePointer :size="14" /></template>
                       Select position
                     </Button>

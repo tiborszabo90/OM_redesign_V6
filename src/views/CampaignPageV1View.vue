@@ -333,12 +333,51 @@
           </button>
         </div>
 
+        <!-- Top Optimization Opportunities -->
+        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] py-5 mb-6">
+          <div class="flex items-start justify-between gap-4 px-5 mb-5">
+            <div class="flex-1 min-w-0">
+              <h2 class="text-lg font-semibold text-om-gray-700">Top Optimization Opportunities</h2>
+              <p class="mt-1.5 text-[0.8125rem] text-om-gray-500 leading-relaxed">AI-generated recommendations based on this campaign's performance and visitor behavior. Use them to spot the biggest conversion wins.</p>
+            </div>
+            <div class="flex flex-col items-end gap-2 shrink-0">
+              <button class="text-sm font-medium text-om-gray-500 hover:text-om-gray-700 px-2 py-1 rounded-md transition-colors cursor-pointer" @click="emit('navigate-to-opportunities')">View all</button>
+              <span class="inline-flex items-center gap-1.5 text-xs font-medium text-om-gray-600 bg-om-gray-100 px-2.5 py-1 rounded-full whitespace-nowrap">
+                <Clock :size="12" />
+                Generated on May 11, 2026, 09:00
+              </span>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 min-[900px]:grid-cols-2 gap-4 px-5">
+            <div
+              v-for="opp in abTestInsights.slice(0, 2)"
+              :key="opp.id"
+              class="flex items-start gap-4 p-4 bg-white rounded-xl border-2 border-om-gray-200 cursor-pointer transition-all hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] min-w-0"
+              @click="emit('navigate-to-opportunity', opp.id)"
+            >
+              <div class="w-11 h-11 rounded-lg bg-[#FFF0EB] text-[#C94B14] flex items-center justify-center shrink-0">
+                <component :is="insightIcons[opp.id] || Sparkles" :size="22" />
+              </div>
+              <div class="flex-1 min-w-0 flex flex-col gap-1.5">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="text-[0.9375rem] font-semibold text-om-gray-700 leading-snug flex-1 min-w-0">{{ opp.name }}</div>
+                  <div :class="['text-[0.6875rem] font-semibold px-3 py-0.5 rounded-full whitespace-nowrap shrink-0', opp.level === 'high' ? 'bg-[#FFF0EB] text-[#C94B14]' : opp.level === 'medium' ? 'bg-[#FFF8E6] text-[#9A6400]' : 'bg-[#F1F2F4] text-[#6B7280]']">{{ opp.value }} impact</div>
+                </div>
+                <p v-if="opp.campaign" class="text-[0.8125rem] text-om-gray-600 leading-relaxed m-0">
+                  <strong class="text-om-gray-700 font-semibold">Campaign:</strong> {{ opp.campaign }}
+                </p>
+                <div class="text-[0.8125rem] text-om-gray-500 leading-snug">{{ opp.description }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Campaign Settings Sections -->
         <div class="space-y-4">
           <!-- Settings summary heading -->
           <div class="flex items-center justify-between">
             <h2 class="text-lg font-semibold text-om-gray-700">Settings summary</h2>
-            <Button variant="outline" size="sm" @click="activeTab = 'Settings'">Edit settings</Button>
+            <Button variant="secondary" size="sm" @click="activeTab = 'Settings'">Edit settings</Button>
           </div>
 
           <!-- When will the popup show up -->
@@ -942,7 +981,7 @@
 
                 <!-- Add new trigger on timeline -->
                 <div class="trigger-timeline-add pl-6">
-                  <Button variant="outline" size="md">
+                  <Button variant="secondary" size="md">
                     <template #icon><Plus :size="18" /></template>
                     Add new trigger
                   </Button>
@@ -1065,11 +1104,11 @@
                 </div>
               </div>
               <div class="trigger-timeline-add pl-6 flex items-center justify-between gap-3">
-                <Button variant="outline" size="md">
+                <Button variant="secondary" size="md">
                   <template #icon><Plus :size="18" /></template>
                   Add new rule
                 </Button>
-                <Button variant="outline" size="md">Save as segment</Button>
+                <Button variant="secondary" size="md">Save as segment</Button>
               </div>
             </div>
           </Accordion>
@@ -1092,7 +1131,7 @@
               <span class="text-sm font-medium text-om-gray-700">Mailchimp</span>
             </div>
             <div class="mt-8">
-              <Button variant="outline" size="md">
+              <Button variant="secondary" size="md">
                 <template #icon><Plus :size="18" /></template>
                 Add new integration
               </Button>

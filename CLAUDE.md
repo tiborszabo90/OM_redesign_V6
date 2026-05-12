@@ -80,7 +80,7 @@ If a suitable shared component does not exist, create it in `src/components/shar
   Label text
 </Button>
 ```
-- `variant`: `primary` | `secondary` | `outline` | `ghost` (default: `primary`)
+- `variant`: `primary` | `secondary` | `ghost` (default: `primary`)
 - `size`: `sm` | `md` | `lg` (default: `md`)
 - `icon-only`: `Boolean` — renders without text, square shape
 - `active`: `Boolean` — active state for `ghost` variant
@@ -199,7 +199,7 @@ If a suitable shared component does not exist, create it in `src/components/shar
 <Modal v-model="open" title="Edit campaign" size="md">
   <p>Body content goes here.</p>
   <template #footer="{ close }">
-    <Button variant="outline" @click="close">Cancel</Button>
+    <Button variant="secondary" @click="close">Cancel</Button>
     <Button variant="primary" @click="save">Save</Button>
   </template>
 </Modal>

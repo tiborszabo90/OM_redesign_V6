@@ -268,17 +268,6 @@
             </div>
           </div>
 
-          <!-- Outline Buttons -->
-          <div>
-            <h3 class="text-base font-medium text-om-gray-600 mb-4">Outline</h3>
-            <div class="flex flex-wrap gap-4 items-center">
-              <Button variant="outline" size="lg">Large</Button>
-              <Button variant="outline" size="md">Medium</Button>
-              <Button variant="outline" size="sm">Small</Button>
-              <Button variant="outline" size="md" disabled>Disabled</Button>
-            </div>
-          </div>
-
           <!-- Ghost Buttons -->
           <div>
             <h3 class="text-base font-medium text-om-gray-600 mb-4">Ghost</h3>
@@ -313,17 +302,6 @@
             </div>
           </div>
 
-          <!-- With Icon - Outline -->
-          <div>
-            <h3 class="text-base font-medium text-om-gray-600 mb-4">With Icon - Outline</h3>
-            <div class="flex flex-wrap gap-4 items-center">
-              <Button variant="outline" size="lg"><template #icon><User :size="20" /></template>Large</Button>
-              <Button variant="outline" size="md"><template #icon><User :size="18" /></template>Medium</Button>
-              <Button variant="outline" size="sm"><template #icon><User :size="16" /></template>Small</Button>
-              <Button variant="outline" size="md" disabled><template #icon><User :size="18" /></template>Disabled</Button>
-            </div>
-          </div>
-
           <!-- With Icon - Ghost -->
           <div>
             <h3 class="text-base font-medium text-om-gray-600 mb-4">With Icon - Ghost</h3>
@@ -355,17 +333,6 @@
               <Button variant="secondary" size="md" icon-only><template #icon><Settings :size="18" /></template></Button>
               <Button variant="secondary" size="sm" icon-only><template #icon><Settings :size="16" /></template></Button>
               <Button variant="secondary" size="md" icon-only disabled><template #icon><Settings :size="18" /></template></Button>
-            </div>
-          </div>
-
-          <!-- Icon Only - Outline -->
-          <div>
-            <h3 class="text-base font-medium text-om-gray-600 mb-4">Icon Only - Outline</h3>
-            <div class="flex flex-wrap gap-4 items-center">
-              <Button variant="outline" size="lg" icon-only><template #icon><X :size="20" /></template></Button>
-              <Button variant="outline" size="md" icon-only><template #icon><X :size="18" /></template></Button>
-              <Button variant="outline" size="sm" icon-only><template #icon><X :size="16" /></template></Button>
-              <Button variant="outline" size="md" icon-only disabled><template #icon><X :size="18" /></template></Button>
             </div>
           </div>
 
@@ -563,26 +530,26 @@
         <div class="mb-8">
           <h3 class="text-base font-medium text-om-gray-600 mb-4">Sizes</h3>
           <div class="flex flex-wrap gap-3">
-            <Button variant="outline" @click="modalSm = true">Small</Button>
-            <Button variant="outline" @click="modalMd = true">Medium (default)</Button>
-            <Button variant="outline" @click="modalLg = true">Large</Button>
-            <Button variant="outline" @click="modalXl = true">Extra large</Button>
+            <Button variant="secondary" @click="modalSm = true">Small</Button>
+            <Button variant="secondary" @click="modalMd = true">Medium (default)</Button>
+            <Button variant="secondary" @click="modalLg = true">Large</Button>
+            <Button variant="secondary" @click="modalXl = true">Extra large</Button>
           </div>
         </div>
 
         <div class="mb-8">
           <h3 class="text-base font-medium text-om-gray-600 mb-4">Variants</h3>
           <div class="flex flex-wrap gap-3">
-            <Button variant="outline" @click="modalDividers = true">With dividers</Button>
-            <Button variant="outline" @click="modalNoClose = true">No close button</Button>
-            <Button variant="outline" @click="modalCustomHeader = true">Custom header slot</Button>
+            <Button variant="secondary" @click="modalDividers = true">With dividers</Button>
+            <Button variant="secondary" @click="modalNoClose = true">No close button</Button>
+            <Button variant="secondary" @click="modalCustomHeader = true">Custom header slot</Button>
           </div>
         </div>
 
         <Modal v-model="modalSm" title="Small modal" size="sm">
           <p class="text-sm text-om-gray-600">A compact modal for quick confirmations.</p>
           <template #footer="{ close }">
-            <Button variant="outline" @click="close">Cancel</Button>
+            <Button variant="secondary" @click="close">Cancel</Button>
             <Button variant="primary" @click="close">Confirm</Button>
           </template>
         </Modal>
@@ -591,7 +558,7 @@
           <p class="text-sm text-om-gray-600 mb-3">Default size, suitable for most forms and dialogs.</p>
           <p class="text-sm text-om-gray-600">Body content scrolls when it exceeds the available height.</p>
           <template #footer="{ close }">
-            <Button variant="outline" @click="close">Cancel</Button>
+            <Button variant="secondary" @click="close">Cancel</Button>
             <Button variant="primary" @click="close">Save</Button>
           </template>
         </Modal>
@@ -599,21 +566,21 @@
         <Modal v-model="modalLg" title="Large modal" size="lg">
           <p class="text-sm text-om-gray-600">Wider layout for content with multiple columns or longer forms.</p>
           <template #footer="{ close }">
-            <Button variant="outline" @click="close">Close</Button>
+            <Button variant="secondary" @click="close">Close</Button>
           </template>
         </Modal>
 
         <Modal v-model="modalXl" title="Extra large modal" size="xl">
           <p class="text-sm text-om-gray-600">Maximum width for rich content like previews or detail views.</p>
           <template #footer="{ close }">
-            <Button variant="outline" @click="close">Close</Button>
+            <Button variant="secondary" @click="close">Close</Button>
           </template>
         </Modal>
 
         <Modal v-model="modalDividers" title="Modal with dividers" :dividers="true">
           <p class="text-sm text-om-gray-600">Top and bottom borders separate the header and footer from the body.</p>
           <template #footer="{ close }">
-            <Button variant="outline" @click="close">Cancel</Button>
+            <Button variant="secondary" @click="close">Cancel</Button>
             <Button variant="primary" @click="close">Apply</Button>
           </template>
         </Modal>
@@ -621,7 +588,7 @@
         <Modal v-model="modalNoClose" title="No close button" :hide-close="true">
           <p class="text-sm text-om-gray-600">Forces the user to make an explicit choice from the footer.</p>
           <template #footer="{ close }">
-            <Button variant="outline" @click="close">Decline</Button>
+            <Button variant="secondary" @click="close">Decline</Button>
             <Button variant="primary" @click="close">Accept</Button>
           </template>
         </Modal>

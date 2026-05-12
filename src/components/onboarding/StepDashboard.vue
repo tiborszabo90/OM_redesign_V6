@@ -121,7 +121,7 @@
           </div>
 
           <!-- Save as draft and Publish buttons -->
-          <Button variant="outline" :disabled="currentPhase === 'analysis'">
+          <Button variant="secondary" :disabled="currentPhase === 'analysis'">
             Save as draft
           </Button>
           <Button variant="primary" :disabled="currentPhase === 'analysis'">

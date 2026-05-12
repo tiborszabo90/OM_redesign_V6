@@ -108,7 +108,7 @@
             </div>
             <div class="flex gap-2">
               <Button
-                variant="outline"
+                variant="secondary"
                 size="md"
                 @click="handleRegenerate"
                 class="flex-1"
@@ -116,7 +116,7 @@
                 Regenerate
               </Button>
               <Button
-                variant="outline"
+                variant="secondary"
                 size="md"
                 @click="handleCheckMorePreviews"
                 class="flex-1"

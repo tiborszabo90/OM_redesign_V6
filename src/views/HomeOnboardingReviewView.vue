@@ -163,7 +163,7 @@
                 <p class="text-base text-om-gray-500 mb-6">Your code has been successfully installed and your first campaign is live!<br>Let us know if there's anything you need help with.</p>
                 <div class="flex items-center gap-3">
                   <Button variant="primary" size="md" @click="$emit('navigate-to-review')">Everything's great</Button>
-                  <Button variant="outline" size="md">Contact support</Button>
+                  <Button variant="secondary" size="md">Contact support</Button>
                 </div>
               </div>
               <div class="absolute top-8 right-0 bottom-8 flex items-stretch -translate-x-32">
@@ -185,7 +185,7 @@
               <p class="text-xs text-om-gray-400 mt-0.5">Get more out of OptiMonk by inviting your team for free</p>
             </div>
             <div class="flex items-center gap-1 shrink-0">
-              <Button variant="outline" size="sm">Invite your team</Button>
+              <Button variant="secondary" size="sm">Invite your team</Button>
               <Button variant="ghost" size="sm" icon-only @click="showInviteBlock = false">
                 <template #icon><X :size="16" /></template>
               </Button>
@@ -202,7 +202,7 @@
               <p class="text-xs text-om-gray-400 mt-0.5">Discover OptiMonk with expert guidance</p>
             </div>
             <div class="flex items-center gap-1 shrink-0">
-              <Button variant="outline" size="sm">Book now</Button>
+              <Button variant="secondary" size="sm">Book now</Button>
               <Button variant="ghost" size="sm" icon-only @click="showConsultBlock = false">
                 <template #icon><X :size="16" /></template>
               </Button>

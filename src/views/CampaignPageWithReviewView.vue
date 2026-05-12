@@ -121,7 +121,7 @@
             <p class="text-sm text-om-gray-500">You've successfully launched your first campaign. Let us know if there's anything you need help with.</p>
           </div>
           <div class="flex items-center gap-2 shrink-0">
-            <Button variant="outline" size="sm">Contact support</Button>
+            <Button variant="secondary" size="sm">Contact support</Button>
             <Button variant="primary" size="sm" @click="$emit('navigate-to-review')">Everything's great</Button>
           </div>
         </div>
@@ -282,7 +282,7 @@
           <!-- Settings summary heading -->
           <div class="flex items-center justify-between">
             <h2 class="text-lg font-semibold text-om-gray-700">Settings summary</h2>
-            <Button variant="outline" size="sm" @click="activeTab = 'Settings'">Edit settings</Button>
+            <Button variant="secondary" size="sm" @click="activeTab = 'Settings'">Edit settings</Button>
           </div>
 
           <!-- When will the popup show up -->
@@ -559,7 +559,7 @@
 
                 <!-- Add new trigger on timeline -->
                 <div class="trigger-timeline-add pl-6">
-                  <Button variant="outline" size="md">
+                  <Button variant="secondary" size="md">
                     <template #icon><Plus :size="18" /></template>
                     Add new trigger
                   </Button>
@@ -681,11 +681,11 @@
                 </div>
               </div>
               <div class="trigger-timeline-add pl-6 flex items-center justify-between gap-3">
-                <Button variant="outline" size="md">
+                <Button variant="secondary" size="md">
                   <template #icon><Plus :size="18" /></template>
                   Add new rule
                 </Button>
-                <Button variant="outline" size="md">Save as segment</Button>
+                <Button variant="secondary" size="md">Save as segment</Button>
               </div>
             </div>
           </Accordion>
@@ -708,7 +708,7 @@
               <span class="text-sm font-medium text-om-gray-700">Mailchimp</span>
             </div>
             <div class="mt-8">
-              <Button variant="outline" size="md">
+              <Button variant="secondary" size="md">
                 <template #icon><Plus :size="18" /></template>
                 Add new integration
               </Button>

@@ -22,7 +22,8 @@ const props = defineProps({
   variant: {
     type: String,
     default: 'primary',
-    validator: (value) => ['primary', 'secondary', 'outline', 'ghost'].includes(value)
+    // 'outline' is a legacy alias for 'secondary', kept so archived views render correctly
+    validator: (value) => ['primary', 'secondary', 'ghost', 'outline'].includes(value)
   },
   size: {
     type: String,
@@ -52,8 +53,10 @@ defineEmits(['click'])
 const buttonClasses = computed(() => {
   const base = 'rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer'
 
+  const variant = props.variant === 'outline' ? 'secondary' : props.variant
+
   // Active state for ghost variant (selected/toggled look from campaign-page-v1)
-  if (props.active && props.variant === 'ghost') {
+  if (props.active && variant === 'ghost') {
     const activeGhost = 'bg-[#505763]/10 text-[#505763] focus:ring-[#ED5A29]'
     const sizes = props.iconOnly
       ? { sm: 'w-8 h-8 text-sm', md: 'w-10 h-10', lg: 'w-12 h-12 text-lg' }
@@ -64,14 +67,12 @@ const buttonClasses = computed(() => {
   const variantBase = {
     primary: 'bg-[#ED5A29] text-white focus:ring-[#ED5A29]',
     secondary: 'bg-white border border-[#D5D8DD] text-[#505763] focus:ring-[#8F97A4]',
-    outline: 'border border-[#D5D8DD] text-[#505763] focus:ring-[#ED5A29]',
     ghost: 'bg-transparent text-[#505763] focus:ring-[#ED5A29]'
   }
 
   const variantInteractive = {
     primary: 'hover:bg-[#E54D1F] active:bg-[#B33810]',
     secondary: 'hover:bg-[#F9FAFB] active:bg-[#E3E5E8]',
-    outline: 'hover:bg-[#F9FAFB] active:bg-[#E3E5E8] active:border-[#B9BEC6]',
     ghost: 'hover:bg-[#505763]/10 active:bg-[#505763]/15'
   }
 
@@ -88,12 +89,12 @@ const buttonClasses = computed(() => {
       }
 
   if (props.disabled) {
-    if (props.variant === 'primary') {
+    if (variant === 'primary') {
       return `${base} bg-[#E3E5E8] text-[#8F97A4] focus:ring-[#8F97A4] ${sizes[props.size]} cursor-not-allowed`
     }
-    return `${base} ${variantBase[props.variant]} ${sizes[props.size]} opacity-50 cursor-not-allowed`
+    return `${base} ${variantBase[variant]} ${sizes[props.size]} opacity-50 cursor-not-allowed`
   }
 
-  return `${base} ${variantBase[props.variant]} ${sizes[props.size]} ${variantInteractive[props.variant]}`
+  return `${base} ${variantBase[variant]} ${sizes[props.size]} ${variantInteractive[variant]}`
 })
 </script>

@@ -47,7 +47,7 @@
                 </div>
                 <!-- Selected state content (inside card) -->
                 <div v-if="selectedVariableId === variable.id" class="px-4 pb-3 flex flex-col gap-2">
-                  <Button variant="outline" size="sm" class="w-full" @click.stop="openVariableModal(variable)">
+                  <Button variant="secondary" size="sm" class="w-full" @click.stop="openVariableModal(variable)">
                     <template #icon><Pencil :size="13" /></template>
                     Edit variable
                   </Button>
@@ -65,7 +65,7 @@
                         {{ pos.label }}
                       </button>
                     </div>
-                    <Button variant="outline" size="sm" class="w-full mt-3" @click.stop>
+                    <Button variant="secondary" size="sm" class="w-full mt-3" @click.stop>
                       <template #icon><SquareDashedMousePointer :size="14" /></template>
                       Select position
                     </Button>
@@ -481,7 +481,7 @@
         <div class="space-y-5">
           <div class="flex items-center justify-between">
             <h2 class="text-lg font-semibold text-om-gray-700">Settings summary</h2>
-            <Button variant="outline" size="sm" @click="activeTab = 'Settings'">Edit settings</Button>
+            <Button variant="secondary" size="sm" @click="activeTab = 'Settings'">Edit settings</Button>
           </div>
 
 
@@ -786,7 +786,7 @@
                       <div class="text-sm font-semibold text-om-gray-700">Smart product page targeting</div>
                       <div class="text-sm text-om-gray-500 mt-0.5">The campaign runs on product pages where all variables are generated.</div>
                     </div>
-                    <Button variant="outline" size="sm" class="shrink-0">Product catalog</Button>
+                    <Button variant="secondary" size="sm" class="shrink-0">Product catalog</Button>
                   </div>
                   <div class="flex gap-8 items-start overflow-hidden pl-15">
                     <div class="w-96 shrink-0 px-5 py-5 bg-om-gray-50 flex items-center justify-center rounded-xl">
@@ -851,11 +851,11 @@
                 </div>
               </div>
               <div class="trigger-timeline-add pl-6 flex items-center justify-between gap-3">
-                <Button variant="outline" size="md">
+                <Button variant="secondary" size="md">
                   <template #icon><Plus :size="18" /></template>
                   Add new rule
                 </Button>
-                <Button variant="outline" size="md">Save as segment</Button>
+                <Button variant="secondary" size="md">Save as segment</Button>
               </div>
             </div>
           </Accordion>

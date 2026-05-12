@@ -73,41 +73,19 @@
           </div>
         </div>
 
-        <!-- Top Optimization Opportunities -->
-        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 pt-5 pb-5">
-          <div class="opportunities-title-row">
-            <div class="opportunities-title-text">
-              <h2 class="section-title">Top Optimization Opportunities</h2>
-              <p class="opportunities-summary">AI-generated recommendations based on your site's traffic, campaign performance, and visitor behavior. Use them to spot the biggest conversion wins.</p>
-            </div>
-            <div class="opportunities-actions">
-              <button class="view-all-btn" @click="emit('navigate-to-opportunities')">View all</button>
-              <span class="opportunities-generated">
-                <Clock :size="12" />
-                Generated on May 11, 2026, 09:00
-              </span>
-            </div>
+        <!-- Insights teaser -->
+        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 p-6 flex items-center gap-6">
+          <img src="/monk_bulb.svg" alt="Monk with lightbulb" class="w-32 h-32 object-contain shrink-0" />
+          <div class="flex-1 min-w-0">
+            <h2 class="text-lg font-semibold text-om-gray-700 mb-1">We found new optimization insights for your account</h2>
+            <p class="text-sm text-om-gray-500 leading-relaxed">
+              Based on your site's traffic, campaign performance, and visitor behavior, we've spotted concrete opportunities to lift your conversion rate. Check them out and decide where to focus first.
+            </p>
           </div>
-          <div class="opp-grid">
-            <div
-              v-for="opp in optimizationOpportunities"
-              :key="opp.id"
-              class="opp-card"
-              @click="emit('navigate-to-opportunity', opp.id)"
-            >
-              <div class="opp-icon">
-                <component :is="insightIcons[opp.id]" :size="22" />
-              </div>
-              <div class="opp-info">
-                <div class="opp-header">
-                  <div class="opp-name">{{ opp.name }}</div>
-                  <div :class="['opp-badge', `badge-${opp.level}`]">{{ opp.value }} impact</div>
-                </div>
-                <p v-if="opp.campaign" class="opp-campaign"><strong>Campaign:</strong> {{ opp.campaign }}</p>
-                <div class="opp-desc">{{ opp.description }}</div>
-              </div>
-            </div>
-          </div>
+          <Button variant="primary" size="md" class="shrink-0 ml-20" @click="emit('navigate-to-opportunities')">
+            <template #icon><ArrowUpRight :size="16" /></template>
+            View insights
+          </Button>
         </div>
 
         <!-- Promo Blocks -->
@@ -197,7 +175,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted, markRaw } from 'vue'
-import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X, Monitor, Smartphone, Tablet, MessageCircle, MousePointerClick, Filter, FlaskConical, Clock, RotateCw, Facebook, Search, Route, Tag, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Globe, Truck } from 'lucide-vue-next'
+import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X, Monitor, Smartphone, Tablet, MessageCircle, MousePointerClick, Filter, FlaskConical, Clock, RotateCw, Facebook, Search, Route, Tag, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Globe, Truck, Lightbulb, ArrowUpRight } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
@@ -246,12 +224,7 @@ const insightIcons = {
   26: Truck,
 }
 
-const impactPriority = { Large: 5, 'Medium to large': 4, Medium: 3, 'Small to medium': 2, Small: 1 }
-const optimizationOpportunities = computed(() =>
-  [...croInsights]
-    .sort((a, b) => (impactPriority[b.value] ?? 0) - (impactPriority[a.value] ?? 0) || a.id - b.id)
-    .slice(0, 4)
-)
+const insightCount = computed(() => croInsights.length)
 
 const handleLogoClick = () => {
   // No-op for now

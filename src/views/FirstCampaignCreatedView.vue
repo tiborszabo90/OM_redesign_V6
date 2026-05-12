@@ -165,7 +165,7 @@
               <p class="text-xs text-om-gray-400 mt-0.5">Get more out of OptiMonk by inviting your team for free</p>
             </div>
             <div class="flex items-center gap-1 shrink-0">
-              <Button variant="outline" size="sm">Invite your team</Button>
+              <Button variant="secondary" size="sm">Invite your team</Button>
               <Button variant="ghost" size="sm" icon-only @click="showInviteBlock = false">
                 <template #icon><X :size="16" /></template>
               </Button>
@@ -182,7 +182,7 @@
               <p class="text-xs text-om-gray-400 mt-0.5">Discover OptiMonk with expert guidance</p>
             </div>
             <div class="flex items-center gap-1 shrink-0">
-              <Button variant="outline" size="sm">Book now</Button>
+              <Button variant="secondary" size="sm">Book now</Button>
               <Button variant="ghost" size="sm" icon-only @click="showConsultBlock = false">
                 <template #icon><X :size="16" /></template>
               </Button>

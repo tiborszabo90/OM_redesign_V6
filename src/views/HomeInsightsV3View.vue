@@ -54,58 +54,41 @@
           </div>
         </div>
 
-        <!-- Metric Cards -->
-        <div class="metric-cards-grid mb-5">
-          <div
-            v-for="tab in trendTabs"
-            :key="tab.id"
-            class="metric-card"
-          >
-            <div class="metric-card-title">{{ tab.title }}</div>
-            <div class="metric-card-stat">
-              <div class="metric-card-value">{{ tab.value }}</div>
-              <div :class="['metric-card-change', tab.isPositive ? 'positive' : 'negative']">
-                <TrendingUp v-if="tab.isPositive" :size="14" />
-                <TrendingDown v-else :size="14" />
-                {{ tab.change }}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Top Optimization Opportunities -->
-        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 pt-5 pb-5">
-          <div class="opportunities-title-row">
-            <div class="opportunities-title-text">
-              <h2 class="section-title">Top Optimization Opportunities</h2>
-              <p class="opportunities-summary">AI-generated recommendations based on your site's traffic, campaign performance, and visitor behavior. Use them to spot the biggest conversion wins.</p>
-            </div>
-            <div class="opportunities-actions">
-              <button class="view-all-btn" @click="emit('navigate-to-opportunities')">View all</button>
-              <span class="opportunities-generated">
-                <Clock :size="12" />
-                Generated on May 11, 2026, 09:00
-              </span>
-            </div>
-          </div>
-          <div class="opp-grid">
+        <!-- KPI grid + Insights teaser side-by-side -->
+        <div class="grid grid-cols-1 min-[1100px]:grid-cols-2 gap-5 mb-5 items-stretch">
+          <!-- 6 KPI cards in 3x2 grid -->
+          <div class="metric-cards-grid-3">
             <div
-              v-for="opp in optimizationOpportunities"
-              :key="opp.id"
-              class="opp-card"
-              @click="emit('navigate-to-opportunity', opp.id)"
+              v-for="tab in trendTabs"
+              :key="tab.id"
+              class="metric-card"
             >
-              <div class="opp-icon">
-                <component :is="insightIcons[opp.id]" :size="22" />
-              </div>
-              <div class="opp-info">
-                <div class="opp-header">
-                  <div class="opp-name">{{ opp.name }}</div>
-                  <div :class="['opp-badge', `badge-${opp.level}`]">{{ opp.value }} impact</div>
+              <div class="metric-card-title">{{ tab.title }}</div>
+              <div class="metric-card-stat">
+                <div class="metric-card-value">{{ tab.value }}</div>
+                <div :class="['metric-card-change', tab.isPositive ? 'positive' : 'negative']">
+                  <TrendingUp v-if="tab.isPositive" :size="14" />
+                  <TrendingDown v-else :size="14" />
+                  {{ tab.change }}
                 </div>
-                <p v-if="opp.campaign" class="opp-campaign"><strong>Campaign:</strong> {{ opp.campaign }}</p>
-                <div class="opp-desc">{{ opp.description }}</div>
               </div>
+            </div>
+          </div>
+
+          <!-- Insights teaser -->
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] py-5 pr-6 pl-2 flex items-center gap-1">
+            <img src="/monk_bulb.svg" alt="Monk with lightbulb" class="w-44 h-44 object-contain shrink-0" />
+            <div class="flex-1 min-w-0 flex flex-col items-start gap-4">
+              <div>
+                <h2 class="text-lg font-semibold text-om-gray-700 mb-1">We found new optimization insights for your account</h2>
+                <p class="text-sm text-om-gray-500 leading-relaxed">
+                  Based on your site's traffic, campaign performance, and visitor behavior, we've spotted concrete opportunities to lift your conversion rate. Check them out and decide where to focus first.
+                </p>
+              </div>
+              <Button variant="primary" size="sm" @click="emit('navigate-to-opportunities')">
+                <template #icon><ArrowUpRight :size="16" /></template>
+                View insights
+              </Button>
             </div>
           </div>
         </div>
@@ -197,7 +180,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted, markRaw } from 'vue'
-import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X, Monitor, Smartphone, Tablet, MessageCircle, MousePointerClick, Filter, FlaskConical, Clock, RotateCw, Facebook, Search, Route, Tag, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Globe, Truck } from 'lucide-vue-next'
+import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X, Monitor, Smartphone, Tablet, MessageCircle, MousePointerClick, Filter, FlaskConical, Clock, RotateCw, Facebook, Search, Route, Tag, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Globe, Truck, Lightbulb, ArrowUpRight } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
@@ -246,12 +229,7 @@ const insightIcons = {
   26: Truck,
 }
 
-const impactPriority = { Large: 5, 'Medium to large': 4, Medium: 3, 'Small to medium': 2, Small: 1 }
-const optimizationOpportunities = computed(() =>
-  [...croInsights]
-    .sort((a, b) => (impactPriority[b.value] ?? 0) - (impactPriority[a.value] ?? 0) || a.id - b.id)
-    .slice(0, 4)
-)
+const insightCount = computed(() => croInsights.length)
 
 const handleLogoClick = () => {
   // No-op for now
@@ -702,6 +680,13 @@ onUnmounted(() => {
   gap: 12px;
 }
 
+.metric-cards-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 12px;
+}
+
 @media (max-width: 1100px) {
   .metric-cards-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -709,7 +694,8 @@ onUnmounted(() => {
 }
 
 @media (max-width: 640px) {
-  .metric-cards-grid {
+  .metric-cards-grid,
+  .metric-cards-grid-3 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -721,6 +707,7 @@ onUnmounted(() => {
   padding: 16px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 8px;
   min-width: 0;
 }
@@ -740,7 +727,7 @@ onUnmounted(() => {
 }
 
 .metric-card-value {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: rgb(35, 38, 42);
   line-height: 1.2;

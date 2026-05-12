@@ -33,7 +33,7 @@
             <div v-if="showButtons" class="flex justify-start gap-4">
               <Button
                 v-if="!isFirstStep"
-                variant="outline"
+                variant="secondary"
                 size="md"
                 @click="handlePrev"
               >

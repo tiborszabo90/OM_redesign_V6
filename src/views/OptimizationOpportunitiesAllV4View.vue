@@ -4,75 +4,115 @@
       <div class="w-full max-w-350 mx-auto -mt-3" style="margin-bottom:-2rem;">
 
         <!-- Header -->
-        <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center gap-3">
-            <button
-              @click="$emit('go-back')"
-              class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-om-gray-100 text-om-gray-500 hover:text-om-gray-700 transition-colors"
-            >
-              <ChevronLeft :size="20" />
-            </button>
-            <div>
-              <h1 class="text-2xl font-semibold text-om-gray-700 leading-tight">All Optimization Opportunities</h1>
-              <div class="flex items-center gap-1.5 mt-1 text-sm text-om-gray-500">
-                <div class="w-4 h-4 rounded-full bg-[#7AAF8A] flex items-center justify-center shrink-0">
-                  <Dice5 :size="10" class="text-white" />
-                </div>
-                <span>Insights for <span class="font-medium text-om-gray-700">{{ activeDomain }}</span></span>
+        <div class="flex items-start justify-between mb-6 gap-6">
+          <div>
+            <h1 class="text-2xl font-semibold text-om-gray-700 leading-tight">All Optimization Opportunities</h1>
+            <div class="flex items-center gap-1.5 mt-1 text-sm text-om-gray-500">
+              <div class="w-4 h-4 rounded-full bg-[#7AAF8A] flex items-center justify-center shrink-0">
+                <Dice5 :size="10" class="text-white" />
               </div>
+              <span>Insights for <span class="font-medium text-om-gray-700">{{ activeDomain }}</span></span>
             </div>
           </div>
-          <span class="text-sm text-om-gray-400">{{ croInsights.length }} insights · {{ groups.length }} campaigns</span>
+          <span class="inline-flex items-center gap-1.5 text-xs font-medium text-om-gray-600 bg-om-gray-100 px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
+            <Clock :size="12" />
+            Generated on May 11, 2026, 09:00
+          </span>
         </div>
 
         <!-- 50/50 split card -->
         <div class="split-card">
 
-          <!-- Left half: accordion list -->
+          <!-- Left half: flat insight list -->
           <div class="split-pane split-pane--left">
-            <div class="flex flex-col gap-3">
-              <Accordion
-                v-for="group in groups"
-                :key="group.campaign"
-                :title="group.campaign"
-                :open="!!openGroups[group.campaign]"
-                @toggle="toggleGroup(group.campaign)"
+            <div ref="leftPaneRef" class="split-pane-scroll" :style="leftMaskStyle" @scroll="onLeftScroll">
+              <div class="insight-list insight-list--flat">
+              <button
+                v-for="insight in visibleInsights"
+                :key="insight.id"
+                @click="selectedInsightId = insight.id"
+                :class="['insight-row', selectedInsightId === insight.id && 'insight-row--active']"
               >
-                <div class="insight-list">
-                  <button
-                    v-for="insight in group.insights"
-                    :key="insight.id"
-                    @click="selectedInsightId = insight.id"
-                    :class="['insight-row', selectedInsightId === insight.id && 'insight-row--active']"
-                  >
-                    <div class="insight-row-icon">
-                      <component :is="insightIcons[insight.id]" :size="20" />
-                    </div>
-                    <div class="insight-row-content">
-                      <div class="insight-row-header">
-                        <div class="insight-row-name">{{ insight.name }}</div>
-                        <div :class="['insight-row-badge', `badge-${insight.level}`]">{{ insight.value }} impact</div>
-                      </div>
-                      <div class="insight-row-desc">{{ insight.description }}</div>
-                    </div>
-                  </button>
+                <div class="insight-row-icon">
+                  <component :is="insightIcons[insight.id]" :size="20" />
                 </div>
-              </Accordion>
+                <div class="insight-row-content">
+                  <div class="insight-row-header">
+                    <div class="insight-row-name">{{ insight.name }}</div>
+                    <div :class="['insight-row-badge', `badge-${insight.level}`]">{{ insight.value }} impact</div>
+                  </div>
+                  <div class="insight-row-desc">{{ insight.description }}</div>
+                  <div v-if="insight.campaign" class="insight-row-campaign">{{ insight.campaign }}</div>
+                </div>
+              </button>
+              <div v-if="sortedInsights.length > visibleCount" class="flex justify-center mt-4">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  @click="visibleCount = Math.min(sortedInsights.length, visibleCount + 7)"
+                >
+                  <template #icon><ChevronDown :size="16" /></template>
+                  Show more
+                </Button>
+              </div>
+              </div>
             </div>
           </div>
 
           <!-- Right half: detail of selected insight -->
           <div class="split-pane split-pane--right">
-            <div v-if="selectedInsight" :class="['sticky-bar', { 'sticky-bar--visible': isScrolled }]">
+            <div v-if="selectedInsight && doItForMeView === 'idle'" :class="['sticky-bar', { 'sticky-bar--visible': isScrolled }]">
               <h3 class="sticky-bar-title">{{ selectedInsight.name }}</h3>
-              <button v-if="selectedInsight.campaign === 'New campaign idea'" class="hero-action-btn hero-action-btn--primary">
-                <Plus :size="14" /> Create campaign
-              </button>
-              <button v-else class="hero-action-btn hero-action-btn--primary">
-                <ArrowUpRight :size="14" /> View campaign
-              </button>
+              <div class="sticky-bar-actions">
+                <button class="hero-action-btn hero-action-btn--primary" @click="doItForMeView = 'pitch'">
+                  <Wand2 :size="14" /> Do it for me
+                </button>
+                <Button v-if="selectedInsight.campaign !== 'New campaign idea'" variant="secondary" size="sm">
+                  <template #icon><ArrowUpRight :size="14" /></template>
+                  View campaign
+                </Button>
+              </div>
             </div>
-            <div ref="detailScrollRef" v-if="selectedInsight" class="detail-scroll" @scroll="onDetailScroll">
+
+            <!-- Do it for me pitch sub-page -->
+            <div v-if="selectedInsight && doItForMeView === 'pitch'" class="do-it-pane">
+              <div class="do-it-card">
+                <img src="/monk-work.svg" alt="Monk at work" class="do-it-image" />
+                <h2 class="do-it-title">Sit back, our optimization crew is already on the case.</h2>
+                <p class="do-it-text">
+                  We took a look at <strong>"{{ selectedInsight.name }}"</strong> and the wheels are already in motion. Behind the scenes, your variant is being shaped, polished, and lined up for launch.
+                </p>
+                <p class="do-it-text">
+                  Give us about <strong>24 hours</strong> and you'll have a ready-to-launch variant waiting in your account. No babysitting required.
+                </p>
+                <div class="do-it-actions">
+                  <button class="hero-action-btn hero-action-btn--primary" @click="doItForMeView = 'accepted'">
+                    <Check :size="14" /> Yes, go ahead
+                  </button>
+                  <button class="hero-action-btn hero-action-btn--secondary" @click="doItForMeView = 'idle'">
+                    <ArrowUpRight :size="14" /> I'll do it myself
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Accepted confirmation -->
+            <div v-if="selectedInsight && doItForMeView === 'accepted'" class="do-it-pane">
+              <div class="do-it-card">
+                <img src="/monk-happy-white2.svg" alt="Happy monk" class="do-it-image" />
+                <h2 class="do-it-title">Brilliant choice, we're on it.</h2>
+                <p class="do-it-text">
+                  We'll get cracking on <strong>"{{ selectedInsight.name }}"</strong> and ping you the moment the variant is ready. In the meantime, go brew yourself a victory coffee. You've earned it.
+                </p>
+                <div class="do-it-actions">
+                  <button class="hero-action-btn hero-action-btn--secondary" @click="doItForMeView = 'idle'">
+                    <ChevronLeft :size="14" /> Back to insight
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div ref="detailScrollRef" v-if="selectedInsight && doItForMeView === 'idle'" :class="['detail-scroll', { 'scroll-fade': !isDetailAtBottom }]" @scroll="onDetailScroll">
               <div class="detail-wrapper">
 
                 <!-- Hero -->
@@ -83,12 +123,13 @@
                     </div>
                     <h2 class="detail-hero-title">{{ selectedInsight.name }}</h2>
                     <div class="detail-hero-cta">
-                      <button v-if="selectedInsight.campaign === 'New campaign idea'" class="hero-action-btn hero-action-btn--primary">
-                        <Plus :size="14" /> Create campaign
+                      <button class="hero-action-btn hero-action-btn--primary" @click="doItForMeView = 'pitch'">
+                        <Wand2 :size="14" /> Do it for me
                       </button>
-                      <button v-else class="hero-action-btn hero-action-btn--primary">
-                        <ArrowUpRight :size="14" /> View campaign
-                      </button>
+                      <Button v-if="selectedInsight.campaign !== 'New campaign idea'" variant="secondary" size="sm">
+                        <template #icon><ArrowUpRight :size="14" /></template>
+                        View campaign
+                      </Button>
                     </div>
                   </div>
                   <div v-if="hasThumbnail" class="campaign-thumb-img" />
@@ -162,6 +203,23 @@
 
         </div>
 
+        <!-- CRO consultation block -->
+        <div class="cro-help-block">
+          <img src="/monk-hi-user.svg" alt="Monk waving" class="cro-help-image" />
+          <div class="cro-help-text">
+            <h2 class="cro-help-title">Need a hand making sense of all this?</h2>
+            <p class="cro-help-desc">
+              Book a 30-minute call with one of our CRO pros. They'll walk you through your insights, help you prioritize what to tackle first, and answer any questions you have. Free of charge.
+            </p>
+          </div>
+          <div class="cro-help-cta-wrap">
+            <Button variant="secondary" size="md">
+              <template #icon><Calendar :size="16" /></template>
+              Book a meeting
+            </Button>
+          </div>
+        </div>
+
       </div>
     </template>
 
@@ -172,14 +230,14 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import {
   ChevronLeft, Dice5,
   MessageCircle, MousePointerClick, Filter, FlaskConical, Monitor, Clock, RotateCw,
   Facebook, Target, Search, Route, Tag as TagIcon, Sparkles, LayoutGrid, Layers,
   Info, ClipboardList, ShieldAlert, Smartphone, Eye, Wand2, ArrowDown,
   BarChart3, ShieldCheck, Globe, Truck,
-  Zap, Lightbulb, ListChecks, TrendingUp, ArrowUpRight, Plus,
+  Zap, Lightbulb, ListChecks, TrendingUp, ArrowUpRight, Plus, Check, ChevronDown, Calendar,
 } from 'lucide-vue-next'
 
 const insightIcons = {
@@ -192,7 +250,7 @@ const insightIcons = {
 
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
-import Accordion from '../components/shared/Accordion.vue'
+import Button from '../components/shared/Button.vue'
 import { croInsights } from '../data/croInsights.js'
 
 const props = defineProps({
@@ -204,62 +262,56 @@ defineEmits(['menu-click', 'go-back'])
 const isChatOpen = ref(false)
 const activeDomain = ref('reflexshop.hu')
 const detailScrollRef = ref(null)
+const leftPaneRef = ref(null)
 const isScrolled = ref(false)
+const isDetailAtBottom = ref(false)
+const isLeftAtBottom = ref(false)
+const isLeftAtTop = ref(true)
+const doItForMeView = ref('idle')
+
+const leftMaskStyle = computed(() => {
+  const fadeTop = !isLeftAtTop.value
+  const fadeBottom = !isLeftAtBottom.value
+  if (!fadeTop && !fadeBottom) return {}
+  const start = fadeTop ? 'transparent 0%, black 5%' : 'black 0%'
+  const end = fadeBottom ? 'black 95%, transparent 100%' : 'black 100%'
+  const gradient = `linear-gradient(to bottom, ${start}, ${end})`
+  return { maskImage: gradient, WebkitMaskImage: gradient }
+})
 
 const noThumbnailCampaigns = new Set([
   'New campaign idea',
   'PX_01 + "mi az új?" overlap',
 ])
 
+function isAtBottom(el) {
+  return el.scrollHeight - el.scrollTop - el.clientHeight < 4
+}
+
 function onDetailScroll(e) {
   isScrolled.value = e.target.scrollTop > 80
+  isDetailAtBottom.value = isAtBottom(e.target)
+}
+
+function onLeftScroll(e) {
+  isLeftAtBottom.value = isAtBottom(e.target)
+  isLeftAtTop.value = e.target.scrollTop < 4
 }
 
 const impactPriority = { Large: 5, 'Medium to large': 4, Medium: 3, 'Small to medium': 2, Small: 1 }
-const labelToLevel = { Large: 'high', 'Medium to large': 'high', Medium: 'medium', 'Small to medium': 'low', Small: 'low' }
 
-const groups = computed(() => {
-  const byCampaign = new Map()
-  for (const insight of croInsights) {
-    if (!byCampaign.has(insight.campaign)) byCampaign.set(insight.campaign, [])
-    byCampaign.get(insight.campaign).push(insight)
-  }
+const sortedInsights = computed(() =>
+  [...croInsights].sort((a, b) => (impactPriority[b.value] ?? 0) - (impactPriority[a.value] ?? 0) || a.id - b.id)
+)
 
-  const result = []
-  for (const [campaign, insights] of byCampaign.entries()) {
-    insights.sort((a, b) => a.id - b.id)
+const visibleCount = ref(3)
+const visibleInsights = computed(() => sortedInsights.value.slice(0, visibleCount.value))
 
-    const distCounts = insights.reduce((acc, i) => {
-      acc[i.value] = (acc[i.value] || 0) + 1
-      return acc
-    }, {})
-    const impactDistribution = Object.entries(distCounts)
-      .sort(([a], [b]) => (impactPriority[b] ?? 0) - (impactPriority[a] ?? 0))
-      .map(([label, count]) => ({ label, count, level: labelToLevel[label] ?? 'medium' }))
-
-    const topImpact = impactDistribution[0]?.label ?? '—'
-    const subtitle = `${insights.length} ${insights.length === 1 ? 'insight' : 'insights'} · top impact: ${topImpact}`
-
-    result.push({
-      campaign,
-      insights,
-      subtitle,
-      impactDistribution,
-      firstId: insights[0].id,
-    })
-  }
-
-  return result.sort((a, b) => a.firstId - b.firstId)
-})
-
-const openGroups = reactive({})
+const campaignCount = computed(() => new Set(croInsights.map(i => i.campaign)).size)
 
 const initialId = props.initialInsightId && croInsights.some(i => i.id === props.initialInsightId)
   ? props.initialInsightId
-  : groups.value[0]?.insights[0]?.id ?? null
-
-const initialCampaign = croInsights.find(i => i.id === initialId)?.campaign ?? groups.value[0]?.campaign
-if (initialCampaign) openGroups[initialCampaign] = true
+  : sortedInsights.value[0]?.id ?? null
 
 const selectedInsightId = ref(initialId)
 
@@ -269,19 +321,38 @@ const hasThumbnail = computed(() =>
   !!selectedInsight.value?.campaign && !noThumbnailCampaigns.has(selectedInsight.value.campaign)
 )
 
-function toggleGroup(campaign) {
-  openGroups[campaign] = !openGroups[campaign]
-}
-
 watch(selectedInsightId, (newId) => {
   if (newId == null) return
-  const parent = groups.value.find(g => g.insights.some(i => i.id === newId))
-  if (parent && !openGroups[parent.campaign]) {
-    openGroups[parent.campaign] = true
+  const idx = sortedInsights.value.findIndex(i => i.id === newId)
+  if (idx >= 0 && idx + 1 > visibleCount.value) {
+    visibleCount.value = Math.min(sortedInsights.value.length, idx + 1)
   }
   isScrolled.value = false
+  doItForMeView.value = 'idle'
   nextTick(() => {
-    if (detailScrollRef.value) detailScrollRef.value.scrollTo({ top: 0, behavior: 'smooth' })
+    if (detailScrollRef.value) {
+      detailScrollRef.value.scrollTo({ top: 0, behavior: 'smooth' })
+      isDetailAtBottom.value = isAtBottom(detailScrollRef.value)
+    }
+  })
+})
+
+watch(visibleCount, () => {
+  nextTick(() => {
+    if (leftPaneRef.value) {
+      isLeftAtBottom.value = isAtBottom(leftPaneRef.value)
+      isLeftAtTop.value = leftPaneRef.value.scrollTop < 4
+    }
+  })
+})
+
+onMounted(() => {
+  nextTick(() => {
+    if (leftPaneRef.value) {
+      isLeftAtBottom.value = isAtBottom(leftPaneRef.value)
+      isLeftAtTop.value = leftPaneRef.value.scrollTop < 4
+    }
+    if (detailScrollRef.value) isDetailAtBottom.value = isAtBottom(detailScrollRef.value)
   })
 })
 
@@ -313,9 +384,17 @@ const chatAiResponses = {
 }
 
 .split-pane--left {
-  padding: 0;
-  height: calc(100vh - 100px);
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  height: calc(100vh - 200px);
+  overflow: hidden;
+}
+
+.split-pane-scroll {
+  height: 100%;
   overflow-y: auto;
+  padding: 16px;
 }
 
 .split-pane--right {
@@ -353,6 +432,13 @@ const chatAiResponses = {
   pointer-events: auto;
 }
 
+.sticky-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .sticky-bar-title {
   font-size: 0.9375rem;
   font-weight: 600;
@@ -371,7 +457,15 @@ const chatAiResponses = {
   padding: 36px 40px;
 }
 
+.scroll-fade {
+  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+}
+
 .detail-hero-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-top: 4px;
 }
 
@@ -407,6 +501,7 @@ const chatAiResponses = {
   display: flex;
   flex-direction: column;
 }
+
 
 .insight-row {
   display: flex;
@@ -574,6 +669,115 @@ const chatAiResponses = {
 }
 
 .hero-action-btn--primary:hover {
+  background: #C94B14;
+  box-shadow: 0 2px 8px rgba(237, 90, 41, 0.3);
+}
+
+.do-it-pane {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px;
+  min-height: 480px;
+}
+
+.do-it-card {
+  max-width: 520px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.do-it-emoji {
+  font-size: 56px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.do-it-image {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  margin-bottom: 4px;
+}
+
+.do-it-title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #23262A;
+  line-height: 1.3;
+  margin: 0;
+  max-width: 340px;
+}
+
+.do-it-text {
+  font-size: 0.9375rem;
+  color: #4B5563;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.do-it-text strong {
+  color: #23262A;
+  font-weight: 600;
+}
+
+.do-it-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.cro-help-block {
+  margin-top: 24px;
+  margin-bottom: 24px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.cro-help-image {
+  width: 84px;
+  height: 84px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.cro-help-text {
+  flex: 1;
+  min-width: 240px;
+}
+
+.cro-help-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #23262A;
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+
+.cro-help-desc {
+  font-size: 0.875rem;
+  color: #4B5563;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.cro-help-cta-wrap {
+  flex-shrink: 0;
+  margin-left: 80px;
+}
+
+.cro-help-cta:hover {
   background: #C94B14;
   box-shadow: 0 2px 8px rgba(237, 90, 41, 0.3);
 }

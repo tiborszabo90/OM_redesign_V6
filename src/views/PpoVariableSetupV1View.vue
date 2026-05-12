@@ -50,7 +50,7 @@
 
           <!-- Actions (right-aligned) -->
           <div class="flex items-center gap-2 ml-auto">
-            <Button v-if="currentStep > 0" variant="outline" size="sm" @click="currentStep--">Previous</Button>
+            <Button v-if="currentStep > 0" variant="secondary" size="sm" @click="currentStep--">Previous</Button>
             <Button variant="primary" size="sm" @click="handleNext">
               {{ isLastStep ? 'Continue to Generation' : 'Next' }}
             </Button>
