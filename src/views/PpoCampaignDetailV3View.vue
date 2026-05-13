@@ -1651,7 +1651,7 @@ const chatAiResponses = {
   'How does this compare to my other campaigns?': 'Compared to your other active campaigns, **Black Friday 2025** ranks:\n\n- **#2** in conversion rate (5.2% vs Smart Discount\'s 8.37%)\n- **#1** in total impressions\n- **#1** in supported revenue\n\nIt\'s your highest-volume campaign. Even a 1% improvement in conversion rate would add ~240,000 HUF in supported revenue.',
 }
 
-const activeTab = ref('Analytics')
+const activeTab = ref('Overview')
 
 // PPO A/B Test Results
 const ppoTestProgressNeeded = 1500
@@ -1714,7 +1714,7 @@ const readTabFromHash = () => {
   const parts = hash.split('/')
   if (!PPO_V3_SLUGS.includes(parts[0])) return
   const suffix = parts[1]
-  activeTab.value = SUFFIX_TO_TAB[suffix] || 'Analytics'
+  activeTab.value = SUFFIX_TO_TAB[suffix] || 'Overview'
 }
 
 watch(activeTab, (tab) => {
