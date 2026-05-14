@@ -6,7 +6,7 @@
         <h1 class="text-2xl font-semibold text-om-gray-700 mb-5">Hi Csaba</h1>
 
         <!-- Filters Section -->
-        <div class="flex items-center justify-between mb-5 gap-4 max-960:flex-col max-960:items-start">
+        <div class="flex items-center justify-between mb-10 gap-4 max-960:flex-col max-960:items-start">
           <!-- Domain Selector + Heartbeat -->
           <div class="flex items-center gap-4">
             <div class="w-56">
@@ -55,7 +55,7 @@
         </div>
 
         <!-- Performance chart + Father's Day promo -->
-        <div class="grid grid-cols-1 min-[1100px]:grid-cols-[3fr_1fr] gap-5 mb-5 items-stretch">
+        <div class="grid grid-cols-1 min-[1100px]:grid-cols-[3fr_1fr] gap-5 mb-10 items-stretch">
           <!-- Chart card -->
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 flex flex-col">
             <div class="performance-chart-tabs">
@@ -100,7 +100,7 @@
         </div>
 
         <!-- Promo Blocks -->
-        <div v-if="showInviteBlock || showConsultBlock" class="flex gap-4 mb-5">
+        <div v-if="showInviteBlock || showConsultBlock" class="flex gap-4 mb-10">
           <!-- Invite block -->
           <div v-if="showInviteBlock" class="flex-1 bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-4 flex items-center gap-4">
             <div class="w-10 h-10 rounded-full bg-om-orange-100 flex items-center justify-center shrink-0">
@@ -137,7 +137,7 @@
         </div>
 
         <!-- Insights teaser (full width) -->
-        <div class="bg-om-gray-100 rounded-lg py-10 px-12 grid grid-cols-2 items-center gap-24 mb-5">
+        <div class="bg-om-gray-100 rounded-lg py-10 px-12 grid grid-cols-2 items-center gap-24 mb-10">
           <div class="min-w-0 flex flex-col gap-3">
             <div>
               <h2 class="text-lg font-semibold text-om-gray-700">Your insights report is ready</h2>
