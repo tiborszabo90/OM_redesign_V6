@@ -757,6 +757,15 @@ const campaignViews = [
     slug: 'campaign-detail-insight-v4',
   },
   {
+    id: 'campaign-page-insight-v5',
+    component: () => import('../views/CampaignPageInsightV5View.vue'),
+    label: 'Campaign Page (Insight V5)',
+    status: 'active',
+    section: 'campaignPage',
+    hideLogo: true,
+    slug: 'campaign-detail-insight-v5',
+  },
+  {
     id: 'campaign-page-v2',
     component: () => import('../views/CampaignPageV2View.vue'),
     label: 'Campaign Page V2',

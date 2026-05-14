@@ -141,7 +141,7 @@
           <div class="flex-1 min-w-0 flex flex-col gap-3">
             <h2 class="text-lg font-semibold text-om-gray-700">Your insights report is ready for May 1, 2026 to May 31, 2026</h2>
             <p class="text-sm text-om-gray-500 leading-relaxed">
-              We've gone through your traffic, campaign performance, and visitor behavior across this period, and we found 8 insights worth looking into.
+              We've gone through your traffic, campaign performance, and visitor behavior across this period, and we found 8 insights worth looking into. Here are the first three:
             </p>
             <div class="flex flex-col gap-2 mt-1">
               <button
@@ -155,6 +155,11 @@
                 </div>
                 <span class="text-sm text-om-gray-700 group-hover:text-om-orange-600">{{ insight.name }}</span>
               </button>
+            </div>
+            <div class="mt-3">
+              <Button variant="secondary" size="sm" @click="emit('navigate-to-opportunities')">
+                Show all insights
+              </Button>
             </div>
           </div>
           <img src="/insights_v2.svg" alt="Insights" class="w-120 h-auto object-contain shrink-0" />

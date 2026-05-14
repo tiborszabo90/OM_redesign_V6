@@ -5,13 +5,18 @@
 
         <!-- Header -->
         <div class="mb-6">
-          <h1 class="text-2xl font-semibold text-om-gray-700 leading-tight">Insights</h1>
+          <h1 class="text-2xl max-960:text-xl font-semibold text-om-gray-700">Insights ({{ sortedInsights.length }})</h1>
           <div class="flex flex-wrap items-center gap-3 mt-4 text-sm text-om-gray-500">
-            <div class="flex items-center gap-1.5">
-              <div class="w-4 h-4 rounded-full bg-[#7AAF8A] flex items-center justify-center shrink-0">
-                <Dice5 :size="10" class="text-white" />
-              </div>
-              <span><span class="font-medium text-om-gray-700">{{ sortedInsights.length }} insights</span> for <span class="font-medium text-om-gray-700">{{ activeDomain }}</span></span>
+            <div class="w-56">
+              <Dropdown
+                v-model="activeDomain"
+                :options="domains"
+                placeholder="Select domain"
+              >
+                <template #icon>
+                  <img src="/demos/telekom/logo.png" alt="Domain" class="w-5 h-5 rounded-full object-cover" />
+                </template>
+              </Dropdown>
             </div>
             <span class="inline-flex items-center gap-1.5 text-xs font-medium text-om-gray-700 bg-om-gray-200 px-2.5 py-1 rounded-full whitespace-nowrap">
               <Calendar :size="12" />
@@ -81,7 +86,7 @@
                   <span class="inline-flex items-center rounded-full font-medium px-3 py-1 text-xs text-white" style="background-color: #8444E1;">Beta</span>
                 </div>
                 <p class="do-it-text">
-                  Our fully automatic AI Agent is in beta, we review each case manually. It is still 100% for you, but that's why it takes <strong>24 hours</strong>. Shall we proceed?
+                  Our fully automatic AI Agent is in beta, we review each case manually. It is still 100% free for you, but that's why it takes <strong>24 hours</strong>. Shall we proceed?
                 </p>
                 <div class="do-it-actions">
                   <button class="hero-action-btn hero-action-btn--primary" @click="doItForMeView = 'accepted'">
@@ -100,7 +105,7 @@
                 <img src="/monk-happy-white2.svg" alt="Happy monk" class="do-it-image" />
                 <h2 class="do-it-title">Brilliant choice, we're on it.</h2>
                 <p class="do-it-text">
-                  We'll get cracking on <strong>"{{ selectedInsight.name }}"</strong> and ping you the moment the variant is ready. In the meantime, go brew yourself a victory coffee. You've earned it.
+                  We'll get cracking on <strong>"{{ selectedInsight.name }}"</strong> and email you the moment the variant is ready. In the meantime, go brew yourself a victory coffee. You've earned it.
                 </p>
                 <div class="do-it-actions">
                   <button class="hero-action-btn hero-action-btn--secondary" @click="doItForMeView = 'idle'">
@@ -265,6 +270,7 @@ import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
 import Button from '../components/shared/Button.vue'
 import TagBadge from '../components/shared/Tag.vue'
+import Dropdown from '../components/shared/Dropdown.vue'
 import { croInsights } from '../data/croInsights.js'
 
 const props = defineProps({
@@ -275,6 +281,18 @@ defineEmits(['menu-click', 'go-back'])
 
 const isChatOpen = ref(false)
 const activeDomain = ref('reflexshop.hu')
+const domains = ref([
+  'reflexshop.hu',
+  'telekom.hu',
+  'shop.telekom.hu',
+  'demo.optimonk.com',
+  '+ Add new domain'
+])
+watch(activeDomain, (val) => {
+  if (val === '+ Add new domain') {
+    activeDomain.value = domains.value[0]
+  }
+})
 const detailScrollRef = ref(null)
 const leftPaneRef = ref(null)
 const isScrolled = ref(false)

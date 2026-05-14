@@ -337,7 +337,7 @@
         <div
           v-for="opp in abTestInsights.slice(0, 1)"
           :key="`b-${opp.id}`"
-          class="group bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] py-6 px-6 mb-6"
+          class="group bg-om-gray-100 rounded-xl py-6 px-6 mb-6"
         >
           <div class="flex items-center justify-between gap-3 mb-5">
             <div class="text-[0.6875rem] font-semibold uppercase tracking-wider text-om-gray-500">Top insight for this campaign</div>
@@ -356,7 +356,7 @@
                 <div class="text-[0.8125rem] text-om-gray-500 leading-snug">{{ opp.description }}</div>
               </div>
             </div>
-            <div class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div class="shrink-0">
               <Button variant="secondary" size="md" @click="emit('navigate-to-opportunity', opp.id)">
                 Show more
               </Button>
