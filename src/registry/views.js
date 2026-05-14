@@ -313,6 +313,17 @@ const homeViews = [
     nav: { sessionReset: true, flowSelected: true, clearWizardMessage: true },
   },
   {
+    id: 'home-insights-v8',
+    component: () => import('../views/HomeInsightsV8View.vue'),
+    label: 'Home (Insights V8)',
+    status: 'active',
+    section: 'home',
+    hideLogo: true,
+    keyPrefix: 'home-insights-v8',
+    slug: 'home-insights-v8',
+    nav: { sessionReset: true, flowSelected: true, clearWizardMessage: true },
+  },
+  {
     id: 'home-old-legacy',
     component: () => import('../views/HomeOldView.vue'),
     label: 'Home (legacy)',
