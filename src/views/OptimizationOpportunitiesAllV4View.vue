@@ -43,14 +43,14 @@
                   <div v-if="insight.campaign" class="insight-row-campaign">{{ insight.campaign }}</div>
                 </div>
               </button>
-              <div v-if="sortedInsights.length > visibleCount" class="flex justify-center mt-4">
+              <div v-if="sortedInsights.length > visibleCount" ref="showMoreRef" class="flex justify-center mt-4">
                 <Button
                   variant="secondary"
                   size="sm"
-                  @click="visibleCount = Math.min(sortedInsights.length, visibleCount + 5)"
+                  @click="visibleCount = sortedInsights.length"
                 >
                   <template #icon><ChevronDown :size="16" /></template>
-                  Show 5 more
+                  Show {{ sortedInsights.length - visibleCount }} more
                 </Button>
               </div>
               </div>
@@ -315,7 +315,9 @@ function onLeftScroll(e) {
 const impactPriority = { Large: 5, 'Medium to large': 4, Medium: 3, 'Small to medium': 2, Small: 1 }
 
 const sortedInsights = computed(() =>
-  [...croInsights].sort((a, b) => (impactPriority[b.value] ?? 0) - (impactPriority[a.value] ?? 0) || a.id - b.id)
+  [...croInsights]
+    .sort((a, b) => (impactPriority[b.value] ?? 0) - (impactPriority[a.value] ?? 0) || a.id - b.id)
+    .slice(0, 10)
 )
 
 const visibleCount = ref(5)
@@ -360,8 +362,30 @@ watch(visibleCount, () => {
   })
 })
 
+const showMoreRef = ref(null)
+
+function fitVisibleToContainer() {
+  if (!leftPaneRef.value) return
+  const cards = leftPaneRef.value.querySelectorAll('.insight-row')
+  if (!cards.length) return
+  const containerHeight = leftPaneRef.value.clientHeight
+  const cardHeight = cards[0].offsetHeight
+  const gap = 12
+  // Reserve space for the "Show more" button (button height ~32 + mt-4 margin 16 = ~48)
+  const buttonReserve = 48
+  const available = containerHeight - buttonReserve
+  const fit = Math.max(1, Math.floor((available + gap) / (cardHeight + gap)))
+  const total = sortedInsights.value.length
+  if (total - fit <= 3) {
+    visibleCount.value = total
+  } else {
+    visibleCount.value = fit
+  }
+}
+
 onMounted(() => {
   nextTick(() => {
+    fitVisibleToContainer()
     if (leftPaneRef.value) {
       isLeftAtBottom.value = isAtBottom(leftPaneRef.value)
       isLeftAtTop.value = leftPaneRef.value.scrollTop < 4
