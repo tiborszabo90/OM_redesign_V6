@@ -1,23 +1,23 @@
 <template>
   <DashboardLayout active-menu-item="insights" @menu-click="$emit('menu-click', $event)" background-color="#F5F6F8" :right-panel-collapsed="!isChatOpen">
     <template #content>
-      <div class="w-full max-w-350 mx-auto -mt-3" style="margin-bottom:-2rem;">
+      <div class="w-full max-w-350 mx-auto -mt-3 pb-25" style="margin-bottom:-2rem;">
 
         <!-- Header -->
-        <div class="flex items-start justify-between mb-6 gap-6">
-          <div>
-            <h1 class="text-2xl font-semibold text-om-gray-700 leading-tight">All Optimization Opportunities</h1>
-            <div class="flex items-center gap-1.5 mt-1 text-sm text-om-gray-500">
+        <div class="mb-6">
+          <h1 class="text-2xl font-semibold text-om-gray-700 leading-tight">Insights</h1>
+          <div class="flex flex-wrap items-center gap-3 mt-4 text-sm text-om-gray-500">
+            <div class="flex items-center gap-1.5">
               <div class="w-4 h-4 rounded-full bg-[#7AAF8A] flex items-center justify-center shrink-0">
                 <Dice5 :size="10" class="text-white" />
               </div>
-              <span>Insights for <span class="font-medium text-om-gray-700">{{ activeDomain }}</span></span>
+              <span><span class="font-medium text-om-gray-700">{{ sortedInsights.length }} insights</span> for <span class="font-medium text-om-gray-700">{{ activeDomain }}</span></span>
             </div>
+            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-om-gray-700 bg-om-gray-200 px-2.5 py-1 rounded-full whitespace-nowrap">
+              <Calendar :size="12" />
+              Reporting period: May 1 – May 31, 2026
+            </span>
           </div>
-          <span class="inline-flex items-center gap-1.5 text-xs font-medium text-om-gray-600 bg-om-gray-100 px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
-            <Clock :size="12" />
-            Generated on May 11, 2026, 09:00
-          </span>
         </div>
 
         <!-- 50/50 split card -->
@@ -39,9 +39,7 @@
                 <div class="insight-row-content">
                   <div class="insight-row-header">
                     <div class="insight-row-name">{{ insight.name }}</div>
-                    <div :class="['insight-row-badge', `badge-${insight.level}`]">{{ insight.value }} impact</div>
                   </div>
-                  <div class="insight-row-desc">{{ insight.description }}</div>
                   <div v-if="insight.campaign" class="insight-row-campaign">{{ insight.campaign }}</div>
                 </div>
               </button>
@@ -49,10 +47,10 @@
                 <Button
                   variant="secondary"
                   size="sm"
-                  @click="visibleCount = Math.min(sortedInsights.length, visibleCount + 7)"
+                  @click="visibleCount = Math.min(sortedInsights.length, visibleCount + 5)"
                 >
                   <template #icon><ChevronDown :size="16" /></template>
-                  Show more
+                  Show 5 more
                 </Button>
               </div>
               </div>
@@ -78,12 +76,12 @@
             <div v-if="selectedInsight && doItForMeView === 'pitch'" class="do-it-pane">
               <div class="do-it-card">
                 <img src="/monk-work.svg" alt="Monk at work" class="do-it-image" />
-                <h2 class="do-it-title">Sit back, our optimization crew is already on the case.</h2>
+                <div class="flex items-center gap-2 justify-center flex-wrap">
+                  <h2 class="do-it-title">Done-for-you setup</h2>
+                  <span class="inline-flex items-center rounded-full font-medium px-3 py-1 text-xs text-white" style="background-color: #8444E1;">Beta</span>
+                </div>
                 <p class="do-it-text">
-                  We took a look at <strong>"{{ selectedInsight.name }}"</strong> and the wheels are already in motion. Behind the scenes, your variant is being shaped, polished, and lined up for launch.
-                </p>
-                <p class="do-it-text">
-                  Give us about <strong>24 hours</strong> and you'll have a ready-to-launch variant waiting in your account. No babysitting required.
+                  Our fully automatic AI Agent is in beta, we review each case manually. It is still 100% for you, but that's why it takes <strong>24 hours</strong>. Shall we proceed?
                 </p>
                 <div class="do-it-actions">
                   <button class="hero-action-btn hero-action-btn--primary" @click="doItForMeView = 'accepted'">
@@ -205,11 +203,26 @@
 
         <!-- CRO consultation block -->
         <div class="cro-help-block">
-          <img src="/monk-hi-user.svg" alt="Monk waving" class="cro-help-image" />
+          <div class="relative shrink-0 h-64 overflow-hidden">
+            <img src="/review_img.png" alt="Customer Success team" class="w-auto block" style="height: calc(100% + 40px); margin-top: -40px;" />
+            <div class="absolute right-0 top-0 bottom-0 w-6 pointer-events-none" style="background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1))"></div>
+            <div class="absolute -left-4 top-[60%] bg-om-gray-800 shadow-md px-3 py-1">
+              <span class="text-xs font-medium text-white relative -top-px">Kata</span>
+            </div>
+            <div class="absolute right-14 bottom-20 bg-om-gray-800 shadow-md px-3 py-1">
+              <span class="text-xs font-medium text-white relative -top-px">Emil</span>
+            </div>
+            <div class="absolute left-14 top-[70%] bg-om-gray-800 shadow-md px-3 py-1">
+              <span class="text-xs font-medium text-white relative -top-px">Chris</span>
+            </div>
+            <div class="absolute -right-4 top-2/3 bg-om-gray-800 shadow-md px-3 py-1">
+              <span class="text-xs font-medium text-white relative -top-px">Réka</span>
+            </div>
+          </div>
           <div class="cro-help-text">
             <h2 class="cro-help-title">Need a hand making sense of all this?</h2>
             <p class="cro-help-desc">
-              Book a 30-minute call with one of our CRO pros. They'll walk you through your insights, help you prioritize what to tackle first, and answer any questions you have. Free of charge.
+              Book a 30-minute call with one of our Customer Success Heros. They'll walk you through your insights, help you prioritize what to tackle first, and answer any questions you have. Free of charge.
             </p>
           </div>
           <div class="cro-help-cta-wrap">
@@ -251,6 +264,7 @@ const insightIcons = {
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import ChatPanel from '../components/shared/ChatPanel.vue'
 import Button from '../components/shared/Button.vue'
+import TagBadge from '../components/shared/Tag.vue'
 import { croInsights } from '../data/croInsights.js'
 
 const props = defineProps({
@@ -304,7 +318,7 @@ const sortedInsights = computed(() =>
   [...croInsights].sort((a, b) => (impactPriority[b.value] ?? 0) - (impactPriority[a.value] ?? 0) || a.id - b.id)
 )
 
-const visibleCount = ref(3)
+const visibleCount = ref(5)
 const visibleInsights = computed(() => sortedInsights.value.slice(0, visibleCount.value))
 
 const campaignCount = computed(() => new Set(croInsights.map(i => i.campaign)).size)
@@ -738,10 +752,10 @@ const chatAiResponses = {
   background: white;
   border-radius: 16px;
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
-  padding: 24px 28px;
+  padding: 6px 28px 6px 48px;
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 48px;
   flex-wrap: wrap;
 }
 

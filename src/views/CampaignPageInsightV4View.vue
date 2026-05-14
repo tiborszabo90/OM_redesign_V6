@@ -333,6 +333,35 @@
           </button>
         </div>
 
+        <!-- Insights teaser (V7-style: split layout with cards) -->
+        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] py-10 px-12 mb-6">
+          <div class="flex items-center justify-between gap-4 mb-5">
+            <h2 class="text-lg font-semibold text-om-gray-700">Your insights report is ready</h2>
+            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-om-gray-700 bg-om-gray-200 px-2.5 py-1 rounded-full whitespace-nowrap">
+              <Calendar :size="12" />
+              Reporting period: May 1 – May 31, 2026
+            </span>
+          </div>
+          <div class="grid grid-cols-2 items-center gap-24">
+            <p class="text-sm text-om-gray-500 leading-relaxed">
+              We've analyzed this campaign's performance and visitor behavior, and surfaced insights worth looking into.
+            </p>
+            <div class="min-w-0 flex flex-col gap-2">
+              <button
+                v-for="insight in abTestInsights.slice(0, 1)"
+                :key="insight.id"
+                @click="emit('navigate-to-opportunity', insight.id)"
+                class="insight-row-card"
+              >
+                <div class="w-8 h-8 rounded-lg bg-[#FFF0EB] text-[#C94B14] flex items-center justify-center shrink-0">
+                  <component :is="insightIcons[insight.id] || Sparkles" :size="16" />
+                </div>
+                <span class="flex-1 text-sm font-medium text-om-gray-700 leading-snug min-w-0">{{ insight.name }}</span>
+                <ChevronRight :size="16" class="text-om-gray-400 shrink-0" />
+              </button>
+            </div>
+          </div>
+        </div>
 
         <!-- Campaign Settings Sections -->
         <div class="space-y-4">
@@ -2232,5 +2261,24 @@ input[type="time"]::-webkit-clear-button {
 .trigger-add-button:hover {
   border-color: #ED5A29;
   background: #FEF7F3;
+}
+
+.insight-row-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  background: white;
+  border: 2px solid #E5E7EB;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.insight-row-card:hover {
+  border-color: #ED5A29;
+  box-shadow: 0 4px 14px rgba(237, 90, 41, 0.4);
 }
 </style>

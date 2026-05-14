@@ -333,6 +333,36 @@
           </button>
         </div>
 
+        <!-- Insights teaser (action-oriented top insight) -->
+        <div
+          v-for="opp in abTestInsights.slice(0, 1)"
+          :key="`b-${opp.id}`"
+          class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] py-6 px-6 mb-6"
+        >
+          <div class="flex items-center justify-between gap-3 mb-5">
+            <div class="text-[0.6875rem] font-semibold uppercase tracking-wider text-om-gray-500">Top insight for this campaign</div>
+            <div class="inline-flex items-center gap-1.5 text-xs font-medium text-om-gray-600 bg-om-gray-100 px-2.5 py-1 rounded-full whitespace-nowrap">
+              <Calendar :size="12" />
+              Reporting period: May 1 – May 31, 2026
+            </div>
+          </div>
+          <div class="flex items-start gap-8">
+            <div class="flex-1 min-w-0 flex items-start gap-4">
+              <div class="w-11 h-11 rounded-lg bg-[#FFF0EB] text-[#C94B14] flex items-center justify-center shrink-0">
+                <component :is="insightIcons[opp.id] || Sparkles" :size="22" />
+              </div>
+              <div class="flex-1 min-w-0 flex flex-col gap-0.5">
+                <div class="text-[1rem] font-semibold text-om-gray-700 leading-snug">{{ opp.name }}</div>
+                <div class="text-[0.8125rem] text-om-gray-500 leading-snug">{{ opp.description }}</div>
+              </div>
+            </div>
+            <div class="shrink-0">
+              <Button variant="primary" size="md" @click="emit('navigate-to-opportunity', opp.id)">
+                Show more
+              </Button>
+            </div>
+          </div>
+        </div>
 
         <!-- Campaign Settings Sections -->
         <div class="space-y-4">

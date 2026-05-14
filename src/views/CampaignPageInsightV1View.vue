@@ -333,6 +333,31 @@
           </button>
         </div>
 
+        <!-- Insights teaser (V2 — single inline insight) -->
+        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] py-10 px-12 flex items-center gap-24 mb-6">
+          <div class="flex-1 min-w-0">
+            <h2 class="text-lg font-semibold text-om-gray-700">Your insights report is ready for May 1, 2026 to May 31, 2026</h2>
+            <div
+              v-for="opp in abTestInsights.slice(0, 1)"
+              :key="opp.id"
+              class="flex items-start gap-4 mt-6 group"
+            >
+              <div class="w-11 h-11 rounded-lg bg-[#FFF0EB] text-[#C94B14] flex items-center justify-center shrink-0">
+                <component :is="insightIcons[opp.id] || Sparkles" :size="22" />
+              </div>
+              <div class="flex-1 min-w-0 flex flex-col gap-0.5">
+                <div class="text-[0.9375rem] font-semibold text-om-gray-700 leading-snug">{{ opp.name }}</div>
+                <div class="text-[0.8125rem] text-om-gray-500 leading-snug">{{ opp.description }}</div>
+                <div class="mt-2">
+                  <Button variant="primary" size="sm" @click="emit('navigate-to-opportunity', opp.id)">
+                    Show more
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <img src="/insights_v2.svg" alt="Insights" class="w-80 h-auto object-contain shrink-0" />
+        </div>
 
         <!-- Campaign Settings Sections -->
         <div class="space-y-4">
