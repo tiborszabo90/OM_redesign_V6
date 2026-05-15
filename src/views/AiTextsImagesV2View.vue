@@ -321,27 +321,23 @@
             </Button>
           </div>
 
-          <!-- Inputs -->
+          <!-- Inputs: add-input dropdown + parsed-from-prompt chips -->
           <div class="mb-3">
             <p class="text-xs font-medium text-om-gray-500 mb-2">Inputs</p>
-            <div class="flex flex-wrap gap-x-4 gap-y-2 p-3 bg-om-gray-50 rounded-lg">
-              <Checkbox v-model="step.inputs.original" label="Original product image" size="sm" />
-              <template v-for="(prev, j) in workflowSteps.slice(0, i)" :key="`prev-${prev.id}`">
-                <Checkbox
-                  :model-value="step.inputs.previousSteps.includes(prev.id)"
-                  @update:model-value="toggleStepArrayInput(step, 'previousSteps', prev.id)"
-                  :label="`Output of Step ${j + 1}`"
+            <div class="flex items-center gap-3 p-3 bg-om-gray-50 rounded-lg">
+              <div class="w-44 shrink-0">
+                <Dropdown
+                  v-model="addInputDropdowns[step.id]"
+                  :options="inputDropdownOptions(i)"
+                  placeholder="+ Add input"
                   size="sm"
+                  @update:model-value="(opt) => onAddInput(step, opt)"
                 />
-              </template>
-              <Checkbox
-                v-for="v in workflowVariables"
-                :key="`var-${v.id}`"
-                :model-value="step.inputs.variables.includes(v.id)"
-                @update:model-value="toggleStepArrayInput(step, 'variables', v.id)"
-                :label="v.label"
-                size="sm"
-              />
+              </div>
+              <div class="flex flex-wrap items-center gap-1.5 min-w-0 flex-1">
+                <Tag v-for="u in usedInputs(step, i)" :key="u.variable" :variant="inputTagVariant(u.source)">{{ u.placeholder }}</Tag>
+                <span v-if="usedInputs(step, i).length === 0" class="text-xs text-om-gray-400">No inputs used yet</span>
+              </div>
             </div>
           </div>
 
@@ -358,28 +354,40 @@
             </div>
             <textarea
               v-model="step.prompt"
+              :ref="setPromptRef(step.id)"
+              @blur="trackCursor(step, $event)"
+              @keyup="trackCursor(step, $event)"
+              @click="trackCursor(step, $event)"
               rows="3"
               placeholder="Describe what this step should produce..."
               class="w-full text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 px-3 py-2 resize-none"
             />
           </div>
 
-          <!-- Per-model settings (compact) -->
-          <div class="flex items-center gap-2 mb-3 px-3 py-2 bg-om-gray-50 rounded-lg">
-            <div class="flex items-center gap-2 flex-1 min-w-0">
-              <ToggleSwitch v-if="isImageModel(step.model)" v-model="step.useMultipleImages" />
-              <ToggleSwitch v-else v-model="step.useProductImageContext" />
-              <span class="text-xs text-om-gray-600 truncate">{{ isImageModel(step.model) ? 'Use multiple product images' : 'Use product image as context' }}</span>
+          <!-- Per-model settings (compact) + Variables (outputs) -->
+          <div class="flex items-stretch gap-3 mb-3">
+            <div class="flex items-center gap-2 px-3 py-2 bg-om-gray-50 rounded-lg w-1/2 min-w-0">
+              <div class="flex items-center gap-2 flex-1 min-w-0">
+                <ToggleSwitch v-if="isImageModel(step.model)" v-model="step.useMultipleImages" />
+                <ToggleSwitch v-else v-model="step.useProductImageContext" />
+                <span class="text-xs text-om-gray-600 truncate">{{ isImageModel(step.model) ? 'Use multiple product images' : 'Use product image as context' }}</span>
+              </div>
+              <div class="w-px h-5 bg-om-gray-200"></div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-om-gray-600">Min. description length</span>
+                <input
+                  v-model.number="step.minDescriptionLength"
+                  type="number"
+                  min="0"
+                  class="w-16 text-sm text-center rounded-md border border-om-gray-200 bg-white text-om-gray-700 outline-none focus:border-om-gray-400 px-2 py-1"
+                />
+              </div>
             </div>
-            <div class="w-px h-5 bg-om-gray-200"></div>
-            <div class="flex items-center gap-2">
-              <span class="text-xs text-om-gray-600">Min. description length</span>
-              <input
-                v-model.number="step.minDescriptionLength"
-                type="number"
-                min="0"
-                class="w-16 text-sm text-center rounded-md border border-om-gray-200 bg-white text-om-gray-700 outline-none focus:border-om-gray-400 px-2 py-1"
-              />
+            <div class="px-3 py-2 bg-om-gray-50 rounded-lg flex flex-col justify-center w-1/2 min-w-0">
+              <p class="text-[11px] text-om-gray-400 leading-none mb-1.5">Output variables</p>
+              <div class="flex flex-wrap gap-1.5">
+                <Tag variant="green">{{ stepOutputName(step, i) }}</Tag>
+              </div>
             </div>
           </div>
 
@@ -406,14 +414,16 @@
               <p class="text-xs font-medium text-om-gray-500 mb-1">Ratio</p>
               <Dropdown v-model="step.ratio" :options="['1:1', '16:9', '9:16', '4:5', '4:3']" size="sm" />
             </div>
-            <Button variant="secondary" size="sm" :disabled="step.generating" @click="runWorkflowStep(step)">
+            <Button variant="secondary" size="sm" :disabled="step.generating || step.waiting" @click="runWorkflowStep(step)">
               <template #icon>
                 <Loader2 v-if="step.generating" :size="14" class="animate-spin" />
+                <Clock v-else-if="step.waiting" :size="14" />
                 <Play v-else :size="14" />
               </template>
-              {{ step.generating ? 'Running...' : 'Run step' }}
+              {{ step.generating ? 'Running...' : step.waiting ? 'Waiting...' : 'Run step' }}
             </Button>
             <div
+              v-if="isImageModel(step.model)"
               class="w-20 h-20 bg-om-gray-100 rounded-lg border border-om-gray-200 overflow-hidden shrink-0"
               :class="step.output ? 'cursor-pointer hover:border-om-gray-400' : ''"
               @click="step.output && (workflowLightbox = step.output)"
@@ -421,6 +431,14 @@
               <img v-if="step.output" :src="step.output" class="w-full h-full object-cover" />
               <div v-else class="w-full h-full flex items-center justify-center text-[10px] text-om-gray-400 text-center px-1">No output yet</div>
             </div>
+            <textarea
+              v-else
+              :value="step.output || ''"
+              readonly
+              rows="3"
+              :placeholder="step.output ? '' : 'No output yet'"
+              class="w-[28rem] h-20 text-xs rounded-lg border border-om-gray-200 bg-om-gray-50 text-om-gray-700 placeholder-om-gray-400 outline-none px-2 py-1.5 resize-none shrink-0"
+            />
           </div>
         </div>
 
@@ -448,10 +466,10 @@
       <!-- Workflow Generation screen (3 tabs) -->
       <div v-else-if="showWorkflowGeneration" class="w-full max-w-[1400px] mx-auto -mt-3">
         <!-- Title -->
-        <h1 class="text-2xl font-bold text-om-gray-800 mb-4">{{ selectedWorkflowPreset?.name || 'Workflow' }}</h1>
+        <h1 v-if="!wfDetailProduct" class="text-2xl font-bold text-om-gray-800 mb-4">{{ selectedWorkflowPreset?.name || 'Workflow' }}</h1>
 
         <!-- Tabs -->
-        <div class="flex items-center border-b border-om-gray-200 mb-6">
+        <div v-if="!wfDetailProduct" class="flex items-center border-b border-om-gray-200 mb-6">
           <button
             v-for="tab in wfTabs"
             :key="tab.value"
@@ -466,66 +484,188 @@
 
         <!-- Choose products tab -->
         <div v-if="wfTab === 'selected'">
+          <!-- Toolbar -->
           <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-3">
-              <span class="text-sm font-semibold text-om-gray-700">{{ wfSelected.length }} selected</span>
-              <span class="text-sm text-om-gray-400">·</span>
-              <span class="text-sm text-om-gray-500">{{ genProducts.length }} products</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-sm text-om-gray-500">{{ wfSelectedCredits }}</span>
-              <Button variant="primary" size="sm" :disabled="!wfSelected.length" @click="wfTab = 'generated'; runWorkflowAll()">
-                <template #icon><Wand2 :size="14" /></template>
-                Run workflow
+            <div class="flex items-center gap-2">
+              <div class="relative">
+                <Search :size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-700" />
+                <input v-model="wfSearch" type="text" placeholder="Search products..." class="pl-9 pr-4 py-1.5 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 w-44" />
+              </div>
+              <div class="relative">
+                <Button variant="secondary" size="sm" @click="cpShowFilters = !cpShowFilters">
+                  <template #icon><SlidersHorizontal :size="15" /></template>
+                  Filters
+                </Button>
+                <div v-if="cpShowFilters" class="absolute top-full left-0 mt-2 bg-white border border-om-gray-200 rounded-xl shadow-lg p-4 z-20 flex flex-col gap-4 w-80">
+                  <div class="flex flex-col gap-1">
+                    <span class="text-xs text-om-gray-500">Category is</span>
+                    <MultiSelect v-model="cpCategoryIs" :options="cpCategoryOptions" placeholder="All categories" />
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <span class="text-xs text-om-gray-500">Category is not</span>
+                    <MultiSelect v-model="cpCategoryIsNot" :options="cpCategoryOptions" placeholder="All categories" />
+                  </div>
+                  <div class="flex flex-col gap-5">
+                    <Checkbox v-model="cpOnlyInStock" label="Only in stock" />
+                    <Checkbox v-model="cpOnlyWithTraffic" label="Only products with traffic" />
+                  </div>
+                </div>
+              </div>
+              <Button variant="secondary" size="sm">
+                <template #icon><Upload :size="15" /></template>
+                Import CSV
               </Button>
+              <div class="relative">
+                <Button variant="secondary" size="sm" @click="cpSortOpen = !cpSortOpen">
+                  {{ cpSortOptions.find(o => o.value === cpSortBy)?.label }}
+                </Button>
+                <div v-if="cpSortOpen" class="fixed inset-0 z-10" @click="cpSortOpen = false" />
+                <div
+                  v-if="cpSortOpen"
+                  class="absolute left-0 top-full mt-1 z-20 bg-white border border-[#D5D8DD] rounded-lg shadow-lg overflow-hidden min-w-[180px]"
+                >
+                  <button
+                    v-for="opt in cpSortOptions"
+                    :key="opt.value"
+                    @click="cpSortBy = opt.value; cpSortOpen = false"
+                    class="w-full text-left text-sm text-[#23262A] px-3 py-1.5 hover:bg-[#F9FAFB] transition-colors cursor-pointer flex items-center justify-between"
+                    :class="cpSortBy === opt.value ? 'bg-[#F1F2F4] font-medium' : ''"
+                  >
+                    {{ opt.label }}
+                    <Check v-if="cpSortBy === opt.value" :size="16" class="text-om-gray-500 shrink-0" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="relative">
+              <Button variant="primary" size="md" @click.stop="showWfGenMenu = !showWfGenMenu">
+                Generate
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              </Button>
+              <div
+                v-if="showWfGenMenu"
+                class="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-50 min-w-[360px] overflow-hidden"
+              >
+                <button
+                  class="w-full flex items-center justify-between px-4 py-3 text-sm border-b border-om-gray-100 transition-colors"
+                  :class="wfSelected.length > 0 ? 'hover:bg-om-gray-50 cursor-pointer' : 'opacity-40 cursor-not-allowed'"
+                  :disabled="wfSelected.length === 0"
+                  @click="wfSelected.length > 0 && triggerWfGenerate('selected')"
+                >
+                  <span class="text-om-gray-700 text-left">Generate for selected ({{ wfSelected.length }})</span>
+                  <span class="flex items-center gap-1.5 font-medium ml-8 tabular-nums whitespace-nowrap" :class="wfSelected.length > 0 ? 'text-om-orange-500' : 'text-om-gray-400'">
+                    <Coins :size="13" />
+                    {{ wfSelectedCredits }}
+                  </span>
+                </button>
+                <button
+                  v-for="opt in wfMenuOptions"
+                  :key="opt.count"
+                  class="w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-om-gray-50 transition-colors cursor-pointer"
+                  :class="opt.count !== wfMenuOptions[wfMenuOptions.length - 1].count ? 'border-b border-om-gray-100' : ''"
+                  @click="triggerWfGenerate(opt.count)"
+                >
+                  <span class="text-om-gray-700 text-left">Generate for {{ opt.count }} products</span>
+                  <span class="flex items-center gap-1.5 text-om-orange-500 font-medium ml-8 tabular-nums whitespace-nowrap">
+                    <Coins :size="13" />
+                    {{ opt.credits }}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
-          <div class="bg-white rounded-xl border border-om-gray-200 divide-y divide-om-gray-100">
+          <!-- Entry count -->
+          <p class="text-sm text-om-gray-400 mb-3">Showing 1 to {{ wfFilteredProducts.length }} of {{ genProducts.length }} entries</p>
+          <div class="flex flex-col gap-2">
             <label
-              v-for="p in genProducts"
+              v-for="p in wfFilteredProducts"
               :key="p.id"
-              class="flex items-center gap-3 p-3 cursor-pointer hover:bg-om-gray-50"
+              class="flex items-center gap-4 p-3 bg-white rounded-xl border border-om-gray-200 cursor-pointer hover:border-om-gray-300"
             >
               <Checkbox
                 :model-value="wfSelected.includes(p.id)"
                 @update:model-value="wfSelected.includes(p.id) ? wfSelected = wfSelected.filter(id => id !== p.id) : wfSelected.push(p.id)"
                 size="sm"
               />
-              <div class="w-10 h-10 bg-om-gray-100 rounded-md border border-om-gray-200 shrink-0" />
-              <div class="flex-1 min-w-0">
+              <div class="w-14 h-14 bg-om-gray-100 rounded-md border border-om-gray-200 shrink-0" />
+              <div class="min-w-0 w-72 shrink-0">
                 <p class="text-sm font-medium text-om-gray-700 truncate">{{ p.name }}</p>
                 <p class="text-xs text-om-gray-500 truncate">{{ p.desc }}</p>
+              </div>
+              <div class="w-px h-12 bg-om-gray-200 shrink-0"></div>
+              <div class="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
+                <Tag
+                  v-for="(s, i) in workflowSteps"
+                  :key="s.id"
+                  :variant="productStepDone(p, i) ? 'green' : (productStepRunning(p, i) ? 'orange' : 'gray-muted')"
+                >
+                  <template #icon>
+                    <Check v-if="productStepDone(p, i)" :size="11" />
+                    <Loader2 v-else-if="productStepRunning(p, i)" :size="11" class="animate-spin" />
+                    <Clock v-else :size="11" />
+                  </template>
+                  Step {{ i + 1 }}
+                </Tag>
+              </div>
+              <div class="w-px h-12 bg-om-gray-200 shrink-0"></div>
+              <div class="shrink-0">
+                <Tag :variant="productOverallStatus(p).variant">
+                  <template #icon>
+                    <Check v-if="productOverallStatus(p).icon === 'check'" :size="12" />
+                    <Loader2 v-else-if="productOverallStatus(p).icon === 'loader'" :size="12" class="animate-spin" />
+                    <Clock v-else :size="12" />
+                  </template>
+                  {{ productOverallStatus(p).label }}
+                </Tag>
               </div>
             </label>
           </div>
         </div>
 
         <!-- Review tab -->
-        <div v-else-if="wfTab === 'generated'">
-          <div class="flex items-center justify-between mb-4">
-            <span class="text-sm font-semibold text-om-gray-700">Workflow runs · {{ wfSelected.length || genProducts.filter(p => p.status === 'generated').length }} products</span>
-          </div>
-          <div class="grid grid-cols-2 gap-3">
+        <div v-else-if="wfTab === 'generated' && !wfDetailProduct">
+          <p class="text-sm text-om-gray-400 mb-3">Showing 1 to {{ wfProductsWithResults.length }} of {{ wfProductsWithResults.length }} entries</p>
+          <div v-if="wfProductsWithResults.length" class="flex flex-col gap-2">
             <div
-              v-for="p in genProducts.filter(pr => wfSelected.length ? wfSelected.includes(pr.id) : pr.status === 'generated')"
+              v-for="p in wfProductsWithResults"
               :key="p.id"
-              class="bg-white rounded-xl border border-om-gray-200 p-4 flex gap-3"
+              class="flex items-center gap-4 p-3 bg-white rounded-xl border border-om-gray-200 cursor-pointer hover:border-om-gray-300 hover:shadow-sm transition-all"
+              @click="openWfDetail(p)"
             >
-              <div class="w-16 h-16 bg-om-gray-100 rounded-lg border border-om-gray-200 shrink-0" />
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-om-gray-700 truncate">{{ p.name }}</p>
-                <p class="text-xs text-om-gray-500 truncate mb-2">{{ p.desc }}</p>
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <Tag v-for="(s, i) in workflowSteps" :key="s.id" variant="gray-muted">Step {{ i + 1 }}</Tag>
-                  <Tag variant="green">
-                    <template #icon><Check :size="11" /></template>
-                    Done
-                  </Tag>
-                </div>
+              <div class="w-14 h-14 bg-om-gray-100 rounded-md border border-om-gray-200 shrink-0" />
+              <div class="min-w-0 w-72 shrink-0">
+                <p class="text-sm font-medium text-om-gray-700 truncate">{{ p.name }}</p>
+                <p class="text-xs text-om-gray-500 truncate">{{ p.desc }}</p>
+              </div>
+              <div class="w-px h-12 bg-om-gray-200 shrink-0"></div>
+              <div class="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
+                <Tag
+                  v-for="(s, i) in workflowSteps"
+                  :key="s.id"
+                  :variant="productStepDone(p, i) ? 'green' : (productStepRunning(p, i) ? 'orange' : 'gray-muted')"
+                >
+                  <template #icon>
+                    <Check v-if="productStepDone(p, i)" :size="11" />
+                    <Loader2 v-else-if="productStepRunning(p, i)" :size="11" class="animate-spin" />
+                    <Clock v-else :size="11" />
+                  </template>
+                  Step {{ i + 1 }}
+                </Tag>
+              </div>
+              <div class="w-px h-12 bg-om-gray-200 shrink-0"></div>
+              <div class="shrink-0">
+                <Tag :variant="productOverallStatus(p).variant">
+                  <template #icon>
+                    <Check v-if="productOverallStatus(p).icon === 'check'" :size="12" />
+                    <Loader2 v-else-if="productOverallStatus(p).icon === 'loader'" :size="12" class="animate-spin" />
+                    <Clock v-else :size="12" />
+                  </template>
+                  {{ productOverallStatus(p).label }}
+                </Tag>
               </div>
             </div>
           </div>
-          <p v-if="!genProducts.filter(pr => wfSelected.length ? wfSelected.includes(pr.id) : pr.status === 'generated').length" class="text-center text-sm text-om-gray-400 py-12">
+          <p v-else class="text-center text-sm text-om-gray-400 py-12">
             No workflow runs yet. Pick products in the <button class="text-om-orange-500 underline" @click="wfTab = 'selected'">Choose products</button> tab and run the workflow.
           </p>
         </div>
@@ -564,12 +704,20 @@
             </div>
             <div class="mb-3">
               <p class="text-xs font-medium text-om-gray-500 mb-2">Inputs</p>
-              <div class="flex flex-wrap gap-x-4 gap-y-2 p-3 bg-om-gray-50 rounded-lg">
-                <Checkbox v-model="step.inputs.original" label="Original product image" size="sm" />
-                <template v-for="(prev, j) in workflowSteps.slice(0, i)" :key="`prev-${prev.id}`">
-                  <Checkbox :model-value="step.inputs.previousSteps.includes(prev.id)" @update:model-value="toggleStepArrayInput(step, 'previousSteps', prev.id)" :label="`Output of Step ${j + 1}`" size="sm" />
-                </template>
-                <Checkbox v-for="v in workflowVariables" :key="`var-${v.id}`" :model-value="step.inputs.variables.includes(v.id)" @update:model-value="toggleStepArrayInput(step, 'variables', v.id)" :label="v.label" size="sm" />
+              <div class="flex items-center gap-3 p-3 bg-om-gray-50 rounded-lg">
+                <div class="w-44 shrink-0">
+                  <Dropdown
+                    v-model="addInputDropdowns[step.id]"
+                    :options="inputDropdownOptions(i)"
+                    placeholder="+ Add input"
+                    size="sm"
+                    @update:model-value="(opt) => onAddInput(step, opt)"
+                  />
+                </div>
+                <div class="flex flex-wrap items-center gap-1.5 min-w-0 flex-1">
+                  <Tag v-for="u in usedInputs(step, i)" :key="u.variable" :variant="inputTagVariant(u.source)">{{ u.placeholder }}</Tag>
+                  <span v-if="usedInputs(step, i).length === 0" class="text-xs text-om-gray-400">No inputs used yet</span>
+                </div>
               </div>
             </div>
             <div class="mb-3">
@@ -582,23 +730,40 @@
                   :disabled="i === 0"
                 />
               </div>
-              <textarea v-model="step.prompt" rows="3" placeholder="Describe what this step should produce..." class="w-full text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 px-3 py-2 resize-none" />
+              <textarea
+                v-model="step.prompt"
+                :ref="setPromptRef(step.id)"
+                @blur="trackCursor(step, $event)"
+                @keyup="trackCursor(step, $event)"
+                @click="trackCursor(step, $event)"
+                rows="3"
+                placeholder="Describe what this step should produce..."
+                class="w-full text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 px-3 py-2 resize-none"
+              />
             </div>
-            <div class="flex items-center gap-2 mb-3 px-3 py-2 bg-om-gray-50 rounded-lg">
-              <div class="flex items-center gap-2 flex-1 min-w-0">
-                <ToggleSwitch v-if="isImageModel(step.model)" v-model="step.useMultipleImages" />
-                <ToggleSwitch v-else v-model="step.useProductImageContext" />
-                <span class="text-xs text-om-gray-600 truncate">{{ isImageModel(step.model) ? 'Use multiple product images' : 'Use product image as context' }}</span>
+            <div class="flex items-stretch gap-3 mb-3">
+              <div class="flex items-center gap-2 px-3 py-2 bg-om-gray-50 rounded-lg w-1/2 min-w-0">
+                <div class="flex items-center gap-2 flex-1 min-w-0">
+                  <ToggleSwitch v-if="isImageModel(step.model)" v-model="step.useMultipleImages" />
+                  <ToggleSwitch v-else v-model="step.useProductImageContext" />
+                  <span class="text-xs text-om-gray-600 truncate">{{ isImageModel(step.model) ? 'Use multiple product images' : 'Use product image as context' }}</span>
+                </div>
+                <div class="w-px h-5 bg-om-gray-200"></div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs text-om-gray-600">Min. description length</span>
+                  <input
+                    v-model.number="step.minDescriptionLength"
+                    type="number"
+                    min="0"
+                    class="w-16 text-sm text-center rounded-md border border-om-gray-200 bg-white text-om-gray-700 outline-none focus:border-om-gray-400 px-2 py-1"
+                  />
+                </div>
               </div>
-              <div class="w-px h-5 bg-om-gray-200"></div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs text-om-gray-600">Min. description length</span>
-                <input
-                  v-model.number="step.minDescriptionLength"
-                  type="number"
-                  min="0"
-                  class="w-16 text-sm text-center rounded-md border border-om-gray-200 bg-white text-om-gray-700 outline-none focus:border-om-gray-400 px-2 py-1"
-                />
+              <div class="px-3 py-2 bg-om-gray-50 rounded-lg flex flex-col justify-center w-1/2 min-w-0">
+                <p class="text-[11px] text-om-gray-400 leading-none mb-1.5">Output variables</p>
+                <div class="flex flex-wrap gap-1.5">
+                  <Tag variant="green">{{ stepOutputName(step, i) }}</Tag>
+                </div>
               </div>
             </div>
             <div class="flex items-end gap-3">
@@ -623,17 +788,26 @@
                 <p class="text-xs font-medium text-om-gray-500 mb-1">Ratio</p>
                 <Dropdown v-model="step.ratio" :options="['1:1', '16:9', '9:16', '4:5', '4:3']" size="sm" />
               </div>
-              <Button variant="secondary" size="sm" :disabled="step.generating" @click="runWorkflowStep(step)">
+              <Button variant="secondary" size="sm" :disabled="step.generating || step.waiting" @click="runWorkflowStep(step)">
                 <template #icon>
                   <Loader2 v-if="step.generating" :size="14" class="animate-spin" />
+                  <Clock v-else-if="step.waiting" :size="14" />
                   <Play v-else :size="14" />
                 </template>
-                {{ step.generating ? 'Running...' : 'Run step' }}
+                {{ step.generating ? 'Running...' : step.waiting ? 'Waiting...' : 'Run step' }}
               </Button>
-              <div class="w-20 h-20 bg-om-gray-100 rounded-lg border border-om-gray-200 overflow-hidden shrink-0" :class="step.output ? 'cursor-pointer hover:border-om-gray-400' : ''" @click="step.output && (workflowLightbox = step.output)">
+              <div v-if="isImageModel(step.model)" class="w-20 h-20 bg-om-gray-100 rounded-lg border border-om-gray-200 overflow-hidden shrink-0" :class="step.output ? 'cursor-pointer hover:border-om-gray-400' : ''" @click="step.output && (workflowLightbox = step.output)">
                 <img v-if="step.output" :src="step.output" class="w-full h-full object-cover" />
                 <div v-else class="w-full h-full flex items-center justify-center text-[10px] text-om-gray-400 text-center px-1">No output yet</div>
               </div>
+              <textarea
+                v-else
+                :value="step.output || ''"
+                readonly
+                rows="3"
+                :placeholder="step.output ? '' : 'No output yet'"
+                class="w-[28rem] h-20 text-xs rounded-lg border border-om-gray-200 bg-om-gray-50 text-om-gray-700 placeholder-om-gray-400 outline-none px-2 py-1.5 resize-none shrink-0"
+              />
             </div>
           </div>
           <div class="flex items-center justify-between mt-4 mb-12">
@@ -654,6 +828,138 @@
             <X :size="20" />
           </button>
           <img :src="workflowLightbox" class="max-w-full max-h-full rounded-xl shadow-2xl" @click.stop />
+        </div>
+
+        <!-- Workflow product detail view (per-step preview + regenerate) -->
+        <div v-if="wfDetailProduct">
+          <!-- Header: back + product name on left, ignore + position + prev/next on right -->
+          <div class="flex items-center justify-between gap-4 mb-4">
+            <div class="flex items-center gap-2 min-w-0">
+              <Button variant="ghost" size="sm" :icon-only="true" @click="closeWfDetail">
+                <template #icon><ArrowLeft :size="16" /></template>
+              </Button>
+              <h1 class="text-2xl font-semibold text-om-gray-700 truncate">{{ wfDetailProduct.name }}</h1>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <Button variant="secondary" size="sm" @click="wfToggleIgnore(wfDetailProduct)">
+                <template #icon>
+                  <Eye v-if="wfIsIgnored(wfDetailProduct.id)" :size="14" />
+                  <EyeOff v-else :size="14" />
+                </template>
+                {{ wfIsIgnored(wfDetailProduct.id) ? 'Restore' : 'Ignore' }}
+              </Button>
+              <span v-if="wfDetailIndex >= 0" class="text-sm text-om-gray-400 tabular-nums ml-2">{{ wfDetailIndex + 1 }} / {{ wfProductsWithResults.length }}</span>
+              <Button variant="secondary" size="sm" :disabled="!wfHasPrev" @click="wfGoPrev">
+                <template #icon><ChevronLeft :size="14" /></template>
+                Previous
+              </Button>
+              <Button variant="secondary" size="sm" :disabled="!wfHasNext" @click="wfGoNext">
+                Next
+                <ChevronRight :size="14" />
+              </Button>
+            </div>
+          </div>
+
+          <!-- Original product card (shown once at the top) -->
+          <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5 mb-6 flex items-center gap-4">
+            <div class="w-24 h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
+              <img src="/product1.jpg" class="w-full h-full object-cover" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-1">Original Product</p>
+              <h3 class="text-sm font-semibold text-om-gray-700 truncate">{{ wfDetailProduct.name }}</h3>
+              <div class="flex items-center gap-4 mt-1">
+                <span class="text-xs text-om-gray-400">SKU: OM-7-SE</span>
+                <span class="text-sm font-semibold text-om-gray-700">$159.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Per-step blocks: generated content on top, prompt editor below -->
+          <div v-for="(step, i) in workflowSteps" :key="step.id" class="mb-8">
+            <!-- Step label -->
+            <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase flex items-center gap-1.5 mb-3">
+              <Wand2 :size="16" class="text-om-orange-400" />
+              Step {{ i + 1 }} · {{ stepOutputName(step, i) }}
+            </p>
+
+            <!-- Generated output (image: 500px, text: auto with min-height) -->
+            <div
+              class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden relative mb-3"
+              :style="isImageModel(step.model) ? 'height: 500px;' : 'min-height: 120px;'"
+            >
+              <!-- Regenerating overlay -->
+              <template v-if="wfStepIsRegenerating(wfDetailProduct.id, i)">
+                <div class="w-full h-full flex flex-col items-center justify-center gap-3 py-12">
+                  <Loader2 :size="40" class="animate-spin text-om-orange-500" />
+                  <p class="text-sm text-om-gray-500">Regenerating Step {{ i + 1 }}...</p>
+                </div>
+              </template>
+              <!-- Image step output -->
+              <template v-else-if="wfStepHasOutputs(wfDetailProduct.id, i) && isImageModel(step.model)">
+                <div
+                  class="w-full h-full p-4 grid gap-4"
+                  :class="wfStepGetOutputs(wfDetailProduct.id, i).length > 1 ? 'grid-cols-2' : 'grid-cols-1'"
+                >
+                  <div
+                    v-for="(out, idx) in wfStepGetOutputs(wfDetailProduct.id, i)"
+                    :key="idx"
+                    class="bg-om-gray-50 rounded-xl overflow-hidden flex items-center justify-center"
+                  >
+                    <img :src="out.src" class="max-w-full max-h-full object-contain" :class="wfIsIgnored(wfDetailProduct.id) ? 'blur-[2px] grayscale' : ''" />
+                  </div>
+                </div>
+                <div v-if="wfIsIgnored(wfDetailProduct.id)" class="absolute inset-0 bg-black/60 flex items-center justify-center pointer-events-none">
+                  <EyeOff :size="40" class="text-white" />
+                </div>
+              </template>
+              <!-- Text step output -->
+              <template v-else-if="wfStepHasOutputs(wfDetailProduct.id, i) && !isImageModel(step.model)">
+                <div class="w-full p-5 flex flex-col gap-3">
+                  <div
+                    v-for="(out, idx) in wfStepGetOutputs(wfDetailProduct.id, i)"
+                    :key="idx"
+                    class="bg-om-gray-50 rounded-xl p-4 text-sm text-om-gray-700 whitespace-pre-line"
+                  >{{ out.value }}</div>
+                </div>
+              </template>
+              <!-- Pending -->
+              <template v-else>
+                <div class="w-full flex flex-col items-center justify-center gap-2 py-12">
+                  <Clock :size="28" class="text-om-gray-300" />
+                  <p class="text-sm text-om-gray-400">Pending generation</p>
+                </div>
+              </template>
+            </div>
+
+            <!-- Prompt editor + Regenerate -->
+            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-4">
+              <div class="flex items-start justify-between mb-2 gap-3">
+                <div class="min-w-0">
+                  <h3 class="text-sm font-semibold text-om-gray-700">Instructions</h3>
+                  <p class="text-xs text-om-gray-400 mt-0.5">Edit the prompt above to customize the generation. Changes will require regenerating the preview.</p>
+                </div>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  :disabled="wfStepIsRegenerating(wfDetailProduct.id, i)"
+                  @click="regenerateWfStep(wfDetailProduct.id, i)"
+                >
+                  <template #icon>
+                    <Loader2 v-if="wfStepIsRegenerating(wfDetailProduct.id, i)" :size="13" class="animate-spin" />
+                    <Sparkles v-else :size="13" />
+                  </template>
+                  {{ wfStepIsRegenerating(wfDetailProduct.id, i) ? 'Regenerating…' : 'Regenerate' }}
+                </Button>
+              </div>
+              <textarea
+                :value="wfStepGetPrompt(wfDetailProduct.id, i)"
+                @input="wfStepSetPrompt(wfDetailProduct.id, i, $event.target.value)"
+                rows="3"
+                class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2068,8 +2374,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { Search, ArrowLeft, ArrowRight, Sparkles, Image as ImageIcon, Cpu, Maximize2, Coins, Wand2, ExternalLink, Type, ArrowUpDown, SlidersHorizontal, Upload, X, Check, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Workflow, Plus, Play, Loader2 } from 'lucide-vue-next'
+import { ref, computed, watch, nextTick } from 'vue'
+import { Search, ArrowLeft, ArrowRight, Sparkles, Image as ImageIcon, Cpu, Maximize2, Coins, Wand2, ExternalLink, Type, ArrowUpDown, SlidersHorizontal, Upload, X, Check, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Workflow, Plus, Play, Loader2, Clock, Eye, EyeOff } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
@@ -2080,6 +2386,7 @@ import RadioButton from '../components/shared/RadioButton.vue'
 import Tag from '../components/shared/Tag.vue'
 import AddDomainModal from '../components/shared/AddDomainModal.vue'
 import Modal from '../components/shared/Modal.vue'
+import { workflowSteps, workflowReferences, newStep } from '../composables/useWorkflowState.js'
 
 const props = defineProps({
   screen: { type: String, default: 'list' },
@@ -2506,9 +2813,9 @@ const workflowEditorTitle = computed(() => {
   return p.name
 })
 
-// Workflow editor state
+// Workflow editor state (workflowSteps + workflowReferences imported from useWorkflowState
+// so they persist between the editor and generation screens)
 const workflowProduct = ref({ id: 1, name: 'Stock GreenWell beverage', category: 'Beverages', image: '/product1.jpg' })
-const workflowReferences = ref([])
 let refIdCounter = 1
 const workflowVariables = [
   { id: 'headline', label: '{{headline}}', type: 'text' },
@@ -2516,29 +2823,7 @@ const workflowVariables = [
   { id: 'product_image_v1', label: '{{product_image_v1}}', type: 'image' },
   { id: 'badge_image_v1', label: '{{badge_image_v1}}', type: 'image' },
 ]
-let stepIdCounter = 1
 const workflowLightbox = ref(null)
-
-const newStep = (overrides = {}) => ({
-  id: stepIdCounter++,
-  prompt: '',
-  model: 'Nano Banana Pro',
-  ratio: '1:1',
-  inputs: {
-    original: true,
-    references: [],
-    previousSteps: [],
-    variables: [],
-  },
-  referenceImages: [],
-  output: null,
-  generating: false,
-  useMultipleImages: false,
-  useProductImageContext: false,
-  minDescriptionLength: 0,
-  continuePreviousPrompt: false,
-  ...overrides,
-})
 
 let stepRefIdCounter = 1
 const addStepReference = (step, event) => {
@@ -2554,28 +2839,104 @@ const removeStepReference = (step, id) => {
 
 const imageModels = ['Nano Banana Pro']
 const isImageModel = (model) => imageModels.includes(model)
+const stepOutputName = (step, i) => `${isImageModel(step.model) ? 'Image' : 'Text'}Step${i + 1}`
 
-const workflowSteps = ref([newStep()])
+const builtInInputs = [
+  { variable: 'product_name', label: 'Product name', source: 'builtin' },
+  { variable: 'product_description', label: 'Product description', source: 'builtin' },
+  { variable: 'recommended_product_name', label: 'Recommended product name', source: 'builtin' },
+  { variable: 'recommended_product_description', label: 'Recommended product description', source: 'builtin' },
+]
+
+const availableInputs = (i) => {
+  const opts = builtInInputs.map(b => ({ ...b, placeholder: `{{${b.variable}}}` }))
+  for (let j = 0; j < i; j++) {
+    const prev = workflowSteps.value[j]
+    const variable = stepOutputName(prev, j)
+    opts.push({ variable, label: `Step ${j + 1} output - ${variable}`, source: 'step', placeholder: `{{${variable}}}` })
+  }
+  aiTemplates.forEach(t => {
+    opts.push({ variable: t.variable, label: `${t.name} - ${t.variable}`, source: 'template', placeholder: `{{${t.variable}}}` })
+  })
+  return opts
+}
+
+const inputDropdownOptions = (i) => availableInputs(i).map(o => ({ value: o.variable, label: o.label, source: o.source, placeholder: o.placeholder }))
+
+const usedInputs = (step, i) => {
+  const text = step.prompt || ''
+  const matches = [...text.matchAll(/\{\{([a-z0-9_]+)\}\}/gi)]
+  const seen = new Set()
+  const known = availableInputs(i)
+  const result = []
+  matches.forEach(m => {
+    const v = m[1]
+    if (seen.has(v)) return
+    seen.add(v)
+    const found = known.find(o => o.variable === v)
+    result.push(found || { variable: v, label: v, source: 'unknown', placeholder: `{{${v}}}` })
+  })
+  return result
+}
+
+const inputTagVariant = (source) => {
+  if (source === 'step') return 'green'
+  if (source === 'template') return 'orange'
+  return 'gray-muted'
+}
+
+const promptRefs = {}
+const setPromptRef = (id) => (el) => {
+  if (el) promptRefs[id] = el
+  else delete promptRefs[id]
+}
+const stepCursors = {}
+const trackCursor = (step, ev) => {
+  stepCursors[step.id] = ev.target.selectionStart
+}
+
+const insertInputAtCursor = (step, placeholder) => {
+  const ta = promptRefs[step.id]
+  const text = step.prompt || ''
+  const pos = stepCursors[step.id] != null ? stepCursors[step.id] : text.length
+  const safePos = Math.max(0, Math.min(pos, text.length))
+  step.prompt = text.slice(0, safePos) + placeholder + text.slice(safePos)
+  const newPos = safePos + placeholder.length
+  stepCursors[step.id] = newPos
+  nextTick(() => {
+    if (ta) {
+      ta.focus()
+      try { ta.setSelectionRange(newPos, newPos) } catch (e) {}
+    }
+  })
+}
+
+const addInputDropdowns = ref({})
+const onAddInput = (step, opt) => {
+  if (!opt) return
+  insertInputAtCursor(step, opt.placeholder)
+  nextTick(() => { addInputDropdowns.value[step.id] = null })
+}
 
 const isStepInherited = (step, i) => i > 0 && !!step.continuePreviousPrompt
 
 // AI templates available to load into a step (combines text + image presets with prompts)
 const aiTemplates = [
-  { id: 'tpl-badge-desktop', name: 'Image with badge desktop', type: 'Image', model: 'Nano Banana Pro', ratio: '16:9', useMultipleImages: false, minDescriptionLength: 0, prompt: 'Add a promotional badge to the product image. Optimize composition for desktop (16:9) layouts.' },
-  { id: 'tpl-badge-mobile', name: 'Image with badge mobile', type: 'Image', model: 'Nano Banana Pro', ratio: '9:16', useMultipleImages: false, minDescriptionLength: 0, prompt: 'Add a promotional badge to the product image. Optimize composition for mobile (9:16) layouts.' },
-  { id: 'tpl-badge-people-desktop', name: 'Image with badge with people desktop', type: 'Image', model: 'Nano Banana Pro', ratio: '16:9', useMultipleImages: false, minDescriptionLength: 0, prompt: 'Generate a lifestyle product image featuring people and a promotional badge, framed for desktop (16:9).' },
-  { id: 'tpl-badge-people-mobile', name: 'Image with badge with people mobile', type: 'Image', model: 'Nano Banana Pro', ratio: '9:16', useMultipleImages: false, minDescriptionLength: 0, prompt: 'Generate a lifestyle product image featuring people and a promotional badge, framed for mobile (9:16).' },
-  { id: 'tpl-people-beverage', name: 'People Beverage', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, prompt: 'Generate a lifestyle scene of people enjoying a beverage with the product naturally integrated.' },
-  { id: 'tpl-people-consume', name: 'People Consume', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, prompt: 'Generate a lifestyle scene of people consuming or experiencing the product.' },
-  { id: 'tpl-people-use', name: 'People Use', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, prompt: 'Generate a lifestyle scene of people actively using the product.' },
-  { id: 'tpl-people-wear', name: 'People Wear', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, prompt: 'Generate a lifestyle scene of people wearing or modeling the product.' },
-  { id: 'tpl-pets', name: 'Pets', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, prompt: 'Generate a lifestyle scene featuring pets alongside the product.' },
-  { id: 'tpl-product-only', name: 'Product Only', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, prompt: 'Generate a clean, focused product shot with no people or distractions.' },
-  { id: 'tpl-sdp-product-sentence-hu', name: 'SDP - Product Sentence (HU)', type: 'Text', model: 'Gemini 3', ratio: '1:1', useProductImageContext: false, minDescriptionLength: 80, prompt: 'Írj egy tömör, vásárlót ösztönző mondatot a termékről magyar nyelven a katalógus adatai alapján.' },
-  { id: 'tpl-spo-reco-headline-en', name: 'SPo - Reco Headline (EN)', type: 'Text', model: 'Gemini 3', ratio: '1:1', useProductImageContext: false, minDescriptionLength: 60, prompt: 'Write a recommendation-focused headline in English that drives product discovery for the given item.' },
-  { id: 'tpl-sppo-benefit-list-en', name: 'SPPO - Benefit List (EN)', type: 'Text', model: 'Gemini 3', ratio: '1:1', useProductImageContext: false, minDescriptionLength: 100, prompt: 'Generate a bullet-point list of the key product benefits in English tailored to the catalogue item.' },
-  { id: 'tpl-sppo-benefit-list-bold-hu', name: 'SPPO - Benefit list w/ bold intro (HU)', type: 'Text', model: 'Gemini 3', ratio: '1:1', useProductImageContext: false, minDescriptionLength: 100, prompt: 'Generálj termékelőnyöket felsoroló listát magyarul, félkövér bevezető mondattal a termék összefoglalására.' },
-  { id: 'tpl-headline-subheadline-en', name: 'SPPO - Headline + Subheadline (EN)', type: 'Text', model: 'Gemini 3', ratio: '1:1', useProductImageContext: false, minDescriptionLength: 80, prompt: 'Generate a paired headline and subheadline in English suitable for banners, popups, and embedded content.' },
+  { id: 'tpl-badge-desktop', name: 'Image with badge desktop', type: 'Image', model: 'Nano Banana Pro', ratio: '16:9', useMultipleImages: false, minDescriptionLength: 0, variable: 'badge_desktop', prompt: 'Add a promotional badge to the product image. Optimize composition for desktop (16:9) layouts.' },
+  { id: 'tpl-badge-mobile', name: 'Image with badge mobile', type: 'Image', model: 'Nano Banana Pro', ratio: '9:16', useMultipleImages: false, minDescriptionLength: 0, variable: 'badge_mobile', prompt: 'Add a promotional badge to the product image. Optimize composition for mobile (9:16) layouts.' },
+  { id: 'tpl-badge-people-desktop', name: 'Image with badge with people desktop', type: 'Image', model: 'Nano Banana Pro', ratio: '16:9', useMultipleImages: false, minDescriptionLength: 0, variable: 'badge_people_desktop', prompt: 'Generate a lifestyle product image featuring people and a promotional badge, framed for desktop (16:9).' },
+  { id: 'tpl-badge-people-mobile', name: 'Image with badge with people mobile', type: 'Image', model: 'Nano Banana Pro', ratio: '9:16', useMultipleImages: false, minDescriptionLength: 0, variable: 'badge_people_mobile', prompt: 'Generate a lifestyle product image featuring people and a promotional badge, framed for mobile (9:16).' },
+  { id: 'tpl-people-beverage', name: 'People Beverage', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, variable: 'people_beverage', prompt: 'Generate a lifestyle scene of people enjoying a beverage with the product naturally integrated.' },
+  { id: 'tpl-people-consume', name: 'People Consume', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, variable: 'people_consume', prompt: 'Generate a lifestyle scene of people consuming or experiencing the product.' },
+  { id: 'tpl-people-use', name: 'People Use', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, variable: 'people_use', prompt: 'Generate a lifestyle scene of people actively using the product.' },
+  { id: 'tpl-people-wear', name: 'People Wear', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, variable: 'people_wear', prompt: 'Generate a lifestyle scene of people wearing or modeling the product.' },
+  { id: 'tpl-pets', name: 'Pets', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, variable: 'pets', prompt: 'Generate a lifestyle scene featuring pets alongside the product.' },
+  { id: 'tpl-product-only', name: 'Product Only', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, variable: 'product_only', prompt: 'Generate a clean, focused product shot with no people or distractions.' },
+  { id: 'tpl-sdp-product-sentence-hu', name: 'SDP - Product Sentence (HU)', type: 'Text', model: 'Gemini 3', ratio: '1:1', useProductImageContext: false, minDescriptionLength: 80, variable: 'product_sentence', prompt: 'Írj egy tömör, vásárlót ösztönző mondatot a termékről magyar nyelven a katalógus adatai alapján.' },
+  { id: 'tpl-spo-reco-headline-en', name: 'SPo - Reco Headline (EN)', type: 'Text', model: 'Gemini 3', ratio: '1:1', useProductImageContext: false, minDescriptionLength: 60, variable: 'reco_headline', prompt: 'Write a recommendation-focused headline in English that drives product discovery for the given item.' },
+  { id: 'tpl-sppo-benefit-list-en', name: 'SPPO - Benefit List (EN)', type: 'Text', model: 'Gemini 3', ratio: '1:1', useProductImageContext: false, minDescriptionLength: 100, variable: 'benefit_list', prompt: 'Generate a bullet-point list of the key product benefits in English tailored to the catalogue item.' },
+  { id: 'tpl-sppo-benefit-list-bold-hu', name: 'SPPO - Benefit list w/ bold intro (HU)', type: 'Text', model: 'Gemini 3', ratio: '1:1', useProductImageContext: false, minDescriptionLength: 100, variable: 'benefit_list_bold', prompt: 'Generálj termékelőnyöket felsoroló listát magyarul, félkövér bevezető mondattal a termék összefoglalására.' },
+  { id: 'tpl-headline-subheadline-en', name: 'SPPO - Headline + Subheadline (EN)', type: 'Text', model: 'Gemini 3', ratio: '1:1', useProductImageContext: false, minDescriptionLength: 80, variable: 'headline_subheadline', prompt: 'Generate a paired headline and subheadline in English suitable for banners, popups, and embedded content.' },
 ]
 
 const templateModalOpen = ref(false)
@@ -2623,7 +2984,6 @@ watch(workflowSteps, (steps) => {
 }, { deep: true })
 
 const seedStepsForPreset = (presetId) => {
-  stepIdCounter = 1
   if (presetId === 'badge-mobile-desktop') {
     workflowSteps.value = [
       newStep({ prompt: 'Add a promotional "20% OFF" badge to the product image. Optimize composition for desktop (16:9).', ratio: '16:9' }),
@@ -2675,21 +3035,43 @@ const removeWorkflowReference = (id) => {
     s.inputs.references = s.inputs.references.filter(rid => rid !== id)
   })
 }
-const runWorkflowStep = (step) => {
+const sampleTextOutputs = [
+  'Refresh your day with GreenWell — naturally crafted for clean energy and a calmer mind.',
+  '• Cold-pressed botanicals\n• Zero added sugar\n• 100% recyclable bottle',
+  'Discover the taste that fits your routine — light, balanced, and quietly bold.',
+]
+const runSingleStep = (step) => new Promise((resolve) => {
+  step.waiting = false
   step.generating = true
   setTimeout(() => {
-    step.output = '/product1.jpg'
+    if (isImageModel(step.model)) {
+      step.output = '/product1.jpg'
+    } else {
+      step.output = sampleTextOutputs[Math.floor(Math.random() * sampleTextOutputs.length)]
+    }
     step.generating = false
+    resolve()
   }, 1500)
+})
+const runWorkflowStep = async (step) => {
+  const idx = workflowSteps.value.indexOf(step)
+  if (idx === -1) return
+  for (let i = 0; i <= idx; i++) {
+    workflowSteps.value[i].waiting = true
+  }
+  for (let i = 0; i <= idx; i++) {
+    await runSingleStep(workflowSteps.value[i])
+  }
 }
-const runWorkflowAll = () => {
-  workflowSteps.value.forEach((s, i) => {
-    setTimeout(() => runWorkflowStep(s), i * 200)
-  })
+const runWorkflowAll = async () => {
+  workflowSteps.value.forEach(s => { s.waiting = true })
+  for (const s of workflowSteps.value) {
+    await runSingleStep(s)
+  }
 }
 
 // Workflow editor tabs (Choose products / Review / Settings)
-const wfTab = ref('settings')
+const wfTab = ref('selected')
 const wfTabs = [
   { value: 'selected', label: 'Choose products' },
   { value: 'generated', label: 'Review' },
@@ -2700,6 +3082,134 @@ const wfSelectedCredits = computed(() => {
   const perRun = workflowSteps.value.reduce((sum, s) => sum + (s.model === 'Nano Banana Pro' ? 20 : 15), 0)
   return (wfSelected.value.length * perRun).toLocaleString() + ' credits'
 })
+const wfSearch = ref('')
+const wfFilteredProducts = computed(() => {
+  const q = wfSearch.value.trim().toLowerCase()
+  if (!q) return genProducts.value
+  return genProducts.value.filter(p => p.name.toLowerCase().includes(q) || (p.desc || '').toLowerCase().includes(q))
+})
+const showWfGenMenu = ref(false)
+const wfPerProductCredits = computed(() => workflowSteps.value.reduce((sum, s) => sum + (s.model === 'Nano Banana Pro' ? 20 : 15), 0))
+const wfMenuOptions = computed(() => [1, 10, 25, 100].map(count => ({
+  count,
+  credits: (count * wfPerProductCredits.value).toLocaleString() + ' credits',
+})))
+// Per-product workflow progress: id -> number of completed steps.
+// Plus id -> currently running step index (null when idle/done).
+const wfProductProgress = ref({})
+const wfProductRunning = ref({})
+const productWorkflowStatus = (p) => {
+  const progress = wfProductProgress.value[p.id] || 0
+  if (progress >= workflowSteps.value.length) return 'done'
+  if (progress > 0 || wfProductRunning.value[p.id] != null) return 'partial'
+  return 'pending'
+}
+const productStepDone = (p, stepIndex) => (wfProductProgress.value[p.id] || 0) > stepIndex
+const productStepRunning = (p, stepIndex) => wfProductRunning.value[p.id] === stepIndex
+const productOverallStatus = (p) => {
+  const ws = productWorkflowStatus(p)
+  if (ws === 'done') return { label: 'Ready to use', variant: 'green', icon: 'check' }
+  if (ws === 'partial') return { label: 'In progress', variant: 'orange', icon: 'loader' }
+  return { label: 'Not generated', variant: 'gray-muted', icon: 'clock' }
+}
+// Mock output pools used to populate per-step results
+const wfImagePool = ['/product1.jpg', '/product2.png', '/prod2.jpg', '/Prod1.png', '/review_img.png', '/whisky.png']
+const wfTextPool = [
+  'Refresh your day with GreenWell — naturally crafted for clean energy and a calmer mind.',
+  '• Cold-pressed botanicals\n• Zero added sugar\n• 100% recyclable bottle',
+  'Discover the taste that fits your routine — light, balanced, and quietly bold.',
+  'Premium quality you can taste in every sip — sustainably sourced and rigorously tested.',
+]
+const mockStepOutputs = (step) => {
+  if (isImageModel(step.model)) {
+    const count = Math.random() < 0.4 ? 2 : 1
+    const out = []
+    for (let i = 0; i < count; i++) out.push({ type: 'image', src: wfImagePool[Math.floor(Math.random() * wfImagePool.length)] })
+    return out
+  }
+  return [{ type: 'text', value: wfTextPool[Math.floor(Math.random() * wfTextPool.length)] }]
+}
+// Per-product, per-step generated outputs and prompts (keyed by productId).
+const wfStepOutputs = ref({})
+const wfStepPrompts = ref({})
+const wfStepRegenerating = ref({})
+const ensureWfPrompts = (productId) => {
+  if (!wfStepPrompts.value[productId]) {
+    wfStepPrompts.value = { ...wfStepPrompts.value, [productId]: workflowSteps.value.map(s => s.prompt || '') }
+  }
+}
+const setStepOutputs = (productId, stepIndex, outputs) => {
+  const current = wfStepOutputs.value[productId] ? [...wfStepOutputs.value[productId]] : []
+  current[stepIndex] = outputs
+  wfStepOutputs.value = { ...wfStepOutputs.value, [productId]: current }
+}
+const runWorkflowForProduct = async (productId) => {
+  ensureWfPrompts(productId)
+  wfProductProgress.value = { ...wfProductProgress.value, [productId]: 0 }
+  for (let i = 0; i < workflowSteps.value.length; i++) {
+    wfProductRunning.value = { ...wfProductRunning.value, [productId]: i }
+    await new Promise(r => setTimeout(r, 800))
+    setStepOutputs(productId, i, mockStepOutputs(workflowSteps.value[i]))
+    wfProductProgress.value = { ...wfProductProgress.value, [productId]: i + 1 }
+  }
+  wfProductRunning.value = { ...wfProductRunning.value, [productId]: null }
+}
+// Products that have any generated result (progress > 0 or currently running) — used in the Review tab.
+const wfProductsWithResults = computed(() => genProducts.value.filter(p =>
+  (wfProductProgress.value[p.id] || 0) > 0 || wfProductRunning.value[p.id] != null
+))
+
+// Workflow per-product detail view (opened from the Review tab)
+const wfDetailProduct = ref(null)
+const wfIgnoredIds = ref(new Set())
+const wfIsIgnored = (id) => wfIgnoredIds.value.has(id)
+const wfToggleIgnore = (product) => {
+  const set = new Set(wfIgnoredIds.value)
+  if (set.has(product.id)) set.delete(product.id)
+  else set.add(product.id)
+  wfIgnoredIds.value = set
+}
+const wfDetailIndex = computed(() => {
+  if (!wfDetailProduct.value) return -1
+  return wfProductsWithResults.value.findIndex(p => p.id === wfDetailProduct.value.id)
+})
+const wfHasPrev = computed(() => wfDetailIndex.value > 0)
+const wfHasNext = computed(() => wfDetailIndex.value >= 0 && wfDetailIndex.value < wfProductsWithResults.value.length - 1)
+const openWfDetail = (product) => {
+  ensureWfPrompts(product.id)
+  wfDetailProduct.value = product
+}
+const closeWfDetail = () => { wfDetailProduct.value = null }
+const wfGoPrev = () => { if (wfHasPrev.value) wfDetailProduct.value = wfProductsWithResults.value[wfDetailIndex.value - 1] }
+const wfGoNext = () => { if (wfHasNext.value) wfDetailProduct.value = wfProductsWithResults.value[wfDetailIndex.value + 1] }
+const wfStepIsRegenerating = (productId, stepIndex) => !!(wfStepRegenerating.value[productId] && wfStepRegenerating.value[productId][stepIndex])
+const wfStepHasOutputs = (productId, stepIndex) => !!(wfStepOutputs.value[productId] && wfStepOutputs.value[productId][stepIndex])
+const wfStepGetOutputs = (productId, stepIndex) => (wfStepOutputs.value[productId] && wfStepOutputs.value[productId][stepIndex]) || []
+const wfStepGetPrompt = (productId, stepIndex) => (wfStepPrompts.value[productId] && wfStepPrompts.value[productId][stepIndex]) || ''
+const wfStepSetPrompt = (productId, stepIndex, value) => {
+  ensureWfPrompts(productId)
+  const arr = [...(wfStepPrompts.value[productId] || [])]
+  arr[stepIndex] = value
+  wfStepPrompts.value = { ...wfStepPrompts.value, [productId]: arr }
+}
+const regenerateWfStep = async (productId, stepIndex) => {
+  const reg = { ...(wfStepRegenerating.value[productId] || {}), [stepIndex]: true }
+  wfStepRegenerating.value = { ...wfStepRegenerating.value, [productId]: reg }
+  await new Promise(r => setTimeout(r, 1500))
+  setStepOutputs(productId, stepIndex, mockStepOutputs(workflowSteps.value[stepIndex]))
+  const reg2 = { ...(wfStepRegenerating.value[productId] || {}), [stepIndex]: false }
+  wfStepRegenerating.value = { ...wfStepRegenerating.value, [productId]: reg2 }
+}
+const triggerWfGenerate = (mode) => {
+  showWfGenMenu.value = false
+  let ids
+  if (mode === 'selected') {
+    ids = [...wfSelected.value]
+  } else {
+    ids = wfFilteredProducts.value.slice(0, mode).map(p => p.id)
+  }
+  ids.forEach(id => runWorkflowForProduct(id))
+}
 const createWorkflow = () => {
   wfTab.value = 'selected'
   emit('navigate', 'ai-texts-images-v2-workflow-generation')
