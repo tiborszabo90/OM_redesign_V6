@@ -259,14 +259,14 @@
               />
             </div>
             <Button
-              variant="outline"
+              variant="secondary"
               size="md"
               @click="handleRegenerate"
             >
               Regenerate
             </Button>
             <Button
-              variant="outline"
+              variant="secondary"
               size="md"
               @click="handleCheckMorePreviews"
             >

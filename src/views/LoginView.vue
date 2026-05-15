@@ -28,12 +28,12 @@
               <p class="text-om-gray-500 mb-8 text-center">Sign in to continue optimizing</p>
 
               <div class="flex flex-col gap-3">
-                <Button variant="outline" size="lg" class="w-full" @click="currentStep = 'email-form'">
+                <Button variant="secondary" size="lg" class="w-full" @click="currentStep = 'email-form'">
                   <template #icon><Mail :size="18" /></template>
                   Continue with Email
                 </Button>
 
-                <Button variant="outline" size="lg" class="w-full" @click="emit('complete', formData)">
+                <Button variant="secondary" size="lg" class="w-full" @click="emit('complete', formData)">
                   <template #icon>
                     <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
                       <path d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
@@ -45,14 +45,14 @@
                   Continue with Google
                 </Button>
 
-                <Button variant="outline" size="lg" class="w-full">
+                <Button variant="secondary" size="lg" class="w-full">
                   <template #icon>
                     <img src="/icons/shopify-logo.svg" alt="Shopify" class="w-4.5 h-4.5 object-contain" />
                   </template>
                   Continue with Shopify
                 </Button>
 
-                <Button variant="outline" size="lg" class="w-full" @click="emit('complete', formData)">
+                <Button variant="secondary" size="lg" class="w-full" @click="emit('complete', formData)">
                   <template #icon>
                     <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
                       <path d="M18 9a9 9 0 1 0-10.406 8.89V11.6H5.316V9h2.278V7.024c0-2.248 1.338-3.49 3.387-3.49.98 0 2.007.175 2.007.175v2.207H11.893c-1.114 0-1.461.691-1.461 1.4V9h2.487l-.397 2.6h-2.09v6.29A9.002 9.002 0 0 0 18 9z" fill="#1877F2"/>
@@ -156,7 +156,7 @@
           <p class="text-om-gray-600 text-base mb-8 leading-relaxed">
             Start optimizing your website conversions<br />with our tested, step-by-step strategies.
           </p>
-          <Button variant="outline" size="lg">
+          <Button variant="secondary" size="lg">
             Browse Use Case Library
           </Button>
         </div>

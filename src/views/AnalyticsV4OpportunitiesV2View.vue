@@ -1,6 +1,6 @@
 <template>
   <DashboardLayout
-    active-menu-item="insights"
+    active-menu-item="analytics"
     @menu-click="$emit('menu-click', $event)"
     :right-panel-collapsed="!isChatOpen"
   >
@@ -406,8 +406,17 @@
         <!-- Top Optimization Opportunities -->
         <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] mb-6 pt-5 pb-5">
           <div class="opportunities-title-row">
-            <h2 class="section-title">Top Optimization Opportunities</h2>
-            <button class="view-all-btn" @click="emit('navigate-to-opportunities')">View all</button>
+            <div class="opportunities-title-text">
+              <h2 class="section-title">Top Optimization Opportunities</h2>
+              <p class="opportunities-summary">AI-generated recommendations based on your site's traffic, campaign performance, and visitor behavior. Use them to spot the biggest conversion wins.</p>
+            </div>
+            <div class="opportunities-actions">
+              <button class="view-all-btn" @click="emit('navigate-to-opportunities')">View all</button>
+              <span class="opportunities-generated">
+                <Clock :size="12" />
+                Generated on May 11, 2026, 09:00
+              </span>
+            </div>
           </div>
           <div class="opp-grid">
             <div
@@ -1569,7 +1578,7 @@
                 class="pl-9 pr-4 py-2 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 w-56"
               />
             </div>
-            <Button variant="outline" size="sm">
+            <Button variant="secondary" size="sm">
               <template #icon><Download :size="15" /></template>
               Export
             </Button>
@@ -4946,9 +4955,48 @@ const allTrafficSources = [
 
 .opportunities-title-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding-right: 20px;
+  gap: 16px;
+  padding-right: 32px;
+  margin-bottom: 1.25rem;
+}
+
+.opportunities-title-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.opportunities-title-text .section-title {
+  margin-bottom: 0;
+}
+
+.opportunities-summary {
+  font-size: 0.8125rem;
+  color: #6B7280;
+  line-height: 1.5;
+  margin: 6px 32px 0;
+}
+
+.opportunities-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.opportunities-generated {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #4B5563;
+  background: #F1F2F4;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
 }
 
 .view-all-btn {

@@ -188,7 +188,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { Home, LayoutGrid, Users, TrendingUp, BookOpen, GitBranch, Bell, LayoutTemplate, MoreHorizontal } from 'lucide-vue-next'
+import { Home, LayoutGrid, Users, TrendingUp, BookOpen, GitBranch, Bell, LayoutTemplate, MoreHorizontal, Lightbulb } from 'lucide-vue-next'
 
 const showProfilePopover = ref(false)
 
@@ -267,7 +267,8 @@ const menuItems = [
   { id: 'home', label: 'Home', iconComponent: Home },
   { id: 'campaigns', label: 'Campaigns', iconComponent: LayoutGrid },
   { id: 'audience', label: 'Audience', iconComponent: Users },
-  { id: 'insights', label: 'Analytics', iconComponent: TrendingUp },
+  { id: 'insights', label: 'Insights', iconComponent: Lightbulb },
+  { id: 'analytics', label: 'Analytics', iconComponent: TrendingUp },
   { id: 'library', label: 'Library', iconComponent: BookOpen },
   { id: 'settings', label: 'A/B Tests', iconComponent: GitBranch },
   { id: 'template-manager', label: 'Template\nmanager', iconComponent: LayoutTemplate }

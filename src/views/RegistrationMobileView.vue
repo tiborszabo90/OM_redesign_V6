@@ -28,12 +28,12 @@
               <p class="text-om-gray-500 mb-4 sm:mb-8 text-center">and unlock your full optimization plan</p>
 
               <div class="flex flex-col gap-3">
-                <Button variant="outline" size="lg" class="w-full" @click="currentStep = 'email-form'">
+                <Button variant="secondary" size="lg" class="w-full" @click="currentStep = 'email-form'">
                   <template #icon><Mail :size="18" /></template>
                   Continue with Email
                 </Button>
 
-                <Button variant="outline" size="lg" class="w-full" @click="emit('complete', formData)">
+                <Button variant="secondary" size="lg" class="w-full" @click="emit('complete', formData)">
                   <template #icon>
                     <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
                       <path d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
@@ -45,7 +45,7 @@
                   Continue with Google
                 </Button>
 
-                <Button variant="outline" size="lg" class="w-full">
+                <Button variant="secondary" size="lg" class="w-full">
                   <template #icon>
                     <img src="/icons/shopify-logo.svg" alt="Shopify" class="w-4.5 h-4.5 object-contain" />
                   </template>

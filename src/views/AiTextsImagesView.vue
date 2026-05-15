@@ -346,7 +346,7 @@
               <span class="text-sm font-semibold text-om-gray-700">{{ genProducts.length }} products</span>
             </div>
             <div class="flex items-center gap-2">
-            <Button variant="outline" size="md" @click="emit('navigate', 'ai-texts-images-add-products')">Add more products</Button>
+            <Button variant="secondary" size="md" @click="emit('navigate', 'ai-texts-images-add-products')">Add more products</Button>
             <div class="relative">
               <Button variant="primary" size="md" @click.stop="showGenMenu = !showGenMenu">
                 Generate
@@ -966,7 +966,7 @@
               <span class="text-sm font-semibold text-om-gray-700">{{ textGenProducts.length }} products</span>
             </div>
             <div class="flex items-center gap-2">
-              <Button variant="outline" size="md" @click="emit('navigate', 'ai-texts-images-add-products')">Add more products</Button>
+              <Button variant="secondary" size="md" @click="emit('navigate', 'ai-texts-images-add-products')">Add more products</Button>
               <div class="relative">
                 <Button variant="primary" size="md" @click.stop="showTextGenMenu = !showTextGenMenu">
                   Generate

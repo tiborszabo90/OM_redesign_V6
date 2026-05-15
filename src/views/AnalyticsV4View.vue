@@ -1,6 +1,6 @@
 <template>
   <DashboardLayout
-    active-menu-item="insights"
+    active-menu-item="analytics"
     @menu-click="$emit('menu-click', $event)"
     :right-panel-collapsed="!isChatOpen"
   >
@@ -1568,7 +1568,7 @@
                 class="pl-9 pr-4 py-2 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 w-56"
               />
             </div>
-            <Button variant="outline" size="sm">
+            <Button variant="secondary" size="sm">
               <template #icon><Download :size="15" /></template>
               Export
             </Button>

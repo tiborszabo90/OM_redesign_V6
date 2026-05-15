@@ -1094,7 +1094,7 @@
               <span class="text-sm font-semibold text-om-gray-700">{{ textGenProducts.length }} products</span>
             </div>
             <div class="flex items-center gap-2">
-              <Button variant="outline" size="md" @click="emit('navigate', 'ai-texts-images-v2-add-products')">Add more products</Button>
+              <Button variant="secondary" size="md" @click="emit('navigate', 'ai-texts-images-v2-add-products')">Add more products</Button>
               <div class="relative">
                 <Button variant="primary" size="md" @click.stop="showTextGenMenu = !showTextGenMenu">
                   Generate

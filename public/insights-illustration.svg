@@ -1,0 +1,52 @@
+<svg width="220" height="200" viewBox="0 0 220 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Soft circular background -->
+  <circle cx="110" cy="100" r="92" fill="#FFF7F2"/>
+  <circle cx="110" cy="100" r="74" fill="#FFEFE5"/>
+
+  <!-- Subtle sparkles for accent -->
+  <path d="M40 48 L42 54 L48 56 L42 58 L40 64 L38 58 L32 56 L38 54 Z" fill="#ED5A29" opacity="0.75"/>
+  <path d="M185 160 L186.5 164 L190.5 165.5 L186.5 167 L185 171 L183.5 167 L179.5 165.5 L183.5 164 Z" fill="#F7B59F"/>
+  <circle cx="32" cy="138" r="2.5" fill="#FBD9CE"/>
+  <circle cx="190" cy="50" r="2.5" fill="#FBD9CE"/>
+
+  <!-- Chart card (clean, single focal element) -->
+  <rect x="40" y="58" width="130" height="96" rx="10" fill="white" stroke="#FBD9CE" stroke-width="2"/>
+
+  <!-- Card title placeholders -->
+  <rect x="54" y="72" width="44" height="6" rx="3" fill="#E3E5E8"/>
+  <rect x="54" y="84" width="28" height="4" rx="2" fill="#F1F2F4"/>
+
+  <!-- Baseline axis line -->
+  <line x1="54" y1="142" x2="156" y2="142" stroke="#F1F2F4" stroke-width="1"/>
+
+  <!-- Chart bars — uniform soft peach -->
+  <rect x="60" y="124" width="12" height="18" rx="2" fill="#FBD9CE"/>
+  <rect x="80" y="116" width="12" height="26" rx="2" fill="#FBD9CE"/>
+  <rect x="100" y="108" width="12" height="34" rx="2" fill="#FBD9CE"/>
+  <rect x="120" y="100" width="12" height="42" rx="2" fill="#FBD9CE"/>
+  <rect x="140" y="92" width="12" height="50" rx="2" fill="#FBD9CE"/>
+
+  <!-- Orange trend line connecting bar tops -->
+  <path d="M66 120 L86 112 L106 104 L126 96 L146 88" stroke="#ED5A29" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Trend dots — only on first and last for cleanliness -->
+  <circle cx="66" cy="120" r="3" fill="white" stroke="#ED5A29" stroke-width="2"/>
+  <circle cx="146" cy="88" r="4" fill="#ED5A29"/>
+
+  <!-- Magnifying glass — positioned at upper right, examining the peak -->
+  <g>
+    <!-- Lens (transparent, looking at the chart peak) -->
+    <circle cx="160" cy="68" r="24" fill="white" stroke="#ED5A29" stroke-width="3"/>
+    <!-- Lens inner ring for depth -->
+    <circle cx="160" cy="68" r="20" fill="none" stroke="#FBD9CE" stroke-width="1"/>
+    <!-- Lens highlight (top-left shine) -->
+    <path d="M146 60 Q150 54, 156 56" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.85"/>
+    <!-- Sparkle inside lens — represents "found insight" -->
+    <path d="M160 60 L162 66 L168 68 L162 70 L160 76 L158 70 L152 68 L158 66 Z" fill="#ED5A29"/>
+    <!-- Handle -->
+    <line x1="178" y1="86" x2="190" y2="98" stroke="#ED5A29" stroke-width="5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Bottom shadow under card -->
+  <ellipse cx="105" cy="166" rx="58" ry="3.5" fill="#FBD9CE" opacity="0.45"/>
+</svg>

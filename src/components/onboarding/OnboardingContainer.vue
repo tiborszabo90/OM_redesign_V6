@@ -9,7 +9,7 @@
     <div class="flex justify-start gap-4">
       <Button
         v-if="!isFirstStep"
-        variant="outline"
+        variant="secondary"
         @click="$emit('prev')"
       >
         Previous

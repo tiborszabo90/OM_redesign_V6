@@ -191,6 +191,13 @@ const activeProps = computed(() => {
     'shopify-account-choice': { registrationData: registrationData.value },
     'task-creation': { registrationData: registrationData.value },
     'home-old': { registrationData: registrationData.value },
+    'home-insights-v2': { registrationData: registrationData.value },
+    'home-insights-v3': { registrationData: registrationData.value },
+    'home-insights-v4': { registrationData: registrationData.value },
+    'home-insights-v5': { registrationData: registrationData.value },
+    'home-insights-v6': { registrationData: registrationData.value },
+    'home-insights-v7': { registrationData: registrationData.value },
+    'home-insights-v8': { registrationData: registrationData.value },
     'chat-create-popup-v1': { registrationData: registrationData.value },
     'chat-create-popup-v3': { registrationData: registrationData.value },
     'chat-create-popup-v2': { registrationData: registrationData.value },
@@ -228,6 +235,7 @@ const activeProps = computed(() => {
     'ppo-v1-variant-detail-v2': { variant: 'variant2' },
     'analytics-v4': { goal: 'submits' },
     'analytics-v4-opps-v2': { goal: 'submits' },
+    'analytics-v4-opps-v3': { goal: 'submits' },
     'analytics-v4-purchase': { goal: 'purchase' },
     'analytics-v4-add-to-cart': { goal: 'add-to-cart' },
     'analytics-v4-email-capture': { goal: 'email-capture' },
@@ -237,6 +245,13 @@ const activeProps = computed(() => {
     'opportunities-all-v4': { initialInsightId: selectedOpportunityId.value },
     'audience-profile': { lead: selectedLead.value },
     'campaign-page-v1': { abTestVersion: 'comparison' },
+    'campaign-page-insight-v1': { abTestVersion: 'comparison' },
+    'campaign-page-insight-v2': { abTestVersion: 'comparison' },
+    'campaign-page-insight-v3': { abTestVersion: 'comparison' },
+    'campaign-page-insight-v4': { abTestVersion: 'comparison' },
+    'campaign-page-insight-v5': { abTestVersion: 'comparison' },
+    'campaign-page-insight-v6': { abTestVersion: 'comparison' },
+    'campaign-page-v2': { abTestVersion: 'comparison' },
     'campaign-page-v1-pivoted': { abTestVersion: 'pivoted' },
     'campaign-page-v1-bar-chart': { abTestVersion: 'bar-chart' },
     'ppo-campaign-detail-v3': { abTestVersion: 'comparison' },
@@ -428,9 +443,11 @@ const handleMenuClick = (menuId) => {
     } else {
       currentView.value = 'home-old'
     }
-  } else if (menuId === 'insights') {
+  } else if (menuId === 'analytics') {
     const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-review', 'home-onboarding-wizard', 'wizard-flow', 'campaigns-empty', 'analytics-empty']
     currentView.value = onboardingViews.includes(currentView.value) ? 'analytics-empty' : 'analytics-v4-opps-v2'
+  } else if (menuId === 'insights') {
+    currentView.value = 'opportunities-all-v4'
   } else if (menuId === 'campaign-page') {
     currentView.value = 'campaign-page-v1'
   } else if (menuId === 'audience') {
@@ -529,7 +546,14 @@ const activeEvents = computed(() => {
     'onboarding-mobile-hu': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated, 'sign-out': () => handleDevNavigate('dev-start') },
     'onboarding-hu': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated },
     'task-creation': { 'task-created': handleTaskCreated },
-    'home-old': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
+    'home-old': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
+    'home-insights-v2': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
+    'home-insights-v3': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
+    'home-insights-v4': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
+    'home-insights-v5': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
+    'home-insights-v6': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
+    'home-insights-v7': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
+    'home-insights-v8': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
     'chat-create-popup-v1': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
     'chat-create-popup-v3': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
     'chat-create-popup-v2': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
@@ -579,6 +603,13 @@ const activeEvents = computed(() => {
     'ppo-campaign-setup-preview-v3': { back: () => { currentView.value = 'ppo-campaign-flow-mvp' }, next: () => { currentView.value = 'ppo-campaign-detail-v2' } },
     'ppo-generation': { back: () => { currentView.value = 'ppo-campaign-setup-preview' }, create: () => { currentView.value = 'ppo-campaign-detail' } },
     'campaign-page-v1': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'campaign-page-insight-v1': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'campaign-page-insight-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'campaign-page-insight-v3': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'campaign-page-insight-v4': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'campaign-page-insight-v5': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'campaign-page-insight-v6': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'campaign-page-v2': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
     'campaign-page-v1-pivoted': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
     'campaign-page-v1-bar-chart': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
     'campaign-page-v2-mark': { 'menu-click': handleMenuClick, navigate: handleDevNavigate },
@@ -612,6 +643,12 @@ const activeEvents = computed(() => {
     'analytics-v3': { 'menu-click': handleMenuClick, 'navigate-to-opportunity': handleNavigateToOpportunity, 'navigate-to-opportunities': handleNavigateToOpportunities },
     'analytics-v4': analyticsV4Events,
     'analytics-v4-opps-v2': {
+      'menu-click': handleMenuClick,
+      'navigate-to-opportunity': handleNavigateToOpportunityV4,
+      'navigate-to-opportunities': handleNavigateToOpportunitiesV4,
+      'navigate-to-goal': handleNavigateToGoal,
+    },
+    'analytics-v4-opps-v3': {
       'menu-click': handleMenuClick,
       'navigate-to-opportunity': handleNavigateToOpportunityV4,
       'navigate-to-opportunities': handleNavigateToOpportunitiesV4,

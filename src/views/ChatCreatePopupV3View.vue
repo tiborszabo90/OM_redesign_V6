@@ -54,34 +54,59 @@
           </div>
         </div>
 
-        <!-- Trend Chart Section -->
-        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 px-5">
-          <div class="trend-chart-tabs">
-            <div
-              v-for="tab in trendTabs"
-              :key="tab.id"
-              :class="['trend-chart-tab', { active: activeTab === tab.id }]"
-              @click="activeTab = tab.id"
-            >
-              <div class="trend-chart-tab-title">{{ tab.title }}</div>
-              <div class="trend-chart-stat">
-                <div class="trend-chart-value">{{ tab.value }}</div>
-                <div :class="['trend-chart-change', tab.isPositive ? 'positive' : 'negative']">
-                  <TrendingUp v-if="tab.isPositive" :size="14" />
-                  <TrendingDown v-else :size="14" />
-                  {{ tab.change }}
-                </div>
+        <!-- Metric Cards -->
+        <div class="metric-cards-grid mb-5">
+          <div
+            v-for="tab in trendTabs"
+            :key="tab.id"
+            class="metric-card"
+          >
+            <div class="metric-card-title">{{ tab.title }}</div>
+            <div class="metric-card-stat">
+              <div class="metric-card-value">{{ tab.value }}</div>
+              <div :class="['metric-card-change', tab.isPositive ? 'positive' : 'negative']">
+                <TrendingUp v-if="tab.isPositive" :size="14" />
+                <TrendingDown v-else :size="14" />
+                {{ tab.change }}
               </div>
             </div>
           </div>
-          <div class="chart-canvas">
-            <VueApexCharts
-              :key="activeTab"
-              type="area"
-              height="280"
-              :options="chartOptions"
-              :series="chartSeries"
-            />
+        </div>
+
+        <!-- Top Optimization Opportunities -->
+        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 pt-5 pb-5">
+          <div class="opportunities-title-row">
+            <div class="opportunities-title-text">
+              <h2 class="section-title">Top Optimization Opportunities</h2>
+              <p class="opportunities-summary">AI-generated recommendations based on your site's traffic, campaign performance, and visitor behavior. Use them to spot the biggest conversion wins.</p>
+            </div>
+            <div class="opportunities-actions">
+              <button class="view-all-btn" @click="emit('navigate-to-opportunities')">View all</button>
+              <span class="opportunities-generated">
+                <Clock :size="12" />
+                Generated on May 11, 2026, 09:00
+              </span>
+            </div>
+          </div>
+          <div class="opp-grid">
+            <div
+              v-for="opp in optimizationOpportunities"
+              :key="opp.id"
+              class="opp-card"
+              @click="emit('navigate-to-opportunity', opp.id)"
+            >
+              <div class="opp-icon">
+                <component :is="insightIcons[opp.id]" :size="22" />
+              </div>
+              <div class="opp-info">
+                <div class="opp-header">
+                  <div class="opp-name">{{ opp.name }}</div>
+                  <div :class="['opp-badge', `badge-${opp.level}`]">{{ opp.value }} impact</div>
+                </div>
+                <p v-if="opp.campaign" class="opp-campaign"><strong>Campaign:</strong> {{ opp.campaign }}</p>
+                <div class="opp-desc">{{ opp.description }}</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -172,8 +197,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted, markRaw } from 'vue'
-import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X, Monitor, Smartphone, Tablet } from 'lucide-vue-next'
-import VueApexCharts from 'vue3-apexcharts'
+import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X, Monitor, Smartphone, Tablet, MessageCircle, MousePointerClick, Filter, FlaskConical, Clock, RotateCw, Facebook, Search, Route, Tag, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Globe, Truck } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
@@ -182,6 +206,7 @@ import CampaignCard from '../components/shared/CampaignCard.vue'
 import AddDomainModal from '../components/shared/AddDomainModal.vue'
 import HeartbeatIndicator from '../components/shared/HeartbeatIndicator.vue'
 import HeartbeatPanel from '../components/shared/HeartbeatPanel.vue'
+import { croInsights } from '../data/croInsights.js'
 
 defineProps({
   registrationData: {
@@ -190,7 +215,43 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['task-created', 'menu-click', 'visitor-click'])
+const emit = defineEmits(['task-created', 'menu-click', 'visitor-click', 'navigate-to-opportunity', 'navigate-to-opportunities', 'new-campaign', 'open-editor-with-chat'])
+
+const insightIcons = {
+  1: MessageCircle,
+  2: MousePointerClick,
+  3: Filter,
+  4: FlaskConical,
+  5: Monitor,
+  6: Clock,
+  7: RotateCw,
+  8: Facebook,
+  9: Target,
+  10: Search,
+  11: Route,
+  12: Tag,
+  13: Sparkles,
+  14: LayoutGrid,
+  15: Layers,
+  16: Info,
+  17: ClipboardList,
+  18: ShieldAlert,
+  19: Smartphone,
+  20: Eye,
+  21: Wand2,
+  22: ArrowDown,
+  23: BarChart3,
+  24: ShieldCheck,
+  25: Globe,
+  26: Truck,
+}
+
+const impactPriority = { Large: 5, 'Medium to large': 4, Medium: 3, 'Small to medium': 2, Small: 1 }
+const optimizationOpportunities = computed(() =>
+  [...croInsights]
+    .sort((a, b) => (impactPriority[b.value] ?? 0) - (impactPriority[a.value] ?? 0) || a.id - b.id)
+    .slice(0, 4)
+)
 
 const handleLogoClick = () => {
   // No-op for now
@@ -549,8 +610,6 @@ const homeCampaigns = reactive([
   },
 ])
 
-const activeTab = ref('conversion-rate')
-
 const trendTabs = ref([
   { id: 'conversion-rate', title: 'Conversion Rate', value: '0.57%', change: '+14.0%', isPositive: true },
   { id: 'conversions', title: 'Conversions', value: '2.2K', change: '+8.3%', isPositive: true },
@@ -559,160 +618,6 @@ const trendTabs = ref([
   { id: 'supported-orders', title: 'Supported Orders', value: '286', change: '-4.2%', isPositive: false },
   { id: 'supported-revenue', title: 'Supported Rev. (HUF)', value: '8,494,963', change: '+15.8%', isPositive: true }
 ])
-
-// Chart data
-const conversionRateData = [
-  0.52, 0.48, 0.51, 0.49, 0.53, 0.50, 0.47, 0.52, 0.55, 0.54,
-  0.51, 0.53, 0.56, 0.58, 0.57, 0.59, 0.61, 0.58, 0.56, 0.60,
-  0.62, 0.59, 0.57, 0.61, 0.63, 0.60, 0.58, 0.61, 0.59, 0.57
-]
-const submitsData = [
-  62, 58, 65, 59, 68, 61, 57, 64, 71, 69,
-  65, 68, 74, 79, 76, 81, 85, 80, 77, 84,
-  88, 82, 79, 86, 91, 85, 81, 87, 83, 80
-]
-const impressionsData = [
-  11234, 10987, 11456, 10876, 11789, 11123, 10765, 11345, 12123, 11876,
-  11567, 11987, 12456, 12876, 12567, 13123, 13567, 12987, 12456, 13234,
-  13678, 13123, 12876, 13456, 13987, 13456, 12987, 13567, 13234, 12876
-]
-const uniqueVisitorsData = [
-  4876, 4654, 4987, 4723, 5123, 4865, 4587, 4923, 5287, 5134,
-  5023, 5234, 5456, 5687, 5523, 5876, 6123, 5876, 5543, 5987,
-  6234, 5943, 5687, 6087, 6345, 6123, 5876, 6187, 5987, 5723
-]
-const supportedOrdersData = [
-  8, 7, 9, 7, 10, 8, 7, 9, 11, 10,
-  9, 10, 11, 12, 11, 13, 14, 12, 11, 13,
-  14, 12, 11, 13, 15, 13, 12, 14, 13, 12
-]
-const supportedRevenueData = [
-  642, 612, 703, 599, 734, 657, 591, 681, 794, 763,
-  727, 767, 819, 856, 825, 886, 947, 880, 819, 916,
-  977, 904, 849, 931, 1008, 947, 886, 962, 928, 880
-]
-
-const chartDates = [
-  'Jan 6', 'Jan 7', 'Jan 8', 'Jan 9', 'Jan 10', 'Jan 11', 'Jan 12', 'Jan 13', 'Jan 14', 'Jan 15',
-  'Jan 16', 'Jan 17', 'Jan 18', 'Jan 19', 'Jan 20', 'Jan 21', 'Jan 22', 'Jan 23', 'Jan 24', 'Jan 25',
-  'Jan 26', 'Jan 27', 'Jan 28', 'Jan 29', 'Jan 30', 'Jan 31', 'Feb 1', 'Feb 2', 'Feb 3', 'Feb 4'
-]
-
-function getChartConfig() {
-  function calculateRange(data, paddingPercent) {
-    const rawMin = Math.min(...data)
-    const rawMax = Math.max(...data)
-    const range = rawMax - rawMin
-    const padding = range * (paddingPercent / 100)
-    const niceSteps = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000]
-    const rawStep = range / 4
-    const niceStep = niceSteps.find(s => s >= rawStep) || rawStep
-    const yMin = Math.max(0, Math.floor((rawMin - padding) / niceStep) * niceStep)
-    const stepsNeeded = Math.ceil((rawMax - yMin) / niceStep)
-    const steps = Math.max(4, stepsNeeded)
-    const yMax = yMin + (niceStep * steps)
-    return { yMin, yMax, tickAmount: steps }
-  }
-
-  const configs = {
-    'conversion-rate': {
-      data: conversionRateData, name: 'Submit Rate',
-      ...calculateRange(conversionRateData, 15),
-      formatter: (v) => `${v.toFixed(1)}%`, tooltipFormatter: (v) => `${v.toFixed(2)}%`
-    },
-    'conversions': {
-      data: submitsData, name: 'Submits',
-      ...calculateRange(submitsData, 15),
-      formatter: (v) => Math.round(v), tooltipFormatter: (v) => Math.round(v)
-    },
-    'impressions': {
-      data: impressionsData, name: 'Impressions',
-      ...calculateRange(impressionsData, 15),
-      formatter: (v) => `${(v / 1000).toFixed(1)}K`, tooltipFormatter: (v) => v.toLocaleString()
-    },
-    'unique-visitors': {
-      data: uniqueVisitorsData, name: 'Visitors',
-      ...calculateRange(uniqueVisitorsData, 15),
-      formatter: (v) => `${(v / 1000).toFixed(1)}K`, tooltipFormatter: (v) => v.toLocaleString()
-    },
-    'supported-orders': {
-      data: supportedOrdersData, name: 'Assisted Orders',
-      ...calculateRange(supportedOrdersData, 15),
-      formatter: (v) => Math.round(v), tooltipFormatter: (v) => Math.round(v)
-    },
-    'supported-revenue': {
-      data: supportedRevenueData, name: 'Assisted Revenue',
-      ...calculateRange(supportedRevenueData, 15),
-      formatter: (v) => `${v.toFixed(0)} HUF`, tooltipFormatter: (v) => `${v.toLocaleString()} HUF`
-    }
-  }
-  return configs[activeTab.value] || configs['conversion-rate']
-}
-
-const chartSeries = computed(() => {
-  const config = getChartConfig()
-  return [{ name: config.name, data: config.data }]
-})
-
-const chartOptions = computed(() => {
-  const config = getChartConfig()
-  return {
-    chart: {
-      type: 'area', height: 280,
-      toolbar: { show: false },
-      zoom: { enabled: false }
-    },
-    dataLabels: { enabled: false },
-    stroke: { curve: 'smooth', width: 2, colors: ['#ed5a29'] },
-    fill: {
-      type: 'gradient',
-      gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.1, stops: [0, 90, 100] },
-      colors: ['#ed5a29']
-    },
-    grid: {
-      borderColor: '#f1f2f4', strokeDashArray: 0,
-      xaxis: { lines: { show: false } },
-      yaxis: { lines: { show: true } }
-    },
-    xaxis: {
-      type: 'category',
-      categories: [
-        'Jan 6', '', '', 'Jan 9', '', '', 'Jan 12', '', '', 'Jan 15',
-        '', '', 'Jan 18', '', '', 'Jan 21', '', '', 'Jan 24', '',
-        '', 'Jan 27', '', '', 'Jan 30', '', '', 'Feb 2', '', 'Feb 4'
-      ],
-      labels: {
-        show: true, rotate: -45, rotateAlways: false, hideOverlappingLabels: true,
-        style: { colors: '#9ba2ad', fontSize: '11px' }
-      },
-      axisBorder: { show: false },
-      axisTicks: { show: false },
-      tooltip: { enabled: false }
-    },
-    yaxis: {
-      min: config.yMin, max: config.yMax, tickAmount: config.tickAmount,
-      labels: {
-        formatter: config.formatter,
-        style: { colors: '#9ba2ad', fontSize: '12px' }
-      }
-    },
-    tooltip: {
-      enabled: true,
-      custom: function({ series, seriesIndex, dataPointIndex }) {
-        const value = series[seriesIndex][dataPointIndex]
-        const date = chartDates[dataPointIndex]
-        return `<div style="padding: 8px 12px; background: white; border: 1px solid #e3e5e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-          <div style="color: #9ba2ad; font-weight: 400; font-size: 11px; margin-bottom: 4px;">${date}, 2026</div>
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <span style="width: 8px; height: 8px; background: #ed5a29; border-radius: 50%; display: inline-block;"></span>
-            <span style="color: #505763; font-weight: 500;">${config.name}: ${config.tooltipFormatter(value)}</span>
-          </div>
-        </div>`
-      }
-    },
-    markers: { size: 0, hover: { size: 5 } }
-  }
-})
 
 // ── Heartbeat ──
 const heartbeatOpen = ref(false)
@@ -790,68 +695,241 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-/* Trend Chart Tabs */
-.trend-chart-tabs {
+/* Metric Cards */
+.metric-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 1100px) {
+  .metric-cards-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .metric-cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.metric-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px 1px rgb(0 0 0 / 0.03);
+  padding: 16px;
   display: flex;
-  border-bottom: 1px solid rgb(227, 229, 232);
-  overflow: visible;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
 }
 
-.trend-chart-tab {
-  padding: 1.25rem 0.75rem;
-  flex: 1;
-  min-width: 140px;
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  transition: all 0.25s ease;
-  position: relative;
-}
-
-.trend-chart-tab:hover {
-  background: rgb(249, 250, 251);
-}
-
-.trend-chart-tab.active {
-  border-bottom-color: #ed5a29;
-}
-
-.trend-chart-tab-title {
+.metric-card-title {
   font-size: 0.75rem;
   color: rgb(80, 87, 99);
   opacity: 0.8;
-  margin-bottom: 0.625rem;
   font-weight: 500;
 }
 
-.trend-chart-stat {
+.metric-card-stat {
   display: flex;
   align-items: baseline;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.trend-chart-value {
-  font-size: 1rem;
-  font-weight: 500;
-  color: rgb(80, 87, 99);
+.metric-card-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: rgb(35, 38, 42);
+  line-height: 1.2;
 }
 
-.trend-chart-change {
+.metric-card-change {
   font-size: 0.6875rem;
-  font-weight: 400;
+  font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 2px;
 }
 
-.trend-chart-change.positive {
+.metric-card-change.positive {
   color: rgb(35, 158, 119);
 }
 
-.trend-chart-change.negative {
+.metric-card-change.negative {
   color: rgb(228, 37, 45);
 }
 
-.chart-canvas {
-  padding: 0;
+/* Top Optimization Opportunities */
+.opportunities-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-right: 20px;
+  margin-bottom: 1.25rem;
+}
+
+.opportunities-title-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: rgb(35, 38, 42);
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.opportunities-summary {
+  font-size: 0.8125rem;
+  color: #6B7280;
+  line-height: 1.5;
+  margin: 6px 20px 0;
+}
+
+.opportunities-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.opportunities-generated {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #4B5563;
+  background: #F1F2F4;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.view-all-btn {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #6B7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.view-all-btn:hover {
+  color: #23262A;
+  background: #F1F2F4;
+}
+
+.opp-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 0 20px;
+}
+
+.opp-card {
+  display: flex;
+  align-items: flex-start;
+  cursor: pointer;
+  padding: 16px;
+  gap: 16px;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid #E5E7EB;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 0;
+}
+
+.opp-card:hover {
+  border-color: #ED5A29;
+  box-shadow: 0 4px 14px rgba(237, 90, 41, 0.4);
+}
+
+.opp-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #FFF0EB;
+  color: #C94B14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.opp-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.opp-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.opp-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #23262A;
+  line-height: 1.4;
+  flex: 1;
+  min-width: 0;
+}
+
+.opp-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.opp-campaign {
+  font-size: 0.8125rem;
+  color: #3F4248;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.opp-campaign strong {
+  color: #23262A;
+  font-weight: 600;
+}
+
+.opp-desc {
+  font-size: 0.8125rem;
+  color: #6B7280;
+  line-height: 1.5;
+}
+
+.badge-high {
+  background: #FFF0EB;
+  color: #C94B14;
+}
+
+.badge-medium {
+  background: #FFF8E6;
+  color: #9A6400;
+}
+
+.badge-low {
+  background: #F1F2F4;
+  color: #6B7280;
 }
 </style>
