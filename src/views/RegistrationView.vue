@@ -59,6 +59,11 @@
                 and
                 <a href="#" class="text-om-orange-500 hover:underline">Privacy Policy</a>.
               </p>
+
+              <p class="text-sm text-om-gray-500 text-center mt-6">
+                Already have an account?
+                <a href="#" @click.prevent="emit('signIn')" class="text-om-orange-500 font-medium hover:underline">Sign in</a>
+              </p>
             </template>
 
             <!-- Email registration form view -->
@@ -139,6 +144,11 @@
                   <a href="#" class="text-om-orange-500 hover:underline">Terms of Service</a>
                   and
                   <a href="#" class="text-om-orange-500 hover:underline">Privacy Policy</a>.
+                </p>
+
+                <p class="text-sm text-om-gray-500 text-center pt-2">
+                  Already have an account?
+                  <a href="#" @click.prevent="emit('signIn')" class="text-om-orange-500 font-medium hover:underline">Sign in</a>
                 </p>
               </form>
             </template>
@@ -237,7 +247,7 @@ import LoccitaneLogo from '../components/logos/LoccitaneLogo.vue'
 import AldoLogo from '../components/logos/AldoLogo.vue'
 import BenchLogo from '../components/logos/BenchLogo.vue'
 
-const emit = defineEmits(['complete'])
+const emit = defineEmits(['complete', 'signIn'])
 
 const currentStep = ref('buttons')
 const formData = ref({ firstName: '', lastName: '', email: '', password: '' })

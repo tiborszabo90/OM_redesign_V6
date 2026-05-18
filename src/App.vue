@@ -525,12 +525,12 @@ const activeEvents = computed(() => {
       navigate: handleDevNavigate,
       'show-archive': handleShowArchive,
     },
-    'registration': { complete: handleRegistrationComplete },
-    'registration-hu': { complete: handleRegistrationComplete },
-    'registration-mobile': { complete: handleRegistrationComplete },
-    'registration-mobile-hu': { complete: handleRegistrationComplete },
-    'registration-v1': { complete: handleRegistrationComplete },
-    'registration-v2': { complete: handleRegistrationComplete },
+    'registration': { complete: handleRegistrationComplete, signIn: () => { sessionKey.value++; currentView.value = null; setTimeout(() => { currentView.value = 'login' }, 50) } },
+    'registration-hu': { complete: handleRegistrationComplete, signIn: () => { sessionKey.value++; currentView.value = null; setTimeout(() => { currentView.value = 'login' }, 50) } },
+    'registration-mobile': { complete: handleRegistrationComplete, signIn: () => { sessionKey.value++; currentView.value = null; setTimeout(() => { currentView.value = 'login' }, 50) } },
+    'registration-mobile-hu': { complete: handleRegistrationComplete, signIn: () => { sessionKey.value++; currentView.value = null; setTimeout(() => { currentView.value = 'login' }, 50) } },
+    'registration-v1': { complete: handleRegistrationComplete, signIn: () => { sessionKey.value++; currentView.value = null; setTimeout(() => { currentView.value = 'login' }, 50) } },
+    'registration-v2': { complete: handleRegistrationComplete, signIn: () => { sessionKey.value++; currentView.value = null; setTimeout(() => { currentView.value = 'login' }, 50) } },
     'login': { complete: () => { currentView.value = 'home-old' }, 'go-to-register': () => { currentView.value = 'registration' }, 'forgot-password': () => {} },
     'shopify-account-choice': {
       'create-account': () => {
