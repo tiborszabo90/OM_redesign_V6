@@ -54,7 +54,7 @@
               </div>
 
               <p class="text-xs text-om-gray-400 text-center mt-6">
-                By submitting this form, you agree to the
+                By continuing, you agree to our
                 <a href="#" class="text-om-orange-500 hover:underline">Terms of Service</a>
                 and
                 <a href="#" class="text-om-orange-500 hover:underline">Privacy Policy</a>.
@@ -138,13 +138,6 @@
                 >
                   Get Started
                 </button>
-
-                <p class="text-xs text-om-gray-400 text-center">
-                  By submitting this form, you agree to the
-                  <a href="#" class="text-om-orange-500 hover:underline">Terms of Service</a>
-                  and
-                  <a href="#" class="text-om-orange-500 hover:underline">Privacy Policy</a>.
-                </p>
 
                 <p class="text-sm text-om-gray-500 text-center pt-2">
                   Already have an account?
