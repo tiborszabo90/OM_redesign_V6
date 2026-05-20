@@ -53,11 +53,13 @@
                 </Button>
               </div>
 
-              <p class="text-xs text-om-gray-400 text-center mt-6">
-                By continuing, you agree to our
-                <a href="#" class="text-om-orange-500 hover:underline">Terms of Service</a>
-                and
-                <a href="#" class="text-om-orange-500 hover:underline">Privacy Policy</a>.
+              <p class="fixed bottom-25 left-0 right-0 md:right-1/2 px-8 text-xs text-om-gray-400 text-center pointer-events-none">
+                <span class="pointer-events-auto">
+                  By continuing, you agree to our
+                  <a href="#" class="text-om-orange-500 hover:underline">Terms of Service</a>
+                  and
+                  <a href="#" class="text-om-orange-500 hover:underline">Privacy Policy</a>.
+                </span>
               </p>
 
               <p class="text-sm text-om-gray-500 text-center mt-6">
