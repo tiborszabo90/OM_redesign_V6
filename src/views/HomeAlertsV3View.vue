@@ -50,32 +50,28 @@
                   v-if="alertsOpen"
                   class="absolute top-full left-0 mt-2 z-50 w-150 bg-white rounded-xl shadow-[0_4px_16px_2px_rgb(0_0_0/0.08)] overflow-hidden"
                 >
-                  <div class="absolute top-2 right-2">
-                    <Button variant="ghost" size="sm" icon-only @click="alertsOpen = false">
-                      <template #icon><X :size="16" /></template>
-                    </Button>
-                  </div>
-                  <div class="divide-y divide-om-gray-100">
-                    <div
+                  <div class="p-2 space-y-1">
+                    <button
                       v-for="alert in alerts"
                       :key="alert.id"
-                      class="relative flex items-start gap-3 pl-5 pr-12 py-4"
+                      type="button"
+                      @click="handleAlertClick(alert)"
+                      class="w-full text-left relative flex items-start gap-3 px-4 py-4 rounded-lg transition-colors cursor-pointer hover:bg-om-gray-50"
                     >
                       <AlertCircle :size="18" class="text-om-yellow-400 shrink-0 mt-0.5" />
                       <div class="flex-1 min-w-0">
                         <p class="text-sm font-semibold text-om-gray-700 mb-1">{{ alert.title }}</p>
                         <p class="text-sm text-om-gray-600 leading-relaxed">
                           <template v-for="(segment, i) in alert.body" :key="i">
-                            <a
+                            <span
                               v-if="segment.href"
-                              :href="segment.href"
-                              class="text-om-orange-500 hover:underline"
-                            >{{ segment.text }}</a>
+                              class="text-om-orange-500"
+                            >{{ segment.text }}</span>
                             <template v-else>{{ segment.text }}</template>
                           </template>
                         </p>
                       </div>
-                    </div>
+                    </button>
                   </div>
                 </div>
               </transition>
@@ -363,6 +359,14 @@ const alerts = ref([
 ])
 
 const alertsOpen = ref(false)
+
+const handleAlertClick = (alert) => {
+  const linkSegment = alert.body.find(s => s.href)
+  if (linkSegment?.href && linkSegment.href !== '#') {
+    window.location.href = linkSegment.href
+  }
+  alertsOpen.value = false
+}
 
 const chatPanelRef = ref(null)
 const isChatOpen = ref(false)
