@@ -679,7 +679,7 @@
                   <!-- Variant header -->
                   <div class="flex items-center gap-2 flex-wrap pb-2">
                     <span class="text-sm font-medium text-om-gray-700">{{ variant.name }}</span>
-                    <span class="text-[12px] text-om-gray-500 tabular-nums">{{ variant.traffic }}% traffic</span>
+                    <span class="text-[12px] text-om-gray-500 tabular-nums">{{ Number(variant.traffic).toFixed(2) }}% traffic</span>
                   </div>
                   <!-- Column headers -->
                   <div class="flex items-baseline justify-between gap-3 pb-1">
@@ -1643,12 +1643,12 @@ const variantImpressions = [
 ]
 
 const abFunnelVariants = computed(() => [
-  { id: 'variant1', label: 'Variant 1', name: 'Variant 1', traffic: 17, uplift: null, color: '#FF6A45' },
-  { id: 'variant2', label: 'Variant 2', name: 'Variant 2', traffic: 17, uplift: '+18.52%', color: '#FF6A45' },
-  { id: 'variant3', label: 'Variant 3', name: 'Variant 3', traffic: 17, uplift: '+12.10%', color: '#FF6A45' },
-  { id: 'variant4', label: 'Variant 4', name: 'Variant 4', traffic: 17, uplift: '+8.40%', color: '#FF6A45' },
-  { id: 'variant5', label: 'Variant 5', name: 'Variant 5', traffic: 16, uplift: '+5.20%', color: '#FF6A45' },
-  { id: 'variant6', label: 'Variant 6', name: 'Variant 6', traffic: 16, uplift: '+3.10%', color: '#FF6A45' },
+  { id: 'variant1', label: 'Variant 1', name: 'Variant 1', traffic: 16.67, uplift: null, color: '#FF6A45' },
+  { id: 'variant2', label: 'Variant 2', name: 'Variant 2', traffic: 16.67, uplift: '+18.52%', color: '#FF6A45' },
+  { id: 'variant3', label: 'Variant 3', name: 'Variant 3', traffic: 16.67, uplift: '+12.10%', color: '#FF6A45' },
+  { id: 'variant4', label: 'Variant 4', name: 'Variant 4', traffic: 16.67, uplift: '+8.40%', color: '#FF6A45' },
+  { id: 'variant5', label: 'Variant 5', name: 'Variant 5', traffic: 16.66, uplift: '+5.20%', color: '#FF6A45' },
+  { id: 'variant6', label: 'Variant 6', name: 'Variant 6', traffic: 16.66, uplift: '+3.10%', color: '#FF6A45' },
 ].map((v, i) => ({
   ...v,
   steps: surveyPages.map((p, idx) => ({ ...p, impressions: variantImpressions[i][idx] })),
@@ -1876,12 +1876,12 @@ const variant3Active = ref(true)
 const variant4Active = ref(true)
 const variant5Active = ref(true)
 const variant6Active = ref(true)
-const variant1Traffic = ref(17)
-const variant2Traffic = ref(17)
-const variant3Traffic = ref(17)
-const variant4Traffic = ref(17)
-const variant5Traffic = ref(16)
-const variant6Traffic = ref(16)
+const variant1Traffic = ref(16.67)
+const variant2Traffic = ref(16.67)
+const variant3Traffic = ref(16.67)
+const variant4Traffic = ref(16.67)
+const variant5Traffic = ref(16.66)
+const variant6Traffic = ref(16.66)
 const trafficEvenlySplit = ref(true)
 
 const updateTrafficShare = (key, value) => {
@@ -1906,12 +1906,12 @@ const trafficTotal = computed(() =>
 const toggleEvenlySplit = () => {
   trafficEvenlySplit.value = !trafficEvenlySplit.value
   if (trafficEvenlySplit.value) {
-    variant1Traffic.value = 17
-    variant2Traffic.value = 17
-    variant3Traffic.value = 17
-    variant4Traffic.value = 17
-    variant5Traffic.value = 16
-    variant6Traffic.value = 16
+    variant1Traffic.value = 16.67
+    variant2Traffic.value = 16.67
+    variant3Traffic.value = 16.67
+    variant4Traffic.value = 16.67
+    variant5Traffic.value = 16.66
+    variant6Traffic.value = 16.66
   }
 }
 

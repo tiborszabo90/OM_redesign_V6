@@ -596,7 +596,7 @@
           <template #funnel>
             <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5">
               <div class="px-8 mb-1">
-                <h2 class="text-xl font-semibold text-om-gray-700">Page traffic</h2>
+                <h2 class="text-xl font-semibold text-om-gray-700">Page funnel breakdown</h2>
               </div>
               <div class="text-[13px] text-om-gray-500 mb-5 px-8">Impressions per page in this popup. Compared across A/B variants.</div>
 
