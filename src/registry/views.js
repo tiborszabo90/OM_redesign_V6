@@ -570,6 +570,16 @@ const homeViews = [
     nav: { sessionReset: true, flowSelected: true, clearWizardMessage: true },
   },
   {
+    id: 'home-agentic-v5',
+    component: () => import('../views/HomeAgenticV5View.vue'),
+    label: 'Home Agentic V5 (Campaign-attached)',
+    status: 'active',
+    section: 'home',
+    hideLogo: true,
+    keyPrefix: 'home-agentic-v5',
+    nav: { sessionReset: true, flowSelected: true, clearWizardMessage: true },
+  },
+  {
     id: 'home-onboarding-wizard',
     component: () => import('../views/HomeOnboardingWizardView.vue'),
     label: 'Home Wizard',
