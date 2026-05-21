@@ -422,7 +422,7 @@
                     :key="opt.count"
                     class="w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-om-gray-50 transition-colors cursor-pointer"
                     :class="opt.count !== genMenuOptions[genMenuOptions.length - 1].count ? 'border-b border-om-gray-100' : ''"
-                    @click="triggerGenerate"
+                    @click="triggerGenerate(opt.count)"
                   >
                     <span class="text-om-gray-700 text-left">Generate for {{ opt.count }} products</span>
                     <span class="flex items-center gap-1.5 text-om-orange-500 font-medium ml-8 tabular-nums whitespace-nowrap">
@@ -491,6 +491,10 @@
                   <template #icon><EyeOff :size="12" /></template>
                   Ignored
                 </Tag>
+                <Tag v-else-if="product.status === 'generated' && !isApproved(product.id)" variant="yellow" class="shrink-0">
+                  <template #icon><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l2 2" /></svg></template>
+                  Waiting for approval
+                </Tag>
                 <Tag v-else-if="product.status === 'generated'" variant="green" class="shrink-0">
                   <template #icon><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" /><path stroke-linecap="round" stroke-linejoin="round" d="M8 12l3 3 5-5" /></svg></template>
                   Ready to use
@@ -543,11 +547,30 @@
                       <input v-model="genCreatedTo" type="date" class="flex-1 min-w-0 px-3 py-1.5 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 outline-none focus:border-om-gray-400" />
                     </div>
                   </div>
-                  <Checkbox v-model="genShowIgnoredOnly" label="Ignored only" />
+                  <div class="flex flex-col gap-1">
+                    <span class="text-xs text-om-gray-500">Status</span>
+                    <MultiSelect
+                      :model-value="genStatusFilter"
+                      @update:model-value="onGenStatusFilterChange"
+                      :options="genStatusFilterOptions"
+                      size="sm"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-            <span class="text-sm font-semibold text-om-gray-700">Generated image available for: {{ genProductsGenerated.length }} products</span>
+            <div class="flex items-center gap-4">
+              <span class="text-sm text-om-gray-700">
+                <span class="font-semibold">{{ genWaitingCount }}</span>
+                <span class="text-om-gray-500"> waiting for approval · </span>
+                <span class="font-semibold">{{ genProductsGenerated.length }}</span>
+                <span class="text-om-gray-500"> generated</span>
+              </span>
+              <Button variant="primary" size="sm" :disabled="genWaitingCount === 0" @click="showApproveAllModal = true">
+                <template #icon><Check :size="14" /></template>
+                Approve all
+              </Button>
+            </div>
           </div>
 
           <div class="flex flex-col gap-3">
@@ -589,6 +612,10 @@
                   <Tag v-if="isIgnored(product.id)" variant="gray" class="shrink-0">
                     <template #icon><EyeOff :size="12" /></template>
                     Ignored
+                  </Tag>
+                  <Tag v-else-if="!isApproved(product.id)" variant="yellow" class="shrink-0">
+                    <template #icon><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l2 2" /></svg></template>
+                    Waiting for approval
                   </Tag>
                   <Tag v-else variant="green" class="shrink-0">
                     <template #icon><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></template>
@@ -713,13 +740,22 @@
             <h1 class="text-2xl font-semibold text-om-gray-700 truncate">{{ selectedProduct.name }}</h1>
           </div>
           <div class="flex items-center gap-2 shrink-0">
-            <Button variant="secondary" size="sm" @click="toggleIgnore(selectedProduct)">
-              <template #icon>
-                <Eye v-if="isIgnored(selectedProduct.id)" :size="14" />
-                <EyeOff v-else :size="14" />
-              </template>
-              {{ isIgnored(selectedProduct.id) ? 'Restore' : 'Ignore' }}
-            </Button>
+            <template v-if="productEntrySource === 'review'">
+              <Button variant="secondary" size="sm" @click="toggleIgnore(selectedProduct)">
+                <template #icon>
+                  <Eye v-if="isIgnored(selectedProduct.id)" :size="14" />
+                  <EyeOff v-else :size="14" />
+                </template>
+                {{ isIgnored(selectedProduct.id) ? 'Restore' : 'Ignore' }}
+              </Button>
+              <Button variant="secondary" size="sm" :disabled="isIgnored(selectedProduct.id)" @click="toggleApprove(selectedProduct)">
+                <template #icon>
+                  <X v-if="isApproved(selectedProduct.id)" :size="14" />
+                  <Check v-else :size="14" />
+                </template>
+                {{ isApproved(selectedProduct.id) ? 'Disapprove' : 'Approve' }}
+              </Button>
+            </template>
             <span v-if="selectedProductIndex >= 0" class="text-sm text-om-gray-400 tabular-nums ml-2">{{ selectedProductIndex + 1 }} / {{ genProductsGenerated.length }}</span>
             <Button variant="secondary" size="sm" :disabled="!hasPrevProduct" @click="goToPrevProduct">
               <template #icon><ChevronLeft :size="14" /></template>
@@ -736,10 +772,24 @@
           <template v-if="productEntrySource === 'review'">
             <!-- Row 1: AI Generated Preview (full width) -->
             <div class="flex flex-col mb-4">
-              <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-3 flex items-center gap-1.5">
-                <Wand2 :size="16" class="text-om-orange-400" />
-                AI Generated Preview
-              </p>
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase flex items-center gap-1.5">
+                  <Wand2 :size="16" class="text-om-orange-400" />
+                  AI Generated Preview
+                </p>
+                <Tag v-if="isIgnored(selectedProduct.id)" variant="gray">
+                  <template #icon><EyeOff :size="12" /></template>
+                  Ignored
+                </Tag>
+                <Tag v-else-if="!isApproved(selectedProduct.id)" variant="yellow">
+                  <template #icon><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l2 2" /></svg></template>
+                  Waiting for approval
+                </Tag>
+                <Tag v-else variant="green">
+                  <template #icon><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></template>
+                  Ready to use
+                </Tag>
+              </div>
               <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden relative" style="height: 500px;">
                 <template v-if="selectedProduct.status === 'generated'">
                   <img src="/product2.png" class="w-full h-full object-contain transition-all duration-300" :class="[promptChanged ? 'blur-sm scale-105' : '', isIgnored(selectedProduct.id) ? 'blur-[2px] grayscale' : '']" />
@@ -1669,6 +1719,22 @@
       </div>
       <AddDomainModal v-model="showAddDomainModal" @add="handleNewDomain" />
 
+      <!-- Approve all confirmation -->
+      <Modal v-model="showApproveAllModal" title="Approve all generated products?" size="sm">
+        <p class="text-sm text-om-gray-700">
+          This will approve <span class="font-semibold">{{ genWaitingCount }}</span>
+          {{ genWaitingCount === 1 ? 'product' : 'products' }} currently waiting for approval (matching the active filters).
+          Ignored products are skipped.
+        </p>
+        <template #footer="{ close }">
+          <Button variant="secondary" size="sm" @click="close">Cancel</Button>
+          <Button variant="primary" size="sm" @click="approveAll">
+            <template #icon><Check :size="14" /></template>
+            Approve all
+          </Button>
+        </template>
+      </Modal>
+
       <!-- Image history modal -->
       <Transition name="modal-fade">
         <div v-if="historyModalProduct" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6" @click.self="closeHistoryModal">
@@ -1732,6 +1798,7 @@ import MultiSelect from '../components/shared/MultiSelect.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import RadioButton from '../components/shared/RadioButton.vue'
 import Tag from '../components/shared/Tag.vue'
+import Modal from '../components/shared/Modal.vue'
 import AddDomainModal from '../components/shared/AddDomainModal.vue'
 
 const props = defineProps({
@@ -1865,13 +1932,33 @@ const genPage = ref(1)
 const genGeneratedPage = ref(1)
 const genProductsPaged = computed(() => genProducts.value.slice((genPage.value - 1) * genPerPage.value, genPage.value * genPerPage.value))
 const genReviewShowFilters = ref(false)
-const genShowIgnoredOnly = ref(false)
+const genStatusFilterOptions = [
+  { value: 'all', label: 'All' },
+  { value: 'waiting', label: 'Waiting for approval' },
+  { value: 'ready', label: 'Ready to use' },
+  { value: 'ignored', label: 'Ignored' },
+]
+const genStatusFilter = ref(['all'])
+const onGenStatusFilterChange = (next) => {
+  if (!next || next.length === 0) { genStatusFilter.value = ['all']; return }
+  const wasAll = genStatusFilter.value.includes('all')
+  const hasAll = next.includes('all')
+  if (hasAll && !wasAll) { genStatusFilter.value = ['all']; return }
+  if (hasAll && wasAll && next.length > 1) {
+    genStatusFilter.value = next.filter(v => v !== 'all')
+    return
+  }
+  genStatusFilter.value = next
+}
 const genProductsGenerated = computed(() => {
   const q = genSearch.value.trim().toLowerCase()
   const from = genCreatedFrom.value ? new Date(genCreatedFrom.value) : null
   const to = genCreatedTo.value ? new Date(genCreatedTo.value) : null
   if (to) to.setHours(23, 59, 59, 999)
   const ignored = ignoredIds.value
+  const approved = approvedIds.value
+  const sel = genStatusFilter.value
+  const showAll = sel.includes('all')
   return genProducts.value.filter(p => {
     if (p.status !== 'generated') return false
     if (q && !(p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q))) return false
@@ -1880,7 +1967,17 @@ const genProductsGenerated = computed(() => {
       if (from && created < from) return false
       if (to && created > to) return false
     }
-    if (genShowIgnoredOnly.value && !ignored.has(p.id)) return false
+    if (!showAll) {
+      const isIgn = ignored.has(p.id)
+      const isApp = approved.has(p.id)
+      const isWaiting = !isIgn && !isApp
+      const isReady = !isIgn && isApp
+      const matches =
+        (sel.includes('ignored') && isIgn) ||
+        (sel.includes('waiting') && isWaiting) ||
+        (sel.includes('ready') && isReady)
+      if (!matches) return false
+    }
     return true
   })
 })
@@ -1890,14 +1987,14 @@ const genGeneratedTotalPages = computed(() => Math.ceil(genProductsGenerated.val
 const genReviewFilterCount = computed(() => {
   let count = 0
   if (genCreatedFrom.value || genCreatedTo.value) count++
-  if (genShowIgnoredOnly.value) count++
+  if (!genStatusFilter.value.includes('all')) count++
   return count
 })
 watch(genTab, () => { genPage.value = 1; genGeneratedPage.value = 1 })
 watch(genPerPage, () => { genPage.value = 1; genGeneratedPage.value = 1 })
 watch(genSearch, () => { genGeneratedPage.value = 1 })
 watch([genCreatedFrom, genCreatedTo], () => { genGeneratedPage.value = 1 })
-watch(genShowIgnoredOnly, () => { genGeneratedPage.value = 1 })
+watch(genStatusFilter, () => { genGeneratedPage.value = 1 })
 
 // Per-product review feedback + in-flight regenerations
 const feedbackByProduct = ref({})
@@ -1910,6 +2007,29 @@ const toggleIgnore = (product) => {
   if (set.has(product.id)) set.delete(product.id)
   else set.add(product.id)
   ignoredIds.value = set
+}
+
+// Approval state — newly generated images start as "Waiting for approval"; existing seed data is pre-approved
+const approvedIds = ref(new Set(genProducts.value.filter(p => p.status === 'generated').map(p => p.id)))
+const isApproved = (id) => approvedIds.value.has(id)
+const setApproved = (id, val) => {
+  const set = new Set(approvedIds.value)
+  if (val) set.add(id)
+  else set.delete(id)
+  approvedIds.value = set
+}
+const toggleApprove = (product) => setApproved(product.id, !isApproved(product.id))
+
+// Bulk approve — counts items currently waiting (visible after filters) for review
+const genWaitingCount = computed(() => genProductsGenerated.value.filter(p => !ignoredIds.value.has(p.id) && !approvedIds.value.has(p.id)).length)
+const showApproveAllModal = ref(false)
+const approveAll = () => {
+  const set = new Set(approvedIds.value)
+  genProductsGenerated.value.forEach(p => {
+    if (!ignoredIds.value.has(p.id)) set.add(p.id)
+  })
+  approvedIds.value = set
+  showApproveAllModal.value = false
 }
 
 // Per-product generated-image history (for the "History" dropdown)
@@ -1968,6 +2088,7 @@ const regenerateFromReview = (product) => {
     const entry = { value: `${id}-v${nextN}`, label: `Version ${nextN} - ${formatVersionDate(new Date())}`, src }
     historyByProduct.value = { ...historyByProduct.value, [id]: [...list, entry] }
     currentImageByProduct.value = { ...currentImageByProduct.value, [id]: entry }
+    setApproved(id, false)
   }, 2000)
 }
 
@@ -2061,18 +2182,25 @@ const regenerateProduct = () => {
   setTimeout(() => {
     genProducts.value = genProducts.value.map(p => p.id === id ? { ...p, status: 'generated' } : p)
     selectedProduct.value = { ...selectedProduct.value, status: 'generated' }
+    setApproved(id, false)
   }, 2000)
 }
 
-const triggerGenerate = (ids) => {
+const triggerGenerate = (arg) => {
   showGenMenu.value = false
-  const toGenerate = Array.isArray(ids)
-    ? genProducts.value.filter(p => ids.includes(p.id)).map(p => p.id)
-    : genProducts.value.filter(p => p.status === 'queued').map(p => p.id)
+  let toGenerate
+  if (Array.isArray(arg)) {
+    toGenerate = genProducts.value.filter(p => arg.includes(p.id)).map(p => p.id)
+  } else if (typeof arg === 'number') {
+    toGenerate = genProducts.value.filter(p => p.status === 'queued').slice(0, arg).map(p => p.id)
+  } else {
+    toGenerate = genProducts.value.filter(p => p.status === 'queued').map(p => p.id)
+  }
   genProducts.value = genProducts.value.map(p => toGenerate.includes(p.id) ? { ...p, status: 'generating' } : p)
   toGenerate.forEach((id, i) => {
     setTimeout(() => {
       genProducts.value = genProducts.value.map(p => p.id === id ? { ...p, status: 'generated' } : p)
+      setApproved(id, false)
     }, (i + 1) * 2000)
   })
 }

@@ -16,7 +16,7 @@ const props = defineProps({
   variant: {
     type: String,
     default: 'gray',
-    // 'gray' | 'gray-muted' | 'orange' | 'green' | 'outlined'
+    // 'gray' | 'gray-muted' | 'orange' | 'green' | 'yellow' | 'outlined'
   },
   size: { type: String, default: 'default' }, // 'default' | 'sm'
   clickable: { type: Boolean, default: false },
@@ -30,6 +30,7 @@ const variantMap = {
   'orange-solid': { base: 'bg-om-orange-500 text-white', active: 'bg-om-orange-600 text-white' },
   'green':      { base: 'bg-[#2CC896] text-white', active: 'bg-[#2CC896] text-white' },
   'green-light': { base: 'bg-[#D6F5EC] text-[#2CC896]', active: 'bg-[#2CC896] text-white' },
+  'yellow':     { base: 'bg-[#FEF3C7] text-[#B45309]', active: 'bg-[#F59E0B] text-white' },
   'outlined':   { base: 'bg-white border border-om-gray-200 text-om-gray-600', active: 'bg-om-gray-700 border-om-gray-700 text-white' },
 }
 
