@@ -53,11 +53,18 @@
                 </Button>
               </div>
 
-              <p class="text-xs text-om-gray-400 text-center mt-6">
-                By submitting this form, you agree to the
-                <a href="#" class="text-om-orange-500 hover:underline">Terms of Service</a>
-                and
-                <a href="#" class="text-om-orange-500 hover:underline">Privacy Policy</a>.
+              <p class="fixed bottom-25 left-0 right-0 md:right-1/2 px-8 text-xs text-om-gray-400 text-center pointer-events-none">
+                <span class="pointer-events-auto">
+                  By continuing, you agree to our
+                  <a href="#" class="text-om-orange-500 hover:underline">Terms of Service</a>
+                  and
+                  <a href="#" class="text-om-orange-500 hover:underline">Privacy Policy</a>.
+                </span>
+              </p>
+
+              <p class="text-sm text-om-gray-500 text-center mt-6">
+                Already have an account?
+                <a href="#" @click.prevent="emit('signIn')" class="text-om-orange-500 font-medium hover:underline">Sign in</a>
               </p>
             </template>
 
@@ -134,11 +141,9 @@
                   Get Started
                 </button>
 
-                <p class="text-xs text-om-gray-400 text-center">
-                  By submitting this form, you agree to the
-                  <a href="#" class="text-om-orange-500 hover:underline">Terms of Service</a>
-                  and
-                  <a href="#" class="text-om-orange-500 hover:underline">Privacy Policy</a>.
+                <p class="text-sm text-om-gray-500 text-center pt-2">
+                  Already have an account?
+                  <a href="#" @click.prevent="emit('signIn')" class="text-om-orange-500 font-medium hover:underline">Sign in</a>
                 </p>
               </form>
             </template>
@@ -237,7 +242,7 @@ import LoccitaneLogo from '../components/logos/LoccitaneLogo.vue'
 import AldoLogo from '../components/logos/AldoLogo.vue'
 import BenchLogo from '../components/logos/BenchLogo.vue'
 
-const emit = defineEmits(['complete'])
+const emit = defineEmits(['complete', 'signIn'])
 
 const currentStep = ref('buttons')
 const formData = ref({ firstName: '', lastName: '', email: '', password: '' })

@@ -29,17 +29,35 @@
 
       <!-- Archive sub-page -->
       <div v-else class="flex flex-col gap-4 items-center">
-        <Button variant="secondary" size="sm" @click="closeArchive">← Back</Button>
-        <div class="grid grid-cols-2 gap-3">
+        <Button variant="secondary" size="sm" @click="archiveCategory ? archiveCategory = null : closeArchive()">← Back</Button>
+
+        <!-- Category list -->
+        <div v-if="!archiveCategory" class="grid grid-cols-2 gap-3">
           <Button
-            v-for="item in archiveItems"
-            :key="item.view"
+            v-for="group in archiveGroups"
+            :key="group.label"
             variant="secondary"
             size="sm"
-            @click="$emit('navigate', item.view)"
+            @click="archiveCategory = group.label"
           >
-            {{ item.label }}
+            {{ group.label }} ({{ group.items.length }})
           </Button>
+        </div>
+
+        <!-- Items inside a category -->
+        <div v-else class="flex flex-col gap-2 items-center">
+          <h3 class="text-sm font-semibold text-om-gray-500 uppercase tracking-wide">{{ archiveCategory }}</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <Button
+              v-for="item in activeCategoryItems"
+              :key="item.view"
+              variant="secondary"
+              size="sm"
+              @click="$emit('navigate', item.view)"
+            >
+              {{ item.label }}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -48,7 +66,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import Button from '../components/shared/Button.vue'
 import { getArchivedViews } from '../registry'
 
@@ -59,6 +77,7 @@ const props = defineProps({
 const emit = defineEmits(['select', 'go-home', 'go-home-onboarding', 'go-public-wizard', 'go-public-wizard-v2', 'go-design-guide', 'go-image-with-badge', 'go-chat-versions', 'go-editor', 'go-ai-texts-images', 'go-ai-texts-images-v2', 'navigate', 'show-archive'])
 
 const showArchive = ref(props.initialShowArchive)
+const archiveCategory = ref(null)
 
 const openArchive = () => {
   showArchive.value = true
@@ -67,8 +86,57 @@ const openArchive = () => {
 
 const closeArchive = () => {
   showArchive.value = false
+  archiveCategory.value = null
   emit('show-archive', false)
 }
 
-const archiveItems = getArchivedViews().map(v => ({ view: v.id, label: v.label }))
+// Category order (controls display order). Anything not matched lands in "Other".
+const categoryOrder = [
+  'Home',
+  'Onboarding',
+  'Registration',
+  'Wizard',
+  'Campaign Page',
+  'Campaigns',
+  'Recommendation',
+  'Templates',
+  'Analytics',
+  'PPO',
+  'Chat',
+  'AI Content',
+  'Other',
+]
+
+function getCategory(label) {
+  const l = label.toLowerCase()
+  if (l.startsWith('home onboarding') || l.startsWith('onboarding')) return 'Onboarding'
+  if (l.startsWith('home')) return 'Home'
+  if (l.startsWith('registration')) return 'Registration'
+  if (l.startsWith('campaign page') || l.startsWith('campaign detail')) return 'Campaign Page'
+  if (l.startsWith('campaign')) return 'Campaigns'
+  if (l.startsWith('chat')) return 'Chat'
+  if (l.startsWith('analytics')) return 'Analytics'
+  if (l.startsWith('ppo')) return 'PPO'
+  if (l.startsWith('templates')) return 'Templates'
+  if (l.startsWith('wizard')) return 'Wizard'
+  if (l.startsWith('recommendation')) return 'Recommendation'
+  if (l.startsWith('ai ')) return 'AI Content'
+  return 'Other'
+}
+
+const archiveGroups = computed(() => {
+  const bucket = new Map()
+  for (const v of getArchivedViews()) {
+    const cat = getCategory(v.label)
+    if (!bucket.has(cat)) bucket.set(cat, [])
+    bucket.get(cat).push({ view: v.id, label: v.label })
+  }
+  return categoryOrder
+    .filter(cat => bucket.has(cat))
+    .map(cat => ({ label: cat, items: bucket.get(cat).sort((a, b) => a.label.localeCompare(b.label)) }))
+})
+
+const activeCategoryItems = computed(() =>
+  archiveGroups.value.find(g => g.label === archiveCategory.value)?.items ?? []
+)
 </script>

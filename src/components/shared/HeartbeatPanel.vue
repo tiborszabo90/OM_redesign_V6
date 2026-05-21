@@ -9,7 +9,6 @@
             <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
           <span class="text-sm font-semibold text-om-gray-700">Live Visitors</span>
-          <span class="text-xs text-om-gray-400">{{ visitors.length }} active now</span>
         </div>
         <Button variant="ghost" size="sm" icon-only @click="$emit('close')">
           <template #icon><X :size="16" /></template>

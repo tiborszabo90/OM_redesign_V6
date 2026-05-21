@@ -55,6 +55,10 @@
               <Button variant="ghost" size="md" icon-only :class="sortOpen ? '!bg-[#505763]/10' : ''" @click="sortOpen = !sortOpen">
                 <template #icon><ArrowUpDown :size="18" /></template>
               </Button>
+              <span
+                v-if="sortActive"
+                class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-om-orange-500 pointer-events-none"
+              ></span>
               <div v-if="sortOpen" class="fixed inset-0 z-10" @click="sortOpen = false" />
               <div
                 v-if="sortOpen"
@@ -191,12 +195,13 @@ import ChatPanel from '../components/shared/ChatPanel.vue'
 import CampaignCard from '../components/shared/CampaignCard.vue'
 import AddDomainModal from '../components/shared/AddDomainModal.vue'
 
-const emit = defineEmits(['menu-click', 'navigate-to-campaign', 'navigate-to-campaign-single', 'navigate-to-campaign-new', 'navigate-to-ppo-detail', 'navigate-to-ppo-detail-single'])
+const emit = defineEmits(['menu-click', 'navigate-to-campaign', 'navigate-to-campaign-single', 'navigate-to-campaign-new', 'navigate-to-campaign-survey', 'navigate-to-ppo-detail', 'navigate-to-ppo-detail-single'])
 
 const isChatOpen = ref(false)
 
 const sortOpen = ref(false)
-const sortBy = ref('conversion-desc')
+const sortBy = ref('newest')
+const sortActive = computed(() => sortBy.value !== 'conversion-desc')
 const sortOptions = [
   { value: 'conversion-desc', label: '↓ Conversion rate' },
   { value: 'conversion-asc',  label: '↑ Conversion rate' },
@@ -233,7 +238,22 @@ const campaigns = reactive([
     image: '/campaigns/smart-discount-popup.png',
     active: true,
     selected: false,
-    lastUpdated: '14 days ago',
+    lastUpdated: '1 day ago',
+    metrics: [
+      { label: 'Impressions', value: '1,456' },
+      { label: 'Submits', value: '125' },
+      { label: 'Submit rate', value: '8.37%' },
+      { label: 'Conv. uplift', value: '84.23%', trend: true },
+    ],
+  },
+  {
+    id: 'campaign-survey',
+    name: 'Survey',
+    domain: 'domain.com',
+    image: '/campaigns/smart-discount-popup.png',
+    active: true,
+    selected: false,
+    lastUpdated: '1 day ago',
     metrics: [
       { label: 'Impressions', value: '1,456' },
       { label: 'Submits', value: '125' },
@@ -249,7 +269,7 @@ const campaigns = reactive([
     imagePosition: 'top',
     active: true,
     selected: false,
-    lastUpdated: '3 days ago',
+    lastUpdated: '1 day ago',
     metrics: [
       { label: 'Visitors', value: '3,812' },
       { label: 'Orders', value: '294' },
@@ -265,7 +285,7 @@ const campaigns = reactive([
     imagePosition: 'top',
     active: true,
     selected: false,
-    lastUpdated: '5 days ago',
+    lastUpdated: '1 day ago',
     metrics: [
       { label: 'Visitors', value: '12,593' },
       { label: 'Orders', value: '650' },
@@ -279,7 +299,7 @@ const campaigns = reactive([
     image: '/campaigns/lucky-wheel.png',
     active: true,
     selected: false,
-    lastUpdated: '14 days ago',
+    lastUpdated: '1 day ago',
     metrics: [
       { label: 'Impressions', value: '1,456' },
       { label: 'Submits', value: '125' },
@@ -299,7 +319,7 @@ const campaigns = reactive([
     image: '/campaigns/cart-abandonment-stopper.png',
     active: false,
     selected: false,
-    lastUpdated: '14 days ago',
+    lastUpdated: '1 day ago',
     metrics: [
       { label: 'Visitors', value: '1,456' },
       { label: 'Submits', value: '125' },
@@ -492,8 +512,42 @@ const filteredCampaigns = computed(() => {
   }
   return result
 })
-const totalPages = computed(() => Math.ceil(filteredCampaigns.value.length / perPage.value))
-const pagedCampaigns = computed(() => filteredCampaigns.value.slice((page.value - 1) * perPage.value, page.value * perPage.value))
+
+// Campaigns with their own dedicated detail route — always pinned to the top
+const featuredCampaignIds = new Set(['campaign1', 'campaign-survey', 'campaign-ppo', 'campaign-ppo-single', 'campaign2', 'campaign3'])
+
+const sortedCampaigns = computed(() => {
+  const arr = [...filteredCampaigns.value]
+  const getMetric = (campaign, labels) => {
+    for (const label of labels) {
+      const m = campaign.metrics?.find(m => m.label === label)
+      if (m) return parseFloat(String(m.value).replace(/[,%]/g, '')) || 0
+    }
+    return 0
+  }
+  const getDays = (str) => {
+    const m = String(str || '').match(/(\d+)/)
+    return m ? parseInt(m[1], 10) : Infinity
+  }
+  const conversionLabels = ['Conv. uplift', 'Submit rate', 'Order rate']
+  const impressionsLabels = ['Impressions', 'Visitors']
+  switch (sortBy.value) {
+    case 'conversion-desc': arr.sort((a, b) => getMetric(b, conversionLabels) - getMetric(a, conversionLabels)); break
+    case 'conversion-asc':  arr.sort((a, b) => getMetric(a, conversionLabels) - getMetric(b, conversionLabels)); break
+    case 'impressions-desc': arr.sort((a, b) => getMetric(b, impressionsLabels) - getMetric(a, impressionsLabels)); break
+    case 'impressions-asc':  arr.sort((a, b) => getMetric(a, impressionsLabels) - getMetric(b, impressionsLabels)); break
+    case 'name-asc':  arr.sort((a, b) => a.name.localeCompare(b.name)); break
+    case 'name-desc': arr.sort((a, b) => b.name.localeCompare(a.name)); break
+    case 'newest':    arr.sort((a, b) => getDays(a.lastUpdated) - getDays(b.lastUpdated)); break
+    case 'oldest':    arr.sort((a, b) => getDays(b.lastUpdated) - getDays(a.lastUpdated)); break
+  }
+  // Pin featured campaigns to the top while preserving their relative order
+  arr.sort((a, b) => Number(featuredCampaignIds.has(b.id)) - Number(featuredCampaignIds.has(a.id)))
+  return arr
+})
+
+const totalPages = computed(() => Math.ceil(sortedCampaigns.value.length / perPage.value))
+const pagedCampaigns = computed(() => sortedCampaigns.value.slice((page.value - 1) * perPage.value, page.value * perPage.value))
 
 const selectedDomain = ref('telekom.hu')
 const domains = ref(['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com', '+ Add new domain'])
@@ -555,6 +609,8 @@ const handleCampaignClick = (campaignId) => {
     emit('navigate-to-campaign-new')
   } else if (campaignId === 'campaign2') {
     emit('navigate-to-campaign-single')
+  } else if (campaignId === 'campaign-survey') {
+    emit('navigate-to-campaign-survey')
   } else {
     emit('navigate-to-campaign')
   }

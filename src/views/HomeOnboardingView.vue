@@ -5,25 +5,8 @@
         <!-- Header -->
         <h1 class="text-2xl font-semibold text-om-gray-700 mb-5">Hi Csaba</h1>
 
-        <!-- Filters Section -->
-        <div class="flex items-center justify-between mb-5 gap-4 max-960:flex-col max-960:items-start">
-          <!-- Domain Selector -->
-          <div class="w-56">
-            <Dropdown
-              v-model="selectedDomain"
-              :options="domains"
-              placeholder="Select domain"
-            >
-              <template #icon>
-                <img src="/demos/telekom/logo.png" alt="Domain" class="w-5 h-5 rounded-full object-cover" />
-              </template>
-            </Dropdown>
-          </div>
-
-        </div>
-
         <!-- Onboarding Checklist -->
-        <div class="space-y-3 mb-5">
+        <div class="space-y-3 mb-10">
           <!-- Step 1: Create first campaign -->
           <Accordion
             title="Create your first campaign"
@@ -37,9 +20,9 @@
               <span class="text-sm text-om-gray-400">~10 min</span>
             </template>
             <!-- Content -->
-            <div class="flex gap-6 pt-2">
+            <div class="flex gap-6 pt-2 -ml-6">
               <!-- Left: wizard launcher -->
-              <div class="flex flex-col justify-between flex-1 min-w-0 pl-9">
+              <div class="flex flex-col justify-between flex-1 min-w-0">
                 <div>
                   <h3 class="text-2xl font-bold text-om-gray-700 leading-snug mb-3">Launch the<br>Popup Wizard</h3>
                   <p class="text-base text-om-gray-500 mb-5">Answer a few questions and get<br>personalized campaigns in minutes.</p>
@@ -91,8 +74,8 @@
             <template #meta>
               <span class="text-sm text-om-gray-400">~2 min</span>
             </template>
-            <div class="flex items-stretch gap-6">
-              <div class="pl-9 flex-1 py-2 pr-96">
+            <div class="flex items-stretch gap-6 -ml-6">
+              <div class="flex-1 py-2 pr-96">
                 <p class="text-base text-om-gray-500 mb-5">Connect your website to OptiMonk and let us make the most of your online presence.</p>
                 <Button variant="primary" size="md" class="self-start">Connect my website</Button>
               </div>
@@ -155,7 +138,7 @@
         </div>
 
         <!-- Promo Blocks -->
-        <div v-if="showInviteBlock || showConsultBlock" class="flex gap-4 mb-8">
+        <div v-if="showInviteBlock || showConsultBlock" class="flex gap-4 mb-10">
           <!-- Invite block -->
           <div v-if="showInviteBlock" class="flex-1 bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-4 flex items-center gap-4">
             <div class="w-10 h-10 rounded-full bg-om-orange-100 flex items-center justify-center shrink-0">
@@ -254,7 +237,7 @@
 
 <script setup>
 import { ref, computed, reactive, watch } from 'vue'
-import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X, LayoutTemplate, LayoutGrid, Zap, Plug } from 'lucide-vue-next'
+import { TrendingUp, TrendingDown, Target, Calendar, UserPlus, Signpost, X, LayoutTemplate, LayoutGrid, Zap, Plug, ChevronDown, AlertCircle } from 'lucide-vue-next'
 import VueApexCharts from 'vue3-apexcharts'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Accordion from '../components/shared/Accordion.vue'
@@ -309,6 +292,14 @@ const domains = ref([
   'demo.optimonk.com',
   '+ Add new domain'
 ])
+// Heartbeat status per domain — 'green' (healthy) | 'red' (no signal)
+const domainStatuses = {
+  'reflexshop.hu': 'red',
+  'telekom.hu': 'green',
+  'shop.telekom.hu': 'red',
+  'demo.optimonk.com': 'green',
+}
+const heartbeatOpen = ref(false)
 const showAddDomainModal = ref(false)
 watch(selectedDomain, (val) => {
   if (val === '+ Add new domain') {
@@ -623,6 +614,18 @@ const chartOptions = computed(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* Heartbeat setup panel open/close */
+.panel-enter-active,
+.panel-leave-active {
+  transition: all 0.25s ease;
+  transform-origin: top;
+}
+.panel-enter-from,
+.panel-leave-to {
+  opacity: 0;
+  transform: scaleY(0.95) translateY(-8px);
 }
 
 /* Filters Section */

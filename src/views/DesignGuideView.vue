@@ -64,6 +64,63 @@
           </div>
         </div>
 
+        <!-- Yellow Palette -->
+        <div class="mb-8">
+          <h3 class="text-base font-medium text-om-gray-600 mb-4">Accent - Yellow</h3>
+          <div class="grid grid-cols-5 md:grid-cols-10 gap-2">
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-om-yellow-50 border border-om-gray-200"></div>
+              <p class="text-xs text-om-gray-500">50</p>
+              <p class="text-xs text-om-gray-400 font-mono">#FFFBE6</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-om-yellow-100"></div>
+              <p class="text-xs text-om-gray-500">100</p>
+              <p class="text-xs text-om-gray-400 font-mono">#FEF3A3</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-om-yellow-200"></div>
+              <p class="text-xs text-om-gray-500">200</p>
+              <p class="text-xs text-om-gray-400 font-mono">#FDED6A</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-om-yellow-300"></div>
+              <p class="text-xs text-om-gray-500">300</p>
+              <p class="text-xs text-om-gray-400 font-mono">#F5DC2A</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-om-yellow-400"></div>
+              <p class="text-xs text-om-gray-500 font-semibold">400</p>
+              <p class="text-xs text-om-gray-400 font-mono">#F0C920</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-om-yellow-500"></div>
+              <p class="text-xs text-om-gray-500">500</p>
+              <p class="text-xs text-om-gray-400 font-mono">#D4AF1A</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-om-yellow-600"></div>
+              <p class="text-xs text-om-gray-500">600</p>
+              <p class="text-xs text-om-gray-400 font-mono">#B89414</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-om-yellow-700"></div>
+              <p class="text-xs text-om-gray-500">700</p>
+              <p class="text-xs text-om-gray-400 font-mono">#9C7A0F</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-om-yellow-800"></div>
+              <p class="text-xs text-om-gray-500">800</p>
+              <p class="text-xs text-om-gray-400 font-mono">#7F620A</p>
+            </div>
+            <div class="space-y-2">
+              <div class="h-16 w-full rounded-lg bg-om-yellow-900"></div>
+              <p class="text-xs text-om-gray-500">900</p>
+              <p class="text-xs text-om-gray-400 font-mono">#634C07</p>
+            </div>
+          </div>
+        </div>
+
         <!-- Gray Palette -->
         <div class="mb-8">
           <h3 class="text-base font-medium text-om-gray-600 mb-4">Neutral - Gray</h3>

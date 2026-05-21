@@ -82,69 +82,29 @@
           </div>
         </div>
 
-        <div class="mt-24"></div>
+        <div class="mt-16"></div>
 
-        <!-- Insights teaser (full width) -->
-        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] py-10 px-12 flex items-center gap-24">
-          <div class="flex-1 min-w-0 flex flex-col gap-3">
-            <h2 class="text-lg font-semibold text-om-gray-700">Your insights report is ready for May 1, 2026 to May 31, 2026</h2>
-            <p class="text-sm text-om-gray-500 leading-relaxed">
-              We've gone through your traffic, campaign performance, and visitor behavior across this period, and we found {{ insightCount }} insights worth looking into. Here are the first three:
-            </p>
-            <div class="flex flex-col gap-2 mt-1">
-              <button
-                v-for="insight in topInsights"
-                :key="insight.id"
-                @click="emit('navigate-to-opportunity', insight.id)"
-                class="flex items-center gap-3 text-left group cursor-pointer hover:text-om-orange-600 transition-colors w-fit max-w-[80%]"
-              >
-                <div class="w-8 h-8 rounded-lg bg-om-orange-100 flex items-center justify-center shrink-0">
-                  <component :is="insightIcons[insight.id]" :size="16" class="text-om-orange-600" />
-                </div>
-                <span class="text-sm text-om-gray-700 group-hover:text-om-orange-600 underline decoration-dashed decoration-om-gray-400 group-hover:decoration-om-orange-600 underline-offset-4">{{ insight.name }}</span>
-              </button>
+        <!-- Compact Performance Strip -->
+        <div class="mt-10">
+          <div class="flex items-end justify-between mb-4">
+            <div class="flex items-baseline gap-3">
+              <h3 class="text-lg font-semibold text-om-gray-700">Performance</h3>
+              <span class="text-sm text-om-gray-500">Last 30 days</span>
             </div>
-            <div class="mt-3">
-              <Button variant="secondary" size="sm" @click="emit('navigate-to-opportunities')">
-                Show all insights
-              </Button>
-            </div>
+            <button class="text-sm font-medium text-om-gray-500 hover:text-om-gray-700 transition-colors cursor-pointer">See more</button>
           </div>
-          <img src="/insights_v2.svg" alt="Insights" class="w-120 h-auto object-contain shrink-0" />
-        </div>
-
-        <!-- Performance Overview Section -->
-        <div class="mt-12">
-          <div class="flex items-center justify-between mb-5">
-            <h3 class="text-lg font-semibold text-om-gray-700">Performance Overview</h3>
-            <div class="flex items-center gap-3">
-              <div class="w-44">
-                <Dropdown
-                  v-model="selectedPeriod"
-                  :options="periods"
-                  placeholder="Select period"
-                  size="sm"
-                >
-                  <template #icon>
-                    <Calendar :size="16" class="text-om-gray-400" />
-                  </template>
-                </Dropdown>
-              </div>
-              <button class="text-sm font-medium text-om-gray-500 hover:text-om-gray-700 transition-colors cursor-pointer">See more</button>
-            </div>
-          </div>
-          <div class="grid grid-cols-4 gap-4">
+          <div class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-2 py-1 grid grid-cols-4 divide-x divide-om-gray-100">
             <div
-              v-for="tab in trendTabs"
+              v-for="tab in trendTabs.slice(1, 5)"
               :key="tab.id"
-              class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-5"
+              class="px-5 py-4"
             >
-              <div class="text-xs font-medium text-om-gray-400 uppercase tracking-wide mb-3">{{ tab.title }}</div>
-              <div class="flex items-baseline gap-3">
-                <div class="text-2xl font-semibold text-om-gray-700">{{ tab.value }}</div>
-                <div v-if="tab.change" :class="['text-sm font-medium flex items-center gap-1', tab.isPositive ? 'text-[#239E77]' : 'text-[#E4252D]']">
-                  <TrendingUp v-if="tab.isPositive" :size="14" />
-                  <TrendingDown v-else :size="14" />
+              <div class="text-xs font-medium text-om-gray-400 uppercase tracking-wide mb-2">{{ tab.title }}</div>
+              <div class="flex items-baseline gap-2">
+                <div class="text-xl font-semibold text-om-gray-700">{{ tab.value }}</div>
+                <div v-if="tab.change" :class="['text-xs font-medium flex items-center gap-0.5', tab.isPositive ? 'text-[#239E77]' : 'text-[#E4252D]']">
+                  <TrendingUp v-if="tab.isPositive" :size="12" />
+                  <TrendingDown v-else :size="12" />
                   {{ tab.change }}
                 </div>
               </div>
@@ -152,181 +112,127 @@
           </div>
         </div>
 
-        <!-- Campaigns Section -->
-        <div class="mt-12">
-          <h2 class="text-lg font-semibold text-om-gray-700 mb-4">Campaigns</h2>
+        <!-- Campaigns with attached AI insights -->
+        <div class="mt-10">
           <div class="flex items-center justify-between mb-4">
-            <div class="flex">
-              <button
-                v-for="tab in ['Top', 'Latest']"
-                :key="tab"
-                @click="campaignTab = tab.toLowerCase()"
-                :class="['px-4 py-2.5 text-sm font-medium transition-colors relative cursor-pointer', campaignTab === tab.toLowerCase() ? 'text-om-orange-500' : 'text-om-gray-600 hover:text-om-gray-700']"
-              >
-                {{ tab }}
-                <span v-if="campaignTab === tab.toLowerCase()" class="absolute bottom-0 left-0 right-0 h-0.5 bg-om-orange-500"></span>
-              </button>
+            <div class="flex items-center gap-2">
+              <h3 class="text-lg font-semibold text-om-gray-700">Campaigns</h3>
+              <Sparkles :size="14" class="text-om-orange-500" />
+              <span class="text-xs text-om-gray-500">AI analyzes each campaign for improvements</span>
             </div>
             <div class="flex items-center gap-2">
               <Button variant="ghost" size="sm">All campaigns</Button>
               <Button variant="primary" size="sm" @click="$emit('new-campaign')">New campaign</Button>
             </div>
           </div>
+          <div class="flex mb-4">
+            <button
+              v-for="tab in ['Top', 'Latest']"
+              :key="tab"
+              @click="campaignTab = tab.toLowerCase()"
+              :class="['px-4 py-2.5 text-sm font-medium transition-colors relative cursor-pointer', campaignTab === tab.toLowerCase() ? 'text-om-orange-500' : 'text-om-gray-600 hover:text-om-gray-700']"
+            >
+              {{ tab }}
+              <span v-if="campaignTab === tab.toLowerCase()" class="absolute bottom-0 left-0 right-0 h-0.5 bg-om-orange-500"></span>
+            </button>
+          </div>
 
-          <div class="space-y-4">
-            <CampaignCard
-              v-for="campaign in homeCampaigns"
-              :key="campaign.id"
-              :name="campaign.name"
-              :domain="campaign.domain"
-              :image="campaign.image"
-              :active="campaign.active"
-              @update:active="campaign.active = $event"
-              :selected="campaign.selected"
-              @update:selected="campaign.selected = $event"
-              :metrics="campaign.metrics"
-              :last-updated="campaign.lastUpdated"
-              variant="list"
-              @click="$emit('menu-click', 'campaigns')"
-            />
+          <div class="space-y-3">
+            <div v-for="campaign in homeCampaigns" :key="campaign.id" class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] overflow-hidden">
+              <button
+                v-if="campaignInsights[campaign.id]"
+                @click="openInsightPanel(campaign)"
+                class="w-full flex items-center gap-3 px-5 py-3 border-b border-om-gray-100 cursor-pointer transition-colors group bg-white hover:bg-om-gray-50"
+              >
+                <component :is="campaignInsights[campaign.id].icon" :size="16" class="text-om-gray-600" />
+                <span class="text-sm font-medium text-om-gray-700">
+                  {{ campaignInsights[campaign.id].message }}
+                </span>
+                <span class="ml-auto text-xs font-medium text-om-gray-500 group-hover:text-om-gray-700">
+                  View all →
+                </span>
+              </button>
+
+              <CampaignCard
+                :name="campaign.name"
+                :domain="campaign.domain"
+                :image="campaign.image"
+                :active="campaign.active"
+                @update:active="campaign.active = $event"
+                :selected="campaign.selected"
+                @update:selected="campaign.selected = $event"
+                :metrics="campaign.metrics"
+                :last-updated="campaign.lastUpdated"
+                variant="list"
+                @click="$emit('menu-click', 'campaigns')"
+              />
+            </div>
+          </div>
+
+          <!-- New idea suggestions at the bottom -->
+          <div v-if="allIdeas.length" class="mt-8">
+            <div class="flex items-center gap-2 mb-4">
+              <Sparkles :size="16" class="text-om-orange-500" />
+              <h4 class="text-sm font-semibold text-om-gray-700 uppercase tracking-wide">New suggestions</h4>
+            </div>
+            <div class="space-y-3">
+              <button
+                v-for="idea in allIdeas"
+                :key="idea.ideaKey"
+                @click="emit('navigate-to-opportunity', idea.ideaId)"
+                class="w-full flex items-center gap-4 p-3 border-2 border-dashed border-om-gray-300 rounded-xl bg-white hover:border-om-gray-400 hover:shadow-sm transition-all cursor-pointer text-left group"
+              >
+                <div class="w-36 h-24 rounded-lg bg-om-gray-50 shrink-0 overflow-hidden border border-om-gray-200">
+                  <img :src="idea.thumbnail" :alt="idea.insight?.name" class="w-full h-full object-cover" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-sm font-semibold text-om-gray-700 leading-snug">{{ idea.insight?.name }}</h4>
+                  <p v-if="idea.insight?.description" class="text-xs text-om-gray-500 line-clamp-1 mt-1">{{ idea.insight.description }}</p>
+                </div>
+                <ChevronRight :size="16" class="text-om-gray-400 group-hover:text-om-gray-600 shrink-0" />
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- Inspiration -->
-        <div class="mt-12">
-          <h3 class="text-lg font-semibold text-om-gray-700 mb-4">Inspiration</h3>
-          <div class="grid grid-cols-6 gap-6">
-            <!-- Smart Discount Popup -->
-            <div class="flex flex-col cursor-pointer group">
-              <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
-                <div class="flex flex-col w-full h-full">
-                  <div class="h-1/3 shrink-0 bg-white flex items-end justify-center rounded-t-lg">
-                    <img src="/campaigns/smart-discount-popup-img.png" alt="Smart Discount" class="h-full object-contain" />
+        <!-- Side panel for campaign insights -->
+        <Transition name="slide">
+          <div v-if="insightPanelCampaign" class="fixed inset-0 z-50 flex">
+            <div class="flex-1 bg-black/30" @click="insightPanelCampaign = null"></div>
+            <div class="w-120 bg-white shadow-2xl overflow-y-auto">
+              <div class="px-6 py-4 border-b border-om-gray-100 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <Sparkles :size="16" class="text-om-orange-500" />
+                  <h3 class="text-base font-semibold text-om-gray-700">Suggestions for this campaign</h3>
+                </div>
+                <button @click="insightPanelCampaign = null" class="w-7 h-7 flex items-center justify-center text-om-gray-400 hover:text-om-gray-600 hover:bg-om-gray-100 rounded-md transition-colors cursor-pointer">
+                  <X :size="16" />
+                </button>
+              </div>
+              <div class="px-6 py-4 border-b border-om-gray-100">
+                <p class="text-xs text-om-gray-400 uppercase tracking-wide mb-1">Campaign</p>
+                <h4 class="text-base font-semibold text-om-gray-700">{{ insightPanelCampaign?.name }}</h4>
+              </div>
+              <div class="p-6 space-y-4">
+                <div
+                  v-for="insight in panelInsights"
+                  :key="insight.id"
+                  class="border border-om-gray-200 rounded-lg p-4"
+                >
+                  <div class="flex items-center gap-2 mb-2">
+                    <TagBadge :variant="impactVariantFor(insight.value)">{{ insight.value }}</TagBadge>
                   </div>
-                  <div class="flex-1 px-4 pb-3 flex flex-col justify-center text-center">
-                    <img src="/demos/telekom/logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-1 mx-auto" />
-                    <h4 class="text-[13px] font-bold mb-2 leading-tight text-[#E20074]">
-                      Tied a 10% KUPON
-                    </h4>
-                    <p class="text-[7px] text-om-gray-500 mb-2">
-                      Csapj le ra, mielott eltunik!
-                    </p>
-                    <button class="w-full py-2 text-white text-[7px] font-bold mb-1.5 rounded-lg bg-[#E20074]">
-                      KEREM A 10%-OT
-                    </button>
-                    <button class="w-full py-2 text-[7px] font-bold border rounded-lg text-[#E20074] border-[#E20074] bg-white">
-                      NEM, KOSZI!
-                    </button>
-                  </div>
+                  <h5 class="text-sm font-semibold text-om-gray-700 mb-1 leading-snug">{{ insight.name }}</h5>
+                  <p class="text-xs text-om-gray-500 leading-relaxed mb-3">{{ insight.description }}</p>
+                  <Button variant="secondary" size="sm" @click="emit('navigate-to-opportunity', insight.id)">
+                    Open in tasks
+                  </Button>
                 </div>
               </div>
-              <h4 class="text-sm font-medium text-om-gray-700">Smart Discount Popup</h4>
-              <p class="text-xs text-om-gray-500 mt-1">The most effective list-building popup formula</p>
-            </div>
-
-            <!-- Cart Abandonment Stopper -->
-            <div class="flex flex-col cursor-pointer group">
-              <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
-                <div class="relative w-full h-full flex items-center justify-center p-2" style="background-color: #6A8085">
-                  <div class="flex flex-col w-full h-[90%] bg-white rounded-lg overflow-hidden shadow-lg">
-                    <div class="h-2/5 shrink-0">
-                      <img src="/campaigns/cart-abandonment-stopper-img.png" alt="Cart Abandonment" class="w-full h-full object-cover" />
-                    </div>
-                    <div class="flex-1 px-4 py-3 flex flex-col justify-center">
-                      <p class="text-[7px] text-om-gray-500 mb-2 uppercase tracking-wide">
-                        Varj
-                      </p>
-                      <h4 class="text-[12px] font-bold mb-3 leading-tight text-[#E20074]">
-                        Szerezz egy<br>10%-os kuport!
-                      </h4>
-                      <div class="h-5 bg-white border border-om-gray-300 rounded text-[7px] flex items-center px-2 text-om-gray-400 mb-3">
-                        Email cim
-                      </div>
-                      <button class="w-full py-2 text-white text-[7px] font-bold rounded bg-[#E20074]">
-                        FOLYTATAS
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <h4 class="text-sm font-medium text-om-gray-700">Cart Abandonment Stopper</h4>
-              <p class="text-xs text-om-gray-500 mt-1">Offer a discount for cart abandoners</p>
-            </div>
-
-            <!-- Lucky Wheel -->
-            <div class="flex flex-col cursor-pointer group">
-              <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
-                <div class="flex flex-col w-full h-full">
-                  <div class="flex-1 px-4 py-3 flex flex-col justify-center text-center">
-                    <img src="/demos/telekom/logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-2 mx-auto" />
-                    <h4 class="text-[12px] font-bold mb-2 leading-tight text-[#E20074]">
-                      Porgets, nyerj es<br>sporolj!
-                    </h4>
-                    <p class="text-[6px] text-om-gray-500 mb-2 leading-snug">
-                      Ugy erzed, rad mosolyoghat a szerencse?<br>Add meg az email cimed, es porgets!
-                    </p>
-                    <div class="h-5 bg-white border border-om-gray-300 rounded text-[7px] flex items-center px-2 text-om-gray-400 mb-2">
-                      Email
-                    </div>
-                    <button class="w-full py-2 text-white text-[7px] font-bold mb-1 rounded bg-[#E20074]">
-                      PORGETEK
-                    </button>
-                    <button class="text-[7px] font-medium underline text-[#E20074]">
-                      NEM, KOSZI!
-                    </button>
-                  </div>
-                  <div class="h-1/3 shrink-0">
-                    <img src="/campaigns/lucky-wheel-img.png" alt="Lucky Wheel" class="w-full h-full object-cover rounded-b-lg" />
-                  </div>
-                </div>
-              </div>
-              <h4 class="text-sm font-medium text-om-gray-700">Lucky Wheel</h4>
-              <p class="text-xs text-om-gray-500 mt-1">Gamify popups to increase visitor engagement</p>
-            </div>
-
-            <!-- Feedback Survey -->
-            <div class="flex flex-col cursor-pointer group">
-              <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
-                <div class="relative w-full h-full flex items-center justify-center p-2" style="background-color: #6A8085">
-                  <div class="flex flex-col w-full h-1/2 bg-white rounded-lg shadow-lg justify-center px-4 py-5 text-center">
-                    <img src="/demos/telekom/logo2.png" alt="Logo" class="w-8 h-8 object-contain mb-3 mx-auto" />
-                    <h4 class="text-[11px] font-bold mb-2 leading-tight text-[#E20074]">
-                      Van egy perced?<br>Mondd el a velemenyed!
-                    </h4>
-                    <p class="text-[6px] text-om-gray-500 mb-3 leading-snug">
-                      Hogyan ertekelned az altalanos<br>tapasztalatsodat velunk?
-                    </p>
-                    <div class="flex justify-center gap-1 mb-2">
-                      <div v-for="i in 5" :key="i" class="w-6 h-6 rounded-full border-2 flex items-center justify-center text-[8px] font-bold border-[#E20074] text-[#E20074]">
-                        {{ i }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <h4 class="text-sm font-medium text-om-gray-700">Feedback Survey</h4>
-              <p class="text-xs text-om-gray-500 mt-1">Get real, measurable feedback on anything you want</p>
-            </div>
-
-            <!-- Product Value Spotlight -->
-            <div class="flex flex-col cursor-pointer group">
-              <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
-                <img src="/campaigns/smart-discount-popup-img.png" alt="Product Value Spotlight" class="w-full h-full object-cover" />
-              </div>
-              <h4 class="text-sm font-medium text-om-gray-700">Product Value Spotlight</h4>
-              <p class="text-xs text-om-gray-500 mt-1">Highlight key product benefits and drive conversions</p>
-            </div>
-
-            <!-- Product Recommendation -->
-            <div class="flex flex-col cursor-pointer group">
-              <div class="bg-white border border-om-gray-200 rounded-lg h-96 aspect-9/19 flex items-center justify-center overflow-hidden mb-3 transition-all group-hover:border-om-primary group-hover:shadow-md">
-                <img src="/campaigns/cart-abandonment-stopper-img.png" alt="Product Recommendation" class="w-full h-full object-cover" />
-              </div>
-              <h4 class="text-sm font-medium text-om-gray-700">Product Recommendation</h4>
-              <p class="text-xs text-om-gray-500 mt-1">Show personalized product suggestions to visitors</p>
             </div>
           </div>
-        </div>
+        </Transition>
+
       </div>
     </template>
     <template #right-panel>
@@ -338,7 +244,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted, markRaw } from 'vue'
-import { TrendingUp, TrendingDown, Calendar, ArrowUp, Paperclip, Lightbulb, Plus, FlaskConical, Monitor, Smartphone, Tablet, MessageCircle, MousePointerClick, Filter, Clock, RotateCw, Facebook, Target, Search, Route, Tag, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Globe, Truck } from 'lucide-vue-next'
+import { TrendingUp, TrendingDown, Calendar, ArrowUp, Paperclip, Lightbulb, Plus, FlaskConical, Monitor, Smartphone, Tablet, MessageCircle, MousePointerClick, Filter, Clock, RotateCw, Facebook, Target, Search, Route, Tag as TagIcon, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Globe, Truck, X, AlertTriangle, CheckCircle2, ChevronRight } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
@@ -347,6 +253,7 @@ import CampaignCard from '../components/shared/CampaignCard.vue'
 import AddDomainModal from '../components/shared/AddDomainModal.vue'
 import HeartbeatIndicator from '../components/shared/HeartbeatIndicator.vue'
 import HeartbeatPanel from '../components/shared/HeartbeatPanel.vue'
+import TagBadge from '../components/shared/Tag.vue'
 import { croInsights } from '../data/croInsights.js'
 
 defineProps({
@@ -370,7 +277,7 @@ const insightIcons = {
   9: Target,
   10: Search,
   11: Route,
-  12: Tag,
+  12: TagIcon,
   13: Sparkles,
   14: LayoutGrid,
   15: Layers,
@@ -390,10 +297,49 @@ const insightIcons = {
 const insightCount = computed(() => croInsights.length)
 
 const insightImpactPriority = { Large: 5, 'Medium to large': 4, Medium: 3, 'Small to medium': 2, Small: 1 }
-const topInsights = computed(() =>
-  [...croInsights]
-    .sort((a, b) => (insightImpactPriority[b.value] ?? 0) - (insightImpactPriority[a.value] ?? 0) || a.id - b.id)
-    .slice(0, 3)
+
+const impactVariantFor = (value) => {
+  if (value === 'Large' || value === 'Medium to large') return 'orange'
+  if (value === 'Medium') return 'gray'
+  return 'gray-muted'
+}
+
+// ── Campaign-attached insights ──
+const campaignInsights = {
+  campaign1: { variant: 'orange', icon: Sparkles, message: '2 new suggestions could lift this 24%', insightIds: [1, 2] },
+  campaign3: { variant: 'orange', icon: AlertTriangle, message: 'Underperforming on mobile — 2 fixes suggested', insightIds: [19, 22] },
+  campaign4: { variant: 'gray', icon: Lightbulb, message: '2 ideas for better completion rate', insightIds: [16, 17] },
+}
+
+const insightPanelCampaign = ref(null)
+const openInsightPanel = (campaign) => {
+  insightPanelCampaign.value = campaign
+}
+
+const panelInsights = computed(() => {
+  if (!insightPanelCampaign.value) return []
+  const ids = campaignInsights[insightPanelCampaign.value.id]?.insightIds ?? []
+  return croInsights.filter(i => ids.includes(i.id))
+})
+
+const getInsight = (id) => croInsights.find(i => i.id === id)
+
+// Standalone new-campaign suggestions (not boosts to existing campaigns)
+const newCampaignIdeaIds = [8, 10, 11, 12, 24]
+const ideaThumbnails = {
+  8: '/campaigns/smart-discount-popup.png',
+  10: '/campaigns/lucky-wheel.png',
+  11: '/campaigns/feedback-survey.png',
+  12: '/campaigns/cart-abandonment-stopper.png',
+  24: '/campaigns/smart-discount-popup.png',
+}
+const allIdeas = computed(() =>
+  newCampaignIdeaIds.map(id => ({
+    ideaKey: `idea-${id}`,
+    ideaId: id,
+    thumbnail: ideaThumbnails[id],
+    insight: getInsight(id),
+  }))
 )
 
 const handleLogoClick = () => {}
@@ -717,5 +663,23 @@ onUnmounted(() => {
 
 .trend-chart-change.negative {
   color: rgb(228, 37, 45);
+}
+
+/* Side panel slide transition */
+.slide-enter-active,
+.slide-leave-active {
+  transition: opacity 0.2s ease;
+}
+.slide-enter-active > div:last-child,
+.slide-leave-active > div:last-child {
+  transition: transform 0.25s ease-out;
+}
+.slide-enter-from,
+.slide-leave-to {
+  opacity: 0;
+}
+.slide-enter-from > div:last-child,
+.slide-leave-to > div:last-child {
+  transform: translateX(100%);
 }
 </style>

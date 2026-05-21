@@ -137,6 +137,20 @@
         <div v-if="activeTab === 'Overview'">
         <!-- Metrics Section -->
         <div class="bg-om-gray-100 rounded-xl mb-6 relative">
+          <div class="p-2.5 pb-0">
+            <button
+              v-if="abTestInsights[0]"
+              @click="emit('navigate-to-opportunity', abTestInsights[0].id)"
+              class="w-full bg-white px-6 py-3 flex items-center justify-between gap-4 transition-shadow cursor-pointer rounded-lg hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
+            >
+              <div class="flex items-center gap-2 min-w-0">
+                <Sparkles :size="16" class="text-[#ED5A29] shrink-0" />
+                <span class="text-sm font-semibold text-[#ED5A29] whitespace-nowrap">Optimization opportunity found</span>
+                <span class="text-sm text-[#ED5A29] truncate">— {{ abTestInsights[0].name }}</span>
+              </div>
+              <ArrowRight :size="16" class="text-[#ED5A29] shrink-0" />
+            </button>
+          </div>
           <div class="grid grid-cols-[minmax(0,8fr)_minmax(0,13fr)_minmax(0,3fr)] gap-4">
           <!-- Conversion Uplift -->
           <div class="pl-8 py-8">
@@ -333,36 +347,6 @@
           </button>
         </div>
 
-        <!-- Insights teaser (action-oriented top insight) -->
-        <div
-          v-for="opp in abTestInsights.slice(0, 1)"
-          :key="`b-${opp.id}`"
-          class="group bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] py-6 px-6 mb-6"
-        >
-          <div class="flex items-center justify-between gap-3 mb-5">
-            <div class="text-[0.6875rem] font-semibold uppercase tracking-wider text-om-gray-500">Top insight for this campaign</div>
-            <div class="inline-flex items-center gap-1.5 text-xs font-medium text-om-gray-600 bg-om-gray-100 px-2.5 py-1 rounded-full whitespace-nowrap">
-              <Calendar :size="12" />
-              Reporting period: May 1 – May 31, 2026
-            </div>
-          </div>
-          <div class="flex items-start gap-8">
-            <div class="flex-1 min-w-0 flex items-start gap-4">
-              <div class="w-11 h-11 rounded-lg bg-[#FFF0EB] text-[#C94B14] flex items-center justify-center shrink-0">
-                <component :is="insightIcons[opp.id] || Sparkles" :size="22" />
-              </div>
-              <div class="flex-1 min-w-0 flex flex-col gap-0.5">
-                <div class="text-[1rem] font-semibold text-om-gray-700 leading-snug">{{ opp.name }}</div>
-                <div class="text-[0.8125rem] text-om-gray-500 leading-snug">{{ opp.description }}</div>
-              </div>
-            </div>
-            <div class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button variant="secondary" size="md" @click="emit('navigate-to-opportunity', opp.id)">
-                Show more
-              </Button>
-            </div>
-          </div>
-        </div>
 
         <!-- Campaign Settings Sections -->
         <div class="space-y-4">
@@ -624,6 +608,36 @@
           @navigate-to-opportunities="emit('navigate-to-opportunities')"
         >
           <template #funnel>
+            <!-- Top Optimization Opportunities -->
+            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5 min-w-0 mb-6">
+              <div class="flex items-center justify-between pr-5 pl-8 mb-4">
+                <h2 class="text-xl font-semibold text-om-gray-700">Top Optimization Opportunities</h2>
+                <button class="text-sm font-medium text-om-gray-500 hover:text-om-gray-700 transition-colors cursor-pointer" @click="emit('navigate-to-opportunities')">View all</button>
+              </div>
+              <div class="grid grid-cols-1 min-[900px]:grid-cols-2 gap-4 px-7">
+                <div
+                  v-for="opp in abTestInsights"
+                  :key="opp.id"
+                  class="flex items-start gap-4 p-4 bg-white rounded-xl border-2 border-om-gray-200 cursor-pointer transition-all hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] min-w-0"
+                  @click="emit('navigate-to-opportunity', opp.id)"
+                >
+                  <div class="w-11 h-11 rounded-lg bg-[#FFF0EB] text-[#C94B14] flex items-center justify-center shrink-0">
+                    <component :is="insightIcons[opp.id] || Sparkles" :size="22" />
+                  </div>
+                  <div class="flex-1 min-w-0 flex flex-col gap-1.5">
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="text-[0.9375rem] font-semibold text-om-gray-700 leading-snug flex-1 min-w-0">{{ opp.name }}</div>
+                      <div :class="['text-[0.6875rem] font-semibold px-3 py-0.5 rounded-full whitespace-nowrap shrink-0', opp.level === 'high' ? 'bg-[#FFF0EB] text-[#C94B14]' : opp.level === 'medium' ? 'bg-[#FFF8E6] text-[#9A6400]' : 'bg-[#F1F2F4] text-[#6B7280]']">{{ opp.value }} impact</div>
+                    </div>
+                    <p v-if="opp.campaign" class="text-[0.8125rem] text-om-gray-600 leading-relaxed m-0">
+                      <strong class="text-om-gray-700 font-semibold">Campaign:</strong> {{ opp.campaign }}
+                    </p>
+                    <div class="text-[0.8125rem] text-om-gray-500 leading-snug">{{ opp.description }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5">
               <div class="px-8 mb-1">
                 <h2 class="text-xl font-semibold text-om-gray-700">Funnel breakdown</h2>

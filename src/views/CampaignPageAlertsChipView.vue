@@ -6,8 +6,46 @@
         <!-- Header -->
         <div class="flex items-start justify-between mb-4">
           <div>
-            <EditableTitle v-model="campaignName" />
-            <p class="text-xs text-om-gray-400">www.mydomain.com</p>
+            <div class="flex items-center gap-3">
+              <EditableTitle v-model="campaignName" />
+
+              <!-- Alert chip -->
+              <div v-if="campaignAlerts.length" class="relative">
+                <button
+                  type="button"
+                  class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-om-yellow-100 hover:bg-om-yellow-200 transition-colors cursor-pointer"
+                  @click="alertsOpen = !alertsOpen"
+                >
+                  <AlertCircle :size="18" class="text-om-yellow-400 shrink-0" />
+                  <span class="text-sm font-semibold text-om-gray-700 whitespace-nowrap">{{ campaignAlerts.length }} {{ campaignAlerts.length === 1 ? 'alert' : 'alerts' }}</span>
+                </button>
+                <transition name="popover">
+                  <div v-if="alertsOpen" class="absolute top-full left-0 mt-2 z-50 w-150 bg-white rounded-xl shadow-[0_4px_16px_2px_rgb(0_0_0/0.08)] overflow-hidden">
+                    <div class="p-2 space-y-1">
+                      <button
+                        v-for="alert in campaignAlerts"
+                        :key="alert.id"
+                        type="button"
+                        @click="handleAlertClick(alert)"
+                        class="w-full text-left relative flex items-start gap-3 px-4 py-4 rounded-lg transition-colors cursor-pointer hover:bg-om-gray-50"
+                      >
+                        <AlertCircle :size="18" class="text-om-yellow-400 shrink-0 mt-0.5" />
+                        <div class="flex-1 min-w-0">
+                          <p class="text-sm font-semibold text-om-gray-700 mb-1">{{ alert.title }}</p>
+                          <p class="text-sm text-om-gray-600 leading-relaxed">
+                            <template v-for="(segment, i) in alert.body" :key="i">
+                              <span v-if="segment.href" class="text-om-orange-500">{{ segment.text }}</span>
+                              <template v-else>{{ segment.text }}</template>
+                            </template>
+                          </p>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                </transition>
+              </div>
+            </div>
+            <p class="text-xs text-om-gray-400 mt-1">www.mydomain.com</p>
           </div>
           <div class="flex items-center gap-2.5">
             <!-- Schedule Info Block (shown when schedule is saved) -->
@@ -333,36 +371,6 @@
           </button>
         </div>
 
-        <!-- Insights teaser (action-oriented top insight) -->
-        <div
-          v-for="opp in abTestInsights.slice(0, 1)"
-          :key="`b-${opp.id}`"
-          class="group bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] py-6 px-6 mb-6"
-        >
-          <div class="flex items-center justify-between gap-3 mb-5">
-            <div class="text-[0.6875rem] font-semibold uppercase tracking-wider text-om-gray-500">Top insight for this campaign</div>
-            <div class="inline-flex items-center gap-1.5 text-xs font-medium text-om-gray-600 bg-om-gray-100 px-2.5 py-1 rounded-full whitespace-nowrap">
-              <Calendar :size="12" />
-              Reporting period: May 1 – May 31, 2026
-            </div>
-          </div>
-          <div class="flex items-start gap-8">
-            <div class="flex-1 min-w-0 flex items-start gap-4">
-              <div class="w-11 h-11 rounded-lg bg-[#FFF0EB] text-[#C94B14] flex items-center justify-center shrink-0">
-                <component :is="insightIcons[opp.id] || Sparkles" :size="22" />
-              </div>
-              <div class="flex-1 min-w-0 flex flex-col gap-0.5">
-                <div class="text-[1rem] font-semibold text-om-gray-700 leading-snug">{{ opp.name }}</div>
-                <div class="text-[0.8125rem] text-om-gray-500 leading-snug">{{ opp.description }}</div>
-              </div>
-            </div>
-            <div class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button variant="secondary" size="md" @click="emit('navigate-to-opportunity', opp.id)">
-                Show more
-              </Button>
-            </div>
-          </div>
-        </div>
 
         <!-- Campaign Settings Sections -->
         <div class="space-y-4">
@@ -1464,7 +1472,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { ChevronDown, ChevronRight, ArrowRight, TrendingUp, TrendingDown, AlertTriangle, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Ban, Hourglass, MessageCircle, MousePointerClick, Filter, RotateCw, Facebook, Route, Tag as TagIcon, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Truck } from 'lucide-vue-next'
+import { ChevronDown, ChevronRight, ArrowRight, TrendingUp, TrendingDown, AlertTriangle, AlertCircle, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Ban, Hourglass, MessageCircle, MousePointerClick, Filter, RotateCw, Facebook, Route, Tag as TagIcon, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Truck } from 'lucide-vue-next'
 import VueApexCharts from 'vue3-apexcharts'
 import { croInsights } from '../data/croInsights.js'
 import Button from '../components/shared/Button.vue'
@@ -1511,6 +1519,74 @@ const chatAiResponses = {
 }
 
 const activeTab = ref('Overview')
+
+// ── Campaign alerts ──
+const campaignAlerts = ref([
+  {
+    id: 'product-out-of-stock',
+    title: 'Featured product is out of stock',
+    body: [
+      { text: 'The product promoted by this campaign is currently unavailable. Visitors may still see the campaign and click through to an out-of-stock page. ' },
+      { text: 'Edit campaign', href: '#' },
+      { text: ' to swap the product or pause the campaign.' },
+    ],
+  },
+  {
+    id: 'countdown-in-past',
+    title: 'Countdown end time is in the past',
+    body: [
+      { text: 'The countdown timer expired on May 15, 2026, so it no longer shows real urgency to visitors. ' },
+      { text: 'Update the end time', href: '#' },
+      { text: ' so the countdown continues to display.' },
+    ],
+  },
+  {
+    id: 'campaign-out-of-codes',
+    title: 'Discount codes have run out',
+    body: [
+      { text: 'The pool of unique discount codes assigned to this campaign is empty. New visitors will not receive a code. ' },
+      { text: 'Upload more codes', href: '#' },
+      { text: ' to resume distribution.' },
+    ],
+  },
+  {
+    id: 'campaign-almost-out-of-codes',
+    title: 'Discount codes are running low',
+    body: [
+      { text: 'Only 42 unique codes remain in this campaign\'s pool. At the current rate, codes will run out in roughly 2 days. ' },
+      { text: 'Upload more codes', href: '#' },
+      { text: ' to avoid interruptions.' },
+    ],
+  },
+  {
+    id: 'integration-error',
+    title: 'Integration is not receiving submissions',
+    body: [
+      { text: 'We could not deliver submissions from this campaign to your connected ' },
+      { text: 'Klaviyo integration', href: '#' },
+      { text: ' for the past 6 hours. Reconnect the integration to resume syncing.' },
+    ],
+  },
+  {
+    id: 'missing-field-bindings',
+    title: 'Some form fields are not connected to a destination',
+    body: [
+      { text: 'Two fields on this campaign\'s form do not have a binding configured, so their submissions will not be saved anywhere. ' },
+      { text: 'Map the fields', href: '#' },
+      { text: ' in the Settings tab to fix this.' },
+    ],
+  },
+])
+
+const alertsOpen = ref(false)
+
+const handleAlertClick = (alert) => {
+  const linkSegment = alert.body.find(s => s.href)
+  if (linkSegment?.href && linkSegment.href !== '#') {
+    window.location.href = linkSegment.href
+  }
+  alertsOpen.value = false
+}
 
 // A/B funnel breakdown
 const abFunnelVariants = computed(() => [
@@ -2072,6 +2148,17 @@ const handleDelete = () => {
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
+}
+
+.popover-enter-active,
+.popover-leave-active {
+  transition: all 0.2s ease;
+  transform-origin: top left;
+}
+.popover-enter-from,
+.popover-leave-to {
+  opacity: 0;
+  transform: scale(0.96) translateY(-4px);
 }
 
 .modal-enter-active > div,

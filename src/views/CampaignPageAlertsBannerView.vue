@@ -133,6 +133,36 @@
           </button>
         </div>
 
+        <!-- Campaign alerts (banner) -->
+        <div v-if="campaignAlerts.length" class="flex flex-col gap-3 mb-6">
+          <div
+            v-for="alert in campaignAlerts"
+            :key="alert.id"
+            class="relative flex items-start gap-3 rounded-xl bg-white shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] pl-6 pr-12 py-4 overflow-hidden"
+          >
+            <span class="absolute top-0 left-0 bottom-0 w-1.5 bg-om-yellow-400"></span>
+            <AlertCircle :size="20" class="text-om-yellow-400 shrink-0 mt-0.5" />
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-om-gray-700 mb-1">{{ alert.title }}</p>
+              <p class="text-sm text-om-gray-600 leading-relaxed">
+                <template v-for="(segment, i) in alert.body" :key="i">
+                  <a
+                    v-if="segment.href"
+                    :href="segment.href"
+                    class="text-om-orange-500 hover:underline"
+                  >{{ segment.text }}</a>
+                  <template v-else>{{ segment.text }}</template>
+                </template>
+              </p>
+            </div>
+            <div class="absolute top-2 right-2">
+              <Button variant="ghost" size="sm" icon-only @click="dismissCampaignAlert(alert.id)">
+                <template #icon><X :size="16" /></template>
+              </Button>
+            </div>
+          </div>
+        </div>
+
         <!-- Overview Tab Content -->
         <div v-if="activeTab === 'Overview'">
         <!-- Metrics Section -->
@@ -333,36 +363,6 @@
           </button>
         </div>
 
-        <!-- Insights teaser (action-oriented top insight) -->
-        <div
-          v-for="opp in abTestInsights.slice(0, 1)"
-          :key="`b-${opp.id}`"
-          class="group bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] py-6 px-6 mb-6"
-        >
-          <div class="flex items-center justify-between gap-3 mb-5">
-            <div class="text-[0.6875rem] font-semibold uppercase tracking-wider text-om-gray-500">Top insight for this campaign</div>
-            <div class="inline-flex items-center gap-1.5 text-xs font-medium text-om-gray-600 bg-om-gray-100 px-2.5 py-1 rounded-full whitespace-nowrap">
-              <Calendar :size="12" />
-              Reporting period: May 1 – May 31, 2026
-            </div>
-          </div>
-          <div class="flex items-start gap-8">
-            <div class="flex-1 min-w-0 flex items-start gap-4">
-              <div class="w-11 h-11 rounded-lg bg-[#FFF0EB] text-[#C94B14] flex items-center justify-center shrink-0">
-                <component :is="insightIcons[opp.id] || Sparkles" :size="22" />
-              </div>
-              <div class="flex-1 min-w-0 flex flex-col gap-0.5">
-                <div class="text-[1rem] font-semibold text-om-gray-700 leading-snug">{{ opp.name }}</div>
-                <div class="text-[0.8125rem] text-om-gray-500 leading-snug">{{ opp.description }}</div>
-              </div>
-            </div>
-            <div class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button variant="secondary" size="md" @click="emit('navigate-to-opportunity', opp.id)">
-                Show more
-              </Button>
-            </div>
-          </div>
-        </div>
 
         <!-- Campaign Settings Sections -->
         <div class="space-y-4">
@@ -1464,7 +1464,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { ChevronDown, ChevronRight, ArrowRight, TrendingUp, TrendingDown, AlertTriangle, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Ban, Hourglass, MessageCircle, MousePointerClick, Filter, RotateCw, Facebook, Route, Tag as TagIcon, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Truck } from 'lucide-vue-next'
+import { ChevronDown, ChevronRight, ArrowRight, TrendingUp, TrendingDown, AlertTriangle, AlertCircle, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Ban, Hourglass, MessageCircle, MousePointerClick, Filter, RotateCw, Facebook, Route, Tag as TagIcon, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Truck } from 'lucide-vue-next'
 import VueApexCharts from 'vue3-apexcharts'
 import { croInsights } from '../data/croInsights.js'
 import Button from '../components/shared/Button.vue'
@@ -1511,6 +1511,23 @@ const chatAiResponses = {
 }
 
 const activeTab = ref('Overview')
+
+// ── Campaign alerts ──
+const campaignAlerts = ref([
+  {
+    id: 'woocommerce-no-plugin',
+    title: 'Install the OptiMonk WooCommerce plugin',
+    body: [
+      { text: 'Your WooCommerce store needs the OptiMonk plugin to unlock product feeds and advanced tracking. ' },
+      { text: 'Install the plugin', href: '#' },
+      { text: ' from the WordPress admin to get started.' },
+    ],
+  },
+])
+
+const dismissCampaignAlert = (id) => {
+  campaignAlerts.value = campaignAlerts.value.filter((a) => a.id !== id)
+}
 
 // A/B funnel breakdown
 const abFunnelVariants = computed(() => [
