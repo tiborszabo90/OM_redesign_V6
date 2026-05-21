@@ -493,6 +493,7 @@
         <!-- Analytics Tab Content -->
         <CampaignAnalyticsTab
           v-if="activeTab === 'Analytics'"
+          :hide-insights="true"
           @navigate-to-opportunity="emit('navigate-to-opportunity', $event)"
           @navigate-to-opportunities="emit('navigate-to-opportunities')"
         />

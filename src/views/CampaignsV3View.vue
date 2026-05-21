@@ -195,12 +195,12 @@ import ChatPanel from '../components/shared/ChatPanel.vue'
 import CampaignCard from '../components/shared/CampaignCard.vue'
 import AddDomainModal from '../components/shared/AddDomainModal.vue'
 
-const emit = defineEmits(['menu-click', 'navigate-to-campaign', 'navigate-to-campaign-single', 'navigate-to-campaign-new', 'navigate-to-ppo-detail', 'navigate-to-ppo-detail-single'])
+const emit = defineEmits(['menu-click', 'navigate-to-campaign', 'navigate-to-campaign-single', 'navigate-to-campaign-new', 'navigate-to-campaign-survey', 'navigate-to-ppo-detail', 'navigate-to-ppo-detail-single'])
 
 const isChatOpen = ref(false)
 
 const sortOpen = ref(false)
-const sortBy = ref('conversion-desc')
+const sortBy = ref('newest')
 const sortActive = computed(() => sortBy.value !== 'conversion-desc')
 const sortOptions = [
   { value: 'conversion-desc', label: '↓ Conversion rate' },
@@ -238,7 +238,22 @@ const campaigns = reactive([
     image: '/campaigns/smart-discount-popup.png',
     active: true,
     selected: false,
-    lastUpdated: '14 days ago',
+    lastUpdated: '1 day ago',
+    metrics: [
+      { label: 'Impressions', value: '1,456' },
+      { label: 'Submits', value: '125' },
+      { label: 'Submit rate', value: '8.37%' },
+      { label: 'Conv. uplift', value: '84.23%', trend: true },
+    ],
+  },
+  {
+    id: 'campaign-survey',
+    name: 'Survey',
+    domain: 'domain.com',
+    image: '/campaigns/smart-discount-popup.png',
+    active: true,
+    selected: false,
+    lastUpdated: '1 day ago',
     metrics: [
       { label: 'Impressions', value: '1,456' },
       { label: 'Submits', value: '125' },
@@ -254,7 +269,7 @@ const campaigns = reactive([
     imagePosition: 'top',
     active: true,
     selected: false,
-    lastUpdated: '3 days ago',
+    lastUpdated: '1 day ago',
     metrics: [
       { label: 'Visitors', value: '3,812' },
       { label: 'Orders', value: '294' },
@@ -270,7 +285,7 @@ const campaigns = reactive([
     imagePosition: 'top',
     active: true,
     selected: false,
-    lastUpdated: '5 days ago',
+    lastUpdated: '1 day ago',
     metrics: [
       { label: 'Visitors', value: '12,593' },
       { label: 'Orders', value: '650' },
@@ -284,7 +299,7 @@ const campaigns = reactive([
     image: '/campaigns/lucky-wheel.png',
     active: true,
     selected: false,
-    lastUpdated: '14 days ago',
+    lastUpdated: '1 day ago',
     metrics: [
       { label: 'Impressions', value: '1,456' },
       { label: 'Submits', value: '125' },
@@ -304,7 +319,7 @@ const campaigns = reactive([
     image: '/campaigns/cart-abandonment-stopper.png',
     active: false,
     selected: false,
-    lastUpdated: '14 days ago',
+    lastUpdated: '1 day ago',
     metrics: [
       { label: 'Visitors', value: '1,456' },
       { label: 'Submits', value: '125' },
@@ -498,6 +513,9 @@ const filteredCampaigns = computed(() => {
   return result
 })
 
+// Campaigns with their own dedicated detail route — always pinned to the top
+const featuredCampaignIds = new Set(['campaign1', 'campaign-survey', 'campaign-ppo', 'campaign-ppo-single', 'campaign2', 'campaign3'])
+
 const sortedCampaigns = computed(() => {
   const arr = [...filteredCampaigns.value]
   const getMetric = (campaign, labels) => {
@@ -523,6 +541,8 @@ const sortedCampaigns = computed(() => {
     case 'newest':    arr.sort((a, b) => getDays(a.lastUpdated) - getDays(b.lastUpdated)); break
     case 'oldest':    arr.sort((a, b) => getDays(b.lastUpdated) - getDays(a.lastUpdated)); break
   }
+  // Pin featured campaigns to the top while preserving their relative order
+  arr.sort((a, b) => Number(featuredCampaignIds.has(b.id)) - Number(featuredCampaignIds.has(a.id)))
   return arr
 })
 
@@ -589,6 +609,8 @@ const handleCampaignClick = (campaignId) => {
     emit('navigate-to-campaign-new')
   } else if (campaignId === 'campaign2') {
     emit('navigate-to-campaign-single')
+  } else if (campaignId === 'campaign-survey') {
+    emit('navigate-to-campaign-survey')
   } else {
     emit('navigate-to-campaign')
   }

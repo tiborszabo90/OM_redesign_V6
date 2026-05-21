@@ -594,74 +594,39 @@
           @navigate-to-opportunities="emit('navigate-to-opportunities')"
         >
           <template #funnel>
-            <!-- Top Optimization Opportunities -->
-            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5 min-w-0 mb-6">
-              <div class="flex items-center justify-between pr-5 pl-8 mb-4">
-                <h2 class="text-xl font-semibold text-om-gray-700">Top Optimization Opportunities</h2>
-                <button class="text-sm font-medium text-om-gray-500 hover:text-om-gray-700 transition-colors cursor-pointer" @click="emit('navigate-to-opportunities')">View all</button>
-              </div>
-              <div class="grid grid-cols-1 min-[900px]:grid-cols-2 gap-4 px-7">
-                <div
-                  v-for="opp in abTestInsights"
-                  :key="opp.id"
-                  class="flex items-start gap-4 p-4 bg-white rounded-xl border-2 border-om-gray-200 cursor-pointer transition-all hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] min-w-0"
-                  @click="emit('navigate-to-opportunity', opp.id)"
-                >
-                  <div class="w-11 h-11 rounded-lg bg-[#FFF0EB] text-[#C94B14] flex items-center justify-center shrink-0">
-                    <component :is="insightIcons[opp.id] || Sparkles" :size="22" />
-                  </div>
-                  <div class="flex-1 min-w-0 flex flex-col gap-1.5">
-                    <div class="flex items-start justify-between gap-3">
-                      <div class="text-[0.9375rem] font-semibold text-om-gray-700 leading-snug flex-1 min-w-0">{{ opp.name }}</div>
-                      <div :class="['text-[0.6875rem] font-semibold px-3 py-0.5 rounded-full whitespace-nowrap shrink-0', opp.level === 'high' ? 'bg-[#FFF0EB] text-[#C94B14]' : opp.level === 'medium' ? 'bg-[#FFF8E6] text-[#9A6400]' : 'bg-[#F1F2F4] text-[#6B7280]']">{{ opp.value }} impact</div>
-                    </div>
-                    <p v-if="opp.campaign" class="text-[0.8125rem] text-om-gray-600 leading-relaxed m-0">
-                      <strong class="text-om-gray-700 font-semibold">Campaign:</strong> {{ opp.campaign }}
-                    </p>
-                    <div class="text-[0.8125rem] text-om-gray-500 leading-snug">{{ opp.description }}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5">
               <div class="px-8 mb-1">
-                <h2 class="text-xl font-semibold text-om-gray-700">Funnel breakdown</h2>
+                <h2 class="text-xl font-semibold text-om-gray-700">Page traffic</h2>
               </div>
-              <div class="text-[13px] text-om-gray-500 mb-5 px-8">Impressions of each page in this popup, with drop-off between steps. Compared across A/B variants.</div>
-              <div class="flex flex-col gap-6">
-                <div v-for="variant in abFunnelVariants" :key="variant.id" class="flex flex-col gap-3">
-                  <div class="px-8 flex items-center gap-2">
+              <div class="text-[13px] text-om-gray-500 mb-5 px-8">Impressions per page in this popup. Compared across A/B variants.</div>
+
+              <div class="px-8 mt-4 grid grid-cols-1 min-[900px]:grid-cols-2 gap-16">
+                <div v-for="variant in abFunnelVariants" :key="'col-' + variant.id" class="flex flex-col gap-2 min-w-0">
+                  <!-- Variant header -->
+                  <div class="flex items-center gap-2 flex-wrap pb-2">
                     <span class="text-sm font-medium text-om-gray-700">{{ variant.name }}</span>
                     <span class="text-[12px] text-om-gray-500 tabular-nums">{{ variant.traffic }}% traffic</span>
-                    <span
-                      v-if="variant.uplift"
-                      class="inline-flex items-center gap-1 text-[12px] font-semibold text-[#10B981] tabular-nums"
-                    >
-                      {{ variant.uplift }}
-                      <TrendingUp :size="12" class="text-[#2CC896]" />
-                    </span>
                   </div>
-                  <div class="px-5 flex items-stretch gap-0">
-                    <template v-for="(step, idx) in variant.steps" :key="step.id">
-                      <div class="flex-1 rounded-xl border border-om-gray-200 px-4 py-2.5 flex flex-col gap-1 min-w-0">
-                        <div class="text-[13px] font-medium text-om-gray-500 truncate">{{ step.name }}</div>
-                        <div class="text-base font-semibold text-om-gray-700 tabular-nums">{{ step.impressions.toLocaleString() }}</div>
-                        <div class="h-1.5 rounded-full bg-om-gray-100 overflow-hidden">
-                          <div class="h-full rounded-full" :style="{ width: variantStepShare(variant, step) + '%', background: variant.color }"></div>
-                        </div>
+                  <!-- Column headers -->
+                  <div class="flex items-baseline justify-between gap-3 pb-1">
+                    <span class="text-[11px] font-medium text-om-gray-400 uppercase tracking-wide">Page</span>
+                    <span class="text-[11px] font-medium text-om-gray-400 uppercase tracking-wide">Impressions</span>
+                  </div>
+                  <div v-for="(step, idx) in variant.steps" :key="step.id" class="flex flex-col gap-1.5 py-1.5">
+                    <div class="flex items-baseline justify-between gap-3">
+                      <span class="text-[13px] text-om-gray-700 truncate min-w-0">{{ step.name }}</span>
+                      <div class="flex items-baseline gap-3 shrink-0">
+                        <span v-if="idx > 0" class="text-[12px] text-om-gray-400 tabular-nums">{{ variantStepShare(variant, step) }}%</span>
+                        <span class="text-[13px] font-semibold text-om-gray-700 tabular-nums">{{ step.impressions.toLocaleString() }}</span>
                       </div>
-                      <div
-                        v-if="idx < variant.steps.length - 1"
-                        class="flex flex-col items-center justify-center px-3 shrink-0"
-                      >
-                        <ArrowRight :size="32" class="text-om-gray-300" />
-                        <div class="text-sm font-semibold text-om-gray-500 tabular-nums mt-1.5 whitespace-nowrap">-{{ variantStepDropOff(variant, idx + 1) }}%</div>
-                      </div>
-                    </template>
+                    </div>
+                    <div class="h-1.5 rounded-full bg-om-gray-100 overflow-hidden">
+                      <div class="h-full rounded-full" :style="{ width: variantStepShare(variant, step) + '%', background: variant.color }"></div>
+                    </div>
                   </div>
                 </div>
               </div>
+
             </div>
 
             <!-- A/B Test Results + Insights stacked -->
@@ -675,9 +640,9 @@
                 <!-- Comparison table -->
                 <div class="px-8">
                   <div class="grid grid-cols-[1fr_220px_220px] gap-10 pb-4 border-b border-om-gray-200">
-                    <div class="text-sm text-om-gray-700 leading-relaxed pr-36">
+                    <div class="text-[13px] text-om-gray-500 leading-relaxed pr-36">
                       Estimated more than <strong class="font-semibold">{{ abTestProgressNeeded }} submits</strong> needed to reach statistically significant 95% win chance.
-                      <span class="text-om-gray-500">&gt;45 days left (based on your current traffic)</span>
+                      &gt;45 days left (based on your current traffic)
                     </div>
                     <div class="flex flex-col items-start gap-1.5">
                       <span class="text-[13px] font-semibold text-om-gray-600 whitespace-nowrap">Klaviyo Popup</span>
@@ -735,9 +700,9 @@
                 <!-- Significance summary — when auto-declare is off -->
                 <div v-else class="px-8 mb-5">
                   <div class="pb-4 border-b border-om-gray-200">
-                    <p class="text-sm text-om-gray-700">
+                    <p class="text-[13px] text-om-gray-500">
                       Estimated more than <strong class="font-semibold">{{ abTestProgressNeeded }} submits</strong> needed to reach statistically significant 95% win chance.
-                      <span class="text-om-gray-500">&gt;45 days left (based on your current traffic)</span>
+                      &gt;45 days left (based on your current traffic)
                     </p>
                   </div>
                 </div>
@@ -811,9 +776,9 @@
 
                 <!-- Significance summary -->
                 <div class="px-8 mb-7">
-                  <p class="text-sm text-om-gray-700">
+                  <p class="text-[13px] text-om-gray-500">
                     Estimated more than <strong class="font-semibold">{{ abTestProgressNeeded }} submits</strong> needed to reach statistically significant 95% win chance.
-                    <span class="text-om-gray-500">&gt;45 days left (based on your current traffic)</span>
+                    &gt;45 days left (based on your current traffic)
                   </p>
                 </div>
 
@@ -1464,7 +1429,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { ChevronDown, ChevronRight, ArrowRight, TrendingUp, TrendingDown, AlertTriangle, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Ban, Hourglass, MessageCircle, MousePointerClick, Filter, RotateCw, Facebook, Route, Tag as TagIcon, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Truck } from 'lucide-vue-next'
+import { ChevronDown, ChevronRight, TrendingUp, TrendingDown, AlertTriangle, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Ban, Hourglass, MessageCircle, MousePointerClick, Filter, RotateCw, Facebook, Route, Tag as TagIcon, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Truck } from 'lucide-vue-next'
 import VueApexCharts from 'vue3-apexcharts'
 import { croInsights } from '../data/croInsights.js'
 import Button from '../components/shared/Button.vue'
@@ -1512,51 +1477,34 @@ const chatAiResponses = {
 
 const activeTab = ref('Overview')
 
-// A/B funnel breakdown
+// A/B funnel breakdown — 5 variants × 10 survey pages mock data
+const surveyPages = [
+  { id: 'mainpage', name: 'Mainpage' },
+  { id: 'email', name: 'Email' },
+  { id: 'sms', name: 'SMS' },
+  { id: 'thank-you', name: 'Thank you' },
+]
+
+const variantImpressions = [
+  [12400, 8600, 5400, 2900],
+  [12600, 9100, 5800, 3200],
+  [11900, 8200, 5100, 2700],
+  [12200, 8800, 5500, 3000],
+  [12500, 9000, 5600, 3100],
+]
+
 const abFunnelVariants = computed(() => [
-  {
-    id: 'variant1',
-    label: 'Variant 1',
-    name: 'Klaviyo Popup',
-    image: '/campaigns/cart-abandonment-stopper.png',
-    traffic: variant1Traffic.value,
-    active: variant1Active.value,
-    uplift: null,
-    color: '#FF6A45',
-    steps: [
-      { id: 'mainpage', name: 'Mainpage', impressions: 728 },
-      { id: 'email', name: 'Email', impressions: 312 },
-      { id: 'phone', name: 'Phone', impressions: 128 },
-      { id: 'thank-you', name: 'Thank You page', impressions: 57 },
-    ],
-  },
-  {
-    id: 'variant2',
-    label: 'Variant 2',
-    name: 'AI Variant',
-    image: '/campaigns/cart-abandonment-stopper.png',
-    traffic: variant2Traffic.value,
-    active: variant2Active.value,
-    uplift: '+18.52%',
-    color: '#FF6A45',
-    steps: [
-      { id: 'mainpage', name: 'Mainpage', impressions: 728 },
-      { id: 'discount', name: 'Discount reveal', impressions: 474 },
-      { id: 'email', name: 'Email', impressions: 312 },
-      { id: 'thank-you', name: 'Thank You page', impressions: 68 },
-    ],
-  },
-])
+  { id: 'variant1', label: 'Variant 1', name: 'Klaviyo Popup', traffic: 50, uplift: null, color: '#FF6A45' },
+  { id: 'variant2', label: 'Variant 2', name: 'AI Variant', traffic: 50, uplift: '+18.52%', color: '#FF6A45' },
+].map((v, i) => ({
+  ...v,
+  steps: surveyPages.map((p, idx) => ({ ...p, impressions: variantImpressions[i][idx] })),
+})))
 const variantStepShare = (variant, step) => {
   const max = variant.steps[0]?.impressions || 1
   return ((step.impressions / max) * 100).toFixed(1)
 }
-const variantStepDropOff = (variant, idx) => {
-  const prev = variant.steps[idx - 1]?.impressions
-  const curr = variant.steps[idx]?.impressions
-  if (!prev) return '0.0'
-  return (((prev - curr) / prev) * 100).toFixed(1)
-}
+
 
 // A/B Test Results
 const abTestCriteria = computed(() => [

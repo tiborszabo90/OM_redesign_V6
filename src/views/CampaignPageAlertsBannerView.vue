@@ -624,36 +624,6 @@
           @navigate-to-opportunities="emit('navigate-to-opportunities')"
         >
           <template #funnel>
-            <!-- Top Optimization Opportunities -->
-            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5 min-w-0 mb-6">
-              <div class="flex items-center justify-between pr-5 pl-8 mb-4">
-                <h2 class="text-xl font-semibold text-om-gray-700">Top Optimization Opportunities</h2>
-                <button class="text-sm font-medium text-om-gray-500 hover:text-om-gray-700 transition-colors cursor-pointer" @click="emit('navigate-to-opportunities')">View all</button>
-              </div>
-              <div class="grid grid-cols-1 min-[900px]:grid-cols-2 gap-4 px-7">
-                <div
-                  v-for="opp in abTestInsights"
-                  :key="opp.id"
-                  class="flex items-start gap-4 p-4 bg-white rounded-xl border-2 border-om-gray-200 cursor-pointer transition-all hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] min-w-0"
-                  @click="emit('navigate-to-opportunity', opp.id)"
-                >
-                  <div class="w-11 h-11 rounded-lg bg-[#FFF0EB] text-[#C94B14] flex items-center justify-center shrink-0">
-                    <component :is="insightIcons[opp.id] || Sparkles" :size="22" />
-                  </div>
-                  <div class="flex-1 min-w-0 flex flex-col gap-1.5">
-                    <div class="flex items-start justify-between gap-3">
-                      <div class="text-[0.9375rem] font-semibold text-om-gray-700 leading-snug flex-1 min-w-0">{{ opp.name }}</div>
-                      <div :class="['text-[0.6875rem] font-semibold px-3 py-0.5 rounded-full whitespace-nowrap shrink-0', opp.level === 'high' ? 'bg-[#FFF0EB] text-[#C94B14]' : opp.level === 'medium' ? 'bg-[#FFF8E6] text-[#9A6400]' : 'bg-[#F1F2F4] text-[#6B7280]']">{{ opp.value }} impact</div>
-                    </div>
-                    <p v-if="opp.campaign" class="text-[0.8125rem] text-om-gray-600 leading-relaxed m-0">
-                      <strong class="text-om-gray-700 font-semibold">Campaign:</strong> {{ opp.campaign }}
-                    </p>
-                    <div class="text-[0.8125rem] text-om-gray-500 leading-snug">{{ opp.description }}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5">
               <div class="px-8 mb-1">
                 <h2 class="text-xl font-semibold text-om-gray-700">Funnel breakdown</h2>
