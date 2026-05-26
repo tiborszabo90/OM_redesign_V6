@@ -204,7 +204,7 @@
 
     <!-- Trend Chart -->
     <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] px-5 pb-5">
-      <div class="flex items-stretch border-b border-om-gray-200 mb-4">
+      <div class="flex items-stretch border-b border-om-gray-200 mb-4 overflow-x-auto">
         <button
           v-for="tab in analyticsTabs"
           :key="tab.id"
@@ -215,8 +215,13 @@
           <div class="text-xs font-medium text-om-gray-600/80 mb-2.5">{{ tab.title }}</div>
           <div class="flex items-baseline gap-2">
             <div class="text-base font-medium text-om-gray-600">{{ tab.value }}</div>
-            <div class="text-[11px] font-normal text-[#239E77] flex items-center gap-1">
-              <TrendingUp :size="12" /> {{ tab.change }}
+            <div
+              class="text-[11px] font-normal flex items-center gap-1"
+              :class="tab.isPositive === false ? 'text-[#C94B14]' : 'text-[#239E77]'"
+            >
+              <TrendingDown v-if="tab.isPositive === false" :size="12" />
+              <TrendingUp v-else :size="12" />
+              {{ tab.change }}
             </div>
           </div>
         </button>
@@ -700,12 +705,14 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 
-defineProps({
+const props = defineProps({
   hideInsights: { type: Boolean, default: false },
   hideFunnel: { type: Boolean, default: false },
+  analyticsTabs: { type: Array, default: null },
+  analyticsChartData: { type: Object, default: null },
 })
 const emit = defineEmits(['navigate-to-opportunity', 'navigate-to-opportunities'])
-import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, TrendingUp, Calendar, Users, Smartphone, X, Globe, Plus, Search, Save, Trash2, MousePointerClick, Languages, Laptop, AppWindow, MessageCircle, Filter, FlaskConical, Monitor, Clock, RotateCw, Facebook, Target, Route, Tag as TagIcon, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Truck } from 'lucide-vue-next'
+import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, TrendingUp, TrendingDown, Calendar, Users, Smartphone, X, Globe, Plus, Search, Save, Trash2, MousePointerClick, Languages, Laptop, AppWindow, MessageCircle, Filter, FlaskConical, Monitor, Clock, RotateCw, Facebook, Target, Route, Tag as TagIcon, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Truck } from 'lucide-vue-next'
 import { croInsights } from '../../data/croInsights.js'
 import VueApexCharts from 'vue3-apexcharts'
 import Button from './Button.vue'
@@ -921,25 +928,33 @@ const deleteSegment = (id) => {
 
 // Trend chart
 const analyticsTimePeriod = ref('Last 30 days')
-const analyticsMetric = ref('impressions')
-const analyticsTabs = [
-  { id: 'impressions', title: 'Impressions', value: '1,456', change: '+12.4%', isPositive: true },
-  { id: 'submits', title: 'Submits', value: '125', change: '+8.7%', isPositive: true },
-  { id: 'submitRate', title: 'Submit rate', value: '8.37%', change: '+2.1%', isPositive: true },
+const defaultAnalyticsTabs = [
+  { id: 'impressions', title: 'Impressions', value: '1,456', change: '+12.4%', isPositive: true, format: 'number' },
+  { id: 'submits', title: 'Submits', value: '125', change: '+8.7%', isPositive: true, format: 'number' },
+  { id: 'submitRate', title: 'Submit rate', value: '8.37%', change: '+2.1%', isPositive: true, format: 'percent' },
 ]
-const analyticsChartData = {
+const defaultAnalyticsChartData = {
   impressions: [42, 58, 65, 51, 72, 88, 76, 82, 95, 71, 68, 84, 90, 102, 88, 95, 110, 98, 112, 105, 118, 94, 101, 115, 122, 108, 125, 132, 119, 128],
   submits: [3, 5, 4, 6, 5, 7, 6, 5, 8, 6, 5, 7, 8, 9, 7, 8, 10, 9, 11, 8, 10, 7, 9, 11, 12, 10, 13, 14, 11, 13],
   submitRate: [7.1, 8.6, 6.2, 11.8, 6.9, 8.0, 7.9, 6.1, 8.4, 8.5, 7.4, 8.3, 8.9, 8.8, 8.0, 8.4, 9.1, 9.2, 9.8, 7.6, 8.5, 7.4, 8.9, 9.6, 9.8, 9.3, 10.4, 10.6, 9.2, 10.2],
 }
+const analyticsTabs = computed(() => props.analyticsTabs || defaultAnalyticsTabs)
+const analyticsChartData = computed(() => props.analyticsChartData || defaultAnalyticsChartData)
+const analyticsMetric = ref(analyticsTabs.value[0]?.id || 'impressions')
 const analyticsChartDates = Array.from({ length: 30 }, (_, i) => {
   const d = new Date(2026, 2, 25 - (29 - i))
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 })
 const analyticsChartSeries = computed(() => {
-  const tab = analyticsTabs.find(t => t.id === analyticsMetric.value)
-  return [{ name: tab.title, data: analyticsChartData[analyticsMetric.value] }]
+  const tab = analyticsTabs.value.find(t => t.id === analyticsMetric.value)
+  return [{ name: tab?.title || '', data: analyticsChartData.value[analyticsMetric.value] || [] }]
 })
+const formatAnalyticsValue = (v, format) => {
+  if (format === 'percent') return v.toFixed(2) + '%'
+  if (format === 'currency') return '$' + Math.round(v).toLocaleString()
+  if (format === 'currency2') return '$' + v.toFixed(2)
+  return Math.round(v).toLocaleString()
+}
 const analyticsChartOptions = computed(() => ({
   chart: { type: 'area', height: 280, toolbar: { show: false }, zoom: { enabled: false } },
   dataLabels: { enabled: false },
@@ -956,7 +971,14 @@ const analyticsChartOptions = computed(() => ({
   },
   yaxis: {
     labels: {
-      formatter: (v) => analyticsMetric.value === 'submitRate' ? v.toFixed(1) + '%' : Math.round(v).toLocaleString(),
+      formatter: (v) => {
+        const tab = analyticsTabs.value.find(t => t.id === analyticsMetric.value)
+        const fmt = tab?.format || (analyticsMetric.value === 'submitRate' ? 'percent' : 'number')
+        if (fmt === 'percent') return v.toFixed(1) + '%'
+        if (fmt === 'currency') return '$' + Math.round(v).toLocaleString()
+        if (fmt === 'currency2') return '$' + v.toFixed(2)
+        return Math.round(v).toLocaleString()
+      },
       style: { colors: '#9ba2ad', fontSize: '12px' },
     },
   },
@@ -965,13 +987,14 @@ const analyticsChartOptions = computed(() => ({
     custom: function ({ series, seriesIndex, dataPointIndex }) {
       const value = series[seriesIndex][dataPointIndex]
       const date = analyticsChartDates[dataPointIndex]
-      const tab = analyticsTabs.find(t => t.id === analyticsMetric.value)
-      const fmt = analyticsMetric.value === 'submitRate' ? value.toFixed(2) + '%' : Math.round(value).toLocaleString()
+      const tab = analyticsTabs.value.find(t => t.id === analyticsMetric.value)
+      const fmt = tab?.format || (analyticsMetric.value === 'submitRate' ? 'percent' : 'number')
+      const fmtVal = formatAnalyticsValue(value, fmt)
       return `<div style="padding: 8px 12px; background: white; border: 1px solid #e3e5e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
         <div style="color: #9ba2ad; font-weight: 400; font-size: 11px; margin-bottom: 4px;">${date}, 2026</div>
         <div style="display: flex; align-items: center; gap: 6px;">
           <span style="width: 8px; height: 8px; background: #ed5a29; border-radius: 50%; display: inline-block;"></span>
-          <span style="color: #505763; font-weight: 500;">${tab.title}: ${fmt}</span>
+          <span style="color: #505763; font-weight: 500;">${tab?.title || ''}: ${fmtVal}</span>
         </div>
       </div>`
     },

@@ -662,18 +662,20 @@
         <CampaignAnalyticsTab
           v-if="activeTab === 'Analytics'"
           :hide-insights="true"
+          :analytics-tabs="surveyAnalyticsTabs"
+          :analytics-chart-data="surveyAnalyticsChartData"
           @navigate-to-opportunity="emit('navigate-to-opportunity', $event)"
           @navigate-to-opportunities="emit('navigate-to-opportunities')"
         >
           <template #funnel>
             <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] py-5">
               <div class="px-8 mb-1">
-                <h2 class="text-xl font-semibold text-om-gray-700">Page traffic</h2>
+                <h2 class="text-xl font-semibold text-om-gray-700">Funnel breakdown</h2>
               </div>
               <div class="text-[13px] text-om-gray-500 mb-5 px-8">Impressions per page in this popup. Compared across A/B variants.</div>
 
               <div class="px-8 scroll-x-wrapper">
-                <div class="scroll-x-bar pb-3">
+                <div ref="pageTrafficScrollEl" class="scroll-x-bar pb-3" @scroll="updateScrollStates">
                   <div class="mt-4 grid grid-cols-6 gap-8 min-w-[1800px]">
                 <div v-for="variant in abFunnelVariants" :key="'col-' + variant.id" class="flex flex-col gap-2 min-w-0">
                   <!-- Variant header -->
@@ -701,6 +703,24 @@
                 </div>
                   </div>
                 </div>
+                <button
+                  v-show="pageTrafficCanScrollLeft"
+                  type="button"
+                  class="scroll-x-arrow scroll-x-arrow-left"
+                  @click="scrollChunkLeft(pageTrafficScrollEl)"
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeft :size="18" />
+                </button>
+                <button
+                  v-show="pageTrafficCanScrollRight"
+                  type="button"
+                  class="scroll-x-arrow"
+                  @click="scrollChunkRight(pageTrafficScrollEl)"
+                  aria-label="Scroll right"
+                >
+                  <ChevronRight :size="18" />
+                </button>
               </div>
 
             </div>
@@ -715,7 +735,7 @@
 
                 <!-- Comparison table -->
                 <div class="px-8 scroll-x-wrapper">
-                  <div class="scroll-x-bar pb-3">
+                  <div ref="abComparisonScrollEl" class="scroll-x-bar pb-3" @scroll="updateScrollStates">
                     <div class="min-w-[1500px]">
                     <div class="grid grid-cols-[minmax(280px,1fr)_repeat(6,_minmax(120px,1fr))] gap-6 pb-4 border-b border-om-gray-200">
                       <div class="text-[13px] text-om-gray-500 leading-relaxed">
@@ -762,6 +782,24 @@
                     </div>
                   </div>
                   </div>
+                  <button
+                    v-show="abComparisonCanScrollLeft"
+                    type="button"
+                    class="scroll-x-arrow scroll-x-arrow-left"
+                    @click="scrollChunkLeft(abComparisonScrollEl)"
+                    aria-label="Scroll left"
+                  >
+                    <ChevronLeft :size="18" />
+                  </button>
+                  <button
+                    v-show="abComparisonCanScrollRight"
+                    type="button"
+                    class="scroll-x-arrow"
+                    @click="scrollChunkRight(abComparisonScrollEl)"
+                    aria-label="Scroll right"
+                  >
+                    <ChevronRight :size="18" />
+                  </button>
                 </div>
               </div>
 
@@ -793,9 +831,9 @@
 
                 <!-- Pivoted table -->
                 <div class="px-8 overflow-x-auto">
-                  <div class="min-w-[900px]">
+                  <div class="min-w-[1050px]">
                     <!-- Header: metric columns -->
-                    <div class="grid grid-cols-[180px_repeat(6,_1fr)] gap-4 pb-3 border-b border-om-gray-200">
+                    <div class="grid grid-cols-[180px_repeat(7,_1fr)] gap-4 pb-3 border-b border-om-gray-200">
                       <div></div>
                       <div
                         v-for="metric in abTestMetrics"
@@ -808,7 +846,7 @@
                     </div>
 
                     <!-- Variant 1 (Variant 1) -->
-                    <div class="grid grid-cols-[180px_repeat(6,_1fr)] gap-4 items-center py-4 px-3 -mx-3 border-b border-[#F3F4F6] hover:bg-om-gray-50 rounded-lg transition-colors cursor-default">
+                    <div class="grid grid-cols-[180px_repeat(7,_1fr)] gap-4 items-center py-4 px-3 -mx-3 border-b border-[#F3F4F6] hover:bg-om-gray-50 rounded-lg transition-colors cursor-default">
                       <div class="flex flex-col gap-0.5">
                         <span class="text-sm font-semibold text-om-gray-700">Variant 1</span>
                         <span class="text-[11px] text-om-gray-400 tabular-nums">-</span>
@@ -824,7 +862,7 @@
                     </div>
 
                     <!-- Variant 2 (Variant 2) -->
-                    <div class="grid grid-cols-[180px_repeat(6,_1fr)] gap-4 items-center py-4 px-3 -mx-3 hover:bg-om-gray-50 rounded-lg transition-colors cursor-default">
+                    <div class="grid grid-cols-[180px_repeat(7,_1fr)] gap-4 items-center py-4 px-3 -mx-3 hover:bg-om-gray-50 rounded-lg transition-colors cursor-default">
                       <div class="flex flex-col gap-0.5">
                         <span class="text-sm font-semibold text-om-gray-700">Variant 2</span>
                         <span class="text-[11px] text-om-gray-400"><span class="text-[#239E77] font-semibold tabular-nums">{{ abTestProbB }}%</span> chance to win</span>
@@ -867,7 +905,7 @@
                 </div>
 
                 <!-- Metric cards grid -->
-                <div class="grid grid-cols-6 gap-3 px-8">
+                <div class="grid grid-cols-7 gap-3 px-8">
                   <div
                     v-for="metric in abTestBarMetrics"
                     :key="'bar-' + metric.id"
@@ -1577,7 +1615,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { ChevronDown, ChevronRight, TrendingUp, TrendingDown, AlertTriangle, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Ban, Hourglass, MessageCircle, MousePointerClick, Filter, RotateCw, Facebook, Route, Tag as TagIcon, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Truck } from 'lucide-vue-next'
+import { ChevronDown, ChevronLeft, ChevronRight, TrendingUp, TrendingDown, AlertTriangle, Calendar, Target, MoreVertical, GraduationCap, Clock, RefreshCw, Users, Send, Monitor, Smartphone, X, ChevronsUp, ChevronsDown, Minus, Check, Globe, Plus, FlaskConical, Mail, Search, ArrowUpDown, Columns3, LogOut, Timer, Zap, Ban, Hourglass, MessageCircle, MousePointerClick, Filter, RotateCw, Facebook, Route, Tag as TagIcon, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, BarChart3, ShieldCheck, Truck } from 'lucide-vue-next'
 import VueApexCharts from 'vue3-apexcharts'
 import { croInsights } from '../data/croInsights.js'
 import Button from '../components/shared/Button.vue'
@@ -1625,34 +1663,107 @@ const chatAiResponses = {
 
 const activeTab = ref('Overview')
 
-// A/B funnel breakdown — 5 variants × 10 survey pages mock data
-const surveyPages = [
-  { id: 'mainpage', name: 'Mainpage' },
-  { id: 'email', name: 'Email' },
-  { id: 'sms', name: 'SMS' },
-  { id: 'thank-you', name: 'Thank you' },
-]
+// Horizontal scroll arrows for Funnel breakdown and A/B Test Results blocks
+const pageTrafficScrollEl = ref(null)
+const pageTrafficCanScrollRight = ref(false)
+const pageTrafficCanScrollLeft = ref(false)
+const abComparisonScrollEl = ref(null)
+const abComparisonCanScrollRight = ref(false)
+const abComparisonCanScrollLeft = ref(false)
 
-const variantImpressions = [
-  [12400, 8600, 5400, 2900],
-  [12600, 9100, 5800, 3200],
-  [11900, 8200, 5100, 2700],
-  [12200, 8800, 5500, 3000],
-  [12500, 9000, 5600, 3100],
-  [12100, 8500, 5300, 2800],
-]
+function checkRight(el) {
+  if (!el) return false
+  return el.scrollWidth - el.clientWidth - el.scrollLeft > 4
+}
+function checkLeft(el) {
+  if (!el) return false
+  return el.scrollLeft > 4
+}
+function updateScrollStates() {
+  pageTrafficCanScrollRight.value = checkRight(pageTrafficScrollEl.value)
+  pageTrafficCanScrollLeft.value = checkLeft(pageTrafficScrollEl.value)
+  abComparisonCanScrollRight.value = checkRight(abComparisonScrollEl.value)
+  abComparisonCanScrollLeft.value = checkLeft(abComparisonScrollEl.value)
+}
+function scrollChunkRight(el) {
+  if (!el) return
+  el.scrollBy({ left: el.clientWidth * 0.7, behavior: 'smooth' })
+}
+function scrollChunkLeft(el) {
+  if (!el) return
+  el.scrollBy({ left: -el.clientWidth * 0.7, behavior: 'smooth' })
+}
+watch(activeTab, () => {
+  nextTick(updateScrollStates)
+})
 
+// A/B funnel breakdown — board game survey campaign mock data
+// Variants have different survey lengths (3 to 8 pages) to reflect branching/short flows.
 const abFunnelVariants = computed(() => [
-  { id: 'variant1', label: 'Variant 1', name: 'Variant 1', traffic: 16.67, uplift: null, color: '#FF6A45' },
-  { id: 'variant2', label: 'Variant 2', name: 'Variant 2', traffic: 16.67, uplift: '+18.52%', color: '#FF6A45' },
-  { id: 'variant3', label: 'Variant 3', name: 'Variant 3', traffic: 16.67, uplift: '+12.10%', color: '#FF6A45' },
-  { id: 'variant4', label: 'Variant 4', name: 'Variant 4', traffic: 16.67, uplift: '+8.40%', color: '#FF6A45' },
-  { id: 'variant5', label: 'Variant 5', name: 'Variant 5', traffic: 16.66, uplift: '+5.20%', color: '#FF6A45' },
-  { id: 'variant6', label: 'Variant 6', name: 'Variant 6', traffic: 16.66, uplift: '+3.10%', color: '#FF6A45' },
-].map((v, i) => ({
-  ...v,
-  steps: surveyPages.map((p, idx) => ({ ...p, impressions: variantImpressions[i][idx] })),
-})))
+  {
+    id: 'variant1', label: 'Variant 1', name: 'Variant 1 (short)', traffic: 16.67, uplift: null, color: '#FF6A45',
+    steps: [
+      { id: 'intro', name: 'Welcome', impressions: 12384 },
+      { id: 'genre', name: 'Favorite game genre?', impressions: 8147 },
+      { id: 'discount', name: 'Get your discount', impressions: 4762 },
+    ],
+  },
+  {
+    id: 'variant2', label: 'Variant 2', name: 'Variant 2 (short)', traffic: 16.67, uplift: '+18.52%', color: '#FF6A45',
+    steps: [
+      { id: 'intro', name: 'Welcome', impressions: 12613 },
+      { id: 'players', name: 'Players in your group?', impressions: 7853 },
+      { id: 'email', name: 'Email + discount', impressions: 4521 },
+    ],
+  },
+  {
+    id: 'variant3', label: 'Variant 3', name: 'Variant 3 (branching)', traffic: 16.67, uplift: '+12.10%', color: '#FF6A45',
+    steps: [
+      { id: 'intro', name: 'Welcome', impressions: 12174 },
+      { id: 'genre', name: 'Favorite game genre?', impressions: 8823 },
+      { id: 'players', name: 'Players in your group?', impressions: 5476 },
+      { id: 'length', name: 'Preferred game length?', impressions: 3548 },
+      { id: 'budget', name: 'Budget per game?', impressions: 4827 },
+      { id: 'channel', name: 'Where do you buy?', impressions: 3579 },
+      { id: 'email', name: 'Email signup', impressions: 3127 },
+      { id: 'recommendations', name: 'Recommendations + discount', impressions: 1842 },
+    ],
+  },
+  {
+    id: 'variant4', label: 'Variant 4', name: 'Variant 4', traffic: 16.67, uplift: '+8.40%', color: '#FF6A45',
+    steps: [
+      { id: 'intro', name: 'Welcome', impressions: 12476 },
+      { id: 'genre', name: 'Favorite game genre?', impressions: 9034 },
+      { id: 'players', name: 'Players in your group?', impressions: 6112 },
+      { id: 'budget', name: 'Budget per game?', impressions: 3784 },
+      { id: 'email', name: 'Email + discount', impressions: 2237 },
+    ],
+  },
+  {
+    id: 'variant5', label: 'Variant 5', name: 'Variant 5 (deep dive)', traffic: 16.66, uplift: '+5.20%', color: '#FF6A45',
+    steps: [
+      { id: 'intro', name: 'Welcome', impressions: 11876 },
+      { id: 'frequency', name: 'How often do you play?', impressions: 8425 },
+      { id: 'genre', name: 'Favorite game genre?', impressions: 5763 },
+      { id: 'experience', name: 'Experience level?', impressions: 3712 },
+      { id: 'length', name: 'Preferred game length?', impressions: 2419 },
+      { id: 'email', name: 'Get recommendations', impressions: 1534 },
+    ],
+  },
+  {
+    id: 'variant6', label: 'Variant 6', name: 'Variant 6 (branching)', traffic: 16.66, uplift: '+3.10%', color: '#FF6A45',
+    steps: [
+      { id: 'intro', name: 'Welcome', impressions: 12087 },
+      { id: 'frequency', name: 'How often do you play?', impressions: 8542 },
+      { id: 'genre', name: 'Favorite game genre?', impressions: 5318 },
+      { id: 'complexity', name: 'Strategy complexity?', impressions: 3421 },
+      { id: 'players', name: 'Players in your group?', impressions: 2284 },
+      { id: 'budget', name: 'Budget per game?', impressions: 1473 },
+      { id: 'channel', name: 'Where do you buy?', impressions: 984 },
+      { id: 'email', name: 'Recommendations + email', impressions: 712 },
+    ],
+  },
+])
 const variantStepShare = (variant, step) => {
   const max = variant.steps[0]?.impressions || 1
   return ((step.impressions / max) * 100).toFixed(1)
@@ -1696,6 +1807,10 @@ const abTestResultVariants = [
   { id: 'v6', name: 'Variant 6', chanceToWin: 42.1 },
 ]
 const abTestMetrics = [
+  { id: 'submits', label: 'Submits', isTestGoal: false, format: 'number',
+    values: [638, 761, 694, 650, 605, 582],
+    deltas: [null, 19.3, 8.8, 1.8, -5.2, -8.8],
+    valueA: 638, valueB: 761, delta: 19.3 },
   { id: 'submit-rate', label: 'Submit rate', isTestGoal: true, format: 'percent',
     values: [7.83, 9.34, 8.52, 7.97, 7.42, 7.14],
     deltas: [null, 19.3, 8.8, 1.8, -5.2, -8.8],
@@ -1721,13 +1836,35 @@ const abTestMetrics = [
     deltas: [null, 25.6, 12.8, 5.6, -3.1, -7.7],
     valueA: 1.95, valueB: 2.45, delta: 25.6 },
 ]
+
+// Top-of-page trend chart: tabs match A/B Test Results rows + Impressions
+const surveyAnalyticsTabs = [
+  { id: 'impressions', title: 'Impressions', value: '8,146', change: '+12.4%', isPositive: true, format: 'number' },
+  { id: 'submits', title: 'Submits', value: '638', change: '+8.7%', isPositive: true, format: 'number' },
+  { id: 'submit-rate', title: 'Submit rate', value: '7.83%', change: '+2.1%', isPositive: true, format: 'percent' },
+  { id: 'email-captures', title: 'Email captures', value: '50', change: '+15.0%', isPositive: true, format: 'number' },
+  { id: 'phone-captures', title: 'Phone captures', value: '22', change: '-4.3%', isPositive: false, format: 'number' },
+  { id: 'coupon-redeem', title: 'Coupon redemptions', value: '32', change: '+10.3%', isPositive: true, format: 'number' },
+  { id: 'revenue', title: 'Revenue', value: '$1,420', change: '+22.0%', isPositive: true, format: 'currency' },
+  { id: 'rev-per-visitor', title: 'Revenue per visitor', value: '$1.95', change: '+8.2%', isPositive: true, format: 'currency2' },
+]
+const surveyAnalyticsChartData = {
+  impressions: [210, 245, 268, 232, 280, 305, 290, 312, 335, 268, 254, 295, 310, 348, 318, 332, 365, 340, 372, 354, 388, 320, 338, 372, 396, 360, 405, 420, 388, 412],
+  submits: [16, 19, 21, 18, 22, 24, 23, 24, 27, 21, 20, 23, 25, 28, 25, 26, 29, 27, 30, 28, 31, 25, 27, 30, 32, 29, 33, 35, 31, 33],
+  'submit-rate': [7.1, 8.6, 6.2, 7.8, 6.9, 8.0, 7.9, 6.1, 8.4, 8.5, 7.4, 8.3, 8.9, 8.8, 8.0, 8.4, 7.7, 7.9, 8.5, 7.6, 8.5, 7.4, 8.0, 8.3, 8.1, 8.4, 8.6, 8.7, 8.2, 8.5],
+  'email-captures': [1, 2, 2, 1, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2],
+  'phone-captures': [1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
+  'coupon-redeem': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1],
+  revenue: [38, 46, 48, 41, 52, 58, 54, 49, 60, 47, 44, 52, 55, 64, 58, 54, 62, 58, 65, 60, 66, 52, 58, 64, 70, 60, 68, 72, 66, 70],
+  'rev-per-visitor': [1.81, 1.88, 1.79, 1.77, 1.86, 1.90, 1.86, 1.57, 1.79, 1.75, 1.73, 1.76, 1.77, 1.84, 1.82, 1.63, 1.70, 1.71, 1.75, 1.69, 1.70, 1.63, 1.72, 1.72, 1.77, 1.67, 1.68, 1.71, 1.70, 1.70],
+}
 const formatMetricValue = (val, format) => {
   if (format === 'percent') return val.toFixed(2) + '%'
   if (format === 'currency') return '$' + val.toLocaleString()
   if (format === 'currency2') return '$' + val.toFixed(2)
   return val.toLocaleString()
 }
-const abTestBarMetricIds = ['submit-rate', 'phone-captures', 'email-captures', 'coupon-redeem', 'revenue', 'rev-per-visitor']
+const abTestBarMetricIds = ['submits', 'submit-rate', 'phone-captures', 'email-captures', 'coupon-redeem', 'revenue', 'rev-per-visitor']
 const abTestBarMetrics = abTestMetrics.filter(m => abTestBarMetricIds.includes(m.id))
 const barHeightPx = (metric, value) => {
   const max = Math.max(metric.valueA, metric.valueB)
@@ -1863,10 +2000,13 @@ watch(activeTab, (newTab) => { updateHashForTab(newTab) })
 onMounted(() => {
   activeTab.value = getTabFromHash()
   window.addEventListener('hashchange', handleTabHashChange)
+  window.addEventListener('resize', updateScrollStates)
+  nextTick(updateScrollStates)
 })
 
 onUnmounted(() => {
   window.removeEventListener('hashchange', handleTabHashChange)
+  window.removeEventListener('resize', updateScrollStates)
 })
 
 // Variant active states
@@ -2233,6 +2373,9 @@ const handleDelete = () => {
 
 <style scoped>
 /* Horizontal scroll containers — scrollbar reveals only on hover, right edge fades via mask */
+.scroll-x-wrapper {
+  position: relative;
+}
 .scroll-x-bar {
   overflow-x: auto;
   scroll-behavior: smooth;
@@ -2241,6 +2384,37 @@ const handleDelete = () => {
   transition: scrollbar-color 0.2s ease;
   mask-image: linear-gradient(to right, black 92%, transparent 100%);
   -webkit-mask-image: linear-gradient(to right, black 92%, transparent 100%);
+}
+.scroll-x-arrow {
+  position: absolute;
+  right: -18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: var(--color-om-gray-600, #505763);
+  border: 1px solid var(--color-om-gray-200, #e3e5e8);
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  z-index: 2;
+}
+.scroll-x-arrow:hover {
+  background: var(--color-om-gray-50, #f8f9fa);
+  transform: translateY(-50%) translateX(2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+.scroll-x-arrow-left {
+  right: auto;
+  left: -18px;
+}
+.scroll-x-arrow-left:hover {
+  transform: translateY(-50%) translateX(-2px);
 }
 .scroll-x-bar::-webkit-scrollbar {
   height: 8px;
