@@ -40,7 +40,7 @@
                 @click="heartbeatOpen = !heartbeatOpen"
               >
                 <span class="relative flex h-2.5 w-2.5">
-                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#E4252D]"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-om-yellow-400"></span>
                 </span>
                 <span class="text-sm font-medium text-om-gray-600 whitespace-nowrap group-hover:text-om-gray-700 transition-colors">
                   No signal in 24h
@@ -64,8 +64,8 @@
                   </div>
 
                   <div class="px-6 py-10 text-center">
-                    <div class="w-12 h-12 mx-auto rounded-full bg-red-50 flex items-center justify-center mb-3">
-                      <AlertCircle :size="22" class="text-[#E4252D]" />
+                    <div class="w-12 h-12 mx-auto rounded-full bg-om-yellow-50 flex items-center justify-center mb-3">
+                      <AlertCircle :size="22" class="text-om-yellow-400" />
                     </div>
                     <h3 class="text-base font-semibold text-om-gray-700 mb-1">No signal received in the last 24 hours</h3>
                     <p class="text-sm text-om-gray-500 leading-relaxed max-w-sm mx-auto mb-5">

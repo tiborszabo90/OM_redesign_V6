@@ -325,7 +325,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted, markRaw } from 'vue'
-import { UserPlus, Signpost, X, LayoutTemplate, Plug, Star, Check, Monitor, Smartphone, Tablet, TrendingUp, TrendingDown } from 'lucide-vue-next'
+import { UserPlus, Signpost, X, Check, Monitor, Smartphone, Tablet, TrendingUp, TrendingDown } from 'lucide-vue-next'
 import VueApexCharts from 'vue3-apexcharts'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Accordion from '../components/shared/Accordion.vue'
@@ -407,10 +407,10 @@ const homeCampaigns = reactive([
     selected: false,
     lastUpdated: '14 days ago',
     metrics: [
-      { label: 'Impressions', value: '142' },
-      { label: 'Submits', value: '8' },
-      { label: 'Submit rate', value: '5.63%' },
-      { label: 'Conversion uplift', value: '12.4%', trend: true },
+      { label: 'Impressions', value: '0' },
+      { label: 'Submits', value: '0' },
+      { label: 'Submit rate', value: '0%' },
+      { label: 'Conversion uplift', value: '0%', trend: true },
     ],
   },
 ])
@@ -483,17 +483,17 @@ onUnmounted(() => {
 const performanceActiveTab = ref('impressions')
 
 const performanceTabs = [
-  { id: 'impressions', title: 'Impressions', value: '21,034', change: '-6%', isPositive: false },
-  { id: 'conversion-rate', title: 'Conversion rate', value: '3.58%', change: '+1%', isPositive: true },
-  { id: 'conversions', title: 'Conversions', value: '753', change: '-5%', isPositive: false },
+  { id: 'impressions', title: 'Impressions', value: '0', change: '0%', isPositive: false },
+  { id: 'conversion-rate', title: 'Conversion rate', value: '0%', change: '0%', isPositive: false },
+  { id: 'conversions', title: 'Conversions', value: '0', change: '0%', isPositive: false },
 ]
 
 const performanceDates = ['May 07, 26', 'May 08, 26', 'May 09, 26', 'May 10, 26', 'May 11, 26', 'May 12, 26']
 
 const performanceData = {
-  impressions: [2980, 3380, 3300, 3120, 3720, 1520],
-  'conversion-rate': [3.20, 3.55, 3.62, 3.45, 3.80, 3.10],
-  conversions: [122, 145, 138, 128, 168, 52],
+  impressions: [0, 0, 0, 0, 0, 0],
+  'conversion-rate': [0, 0, 0, 0, 0, 0],
+  conversions: [0, 0, 0, 0, 0, 0],
 }
 
 const performanceConfig = {
