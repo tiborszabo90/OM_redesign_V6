@@ -153,7 +153,9 @@ const componentKey = computed(() => {
 const settingsInitialSection = computed(() => {
   if (currentView.value === 'settings-ai-texts-images-v2-feedbacks-modal') return 'products-ai-texts-images-v2-feedbacks-modal'
   if (currentView.value === 'settings-ai-texts-images-v2-feedbacks') return 'products-ai-texts-images-v2-feedbacks'
+  if (currentView.value === 'settings-ai-texts-images-v2-next-product-ai-input') return 'products-ai-texts-images-v2-next-product-ai-input'
   if (currentView.value === 'settings-ai-texts-images-v2-next-product') return 'products-ai-texts-images-v2-next-product'
+  if (currentView.value === 'settings-ai-texts-images-v2-ai-input') return 'products-ai-texts-images-v2-ai-input'
   if (currentView.value?.startsWith('settings-ai-texts-images-v2')) return 'products-ai-texts-images-v2'
   if (currentView.value?.startsWith('settings-ai-texts-images-v1')) return 'products-ai-texts-images-v1'
   return 'personal-details'
@@ -304,6 +306,18 @@ const activeProps = computed(() => {
     return {
       initialSection: settingsInitialSection.value,
       initialScreen: 'generation',
+    }
+  }
+  if (id === 'settings-ai-texts-images-v2-next-product-ai-input') {
+    return {
+      initialSection: settingsInitialSection.value,
+      initialScreen: 'generation',
+    }
+  }
+  if (id === 'settings-ai-texts-images-v2-ai-input') {
+    return {
+      initialSection: settingsInitialSection.value,
+      initialScreen: 'image-preview',
     }
   }
   if (id.startsWith('settings-ai')) {

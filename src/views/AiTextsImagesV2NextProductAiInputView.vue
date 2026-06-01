@@ -696,59 +696,155 @@
             </div>
           </div>
           <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5">
-            <div class="flex items-center justify-between mb-4">
-              <p class="text-sm text-om-gray-500">Edit the prompt to customize the generation output. Save it as a new variable, or overwrite the already generated images with the updated settings.</p>
-            </div>
-            <textarea
-              v-model="promptText"
-              rows="3"
-              class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
-            />
-            <div class="flex justify-end mt-2">
-              <Button v-if="!showAdvanced" variant="ghost" size="sm" @click="showAdvanced = true">
-                Advanced Settings <ChevronDown :size="14" />
-              </Button>
+            <div class="flex items-center gap-1 border-b border-om-gray-100 mb-4 -mt-1">
+              <button
+                type="button"
+                class="px-3 py-2 text-sm font-medium transition-colors cursor-pointer flex items-center gap-1.5 border-b-2 -mb-px"
+                :class="promptTab === 'ai-input' ? 'text-om-orange-500 border-om-orange-500' : 'text-om-gray-500 hover:text-om-gray-700 border-transparent'"
+                @click="promptTab = 'ai-input'"
+              >
+                <Sparkles :size="14" />
+                AI Input
+              </button>
+              <button
+                type="button"
+                class="px-3 py-2 text-sm font-medium transition-colors cursor-pointer flex items-center gap-1.5 border-b-2 -mb-px"
+                :class="promptTab === 'editor' ? 'text-om-orange-500 border-om-orange-500' : 'text-om-gray-500 hover:text-om-gray-700 border-transparent'"
+                @click="promptTab = 'editor'"
+              >
+                <Pencil :size="14" />
+                Prompt Editor
+              </button>
             </div>
 
-            <!-- Advanced Settings panel -->
-            <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-3">
-              <div class="grid grid-cols-2 gap-3 items-stretch">
-                <div class="bg-om-gray-50 rounded-xl px-4 py-3 min-w-0 flex items-end gap-3">
-                  <div class="flex flex-col gap-1 flex-1 min-w-0">
-                    <p class="text-xs text-om-gray-500">Model</p>
-                    <Dropdown v-model="promptModel" :options="modelOptions" size="sm" />
+            <!-- AI Input tab -->
+            <div v-if="promptTab === 'ai-input'">
+              <div ref="aiMessagesRef" class="flex flex-col gap-3 max-h-[320px] overflow-y-auto pr-1 mb-3">
+                <template v-for="(msg, i) in aiMessages" :key="i">
+                  <div v-if="msg.role === 'ai'" class="flex items-start gap-2.5">
+                    <div class="w-7 h-7 rounded-full bg-om-orange-100 flex items-center justify-center shrink-0">
+                      <Sparkles :size="14" class="text-om-orange-500" />
+                    </div>
+                    <div class="flex flex-col gap-2 min-w-0 max-w-[85%]">
+                      <div class="bg-om-gray-50 rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-sm text-om-gray-700 leading-relaxed">{{ msg.text }}</div>
+                      <div v-if="msg.suggestedPrompt" class="border border-om-orange-200 bg-om-orange-50/40 rounded-xl p-3 flex flex-col gap-2">
+                        <p class="text-[11px] font-semibold uppercase tracking-wider text-om-orange-500">Suggested prompt</p>
+                        <p class="text-sm text-om-gray-700 leading-relaxed">{{ msg.suggestedPrompt }}</p>
+                        <div class="flex items-center gap-2 mt-0.5">
+                          <Button v-if="!msg.applied" variant="primary" size="sm" @click="applySuggestedPrompt(msg)">
+                            <template #icon><Check :size="14" /></template>
+                            Apply to prompt
+                          </Button>
+                          <span v-else class="inline-flex items-center gap-1.5 text-xs font-medium text-[#2CC896]">
+                            <Check :size="14" />
+                            Applied
+                          </span>
+                        </div>
+                      </div>
+                      <div v-if="msg.replies" class="flex flex-wrap gap-1.5">
+                        <button
+                          v-for="reply in msg.replies"
+                          :key="reply"
+                          type="button"
+                          class="text-xs px-2.5 py-1.5 rounded-full border border-om-gray-200 text-om-gray-600 hover:bg-om-gray-50 hover:border-om-gray-300 cursor-pointer transition-colors"
+                          @click="sendAiMessage(reply)"
+                        >{{ reply }}</button>
+                      </div>
+                    </div>
                   </div>
-                  <div class="flex flex-col gap-1 flex-1 min-w-0">
-                    <p class="text-xs text-om-gray-500">Ratio</p>
-                    <Dropdown v-model="promptRatio" :options="ratioOptions" size="sm" />
+                  <div v-else class="flex items-start gap-2.5 justify-end">
+                    <div class="bg-om-orange-500 text-white rounded-2xl rounded-tr-sm px-3.5 py-2.5 text-sm max-w-[85%] leading-relaxed">{{ msg.text }}</div>
+                  </div>
+                </template>
+                <div v-if="aiTyping" class="flex items-start gap-2.5">
+                  <div class="w-7 h-7 rounded-full bg-om-orange-100 flex items-center justify-center shrink-0">
+                    <Sparkles :size="14" class="text-om-orange-500" />
+                  </div>
+                  <div class="bg-om-gray-50 rounded-2xl rounded-tl-sm px-3.5 py-3">
+                    <div class="flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-om-gray-400 animate-pulse" />
+                      <span class="w-1.5 h-1.5 rounded-full bg-om-gray-400 animate-pulse" style="animation-delay: 0.15s" />
+                      <span class="w-1.5 h-1.5 rounded-full bg-om-gray-400 animate-pulse" style="animation-delay: 0.3s" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 border border-om-gray-200 rounded-xl pl-3 pr-1.5 py-1.5 focus-within:border-om-orange-300 focus-within:shadow-[0_0_0_2px_#FBD9CE] transition-all">
+                <input
+                  v-model="aiDraft"
+                  type="text"
+                  placeholder="Ask the AI to refine the prompt..."
+                  class="flex-1 text-sm text-om-gray-700 placeholder-om-gray-400 outline-none bg-transparent py-1"
+                  @keydown.enter.prevent="sendAiMessage(aiDraft)"
+                />
+                <button
+                  type="button"
+                  class="w-8 h-8 rounded-lg bg-om-orange-500 text-white flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-om-orange-600 transition-colors"
+                  :disabled="!aiDraft.trim() || aiTyping"
+                  @click="sendAiMessage(aiDraft)"
+                >
+                  <Send :size="14" />
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Prompt Editor tab -->
+            <div v-else>
+              <p class="text-sm text-om-gray-500 mb-4">Edit the prompt to customize the generation output. Save it as a new variable, or overwrite the already generated images with the updated settings.</p>
+              <textarea
+                v-model="promptText"
+                rows="3"
+                class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
+              />
+
+              <div class="flex justify-end mt-2">
+                <Button v-if="!showAdvanced" variant="ghost" size="sm" @click="showAdvanced = true">
+                  Advanced Settings <ChevronDown :size="14" />
+                </Button>
+              </div>
+
+              <!-- Advanced Settings panel -->
+              <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-3">
+                <div class="grid grid-cols-2 gap-3 items-stretch">
+                  <div class="bg-om-gray-50 rounded-xl px-4 py-3 min-w-0 flex items-end gap-3">
+                    <div class="flex flex-col gap-1 flex-1 min-w-0">
+                      <p class="text-xs text-om-gray-500">Model</p>
+                      <Dropdown v-model="promptModel" :options="modelOptions" size="sm" />
+                    </div>
+                    <div class="flex flex-col gap-1 flex-1 min-w-0">
+                      <p class="text-xs text-om-gray-500">Ratio</p>
+                      <Dropdown v-model="promptRatio" :options="ratioOptions" size="sm" />
+                    </div>
+                  </div>
+                  <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                    <p class="text-xs text-om-gray-500">Usage location</p>
+                    <div class="grid grid-cols-2 mt-0.5">
+                      <RadioButton v-model="pageType" value="product" label="Product page" />
+                      <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
+                    </div>
                   </div>
                 </div>
                 <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
-                  <p class="text-xs text-om-gray-500">Usage location</p>
-                  <div class="grid grid-cols-2 mt-0.5">
-                    <RadioButton v-model="pageType" value="product" label="Product page" />
-                    <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
+                  <p class="text-xs text-om-gray-500">Available data sources</p>
+                  <div class="flex flex-wrap gap-1.5">
+                    <Tag v-for="src in dataSources" :key="src" variant="orange">{{ src }}</Tag>
                   </div>
                 </div>
-              </div>
-              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
-                <p class="text-xs text-om-gray-500">Available data sources</p>
-                <div class="flex flex-wrap gap-1.5">
-                  <Tag v-for="src in dataSources" :key="src" variant="orange">{{ src }}</Tag>
+                <div class="grid grid-cols-2 gap-3 items-stretch">
+                  <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                    <span class="text-xs text-om-gray-500">Auto-generate prompt variables for products with missing data</span>
+                    <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
+                  </div>
+                  <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                    <span class="text-xs text-om-gray-500">Minimum description length (character)</span>
+                    <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white shrink-0" />
+                  </div>
                 </div>
-              </div>
-              <div class="grid grid-cols-2 gap-3 items-stretch">
-                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
-                  <span class="text-xs text-om-gray-500">Auto-generate prompt variables for products with missing data</span>
-                  <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
+                <div class="flex justify-end">
+                  <Button variant="ghost" size="sm" @click="showAdvanced = false">Basic Settings <ChevronUp :size="14" /></Button>
                 </div>
-                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
-                  <span class="text-xs text-om-gray-500">Minimum description length (character)</span>
-                  <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white shrink-0" />
-                </div>
-              </div>
-              <div class="flex justify-end">
-                <Button variant="ghost" size="sm" @click="showAdvanced = false">Basic Settings <ChevronUp :size="14" /></Button>
               </div>
             </div>
           </div>
@@ -871,15 +967,109 @@
                   </div>
                 </div>
 
-                <!-- Right 2/3: Prompt Editor -->
-                <div class="col-span-2 flex flex-col">
-                  <h3 class="text-sm font-semibold text-om-gray-700 mb-2">Prompt Editor</h3>
-                  <textarea
-                    v-model="promptText"
-                    rows="6"
-                    class="w-full flex-1 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
-                  />
-                  <p class="text-xs text-om-gray-400 mt-2">Edit the prompt above to customize the generation. Changes will require regenerating the preview.</p>
+                <!-- Right 2/3: Prompt Editor (tabbed) -->
+                <div class="col-span-2 flex flex-col min-w-0">
+                  <div class="flex items-center gap-1 border-b border-om-gray-100 mb-3">
+                    <button
+                      type="button"
+                      class="px-3 py-2 text-sm font-medium transition-colors cursor-pointer flex items-center gap-1.5 border-b-2 -mb-px"
+                      :class="promptTab === 'ai-input' ? 'text-om-orange-500 border-om-orange-500' : 'text-om-gray-500 hover:text-om-gray-700 border-transparent'"
+                      @click="promptTab = 'ai-input'"
+                    >
+                      <Sparkles :size="14" />
+                      AI Input
+                    </button>
+                    <button
+                      type="button"
+                      class="px-3 py-2 text-sm font-medium transition-colors cursor-pointer flex items-center gap-1.5 border-b-2 -mb-px"
+                      :class="promptTab === 'editor' ? 'text-om-orange-500 border-om-orange-500' : 'text-om-gray-500 hover:text-om-gray-700 border-transparent'"
+                      @click="promptTab = 'editor'"
+                    >
+                      <Pencil :size="14" />
+                      Prompt Editor
+                    </button>
+                  </div>
+
+                  <div v-if="promptTab === 'ai-input'" class="flex flex-col flex-1 min-h-0">
+                    <div ref="aiMessagesRef" class="flex flex-col gap-3 flex-1 overflow-y-auto pr-1 mb-3 min-h-0">
+                      <template v-for="(msg, i) in aiMessages" :key="i">
+                        <div v-if="msg.role === 'ai'" class="flex items-start gap-2.5">
+                          <div class="w-7 h-7 rounded-full bg-om-orange-100 flex items-center justify-center shrink-0">
+                            <Sparkles :size="14" class="text-om-orange-500" />
+                          </div>
+                          <div class="flex flex-col gap-2 min-w-0 max-w-[85%]">
+                            <div class="bg-om-gray-50 rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-sm text-om-gray-700 leading-relaxed">{{ msg.text }}</div>
+                            <div v-if="msg.suggestedPrompt" class="border border-om-orange-200 bg-om-orange-50/40 rounded-xl p-3 flex flex-col gap-2">
+                              <p class="text-[11px] font-semibold uppercase tracking-wider text-om-orange-500">Suggested prompt</p>
+                              <p class="text-sm text-om-gray-700 leading-relaxed">{{ msg.suggestedPrompt }}</p>
+                              <div class="flex items-center gap-2 mt-0.5">
+                                <Button v-if="!msg.applied" variant="primary" size="sm" @click="applySuggestedPrompt(msg)">
+                                  <template #icon><Check :size="14" /></template>
+                                  Apply to prompt
+                                </Button>
+                                <span v-else class="inline-flex items-center gap-1.5 text-xs font-medium text-[#2CC896]">
+                                  <Check :size="14" />
+                                  Applied
+                                </span>
+                              </div>
+                            </div>
+                            <div v-if="msg.replies" class="flex flex-wrap gap-1.5">
+                              <button
+                                v-for="reply in msg.replies"
+                                :key="reply"
+                                type="button"
+                                class="text-xs px-2.5 py-1.5 rounded-full border border-om-gray-200 text-om-gray-600 hover:bg-om-gray-50 hover:border-om-gray-300 cursor-pointer transition-colors"
+                                @click="sendAiMessage(reply)"
+                              >{{ reply }}</button>
+                            </div>
+                          </div>
+                        </div>
+                        <div v-else class="flex items-start gap-2.5 justify-end">
+                          <div class="bg-om-orange-500 text-white rounded-2xl rounded-tr-sm px-3.5 py-2.5 text-sm max-w-[85%] leading-relaxed">{{ msg.text }}</div>
+                        </div>
+                      </template>
+                      <div v-if="aiTyping" class="flex items-start gap-2.5">
+                        <div class="w-7 h-7 rounded-full bg-om-orange-100 flex items-center justify-center shrink-0">
+                          <Sparkles :size="14" class="text-om-orange-500" />
+                        </div>
+                        <div class="bg-om-gray-50 rounded-2xl rounded-tl-sm px-3.5 py-3">
+                          <div class="flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-om-gray-400 animate-pulse" />
+                            <span class="w-1.5 h-1.5 rounded-full bg-om-gray-400 animate-pulse" style="animation-delay: 0.15s" />
+                            <span class="w-1.5 h-1.5 rounded-full bg-om-gray-400 animate-pulse" style="animation-delay: 0.3s" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 border border-om-gray-200 rounded-xl pl-3 pr-1.5 py-1.5 focus-within:border-om-orange-300 focus-within:shadow-[0_0_0_2px_#FBD9CE] transition-all">
+                      <input
+                        v-model="aiDraft"
+                        type="text"
+                        placeholder="Ask the AI to refine the prompt..."
+                        class="flex-1 text-sm text-om-gray-700 placeholder-om-gray-400 outline-none bg-transparent py-1"
+                        @keydown.enter.prevent="sendAiMessage(aiDraft)"
+                      />
+                      <button
+                        type="button"
+                        class="w-8 h-8 rounded-lg bg-om-orange-500 text-white flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-om-orange-600 transition-colors"
+                        :disabled="!aiDraft.trim() || aiTyping"
+                        @click="sendAiMessage(aiDraft)"
+                      >
+                        <Send :size="14" />
+                      </button>
+                    </div>
+
+                  </div>
+
+                  <div v-else class="flex flex-col flex-1 min-h-0">
+                    <textarea
+                      v-model="promptText"
+                      rows="6"
+                      class="w-full flex-1 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
+                    />
+                    <p class="text-xs text-om-gray-400 mt-2">Edit the prompt above to customize the generation. Changes will require regenerating the preview.</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -950,17 +1140,113 @@
               </div>
             </div>
 
-            <!-- Prompt Editor -->
+            <!-- Prompt Editor (tabbed) -->
             <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-semibold text-om-gray-700">Prompt Editor</h3>
+              <div class="flex items-center gap-1 border-b border-om-gray-100 mb-4 -mt-1">
+                <button
+                  type="button"
+                  class="px-3 py-2 text-sm font-medium transition-colors cursor-pointer flex items-center gap-1.5 border-b-2 -mb-px"
+                  :class="promptTab === 'ai-input' ? 'text-om-orange-500 border-om-orange-500' : 'text-om-gray-500 hover:text-om-gray-700 border-transparent'"
+                  @click="promptTab = 'ai-input'"
+                >
+                  <Sparkles :size="14" />
+                  AI Input
+                </button>
+                <button
+                  type="button"
+                  class="px-3 py-2 text-sm font-medium transition-colors cursor-pointer flex items-center gap-1.5 border-b-2 -mb-px"
+                  :class="promptTab === 'editor' ? 'text-om-orange-500 border-om-orange-500' : 'text-om-gray-500 hover:text-om-gray-700 border-transparent'"
+                  @click="promptTab = 'editor'"
+                >
+                  <Pencil :size="14" />
+                  Prompt Editor
+                </button>
               </div>
-              <textarea
-                v-model="promptText"
-                rows="3"
-                class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
-              />
-              <p class="text-xs text-om-gray-400 mt-2">Edit the prompt above to customize the generation. Changes will require regenerating the preview.</p>
+
+              <!-- AI Input tab -->
+              <div v-if="promptTab === 'ai-input'">
+                <div ref="aiMessagesRef" class="flex flex-col gap-3 max-h-[320px] overflow-y-auto pr-1 mb-3">
+                  <template v-for="(msg, i) in aiMessages" :key="i">
+                    <div v-if="msg.role === 'ai'" class="flex items-start gap-2.5">
+                      <div class="w-7 h-7 rounded-full bg-om-orange-100 flex items-center justify-center shrink-0">
+                        <Sparkles :size="14" class="text-om-orange-500" />
+                      </div>
+                      <div class="flex flex-col gap-2 min-w-0 max-w-[85%]">
+                        <div class="bg-om-gray-50 rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-sm text-om-gray-700 leading-relaxed">
+                          {{ msg.text }}
+                        </div>
+                        <div v-if="msg.suggestedPrompt" class="border border-om-orange-200 bg-om-orange-50/40 rounded-xl p-3 flex flex-col gap-2">
+                          <p class="text-[11px] font-semibold uppercase tracking-wider text-om-orange-500">Suggested prompt</p>
+                          <p class="text-sm text-om-gray-700 leading-relaxed">{{ msg.suggestedPrompt }}</p>
+                          <div class="flex items-center gap-2 mt-0.5">
+                            <Button v-if="!msg.applied" variant="primary" size="sm" @click="applySuggestedPrompt(msg)">
+                              <template #icon><Check :size="14" /></template>
+                              Apply to prompt
+                            </Button>
+                            <span v-else class="inline-flex items-center gap-1.5 text-xs font-medium text-[#2CC896]">
+                              <Check :size="14" />
+                              Applied
+                            </span>
+                          </div>
+                        </div>
+                        <div v-if="msg.replies" class="flex flex-wrap gap-1.5">
+                          <button
+                            v-for="reply in msg.replies"
+                            :key="reply"
+                            type="button"
+                            class="text-xs px-2.5 py-1.5 rounded-full border border-om-gray-200 text-om-gray-600 hover:bg-om-gray-50 hover:border-om-gray-300 cursor-pointer transition-colors"
+                            @click="sendAiMessage(reply)"
+                          >{{ reply }}</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div v-else class="flex items-start gap-2.5 justify-end">
+                      <div class="bg-om-orange-500 text-white rounded-2xl rounded-tr-sm px-3.5 py-2.5 text-sm max-w-[85%] leading-relaxed">{{ msg.text }}</div>
+                    </div>
+                  </template>
+                  <div v-if="aiTyping" class="flex items-start gap-2.5">
+                    <div class="w-7 h-7 rounded-full bg-om-orange-100 flex items-center justify-center shrink-0">
+                      <Sparkles :size="14" class="text-om-orange-500" />
+                    </div>
+                    <div class="bg-om-gray-50 rounded-2xl rounded-tl-sm px-3.5 py-3">
+                      <div class="flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-om-gray-400 animate-pulse" />
+                        <span class="w-1.5 h-1.5 rounded-full bg-om-gray-400 animate-pulse" style="animation-delay: 0.15s" />
+                        <span class="w-1.5 h-1.5 rounded-full bg-om-gray-400 animate-pulse" style="animation-delay: 0.3s" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2 border border-om-gray-200 rounded-xl pl-3 pr-1.5 py-1.5 focus-within:border-om-orange-300 focus-within:shadow-[0_0_0_2px_#FBD9CE] transition-all">
+                  <input
+                    v-model="aiDraft"
+                    type="text"
+                    placeholder="Ask the AI to refine the prompt..."
+                    class="flex-1 text-sm text-om-gray-700 placeholder-om-gray-400 outline-none bg-transparent py-1"
+                    @keydown.enter.prevent="sendAiMessage(aiDraft)"
+                  />
+                  <button
+                    type="button"
+                    class="w-8 h-8 rounded-lg bg-om-orange-500 text-white flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-om-orange-600 transition-colors"
+                    :disabled="!aiDraft.trim() || aiTyping"
+                    @click="sendAiMessage(aiDraft)"
+                  >
+                    <Send :size="14" />
+                  </button>
+                </div>
+
+              </div>
+
+              <!-- Prompt Editor tab -->
+              <div v-else>
+                <textarea
+                  v-model="promptText"
+                  rows="3"
+                  class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
+                />
+                <p class="text-xs text-om-gray-400 mt-2">Edit the prompt above to customize the generation. Changes will require regenerating the preview.</p>
+              </div>
             </div>
           </template>
         </div>
@@ -1815,7 +2101,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { Search, ArrowLeft, ArrowRight, Sparkles, Image as ImageIcon, Cpu, Maximize2, Coins, Wand2, ExternalLink, Type, ArrowUpDown, SlidersHorizontal, Upload, X, Check, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Eye, EyeOff, History } from 'lucide-vue-next'
+import { Search, ArrowLeft, ArrowRight, Sparkles, Image as ImageIcon, Cpu, Maximize2, Coins, Wand2, ExternalLink, Type, ArrowUpDown, SlidersHorizontal, Upload, X, Check, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Eye, EyeOff, History, Send, Pencil } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
@@ -2387,6 +2673,131 @@ const promptRatio = ref('16:9')
 const promptText = ref('A high-quality, professional product photo of premium wireless headphones on a clean, minimalist background with soft, natural lighting.')
 const modelOptions = ['Nano Banana Pro', 'FLUX 1.1 Pro', 'FLUX 1.0', 'DALL-E 3']
 const ratioOptions = ['16:9', '1:1', '4:3', '9:16']
+
+// --- AI Input (tabbed Prompt Editor) ---------------------------------------
+const promptTab = ref('ai-input')
+const aiDraft = ref('')
+const aiTyping = ref(false)
+const aiMessagesRef = ref(null)
+const aiMessages = ref([
+  {
+    role: 'ai',
+    text: 'Hi! I can help refine this image prompt. Tell me what you\'d like to change — lighting, background, styling, or composition.',
+  },
+])
+
+const scrollAiMessages = () => {
+  setTimeout(() => {
+    const el = aiMessagesRef.value
+    if (el) el.scrollTop = el.scrollHeight
+  }, 30)
+}
+
+const buildAiResponse = (userText) => {
+  const t = userText.toLowerCase()
+  if (t.includes('warm') || t.includes('lighting')) {
+    return {
+      text: 'Got it — warmer lighting. Should I lean into golden-hour tones, or keep it indoor warm (think soft tungsten)?',
+      replies: ['Golden hour', 'Indoor warm', 'Surprise me'],
+    }
+  }
+  if (t.includes('golden')) {
+    return {
+      text: 'Here\'s a revision with a golden-hour feel. Want to apply it?',
+      suggestedPrompt: 'A high-quality, professional product photo of premium wireless headphones on a clean, minimalist background, lit by warm golden-hour sunlight casting soft directional shadows.',
+    }
+  }
+  if (t.includes('indoor') || t.includes('tungsten')) {
+    return {
+      text: 'Updated with warm indoor lighting. Apply when ready.',
+      suggestedPrompt: 'A high-quality, professional product photo of premium wireless headphones on a clean, minimalist background under warm indoor tungsten lighting, with gentle highlights and soft natural shadows.',
+    }
+  }
+  if (t.includes('lifestyle') || t.includes('in use') || t.includes('using')) {
+    return {
+      text: 'A lifestyle scene works great. Indoor desk setting or outdoor commute?',
+      replies: ['Desk setup', 'Outdoor commute', 'Café'],
+    }
+  }
+  if (t.includes('desk')) {
+    return {
+      text: 'Here\'s a desk-setup variation:',
+      suggestedPrompt: 'A premium pair of wireless headphones resting on a modern wooden desk next to a laptop and a steaming coffee mug, soft natural window light, shallow depth of field, lifestyle photography.',
+    }
+  }
+  if (t.includes('outdoor') || t.includes('commute')) {
+    return {
+      text: 'Here\'s an outdoor commute version:',
+      suggestedPrompt: 'A person walking through a sunlit city street wearing premium wireless headphones, candid lifestyle shot, soft bokeh background, warm afternoon light, editorial styling.',
+    }
+  }
+  if (t.includes('café') || t.includes('cafe')) {
+    return {
+      text: 'Café scene coming up:',
+      suggestedPrompt: 'Premium wireless headphones resting on a marble café table beside a latte and an open notebook, warm ambient lighting, blurred patrons in the background, lifestyle product photography.',
+    }
+  }
+  if (t.includes('minimal') || t.includes('clean') || t.includes('background')) {
+    return {
+      text: 'I can push it further toward minimal. Solid color backdrop, or seamless white studio?',
+      replies: ['Solid color', 'Seamless white', 'Soft gradient'],
+    }
+  }
+  if (t.includes('solid')) {
+    return {
+      text: 'Solid backdrop applied:',
+      suggestedPrompt: 'A premium pair of wireless headphones centered on a flat muted sage backdrop, soft top-down studio lighting, sharp focus, minimalist product photography.',
+    }
+  }
+  if (t.includes('seamless') || t.includes('white')) {
+    return {
+      text: 'Seamless white studio look:',
+      suggestedPrompt: 'A premium pair of wireless headphones on a seamless pure-white studio backdrop, even diffused lighting, no visible shadows, crisp e-commerce product photography.',
+    }
+  }
+  if (t.includes('gradient')) {
+    return {
+      text: 'Soft gradient backdrop:',
+      suggestedPrompt: 'A premium pair of wireless headphones on a soft pastel gradient backdrop fading from cream to muted peach, gentle studio lighting, modern minimalist product photography.',
+    }
+  }
+  if (t.includes('surprise')) {
+    return {
+      text: 'How about something editorial?',
+      suggestedPrompt: 'A premium pair of wireless headphones photographed in dramatic chiaroscuro lighting against a deep charcoal backdrop, single rim light catching the metallic detailing, high-end magazine-style product photography.',
+    }
+  }
+  return {
+    text: 'Sure — could you give me a bit more detail? Are you thinking about the lighting, the background, the styling, or the overall mood?',
+    replies: ['Lighting', 'Background', 'Styling', 'Mood'],
+  }
+}
+
+const sendAiMessage = (text) => {
+  const trimmed = (text || '').trim()
+  if (!trimmed || aiTyping.value) return
+  aiMessages.value.push({ role: 'user', text: trimmed })
+  aiDraft.value = ''
+  aiTyping.value = true
+  scrollAiMessages()
+  setTimeout(() => {
+    const response = buildAiResponse(trimmed)
+    aiMessages.value.push({ role: 'ai', ...response })
+    aiTyping.value = false
+    scrollAiMessages()
+  }, 850)
+}
+
+const applySuggestedPrompt = (msg) => {
+  if (!msg?.suggestedPrompt) return
+  promptText.value = msg.suggestedPrompt
+  msg.applied = true
+  aiMessages.value.push({
+    role: 'ai',
+    text: 'Applied. Switch to the Prompt Editor tab to see the full text, or regenerate to preview the result.',
+  })
+  scrollAiMessages()
+}
 
 const showAdvanced = ref(false)
 const pageType = ref('product')

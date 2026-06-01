@@ -153,6 +153,24 @@
             />
           </template>
 
+          <!-- AI Texts & Images V2 Next Product (AI Input) embedded -->
+          <template v-else-if="activeSection === 'products-ai-texts-images-v2-next-product-ai-input'">
+            <AiTextsImagesV2NextProductAiInputView
+              :screen="embeddedScreen"
+              :embedded="true"
+              @navigate="handleEmbeddedNavigateV2NextProductAiInput"
+            />
+          </template>
+
+          <!-- AI Texts & Images V2 (AI Input on preview pages) embedded -->
+          <template v-else-if="activeSection === 'products-ai-texts-images-v2-ai-input'">
+            <AiTextsImagesV2AiInputView
+              :screen="embeddedScreen"
+              :embedded="true"
+              @navigate="handleEmbeddedNavigateV2AiInput"
+            />
+          </template>
+
           <!-- Placeholder for all other sections -->
           <template v-else>
             <h1 class="text-xl font-bold text-om-gray-700 mb-8">{{ currentSectionTitle }}</h1>
@@ -176,6 +194,8 @@ import AiTextsImagesV2View from './AiTextsImagesV2View.vue'
 import AiTextsImagesV2FeedbacksView from './AiTextsImagesV2FeedbacksView.vue'
 import AiTextsImagesV2FeedbacksModalView from './AiTextsImagesV2FeedbacksModalView.vue'
 import AiTextsImagesV2NextProductView from './AiTextsImagesV2NextProductView.vue'
+import AiTextsImagesV2NextProductAiInputView from './AiTextsImagesV2NextProductAiInputView.vue'
+import AiTextsImagesV2AiInputView from './AiTextsImagesV2AiInputView.vue'
 
 const props = defineProps({
   initialSection: { type: String, default: 'personal-details' },
@@ -252,6 +272,8 @@ const sectionRouteMap = {
   'products-ai-texts-images-v2-feedbacks': 'settings-ai-texts-images-v2-feedbacks',
   'products-ai-texts-images-v2-feedbacks-modal': 'settings-ai-texts-images-v2-feedbacks-modal',
   'products-ai-texts-images-v2-next-product': 'settings-ai-texts-images-v2-next-product',
+  'products-ai-texts-images-v2-next-product-ai-input': 'settings-ai-texts-images-v2-next-product-ai-input',
+  'products-ai-texts-images-v2-ai-input': 'settings-ai-texts-images-v2-ai-input',
 }
 
 const handleSectionClick = (id) => {
@@ -267,6 +289,12 @@ const handleSectionClick = (id) => {
   }
   if (id === 'products-ai-texts-images-v2-next-product') {
     embeddedScreen.value = 'generation'
+  }
+  if (id === 'products-ai-texts-images-v2-next-product-ai-input') {
+    embeddedScreen.value = 'generation'
+  }
+  if (id === 'products-ai-texts-images-v2-ai-input') {
+    embeddedScreen.value = 'image-preview'
   }
   if (sectionRouteMap[id]) {
     emit('navigate', sectionRouteMap[id])
@@ -344,6 +372,18 @@ const handleEmbeddedNavigateV2NextProduct = (route) => {
   // Bubbling up to App.vue would switch the URL to a generic v2 sub-route
   // and remount the regular V2 view instead of NextProductView.
   embeddedScreen.value = screenMapV2[route] ?? 'generation'
+}
+
+const handleEmbeddedNavigateV2NextProductAiInput = (route) => {
+  // Same containment logic as the next-product handler above.
+  embeddedScreen.value = screenMapV2[route] ?? 'generation'
+}
+
+const handleEmbeddedNavigateV2AiInput = (route) => {
+  // Mirrors handleEmbeddedNavigateV2 but keeps navigation contained inside
+  // the AI Input variant frame (don't bubble up to App.vue or the URL would
+  // switch to the regular V2 sub-route and remount the standard view).
+  embeddedScreen.value = screenMapV2[route] ?? 'list'
 }
 </script>
 

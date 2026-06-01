@@ -92,79 +92,154 @@
           </div>
         </div>
 
-        <!-- Prompt Editor -->
+        <!-- Prompt Editor (tabbed) -->
         <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-semibold text-om-gray-700">Prompt Editor</h3>
+          <div class="flex items-center gap-1 border-b border-om-gray-100 mb-4 -mt-1">
+            <button
+              type="button"
+              class="px-3 py-2 text-sm font-medium transition-colors cursor-pointer flex items-center gap-1.5 border-b-2 -mb-px"
+              :class="imageChat.state.tab === 'ai-input' ? 'text-om-orange-500 border-om-orange-500' : 'text-om-gray-500 hover:text-om-gray-700 border-transparent'"
+              @click="imageChat.state.tab = 'ai-input'"
+            >
+              <Sparkles :size="14" />
+              AI Input
+            </button>
+            <button
+              type="button"
+              class="px-3 py-2 text-sm font-medium transition-colors cursor-pointer flex items-center gap-1.5 border-b-2 -mb-px"
+              :class="imageChat.state.tab === 'editor' ? 'text-om-orange-500 border-om-orange-500' : 'text-om-gray-500 hover:text-om-gray-700 border-transparent'"
+              @click="imageChat.state.tab = 'editor'"
+            >
+              <Pencil :size="14" />
+              Prompt Editor
+            </button>
           </div>
-          <textarea
-            v-model="promptText"
-            rows="3"
-            class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
-          />
-          <div class="flex items-center justify-between mt-2">
-            <p class="text-xs text-om-gray-400">Edit the prompt above to customize the generation. Changes will require regenerating the preview.</p>
-            <Button v-if="!showAdvanced" variant="ghost" size="sm" class="shrink-0 ml-4" @click="showAdvanced = true">Advanced Settings <ChevronDown :size="14" /></Button>
-          </div>
 
-          <!-- Advanced Settings panel -->
-          <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-3">
-
-            <!-- 2 columns -->
-            <div class="grid grid-cols-2 gap-3 items-stretch">
-
-              <!-- Col 1: Model + Ratio -->
-              <div class="bg-om-gray-50 rounded-xl px-4 py-3 min-w-0 flex items-end gap-3">
-                <div class="flex flex-col gap-1 flex-1 min-w-0">
-                  <p class="text-xs text-om-gray-500">Model</p>
-                  <Dropdown v-model="promptModel" :options="modelOptions" size="sm" />
+          <!-- AI Input tab -->
+          <div v-if="imageChat.state.tab === 'ai-input'">
+            <div :ref="el => imageChat.messagesRef.value = el" class="flex flex-col gap-3 max-h-[320px] overflow-y-auto pr-1 mb-3">
+              <template v-for="(msg, i) in imageChat.state.messages" :key="i">
+                <div v-if="msg.role === 'ai'" class="flex items-start gap-2.5">
+                  <div class="w-7 h-7 rounded-full bg-om-orange-100 flex items-center justify-center shrink-0">
+                    <Sparkles :size="14" class="text-om-orange-500" />
+                  </div>
+                  <div class="flex flex-col gap-2 min-w-0 max-w-[85%]">
+                    <div class="bg-om-gray-50 rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-sm text-om-gray-700 leading-relaxed">{{ msg.text }}</div>
+                    <div v-if="msg.suggestedPrompt" class="border border-om-orange-200 bg-om-orange-50/40 rounded-xl p-3 flex flex-col gap-2">
+                      <p class="text-[11px] font-semibold uppercase tracking-wider text-om-orange-500">Suggested prompt</p>
+                      <p class="text-sm text-om-gray-700 leading-relaxed">{{ msg.suggestedPrompt }}</p>
+                      <div class="flex items-center gap-2 mt-0.5">
+                        <Button v-if="!msg.applied" variant="primary" size="sm" @click="imageChat.apply(msg)">
+                          <template #icon><Check :size="14" /></template>
+                          Apply to prompt
+                        </Button>
+                        <span v-else class="inline-flex items-center gap-1.5 text-xs font-medium text-[#2CC896]">
+                          <Check :size="14" />
+                          Applied
+                        </span>
+                      </div>
+                    </div>
+                    <div v-if="msg.replies" class="flex flex-wrap gap-1.5">
+                      <button
+                        v-for="reply in msg.replies"
+                        :key="reply"
+                        type="button"
+                        class="text-xs px-2.5 py-1.5 rounded-full border border-om-gray-200 text-om-gray-600 hover:bg-om-gray-50 hover:border-om-gray-300 cursor-pointer transition-colors"
+                        @click="imageChat.send(reply)"
+                      >{{ reply }}</button>
+                    </div>
+                  </div>
                 </div>
-                <div class="flex flex-col gap-1 flex-1 min-w-0">
-                  <p class="text-xs text-om-gray-500">Ratio</p>
-                  <Dropdown v-model="promptRatio" :options="ratioOptions" size="sm" />
+                <div v-else class="flex items-start gap-2.5 justify-end">
+                  <div class="bg-om-orange-500 text-white rounded-2xl rounded-tr-sm px-3.5 py-2.5 text-sm max-w-[85%] leading-relaxed">{{ msg.text }}</div>
+                </div>
+              </template>
+              <div v-if="imageChat.state.typing" class="flex items-start gap-2.5">
+                <div class="w-7 h-7 rounded-full bg-om-orange-100 flex items-center justify-center shrink-0">
+                  <Sparkles :size="14" class="text-om-orange-500" />
+                </div>
+                <div class="bg-om-gray-50 rounded-2xl rounded-tl-sm px-3.5 py-3">
+                  <div class="flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-om-gray-400 animate-pulse" />
+                    <span class="w-1.5 h-1.5 rounded-full bg-om-gray-400 animate-pulse" style="animation-delay: 0.15s" />
+                    <span class="w-1.5 h-1.5 rounded-full bg-om-gray-400 animate-pulse" style="animation-delay: 0.3s" />
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <!-- Col 2: Usage location -->
+            <div class="flex items-center gap-2 border border-om-gray-200 rounded-xl pl-3 pr-1.5 py-1.5 focus-within:border-om-orange-300 focus-within:shadow-[0_0_0_2px_#FBD9CE] transition-all">
+              <input
+                v-model="imageChat.state.draft"
+                type="text"
+                placeholder="Ask the AI to refine the prompt..."
+                class="flex-1 text-sm text-om-gray-700 placeholder-om-gray-400 outline-none bg-transparent py-1"
+                @keydown.enter.prevent="imageChat.send(imageChat.state.draft)"
+              />
+              <button
+                type="button"
+                class="w-8 h-8 rounded-lg bg-om-orange-500 text-white flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-om-orange-600 transition-colors"
+                :disabled="!imageChat.state.draft.trim() || imageChat.state.typing"
+                @click="imageChat.send(imageChat.state.draft)"
+              >
+                <Send :size="14" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Prompt Editor tab -->
+          <div v-else>
+            <textarea
+              v-model="promptText"
+              rows="3"
+              class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
+            />
+            <div class="flex items-center justify-between mt-2">
+              <p class="text-xs text-om-gray-400">Edit the prompt above to customize the generation. Changes will require regenerating the preview.</p>
+              <Button v-if="!showAdvanced" variant="ghost" size="sm" class="shrink-0 ml-4" @click="showAdvanced = true">Advanced Settings <ChevronDown :size="14" /></Button>
+            </div>
+
+            <!-- Advanced Settings panel -->
+            <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-3">
+              <div class="grid grid-cols-2 gap-3 items-stretch">
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 min-w-0 flex items-end gap-3">
+                  <div class="flex flex-col gap-1 flex-1 min-w-0">
+                    <p class="text-xs text-om-gray-500">Model</p>
+                    <Dropdown v-model="promptModel" :options="modelOptions" size="sm" />
+                  </div>
+                  <div class="flex flex-col gap-1 flex-1 min-w-0">
+                    <p class="text-xs text-om-gray-500">Ratio</p>
+                    <Dropdown v-model="promptRatio" :options="ratioOptions" size="sm" />
+                  </div>
+                </div>
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                  <p class="text-xs text-om-gray-500">Usage location</p>
+                  <div class="grid grid-cols-2 mt-0.5">
+                    <RadioButton v-model="pageType" value="product" label="Product page" />
+                    <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
+                  </div>
+                </div>
+              </div>
               <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
-                <p class="text-xs text-om-gray-500">Usage location</p>
-                <div class="grid grid-cols-2 mt-0.5">
-                  <RadioButton v-model="pageType" value="product" label="Product page" />
-                  <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
+                <p class="text-xs text-om-gray-500">Available data sources</p>
+                <div class="flex flex-wrap gap-1.5">
+                  <Tag v-for="src in dataSources" :key="src" variant="orange">{{ src }}</Tag>
                 </div>
               </div>
-
-            </div>
-
-            <!-- Available data sources: full width -->
-            <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
-              <p class="text-xs text-om-gray-500">Available data sources</p>
-              <div class="flex flex-wrap gap-1.5">
-                <Tag v-for="src in dataSources" :key="src" variant="orange">{{ src }}</Tag>
+              <div class="grid grid-cols-2 gap-3 items-stretch">
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                  <span class="text-xs text-om-gray-500">Auto-generate prompt variables for products with missing data</span>
+                  <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
+                </div>
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                  <span class="text-xs text-om-gray-500">Minimum description length (character)</span>
+                  <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white shrink-0" />
+                </div>
+              </div>
+              <div class="flex justify-end">
+                <Button variant="ghost" size="sm" @click="showAdvanced = false">Basic Settings <ChevronUp :size="14" /></Button>
               </div>
             </div>
-
-            <!-- Data quality: full width below -->
-            <div class="grid grid-cols-2 gap-3 items-stretch">
-              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
-                <span class="text-xs text-om-gray-500">Auto-generate prompt variables for products with missing data</span>
-                <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
-              </div>
-              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
-                <span class="text-xs text-om-gray-500">Minimum description length (character)</span>
-                <input
-                  v-model="minDescLength"
-                  type="number"
-                  min="0"
-                  class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white shrink-0"
-                />
-              </div>
-            </div>
-
-            <div class="flex justify-end">
-              <Button variant="ghost" size="sm" @click="showAdvanced = false">Basic Settings <ChevronUp :size="14" /></Button>
-            </div>
-
           </div>
         </div>
       </div>
@@ -211,6 +286,753 @@
                 {{ preset.credits }} credits/image
               </Tag>
             </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow Presets screen -->
+      <div v-else-if="showWorkflowPresets" class="w-full max-w-[1400px] mx-auto -mt-3">
+        <!-- Back + pathway -->
+        <div class="flex items-center gap-2 mb-2">
+          <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-v2-new')">
+            <template #icon><ArrowLeft :size="16" /></template>
+          </Button>
+          <nav class="flex items-center gap-1.5 text-sm text-om-gray-400">
+<span>New Variable</span>
+            <span class="text-om-gray-300">›</span>
+            <span class="text-om-gray-600 font-medium">Preset</span>
+          </nav>
+        </div>
+        <h1 class="text-2xl font-semibold text-om-gray-700 mb-1">Choose a Preset</h1>
+        <p class="text-sm text-om-gray-500 mb-8">Select a starting point for your AI workflow.</p>
+
+        <!-- Preset cards grid -->
+        <div class="grid grid-cols-2 gap-4">
+          <div
+            v-for="preset in workflowPresets"
+            :key="preset.id"
+            class="bg-white rounded-xl border-2 border-om-gray-200 p-5 cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] transition-all duration-200 flex gap-4"
+            @click="handleWorkflowPresetClick(preset)"
+          >
+            <div class="w-44 h-44 shrink-0 rounded-lg bg-om-gray-100 border border-om-gray-200" />
+            <div class="flex flex-col flex-1 min-w-0">
+            <h2 class="text-base font-semibold text-om-gray-700 mb-2">{{ preset.name }}</h2>
+            <p class="text-sm text-om-gray-500 flex-1 mb-3">{{ preset.description }}</p>
+            <div class="flex flex-col gap-1.5 mt-auto">
+              <Tag class="self-start">
+                <template #icon><Workflow :size="14" class="text-om-gray-400" /></template>
+                {{ preset.steps }} steps
+              </Tag>
+              <Tag class="self-start">
+                <template #icon><Cpu :size="14" class="text-om-gray-400" /></template>
+                {{ preset.model }}
+              </Tag>
+              <Tag variant="orange" class="self-start">
+                <template #icon><Coins :size="14" class="text-om-orange-400" /></template>
+                {{ preset.credits }} credits/run
+              </Tag>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow Editor screen -->
+      <div v-else-if="showWorkflowEditor" class="w-full max-w-[1100px] mx-auto -mt-3">
+        <!-- Back + pathway -->
+        <div class="flex items-center gap-2 mb-2">
+          <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-v2-workflow-presets')">
+            <template #icon><ArrowLeft :size="16" /></template>
+          </Button>
+          <nav class="flex items-center gap-1.5 text-sm text-om-gray-400">
+            <span>New Variable</span>
+            <span class="text-om-gray-300">›</span>
+            <span>Preset</span>
+            <span class="text-om-gray-300">›</span>
+            <span class="text-om-gray-600 font-medium">{{ workflowEditorTitle }}</span>
+          </nav>
+        </div>
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h1 class="text-2xl font-bold text-om-gray-800 mb-1">{{ workflowEditorTitle }}</h1>
+            <p class="text-sm text-om-gray-500">Chain multiple AI steps. Each step can use the original image, references, or outputs from earlier steps.</p>
+          </div>
+          <Button variant="primary" size="sm" @click="createWorkflow">
+            <template #icon><Check :size="14" /></template>
+            Create workflow
+          </Button>
+        </div>
+
+        <!-- Product preview -->
+        <div class="bg-white rounded-xl border border-om-gray-200 p-4 mb-4 flex items-center gap-4">
+          <div class="w-20 h-20 bg-om-gray-100 rounded-lg overflow-hidden border border-om-gray-200 shrink-0">
+            <img :src="workflowProduct.image" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs text-om-gray-400 mb-0.5">Editing for</p>
+            <h3 class="text-sm font-semibold text-om-gray-700 truncate">{{ workflowProduct.name }}</h3>
+            <p class="text-xs text-om-gray-500">{{ workflowProduct.category }}</p>
+          </div>
+        </div>
+
+        <!-- Steps -->
+        <div v-for="(step, i) in workflowSteps" :key="step.id" class="bg-white rounded-xl border border-om-gray-200 p-4 mb-3">
+          <!-- Header: step title + model dropdown + remove -->
+          <div class="flex items-center gap-3 mb-3">
+            <div class="flex items-center gap-2 flex-1 min-w-0">
+              <span class="w-6 h-6 rounded-full bg-om-orange-100 text-om-orange-500 text-xs font-bold flex items-center justify-center shrink-0">{{ i + 1 }}</span>
+              <h3 class="text-sm font-semibold text-om-gray-700">Step {{ i + 1 }}</h3>
+              <Button variant="ghost" size="sm" @click="openTemplateModal(i)">
+                <template #icon><Sparkles :size="13" /></template>
+                Load AI template
+              </Button>
+            </div>
+            <div class="w-48 shrink-0">
+              <Dropdown v-model="step.model" :options="modelOptions" size="sm" :disabled="isStepInherited(step, i)" />
+            </div>
+            <Button v-if="workflowSteps.length > 1" variant="ghost" size="sm" :icon-only="true" @click="removeWorkflowStep(step.id)">
+              <template #icon><X :size="14" /></template>
+            </Button>
+          </div>
+
+          <!-- Inputs: add-input dropdown + parsed-from-prompt chips -->
+          <div class="mb-3">
+            <p class="text-xs font-medium text-om-gray-500 mb-2">Inputs</p>
+            <div class="flex items-center gap-3 p-3 bg-om-gray-50 rounded-lg">
+              <div class="w-44 shrink-0">
+                <Dropdown
+                  v-model="addInputDropdowns[step.id]"
+                  :options="inputDropdownOptions(i)"
+                  placeholder="+ Add input"
+                  size="sm"
+                  @update:model-value="(opt) => onAddInput(step, opt)"
+                />
+              </div>
+              <div class="flex flex-wrap items-center gap-1.5 min-w-0 flex-1">
+                <Tag v-for="u in usedInputs(step, i)" :key="u.variable" :variant="inputTagVariant(u.source)">{{ u.placeholder }}</Tag>
+                <span v-if="usedInputs(step, i).length === 0" class="text-xs text-om-gray-400">No inputs used yet</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Prompt with checkbox in top-right -->
+          <div class="mb-3">
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-xs font-medium text-om-gray-500">Prompt</p>
+              <Checkbox
+                v-model="step.continuePreviousPrompt"
+                label="Continue prompt of the previous step"
+                size="sm"
+                :disabled="i === 0"
+              />
+            </div>
+            <textarea
+              v-model="step.prompt"
+              :ref="setPromptRef(step.id)"
+              @blur="trackCursor(step, $event)"
+              @keyup="trackCursor(step, $event)"
+              @click="trackCursor(step, $event)"
+              rows="3"
+              placeholder="Describe what this step should produce..."
+              class="w-full text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 px-3 py-2 resize-none"
+            />
+          </div>
+
+          <!-- Per-model settings (compact) + Variables (outputs) -->
+          <div class="flex items-stretch gap-3 mb-3">
+            <div class="flex items-center gap-2 px-3 py-2 bg-om-gray-50 rounded-lg w-1/2 min-w-0">
+              <div class="flex items-center gap-2 flex-1 min-w-0">
+                <ToggleSwitch v-if="isImageModel(step.model)" v-model="step.useMultipleImages" />
+                <ToggleSwitch v-else v-model="step.useProductImageContext" />
+                <span class="text-xs text-om-gray-600 truncate">{{ isImageModel(step.model) ? 'Use multiple product images' : 'Use product image as context' }}</span>
+              </div>
+              <div class="w-px h-5 bg-om-gray-200"></div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-om-gray-600">Min. description length</span>
+                <input
+                  v-model.number="step.minDescriptionLength"
+                  type="number"
+                  min="0"
+                  class="w-16 text-sm text-center rounded-md border border-om-gray-200 bg-white text-om-gray-700 outline-none focus:border-om-gray-400 px-2 py-1"
+                />
+              </div>
+            </div>
+            <div class="px-3 py-2 bg-om-gray-50 rounded-lg flex flex-col justify-center w-1/2 min-w-0">
+              <p class="text-[11px] text-om-gray-400 leading-none mb-1.5">Output variables</p>
+              <div class="flex flex-wrap gap-1.5">
+                <Tag variant="green">{{ stepOutputName(step, i) }}</Tag>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom: References (left) + Ratio + Run + Output (right) -->
+          <div class="flex items-end gap-3">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium text-om-gray-500 mb-1">Reference images</p>
+              <div class="flex flex-wrap gap-2">
+                <div v-for="ref in step.referenceImages" :key="ref.id" class="relative w-14 h-14">
+                  <div class="w-14 h-14 rounded-lg border border-om-gray-200 overflow-hidden bg-om-gray-100">
+                    <img :src="ref.url" class="w-full h-full object-cover" />
+                  </div>
+                  <button @click="removeStepReference(step, ref.id)" class="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-white border border-om-gray-300 flex items-center justify-center hover:bg-om-gray-100">
+                    <X :size="9" class="text-om-gray-600" />
+                  </button>
+                </div>
+                <label class="w-14 h-14 border-2 border-dashed border-om-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-om-orange-400 hover:bg-om-orange-50 transition-colors text-om-gray-400 hover:text-om-orange-500">
+                  <input type="file" hidden accept="image/*" @change="(e) => addStepReference(step, e)" />
+                  <Upload :size="14" />
+                </label>
+              </div>
+            </div>
+            <div v-if="isImageModel(step.model)" class="w-24 shrink-0">
+              <p class="text-xs font-medium text-om-gray-500 mb-1">Ratio</p>
+              <Dropdown v-model="step.ratio" :options="['1:1', '16:9', '9:16', '4:5', '4:3']" size="sm" />
+            </div>
+            <Button variant="secondary" size="sm" :disabled="step.generating || step.waiting" @click="runWorkflowStep(step)">
+              <template #icon>
+                <Loader2 v-if="step.generating" :size="14" class="animate-spin" />
+                <Clock v-else-if="step.waiting" :size="14" />
+                <Play v-else :size="14" />
+              </template>
+              {{ step.generating ? 'Running...' : step.waiting ? 'Waiting...' : 'Run step' }}
+            </Button>
+            <div
+              v-if="isImageModel(step.model)"
+              class="w-20 h-20 bg-om-gray-100 rounded-lg border border-om-gray-200 overflow-hidden shrink-0"
+              :class="step.output ? 'cursor-pointer hover:border-om-gray-400' : ''"
+              @click="step.output && (workflowLightbox = step.output)"
+            >
+              <img v-if="step.output" :src="step.output" class="w-full h-full object-cover" />
+              <div v-else class="w-full h-full flex items-center justify-center text-[10px] text-om-gray-400 text-center px-1">No output yet</div>
+            </div>
+            <textarea
+              v-else
+              :value="step.output || ''"
+              readonly
+              rows="3"
+              :placeholder="step.output ? '' : 'No output yet'"
+              class="w-[28rem] h-20 text-xs rounded-lg border border-om-gray-200 bg-om-gray-50 text-om-gray-700 placeholder-om-gray-400 outline-none px-2 py-1.5 resize-none shrink-0"
+            />
+          </div>
+        </div>
+
+        <!-- Add step -->
+        <div class="flex items-center justify-between mt-4 mb-12">
+          <Button variant="outline" size="sm" @click="addWorkflowStep">
+            <template #icon><Plus :size="14" /></template>
+            Add step
+          </Button>
+          <Button variant="primary" size="sm" @click="runWorkflowAll">
+            <template #icon><Wand2 :size="14" /></template>
+            Run workflow
+          </Button>
+        </div>
+
+        <!-- Output lightbox -->
+        <div v-if="workflowLightbox" class="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-8" @click="workflowLightbox = null">
+          <button class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center" @click.stop="workflowLightbox = null">
+            <X :size="20" />
+          </button>
+          <img :src="workflowLightbox" class="max-w-full max-h-full rounded-xl shadow-2xl" @click.stop />
+        </div>
+      </div>
+
+      <!-- Workflow Generation screen (3 tabs) -->
+      <div v-else-if="showWorkflowGeneration" class="w-full max-w-[1400px] mx-auto -mt-3">
+        <!-- Title -->
+        <h1 v-if="!wfDetailProduct" class="text-2xl font-bold text-om-gray-800 mb-4">{{ selectedWorkflowPreset?.name || 'Workflow' }}</h1>
+
+        <!-- Tabs -->
+        <div v-if="!wfDetailProduct" class="flex items-center border-b border-om-gray-200 mb-6">
+          <button
+            v-for="tab in wfTabs"
+            :key="tab.value"
+            class="px-4 py-2.5 text-sm font-medium transition-colors relative cursor-pointer"
+            :class="wfTab === tab.value ? 'text-om-orange-500' : 'text-om-gray-500 hover:text-om-gray-700'"
+            @click="wfTab = tab.value"
+          >
+            {{ tab.label }}
+            <span v-if="wfTab === tab.value" class="absolute bottom-0 left-0 right-0 h-0.5 bg-om-orange-500"></span>
+          </button>
+        </div>
+
+        <!-- Choose products tab -->
+        <div v-if="wfTab === 'selected'">
+          <!-- Toolbar -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <div class="relative">
+                <Search :size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-700" />
+                <input v-model="wfSearch" type="text" placeholder="Search products..." class="pl-9 pr-4 py-1.5 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 w-44" />
+              </div>
+              <div class="relative">
+                <Button variant="secondary" size="sm" @click="cpShowFilters = !cpShowFilters">
+                  <template #icon><SlidersHorizontal :size="15" /></template>
+                  Filters
+                </Button>
+                <div v-if="cpShowFilters" class="absolute top-full left-0 mt-2 bg-white border border-om-gray-200 rounded-xl shadow-lg p-4 z-20 flex flex-col gap-4 w-80">
+                  <div class="flex flex-col gap-1">
+                    <span class="text-xs text-om-gray-500">Category is</span>
+                    <MultiSelect v-model="cpCategoryIs" :options="cpCategoryOptions" placeholder="All categories" />
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <span class="text-xs text-om-gray-500">Category is not</span>
+                    <MultiSelect v-model="cpCategoryIsNot" :options="cpCategoryOptions" placeholder="All categories" />
+                  </div>
+                  <div class="flex flex-col gap-5">
+                    <Checkbox v-model="cpOnlyInStock" label="Only in stock" />
+                    <Checkbox v-model="cpOnlyWithTraffic" label="Only products with traffic" />
+                  </div>
+                </div>
+              </div>
+              <Button variant="secondary" size="sm">
+                <template #icon><Upload :size="15" /></template>
+                Import CSV
+              </Button>
+              <div class="relative">
+                <Button variant="secondary" size="sm" @click="cpSortOpen = !cpSortOpen">
+                  {{ cpSortOptions.find(o => o.value === cpSortBy)?.label }}
+                </Button>
+                <div v-if="cpSortOpen" class="fixed inset-0 z-10" @click="cpSortOpen = false" />
+                <div
+                  v-if="cpSortOpen"
+                  class="absolute left-0 top-full mt-1 z-20 bg-white border border-[#D5D8DD] rounded-lg shadow-lg overflow-hidden min-w-[180px]"
+                >
+                  <button
+                    v-for="opt in cpSortOptions"
+                    :key="opt.value"
+                    @click="cpSortBy = opt.value; cpSortOpen = false"
+                    class="w-full text-left text-sm text-[#23262A] px-3 py-1.5 hover:bg-[#F9FAFB] transition-colors cursor-pointer flex items-center justify-between"
+                    :class="cpSortBy === opt.value ? 'bg-[#F1F2F4] font-medium' : ''"
+                  >
+                    {{ opt.label }}
+                    <Check v-if="cpSortBy === opt.value" :size="16" class="text-om-gray-500 shrink-0" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="relative">
+              <Button variant="primary" size="md" @click.stop="showWfGenMenu = !showWfGenMenu">
+                Generate
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              </Button>
+              <div
+                v-if="showWfGenMenu"
+                class="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-50 min-w-[360px] overflow-hidden"
+              >
+                <button
+                  class="w-full flex items-center justify-between px-4 py-3 text-sm border-b border-om-gray-100 transition-colors"
+                  :class="wfSelected.length > 0 ? 'hover:bg-om-gray-50 cursor-pointer' : 'opacity-40 cursor-not-allowed'"
+                  :disabled="wfSelected.length === 0"
+                  @click="wfSelected.length > 0 && triggerWfGenerate('selected')"
+                >
+                  <span class="text-om-gray-700 text-left">Generate for selected ({{ wfSelected.length }})</span>
+                  <span class="flex items-center gap-1.5 font-medium ml-8 tabular-nums whitespace-nowrap" :class="wfSelected.length > 0 ? 'text-om-orange-500' : 'text-om-gray-400'">
+                    <Coins :size="13" />
+                    {{ wfSelectedCredits }}
+                  </span>
+                </button>
+                <button
+                  v-for="opt in wfMenuOptions"
+                  :key="opt.count"
+                  class="w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-om-gray-50 transition-colors cursor-pointer"
+                  :class="opt.count !== wfMenuOptions[wfMenuOptions.length - 1].count ? 'border-b border-om-gray-100' : ''"
+                  @click="triggerWfGenerate(opt.count)"
+                >
+                  <span class="text-om-gray-700 text-left">Generate for {{ opt.count }} products</span>
+                  <span class="flex items-center gap-1.5 text-om-orange-500 font-medium ml-8 tabular-nums whitespace-nowrap">
+                    <Coins :size="13" />
+                    {{ opt.credits }}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Entry count -->
+          <p class="text-sm text-om-gray-400 mb-3">Showing 1 to {{ wfFilteredProducts.length }} of {{ genProducts.length }} entries</p>
+          <div class="flex flex-col gap-2">
+            <label
+              v-for="p in wfFilteredProducts"
+              :key="p.id"
+              class="flex items-center gap-4 p-3 bg-white rounded-xl border border-om-gray-200 cursor-pointer hover:border-om-gray-300"
+            >
+              <Checkbox
+                :model-value="wfSelected.includes(p.id)"
+                @update:model-value="wfSelected.includes(p.id) ? wfSelected = wfSelected.filter(id => id !== p.id) : wfSelected.push(p.id)"
+                size="sm"
+              />
+              <div class="w-14 h-14 bg-om-gray-100 rounded-md border border-om-gray-200 shrink-0" />
+              <div class="min-w-0 w-72 shrink-0">
+                <p class="text-sm font-medium text-om-gray-700 truncate">{{ p.name }}</p>
+                <p class="text-xs text-om-gray-500 truncate">{{ p.desc }}</p>
+              </div>
+              <div class="w-px h-12 bg-om-gray-200 shrink-0"></div>
+              <div class="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
+                <Tag
+                  v-for="(s, i) in workflowSteps"
+                  :key="s.id"
+                  :variant="productStepDone(p, i) ? 'green' : (productStepRunning(p, i) ? 'orange' : 'gray-muted')"
+                >
+                  <template #icon>
+                    <Check v-if="productStepDone(p, i)" :size="11" />
+                    <Loader2 v-else-if="productStepRunning(p, i)" :size="11" class="animate-spin" />
+                    <Clock v-else :size="11" />
+                  </template>
+                  Step {{ i + 1 }}
+                </Tag>
+              </div>
+              <div class="w-px h-12 bg-om-gray-200 shrink-0"></div>
+              <div class="shrink-0">
+                <Tag :variant="productOverallStatus(p).variant">
+                  <template #icon>
+                    <Check v-if="productOverallStatus(p).icon === 'check'" :size="12" />
+                    <Loader2 v-else-if="productOverallStatus(p).icon === 'loader'" :size="12" class="animate-spin" />
+                    <Clock v-else :size="12" />
+                  </template>
+                  {{ productOverallStatus(p).label }}
+                </Tag>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Review tab -->
+        <div v-else-if="wfTab === 'generated' && !wfDetailProduct">
+          <p class="text-sm text-om-gray-400 mb-3">Showing 1 to {{ wfProductsWithResults.length }} of {{ wfProductsWithResults.length }} entries</p>
+          <div v-if="wfProductsWithResults.length" class="flex flex-col gap-2">
+            <div
+              v-for="p in wfProductsWithResults"
+              :key="p.id"
+              class="flex items-center gap-4 p-3 bg-white rounded-xl border border-om-gray-200 cursor-pointer hover:border-om-gray-300 hover:shadow-sm transition-all"
+              @click="openWfDetail(p)"
+            >
+              <div class="w-14 h-14 bg-om-gray-100 rounded-md border border-om-gray-200 shrink-0" />
+              <div class="min-w-0 w-72 shrink-0">
+                <p class="text-sm font-medium text-om-gray-700 truncate">{{ p.name }}</p>
+                <p class="text-xs text-om-gray-500 truncate">{{ p.desc }}</p>
+              </div>
+              <div class="w-px h-12 bg-om-gray-200 shrink-0"></div>
+              <div class="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
+                <Tag
+                  v-for="(s, i) in workflowSteps"
+                  :key="s.id"
+                  :variant="productStepDone(p, i) ? 'green' : (productStepRunning(p, i) ? 'orange' : 'gray-muted')"
+                >
+                  <template #icon>
+                    <Check v-if="productStepDone(p, i)" :size="11" />
+                    <Loader2 v-else-if="productStepRunning(p, i)" :size="11" class="animate-spin" />
+                    <Clock v-else :size="11" />
+                  </template>
+                  Step {{ i + 1 }}
+                </Tag>
+              </div>
+              <div class="w-px h-12 bg-om-gray-200 shrink-0"></div>
+              <div class="shrink-0">
+                <Tag :variant="productOverallStatus(p).variant">
+                  <template #icon>
+                    <Check v-if="productOverallStatus(p).icon === 'check'" :size="12" />
+                    <Loader2 v-else-if="productOverallStatus(p).icon === 'loader'" :size="12" class="animate-spin" />
+                    <Clock v-else :size="12" />
+                  </template>
+                  {{ productOverallStatus(p).label }}
+                </Tag>
+              </div>
+            </div>
+          </div>
+          <p v-else class="text-center text-sm text-om-gray-400 py-12">
+            No workflow runs yet. Pick products in the <button class="text-om-orange-500 underline" @click="wfTab = 'selected'">Choose products</button> tab and run the workflow.
+          </p>
+        </div>
+
+        <!-- Settings tab — same UI as Preview page -->
+        <div v-else-if="wfTab === 'settings'" class="max-w-[1100px]">
+          <!-- Product preview -->
+          <div class="bg-white rounded-xl border border-om-gray-200 p-4 mb-4 flex items-center gap-4">
+            <div class="w-20 h-20 bg-om-gray-100 rounded-lg overflow-hidden border border-om-gray-200 shrink-0">
+              <img :src="workflowProduct.image" class="w-full h-full object-cover" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-om-gray-400 mb-0.5">Sample product</p>
+              <h3 class="text-sm font-semibold text-om-gray-700 truncate">{{ workflowProduct.name }}</h3>
+              <p class="text-xs text-om-gray-500">{{ workflowProduct.category }}</p>
+            </div>
+          </div>
+
+          <!-- Steps -->
+          <div v-for="(step, i) in workflowSteps" :key="step.id" class="bg-white rounded-xl border border-om-gray-200 p-4 mb-3">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="flex items-center gap-2 flex-1 min-w-0">
+                <span class="w-6 h-6 rounded-full bg-om-orange-100 text-om-orange-500 text-xs font-bold flex items-center justify-center shrink-0">{{ i + 1 }}</span>
+                <h3 class="text-sm font-semibold text-om-gray-700">Step {{ i + 1 }}</h3>
+                <Button variant="ghost" size="sm" @click="openTemplateModal(i)">
+                  <template #icon><Sparkles :size="13" /></template>
+                  Load AI template
+                </Button>
+              </div>
+              <div class="w-48 shrink-0">
+                <Dropdown v-model="step.model" :options="modelOptions" size="sm" :disabled="isStepInherited(step, i)" />
+              </div>
+              <Button v-if="workflowSteps.length > 1" variant="ghost" size="sm" :icon-only="true" @click="removeWorkflowStep(step.id)">
+                <template #icon><X :size="14" /></template>
+              </Button>
+            </div>
+            <div class="mb-3">
+              <p class="text-xs font-medium text-om-gray-500 mb-2">Inputs</p>
+              <div class="flex items-center gap-3 p-3 bg-om-gray-50 rounded-lg">
+                <div class="w-44 shrink-0">
+                  <Dropdown
+                    v-model="addInputDropdowns[step.id]"
+                    :options="inputDropdownOptions(i)"
+                    placeholder="+ Add input"
+                    size="sm"
+                    @update:model-value="(opt) => onAddInput(step, opt)"
+                  />
+                </div>
+                <div class="flex flex-wrap items-center gap-1.5 min-w-0 flex-1">
+                  <Tag v-for="u in usedInputs(step, i)" :key="u.variable" :variant="inputTagVariant(u.source)">{{ u.placeholder }}</Tag>
+                  <span v-if="usedInputs(step, i).length === 0" class="text-xs text-om-gray-400">No inputs used yet</span>
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-xs font-medium text-om-gray-500">Prompt</p>
+                <Checkbox
+                  v-model="step.continuePreviousPrompt"
+                  label="Continue prompt of the previous step"
+                  size="sm"
+                  :disabled="i === 0"
+                />
+              </div>
+              <textarea
+                v-model="step.prompt"
+                :ref="setPromptRef(step.id)"
+                @blur="trackCursor(step, $event)"
+                @keyup="trackCursor(step, $event)"
+                @click="trackCursor(step, $event)"
+                rows="3"
+                placeholder="Describe what this step should produce..."
+                class="w-full text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 px-3 py-2 resize-none"
+              />
+            </div>
+            <div class="flex items-stretch gap-3 mb-3">
+              <div class="flex items-center gap-2 px-3 py-2 bg-om-gray-50 rounded-lg w-1/2 min-w-0">
+                <div class="flex items-center gap-2 flex-1 min-w-0">
+                  <ToggleSwitch v-if="isImageModel(step.model)" v-model="step.useMultipleImages" />
+                  <ToggleSwitch v-else v-model="step.useProductImageContext" />
+                  <span class="text-xs text-om-gray-600 truncate">{{ isImageModel(step.model) ? 'Use multiple product images' : 'Use product image as context' }}</span>
+                </div>
+                <div class="w-px h-5 bg-om-gray-200"></div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs text-om-gray-600">Min. description length</span>
+                  <input
+                    v-model.number="step.minDescriptionLength"
+                    type="number"
+                    min="0"
+                    class="w-16 text-sm text-center rounded-md border border-om-gray-200 bg-white text-om-gray-700 outline-none focus:border-om-gray-400 px-2 py-1"
+                  />
+                </div>
+              </div>
+              <div class="px-3 py-2 bg-om-gray-50 rounded-lg flex flex-col justify-center w-1/2 min-w-0">
+                <p class="text-[11px] text-om-gray-400 leading-none mb-1.5">Output variables</p>
+                <div class="flex flex-wrap gap-1.5">
+                  <Tag variant="green">{{ stepOutputName(step, i) }}</Tag>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-end gap-3">
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-medium text-om-gray-500 mb-1">Reference images</p>
+                <div class="flex flex-wrap gap-2">
+                  <div v-for="ref in step.referenceImages" :key="ref.id" class="relative w-14 h-14">
+                    <div class="w-14 h-14 rounded-lg border border-om-gray-200 overflow-hidden bg-om-gray-100">
+                      <img :src="ref.url" class="w-full h-full object-cover" />
+                    </div>
+                    <button @click="removeStepReference(step, ref.id)" class="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-white border border-om-gray-300 flex items-center justify-center hover:bg-om-gray-100">
+                      <X :size="9" class="text-om-gray-600" />
+                    </button>
+                  </div>
+                  <label class="w-14 h-14 border-2 border-dashed border-om-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-om-orange-400 hover:bg-om-orange-50 transition-colors text-om-gray-400 hover:text-om-orange-500">
+                    <input type="file" hidden accept="image/*" @change="(e) => addStepReference(step, e)" />
+                    <Upload :size="14" />
+                  </label>
+                </div>
+              </div>
+              <div v-if="isImageModel(step.model)" class="w-24 shrink-0">
+                <p class="text-xs font-medium text-om-gray-500 mb-1">Ratio</p>
+                <Dropdown v-model="step.ratio" :options="['1:1', '16:9', '9:16', '4:5', '4:3']" size="sm" />
+              </div>
+              <Button variant="secondary" size="sm" :disabled="step.generating || step.waiting" @click="runWorkflowStep(step)">
+                <template #icon>
+                  <Loader2 v-if="step.generating" :size="14" class="animate-spin" />
+                  <Clock v-else-if="step.waiting" :size="14" />
+                  <Play v-else :size="14" />
+                </template>
+                {{ step.generating ? 'Running...' : step.waiting ? 'Waiting...' : 'Run step' }}
+              </Button>
+              <div v-if="isImageModel(step.model)" class="w-20 h-20 bg-om-gray-100 rounded-lg border border-om-gray-200 overflow-hidden shrink-0" :class="step.output ? 'cursor-pointer hover:border-om-gray-400' : ''" @click="step.output && (workflowLightbox = step.output)">
+                <img v-if="step.output" :src="step.output" class="w-full h-full object-cover" />
+                <div v-else class="w-full h-full flex items-center justify-center text-[10px] text-om-gray-400 text-center px-1">No output yet</div>
+              </div>
+              <textarea
+                v-else
+                :value="step.output || ''"
+                readonly
+                rows="3"
+                :placeholder="step.output ? '' : 'No output yet'"
+                class="w-[28rem] h-20 text-xs rounded-lg border border-om-gray-200 bg-om-gray-50 text-om-gray-700 placeholder-om-gray-400 outline-none px-2 py-1.5 resize-none shrink-0"
+              />
+            </div>
+          </div>
+          <div class="flex items-center justify-between mt-4 mb-12">
+            <Button variant="outline" size="sm" @click="addWorkflowStep">
+              <template #icon><Plus :size="14" /></template>
+              Add step
+            </Button>
+            <Button variant="primary" size="sm" @click="runWorkflowAll">
+              <template #icon><Wand2 :size="14" /></template>
+              Run workflow
+            </Button>
+          </div>
+        </div>
+
+        <!-- Output lightbox -->
+        <div v-if="workflowLightbox" class="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-8" @click="workflowLightbox = null">
+          <button class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center" @click.stop="workflowLightbox = null">
+            <X :size="20" />
+          </button>
+          <img :src="workflowLightbox" class="max-w-full max-h-full rounded-xl shadow-2xl" @click.stop />
+        </div>
+
+        <!-- Workflow product detail view (per-step preview + regenerate) -->
+        <div v-if="wfDetailProduct">
+          <!-- Header: back + product name on left, ignore + position + prev/next on right -->
+          <div class="flex items-center justify-between gap-4 mb-4">
+            <div class="flex items-center gap-2 min-w-0">
+              <Button variant="ghost" size="sm" :icon-only="true" @click="closeWfDetail">
+                <template #icon><ArrowLeft :size="16" /></template>
+              </Button>
+              <h1 class="text-2xl font-semibold text-om-gray-700 truncate">{{ wfDetailProduct.name }}</h1>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <Button variant="secondary" size="sm" @click="wfToggleIgnore(wfDetailProduct)">
+                <template #icon>
+                  <Eye v-if="wfIsIgnored(wfDetailProduct.id)" :size="14" />
+                  <EyeOff v-else :size="14" />
+                </template>
+                {{ wfIsIgnored(wfDetailProduct.id) ? 'Restore' : 'Ignore' }}
+              </Button>
+              <span v-if="wfDetailIndex >= 0" class="text-sm text-om-gray-400 tabular-nums ml-2">{{ wfDetailIndex + 1 }} / {{ wfProductsWithResults.length }}</span>
+              <Button variant="secondary" size="sm" :disabled="!wfHasPrev" @click="wfGoPrev">
+                <template #icon><ChevronLeft :size="14" /></template>
+                Previous
+              </Button>
+              <Button variant="secondary" size="sm" :disabled="!wfHasNext" @click="wfGoNext">
+                Next
+                <ChevronRight :size="14" />
+              </Button>
+            </div>
+          </div>
+
+          <!-- Original product card (shown once at the top) -->
+          <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5 mb-6 flex items-center gap-4">
+            <div class="w-24 h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
+              <img src="/product1.jpg" class="w-full h-full object-cover" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-1">Original Product</p>
+              <h3 class="text-sm font-semibold text-om-gray-700 truncate">{{ wfDetailProduct.name }}</h3>
+              <div class="flex items-center gap-4 mt-1">
+                <span class="text-xs text-om-gray-400">SKU: OM-7-SE</span>
+                <span class="text-sm font-semibold text-om-gray-700">$159.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Per-step blocks: generated content on top, prompt editor below -->
+          <div v-for="(step, i) in workflowSteps" :key="step.id" class="mb-8">
+            <!-- Step label -->
+            <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase flex items-center gap-1.5 mb-3">
+              <Wand2 :size="16" class="text-om-orange-400" />
+              Step {{ i + 1 }} · {{ stepOutputName(step, i) }}
+            </p>
+
+            <!-- Generated output (image: 500px, text: auto with min-height) -->
+            <div
+              class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden relative mb-3"
+              :style="isImageModel(step.model) ? 'height: 500px;' : 'min-height: 120px;'"
+            >
+              <!-- Regenerating overlay -->
+              <template v-if="wfStepIsRegenerating(wfDetailProduct.id, i)">
+                <div class="w-full h-full flex flex-col items-center justify-center gap-3 py-12">
+                  <Loader2 :size="40" class="animate-spin text-om-orange-500" />
+                  <p class="text-sm text-om-gray-500">Regenerating Step {{ i + 1 }}...</p>
+                </div>
+              </template>
+              <!-- Image step output -->
+              <template v-else-if="wfStepHasOutputs(wfDetailProduct.id, i) && isImageModel(step.model)">
+                <div
+                  class="w-full h-full p-4 grid gap-4"
+                  :class="wfStepGetOutputs(wfDetailProduct.id, i).length > 1 ? 'grid-cols-2' : 'grid-cols-1'"
+                >
+                  <div
+                    v-for="(out, idx) in wfStepGetOutputs(wfDetailProduct.id, i)"
+                    :key="idx"
+                    class="bg-om-gray-50 rounded-xl overflow-hidden flex items-center justify-center"
+                  >
+                    <img :src="out.src" class="max-w-full max-h-full object-contain" :class="wfIsIgnored(wfDetailProduct.id) ? 'blur-[2px] grayscale' : ''" />
+                  </div>
+                </div>
+                <div v-if="wfIsIgnored(wfDetailProduct.id)" class="absolute inset-0 bg-black/60 flex items-center justify-center pointer-events-none">
+                  <EyeOff :size="40" class="text-white" />
+                </div>
+              </template>
+              <!-- Text step output -->
+              <template v-else-if="wfStepHasOutputs(wfDetailProduct.id, i) && !isImageModel(step.model)">
+                <div class="w-full p-5 flex flex-col gap-3">
+                  <div
+                    v-for="(out, idx) in wfStepGetOutputs(wfDetailProduct.id, i)"
+                    :key="idx"
+                    class="bg-om-gray-50 rounded-xl p-4 text-sm text-om-gray-700 whitespace-pre-line"
+                  >{{ out.value }}</div>
+                </div>
+              </template>
+              <!-- Pending -->
+              <template v-else>
+                <div class="w-full flex flex-col items-center justify-center gap-2 py-12">
+                  <Clock :size="28" class="text-om-gray-300" />
+                  <p class="text-sm text-om-gray-400">Pending generation</p>
+                </div>
+              </template>
+            </div>
+
+            <!-- Prompt editor + Regenerate -->
+            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-4">
+              <div class="flex items-start justify-between mb-2 gap-3">
+                <div class="min-w-0">
+                  <h3 class="text-sm font-semibold text-om-gray-700">Instructions</h3>
+                  <p class="text-xs text-om-gray-400 mt-0.5">Edit the prompt above to customize the generation. Changes will require regenerating the preview.</p>
+                </div>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  :disabled="wfStepIsRegenerating(wfDetailProduct.id, i)"
+                  @click="regenerateWfStep(wfDetailProduct.id, i)"
+                >
+                  <template #icon>
+                    <Loader2 v-if="wfStepIsRegenerating(wfDetailProduct.id, i)" :size="13" class="animate-spin" />
+                    <Sparkles v-else :size="13" />
+                  </template>
+                  {{ wfStepIsRegenerating(wfDetailProduct.id, i) ? 'Regenerating…' : 'Regenerate' }}
+                </Button>
+              </div>
+              <textarea
+                :value="wfStepGetPrompt(wfDetailProduct.id, i)"
+                @input="wfStepSetPrompt(wfDetailProduct.id, i, $event.target.value)"
+                rows="3"
+                class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
+              />
             </div>
           </div>
         </div>
@@ -272,9 +1094,10 @@
         <p class="text-sm text-om-gray-500 mb-10">What type of content do you want to generate?</p>
 
         <!-- Type cards -->
-        <div class="flex gap-6 justify-center items-center min-h-[50vh]">
+        <div class="flex justify-center items-center min-h-[50vh]">
+        <div class="flex gap-6 items-stretch">
           <!-- AI Text -->
-          <div class="group bg-white rounded-xl border-2 border-om-gray-200 p-6 w-80 cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03] transition-all duration-200 flex flex-col" @click="emit('navigate', 'ai-texts-images-v2-text-presets')">
+          <div class="group bg-white rounded-xl border-2 border-om-gray-200 p-6 w-96 cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03] transition-all duration-200 flex flex-col" @click="emit('navigate', 'ai-texts-images-v2-text-presets')">
             <div class="w-10 h-10 rounded-full bg-om-orange-100 flex items-center justify-center mb-4">
               <Sparkles :size="18" class="text-om-orange-500" />
             </div>
@@ -287,7 +1110,7 @@
 
           <!-- AI Image -->
           <div
-            class="group bg-white rounded-xl border-2 border-om-gray-200 p-6 w-80 cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03] transition-all duration-200 flex flex-col"
+            class="group bg-white rounded-xl border-2 border-om-gray-200 p-6 w-96 cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03] transition-all duration-200 flex flex-col"
             @click="emit('navigate', 'ai-texts-images-v2-presets')"
           >
             <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mb-4">
@@ -299,6 +1122,22 @@
               <ArrowRight :size="16" class="text-om-gray-400 group-hover:arrow-bounce" />
             </div>
           </div>
+
+          <!-- AI Workflow -->
+          <div
+            class="group bg-white rounded-xl border-2 border-om-gray-200 p-6 w-96 cursor-pointer hover:border-om-orange-500 hover:shadow-[0_4px_14px_rgba(237,90,41,0.4)] hover:scale-[1.03] transition-all duration-200 flex flex-col"
+            @click="emit('navigate', 'ai-texts-images-v2-workflow-presets')"
+          >
+            <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center mb-4">
+              <Workflow :size="18" class="text-purple-500" />
+            </div>
+            <h2 class="text-lg font-semibold text-om-gray-700 mb-2">AI Workflow</h2>
+            <p class="text-sm text-om-gray-500 flex-1">Chain multiple steps where each uses the previous output as input — e.g. generate mobile and desktop variants of the same image.</p>
+            <div class="flex justify-end mt-4">
+              <ArrowRight :size="16" class="text-om-gray-400 group-hover:arrow-bounce" />
+            </div>
+          </div>
+        </div>
         </div>
       </div>
 
@@ -341,7 +1180,7 @@
         <!-- Selected tab content -->
         <div v-if="genTab === 'selected'">
           <!-- Toolbar -->
-          <div class="flex items-start justify-between mb-4">
+          <div class="flex items-center justify-between mb-4">
             <!-- Left: search + filters -->
             <div class="flex items-center gap-2">
               <div class="relative">
@@ -395,71 +1234,45 @@
               </div>
             </div>
             <!-- Right: generate -->
-            <div class="flex items-start gap-3">
-              <!-- Generation mode toggle (before Generate) with description underneath -->
-              <div class="flex flex-col items-start gap-1">
-                <div class="inline-flex items-center rounded-lg bg-om-gray-100 border border-om-gray-200 p-0.5">
-                  <button
-                    type="button"
-                    class="px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center gap-1 cursor-pointer"
-                    :class="genMode === 'instant' ? 'bg-white text-om-gray-700 shadow-sm' : 'text-om-gray-500 hover:text-om-gray-700'"
-                    @click="genMode = 'instant'"
-                  >
-                    <span>⚡</span>
-                    Instant
-                  </button>
-                  <button
-                    type="button"
-                    class="px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center gap-1 cursor-pointer"
-                    :class="genMode === 'batch' ? 'bg-white text-om-gray-700 shadow-sm' : 'text-om-gray-500 hover:text-om-gray-700'"
-                    @click="genMode = 'batch'"
-                  >
-                    <span>💰</span>
-                    Batch
-                    <span class="text-[#2CC896] font-semibold">· Save 50%</span>
-                  </button>
-                </div>
-                <p class="text-[11px] text-om-gray-400 pl-1">{{ genMode === 'instant' ? 'Generated immediately' : 'Generated within 24h' }}</p>
-              </div>
-
+            <div class="flex items-center gap-2">
               <div class="relative">
-                  <Button variant="primary" size="md" @click.stop="showGenMenu = !showGenMenu">
-                    Generate
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
-                  </Button>
-                  <div
-                    v-if="showGenMenu"
-                    class="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-50 min-w-[360px] overflow-hidden"
+                <Button variant="primary" size="md" @click.stop="showGenMenu = !showGenMenu">
+                  Generate
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </Button>
+                <div
+                  v-if="showGenMenu"
+                  class="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-50 min-w-[360px] overflow-hidden"
+                >
+                  <button
+                    class="w-full flex items-center justify-between px-4 py-3 text-sm border-b border-om-gray-100 transition-colors"
+                    :class="genSelected.length > 0 ? 'hover:bg-om-gray-50 cursor-pointer' : 'opacity-40 cursor-not-allowed'"
+                    :disabled="genSelected.length === 0"
+                    @click="genSelected.length > 0 && triggerGenerate([...genSelected])"
                   >
-                    <button
-                      class="w-full flex items-center justify-between px-4 py-3 text-sm border-b border-om-gray-100 transition-colors"
-                      :class="genSelected.length > 0 ? 'hover:bg-om-gray-50 cursor-pointer' : 'opacity-40 cursor-not-allowed'"
-                      :disabled="genSelected.length === 0"
-                      @click="genSelected.length > 0 && triggerGenerate([...genSelected])"
-                    >
-                      <span class="text-om-gray-700 text-left">Generate for selected ({{ genSelected.length }})</span>
-                      <span class="flex items-center gap-1.5 font-medium ml-8 tabular-nums whitespace-nowrap" :class="genSelected.length > 0 ? 'text-om-orange-500' : 'text-om-gray-400'">
-                        <Coins :size="13" />
-                        {{ genSelectedCredits }}
-                      </span>
-                    </button>
-                    <button
-                      v-for="opt in genMenuOptions"
-                      :key="opt.count"
-                      class="w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-om-gray-50 transition-colors cursor-pointer"
-                      :class="opt.count !== genMenuOptions[genMenuOptions.length - 1].count ? 'border-b border-om-gray-100' : ''"
-                      @click="triggerGenerate(opt.count)"
-                    >
-                      <span class="text-om-gray-700 text-left">Generate for {{ opt.count }} products</span>
-                      <span class="flex items-center gap-1.5 text-om-orange-500 font-medium ml-8 tabular-nums whitespace-nowrap">
-                        <Coins :size="13" />
-                        {{ opt.credits }}
-                      </span>
-                    </button>
-                  </div>
+                    <span class="text-om-gray-700 text-left">Generate for selected ({{ genSelected.length }})</span>
+                    <span class="flex items-center gap-1.5 font-medium ml-8 tabular-nums whitespace-nowrap" :class="genSelected.length > 0 ? 'text-om-orange-500' : 'text-om-gray-400'">
+                      <Coins :size="13" />
+                      {{ genSelectedCredits }}
+                    </span>
+                  </button>
+                  <button
+                    v-for="opt in genMenuOptions"
+                    :key="opt.count"
+                    class="w-full flex items-center justify-between px-4 py-3 text-sm hover:bg-om-gray-50 transition-colors cursor-pointer"
+                    :class="opt.count !== genMenuOptions[genMenuOptions.length - 1].count ? 'border-b border-om-gray-100' : ''"
+                    @click="triggerGenerate"
+                  >
+                    <span class="text-om-gray-700 text-left">Generate for {{ opt.count }} products</span>
+                    <span class="flex items-center gap-1.5 text-om-orange-500 font-medium ml-8 tabular-nums whitespace-nowrap">
+                      <Coins :size="13" />
+                      {{ opt.credits }}
+                    </span>
+                  </button>
                 </div>
               </div>
             </div>
+          </div>
 
           <!-- Entry count -->
           <p class="text-sm text-om-gray-400 mb-3">Showing {{ (genPage - 1) * genPerPage + 1 }} to {{ Math.min(genPage * genPerPage, genProducts.length) }} of {{ genProducts.length }} entries</p>
@@ -494,15 +1307,12 @@
               <div class="flex items-center gap-4 w-1/2 pl-4">
                 <!-- 16:9 image preview -->
                 <div
-                  class="rounded-lg shrink-0 overflow-hidden relative"
+                  class="rounded-lg shrink-0 overflow-hidden"
                   style="aspect-ratio: 16/9; height: 96px;"
                   :class="product.status === 'generated' ? '' : 'border-2 border-dashed border-om-gray-200 flex items-center justify-center'"
                 >
-                  <img v-if="product.status === 'generated'" src="/product2.png" class="w-full h-full object-cover" :class="isIgnored(product.id) ? 'blur-[2px] grayscale' : ''" />
+                  <img v-if="product.status === 'generated'" src="/product2.png" class="w-full h-full object-cover" />
                   <svg v-else class="w-5 h-5 text-om-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                  <div v-if="product.status === 'generated' && isIgnored(product.id)" class="absolute inset-0 bg-black/60 flex items-center justify-center">
-                    <EyeOff :size="22" class="text-white" />
-                  </div>
                 </div>
 
                 <!-- Output info -->
@@ -513,15 +1323,7 @@
                 </div>
 
                 <!-- Status badge -->
-                <Tag v-if="product.status === 'generated' && isIgnored(product.id)" variant="gray" class="shrink-0">
-                  <template #icon><EyeOff :size="12" /></template>
-                  Ignored
-                </Tag>
-                <Tag v-else-if="product.status === 'generated' && !isApproved(product.id)" variant="yellow" class="shrink-0">
-                  <template #icon><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l2 2" /></svg></template>
-                  Waiting for approval
-                </Tag>
-                <Tag v-else-if="product.status === 'generated'" variant="green" class="shrink-0">
+                <Tag v-if="product.status === 'generated'" variant="green" class="shrink-0">
                   <template #icon><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" /><path stroke-linecap="round" stroke-linejoin="round" d="M8 12l3 3 5-5" /></svg></template>
                   Ready to use
                 </Tag>
@@ -550,104 +1352,48 @@
           </div>
         </div>
 
-        <!-- Review tab content -->
+        <!-- Generated tab content -->
         <div v-else-if="genTab === 'generated'">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-2">
-              <div class="relative">
-                <Search :size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-700" />
-                <input v-model="genSearch" type="text" placeholder="Search products..." class="pl-9 pr-4 py-1.5 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 w-44" />
-              </div>
-              <div class="relative">
-                <Button variant="secondary" size="sm" @click="genReviewShowFilters = !genReviewShowFilters">
-                  <template #icon><SlidersHorizontal :size="15" /></template>
-                  Filters
-                  <span v-if="genReviewFilterCount > 0" class="ml-0.5 bg-om-orange-500 text-white text-[10px] font-semibold rounded-full w-3.5 h-3.5 flex items-center justify-center leading-none">{{ genReviewFilterCount }}</span>
-                </Button>
-                <div v-if="genReviewShowFilters" class="absolute top-full left-0 mt-2 bg-white border border-om-gray-200 rounded-xl shadow-lg p-4 z-20 flex flex-col gap-4 w-80">
-                  <div class="flex flex-col gap-1">
-                    <span class="text-xs text-om-gray-500">Created</span>
-                    <div class="flex items-center gap-2">
-                      <input v-model="genCreatedFrom" type="date" class="flex-1 min-w-0 px-3 py-1.5 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 outline-none focus:border-om-gray-400" />
-                      <span class="text-sm text-om-gray-400">–</span>
-                      <input v-model="genCreatedTo" type="date" class="flex-1 min-w-0 px-3 py-1.5 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 outline-none focus:border-om-gray-400" />
-                    </div>
-                  </div>
-                  <div class="flex flex-col gap-1">
-                    <span class="text-xs text-om-gray-500">Status</span>
-                    <MultiSelect
-                      :model-value="genStatusFilter"
-                      @update:model-value="onGenStatusFilterChange"
-                      :options="genStatusFilterOptions"
-                      size="sm"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="flex items-center gap-4">
-              <span class="text-sm text-om-gray-700">
-                <span class="font-semibold">{{ genWaitingCount }}</span>
-                <span class="text-om-gray-500"> waiting for approval · </span>
-                <span class="font-semibold">{{ genProductsGenerated.length }}</span>
-                <span class="text-om-gray-500"> generated</span>
-              </span>
-              <Button variant="primary" size="sm" :disabled="genWaitingCount === 0" @click="showApproveAllModal = true">
-                <template #icon><Check :size="14" /></template>
-                Approve all
-              </Button>
+              <span class="text-sm font-semibold text-om-gray-700">Generated image available for: {{ genProducts.filter(p => p.status === 'generated').length }} products</span>
             </div>
           </div>
 
           <div class="flex flex-col gap-3">
             <div
-              v-for="(product, i) in genProductsGeneratedPaged"
+              v-for="product in genProductsGeneratedPaged"
               :key="product.id"
-              class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 pl-4 flex items-stretch gap-3 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow"
-              @click="openProductModal(product, 'review')"
+              class="bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-3 flex items-stretch gap-0 cursor-pointer hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow"
+              @click="openProductModal(product)"
             >
-              <span class="self-center w-6 text-xs font-medium text-om-gray-400 tabular-nums shrink-0">#{{ (genGeneratedPage - 1) * genPerPage + i + 1 }}</span>
-              <!-- Content split 50/50 -->
-              <div class="flex-1 min-w-0 flex items-stretch gap-0">
-                <!-- Left half: product thumbnail + info -->
-                <div class="flex items-center gap-3 w-1/2 pr-4">
-                  <div class="aspect-square h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
-                    <img src="/product1.jpg" class="w-full h-full object-cover" />
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold text-om-gray-700">{{ product.name }}</p>
-                    <p class="text-xs text-om-gray-400 mt-0.5">{{ product.desc }}</p>
-                  </div>
+              <!-- Left half: product thumbnail + info -->
+              <div class="flex items-center gap-3 w-1/2 pr-4">
+                <div class="aspect-square h-24 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
+                  <img src="/product1.jpg" class="w-full h-full object-cover" />
                 </div>
-
-                <!-- Divider -->
-                <div class="w-px bg-om-gray-100 shrink-0 self-stretch"></div>
-
-                <!-- Right half: generated image + output info + status -->
-                <div class="flex items-center gap-4 w-1/2 pl-4">
-                  <div class="rounded-lg shrink-0 overflow-hidden relative" style="aspect-ratio: 16/9; height: 96px;">
-                    <img src="/product2.png" class="w-full h-full object-cover" :class="isIgnored(product.id) ? 'blur-[2px] grayscale' : ''" />
-                    <div v-if="isIgnored(product.id)" class="absolute inset-0 bg-black/60 flex items-center justify-center">
-                      <EyeOff :size="22" class="text-white" />
-                    </div>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-0.5">Output</p>
-                    <p class="text-sm text-om-gray-600">16:9 Image</p>
-                  </div>
-                  <Tag v-if="isIgnored(product.id)" variant="gray" class="shrink-0">
-                    <template #icon><EyeOff :size="12" /></template>
-                    Ignored
-                  </Tag>
-                  <Tag v-else-if="!isApproved(product.id)" variant="yellow" class="shrink-0">
-                    <template #icon><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l2 2" /></svg></template>
-                    Waiting for approval
-                  </Tag>
-                  <Tag v-else variant="green" class="shrink-0">
-                    <template #icon><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></template>
-                    Ready to use
-                  </Tag>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-semibold text-om-gray-700">{{ product.name }}</p>
+                  <p class="text-xs text-om-gray-400 mt-0.5">{{ product.desc }}</p>
                 </div>
+              </div>
+
+              <!-- Divider -->
+              <div class="w-px bg-om-gray-100 shrink-0 self-stretch"></div>
+
+              <!-- Right half: generated image + output info + status -->
+              <div class="flex items-center gap-4 w-1/2 pl-4">
+                <div class="rounded-lg shrink-0 overflow-hidden" style="aspect-ratio: 16/9; height: 96px;">
+                  <img src="/product2.png" class="w-full h-full object-cover" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-0.5">Output</p>
+                  <p class="text-sm text-om-gray-600">16:9 Image</p>
+                </div>
+                <Tag variant="green" class="shrink-0">
+                  <template #icon><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></template>
+                  Ready to use
+                </Tag>
               </div>
             </div>
           </div>
@@ -757,212 +1503,147 @@
 
       <!-- Generation Product screen -->
       <div v-else-if="showGenerationProduct && selectedProduct" class="w-full max-w-[1400px] mx-auto -mt-3">
-        <!-- Header: back + title on left, prev/next on right -->
-        <div class="flex items-center justify-between gap-4 mb-4">
-          <div class="flex items-center gap-2 min-w-0">
-            <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-v2-generation')">
-              <template #icon><ArrowLeft :size="16" /></template>
-            </Button>
-            <h1 class="text-2xl font-semibold text-om-gray-700 truncate">{{ selectedProduct.name }}</h1>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <template v-if="productEntrySource === 'review'">
-              <Button variant="secondary" size="sm" @click="toggleIgnore(selectedProduct)">
-                <template #icon>
-                  <Eye v-if="isIgnored(selectedProduct.id)" :size="14" />
-                  <EyeOff v-else :size="14" />
-                </template>
-                {{ isIgnored(selectedProduct.id) ? 'Restore' : 'Ignore' }}
-              </Button>
-              <Button variant="secondary" size="sm" :disabled="isIgnored(selectedProduct.id)" @click="toggleApprove(selectedProduct)">
-                <template #icon>
-                  <X v-if="isApproved(selectedProduct.id)" :size="14" />
-                  <Check v-else :size="14" />
-                </template>
-                {{ isApproved(selectedProduct.id) ? 'Disapprove' : 'Approve' }}
-              </Button>
-            </template>
-            <span v-if="selectedProductIndex >= 0" class="text-sm text-om-gray-400 tabular-nums ml-2">{{ selectedProductIndex + 1 }} / {{ genProductsGenerated.length }}</span>
-            <Button variant="secondary" size="sm" :disabled="!hasPrevProduct" @click="goToPrevProduct">
-              <template #icon><ChevronLeft :size="14" /></template>
-              Previous
-            </Button>
-            <Button variant="secondary" size="sm" :disabled="!hasNextProduct" @click="goToNextProduct">
-              Next
-              <ChevronRight :size="14" />
-            </Button>
-          </div>
+        <!-- Back -->
+        <div class="flex items-center gap-2 mb-2">
+          <Button variant="ghost" size="sm" :icon-only="true" @click="emit('navigate', 'ai-texts-images-v2-generation')">
+            <template #icon><ArrowLeft :size="16" /></template>
+          </Button>
         </div>
+        <h1 class="text-2xl font-semibold text-om-gray-700 mb-4">{{ selectedProduct.name }}</h1>
         <div>
-          <!-- Review-tab entry: full-width generated preview + 1/3+2/3 card below -->
-          <template v-if="productEntrySource === 'review'">
-            <!-- Row 1: AI Generated Preview (full width) -->
-            <div class="flex flex-col mb-4">
-              <div class="flex items-center justify-between mb-3">
-                <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase flex items-center gap-1.5">
-                  <Wand2 :size="16" class="text-om-orange-400" />
-                  AI Generated Preview
-                </p>
-                <Tag v-if="isIgnored(selectedProduct.id)" variant="gray">
-                  <template #icon><EyeOff :size="12" /></template>
-                  Ignored
-                </Tag>
-                <Tag v-else-if="!isApproved(selectedProduct.id)" variant="yellow">
-                  <template #icon><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l2 2" /></svg></template>
-                  Waiting for approval
-                </Tag>
-                <Tag v-else variant="green">
-                  <template #icon><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></template>
-                  Ready to use
-                </Tag>
-              </div>
-              <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden relative" style="height: 500px;">
-                <template v-if="selectedProduct.status === 'generated'">
-                  <img src="/product2.png" class="w-full h-full object-contain transition-all duration-300" :class="[promptChanged ? 'blur-sm scale-105' : '', isIgnored(selectedProduct.id) ? 'blur-[2px] grayscale' : '']" />
-                  <Transition name="modal-fade">
-                    <div v-if="promptChanged" class="absolute inset-0 bg-black/20 flex flex-col items-center justify-center">
-                      <Button variant="primary" size="md" @click="regenerateProduct">
-                        <template #icon><Sparkles :size="14" /></template>
-                        Regenerate
-                      </Button>
-                      <div class="flex items-center gap-1.5 mt-3 text-sm font-medium text-white">
-                        <Coins :size="16" />
-                        Costs {{ selectedImagePreset?.credits ?? 15 }} credits
+                <!-- Two columns -->
+                <div class="grid grid-cols-[340px_1fr] gap-4 mb-4 items-stretch" style="height: 440px;">
+                  <!-- Left: Original Product -->
+                  <div class="flex flex-col min-h-0">
+                    <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-3">Original Product</p>
+                    <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden flex-1 flex flex-col">
+                      <div class="aspect-square bg-om-gray-100 overflow-hidden">
+                        <img src="/product1.jpg" class="w-full h-full object-cover" />
                       </div>
-                    </div>
-                  </Transition>
-                  <div v-if="!promptChanged && isIgnored(selectedProduct.id)" class="absolute inset-0 bg-black/60 flex items-center justify-center">
-                    <EyeOff :size="40" class="text-white" />
-                  </div>
-                </template>
-                <template v-else-if="selectedProduct.status === 'generating'">
-                  <div class="w-full h-full flex flex-col items-center justify-center gap-3">
-                    <svg class="animate-spin w-10 h-10 text-om-orange-500" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    <p class="text-sm text-om-gray-500">Generating...</p>
-                  </div>
-                </template>
-                <template v-else>
-                  <div class="w-full h-full flex flex-col items-center justify-center gap-2">
-                    <svg class="w-8 h-8 text-om-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                    <p class="text-sm text-om-gray-400">Pending generation</p>
-                  </div>
-                </template>
-              </div>
-            </div>
-
-            <!-- Row 2: Original Product (1/3) + Prompt Editor (2/3) in a single card -->
-            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5">
-              <div class="grid grid-cols-3 gap-5">
-                <!-- Left 1/3: Original Product -->
-                <div class="flex items-center gap-4">
-                  <div class="w-40 h-40 bg-om-gray-100 rounded-lg shrink-0 overflow-hidden border border-om-gray-200">
-                    <img src="/product1.jpg" class="w-full h-full object-cover" />
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-1">Original Product</p>
-                    <h3 class="text-sm font-semibold text-om-gray-700 truncate">{{ selectedProduct.name }}</h3>
-                    <div class="flex items-center justify-between mt-1">
-                      <span class="text-xs text-om-gray-400">SKU: OM-7-SE</span>
-                      <span class="text-sm font-semibold text-om-gray-700">$159.00</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Right 2/3: Prompt Editor -->
-                <div class="col-span-2 flex flex-col">
-                  <h3 class="text-sm font-semibold text-om-gray-700 mb-2">Prompt Editor</h3>
-                  <textarea
-                    v-model="promptText"
-                    rows="6"
-                    class="w-full flex-1 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
-                  />
-                  <p class="text-xs text-om-gray-400 mt-2">Edit the prompt above to customize the generation. Changes will require regenerating the preview.</p>
-                </div>
-              </div>
-            </div>
-          </template>
-
-          <!-- Choose-products entry: original side-by-side layout -->
-          <template v-else>
-            <!-- Two columns -->
-            <div class="grid grid-cols-[380px_1fr] gap-4 mb-4 items-stretch" style="height: 500px;">
-              <!-- Left: Original Product -->
-              <div class="flex flex-col min-h-0">
-                <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-3">Original Product</p>
-                <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden flex-1 flex flex-col">
-                  <div class="aspect-square bg-om-gray-100 overflow-hidden">
-                    <img src="/product1.jpg" class="w-full h-full object-cover" />
-                  </div>
-                  <div class="p-4 border-t border-om-gray-100">
-                    <h3 class="text-sm font-semibold text-om-gray-700 mb-3">{{ selectedProduct.name }}</h3>
-                    <div class="flex items-center justify-between">
-                      <span class="text-xs text-om-gray-400">SKU: OM-7-SE</span>
-                      <span class="text-sm font-semibold text-om-gray-700">$159.00</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Right: AI Generated -->
-              <div class="flex flex-col min-h-0">
-                <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-3 flex items-center gap-1.5">
-                  <Wand2 :size="16" class="text-om-orange-400" />
-                  AI Generated Preview
-                </p>
-                <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden flex-1 relative">
-                  <template v-if="selectedProduct.status === 'generated'">
-                    <img src="/product2.png" class="w-full h-full object-contain transition-all duration-300" :class="[promptChanged ? 'blur-sm scale-105' : '', isIgnored(selectedProduct.id) ? 'blur-[2px] grayscale' : '']" />
-                    <Transition name="modal-fade">
-                      <div v-if="promptChanged" class="absolute inset-0 bg-black/20 flex flex-col items-center justify-center">
-                        <Button variant="primary" size="md" @click="regenerateProduct">
-                          <template #icon><Sparkles :size="14" /></template>
-                          Regenerate
-                        </Button>
-                        <div class="flex items-center gap-1.5 mt-3 text-sm font-medium text-white">
-                          <Coins :size="16" />
-                          Costs {{ selectedImagePreset?.credits ?? 15 }} credits
+                      <div class="p-4 border-t border-om-gray-100">
+                        <h3 class="text-sm font-semibold text-om-gray-700 mb-3">{{ selectedProduct.name }}</h3>
+                        <div class="flex items-center justify-between">
+                          <span class="text-xs text-om-gray-400">SKU: OM-7-SE</span>
+                          <span class="text-sm font-semibold text-om-gray-700">$159.00</span>
                         </div>
                       </div>
-                    </Transition>
-                    <div v-if="!promptChanged && isIgnored(selectedProduct.id)" class="absolute inset-0 bg-black/60 flex items-center justify-center">
-                      <EyeOff :size="40" class="text-white" />
                     </div>
-                  </template>
-                  <template v-else-if="selectedProduct.status === 'generating'">
-                    <div class="w-full h-full flex flex-col items-center justify-center gap-3">
-                      <svg class="animate-spin w-10 h-10 text-om-orange-500" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                      <p class="text-sm text-om-gray-500">Generating...</p>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div class="w-full h-full flex flex-col items-center justify-center gap-2">
-                      <svg class="w-8 h-8 text-om-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                      <p class="text-sm text-om-gray-400">Pending generation</p>
-                    </div>
-                  </template>
-                </div>
-              </div>
-            </div>
+                  </div>
 
-            <!-- Prompt Editor -->
-            <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-semibold text-om-gray-700">Prompt Editor</h3>
-              </div>
-              <textarea
-                v-model="promptText"
-                rows="3"
-                class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
-              />
-              <p class="text-xs text-om-gray-400 mt-2">Edit the prompt above to customize the generation. Changes will require regenerating the preview.</p>
-            </div>
-          </template>
+                  <!-- Right: AI Generated -->
+                  <div class="flex flex-col min-h-0">
+                    <p class="text-xs font-semibold tracking-widest text-om-gray-400 uppercase mb-3 flex items-center gap-1.5">
+                      <Wand2 :size="16" class="text-om-orange-400" />
+                      AI Generated Image
+                    </p>
+                    <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden flex-1 relative">
+                      <template v-if="selectedProduct.status === 'generated'">
+                        <img src="/product2.png" class="w-full h-full object-contain transition-all duration-300" :class="promptChanged ? 'blur-sm scale-105' : ''" />
+                        <Transition name="modal-fade">
+                          <div v-if="promptChanged" class="absolute inset-0 bg-black/20 flex flex-col items-center justify-center">
+                            <Button variant="primary" size="md" @click="regenerateProduct">
+                              <template #icon><Sparkles :size="14" /></template>
+                              Regenerate
+                            </Button>
+                            <div class="flex items-center gap-1.5 mt-3 text-sm font-medium text-white">
+                              <Coins :size="16" />
+                              Costs {{ selectedImagePreset?.credits ?? 15 }} credits
+                            </div>
+                          </div>
+                        </Transition>
+                      </template>
+                      <template v-else-if="selectedProduct.status === 'generating'">
+                        <div class="w-full h-full flex flex-col items-center justify-center gap-3">
+                          <svg class="animate-spin w-10 h-10 text-om-orange-500" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          <p class="text-sm text-om-gray-500">Generating...</p>
+                        </div>
+                      </template>
+                      <template v-else>
+                        <div class="w-full h-full flex flex-col items-center justify-center gap-2">
+                          <svg class="w-8 h-8 text-om-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                          <p class="text-sm text-om-gray-400">Pending generation</p>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Prompt Editor -->
+                <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-om-gray-700">Edit the prompt to customize the generation for this product.</h3>
+                    <Button variant="primary" size="sm" @click="regenerateProduct">
+                      <template #icon><Sparkles :size="13" /></template>
+                      Regenerate
+                    </Button>
+                  </div>
+                  <textarea
+                    v-model="promptText"
+                    rows="3"
+                    class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
+                  />
+                  <!-- {{ showAdvanced ? 'Basic Settings' : 'Advanced Settings' }} panel -->
+                  <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-3">
+                    <div class="grid grid-cols-2 gap-3 items-stretch">
+                      <!-- Col 1: Model + Ratio tags -->
+                      <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                          <Tag>Model: {{ promptModel }}</Tag>
+                          <Tag>Ratio: {{ promptRatio }}</Tag>
+                        </div>
+                      </div>
+                      <!-- Col 2: Usage location -->
+                      <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                        <p class="text-xs text-om-gray-500">Usage location</p>
+                        <div class="grid grid-cols-2 mt-0.5">
+                          <RadioButton v-model="pageType" value="product" label="Product page" />
+                          <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                      <p class="text-xs text-om-gray-500">Available data sources</p>
+                      <div class="flex flex-wrap gap-1.5">
+                        <Tag v-for="src in dataSources" :key="src" variant="orange">{{ src }}</Tag>
+                      </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 items-stretch">
+                      <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                        <span class="text-xs text-om-gray-500">Auto-generate prompt variables for products with missing data</span>
+                        <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
+                      </div>
+                      <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                        <span class="text-xs text-om-gray-500">Minimum description length (character)</span>
+                        <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white shrink-0" />
+                      </div>
+                    </div>
+                    <!-- Source images: separate block at bottom -->
+                    <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                      <p class="text-xs text-om-gray-500">Source images</p>
+                      <div class="flex gap-2 flex-wrap">
+                        <div
+                          v-for="img in availableSourceImages"
+                          :key="img.id"
+                          class="relative w-14 h-14 rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-150 shrink-0"
+                          :class="sourceImageSelected(img.id) ? 'border-om-orange-500 shadow-[0_0_0_2px_#FBD9CE]' : 'border-om-gray-200 hover:border-om-gray-300'"
+                          @click="toggleSourceImage(img)"
+                        >
+                          <img :src="img.src" class="w-full h-full object-cover" />
+                          <div v-if="sourceImageSelected(img.id)" class="absolute top-1 right-1 w-4 h-4 rounded-full bg-om-orange-500 flex items-center justify-center">
+                            <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-end mt-3">
+                    <Button variant="ghost" size="sm" @click="showAdvanced = !showAdvanced">{{ showAdvanced ? 'Basic Settings' : 'Advanced Settings' }} <component :is="showAdvanced ? ChevronUp : ChevronDown" :size="14" /></Button>
+                  </div>
+                </div>
         </div>
 
       </div>
@@ -1087,59 +1768,152 @@
           </div>
         </div>
 
-        <!-- Prompt Editor -->
+        <!-- Prompt Editor (tabbed) -->
         <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] p-5">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-semibold text-om-gray-700">Prompt Editor</h3>
+          <div class="flex items-center gap-1 border-b border-om-gray-100 mb-4 -mt-1">
+            <button
+              type="button"
+              class="px-3 py-2 text-sm font-medium transition-colors cursor-pointer flex items-center gap-1.5 border-b-2 -mb-px"
+              :class="textChat.state.tab === 'ai-input' ? 'text-om-orange-500 border-om-orange-500' : 'text-om-gray-500 hover:text-om-gray-700 border-transparent'"
+              @click="textChat.state.tab = 'ai-input'"
+            >
+              <Sparkles :size="14" />
+              AI Input
+            </button>
+            <button
+              type="button"
+              class="px-3 py-2 text-sm font-medium transition-colors cursor-pointer flex items-center gap-1.5 border-b-2 -mb-px"
+              :class="textChat.state.tab === 'editor' ? 'text-om-orange-500 border-om-orange-500' : 'text-om-gray-500 hover:text-om-gray-700 border-transparent'"
+              @click="textChat.state.tab = 'editor'"
+            >
+              <Pencil :size="14" />
+              Prompt Editor
+            </button>
           </div>
-          <textarea
-            v-model="textPromptText"
-            rows="3"
-            class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
-          />
-          <div class="flex items-center justify-between mt-2">
-            <p class="text-xs text-om-gray-400">Edit the prompt above to customize the generation. Changes will require regenerating the preview.</p>
-            <Button v-if="!showAdvanced" variant="ghost" size="sm" class="shrink-0 ml-4" @click="showAdvanced = true">Advanced Settings <ChevronDown :size="14" /></Button>
+
+          <!-- AI Input tab -->
+          <div v-if="textChat.state.tab === 'ai-input'">
+            <div :ref="el => textChat.messagesRef.value = el" class="flex flex-col gap-3 max-h-[320px] overflow-y-auto pr-1 mb-3">
+              <template v-for="(msg, i) in textChat.state.messages" :key="i">
+                <div v-if="msg.role === 'ai'" class="flex items-start gap-2.5">
+                  <div class="w-7 h-7 rounded-full bg-om-orange-100 flex items-center justify-center shrink-0">
+                    <Sparkles :size="14" class="text-om-orange-500" />
+                  </div>
+                  <div class="flex flex-col gap-2 min-w-0 max-w-[85%]">
+                    <div class="bg-om-gray-50 rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-sm text-om-gray-700 leading-relaxed">{{ msg.text }}</div>
+                    <div v-if="msg.suggestedPrompt" class="border border-om-orange-200 bg-om-orange-50/40 rounded-xl p-3 flex flex-col gap-2">
+                      <p class="text-[11px] font-semibold uppercase tracking-wider text-om-orange-500">Suggested prompt</p>
+                      <p class="text-sm text-om-gray-700 leading-relaxed">{{ msg.suggestedPrompt }}</p>
+                      <div class="flex items-center gap-2 mt-0.5">
+                        <Button v-if="!msg.applied" variant="primary" size="sm" @click="textChat.apply(msg)">
+                          <template #icon><Check :size="14" /></template>
+                          Apply to prompt
+                        </Button>
+                        <span v-else class="inline-flex items-center gap-1.5 text-xs font-medium text-[#2CC896]">
+                          <Check :size="14" />
+                          Applied
+                        </span>
+                      </div>
+                    </div>
+                    <div v-if="msg.replies" class="flex flex-wrap gap-1.5">
+                      <button
+                        v-for="reply in msg.replies"
+                        :key="reply"
+                        type="button"
+                        class="text-xs px-2.5 py-1.5 rounded-full border border-om-gray-200 text-om-gray-600 hover:bg-om-gray-50 hover:border-om-gray-300 cursor-pointer transition-colors"
+                        @click="textChat.send(reply)"
+                      >{{ reply }}</button>
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="flex items-start gap-2.5 justify-end">
+                  <div class="bg-om-orange-500 text-white rounded-2xl rounded-tr-sm px-3.5 py-2.5 text-sm max-w-[85%] leading-relaxed">{{ msg.text }}</div>
+                </div>
+              </template>
+              <div v-if="textChat.state.typing" class="flex items-start gap-2.5">
+                <div class="w-7 h-7 rounded-full bg-om-orange-100 flex items-center justify-center shrink-0">
+                  <Sparkles :size="14" class="text-om-orange-500" />
+                </div>
+                <div class="bg-om-gray-50 rounded-2xl rounded-tl-sm px-3.5 py-3">
+                  <div class="flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-om-gray-400 animate-pulse" />
+                    <span class="w-1.5 h-1.5 rounded-full bg-om-gray-400 animate-pulse" style="animation-delay: 0.15s" />
+                    <span class="w-1.5 h-1.5 rounded-full bg-om-gray-400 animate-pulse" style="animation-delay: 0.3s" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 border border-om-gray-200 rounded-xl pl-3 pr-1.5 py-1.5 focus-within:border-om-orange-300 focus-within:shadow-[0_0_0_2px_#FBD9CE] transition-all">
+              <input
+                v-model="textChat.state.draft"
+                type="text"
+                placeholder="Ask the AI to refine the prompt..."
+                class="flex-1 text-sm text-om-gray-700 placeholder-om-gray-400 outline-none bg-transparent py-1"
+                @keydown.enter.prevent="textChat.send(textChat.state.draft)"
+              />
+              <button
+                type="button"
+                class="w-8 h-8 rounded-lg bg-om-orange-500 text-white flex items-center justify-center cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-om-orange-600 transition-colors"
+                :disabled="!textChat.state.draft.trim() || textChat.state.typing"
+                @click="textChat.send(textChat.state.draft)"
+              >
+                <Send :size="14" />
+              </button>
+            </div>
           </div>
-          <!-- Advanced Settings panel -->
-          <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-3">
-            <div class="grid grid-cols-2 gap-3 items-stretch">
-              <div class="bg-om-gray-50 rounded-xl px-4 py-3 min-w-0">
-                <div class="flex flex-col gap-1">
-                  <p class="text-xs text-om-gray-500">Model</p>
-                  <Dropdown v-model="promptModel" :options="modelOptions" size="sm" />
+
+          <!-- Prompt Editor tab -->
+          <div v-else>
+            <textarea
+              v-model="textPromptText"
+              rows="3"
+              class="w-full text-sm text-om-gray-700 border border-om-gray-200 rounded-lg p-3 resize-none outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all"
+            />
+            <div class="flex items-center justify-between mt-2">
+              <p class="text-xs text-om-gray-400">Edit the prompt above to customize the generation. Changes will require regenerating the preview.</p>
+              <Button v-if="!showAdvanced" variant="ghost" size="sm" class="shrink-0 ml-4" @click="showAdvanced = true">Advanced Settings <ChevronDown :size="14" /></Button>
+            </div>
+            <!-- Advanced Settings panel -->
+            <div v-if="showAdvanced" class="mt-4 pt-4 border-t border-om-gray-100 flex flex-col gap-3">
+              <div class="grid grid-cols-2 gap-3 items-stretch">
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 min-w-0">
+                  <div class="flex flex-col gap-1">
+                    <p class="text-xs text-om-gray-500">Model</p>
+                    <Dropdown v-model="promptModel" :options="modelOptions" size="sm" />
+                  </div>
+                </div>
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
+                  <p class="text-xs text-om-gray-500">Usage location</p>
+                  <div class="grid grid-cols-2 mt-0.5">
+                    <RadioButton v-model="pageType" value="product" label="Product page" />
+                    <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
+                  </div>
                 </div>
               </div>
               <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
-                <p class="text-xs text-om-gray-500">Usage location</p>
-                <div class="grid grid-cols-2 mt-0.5">
-                  <RadioButton v-model="pageType" value="product" label="Product page" />
-                  <RadioButton v-model="pageType" value="popup" label="Popup/Embedded" />
+                <p class="text-xs text-om-gray-500">Available data sources</p>
+                <div class="flex flex-wrap gap-1.5">
+                  <Tag v-for="src in dataSources" :key="src" variant="orange">{{ src }}</Tag>
                 </div>
               </div>
-            </div>
-            <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex flex-col gap-2">
-              <p class="text-xs text-om-gray-500">Available data sources</p>
-              <div class="flex flex-wrap gap-1.5">
-                <Tag v-for="src in dataSources" :key="src" variant="orange">{{ src }}</Tag>
+              <div class="grid grid-cols-3 gap-3">
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                  <span class="text-xs text-om-gray-500">Auto-generate prompt variables for products with missing data</span>
+                  <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
+                </div>
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                  <span class="text-xs text-om-gray-500">Minimum description length (character)</span>
+                  <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white shrink-0" />
+                </div>
+                <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                  <span class="text-xs text-om-gray-500">Use product image as context</span>
+                  <ToggleSwitch v-model="useProductImage" class="shrink-0" />
+                </div>
               </div>
-            </div>
-            <div class="grid grid-cols-3 gap-3">
-              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
-                <span class="text-xs text-om-gray-500">Auto-generate prompt variables for products with missing data</span>
-                <ToggleSwitch v-model="autoGenerate" class="shrink-0" />
+              <div class="flex justify-end">
+                <Button variant="ghost" size="sm" @click="showAdvanced = false">Basic Settings <ChevronUp :size="14" /></Button>
               </div>
-              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
-                <span class="text-xs text-om-gray-500">Minimum description length (character)</span>
-                <input v-model="minDescLength" type="number" min="0" class="w-16 text-sm text-om-gray-700 border border-om-gray-200 rounded-lg px-2 py-1 outline-none focus:border-om-orange-300 focus:shadow-[0_0_0_2px_#FBD9CE] transition-all text-right bg-white shrink-0" />
-              </div>
-              <div class="bg-om-gray-50 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
-                <span class="text-xs text-om-gray-500">Use product image as context</span>
-                <ToggleSwitch v-model="useProductImage" class="shrink-0" />
-              </div>
-            </div>
-            <div class="flex justify-end">
-              <Button variant="ghost" size="sm" @click="showAdvanced = false">Basic Settings <ChevronUp :size="14" /></Button>
             </div>
           </div>
         </div>
@@ -1745,77 +2519,31 @@
       </div>
       <AddDomainModal v-model="showAddDomainModal" @add="handleNewDomain" />
 
-      <!-- Approve all confirmation -->
-      <Modal v-model="showApproveAllModal" title="Approve all generated products?" size="sm">
-        <p class="text-sm text-om-gray-700">
-          This will approve <span class="font-semibold">{{ genWaitingCount }}</span>
-          {{ genWaitingCount === 1 ? 'product' : 'products' }} currently waiting for approval (matching the active filters).
-          Ignored products are skipped.
-        </p>
-        <template #footer="{ close }">
-          <Button variant="secondary" size="sm" @click="close">Cancel</Button>
-          <Button variant="primary" size="sm" @click="approveAll">
-            <template #icon><Check :size="14" /></template>
-            Approve all
-          </Button>
-        </template>
-      </Modal>
-
-      <!-- Image history modal -->
-      <Transition name="modal-fade">
-        <div v-if="historyModalProduct" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6" @click.self="closeHistoryModal">
-          <div class="bg-white rounded-2xl shadow-xl w-[860px] h-[620px] max-w-[95vw] max-h-[95vh] flex flex-col overflow-hidden">
-            <div class="flex items-center justify-between px-5 py-4 border-b border-om-gray-100 shrink-0">
-              <div class="min-w-0">
-                <h3 class="text-base font-semibold text-om-gray-700">Image history</h3>
-                <p class="text-xs text-om-gray-400 mt-0.5 truncate">{{ historyModalProduct?.name }}</p>
-              </div>
-              <Button variant="ghost" size="sm" icon-only @click="closeHistoryModal">
-                <template #icon><X :size="16" /></template>
-              </Button>
-            </div>
-            <div class="flex-1 min-h-0 overflow-y-auto p-5">
-              <div class="grid grid-cols-3 gap-4">
-                <button
-                  v-for="entry in getHistory(historyModalProduct)"
-                  :key="entry.value"
-                  type="button"
-                  @click="historyModalSelected = entry"
-                  class="text-left border rounded-xl overflow-hidden flex flex-col bg-white transition-all focus:outline-none"
-                  :class="historyModalSelected?.value === entry.value ? 'border-om-orange-500 shadow-[0_0_0_2px_#FBD9CE]' : 'border-om-gray-200 hover:border-om-gray-300'"
-                >
-                  <div class="h-[220px] bg-om-gray-50 relative flex items-center justify-center shrink-0">
-                    <img :src="entry.src" class="max-w-full max-h-full object-contain" />
-                    <span
-                      v-if="getCurrentImage(historyModalProduct)?.value === entry.value"
-                      class="absolute top-2 right-2 bg-om-orange-500 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                    >Current</span>
-                  </div>
-                  <div class="h-12 px-3 flex items-center border-t border-om-gray-100 shrink-0">
-                    <span class="text-xs text-om-gray-600 truncate">{{ entry.label }}</span>
-                  </div>
-                </button>
-              </div>
-            </div>
-            <div class="flex items-center justify-end gap-2 px-5 py-4 border-t border-om-gray-100 shrink-0">
-              <Button variant="secondary" size="md" @click="closeHistoryModal">Cancel</Button>
-              <Button
-                variant="primary"
-                size="md"
-                :disabled="!historyModalSelected || getCurrentImage(historyModalProduct)?.value === historyModalSelected?.value"
-                @click="useHistoryEntry(historyModalSelected)"
-              >Use this</Button>
-            </div>
+      <Modal v-model="templateModalOpen" title="Load AI template" size="md" :overflow-visible="true">
+        <div class="space-y-3">
+          <p class="text-sm text-om-gray-500">Select a template to load its prompt and settings into Step {{ templateModalStepIndex + 1 }}.</p>
+          <Dropdown
+            v-model="templateModalSelected"
+            :options="aiTemplates.map(t => ({ value: t, label: t.name }))"
+            placeholder="Select a template..."
+          />
+          <div v-if="selectedTemplate" class="rounded-lg border border-om-gray-200 bg-om-gray-50 p-3 space-y-2">
+            <span class="text-xs font-medium text-om-gray-500">{{ selectedTemplate.model }}<span v-if="selectedTemplate.type === 'Image'"> · {{ selectedTemplate.ratio }}</span></span>
+            <p class="text-xs text-om-gray-600 whitespace-pre-line">{{ selectedTemplate.prompt }}</p>
           </div>
         </div>
-      </Transition>
+        <template #footer="{ close }">
+          <Button variant="outline" @click="close">Cancel</Button>
+          <Button variant="primary" :disabled="!selectedTemplate" @click="applyTemplate">Load template</Button>
+        </template>
+      </Modal>
     </template>
   </DashboardLayout>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { Search, ArrowLeft, ArrowRight, Sparkles, Image as ImageIcon, Cpu, Maximize2, Coins, Wand2, ExternalLink, Type, ArrowUpDown, SlidersHorizontal, Upload, X, Check, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Eye, EyeOff, History } from 'lucide-vue-next'
+import { ref, reactive, computed, watch, nextTick } from 'vue'
+import { Search, ArrowLeft, ArrowRight, Sparkles, Image as ImageIcon, Cpu, Maximize2, Coins, Wand2, ExternalLink, Type, ArrowUpDown, SlidersHorizontal, Upload, X, Check, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Workflow, Plus, Play, Loader2, Clock, Eye, EyeOff, Send, Pencil } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Checkbox from '../components/shared/Checkbox.vue'
@@ -1824,8 +2552,9 @@ import MultiSelect from '../components/shared/MultiSelect.vue'
 import ToggleSwitch from '../components/shared/ToggleSwitch.vue'
 import RadioButton from '../components/shared/RadioButton.vue'
 import Tag from '../components/shared/Tag.vue'
-import Modal from '../components/shared/Modal.vue'
 import AddDomainModal from '../components/shared/AddDomainModal.vue'
+import Modal from '../components/shared/Modal.vue'
+import { workflowSteps, workflowReferences, newStep } from '../composables/useWorkflowState.js'
 
 const props = defineProps({
   screen: { type: String, default: 'list' },
@@ -1835,6 +2564,9 @@ const emit = defineEmits(['menu-click', 'navigate'])
 
 const showCreate = computed(() => props.screen === 'new')
 const showImagePresets = computed(() => props.screen === 'image-presets')
+const showWorkflowPresets = computed(() => props.screen === 'workflow-presets')
+const showWorkflowEditor = computed(() => props.screen === 'workflow-editor')
+const showWorkflowGeneration = computed(() => props.screen === 'workflow-generation')
 const showPreview = computed(() => props.screen === 'image-preview')
 const showChooseProducts = computed(() => props.screen === 'choose-products')
 const showGeneration = computed(() => props.screen === 'generation')
@@ -1868,37 +2600,32 @@ const triggerGenBanner = () => {
   showGenBanner.value = true
   setTimeout(() => { showGenBanner.value = false }, 5000)
 }
-// Generation mode: 'instant' charges full price, 'batch' charges 50%
-const genMode = ref('instant')
-const genCreditsPerImage = computed(() => genMode.value === 'batch' ? 10 : 20)
-
-const genMenuOptions = computed(() => {
-  const perImage = genCreditsPerImage.value
-  return [1, 10, 25, 100].map(count => ({
-    count,
-    credits: (count * perImage).toLocaleString() + ' credits',
-  }))
-})
+const genMenuOptions = [
+  { count: 1, credits: '20 credits' },
+  { count: 10, credits: '200 credits' },
+  { count: 25, credits: '500 credits' },
+  { count: 100, credits: '2,000 credits' },
+]
 
 const genSelected = ref([])
-const genSelectedCredits = computed(() => (genSelected.value.length * genCreditsPerImage.value).toLocaleString() + ' credits')
+const genSelectedCredits = computed(() => (genSelected.value.length * 20).toLocaleString() + ' credits')
 
 const genProducts = ref([
   { id: 1, name: 'Premium Wireless Headphones', desc: 'Noise-cancelling over-ear headphones with 30-hour battery life.', status: 'generated' },
-  { id: 2, name: 'Minimalist Ceramic Mug', desc: 'Handcrafted 12oz ceramic mug with matte finish.', status: 'generated' },
-  { id: 3, name: 'Ergonomic Office Chair', desc: 'Adjustable lumbar support and breathable mesh back.', status: 'generated' },
-  { id: 4, name: 'Smart Fitness Watch', desc: 'Heart rate monitor, GPS, and water-resistant design.', status: 'generated' },
-  { id: 5, name: 'Organic Cotton T-Shirt', desc: '100% organic cotton, ethically sourced and manufactured.', status: 'generated' },
-  { id: 6, name: 'Noise-Cancelling Earbuds', desc: 'True wireless earbuds with active noise cancellation.', status: 'generated' },
-  { id: 7, name: 'Bamboo Cutting Board', desc: 'Eco-friendly bamboo cutting board with juice groove.', status: 'generated' },
-  { id: 8, name: 'Stainless Steel Water Bottle', desc: 'Double-walled insulated bottle, keeps drinks cold 24h.', status: 'generated' },
-  { id: 9, name: 'Leather Wallet', desc: 'Slim bifold wallet crafted from genuine full-grain leather.', status: 'generated' },
-  { id: 10, name: 'Portable Bluetooth Speaker', desc: 'Waterproof speaker with 360° sound and 12-hour battery.', status: 'generated' },
-  { id: 11, name: 'Yoga Mat Pro', desc: 'Non-slip 6mm thick mat with alignment lines.', status: 'generated' },
-  { id: 12, name: 'Scented Soy Candle Set', desc: 'Set of 3 hand-poured soy candles, 40-hour burn time each.', status: 'generated' },
-  { id: 13, name: 'Mechanical Keyboard', desc: 'Compact TKL layout with Cherry MX switches.', status: 'generated' },
-  { id: 14, name: 'Ceramic Plant Pot', desc: 'Handmade ceramic pot with drainage hole, 15cm diameter.', status: 'generated' },
-  { id: 15, name: 'Merino Wool Beanie', desc: 'Super-soft 100% merino wool, one size fits all.', status: 'generated' },
+  { id: 2, name: 'Minimalist Ceramic Mug', desc: 'Handcrafted 12oz ceramic mug with matte finish.', status: 'queued' },
+  { id: 3, name: 'Ergonomic Office Chair', desc: 'Adjustable lumbar support and breathable mesh back.', status: 'queued' },
+  { id: 4, name: 'Smart Fitness Watch', desc: 'Heart rate monitor, GPS, and water-resistant design.', status: 'queued' },
+  { id: 5, name: 'Organic Cotton T-Shirt', desc: '100% organic cotton, ethically sourced and manufactured.', status: 'queued' },
+  { id: 6, name: 'Noise-Cancelling Earbuds', desc: 'True wireless earbuds with active noise cancellation.', status: 'queued' },
+  { id: 7, name: 'Bamboo Cutting Board', desc: 'Eco-friendly bamboo cutting board with juice groove.', status: 'queued' },
+  { id: 8, name: 'Stainless Steel Water Bottle', desc: 'Double-walled insulated bottle, keeps drinks cold 24h.', status: 'queued' },
+  { id: 9, name: 'Leather Wallet', desc: 'Slim bifold wallet crafted from genuine full-grain leather.', status: 'queued' },
+  { id: 10, name: 'Portable Bluetooth Speaker', desc: 'Waterproof speaker with 360° sound and 12-hour battery.', status: 'queued' },
+  { id: 11, name: 'Yoga Mat Pro', desc: 'Non-slip 6mm thick mat with alignment lines.', status: 'queued' },
+  { id: 12, name: 'Scented Soy Candle Set', desc: 'Set of 3 hand-poured soy candles, 40-hour burn time each.', status: 'queued' },
+  { id: 13, name: 'Mechanical Keyboard', desc: 'Compact TKL layout with Cherry MX switches.', status: 'queued' },
+  { id: 14, name: 'Ceramic Plant Pot', desc: 'Handmade ceramic pot with drainage hole, 15cm diameter.', status: 'queued' },
+  { id: 15, name: 'Merino Wool Beanie', desc: 'Super-soft 100% merino wool, one size fits all.', status: 'queued' },
   { id: 16, name: 'Wooden Desk Organizer', desc: 'Modular bamboo organizer with removable dividers.', status: 'queued' },
   { id: 17, name: 'Glass Food Storage Set', desc: 'Set of 5 borosilicate glass containers with locking lids.', status: 'queued' },
   { id: 18, name: 'Running Shoes', desc: 'Lightweight mesh upper with responsive foam midsole.', status: 'queued' },
@@ -1941,187 +2668,15 @@ const genProducts = ref([
 ])
 
 const genSearch = ref('')
-const genCreatedFrom = ref('')
-const genCreatedTo = ref('')
-// Deterministic mock creation date per product: most recent first, 1 day apart
-const reviewBaseDate = new Date()
-reviewBaseDate.setHours(0, 0, 0, 0)
-function productCreatedAt(product) {
-  const d = new Date(reviewBaseDate)
-  d.setDate(d.getDate() - (product.id - 1))
-  return d
-}
-const perPageOptions = [
-  { value: 10, label: '10' },
-  { value: 20, label: '20' },
-  { value: 50, label: '50' },
-  { value: 100, label: '100' },
-]
-const genPerPageOption = ref(perPageOptions[0])
-const genPerPage = computed(() => genPerPageOption.value?.value ?? 10)
+const genPerPage = 10
 const genPage = ref(1)
 const genGeneratedPage = ref(1)
-const genProductsPaged = computed(() => genProducts.value.slice((genPage.value - 1) * genPerPage.value, genPage.value * genPerPage.value))
-const genReviewShowFilters = ref(false)
-const genStatusFilterOptions = [
-  { value: 'all', label: 'All' },
-  { value: 'waiting', label: 'Waiting for approval' },
-  { value: 'ready', label: 'Ready to use' },
-  { value: 'ignored', label: 'Ignored' },
-]
-const genStatusFilter = ref(['all'])
-const onGenStatusFilterChange = (next) => {
-  if (!next || next.length === 0) { genStatusFilter.value = ['all']; return }
-  const wasAll = genStatusFilter.value.includes('all')
-  const hasAll = next.includes('all')
-  if (hasAll && !wasAll) { genStatusFilter.value = ['all']; return }
-  if (hasAll && wasAll && next.length > 1) {
-    genStatusFilter.value = next.filter(v => v !== 'all')
-    return
-  }
-  genStatusFilter.value = next
-}
-const genProductsGenerated = computed(() => {
-  const q = genSearch.value.trim().toLowerCase()
-  const from = genCreatedFrom.value ? new Date(genCreatedFrom.value) : null
-  const to = genCreatedTo.value ? new Date(genCreatedTo.value) : null
-  if (to) to.setHours(23, 59, 59, 999)
-  const ignored = ignoredIds.value
-  const approved = approvedIds.value
-  const sel = genStatusFilter.value
-  const showAll = sel.includes('all')
-  return genProducts.value.filter(p => {
-    if (p.status !== 'generated') return false
-    if (q && !(p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q))) return false
-    if (from || to) {
-      const created = productCreatedAt(p)
-      if (from && created < from) return false
-      if (to && created > to) return false
-    }
-    if (!showAll) {
-      const isIgn = ignored.has(p.id)
-      const isApp = approved.has(p.id)
-      const isWaiting = !isIgn && !isApp
-      const isReady = !isIgn && isApp
-      const matches =
-        (sel.includes('ignored') && isIgn) ||
-        (sel.includes('waiting') && isWaiting) ||
-        (sel.includes('ready') && isReady)
-      if (!matches) return false
-    }
-    return true
-  })
-})
-const genProductsGeneratedPaged = computed(() => genProductsGenerated.value.slice((genGeneratedPage.value - 1) * genPerPage.value, genGeneratedPage.value * genPerPage.value))
-const genTotalPages = computed(() => Math.ceil(genProducts.value.length / genPerPage.value))
-const genGeneratedTotalPages = computed(() => Math.ceil(genProductsGenerated.value.length / genPerPage.value))
-const genReviewFilterCount = computed(() => {
-  let count = 0
-  if (genCreatedFrom.value || genCreatedTo.value) count++
-  if (!genStatusFilter.value.includes('all')) count++
-  return count
-})
+const genProductsPaged = computed(() => genProducts.value.slice((genPage.value - 1) * genPerPage, genPage.value * genPerPage))
+const genProductsGenerated = computed(() => genProducts.value.filter(p => p.status === 'generated'))
+const genProductsGeneratedPaged = computed(() => genProductsGenerated.value.slice((genGeneratedPage.value - 1) * genPerPage, genGeneratedPage.value * genPerPage))
+const genTotalPages = computed(() => Math.ceil(genProducts.value.length / genPerPage))
+const genGeneratedTotalPages = computed(() => Math.ceil(genProductsGenerated.value.length / genPerPage))
 watch(genTab, () => { genPage.value = 1; genGeneratedPage.value = 1 })
-watch(genPerPage, () => { genPage.value = 1; genGeneratedPage.value = 1 })
-watch(genSearch, () => { genGeneratedPage.value = 1 })
-watch([genCreatedFrom, genCreatedTo], () => { genGeneratedPage.value = 1 })
-watch(genStatusFilter, () => { genGeneratedPage.value = 1 })
-
-// Per-product review feedback + in-flight regenerations
-const feedbackByProduct = ref({})
-const regeneratingIds = ref(new Set())
-const isRegeneratingId = (id) => regeneratingIds.value.has(id)
-const ignoredIds = ref(new Set())
-const isIgnored = (id) => ignoredIds.value.has(id)
-const toggleIgnore = (product) => {
-  const set = new Set(ignoredIds.value)
-  if (set.has(product.id)) set.delete(product.id)
-  else set.add(product.id)
-  ignoredIds.value = set
-}
-
-// Approval state — newly generated images start as "Waiting for approval"; existing seed data is pre-approved
-const approvedIds = ref(new Set(genProducts.value.filter(p => p.status === 'generated').map(p => p.id)))
-const isApproved = (id) => approvedIds.value.has(id)
-const setApproved = (id, val) => {
-  const set = new Set(approvedIds.value)
-  if (val) set.add(id)
-  else set.delete(id)
-  approvedIds.value = set
-}
-const toggleApprove = (product) => setApproved(product.id, !isApproved(product.id))
-
-// Bulk approve — counts items currently waiting (visible after filters) for review
-const genWaitingCount = computed(() => genProductsGenerated.value.filter(p => !ignoredIds.value.has(p.id) && !approvedIds.value.has(p.id)).length)
-const showApproveAllModal = ref(false)
-const approveAll = () => {
-  const set = new Set(approvedIds.value)
-  genProductsGenerated.value.forEach(p => {
-    if (!ignoredIds.value.has(p.id)) set.add(p.id)
-  })
-  approvedIds.value = set
-  showApproveAllModal.value = false
-}
-
-// Per-product generated-image history (for the "History" dropdown)
-const historyGalleryPool = ['/product2.png', '/prod2.jpg', '/Prod1.png', '/review_img.png', '/whisky.png']
-const historyByProduct = ref({})
-const currentImageByProduct = ref({})
-function formatVersionDate(d) {
-  const p = (n) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
-}
-function ensureHistory(product) {
-  if (!historyByProduct.value[product.id]) {
-    const initialDate = productCreatedAt(product)
-    initialDate.setHours(10, 0, 0, 0)
-    const first = { value: `${product.id}-v1`, label: `Version 1 - ${formatVersionDate(initialDate)}`, src: '/product2.png' }
-    historyByProduct.value = { ...historyByProduct.value, [product.id]: [first] }
-    currentImageByProduct.value = { ...currentImageByProduct.value, [product.id]: first }
-  }
-}
-function getHistory(product) { ensureHistory(product); return historyByProduct.value[product.id] }
-function getCurrentImage(product) { ensureHistory(product); return currentImageByProduct.value[product.id] }
-function setCurrentImage(product, entry) {
-  currentImageByProduct.value = { ...currentImageByProduct.value, [product.id]: entry }
-}
-
-const historyModalProductId = ref(null)
-const historyModalSelected = ref(null)
-const historyModalProduct = computed(() => historyModalProductId.value == null ? null : genProducts.value.find(p => p.id === historyModalProductId.value) ?? null)
-function openHistoryModal(product) {
-  historyModalProductId.value = product.id
-  historyModalSelected.value = getCurrentImage(product)
-}
-function closeHistoryModal() {
-  historyModalProductId.value = null
-  historyModalSelected.value = null
-}
-function useHistoryEntry(entry) {
-  if (!entry) return
-  if (historyModalProduct.value) setCurrentImage(historyModalProduct.value, entry)
-  closeHistoryModal()
-}
-
-const regenerateFromReview = (product) => {
-  const id = product.id
-  ensureHistory(product)
-  const set = new Set(regeneratingIds.value)
-  set.add(id)
-  regeneratingIds.value = set
-  setTimeout(() => {
-    const s = new Set(regeneratingIds.value)
-    s.delete(id)
-    regeneratingIds.value = s
-    const list = historyByProduct.value[id] || []
-    const nextN = list.length + 1
-    const src = historyGalleryPool[(nextN - 1) % historyGalleryPool.length]
-    const entry = { value: `${id}-v${nextN}`, label: `Version ${nextN} - ${formatVersionDate(new Date())}`, src }
-    historyByProduct.value = { ...historyByProduct.value, [id]: [...list, entry] }
-    currentImageByProduct.value = { ...currentImageByProduct.value, [id]: entry }
-    setApproved(id, false)
-  }, 2000)
-}
 
 const selectedProduct = ref(null)
 
@@ -2148,13 +2703,9 @@ const toggleSourceImage = (img) => {
 const modalOriginalPrompt = ref('')
 const modalOriginalSettings = ref(null)
 
-const productEntrySource = ref('choose')
-
-const openProductModal = (product, source = 'choose') => {
+const openProductModal = (product) => {
   if (product.status !== 'generated') return
-  productEntrySource.value = source
   selectedProduct.value = product
-  useProductImage.value = true
   modalOriginalPrompt.value = promptText.value
   modalOriginalSettings.value = {
     promptModel: promptModel.value,
@@ -2165,21 +2716,6 @@ const openProductModal = (product, source = 'choose') => {
     useProductImage: useProductImage.value,
   }
   emit('navigate', 'ai-texts-images-v2-generation-product')
-}
-
-const selectedProductIndex = computed(() => {
-  if (!selectedProduct.value) return -1
-  return genProductsGenerated.value.findIndex(p => p.id === selectedProduct.value.id)
-})
-const hasPrevProduct = computed(() => selectedProductIndex.value > 0)
-const hasNextProduct = computed(() => selectedProductIndex.value >= 0 && selectedProductIndex.value < genProductsGenerated.value.length - 1)
-const goToPrevProduct = () => {
-  if (!hasPrevProduct.value) return
-  selectedProduct.value = genProductsGenerated.value[selectedProductIndex.value - 1]
-}
-const goToNextProduct = () => {
-  if (!hasNextProduct.value) return
-  selectedProduct.value = genProductsGenerated.value[selectedProductIndex.value + 1]
 }
 
 const promptChanged = computed(() => {
@@ -2213,25 +2749,18 @@ const regenerateProduct = () => {
   setTimeout(() => {
     genProducts.value = genProducts.value.map(p => p.id === id ? { ...p, status: 'generated' } : p)
     selectedProduct.value = { ...selectedProduct.value, status: 'generated' }
-    setApproved(id, false)
   }, 2000)
 }
 
-const triggerGenerate = (arg) => {
+const triggerGenerate = (ids) => {
   showGenMenu.value = false
-  let toGenerate
-  if (Array.isArray(arg)) {
-    toGenerate = genProducts.value.filter(p => arg.includes(p.id)).map(p => p.id)
-  } else if (typeof arg === 'number') {
-    toGenerate = genProducts.value.filter(p => p.status === 'queued').slice(0, arg).map(p => p.id)
-  } else {
-    toGenerate = genProducts.value.filter(p => p.status === 'queued').map(p => p.id)
-  }
+  const toGenerate = Array.isArray(ids)
+    ? genProducts.value.filter(p => ids.includes(p.id)).map(p => p.id)
+    : genProducts.value.filter(p => p.status === 'queued').map(p => p.id)
   genProducts.value = genProducts.value.map(p => toGenerate.includes(p.id) ? { ...p, status: 'generating' } : p)
   toGenerate.forEach((id, i) => {
     setTimeout(() => {
       genProducts.value = genProducts.value.map(p => p.id === id ? { ...p, status: 'generated' } : p)
-      setApproved(id, false)
     }, (i + 1) * 2000)
   })
 }
@@ -2385,7 +2914,7 @@ const generated = ref(false)
 const promptModel = ref('Nano Banana Pro')
 const promptRatio = ref('16:9')
 const promptText = ref('A high-quality, professional product photo of premium wireless headphones on a clean, minimalist background with soft, natural lighting.')
-const modelOptions = ['Nano Banana Pro', 'FLUX 1.1 Pro', 'FLUX 1.0', 'DALL-E 3']
+const modelOptions = ['Nano Banana Pro', 'Gemini 3']
 const ratioOptions = ['16:9', '1:1', '4:3', '9:16']
 
 const showAdvanced = ref(false)
@@ -2440,6 +2969,420 @@ const handlePresetClick = (preset) => {
   emit('navigate', 'ai-texts-images-v2-preview')
 }
 
+const workflowPresets = [
+  { id: 'badge-mobile-desktop', name: 'Badge for Mobile/Desktop', description: 'Generate a product image with a promotional badge in both mobile (9:16) and desktop (16:9) variants in one run.', steps: 2, model: 'Nano Banana Pro', credits: 40 },
+  { id: 'sppo-3', name: 'SPPO 3', description: 'Three-step Self-Play Preference Optimization: generate, refine against feedback, and finalize for production-ready output.', steps: 3, model: 'Nano Banana Pro', credits: 60 },
+  { id: 'custom', name: 'Custom', description: 'Build your own workflow from scratch. Define each step, choose models, and chain outputs into the next step\u2019s input.', steps: '—', model: 'Choose per step', credits: 'Variable' },
+]
+const selectedWorkflowPreset = ref(null)
+const workflowEditorTitle = computed(() => {
+  const p = selectedWorkflowPreset.value
+  if (!p || p.id === 'custom') return 'Workflow'
+  return p.name
+})
+
+// Workflow editor state (workflowSteps + workflowReferences imported from useWorkflowState
+// so they persist between the editor and generation screens)
+const workflowProduct = ref({ id: 1, name: 'Stock GreenWell beverage', category: 'Beverages', image: '/product1.jpg' })
+let refIdCounter = 1
+const workflowVariables = [
+  { id: 'headline', label: '{{headline}}', type: 'text' },
+  { id: 'subheadline', label: '{{subheadline}}', type: 'text' },
+  { id: 'product_image_v1', label: '{{product_image_v1}}', type: 'image' },
+  { id: 'badge_image_v1', label: '{{badge_image_v1}}', type: 'image' },
+]
+const workflowLightbox = ref(null)
+
+let stepRefIdCounter = 1
+const addStepReference = (step, event) => {
+  const file = event.target.files?.[0]
+  if (!file) return
+  const url = URL.createObjectURL(file)
+  step.referenceImages.push({ id: stepRefIdCounter++, name: file.name, url })
+  event.target.value = ''
+}
+const removeStepReference = (step, id) => {
+  step.referenceImages = step.referenceImages.filter(r => r.id !== id)
+}
+
+const imageModels = ['Nano Banana Pro']
+const isImageModel = (model) => imageModels.includes(model)
+const stepOutputName = (step, i) => `${isImageModel(step.model) ? 'Image' : 'Text'}Step${i + 1}`
+
+const builtInInputs = [
+  { variable: 'product_name', label: 'Product name', source: 'builtin' },
+  { variable: 'product_description', label: 'Product description', source: 'builtin' },
+  { variable: 'recommended_product_name', label: 'Recommended product name', source: 'builtin' },
+  { variable: 'recommended_product_description', label: 'Recommended product description', source: 'builtin' },
+]
+
+const availableInputs = (i) => {
+  const opts = builtInInputs.map(b => ({ ...b, placeholder: `{{${b.variable}}}` }))
+  for (let j = 0; j < i; j++) {
+    const prev = workflowSteps.value[j]
+    const variable = stepOutputName(prev, j)
+    opts.push({ variable, label: `Step ${j + 1} output - ${variable}`, source: 'step', placeholder: `{{${variable}}}` })
+  }
+  aiTemplates.forEach(t => {
+    opts.push({ variable: t.variable, label: `${t.name} - ${t.variable}`, source: 'template', placeholder: `{{${t.variable}}}` })
+  })
+  return opts
+}
+
+const inputDropdownOptions = (i) => availableInputs(i).map(o => ({ value: o.variable, label: o.label, source: o.source, placeholder: o.placeholder }))
+
+const usedInputs = (step, i) => {
+  const text = step.prompt || ''
+  const matches = [...text.matchAll(/\{\{([a-z0-9_]+)\}\}/gi)]
+  const seen = new Set()
+  const known = availableInputs(i)
+  const result = []
+  matches.forEach(m => {
+    const v = m[1]
+    if (seen.has(v)) return
+    seen.add(v)
+    const found = known.find(o => o.variable === v)
+    result.push(found || { variable: v, label: v, source: 'unknown', placeholder: `{{${v}}}` })
+  })
+  return result
+}
+
+const inputTagVariant = (source) => {
+  if (source === 'step') return 'green'
+  if (source === 'template') return 'orange'
+  return 'gray-muted'
+}
+
+const promptRefs = {}
+const setPromptRef = (id) => (el) => {
+  if (el) promptRefs[id] = el
+  else delete promptRefs[id]
+}
+const stepCursors = {}
+const trackCursor = (step, ev) => {
+  stepCursors[step.id] = ev.target.selectionStart
+}
+
+const insertInputAtCursor = (step, placeholder) => {
+  const ta = promptRefs[step.id]
+  const text = step.prompt || ''
+  const pos = stepCursors[step.id] != null ? stepCursors[step.id] : text.length
+  const safePos = Math.max(0, Math.min(pos, text.length))
+  step.prompt = text.slice(0, safePos) + placeholder + text.slice(safePos)
+  const newPos = safePos + placeholder.length
+  stepCursors[step.id] = newPos
+  nextTick(() => {
+    if (ta) {
+      ta.focus()
+      try { ta.setSelectionRange(newPos, newPos) } catch (e) {}
+    }
+  })
+}
+
+const addInputDropdowns = ref({})
+const onAddInput = (step, opt) => {
+  if (!opt) return
+  insertInputAtCursor(step, opt.placeholder)
+  nextTick(() => { addInputDropdowns.value[step.id] = null })
+}
+
+const isStepInherited = (step, i) => i > 0 && !!step.continuePreviousPrompt
+
+// AI templates available to load into a step (combines text + image presets with prompts)
+const aiTemplates = [
+  { id: 'tpl-badge-desktop', name: 'Image with badge desktop', type: 'Image', model: 'Nano Banana Pro', ratio: '16:9', useMultipleImages: false, minDescriptionLength: 0, variable: 'badge_desktop', prompt: 'Add a promotional badge to the product image. Optimize composition for desktop (16:9) layouts.' },
+  { id: 'tpl-badge-mobile', name: 'Image with badge mobile', type: 'Image', model: 'Nano Banana Pro', ratio: '9:16', useMultipleImages: false, minDescriptionLength: 0, variable: 'badge_mobile', prompt: 'Add a promotional badge to the product image. Optimize composition for mobile (9:16) layouts.' },
+  { id: 'tpl-badge-people-desktop', name: 'Image with badge with people desktop', type: 'Image', model: 'Nano Banana Pro', ratio: '16:9', useMultipleImages: false, minDescriptionLength: 0, variable: 'badge_people_desktop', prompt: 'Generate a lifestyle product image featuring people and a promotional badge, framed for desktop (16:9).' },
+  { id: 'tpl-badge-people-mobile', name: 'Image with badge with people mobile', type: 'Image', model: 'Nano Banana Pro', ratio: '9:16', useMultipleImages: false, minDescriptionLength: 0, variable: 'badge_people_mobile', prompt: 'Generate a lifestyle product image featuring people and a promotional badge, framed for mobile (9:16).' },
+  { id: 'tpl-people-beverage', name: 'People Beverage', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, variable: 'people_beverage', prompt: 'Generate a lifestyle scene of people enjoying a beverage with the product naturally integrated.' },
+  { id: 'tpl-people-consume', name: 'People Consume', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, variable: 'people_consume', prompt: 'Generate a lifestyle scene of people consuming or experiencing the product.' },
+  { id: 'tpl-people-use', name: 'People Use', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, variable: 'people_use', prompt: 'Generate a lifestyle scene of people actively using the product.' },
+  { id: 'tpl-people-wear', name: 'People Wear', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, variable: 'people_wear', prompt: 'Generate a lifestyle scene of people wearing or modeling the product.' },
+  { id: 'tpl-pets', name: 'Pets', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, variable: 'pets', prompt: 'Generate a lifestyle scene featuring pets alongside the product.' },
+  { id: 'tpl-product-only', name: 'Product Only', type: 'Image', model: 'Nano Banana Pro', ratio: '1:1', useMultipleImages: false, minDescriptionLength: 0, variable: 'product_only', prompt: 'Generate a clean, focused product shot with no people or distractions.' },
+  { id: 'tpl-sdp-product-sentence-hu', name: 'SDP - Product Sentence (HU)', type: 'Text', model: 'Gemini 3', ratio: '1:1', useProductImageContext: false, minDescriptionLength: 80, variable: 'product_sentence', prompt: 'Írj egy tömör, vásárlót ösztönző mondatot a termékről magyar nyelven a katalógus adatai alapján.' },
+  { id: 'tpl-spo-reco-headline-en', name: 'SPo - Reco Headline (EN)', type: 'Text', model: 'Gemini 3', ratio: '1:1', useProductImageContext: false, minDescriptionLength: 60, variable: 'reco_headline', prompt: 'Write a recommendation-focused headline in English that drives product discovery for the given item.' },
+  { id: 'tpl-sppo-benefit-list-en', name: 'SPPO - Benefit List (EN)', type: 'Text', model: 'Gemini 3', ratio: '1:1', useProductImageContext: false, minDescriptionLength: 100, variable: 'benefit_list', prompt: 'Generate a bullet-point list of the key product benefits in English tailored to the catalogue item.' },
+  { id: 'tpl-sppo-benefit-list-bold-hu', name: 'SPPO - Benefit list w/ bold intro (HU)', type: 'Text', model: 'Gemini 3', ratio: '1:1', useProductImageContext: false, minDescriptionLength: 100, variable: 'benefit_list_bold', prompt: 'Generálj termékelőnyöket felsoroló listát magyarul, félkövér bevezető mondattal a termék összefoglalására.' },
+  { id: 'tpl-headline-subheadline-en', name: 'SPPO - Headline + Subheadline (EN)', type: 'Text', model: 'Gemini 3', ratio: '1:1', useProductImageContext: false, minDescriptionLength: 80, variable: 'headline_subheadline', prompt: 'Generate a paired headline and subheadline in English suitable for banners, popups, and embedded content.' },
+]
+
+const templateModalOpen = ref(false)
+const templateModalStepIndex = ref(0)
+const templateModalSelected = ref(null)
+
+const selectedTemplate = computed(() => {
+  const sel = templateModalSelected.value
+  if (!sel) return null
+  return sel.value || sel
+})
+
+const openTemplateModal = (stepIndex) => {
+  templateModalStepIndex.value = stepIndex
+  templateModalSelected.value = null
+  templateModalOpen.value = true
+}
+
+const applyTemplate = () => {
+  const tpl = selectedTemplate.value
+  if (!tpl) return
+  const step = workflowSteps.value[templateModalStepIndex.value]
+  if (!step) return
+  step.prompt = tpl.prompt
+  step.model = tpl.model
+  step.ratio = tpl.ratio
+  step.minDescriptionLength = tpl.minDescriptionLength ?? 0
+  if (isImageModel(tpl.model)) {
+    step.useMultipleImages = !!tpl.useMultipleImages
+  } else {
+    step.useProductImageContext = !!tpl.useProductImageContext
+  }
+  templateModalOpen.value = false
+}
+
+// Sync inheriting steps: when a step has continuePreviousPrompt = true,
+// mirror only the model from the previous step.
+watch(workflowSteps, (steps) => {
+  for (let i = 1; i < steps.length; i++) {
+    const cur = steps[i]
+    if (cur.continuePreviousPrompt && cur.model !== steps[i - 1].model) {
+      cur.model = steps[i - 1].model
+    }
+  }
+}, { deep: true })
+
+const seedStepsForPreset = (presetId) => {
+  if (presetId === 'badge-mobile-desktop') {
+    workflowSteps.value = [
+      newStep({ prompt: 'Add a promotional "20% OFF" badge to the product image. Optimize composition for desktop (16:9).', ratio: '16:9' }),
+      newStep({ prompt: 'Re-frame the same scene in 9:16 portrait for mobile while keeping the badge readable.', ratio: '9:16', inputs: { original: false, references: [], previousSteps: [1], variables: [] } }),
+    ]
+  } else if (presetId === 'sppo-3') {
+    workflowSteps.value = [
+      newStep({ prompt: 'Generate an initial product lifestyle image based on the original.', ratio: '1:1' }),
+      newStep({ prompt: 'Refine the previous output: improve lighting, sharpen subject, fix any artifacts.', ratio: '1:1', inputs: { original: false, references: [], previousSteps: [1], variables: [] } }),
+      newStep({ prompt: 'Final pass: production-ready output with brand-consistent color grading.', ratio: '1:1', inputs: { original: false, references: [], previousSteps: [2], variables: [] } }),
+    ]
+  } else {
+    workflowSteps.value = [newStep()]
+  }
+}
+
+const handleWorkflowPresetClick = (preset) => {
+  selectedWorkflowPreset.value = preset
+  seedStepsForPreset(preset.id)
+  workflowReferences.value = []
+  emit('navigate', 'ai-texts-images-v2-workflow-editor')
+}
+
+const addWorkflowStep = () => {
+  workflowSteps.value.push(newStep())
+}
+const removeWorkflowStep = (id) => {
+  workflowSteps.value = workflowSteps.value.filter(s => s.id !== id)
+  workflowSteps.value.forEach(s => {
+    s.inputs.previousSteps = s.inputs.previousSteps.filter(pid => pid !== id)
+  })
+}
+const toggleStepArrayInput = (step, key, id) => {
+  const arr = step.inputs[key]
+  const idx = arr.indexOf(id)
+  if (idx === -1) arr.push(id)
+  else arr.splice(idx, 1)
+}
+const addWorkflowReference = (event) => {
+  const file = event.target.files?.[0]
+  if (!file) return
+  const url = URL.createObjectURL(file)
+  workflowReferences.value.push({ id: refIdCounter++, name: file.name, url })
+  event.target.value = ''
+}
+const removeWorkflowReference = (id) => {
+  workflowReferences.value = workflowReferences.value.filter(r => r.id !== id)
+  workflowSteps.value.forEach(s => {
+    s.inputs.references = s.inputs.references.filter(rid => rid !== id)
+  })
+}
+const sampleTextOutputs = [
+  'Refresh your day with GreenWell — naturally crafted for clean energy and a calmer mind.',
+  '• Cold-pressed botanicals\n• Zero added sugar\n• 100% recyclable bottle',
+  'Discover the taste that fits your routine — light, balanced, and quietly bold.',
+]
+const runSingleStep = (step) => new Promise((resolve) => {
+  step.waiting = false
+  step.generating = true
+  setTimeout(() => {
+    if (isImageModel(step.model)) {
+      step.output = '/product1.jpg'
+    } else {
+      step.output = sampleTextOutputs[Math.floor(Math.random() * sampleTextOutputs.length)]
+    }
+    step.generating = false
+    resolve()
+  }, 1500)
+})
+const runWorkflowStep = async (step) => {
+  const idx = workflowSteps.value.indexOf(step)
+  if (idx === -1) return
+  for (let i = 0; i <= idx; i++) {
+    workflowSteps.value[i].waiting = true
+  }
+  for (let i = 0; i <= idx; i++) {
+    await runSingleStep(workflowSteps.value[i])
+  }
+}
+const runWorkflowAll = async () => {
+  workflowSteps.value.forEach(s => { s.waiting = true })
+  for (const s of workflowSteps.value) {
+    await runSingleStep(s)
+  }
+}
+
+// Workflow editor tabs (Choose products / Review / Settings)
+const wfTab = ref('selected')
+const wfTabs = [
+  { value: 'selected', label: 'Choose products' },
+  { value: 'generated', label: 'Review' },
+  { value: 'settings', label: 'Settings' },
+]
+const wfSelected = ref([])
+const wfSelectedCredits = computed(() => {
+  const perRun = workflowSteps.value.reduce((sum, s) => sum + (s.model === 'Nano Banana Pro' ? 20 : 15), 0)
+  return (wfSelected.value.length * perRun).toLocaleString() + ' credits'
+})
+const wfSearch = ref('')
+const wfFilteredProducts = computed(() => {
+  const q = wfSearch.value.trim().toLowerCase()
+  if (!q) return genProducts.value
+  return genProducts.value.filter(p => p.name.toLowerCase().includes(q) || (p.desc || '').toLowerCase().includes(q))
+})
+const showWfGenMenu = ref(false)
+const wfPerProductCredits = computed(() => workflowSteps.value.reduce((sum, s) => sum + (s.model === 'Nano Banana Pro' ? 20 : 15), 0))
+const wfMenuOptions = computed(() => [1, 10, 25, 100].map(count => ({
+  count,
+  credits: (count * wfPerProductCredits.value).toLocaleString() + ' credits',
+})))
+// Per-product workflow progress: id -> number of completed steps.
+// Plus id -> currently running step index (null when idle/done).
+const wfProductProgress = ref({})
+const wfProductRunning = ref({})
+const productWorkflowStatus = (p) => {
+  const progress = wfProductProgress.value[p.id] || 0
+  if (progress >= workflowSteps.value.length) return 'done'
+  if (progress > 0 || wfProductRunning.value[p.id] != null) return 'partial'
+  return 'pending'
+}
+const productStepDone = (p, stepIndex) => (wfProductProgress.value[p.id] || 0) > stepIndex
+const productStepRunning = (p, stepIndex) => wfProductRunning.value[p.id] === stepIndex
+const productOverallStatus = (p) => {
+  const ws = productWorkflowStatus(p)
+  if (ws === 'done') return { label: 'Ready to use', variant: 'green', icon: 'check' }
+  if (ws === 'partial') return { label: 'In progress', variant: 'orange', icon: 'loader' }
+  return { label: 'Not generated', variant: 'gray-muted', icon: 'clock' }
+}
+// Mock output pools used to populate per-step results
+const wfImagePool = ['/product1.jpg', '/product2.png', '/prod2.jpg', '/Prod1.png', '/review_img.png', '/whisky.png']
+const wfTextPool = [
+  'Refresh your day with GreenWell — naturally crafted for clean energy and a calmer mind.',
+  '• Cold-pressed botanicals\n• Zero added sugar\n• 100% recyclable bottle',
+  'Discover the taste that fits your routine — light, balanced, and quietly bold.',
+  'Premium quality you can taste in every sip — sustainably sourced and rigorously tested.',
+]
+const mockStepOutputs = (step) => {
+  if (isImageModel(step.model)) {
+    const count = Math.random() < 0.4 ? 2 : 1
+    const out = []
+    for (let i = 0; i < count; i++) out.push({ type: 'image', src: wfImagePool[Math.floor(Math.random() * wfImagePool.length)] })
+    return out
+  }
+  return [{ type: 'text', value: wfTextPool[Math.floor(Math.random() * wfTextPool.length)] }]
+}
+// Per-product, per-step generated outputs and prompts (keyed by productId).
+const wfStepOutputs = ref({})
+const wfStepPrompts = ref({})
+const wfStepRegenerating = ref({})
+const ensureWfPrompts = (productId) => {
+  if (!wfStepPrompts.value[productId]) {
+    wfStepPrompts.value = { ...wfStepPrompts.value, [productId]: workflowSteps.value.map(s => s.prompt || '') }
+  }
+}
+const setStepOutputs = (productId, stepIndex, outputs) => {
+  const current = wfStepOutputs.value[productId] ? [...wfStepOutputs.value[productId]] : []
+  current[stepIndex] = outputs
+  wfStepOutputs.value = { ...wfStepOutputs.value, [productId]: current }
+}
+const runWorkflowForProduct = async (productId) => {
+  ensureWfPrompts(productId)
+  wfProductProgress.value = { ...wfProductProgress.value, [productId]: 0 }
+  for (let i = 0; i < workflowSteps.value.length; i++) {
+    wfProductRunning.value = { ...wfProductRunning.value, [productId]: i }
+    await new Promise(r => setTimeout(r, 800))
+    setStepOutputs(productId, i, mockStepOutputs(workflowSteps.value[i]))
+    wfProductProgress.value = { ...wfProductProgress.value, [productId]: i + 1 }
+  }
+  wfProductRunning.value = { ...wfProductRunning.value, [productId]: null }
+}
+// Products that have any generated result (progress > 0 or currently running) — used in the Review tab.
+const wfProductsWithResults = computed(() => genProducts.value.filter(p =>
+  (wfProductProgress.value[p.id] || 0) > 0 || wfProductRunning.value[p.id] != null
+))
+
+// Workflow per-product detail view (opened from the Review tab)
+const wfDetailProduct = ref(null)
+const wfIgnoredIds = ref(new Set())
+const wfIsIgnored = (id) => wfIgnoredIds.value.has(id)
+const wfToggleIgnore = (product) => {
+  const set = new Set(wfIgnoredIds.value)
+  if (set.has(product.id)) set.delete(product.id)
+  else set.add(product.id)
+  wfIgnoredIds.value = set
+}
+const wfDetailIndex = computed(() => {
+  if (!wfDetailProduct.value) return -1
+  return wfProductsWithResults.value.findIndex(p => p.id === wfDetailProduct.value.id)
+})
+const wfHasPrev = computed(() => wfDetailIndex.value > 0)
+const wfHasNext = computed(() => wfDetailIndex.value >= 0 && wfDetailIndex.value < wfProductsWithResults.value.length - 1)
+const openWfDetail = (product) => {
+  ensureWfPrompts(product.id)
+  wfDetailProduct.value = product
+}
+const closeWfDetail = () => { wfDetailProduct.value = null }
+const wfGoPrev = () => { if (wfHasPrev.value) wfDetailProduct.value = wfProductsWithResults.value[wfDetailIndex.value - 1] }
+const wfGoNext = () => { if (wfHasNext.value) wfDetailProduct.value = wfProductsWithResults.value[wfDetailIndex.value + 1] }
+const wfStepIsRegenerating = (productId, stepIndex) => !!(wfStepRegenerating.value[productId] && wfStepRegenerating.value[productId][stepIndex])
+const wfStepHasOutputs = (productId, stepIndex) => !!(wfStepOutputs.value[productId] && wfStepOutputs.value[productId][stepIndex])
+const wfStepGetOutputs = (productId, stepIndex) => (wfStepOutputs.value[productId] && wfStepOutputs.value[productId][stepIndex]) || []
+const wfStepGetPrompt = (productId, stepIndex) => (wfStepPrompts.value[productId] && wfStepPrompts.value[productId][stepIndex]) || ''
+const wfStepSetPrompt = (productId, stepIndex, value) => {
+  ensureWfPrompts(productId)
+  const arr = [...(wfStepPrompts.value[productId] || [])]
+  arr[stepIndex] = value
+  wfStepPrompts.value = { ...wfStepPrompts.value, [productId]: arr }
+}
+const regenerateWfStep = async (productId, stepIndex) => {
+  const reg = { ...(wfStepRegenerating.value[productId] || {}), [stepIndex]: true }
+  wfStepRegenerating.value = { ...wfStepRegenerating.value, [productId]: reg }
+  await new Promise(r => setTimeout(r, 1500))
+  setStepOutputs(productId, stepIndex, mockStepOutputs(workflowSteps.value[stepIndex]))
+  const reg2 = { ...(wfStepRegenerating.value[productId] || {}), [stepIndex]: false }
+  wfStepRegenerating.value = { ...wfStepRegenerating.value, [productId]: reg2 }
+}
+const triggerWfGenerate = (mode) => {
+  showWfGenMenu.value = false
+  let ids
+  if (mode === 'selected') {
+    ids = [...wfSelected.value]
+  } else {
+    ids = wfFilteredProducts.value.slice(0, mode).map(p => p.id)
+  }
+  ids.forEach(id => runWorkflowForProduct(id))
+}
+const createWorkflow = () => {
+  wfTab.value = 'selected'
+  emit('navigate', 'ai-texts-images-v2-workflow-generation')
+}
+
 const tabs = [
   { value: 'all', label: 'All' },
   { value: 'text', label: 'Texts' },
@@ -2469,6 +3412,114 @@ const textGenerated = ref(false)
 const textPromptText = ref('Generate a {type} for the following product: {product_name}. Description: {product_description}.')
 const textPreviewGeneratedPrompt = ref('')
 const textPreviewPromptChanged = computed(() => textGenerated.value && textPromptText.value !== textPreviewGeneratedPrompt.value)
+
+// --- AI Input (tabbed Prompt Editor on preview screens) --------------------
+const buildImageAiResponse = (userText) => {
+  const t = userText.toLowerCase()
+  if (t.includes('warm') || t.includes('lighting')) {
+    return { text: 'Got it \u2014 warmer lighting. Should I lean into golden-hour tones, or keep it indoor warm (think soft tungsten)?', replies: ['Golden hour', 'Indoor warm', 'Surprise me'] }
+  }
+  if (t.includes('golden')) {
+    return { text: 'Here\'s a revision with a golden-hour feel. Want to apply it?', suggestedPrompt: 'A high-quality, professional product photo of premium wireless headphones on a clean, minimalist background, lit by warm golden-hour sunlight casting soft directional shadows.' }
+  }
+  if (t.includes('indoor') || t.includes('tungsten')) {
+    return { text: 'Updated with warm indoor lighting. Apply when ready.', suggestedPrompt: 'A high-quality, professional product photo of premium wireless headphones on a clean, minimalist background under warm indoor tungsten lighting, with gentle highlights and soft natural shadows.' }
+  }
+  if (t.includes('lifestyle') || t.includes('in use') || t.includes('using')) {
+    return { text: 'A lifestyle scene works great. Indoor desk setting or outdoor commute?', replies: ['Desk setup', 'Outdoor commute', 'Caf\u00e9'] }
+  }
+  if (t.includes('desk')) {
+    return { text: 'Here\'s a desk-setup variation:', suggestedPrompt: 'A premium pair of wireless headphones resting on a modern wooden desk next to a laptop and a steaming coffee mug, soft natural window light, shallow depth of field, lifestyle photography.' }
+  }
+  if (t.includes('outdoor') || t.includes('commute')) {
+    return { text: 'Here\'s an outdoor commute version:', suggestedPrompt: 'A person walking through a sunlit city street wearing premium wireless headphones, candid lifestyle shot, soft bokeh background, warm afternoon light, editorial styling.' }
+  }
+  if (t.includes('minimal') || t.includes('clean') || t.includes('background')) {
+    return { text: 'I can push it further toward minimal. Solid color backdrop, or seamless white studio?', replies: ['Solid color', 'Seamless white', 'Soft gradient'] }
+  }
+  if (t.includes('seamless') || t.includes('white')) {
+    return { text: 'Seamless white studio look:', suggestedPrompt: 'A premium pair of wireless headphones on a seamless pure-white studio backdrop, even diffused lighting, no visible shadows, crisp e-commerce product photography.' }
+  }
+  if (t.includes('gradient')) {
+    return { text: 'Soft gradient backdrop:', suggestedPrompt: 'A premium pair of wireless headphones on a soft pastel gradient backdrop fading from cream to muted peach, gentle studio lighting, modern minimalist product photography.' }
+  }
+  if (t.includes('surprise')) {
+    return { text: 'How about something editorial?', suggestedPrompt: 'A premium pair of wireless headphones photographed in dramatic chiaroscuro lighting against a deep charcoal backdrop, single rim light catching the metallic detailing, high-end magazine-style product photography.' }
+  }
+  return { text: 'Sure \u2014 could you give me a bit more detail? Are you thinking about the lighting, the background, the styling, or the overall mood?', replies: ['Lighting', 'Background', 'Styling', 'Mood'] }
+}
+
+const buildTextAiResponse = (userText) => {
+  const t = userText.toLowerCase()
+  if (t.includes('shorter') || t.includes('concise') || t.includes('brief')) {
+    return { text: 'Here\'s a tighter version focused on essentials:', suggestedPrompt: 'Write a 2-sentence product blurb for {product_name}. Lead with the strongest benefit from {product_description}.' }
+  }
+  if (t.includes('longer') || t.includes('detail') || t.includes('expand')) {
+    return { text: 'Here\'s a more detailed version:', suggestedPrompt: 'Write a 3-paragraph product description for {product_name}. Open with the problem it solves, then unpack 3 key features from {product_description}, and close with a clear use-case scenario.' }
+  }
+  if (t.includes('tone') || t.includes('voice') || t.includes('style')) {
+    return { text: 'What tone are you after?', replies: ['Friendly / casual', 'Premium / editorial', 'Direct / no-fluff'] }
+  }
+  if (t.includes('friendly') || t.includes('casual')) {
+    return { text: 'Updated to a friendly, conversational voice:', suggestedPrompt: 'Write a warm, friendly product description for {product_name} \u2014 like recommending it to a friend. Use {product_description} for facts, but keep the tone easy and human.' }
+  }
+  if (t.includes('premium') || t.includes('editorial') || t.includes('luxury')) {
+    return { text: 'Premium, editorial tone applied:', suggestedPrompt: 'Write a refined, editorial-style product description for {product_name}. Draw from {product_description} but lead with craft, materiality, and provenance over feature lists.' }
+  }
+  if (t.includes('direct') || t.includes('no-fluff') || t.includes('no fluff')) {
+    return { text: 'Stripped-down, direct version:', suggestedPrompt: 'Write a no-fluff product description for {product_name}. List the 3 most important specs from {product_description}, then 1 line on who it\'s for. No marketing language.' }
+  }
+  if (t.includes('benefit') || t.includes('list') || t.includes('bullet')) {
+    return { text: 'Reformatted as a benefit list:', suggestedPrompt: 'Write a 5-bullet benefit list for {product_name}, drawing each bullet from {product_description}. Lead each bullet with the outcome for the customer.' }
+  }
+  if (t.includes('seo') || t.includes('keyword')) {
+    return { text: 'SEO-focused version:', suggestedPrompt: 'Write an SEO-optimised product description for {product_name}. Include the product name in the first sentence, naturally incorporate 3 long-tail keywords related to {product_description}, and keep it 120\u2013180 words.' }
+  }
+  return { text: 'Sure \u2014 what would you like to adjust? Tone, length, structure, or focus?', replies: ['Shorter', 'Longer', 'Change tone', 'As a benefit list'] }
+}
+
+const createAiChat = (greeting, promptRef, responder) => {
+  const state = reactive({
+    tab: 'ai-input',
+    draft: '',
+    typing: false,
+    messages: [{ role: 'ai', text: greeting }],
+  })
+  const messagesRef = ref(null)
+  const scroll = () => setTimeout(() => { if (messagesRef.value) messagesRef.value.scrollTop = messagesRef.value.scrollHeight }, 30)
+  const send = (text) => {
+    const trimmed = (text || '').trim()
+    if (!trimmed || state.typing) return
+    state.messages.push({ role: 'user', text: trimmed })
+    state.draft = ''
+    state.typing = true
+    scroll()
+    setTimeout(() => {
+      state.messages.push({ role: 'ai', ...responder(trimmed) })
+      state.typing = false
+      scroll()
+    }, 850)
+  }
+  const apply = (msg) => {
+    if (!msg?.suggestedPrompt) return
+    promptRef.value = msg.suggestedPrompt
+    msg.applied = true
+    state.messages.push({ role: 'ai', text: 'Applied. Switch to the Prompt Editor tab to see the full text, or regenerate to preview the result.' })
+    scroll()
+  }
+  return { state, messagesRef, send, apply }
+}
+
+const imageChat = createAiChat(
+  'Hi! I can help refine this image prompt. Tell me what you\'d like to change \u2014 lighting, background, styling, or composition.',
+  promptText,
+  buildImageAiResponse,
+)
+const textChat = createAiChat(
+  'Hi! I can help refine this text prompt. Tell me what you\'d like to change \u2014 tone, length, structure, or focus.',
+  textPromptText,
+  buildTextAiResponse,
+)
 
 const startTextGeneration = () => {
   textGenerating.value = true
