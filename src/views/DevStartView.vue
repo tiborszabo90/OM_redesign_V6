@@ -3,28 +3,41 @@
     <div class="text-center">
 
       <!-- Main buttons -->
-      <div v-if="!showArchive" class="grid grid-cols-2 gap-3">
-        <Button variant="secondary" size="sm" @click="$emit('select', 'email')">Email Registration</Button>
-        <Button variant="secondary" size="sm" @click="$emit('select', 'email-hu')">Email Registration (HU)</Button>
-        <Button variant="secondary" size="sm" @click="$emit('select', 'shopify')">Shopify Registration</Button>
-        <Button variant="secondary" size="sm" @click="$emit('select', 'mobile')">Onboarding Mobile</Button>
-        <Button variant="secondary" size="sm" @click="$emit('select', 'mobile-hu')">Onboarding Mobile (HU)</Button>
-        <Button variant="secondary" size="sm" @click="$emit('navigate', 'login')">Login</Button>
-        <Button variant="secondary" size="sm" @click="$emit('select', 'wizard')">Wizard</Button>
-        <Button variant="secondary" size="sm" @click="$emit('go-public-wizard')">Public Wizard</Button>
-        <Button variant="secondary" size="sm" @click="$emit('go-public-wizard-v2')">Public Wizard V2</Button>
-        <Button variant="secondary" size="sm" @click="$emit('go-home-onboarding')">Home Onboarding</Button>
-        <Button variant="secondary" size="sm" @click="$emit('go-home')">Home</Button>
-        <Button variant="secondary" size="sm" @click="$emit('navigate', 'new-campaign')">New Campaign MVP</Button>
-        <Button variant="secondary" size="sm" @click="$emit('navigate', 'campaign-page-v1')">Campaign Page (A/B)</Button>
-        <Button variant="secondary" size="sm" @click="$emit('go-design-guide')">Design Guide</Button>
-        <Button variant="secondary" size="sm" @click="$emit('go-image-with-badge')">Image with Badge</Button>
-        <Button variant="secondary" size="sm" @click="$emit('go-chat-versions')">Chat Versions</Button>
-        <Button variant="secondary" size="sm" @click="$emit('go-editor')">Editor</Button>
-        <Button variant="secondary" size="sm" @click="$emit('go-ai-texts-images')">AI Texts &amp; Images V1</Button>
-        <Button variant="secondary" size="sm" @click="$emit('go-ai-texts-images-v2')">AI Texts &amp; Images V2</Button>
-        <Button variant="secondary" size="sm" @click="$emit('navigate', 'cro-email-template')">CRO Email Template</Button>
-        <Button variant="secondary" size="sm" @click="openArchive">Archive</Button>
+      <div v-if="!showArchive" class="flex flex-col gap-6 items-stretch">
+        <!-- Currently working on -->
+        <div class="rounded-2xl border-2 border-om-orange-400 bg-om-orange-50/50 p-5">
+          <div class="text-xs font-semibold text-om-orange-600 uppercase tracking-wider mb-3">Currently working on</div>
+          <div class="grid grid-cols-1 gap-2">
+            <Button variant="primary" size="sm" @click="$emit('go-public-wizard-v2')">Public Wizard V2</Button>
+            <Button variant="primary" size="sm" @click="$emit('go-public-wizard-v3')">Public Wizard V3</Button>
+            <Button variant="primary" size="sm" @click="$emit('go-optimonk-agentic')">OptiMonk Agentic</Button>
+            <Button variant="primary" size="sm" @click="$emit('go-optimonk-agentic-v2')">OptiMonk Agentic V2</Button>
+          </div>
+        </div>
+
+        <!-- Everything else -->
+        <div class="grid grid-cols-2 gap-3">
+          <Button variant="secondary" size="sm" @click="$emit('select', 'email')">Email Registration</Button>
+          <Button variant="secondary" size="sm" @click="$emit('select', 'email-hu')">Email Registration (HU)</Button>
+          <Button variant="secondary" size="sm" @click="$emit('select', 'shopify')">Shopify Registration</Button>
+          <Button variant="secondary" size="sm" @click="$emit('select', 'mobile')">Onboarding Mobile</Button>
+          <Button variant="secondary" size="sm" @click="$emit('select', 'mobile-hu')">Onboarding Mobile (HU)</Button>
+          <Button variant="secondary" size="sm" @click="$emit('navigate', 'login')">Login</Button>
+          <Button variant="secondary" size="sm" @click="$emit('select', 'wizard')">Wizard</Button>
+          <Button variant="secondary" size="sm" @click="$emit('go-public-wizard')">Public Wizard</Button>
+          <Button variant="secondary" size="sm" @click="$emit('go-home-onboarding')">Home Onboarding</Button>
+          <Button variant="secondary" size="sm" @click="$emit('go-home')">Home</Button>
+          <Button variant="secondary" size="sm" @click="$emit('navigate', 'new-campaign')">New Campaign MVP</Button>
+          <Button variant="secondary" size="sm" @click="$emit('navigate', 'campaign-page-v1')">Campaign Page (A/B)</Button>
+          <Button variant="secondary" size="sm" @click="$emit('go-design-guide')">Design Guide</Button>
+          <Button variant="secondary" size="sm" @click="$emit('go-image-with-badge')">Image with Badge</Button>
+          <Button variant="secondary" size="sm" @click="$emit('go-chat-versions')">Chat Versions</Button>
+          <Button variant="secondary" size="sm" @click="$emit('go-editor')">Editor</Button>
+          <Button variant="secondary" size="sm" @click="$emit('go-ai-texts-images')">AI Texts &amp; Images V1</Button>
+          <Button variant="secondary" size="sm" @click="$emit('go-ai-texts-images-v2')">AI Texts &amp; Images V2</Button>
+          <Button variant="secondary" size="sm" @click="$emit('navigate', 'cro-email-template')">CRO Email Template</Button>
+          <Button variant="secondary" size="sm" @click="openArchive">Archive</Button>
+        </div>
       </div>
 
       <!-- Archive sub-page -->
@@ -74,7 +87,7 @@ const props = defineProps({
   initialShowArchive: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['select', 'go-home', 'go-home-onboarding', 'go-public-wizard', 'go-public-wizard-v2', 'go-design-guide', 'go-image-with-badge', 'go-chat-versions', 'go-editor', 'go-ai-texts-images', 'go-ai-texts-images-v2', 'navigate', 'show-archive'])
+const emit = defineEmits(['select', 'go-home', 'go-home-onboarding', 'go-public-wizard', 'go-public-wizard-v2', 'go-public-wizard-v3', 'go-optimonk-agentic', 'go-optimonk-agentic-v2', 'go-design-guide', 'go-image-with-badge', 'go-chat-versions', 'go-editor', 'go-ai-texts-images', 'go-ai-texts-images-v2', 'navigate', 'show-archive'])
 
 const showArchive = ref(props.initialShowArchive)
 const archiveCategory = ref(null)

@@ -8,7 +8,7 @@
         'dropdown-select w-full text-sm focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 text-left transition-colors border border-om-gray-200',
         hasIcon ? 'pl-9 pr-8 h-10 rounded-lg flex items-center' : '',
         !hasIcon && size === 'default' ? 'px-4 pr-8 h-10 rounded-lg flex items-center' : '',
-        !hasIcon && size === 'sm' ? 'px-3 pr-8 py-1.5 rounded-lg' : '',
+        !hasIcon && size === 'sm' ? 'px-3 pr-8 h-8 rounded-lg flex items-center' : '',
         disabled
           ? 'bg-om-gray-100 text-om-gray-400 cursor-not-allowed'
           : 'bg-white text-[#23262A] cursor-pointer',

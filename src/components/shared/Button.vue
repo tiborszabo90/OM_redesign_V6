@@ -59,8 +59,8 @@ const buttonClasses = computed(() => {
   if (props.active && variant === 'ghost') {
     const activeGhost = 'bg-[#505763]/10 text-[#505763] focus:ring-[#ED5A29]'
     const sizes = props.iconOnly
-      ? { sm: 'w-8 h-8 text-sm', md: 'w-10 h-10', lg: 'w-12 h-12 text-lg' }
-      : { sm: 'px-3 py-1.5 text-sm', md: 'px-4 py-2', lg: 'px-6 py-3 text-lg' }
+      ? { sm: 'w-8 h-8 text-sm', md: 'w-10 h-10', lg: 'w-[52px] h-[52px] text-lg' }
+      : { sm: 'px-3 h-8 text-sm flex items-center', md: 'px-4 h-10 flex items-center', lg: 'px-6 py-3 text-lg' }
     return `${base} ${activeGhost} ${sizes[props.size]}`
   }
 
@@ -80,10 +80,10 @@ const buttonClasses = computed(() => {
     ? {
         sm: 'w-8 h-8 text-sm',
         md: 'w-10 h-10',
-        lg: 'w-12 h-12 text-lg'
+        lg: 'w-[52px] h-[52px] text-lg'
       }
     : {
-        sm: 'px-3 py-1.5 text-sm',
+        sm: 'px-3 h-8 text-sm flex items-center',
         md: 'px-4 h-10 flex items-center',
         lg: 'px-6 py-3 text-lg'
       }
