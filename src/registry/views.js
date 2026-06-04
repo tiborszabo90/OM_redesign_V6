@@ -263,7 +263,7 @@ const homeViews = [
     section: 'home',
     hideLogo: true,
     keyPrefix: 'home-todays-plan',
-    slug: 'home',
+    slug: 'agentic/home',
     nav: { sessionReset: true, flowSelected: true, clearWizardMessage: true },
   },
   {
@@ -627,10 +627,11 @@ const wizardViews = [
   {
     id: 'public-wizard-v2',
     component: () => import('../views/PublicWizardV2View.vue'),
-    label: 'Public Wizard V2',
+    label: 'OptiMonk Agentic',
     status: 'active',
     section: null,
     hideLogo: true,
+    slug: 'agentic',
     keyPrefix: 'public-wizard-v2',
     refName: 'publicWizardV2Ref',
     nav: { sessionReset: true, flowSelected: true, registrationType: 'public-wizard-v2', clearWizardMessage: true, extraState: { publicWizardStep: 'url' } },

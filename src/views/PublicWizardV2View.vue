@@ -1,10 +1,9 @@
 <template>
   <!-- Step 1: Prompt input (URL flow removed) -->
   <div v-if="step === 'url'" class="h-screen-safe bg-white flex flex-col items-center justify-center px-4 relative">
-    <!-- Register / Login (top-right) -->
+    <!-- Login (top-right) -->
     <div class="absolute top-5 right-5 flex items-center gap-2">
       <Button variant="ghost" size="sm" @click="goToHome">Log in</Button>
-      <Button variant="primary" size="sm" @click="showRegistrationModal = true">Register</Button>
     </div>
     <div class="w-full max-w-2xl">
       <div class="flex justify-center mb-10">
@@ -180,7 +179,10 @@
     :generation-prompt="generationPrompt"
     :select-loading="selectLoading"
     :initial-chat-messages="chatMessages"
+    :coupon-code="discountCode"
+    embedded
     @back="step = 'url'"
+    @published="onEditorDone"
   />
 
   <!-- Registration modal shown on the chat step after picking a popup version -->
@@ -201,10 +203,20 @@ const promptExamples = [
   { label: 'Get recommendation', value: 'Analyze my website and recommend the best opportunity for me.', icon: markRaw(Sparkles), recommendation: true },
 ]
 
-defineProps({
+const props = defineProps({
   registrationData: {
     type: Object,
     default: null
+  },
+  // When launched with a prompt (e.g. Today's plan "New task"), auto-start the flow
+  initialMessage: {
+    type: String,
+    default: ''
+  },
+  // Launched from inside the app (already logged in) → skip the registration modal
+  skipRegistration: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -215,6 +227,7 @@ const step = ref('url')
 // Each phase of the flow drives its own route (handled in App.vue via a hash subpath)
 watch(step, (s) => emit('phase-changed', s), { immediate: true })
 const prompt = ref('')
+const discountCode = ref('') // captured in the discount flow, passed to the editor
 const recommendationMode = ref(false) // "Get recommendation" → only ask for the URL
 const selectedUseCase = ref(null)
 const generationPrompt = ref('')
@@ -253,11 +266,16 @@ const erasePlaceholder = (text, i) => {
 
 onMounted(() => {
   typePlaceholder(placeholderSuggestions[0])
+  // Launched with a prompt (e.g. from the Today's plan "New task") → start the flow
+  if (props.initialMessage && props.initialMessage.trim()) {
+    prompt.value = props.initialMessage
+    handleInitialSubmit()
+  }
 })
 
 const formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 
-const goToHome = () => { window.location.hash = '#/home' }
+const goToHome = () => { window.location.hash = '#/agentic/home' }
 
 // ── Step transitions ──
 const handleInitialSubmit = () => {
@@ -354,6 +372,19 @@ const runChatFlow = async () => {
 const finalizeQuestionsBlock = async (msgIdx) => {
   const m = chatMessages.value[msgIdx]
   m.finalized = true
+  // Discount details → echo the offer + code, then show the designs
+  if (m.kind === 'discount') {
+    const dq = m.questions[0]
+    const opt = dq.options.find((o) => o.id === dq.selectedId)
+    const val = dq.otherValue?.trim() || ''
+    const offerText = opt ? `${opt.inputPrefix || ''}${val}${opt.inputSuffix || ''}` : 'Discount'
+    const code = m.questions[1]?.otherValue?.trim() || ''
+    discountCode.value = code
+    chatMessages.value.push({ role: 'user', text: code ? `${offerText} · Code: ${code}` : offerText, time: formatTime(new Date()) })
+    scrollChat()
+    await showPopupVersions(`Perfect. Here are 4 popup designs with ${offerText}. Pick one to keep editing.`)
+    return
+  }
   const urlQ = m.questions.find((q) => q.inputOnly)
   const websiteUrl = urlQ?.otherValue?.trim() || ''
   const summary = m.questions
@@ -395,9 +426,12 @@ const onUseCasePick = async (msgIdx, card) => {
   generationPrompt.value = card.label
   scrollChat()
   await waitMs(400)
-  await streamChatAi(`Great pick! Here are 4 ${card.label} versions tailored to your site. Pick one to keep editing.`)
-  chatMessages.value.push({ role: 'popup-versions', versions: popupVersions, selectedId: null })
-  scrollChat()
+  // Discount use case: ask the discount amount + coupon code before the designs
+  if (card.id === 'smart-discount' || isDiscountIntent(card.label)) {
+    await askDiscountDetails()
+    return
+  }
+  await showPopupVersions(`Great pick! Here are 4 ${card.label} versions tailored to your site. Pick one to keep editing.`)
 }
 
 const runAnalysisAndGenerate = async (websiteUrl) => {
@@ -406,9 +440,12 @@ const runAnalysisAndGenerate = async (websiteUrl) => {
   await waitMs(700)
   await streamChatAi('Found your brand colors, fonts and traffic patterns. Picking the right popup type…')
   await waitMs(700)
-  await streamChatAi('Generated 4 popup versions tailored to your goal. Pick one to keep editing.')
-  chatMessages.value.push({ role: 'popup-versions', versions: popupVersions, selectedId: null })
-  scrollChat()
+  // Discount popups: ask the discount amount + coupon code before the designs
+  if (isDiscountIntent(chatMessages.value[0]?.text)) {
+    await askDiscountDetails()
+    return
+  }
+  await showPopupVersions('Generated 4 popup versions tailored to your goal. Pick one to keep editing.')
 }
 
 const onQuestionsContinue = async (msgIdx) => {
@@ -442,6 +479,47 @@ const popupVersions = [
   { id: 'v4', label: 'Playful gift', image: '/templates/popup-style-4.png' },
 ]
 
+// Discount flow: ask the discount amount + coupon code before showing the designs
+const isDiscountIntent = (text) => /discount|coupon|kupon/i.test(text || '')
+
+const showPopupVersions = async (intro) => {
+  await waitMs(300)
+  await streamChatAi(intro)
+  chatMessages.value.push({ role: 'popup-versions', versions: popupVersions, selectedId: null })
+  scrollChat()
+}
+
+const askDiscountDetails = async () => {
+  await streamChatAi('First, set the discount this popup should offer.')
+  await waitMs(300)
+  chatMessages.value.push({
+    role: 'questions',
+    kind: 'discount',
+    activeTab: 0,
+    finalized: false,
+    questions: [
+      {
+        tabLabel: 'Discount',
+        text: 'How much discount should it offer?',
+        options: [
+          { id: 'percent', label: 'Percentage off', allowInput: true, inputPlaceholder: 'e.g. 10', inputSuffix: '% off' },
+          { id: 'amount', label: 'Fixed amount off', allowInput: true, inputPlaceholder: 'e.g. 2000', inputPrefix: 'HUF ', inputSuffix: ' off' },
+        ],
+        selectedId: null,
+        otherValue: '',
+      },
+      {
+        tabLabel: 'Code',
+        text: 'What coupon code should it use?',
+        inputOnly: true,
+        inputPlaceholder: 'e.g. SAVE10',
+        otherValue: '',
+      },
+    ],
+  })
+  scrollChat()
+}
+
 const handleChatSend = async () => {
   const text = chatInput.value.trim()
   if (!text || aiTyping.value) return
@@ -458,8 +536,12 @@ const onPopupVersionPick = (msgIdx, version) => {
   m.selectedId = version.id
   generationPrompt.value = chatMessages.value[0]?.text || ''
   selectedUseCase.value = { id: 'newsletter', title: version.label, description: '' }
-  // Open the registration modal on the chat itself — editor only loads after user passes the modal
-  showRegistrationModal.value = true
+  // Already logged in (launched from the app) → straight to the editor; otherwise register first
+  if (props.skipRegistration) {
+    completeChatRegistration()
+  } else {
+    showRegistrationModal.value = true
+  }
 }
 
 // ── Registration modal (shown on the chat after picking a popup version) ──
@@ -468,6 +550,11 @@ const completeChatRegistration = () => {
   showRegistrationModal.value = false
   selectLoading.value = true
   step.value = 'detail'
+}
+
+// Editor "Done" → campaign created, land on the Today's plan home
+const onEditorDone = () => {
+  window.location.hash = '#/agentic/home'
 }
 
 onUnmounted(() => {

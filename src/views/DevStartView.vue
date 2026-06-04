@@ -8,10 +8,7 @@
         <div class="rounded-2xl border-2 border-om-orange-400 bg-om-orange-50/50 p-5">
           <div class="text-xs font-semibold text-om-orange-600 uppercase tracking-wider mb-3">Currently working on</div>
           <div class="grid grid-cols-1 gap-2">
-            <Button variant="primary" size="sm" @click="$emit('go-public-wizard-v2')">Public Wizard V2</Button>
-            <Button variant="primary" size="sm" @click="$emit('go-public-wizard-v3')">Public Wizard V3</Button>
-            <Button variant="primary" size="sm" @click="$emit('go-optimonk-agentic')">OptiMonk Agentic</Button>
-            <Button variant="primary" size="sm" @click="$emit('go-optimonk-agentic-v2')">OptiMonk Agentic V2</Button>
+            <Button variant="primary" size="sm" @click="$emit('go-public-wizard-v2')">OptiMonk Agentic</Button>
           </div>
         </div>
 

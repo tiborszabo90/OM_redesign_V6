@@ -65,6 +65,8 @@ const sessionKey = ref(0)
 const devNavOpen = ref(true)
 const devStartShowArchive = ref(false)
 const wizardMessage = ref('')
+// When the wizard is launched from inside the app (logged in), skip the registration modal
+const wizardSkipRegistration = ref(false)
 const wizardPhase = ref(null)
 const mobileOnboardingVariant = ref(null) // null | 'en' | 'hu'
 const useHuDesktopFlow = ref(false)
@@ -224,7 +226,7 @@ const activeProps = computed(() => {
     'home-agentic-v5': { registrationData: registrationData.value },
     'home-onboarding-wizard': { registrationData: registrationData.value },
     'public-wizard': { registrationData: registrationData.value, initialMessage: wizardMessage.value },
-    'public-wizard-v2': { registrationData: registrationData.value, initialMessage: wizardMessage.value },
+    'public-wizard-v2': { registrationData: registrationData.value, initialMessage: wizardMessage.value, skipRegistration: wizardSkipRegistration.value },
     'public-wizard-v3': { registrationData: registrationData.value, initialMessage: wizardMessage.value },
     'optimonk-agentic': { registrationData: registrationData.value },
     'optimonk-agentic-v2': { registrationData: registrationData.value },
@@ -355,7 +357,7 @@ const pwV2SlugToStep = { '': 'url', start: 'url', chat: 'chat', editor: 'detail'
 const handlePublicWizardV2Phase = (step) => {
   publicWizardStep.value = step
   const sub = pwV2StepToSlug[step] ?? ''
-  const target = '#/public-wizard-v2' + (sub ? '/' + sub : '')
+  const target = '#/agentic' + (sub ? '/' + sub : '')
   if (window.location.hash !== target) {
     skipHashChange = true
     window.location.hash = target
@@ -365,7 +367,7 @@ const handlePublicWizardV2Phase = (step) => {
 
 const syncPublicWizardV2Step = () => {
   const parts = window.location.hash.replace('#/', '').replace('#', '').split('/')
-  if (parts[0] !== 'public-wizard-v2') return
+  if (parts[0] !== 'agentic') return
   const step = pwV2SlugToStep[parts[1] || ''] || 'url'
   publicWizardStep.value = step
   viewRefs.publicWizardV2Ref?.navigateToStep(step)
@@ -563,7 +565,8 @@ const activeEvents = computed(() => {
       },
       'go-public-wizard-v2': () => {
         sessionKey.value++; flowSelected.value = true; registrationType.value = 'public-wizard-v2'; publicWizardStep.value = 'url'
-        if (!wizardMessage.value) wizardMessage.value = 'Demo website analysis'
+        wizardMessage.value = '' // launch the empty url step (no auto-start)
+        wizardSkipRegistration.value = false // public flow → registration required
         currentView.value = null; setTimeout(() => { currentView.value = 'public-wizard-v2' }, 50)
       },
       'go-public-wizard-v3': () => {
@@ -614,7 +617,16 @@ const activeEvents = computed(() => {
     'onboarding-hu': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated },
     'task-creation': { 'task-created': handleTaskCreated },
     'home-old': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
-    'home-todays-plan': { 'menu-click': handleMenuClick },
+    'home-todays-plan': {
+      'menu-click': handleMenuClick,
+      'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' },
+      'start-task': (msg) => {
+        wizardMessage.value = msg || ''
+        wizardSkipRegistration.value = true // launched from inside the app → no registration
+        sessionKey.value++; flowSelected.value = true; registrationType.value = 'public-wizard-v2'; publicWizardStep.value = 'url'
+        currentView.value = null; setTimeout(() => { currentView.value = 'public-wizard-v2' }, 50)
+      },
+    },
     'home-alerts': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
     'home-alerts-v3': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
     'home-insights-v2': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
@@ -792,6 +804,8 @@ const activeEvents = computed(() => {
 const wizardPhases = ['wizard-analysis', 'wizard-style', 'wizard-quicktune', 'wizard-recommendation-v4', 'wizard-recommendation-public-v2']
 
 const handleDevNavigate = (view) => {
+  // Entering the wizard via nav/URL (not the in-app "start-task") → require registration
+  if (view === 'public-wizard-v2') wizardSkipRegistration.value = false
   // Internal wizard navigation (preserve state, no view change)
   if (currentView.value === 'wizard-analysis' && wizardPhases.includes(view) && viewRefs.wizardAnalysisRef) {
     viewRefs.wizardAnalysisRef.navigateToPhase(view)

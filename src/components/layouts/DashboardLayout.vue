@@ -3,13 +3,17 @@
   <div v-else class="h-screen-safe flex overflow-hidden relative" :style="{ backgroundColor: backgroundColor }">
     <!-- Left Sidebar - Always visible -->
     <aside v-show="!hideSidebar" :class="[
-      'sidebar-enter fixed left-0 top-0 h-screen-safe w-19 bg-white flex flex-col items-center pt-6 pb-4 z-30',
+      'sidebar-enter fixed left-0 top-0 h-screen-safe bg-white flex flex-col pt-6 pb-4 z-30',
+      wideSidebar ? 'w-60 items-stretch px-3' : 'w-19 items-center',
       { 'border-r border-[#E5E7EB]': !hideSidebarBorder }
     ]">
       <!-- Logo -->
-      <button @click="$emit('logo-click'); navigateTo('home')" class="w-7 h-7 mb-5 flex items-center justify-center">
-        <img src="/icons/optimonk-logo.svg" alt="OptiMonk" class="w-full h-full" />
+      <button @click="$emit('logo-click'); navigateTo('agentic/home')" :class="['mb-5 flex items-center w-7 h-7', wideSidebar ? 'ml-2' : 'justify-center']">
+        <img src="/icons/optimonk-logo.svg" alt="OptiMonk" class="w-7 h-7 shrink-0" />
       </button>
+
+      <!-- Optional sidebar-top content (e.g. a domain/workspace switcher) -->
+      <slot name="sidebar-top" />
 
       <!-- Navigation Menu -->
       <nav ref="navRef" class="flex-1 flex flex-col w-full px-1 gap-1 overflow-hidden">
@@ -19,14 +23,15 @@
           data-nav-item
           @click="handleMenuClick(item.id)"
           :class="[
-            'w-full py-2 flex flex-col items-center gap-0.5 transition-colors cursor-pointer rounded-xl',
+            'w-full transition-colors cursor-pointer rounded-xl',
+            wideSidebar ? 'flex items-center gap-3 px-3 py-2.5' : 'py-2 flex flex-col items-center gap-0.5',
             activeItem === item.id
               ? 'bg-om-orange-100 text-om-orange-500'
               : 'text-om-gray-500 hover:bg-om-gray-100 hover:text-om-gray-600'
           ]"
         >
-          <component :is="item.iconComponent" :size="20" />
-          <span class="text-[10px] font-medium whitespace-pre-line text-center leading-tight">{{ item.label }}</span>
+          <component :is="item.iconComponent" :size="20" class="shrink-0" />
+          <span :class="wideSidebar ? 'text-sm font-medium' : 'text-[10px] font-medium whitespace-pre-line text-center leading-tight'">{{ item.label }}</span>
         </button>
 
         <!-- More button (shown when items overflow) -->
@@ -47,7 +52,7 @@
       </nav>
 
       <!-- Bottom section -->
-      <div class="flex flex-col items-center gap-3 mt-auto pb-4">
+      <div :class="['flex flex-col gap-3 mt-auto pb-4', wideSidebar ? 'items-start px-1' : 'items-center']">
         <!-- AI Chat button (optional) -->
         <button
           v-if="showAiButton"
@@ -175,7 +180,7 @@
     </Teleport>
 
     <!-- Main Content Area -->
-    <main class="w-full flex overflow-hidden" :class="{ 'ml-19': !hideSidebar }">
+    <main class="w-full flex overflow-hidden" :class="{ 'ml-60': !hideSidebar && wideSidebar, 'ml-19': !hideSidebar && !wideSidebar }">
       <slot name="left-panel"></slot>
       <div ref="contentDivRef" :class="[contentHidden ? 'w-0 overflow-hidden opacity-0' : 'flex-1 overflow-y-auto min-w-0 max-960:text-sm', 'transition-all duration-300', !contentHidden && !noContentPadding ? ['py-8 max-960:py-4', leftPanelOpen ? 'pl-6 max-960:pl-4' : 'pl-12 max-960:pl-6', rightPanelCollapsed ? 'pr-10 max-960:pr-4' : 'pr-12 max-960:pr-4'] : '']">
         <slot name="content"></slot>
@@ -242,6 +247,20 @@ const props = defineProps({
   contentHidden: {
     type: Boolean,
     default: false
+  },
+  menuItemIds: {
+    type: Array,
+    default: null
+  },
+  // Traditional wide sidebar (icon + label rows) instead of the narrow icon rail
+  wideSidebar: {
+    type: Boolean,
+    default: false
+  },
+  // Custom menu list override: [{ id, label, iconComponent }]
+  navItems: {
+    type: Array,
+    default: null
   }
 })
 
@@ -263,7 +282,7 @@ const navigateTo = (view) => {
   window.location.hash = '#/' + view
 }
 
-const menuItems = [
+const allMenuItems = [
   { id: 'home', label: 'Home', iconComponent: Home },
   { id: 'campaigns', label: 'Campaigns', iconComponent: LayoutGrid },
   { id: 'audience', label: 'Audience', iconComponent: Users },
@@ -274,13 +293,21 @@ const menuItems = [
   { id: 'template-manager', label: 'Template\nmanager', iconComponent: LayoutTemplate }
 ]
 
+const menuItems = computed(() =>
+  props.navItems
+    ? props.navItems
+    : props.menuItemIds
+      ? allMenuItems.filter((item) => props.menuItemIds.includes(item.id))
+      : allMenuItems
+)
+
 // How many menu items fit in the available nav height
 const visibleCount = computed(() => {
-  if (!itemHeights.value.length || !navAvailableHeight.value) return menuItems.length
+  if (!itemHeights.value.length || !navAvailableHeight.value) return menuItems.value.length
 
   const available = navAvailableHeight.value
   const heights = itemHeights.value
-  const n = menuItems.length
+  const n = menuItems.value.length
   const gap = 4 // gap-1 = 4px
 
   // Check if all items fit without a More button
@@ -309,8 +336,8 @@ const visibleCount = computed(() => {
   return Math.max(0, count)
 })
 
-const visibleMenuItems = computed(() => menuItems.slice(0, visibleCount.value))
-const overflowMenuItems = computed(() => menuItems.slice(visibleCount.value))
+const visibleMenuItems = computed(() => menuItems.value.slice(0, visibleCount.value))
+const overflowMenuItems = computed(() => menuItems.value.slice(visibleCount.value))
 
 const toggleMorePopover = () => {
   showMorePopover.value = !showMorePopover.value

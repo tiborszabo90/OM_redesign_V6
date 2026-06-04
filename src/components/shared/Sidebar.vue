@@ -8,7 +8,7 @@
     <!-- Navigation -->
     <nav class="flex-1 flex flex-col w-full px-1 gap-1 overflow-y-auto">
       <button
-        v-for="item in menuItems"
+        v-for="item in visibleMenuItems"
         :key="item.id"
         @click="$emit('menu-click', item.id)"
         :class="[
@@ -109,12 +109,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Home, LayoutGrid, Users, Lightbulb, TrendingUp, BookOpen, GitBranch, LayoutTemplate, Bell } from 'lucide-vue-next'
 
-defineProps({
+const props = defineProps({
   activeItem: { type: String, default: null },
   showAiButton: { type: Boolean, default: true },
+  // Optional filter: when set, only these menu item ids are shown
+  menuItemIds: { type: Array, default: null },
 })
 
 defineEmits(['menu-click', 'logo-click', 'ai-click'])
@@ -131,6 +133,10 @@ const menuItems = [
   { id: 'settings', label: 'A/B Tests', iconComponent: GitBranch },
   { id: 'template-manager', label: 'Template\nmanager', iconComponent: LayoutTemplate },
 ]
+
+const visibleMenuItems = computed(() =>
+  props.menuItemIds ? menuItems.filter((item) => props.menuItemIds.includes(item.id)) : menuItems
+)
 
 const navigateTo = (view) => {
   showProfilePopover.value = false

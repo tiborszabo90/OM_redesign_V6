@@ -1,7 +1,16 @@
 <template>
   <div class="h-screen-safe flex min-h-0 bg-om-gray-50">
-      <!-- Left: app sidebar (shared with the other pages) -->
-      <Sidebar :show-ai-button="false" />
+      <!-- Non-embedded: full app sidebar -->
+      <Sidebar v-if="!embedded" :show-ai-button="false" />
+      <!-- Embedded (agentic flow): no menu, just the OM logo in the top-left corner -->
+      <button
+        v-else
+        @click="emit('back')"
+        class="fixed top-4 left-4 z-20 w-8 h-8 flex items-center justify-center cursor-pointer"
+        title="Back to Today's plan"
+      >
+        <img src="/icons/optimonk-logo.svg" alt="OptiMonk" class="w-full h-full" />
+      </button>
 
       <!-- Left: Chat panel as floating card -->
       <div
@@ -19,7 +28,17 @@
         <div class="shrink-0 flex items-center justify-between px-1 pb-2">
           <span v-if="chatExpanded && publishMode" class="text-sm font-semibold text-om-gray-700">Ready to publish</span>
           <span v-else></span>
+          <!-- Reveal the visual editor canvas. Labeled in the flow so it's discoverable. -->
           <button
+            v-if="embedded && chatExpanded"
+            @click="collapseChat()"
+            class="flex items-center gap-1.5 px-2.5 h-8 text-sm font-medium text-om-gray-600 hover:text-om-gray-800 hover:bg-om-gray-100 rounded-lg transition-colors cursor-pointer"
+            title="Open the visual editor"
+          >
+            <LayoutTemplate :size="16" /> Edit popup
+          </button>
+          <button
+            v-else
             @click="chatExpanded ? collapseChat() : expandChat()"
             class="w-8 h-8 flex items-center justify-center text-om-gray-500 hover:text-om-gray-700 hover:bg-om-gray-100 rounded-lg transition-colors cursor-pointer"
             :title="chatExpanded ? 'Minimize chat' : 'Expand chat'"
@@ -28,21 +47,6 @@
             <Maximize2 v-else :size="18" />
           </button>
         </div>
-        <!-- Selected element context banner -->
-        <transition name="fade">
-          <div v-if="selectedElement" class="shrink-0 mx-3 mt-3 flex items-center gap-2 px-3 py-2 bg-om-orange-50 border border-om-orange-200 rounded-lg">
-            <div class="w-1.5 h-1.5 rounded-full bg-om-orange-500 shrink-0"></div>
-            <span class="text-xs text-om-orange-700">
-              <span class="font-semibold">Editing:</span> {{ selectedLabel }}
-            </span>
-            <button
-              @click="selectedElement = null; selectedRect = null; openPopover = null"
-              class="ml-auto w-5 h-5 flex items-center justify-center text-om-orange-500 hover:text-om-orange-700 hover:bg-om-orange-100 rounded transition-colors cursor-pointer"
-            >
-              <X :size="12" />
-            </button>
-          </div>
-        </transition>
         <!-- Chat body -->
         <div ref="chatMessagesRef" class="flex-1 min-h-0 flex flex-col p-4 gap-3 overflow-y-auto">
           <template v-if="generationMessages.length">
@@ -137,6 +141,21 @@
                   </div>
                 </div>
               </div>
+              <!-- Campaign settings (embedded flow, after Done) — mirrors the settings page -->
+              <div v-else-if="m.role === 'targeting'" class="w-full">
+                <div class="bg-om-gray-50 rounded-2xl p-3 space-y-2">
+                  <div v-for="sec in m.sections" :key="sec.title" class="bg-white rounded-xl border border-om-gray-200 px-4 py-3">
+                    <p class="text-sm font-semibold text-om-gray-800">{{ sec.title }}</p>
+                    <p class="text-xs text-om-gray-500 mt-0.5">{{ sec.description }}</p>
+                    <ul v-if="sec.details?.length" class="mt-2.5 space-y-1.5 border-t border-om-gray-100 pt-2.5">
+                      <li v-for="d in sec.details" :key="d" class="flex items-start gap-2 text-sm text-om-gray-700">
+                        <span class="w-1 h-1 rounded-full bg-om-orange-400 shrink-0 mt-2"></span>
+                        <span>{{ d }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
               <!-- User / AI text bubble -->
               <div
                 v-else
@@ -147,7 +166,7 @@
                   class="px-3 py-2 rounded-2xl max-w-[85%] text-sm leading-relaxed whitespace-pre-wrap"
                   :class="m.role === 'user'
                     ? 'bg-om-peach-100 text-om-gray-700 rounded-br-md'
-                    : 'bg-om-gray-100 text-om-gray-700 rounded-bl-md'"
+                    : [embedded ? 'bg-om-gray-50' : 'bg-om-gray-100', 'text-om-gray-700 rounded-bl-md']"
                 ><span v-if="m.element" class="block text-[11px] font-semibold text-om-orange-600 mb-0.5">{{ m.element }}</span>{{ m.text }}</div>
                 <!-- Hover meta: submission time + redo -->
                 <div
@@ -236,13 +255,146 @@
             </div>
           </transition>
 
+          <!-- Integration question docked above the input (embedded flow, asked separately) -->
+          <transition name="pop-in-card">
+            <div v-if="integrationQuestion" class="bg-white rounded-2xl border border-om-gray-200 shadow-sm overflow-hidden">
+              <div class="px-3 py-2 border-b border-om-gray-200">
+                <p class="text-xs font-semibold text-om-gray-700">{{ integrationQuestion.text }}</p>
+              </div>
+              <div class="px-1.5 py-1 flex flex-col gap-0.5">
+                <button
+                  v-for="opt in integrationQuestion.options"
+                  :key="opt.id"
+                  @click="integrationQuestion.selectedId = opt.id"
+                  class="flex items-start gap-2 px-2 py-1.5 rounded-md text-left transition-colors cursor-pointer"
+                  :class="integrationQuestion.selectedId === opt.id ? 'bg-om-orange-50' : 'hover:bg-om-gray-50'"
+                >
+                  <span
+                    class="w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5"
+                    :class="integrationQuestion.selectedId === opt.id ? 'border-om-orange-500' : 'border-om-gray-300'"
+                  >
+                    <span v-if="integrationQuestion.selectedId === opt.id" class="w-1.5 h-1.5 rounded-full bg-om-orange-500"></span>
+                  </span>
+                  <span class="flex-1 min-w-0">
+                    <span class="block text-xs font-semibold text-om-gray-700">{{ opt.label }}</span>
+                    <span v-if="opt.description" class="block text-[11px] text-om-gray-500 leading-snug">{{ opt.description }}</span>
+                  </span>
+                </button>
+              </div>
+              <div class="border-t border-om-gray-200 px-2 py-1.5 flex items-center justify-end">
+                <button
+                  @click="onIntegrationContinue"
+                  :disabled="!integrationQuestion.selectedId"
+                  :class="[
+                    'px-3 py-1 rounded text-xs font-semibold transition-colors',
+                    integrationQuestion.selectedId ? 'bg-om-orange-500 text-white hover:bg-om-orange-600 cursor-pointer' : 'bg-om-gray-200 text-om-gray-400 cursor-not-allowed'
+                  ]"
+                >Continue</button>
+              </div>
+            </div>
+          </transition>
+
+          <!-- Email-notification question docked above the input (embedded flow, asked separately) -->
+          <transition name="pop-in-card">
+            <div v-if="emailQuestion" class="bg-white rounded-2xl border border-om-gray-200 shadow-sm overflow-hidden">
+              <div class="px-3 py-2 border-b border-om-gray-200">
+                <p class="text-xs font-semibold text-om-gray-700">{{ emailQuestion.text }}</p>
+              </div>
+              <div class="px-1.5 py-1 flex flex-col gap-0.5">
+                <button
+                  v-for="opt in emailQuestion.options"
+                  :key="opt.id"
+                  @click="emailQuestion.selectedId = opt.id"
+                  class="flex items-start gap-2 px-2 py-1.5 rounded-md text-left transition-colors cursor-pointer"
+                  :class="emailQuestion.selectedId === opt.id ? 'bg-om-orange-50' : 'hover:bg-om-gray-50'"
+                >
+                  <span
+                    class="w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5"
+                    :class="emailQuestion.selectedId === opt.id ? 'border-om-orange-500' : 'border-om-gray-300'"
+                  >
+                    <span v-if="emailQuestion.selectedId === opt.id" class="w-1.5 h-1.5 rounded-full bg-om-orange-500"></span>
+                  </span>
+                  <span class="flex-1 min-w-0">
+                    <span class="block text-xs font-semibold text-om-gray-700">{{ opt.label }}</span>
+                    <span v-if="opt.description" class="block text-[11px] text-om-gray-500 leading-snug">{{ opt.description }}</span>
+                  </span>
+                </button>
+              </div>
+              <div class="border-t border-om-gray-200 px-2 py-1.5 flex items-center justify-end">
+                <button
+                  @click="onEmailContinue"
+                  :disabled="!emailQuestion.selectedId"
+                  :class="[
+                    'px-3 py-1 rounded text-xs font-semibold transition-colors',
+                    emailQuestion.selectedId ? 'bg-om-orange-500 text-white hover:bg-om-orange-600 cursor-pointer' : 'bg-om-gray-200 text-om-gray-400 cursor-not-allowed'
+                  ]"
+                >Continue</button>
+              </div>
+            </div>
+          </transition>
+
+          <!-- Targeting review question docked above the input (embedded flow) -->
+          <transition name="pop-in-card">
+            <div v-if="targetingQuestion" class="bg-white rounded-2xl border border-om-gray-200 shadow-sm overflow-hidden">
+              <div class="px-3 py-2 border-b border-om-gray-200">
+                <p class="text-xs font-semibold text-om-gray-700">{{ targetingQuestion.text }}</p>
+              </div>
+              <div class="px-1.5 py-1 flex flex-col gap-0.5">
+                <button
+                  v-for="opt in targetingQuestion.options"
+                  :key="opt.id"
+                  @click="targetingQuestion.selectedId = opt.id"
+                  class="flex items-start gap-2 px-2 py-1.5 rounded-md text-left transition-colors cursor-pointer"
+                  :class="targetingQuestion.selectedId === opt.id ? 'bg-om-orange-50' : 'hover:bg-om-gray-50'"
+                >
+                  <span
+                    class="w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5"
+                    :class="targetingQuestion.selectedId === opt.id ? 'border-om-orange-500' : 'border-om-gray-300'"
+                  >
+                    <span v-if="targetingQuestion.selectedId === opt.id" class="w-1.5 h-1.5 rounded-full bg-om-orange-500"></span>
+                  </span>
+                  <span class="flex-1 min-w-0">
+                    <span class="block text-xs font-semibold text-om-gray-700">{{ opt.label }}</span>
+                    <span v-if="opt.description" class="block text-[11px] text-om-gray-500 leading-snug">{{ opt.description }}</span>
+                  </span>
+                </button>
+              </div>
+              <div class="border-t border-om-gray-200 px-2 py-1.5 flex items-center justify-end">
+                <button
+                  @click="onTargetingContinue"
+                  :disabled="!targetingQuestion.selectedId"
+                  :class="[
+                    'px-3 py-1 rounded text-xs font-semibold transition-colors',
+                    targetingQuestion.selectedId ? 'bg-om-orange-500 text-white hover:bg-om-orange-600 cursor-pointer' : 'bg-om-gray-200 text-om-gray-400 cursor-not-allowed'
+                  ]"
+                >Continue</button>
+              </div>
+            </div>
+          </transition>
+
+          <!-- Selected element context banner: sits directly above the chat input -->
+          <transition name="fade">
+            <div v-if="selectedElement" class="flex items-center gap-2 px-3 py-2 bg-om-orange-50 border border-om-orange-200 rounded-lg">
+              <div class="w-1.5 h-1.5 rounded-full bg-om-orange-500 shrink-0"></div>
+              <span class="text-xs text-om-orange-700 min-w-0 truncate">
+                <span class="font-semibold">Editing:</span> {{ selectedLabel }}
+              </span>
+              <button
+                @click="selectedElement = null; selectedRect = null; openPopover = null"
+                class="ml-auto w-5 h-5 flex items-center justify-center text-om-orange-500 hover:text-om-orange-700 hover:bg-om-orange-100 rounded transition-colors cursor-pointer shrink-0"
+              >
+                <X :size="12" />
+              </button>
+            </div>
+          </transition>
+
           <!-- Input -->
           <div class="relative">
             <textarea
               v-model="chatMessage"
               rows="3"
               @keydown.enter.exact.prevent="handleChatSubmit"
-              :placeholder="generating ? 'Chat is busy with AI…' : publishMode ? 'Type a new coupon code or just say keep…' : 'Describe your change...'"
+              :placeholder="generating ? 'Chat is busy with AI…' : targetingAdjust ? 'Describe the targeting change…' : publishMode ? 'Type a new coupon code or just say keep…' : 'Describe your change...'"
               :disabled="generating"
               :class="[
                 'w-full px-4 py-3 border border-om-gray-300 rounded-xl focus:ring-2 focus:ring-om-gray-500 focus:border-transparent transition-colors text-om-gray-700 text-sm resize-none pr-12 bg-white',
@@ -273,6 +425,7 @@
       ></div>
 
       <!-- Editor block (right): its own header + canvas, visually separate from the chat -->
+      <transition name="editor-reveal">
       <div v-if="!chatExpanded" class="flex-1 flex flex-col min-w-0 my-4 mr-4 bg-white rounded-2xl border border-om-gray-200 shadow-md overflow-hidden">
         <!-- Top bar -->
         <div class="shrink-0 flex items-center justify-between h-14 border-b border-om-gray-200 px-4 bg-white">
@@ -281,84 +434,100 @@
             <span class="text-sm font-semibold text-om-gray-700">{{ useCase?.title || 'Popup' }}</span>
           </div>
 
-          <!-- Right: undo/redo · screen size · zoom · preview · save · publish -->
+          <!-- Center: Design / Settings tabs -->
+          <div class="flex items-center gap-1 bg-om-gray-100 rounded-xl p-1">
+            <button
+              @click="editorTab = 'design'"
+              :class="['px-5 py-1.5 text-sm font-semibold rounded-lg transition-colors cursor-pointer', editorTab === 'design' ? 'bg-white text-om-orange-600 shadow-sm' : 'text-om-gray-500 hover:text-om-gray-700']"
+            >Design</button>
+            <button
+              @click="editorTab = 'settings'"
+              :class="['px-5 py-1.5 text-sm font-semibold rounded-lg transition-colors cursor-pointer', editorTab === 'settings' ? 'bg-white text-om-orange-600 shadow-sm' : 'text-om-gray-500 hover:text-om-gray-700']"
+            >Settings</button>
+          </div>
+
+          <!-- Right: primary actions (persist across both tabs) -->
           <div class="flex items-center gap-1 flex-1 justify-end">
-            <button
-              class="w-8 h-8 flex items-center justify-center text-om-gray-500 hover:text-om-gray-700 hover:bg-om-gray-100 rounded-lg transition-colors cursor-pointer"
-              title="Undo"
-            >
-              <Undo2 :size="16" />
-            </button>
-            <button
-              class="w-8 h-8 flex items-center justify-center text-om-gray-500 hover:text-om-gray-700 hover:bg-om-gray-100 rounded-lg transition-colors cursor-pointer"
-              title="Redo"
-            >
-              <Redo2 :size="16" />
-            </button>
-
-            <div class="w-px h-5 bg-om-gray-200 mx-2" />
-
-            <!-- Screen size dropdown -->
-            <div class="relative">
-              <button
-                @click="screenMenuOpen = !screenMenuOpen; zoomMenuOpen = false"
-                class="h-8 px-2.5 flex items-center gap-1 text-sm text-om-gray-700 hover:bg-om-gray-100 rounded-lg transition-colors cursor-pointer"
-                title="Screen size"
-              >
-                {{ screenSize.w }}×{{ screenSize.h }}
-                <ChevronDown :size="14" />
-              </button>
-              <div v-if="screenMenuOpen" class="absolute top-full right-0 mt-1.5 bg-white rounded-lg shadow-lg border border-om-gray-200 py-1 z-20 min-w-48">
-                <button
-                  v-for="s in screenSizes"
-                  :key="s.w + 'x' + s.h"
-                  @click="screenSize = s; screenMenuOpen = false"
-                  :class="[
-                    'w-full text-left px-3 py-1.5 text-sm cursor-pointer transition-colors flex items-center justify-between gap-3',
-                    screenSize.w === s.w && screenSize.h === s.h ? 'bg-om-orange-50 text-om-orange-600 font-semibold' : 'text-om-gray-700 hover:bg-om-gray-50'
-                  ]"
-                >
-                  <span>{{ s.w }} × {{ s.h }} px</span>
-                  <span v-if="s.label" class="text-[11px] text-om-gray-400">{{ s.label }}</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Zoom dropdown -->
-            <div class="relative">
-              <button
-                @click="zoomMenuOpen = !zoomMenuOpen; screenMenuOpen = false"
-                class="h-8 px-2.5 flex items-center gap-1 text-sm text-om-gray-700 hover:bg-om-gray-100 rounded-lg transition-colors cursor-pointer"
-                title="Zoom"
-              >
-                {{ zoom }}%
-                <ChevronDown :size="14" />
-              </button>
-              <div v-if="zoomMenuOpen" class="absolute top-full right-0 mt-1.5 bg-white rounded-lg shadow-lg border border-om-gray-200 py-1 z-20 min-w-24">
-                <button
-                  v-for="z in zoomOptions"
-                  :key="z"
-                  @click="zoom = z; zoomMenuOpen = false"
-                  :class="[
-                    'w-full text-left px-3 py-1.5 text-sm cursor-pointer transition-colors',
-                    zoom === z ? 'bg-om-orange-50 text-om-orange-600 font-semibold' : 'text-om-gray-700 hover:bg-om-gray-50'
-                  ]"
-                >{{ z }}%</button>
-              </div>
-            </div>
-
-            <div class="w-px h-5 bg-om-gray-200 mx-2" />
-
-            <Button variant="secondary" size="sm" class="w-24 flex items-center justify-center">
-              <template #icon><Eye :size="15" /></template>
-              Preview
-            </Button>
-            <Button variant="secondary" size="sm" class="w-24 flex items-center justify-center">Save draft</Button>
-            <Button variant="primary" size="sm" class="w-24 flex items-center justify-center" @click="startPublishFlow">Publish</Button>
+            <Button v-if="!embedded" variant="secondary" size="sm" class="w-24 flex items-center justify-center">Save draft</Button>
+            <Button variant="primary" size="sm" class="w-24 flex items-center justify-center" @click="onPrimaryAction">{{ primaryActionLabel }}</Button>
           </div>
         </div>
+
+        <!-- Contextual canvas toolbar — only under the Design tab -->
+        <div v-if="editorTab === 'design'" class="shrink-0 flex items-center gap-1 h-11 border-b border-om-gray-200 px-4 bg-white">
+          <button
+            class="w-8 h-8 flex items-center justify-center text-om-gray-500 hover:text-om-gray-700 hover:bg-om-gray-100 rounded-lg transition-colors cursor-pointer"
+            title="Undo"
+          >
+            <Undo2 :size="16" />
+          </button>
+          <button
+            class="w-8 h-8 flex items-center justify-center text-om-gray-500 hover:text-om-gray-700 hover:bg-om-gray-100 rounded-lg transition-colors cursor-pointer"
+            title="Redo"
+          >
+            <Redo2 :size="16" />
+          </button>
+
+          <div class="w-px h-5 bg-om-gray-200 mx-2" />
+
+          <!-- Screen size dropdown -->
+          <div class="relative">
+            <button
+              @click="screenMenuOpen = !screenMenuOpen; zoomMenuOpen = false"
+              class="h-8 px-2.5 flex items-center gap-1 text-sm text-om-gray-700 hover:bg-om-gray-100 rounded-lg transition-colors cursor-pointer"
+              title="Screen size"
+            >
+              {{ screenSize.w }}×{{ screenSize.h }}
+              <ChevronDown :size="14" />
+            </button>
+            <div v-if="screenMenuOpen" class="absolute top-full left-0 mt-1.5 bg-white rounded-lg shadow-lg border border-om-gray-200 py-1 z-20 min-w-48">
+              <button
+                v-for="s in screenSizes"
+                :key="s.w + 'x' + s.h"
+                @click="screenSize = s; screenMenuOpen = false"
+                :class="[
+                  'w-full text-left px-3 py-1.5 text-sm cursor-pointer transition-colors flex items-center justify-between gap-3',
+                  screenSize.w === s.w && screenSize.h === s.h ? 'bg-om-orange-50 text-om-orange-600 font-semibold' : 'text-om-gray-700 hover:bg-om-gray-50'
+                ]"
+              >
+                <span>{{ s.w }} × {{ s.h }} px</span>
+                <span v-if="s.label" class="text-[11px] text-om-gray-400">{{ s.label }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Zoom dropdown -->
+          <div class="relative">
+            <button
+              @click="zoomMenuOpen = !zoomMenuOpen; screenMenuOpen = false"
+              class="h-8 px-2.5 flex items-center gap-1 text-sm text-om-gray-700 hover:bg-om-gray-100 rounded-lg transition-colors cursor-pointer"
+              title="Zoom"
+            >
+              {{ zoom }}%
+              <ChevronDown :size="14" />
+            </button>
+            <div v-if="zoomMenuOpen" class="absolute top-full left-0 mt-1.5 bg-white rounded-lg shadow-lg border border-om-gray-200 py-1 z-20 min-w-24">
+              <button
+                v-for="z in zoomOptions"
+                :key="z"
+                @click="zoom = z; zoomMenuOpen = false"
+                :class="[
+                  'w-full text-left px-3 py-1.5 text-sm cursor-pointer transition-colors',
+                  zoom === z ? 'bg-om-orange-50 text-om-orange-600 font-semibold' : 'text-om-gray-700 hover:bg-om-gray-50'
+                ]"
+              >{{ z }}%</button>
+            </div>
+          </div>
+
+          <div class="w-px h-5 bg-om-gray-200 mx-2" />
+
+          <Button variant="secondary" size="sm" class="flex items-center justify-center">
+            <template #icon><Eye :size="15" /></template>
+            Preview
+          </Button>
+        </div>
         <!-- Whiteboard canvas -->
-        <div class="flex-1 flex flex-col min-w-0 whiteboard-bg relative overflow-hidden">
+        <div v-if="editorTab === 'design'" class="flex-1 flex flex-col min-w-0 whiteboard-bg relative overflow-hidden">
         <!-- Floating style toolbar -->
         <div
           v-if="selectedElement && selectedRect"
@@ -826,14 +995,38 @@
           </div>
         </div>
         </div>
+        <!-- Settings panel (Settings tab): rows are click-to-select, edited via chat (like design elements) -->
+        <div v-else class="flex-1 min-h-0 overflow-y-auto whiteboard-bg p-6" @click="onCanvasClick">
+          <div class="max-w-2xl mx-auto space-y-2">
+            <div v-for="sec in settingsSections" :key="sec.title" class="bg-white rounded-xl border border-om-gray-200 px-4 py-3">
+              <p class="text-sm font-semibold text-om-gray-800">{{ sec.title }}</p>
+              <p class="text-xs text-om-gray-500 mt-0.5">{{ sec.description }}</p>
+              <ul v-if="sec.details?.length" class="mt-2.5 space-y-1 border-t border-om-gray-100 pt-2">
+                <li
+                  v-for="d in sec.details"
+                  :key="d"
+                  @click.stop="select(d, $event)"
+                  :class="[
+                    'flex items-start gap-2 text-sm rounded-md px-2 py-1.5 -mx-1 cursor-pointer transition-colors',
+                    selectedElement === d ? 'bg-om-orange-50 ring-1 ring-om-orange-200 text-om-gray-800' : 'text-om-gray-700 hover:bg-om-gray-50'
+                  ]"
+                >
+                  <span class="w-1 h-1 rounded-full bg-om-orange-400 shrink-0 mt-2"></span>
+                  <span>{{ d }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
+      </transition>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import {
-  ChevronDown, ChevronUp, Check, ArrowUp, X, Copy, Plus, Type,
+  ChevronDown, ChevronUp, ChevronLeft, Check, ArrowUp, X, Copy, Plus, Type, LayoutTemplate,
   Bold as BoldIcon, Italic as ItalicIcon, Underline as UnderlineIcon, Strikethrough,
   List as ListIcon, Link2, Highlighter, MoreVertical, Trash2,
   AlignLeft, AlignCenter, AlignRight,
@@ -847,9 +1040,53 @@ const props = defineProps({
   generationPrompt: { type: String, default: '' },
   selectLoading: { type: Boolean, default: false },
   initialChatMessages: { type: Array, default: () => [] },
+  couponCode: { type: String, default: '' },
+  // Embedded in the Today's plan flow: open as a centered frameless chat (so the
+  // conversation appears to stay in place), drop the editor's own draft chrome.
+  embedded: { type: Boolean, default: false },
+  // Targeting parameters reviewed in-chat after "Done" (embedded flow only):
+  // array of { label, items: [] }.
+  targeting: { type: Array, default: () => [] },
 })
 
 const brandColor = '#E20074'
+
+// Editor block tabs: Design (canvas) vs Settings (campaign settings)
+const editorTab = ref('design')
+
+// Settings tab = the campaign settings + the chosen integration & email notification (updated by the chat questions)
+const chosenIntegration = ref('No integration connected yet')
+const emailNotificationDetail = ref('Off')
+// Fallback settings when no `targeting` prop is passed (e.g. the public wizard editor)
+const DEFAULT_CAMPAIGN_SETTINGS = [
+  { title: 'Triggering', description: 'When would you like this campaign to show up?', details: ['On exit-intent — when a visitor is about to leave your site', 'Or after 20 seconds of inactivity (desktop and mobile)'] },
+  { title: 'Frequency', description: 'How many times should this campaign appear?', details: ['Appears a maximum of 2 times per visitor', 'At least 1 hour between two impressions', 'Stops showing after a visitor has converted'] },
+  { title: 'Targeting', description: 'Who should see this campaign?', details: ['Spent on pages — at least 10 seconds on the current subpage', 'Current page / URL — contains cart, shop_cart, shop_reg, or shop_category'] },
+]
+const settingsSections = computed(() => {
+  const base = props.targeting.length ? props.targeting : DEFAULT_CAMPAIGN_SETTINGS
+  return [
+    ...base,
+    { title: 'Integrations', description: 'Where you would like to send the subscribers and campaign data?', details: [chosenIntegration.value] },
+    { title: 'Email notification', description: 'Get notified when someone submits this campaign', details: [emailNotificationDetail.value] },
+  ]
+})
+
+// Primary top-bar action: on the embedded Design tab it advances to Settings ("Next");
+// on Settings it finishes ("Done"); non-embedded keeps "Publish".
+const primaryActionLabel = computed(() => {
+  if (!props.embedded) return 'Publish'
+  return editorTab.value === 'design' ? 'Next' : 'Done'
+})
+const onPrimaryAction = () => {
+  if (!props.embedded) { startPublishFlow(); return }
+  if (editorTab.value === 'design') {
+    editorTab.value = 'settings'
+    return
+  }
+  // Settings tab "Done" → finish and go straight to the success screen
+  emit('published')
+}
 
 // ── Editor top-bar controls ──
 const device = ref('desktop') // 'desktop' | 'mobile'
@@ -884,6 +1121,14 @@ let publishStage = 0
 
 const publishQuestion = ref(null)
 const publishCouponInput = ref('')
+// Embedded targeting review (after "Done"): the docked question + adjust mode
+const targetingQuestion = ref(null)
+const targetingAdjust = ref(false)
+// Separate integration question asked before the final settings confirm
+const integrationQuestion = ref(null)
+const availableIntegrations = ['Klaviyo', 'HubSpot', 'ActiveCampaign', 'Brevo', 'Salesforce', 'Zapier']
+// Separate email-notification question, asked after the integration one
+const emailQuestion = ref(null)
 
 const publishContinueDisabled = computed(() => {
   const q = publishQuestion.value
@@ -903,8 +1148,25 @@ const collapseChat = () => {
 }
 
 const startPublishFlow = async () => {
-  publishMode.value = true
+  // Drop any element selection so the "Editing: …" banner clears on Done
+  selectedElement.value = null
+  selectedRect.value = null
+  openPopover.value = null
   chatExpanded.value = true
+  // Embedded (Today's plan): keep the chat, expand it back to full, and review the
+  // targeting parameters in-chat before going live — instead of publishing directly.
+  if (props.embedded) {
+    scrollChatToBottom()
+    await wait(400)
+    await streamAi("That's the design locked in. Here are the campaign settings:")
+    generationMessages.value.push({ role: 'targeting', sections: props.targeting })
+    scrollChatToBottom()
+    await wait(300)
+    await streamAi("One more thing — do you want to send new subscribers to an integration? I'd recommend Mailchimp, but it's up to you.")
+    showIntegrationQuestion()
+    return
+  }
+  publishMode.value = true
   publishStage = 0
   // Show final popup design immediately (avoid stacking duplicates on re-publish)
   if (generationMessages.value[generationMessages.value.length - 1]?.role !== 'popup-preview') {
@@ -912,7 +1174,15 @@ const startPublishFlow = async () => {
   }
   scrollChatToBottom()
   await wait(450)
-  // Show decision question above the chat input
+  // If the coupon was already chosen earlier, publish without asking again
+  if (props.couponCode) {
+    await streamAi(`Publishing with "${popupContent['thank-coupon']}". You'll get a confirmation when it's live.`)
+    publishStage = 1
+    await wait(1000)
+    emit('published')
+    return
+  }
+  // Otherwise ask whether to keep the default coupon
   publishQuestion.value = {
     text: `Coupon code is "${popupContent['thank-coupon']}". Want to keep this default?`,
     selectedId: null,
@@ -947,6 +1217,130 @@ const onPublishQuestionContinue = async () => {
     await wait(300)
     await streamAi(`Got it. Coupon updated to "${newCode}". Publishing now — you'll get a confirmation shortly.`)
   }
+  // Campaign is live — hand off to the detailed summary
+  await wait(1000)
+  emit('published')
+}
+
+// Separate integration question — confirm where subscribers/data are sent
+const showIntegrationQuestion = () => {
+  integrationQuestion.value = {
+    step: 'choose',
+    text: 'Do you want to send new subscribers to an integration?',
+    selectedId: null, // nothing connected by default — the user decides
+    options: [
+      { id: 'mailchimp', label: 'Use Mailchimp (recommended)', description: 'Send new subscribers straight to your Mailchimp account.' },
+      { id: 'other', label: 'Use a different integration', description: 'Pick from the available integrations.' },
+      { id: 'none', label: 'Not now', description: "Don't connect one yet — you can add it later." },
+    ],
+  }
+  scrollChatToBottom()
+}
+// Resolve a chosen integration: echo it, show the Integrations block, then ask about email
+const resolveIntegration = async (userText, detail) => {
+  integrationQuestion.value = null
+  chosenIntegration.value = detail
+  generationMessages.value.push({ role: 'user', text: userText, time: formatTime(new Date()), fromEditor: true })
+  scrollChatToBottom()
+  await wait(300)
+  generationMessages.value.push({ role: 'targeting', sections: [
+    { title: 'Integrations', description: 'Where you would like to send the subscribers and campaign data?', details: [detail] },
+  ] })
+  scrollChatToBottom()
+  await wait(300)
+  await streamAi("And do you want email notifications when someone submits this campaign?")
+  showEmailQuestion()
+}
+const onIntegrationContinue = async () => {
+  const q = integrationQuestion.value
+  if (!q?.selectedId) return
+  // Step 2: a specific tool was picked from the available list
+  if (q.step === 'list') {
+    await resolveIntegration(`Use ${q.selectedId}`, q.selectedId)
+    return
+  }
+  // Step 1: Mailchimp / a different one / none
+  if (q.selectedId === 'other') {
+    integrationQuestion.value = null
+    generationMessages.value.push({ role: 'user', text: 'Use a different integration', time: formatTime(new Date()), fromEditor: true })
+    scrollChatToBottom()
+    await wait(300)
+    await streamAi('Sure — here are the integrations you can connect:')
+    integrationQuestion.value = {
+      step: 'list',
+      text: 'Available integrations',
+      selectedId: null,
+      options: availableIntegrations.map((name) => ({ id: name, label: name })),
+    }
+    scrollChatToBottom()
+    return
+  }
+  if (q.selectedId === 'none') {
+    await resolveIntegration("Don't connect an integration for now", 'No integration connected')
+    return
+  }
+  await resolveIntegration('Use Mailchimp', 'Mailchimp')
+}
+
+// Separate email-notification question
+const showEmailQuestion = () => {
+  emailQuestion.value = {
+    text: 'Email notification',
+    selectedId: null,
+    options: [
+      { id: 'on', label: 'Yes, notify me', description: 'Email you each time someone submits.' },
+      { id: 'off', label: 'No notifications', description: "Don't send submission emails." },
+    ],
+  }
+  scrollChatToBottom()
+}
+const onEmailContinue = async () => {
+  const q = emailQuestion.value
+  if (!q?.selectedId) return
+  const on = q.selectedId === 'on'
+  emailQuestion.value = null
+  emailNotificationDetail.value = on ? 'On' : 'Off'
+  generationMessages.value.push({ role: 'user', text: on ? 'Email me on each submission' : "Don't send submission emails", time: formatTime(new Date()), fromEditor: true })
+  scrollChatToBottom()
+  await wait(300)
+  // Now that it's answered, the Email notification block appears
+  generationMessages.value.push({ role: 'targeting', sections: [
+    { title: 'Email notification', description: 'Get notified when someone submits this campaign', details: [on ? 'On' : 'Off'] },
+  ] })
+  scrollChatToBottom()
+  await wait(300)
+  await streamAi("That's everything set.")
+  showTargetingQuestion()
+}
+
+// Embedded targeting review: ask whether the targeting looks right or needs tweaks
+const showTargetingQuestion = () => {
+  targetingQuestion.value = {
+    text: 'Do these settings look right?',
+    selectedId: null,
+    options: [
+      { id: 'good', label: 'Yes, these look right', description: 'Launch the campaign with these settings.' },
+      { id: 'adjust', label: "I'd like to adjust", description: 'Change the targeting, display, frequency or anything else.' },
+    ],
+  }
+  scrollChatToBottom()
+}
+const onTargetingContinue = async () => {
+  const q = targetingQuestion.value
+  if (!q?.selectedId) return
+  if (q.selectedId === 'good') {
+    targetingQuestion.value = null
+    targetingAdjust.value = false
+    await wait(300)
+    await streamAi("Perfect — your campaign is ready to launch.")
+    await wait(900)
+    emit('published')
+  } else {
+    targetingQuestion.value = null
+    targetingAdjust.value = true
+    await wait(300)
+    await streamAi("Sure — tell me which setting to change and what to, and I'll update it.")
+  }
 }
 const zoom = ref(30)
 const zoomOptions = [25, 30, 50, 75, 100, 125, 150]
@@ -965,7 +1359,14 @@ const screenSizes = [
   { w: 375, h: 667, label: 'iPhone SE' },
 ]
 
-defineEmits(['back'])
+const emit = defineEmits(['back', 'published'])
+
+// Sidebar "Home" (embedded flow): close the editor and go to the Today's plan list
+const goHome = () => {
+  if (!props.embedded) return
+  emit('back')
+  window.location.hash = '#/agentic/home'
+}
 
 const steps = ref([
   { id: 'main', label: 'Offer' },
@@ -1224,6 +1625,8 @@ watch(() => props.useCase?.id, (id) => {
     Object.assign(popupContent, defaultsByUseCase[id])
   }
   Object.assign(popupContent, sharedDefaults)
+  // If a coupon code was already chosen earlier (e.g. in the chat), use it
+  if (props.couponCode) popupContent['thank-coupon'] = props.couponCode
 }, { immediate: true })
 
 const defaultChatSuggestions = [
@@ -1307,6 +1710,15 @@ const startGeneration = async () => {
 }
 
 onMounted(() => {
+  // In the Today's plan flow, open as the wide centered chat so the conversation
+  // visually continues from the flow, then reveal the editor canvas after a beat
+  // (the "opening the editor" message lands, then the popup canvas animates in).
+  const devStep = props.embedded ? new URLSearchParams(window.location.search).get('step') : null
+  if (props.embedded && devStep !== 'targeting') {
+    chatExpanded.value = true
+    const t = setTimeout(() => collapseChat(), 850)
+    generationTimeouts.push(t)
+  }
   // Seed chat history from the wizard chat flow (text bubbles + popup version cards)
   const hasHistory = props.initialChatMessages && props.initialChatMessages.length > 0
   if (hasHistory) {
@@ -1327,6 +1739,8 @@ onMounted(() => {
     const t = setTimeout(() => { preparing.value = false }, 1800)
     generationTimeouts.push(t)
   }
+  // Dev affordance: ?step=targeting jumps straight to the in-chat targeting review
+  if (devStep === 'targeting') nextTick(() => startPublishFlow())
 })
 
 // The editor is only reachable after registration, so chat edits apply directly
@@ -1337,6 +1751,12 @@ const sendChat = async (text, element = null) => {
   generationMessages.value.push({ role: 'user', text, element, time: formatTime(new Date()), fromEditor: true })
   scrollChatToBottom()
   await wait(400)
+  // While reviewing targeting, the chat tweaks the targeting, not the design
+  if (targetingAdjust.value) {
+    await streamAi("Got it — I've updated the targeting. Anything else, or shall we go live?")
+    showTargetingQuestion()
+    return
+  }
   await streamAi('Done! I applied that to your popup.')
 }
 
@@ -1348,7 +1768,8 @@ const handleChatSubmit = async () => {
   const text = chatMessage.value?.trim()
   if (!text) return
   chatMessage.value = ''
-  await sendChat(text)
+  // If a setting/element row is selected, attach it so the edit targets that row
+  await sendChat(text, selectedElement.value ? selectedLabel.value : null)
 }
 
 const handleToolbarSubmit = async () => {
@@ -1428,5 +1849,14 @@ onBeforeUnmount(() => {
 /* Publish flow: the chat block unfolds wider / collapses back, both directions animated */
 .chat-panel-tr {
   transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Editor canvas reveal: slides in from the right as the chat docks to the side */
+.editor-reveal-enter-active {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+.editor-reveal-enter-from {
+  transform: translateX(24px);
+  opacity: 0;
 }
 </style>

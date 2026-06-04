@@ -44,10 +44,10 @@
       </button>
     </div>
 
-    <!-- Free-text input: for an input-only question, or when the selected option allows it (e.g. "Other") -->
-    <div v-if="activeQuestion.inputOnly || selectedOption?.allowInput" :class="activeQuestion.inputOnly ? 'px-3 py-2' : 'px-3 pb-2'">
+    <!-- Free-text input: input-only question, a required (allowInput) option, or an optional (optionalInput) one -->
+    <div v-if="activeQuestion.inputOnly || selectedOption?.allowInput || selectedOption?.optionalInput" :class="activeQuestion.inputOnly ? 'px-3 py-2' : 'px-3 pb-2'">
       <input
-        v-model="activeQuestion.otherValue"
+        v-model="inputModel"
         type="text"
         :placeholder="(activeQuestion.inputOnly ? activeQuestion.inputPlaceholder : selectedOption?.inputPlaceholder) || 'Type your answer'"
         autofocus
@@ -111,11 +111,31 @@ defineEmits(['skip', 'continue'])
 
 const activeQuestion = computed(() => props.block.questions[props.block.activeTab])
 const selectedOption = computed(() => activeQuestion.value.options.find((o) => o.id === activeQuestion.value.selectedId) || null)
+
+// The free-text value normally lives on the question. When the question sets
+// `perOptionInput`, each option keeps its own value instead (so switching options
+// swaps the value and the placeholder). Backward compatible: defaults to question-level.
+const inputModel = computed({
+  get() {
+    const q = activeQuestion.value
+    if (q.inputOnly) return q.otherValue || ''
+    if (q.perOptionInput) return selectedOption.value?.otherValue || ''
+    return q.otherValue || ''
+  },
+  set(v) {
+    const q = activeQuestion.value
+    if (q.inputOnly) q.otherValue = v
+    else if (q.perOptionInput && selectedOption.value) selectedOption.value.otherValue = v
+    else q.otherValue = v
+  },
+})
+
 const continueDisabled = computed(() => {
   const q = activeQuestion.value
   if (q.inputOnly) return !q.otherValue?.trim()
   if (!q.selectedId) return true
-  if (selectedOption.value?.allowInput && !q.otherValue?.trim()) return true
+  const val = q.perOptionInput ? selectedOption.value?.otherValue : q.otherValue
+  if (selectedOption.value?.allowInput && !val?.trim()) return true
   return false
 })
 </script>
