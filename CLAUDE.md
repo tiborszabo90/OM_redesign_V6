@@ -1,13 +1,73 @@
 # Claude Code — Project Guidelines
 
-## Import Rule
+## Contents
 
-**Every component, icon, or utility used in a file MUST be explicitly imported in that file's `<script setup>` block.**
-Before using any component or icon, verify it is already imported. If not, add the import immediately — never assume global registration.
+- [1. Behavioral Guidelines](#1-behavioral-guidelines)
+- [2. Hard Prohibitions](#2-hard-prohibitions)
+  - [Commit Rule](#commit-rule)
+  - [Archive Rule](#archive-rule)
+  - [Deployment Rule](#deployment-rule)
+- [3. Workflow Rules](#3-workflow-rules)
+  - [Import Rule](#import-rule)
+  - [Adding New Views](#adding-new-views)
+  - [Component Reuse Rule](#component-reuse-rule)
+- [4. Component Reference](#4-component-reference)
+  - [Shared Components Reference](#shared-components-reference)
+  - [Component Details](#component-details)
 
 ---
 
-## Archive Rule
+## 1. Behavioral Guidelines
+
+How to work. Behavioral rules to reduce common LLM coding mistakes.
+**Tradeoff:** these bias toward caution over speed. For trivial tasks, use judgment.
+
+### Think Before Coding
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them, don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+### Simplicity First
+**Minimum code that solves the problem. Nothing speculative.**
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+- Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+- See also [Component Reuse Rule](#component-reuse-rule): the concrete application of this principle in this codebase.
+
+### Surgical Changes
+**Touch only what you must. Clean up only your own mess.**
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it, don't delete it.
+- Remove imports/variables/functions that YOUR changes made unused; leave pre-existing dead code unless asked.
+- The test: every changed line should trace directly to the user's request.
+
+### Goal-Driven Execution
+**Define success criteria. Loop until verified.**
+- "Add validation" becomes "Write tests for invalid inputs, then make them pass".
+- "Fix the bug" becomes "Write a test that reproduces it, then make it pass".
+- "Refactor X" becomes "Ensure tests pass before and after".
+- For multi-step tasks, state a brief plan with a verify check per step.
+- Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
+---
+
+## 2. Hard Prohibitions
+
+Absolute "never" rules. These override convenience and any default behavior.
+
+### Commit Rule
+
+**NEVER commit or push unless the user explicitly asks.**
+Do not run `git commit`, `git push`, or `vercel --prod` unless the user specifically requests it in their message.
+
+### Archive Rule
 
 **NEVER read, edit, or modify any view file that has `status: 'archived'` in `src/registry/views.js`, or any file in an `_archive/` folder.**
 These are frozen historical versions kept for reference only. The single source of truth is the `status` field in `src/registry/views.js`.
@@ -15,7 +75,23 @@ These are frozen historical versions kept for reference only. The single source 
 To check if a view is archived: look for its entry in `src/registry/views.js` and check if `status: 'archived'`.
 Also never touch: `src/views/_archive/` (entire folder)
 
-## Adding New Views
+### Deployment Rule
+
+**Deploy using Vercel, not Netlify.**
+Run `vercel --prod` to deploy to production.
+
+---
+
+## 3. Workflow Rules
+
+How to make changes correctly in this codebase.
+
+### Import Rule
+
+**Every component, icon, or utility used in a file MUST be explicitly imported in that file's `<script setup>` block.**
+Before using any component or icon, verify it is already imported. If not, add the import immediately — never assume global registration.
+
+### Adding New Views
 
 **When creating any new view, ALWAYS follow these steps — no exceptions:**
 
@@ -29,31 +105,17 @@ DevNavBar sections, archive dropdown, and logo visibility all derive from the re
 
 The `section` field controls which DevNavBar dropdown group the view appears in. Valid values: `'home'`, `'campaigns'`, `'campaignPage'`, `'analytics'`, `'ppo'`, `'ppoV1'`, `'aiContent'`, or `null` (no section).
 
----
-
-## Commit Rule
-
-**NEVER commit or push unless the user explicitly asks.**
-Do not run `git commit`, `git push`, or `vercel --prod` unless the user specifically requests it in their message.
-
----
-
-## Deployment Rule
-
-**Deploy using Vercel, not Netlify.**
-Run `vercel --prod` to deploy to production.
-
----
-
-## Component Reuse Rule
+### Component Reuse Rule
 
 **Before writing any button, input, dropdown, checkbox, toggle, accordion, multi-select, time-picker, chat panel, or tag/badge from raw HTML/Tailwind, always check `src/components/shared/` first and use the matching shared component.**
 
-If a suitable shared component does not exist, create it in `src/components/shared/` so it can be reused by future work.
+If a suitable shared component does not exist, create it in `src/components/shared/` so it can be reused by future work. See [Component Reference](#4-component-reference) below for the full catalog.
 
 ---
 
-## Shared Components Reference
+## 4. Component Reference
+
+### Shared Components Reference
 
 | Component | Import path | Purpose | v-model type |
 |-----------|-------------|---------|-------------|
@@ -70,11 +132,9 @@ If a suitable shared component does not exist, create it in `src/components/shar
 | `Chip` | `@/components/shared/Chip.vue` | Selectable onboarding chip (rounded-xl) | — |
 | `Modal` | `@/components/shared/Modal.vue` | Generic modal/dialog with header/body/footer slots | `Boolean` (visibility) |
 
----
+### Component Details
 
-## Component Details
-
-### `Button`
+#### `Button`
 ```vue
 <Button variant="primary" size="md" :disabled="false" @click="handleClick">
   Label text
@@ -89,7 +149,7 @@ If a suitable shared component does not exist, create it in `src/components/shar
 
 ---
 
-### `Checkbox`
+#### `Checkbox`
 ```vue
 <Checkbox v-model="checked" label="Enable feature" />
 ```
@@ -100,7 +160,7 @@ If a suitable shared component does not exist, create it in `src/components/shar
 
 ---
 
-### `Dropdown`
+#### `Dropdown`
 ```vue
 <Dropdown v-model="selected" :options="options" placeholder="Select..." />
 ```
@@ -112,7 +172,7 @@ If a suitable shared component does not exist, create it in `src/components/shar
 
 ---
 
-### `FormInput`
+#### `FormInput`
 ```vue
 <FormInput v-model="email" label="Email" type="email" :required="true" :error="errorMsg" hint="Helper text" />
 ```
@@ -123,7 +183,7 @@ If a suitable shared component does not exist, create it in `src/components/shar
 
 ---
 
-### `MultiSelect`
+#### `MultiSelect`
 ```vue
 <MultiSelect v-model="selectedItems" :options="options" placeholder="Select items" />
 ```
@@ -133,7 +193,7 @@ If a suitable shared component does not exist, create it in `src/components/shar
 
 ---
 
-### `Accordion`
+#### `Accordion`
 ```vue
 <Accordion title="Section title" :open="false" @toggle="handleToggle">
   <template #icon><SomeIcon :size="16" /></template>
@@ -148,7 +208,7 @@ If a suitable shared component does not exist, create it in `src/components/shar
 
 ---
 
-### `ToggleSwitch`
+#### `ToggleSwitch`
 ```vue
 <ToggleSwitch v-model="isEnabled" />
 ```
@@ -158,7 +218,7 @@ If a suitable shared component does not exist, create it in `src/components/shar
 
 ---
 
-### `ChatPanel`
+#### `ChatPanel`
 ```vue
 <ChatPanel v-model="panelVisible" :suggestions="chips" :ai-responses="responses" />
 ```
@@ -170,7 +230,7 @@ If a suitable shared component does not exist, create it in `src/components/shar
 
 ---
 
-### `ScrollTimePicker`
+#### `ScrollTimePicker`
 ```vue
 <ScrollTimePicker v-model="time" />
 ```
@@ -180,7 +240,7 @@ If a suitable shared component does not exist, create it in `src/components/shar
 
 ---
 
-### `Tag`
+#### `Tag`
 ```vue
 <Tag variant="gray">Label</Tag>
 <Tag variant="green">
@@ -194,7 +254,7 @@ If a suitable shared component does not exist, create it in `src/components/shar
 
 ---
 
-### `Modal`
+#### `Modal`
 ```vue
 <Modal v-model="open" title="Edit campaign" size="md">
   <p>Body content goes here.</p>
