@@ -1,21 +1,60 @@
 <template>
-  <!-- Step 1: Prompt input (URL flow removed) -->
-  <div v-if="step === 'url'" class="h-screen-safe bg-white flex flex-col items-center justify-center px-4 relative">
-    <!-- Login (top-right) -->
-    <div class="absolute top-5 right-5 flex items-center gap-2">
-      <Button variant="ghost" size="sm" @click="goToHome">Log in</Button>
-    </div>
+  <!-- Step 1: URL or prompt input -->
+  <div v-if="step === 'url'" class="h-screen-safe bg-white flex flex-col items-center justify-center px-4">
     <div class="w-full max-w-2xl">
       <div class="flex justify-center mb-10">
         <img src="/OM-Logo-primary-basic.svg" alt="OptiMonk" class="h-8" />
       </div>
       <h1 class="text-4xl font-semibold text-om-gray-700 text-center mb-2">Website optimization magic.</h1>
       <p class="text-om-gray-500 text-center mb-6">
-        Tell us what you want to build and we’ll get you started.
+        {{ inputMode === 'url' ? 'Add your website URL and get your tailored optimization ideas in 2 minutes.' : 'Tell us what you want to build and we’ll get you started.' }}
       </p>
 
+      <!-- Input mode toggle -->
+      <div class="flex justify-center mb-6">
+        <div class="inline-flex p-1.5 rounded-2xl bg-om-gray-100 border border-om-gray-200 gap-1">
+          <button
+            @click="inputMode = 'url'"
+            :class="[
+              'px-5 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer',
+              inputMode === 'url' ? 'bg-white text-om-orange-500 shadow-md' : 'text-om-gray-700 hover:text-om-gray-900'
+            ]"
+          >
+            Get recommendations
+          </button>
+          <button
+            @click="inputMode = 'prompt'"
+            :class="[
+              'px-5 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer',
+              inputMode === 'prompt' ? 'bg-white text-om-orange-500 shadow-md' : 'text-om-gray-700 hover:text-om-gray-900'
+            ]"
+          >
+            I have an idea
+          </button>
+        </div>
+      </div>
+
       <form @submit.prevent="handleInitialSubmit" class="flex flex-col gap-3">
-        <div class="flex flex-col gap-3">
+        <!-- URL mode -->
+        <div v-if="inputMode === 'url'" class="flex gap-2">
+          <input
+            v-model="url"
+            type="text"
+            placeholder="enter website URL"
+            class="flex-1 h-12 px-4 rounded-xl border border-om-gray-200 text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:ring-2 focus:ring-om-orange-400 focus:border-transparent text-sm"
+            autofocus
+          />
+          <button
+            type="submit"
+            :disabled="!url.trim()"
+            class="h-12 px-6 rounded-xl bg-om-orange-500 text-white font-medium text-sm whitespace-nowrap transition-opacity disabled:opacity-40 hover:bg-om-orange-600 cursor-pointer disabled:cursor-not-allowed"
+          >
+            Get started
+          </button>
+        </div>
+
+        <!-- Prompt mode -->
+        <div v-else class="flex flex-col gap-3">
           <div class="relative">
             <textarea
               v-model="prompt"
@@ -42,7 +81,7 @@
               v-for="ex in promptExamples"
               :key="ex.label"
               type="button"
-              @click="prompt = ex.value; recommendationMode = ex.recommendation === true"
+              @click="prompt = ex.value"
               class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-om-gray-200 text-sm text-om-gray-700 hover:scale-105 transition-transform cursor-pointer"
             >
               <component :is="ex.icon" :size="14" class="text-om-gray-500" />
@@ -54,7 +93,39 @@
     </div>
   </div>
 
-  <!-- Step 2: Full-width chat -->
+  <!-- Step 2: Analysis (scanner + discovery list) -->
+  <div v-else-if="step === 'analysis'" class="h-screen-safe bg-white pl-25">
+    <div class="pt-8 pl-8 pb-3">
+      <img src="/OM-Logo-primary-basic.svg" alt="OptiMonk" class="h-8" />
+    </div>
+    <div class="flex items-start justify-center pt-12 px-4 sm:px-6 md:px-8 xl:px-12">
+      <div class="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 lg:gap-12 xl:gap-16 max-w-6xl w-full">
+        <div class="shrink-0 -mt-10">
+          <WebsiteScanAnimation />
+        </div>
+        <div class="flex-1 w-full md:w-auto md:min-w-72 lg:min-w-80 xl:max-w-72 2xl:max-w-80 md:-mt-6">
+          <div class="mb-6 text-center md:text-left">
+            <h2 class="text-xl sm:text-2xl font-semibold text-om-gray-700">Analyzing your website</h2>
+          </div>
+          <div class="space-y-2">
+            <template v-for="p in analysisPhases" :key="p.id">
+              <transition name="slide-in">
+                <div v-if="discoveries[p.id] || currentlyAnalyzing === p.id" class="flex items-center gap-3 py-1.5">
+                  <div v-if="discoveries[p.id]" class="w-6 h-6 rounded-full bg-om-orange-500 flex items-center justify-center shrink-0">
+                    <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </div>
+                  <div v-else class="w-6 h-6 rounded-full border-2 border-om-orange-500 border-t-transparent animate-spin shrink-0"></div>
+                  <span class="text-sm text-om-gray-700">{{ p.label }}</span>
+                </div>
+              </transition>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2b: Full-width chat (after "I have an idea" submit) -->
   <div v-else-if="step === 'chat'" class="min-h-screen-safe h-screen-safe bg-white flex flex-col px-6">
     <div class="shrink-0 flex justify-center pt-6 pb-2">
       <img src="/OM-Logo-primary-basic.svg" alt="OptiMonk" class="h-8" />
@@ -84,28 +155,6 @@
               </button>
             </div>
           </div>
-          <!-- 4 recommended use cases (numbered cards, like the home chat) -->
-          <div v-else-if="m.role === 'usecase-cards'" class="w-full">
-            <div class="grid grid-cols-2 gap-3 pb-2 max-w-3xl mx-auto">
-              <button
-                v-for="c in m.cards"
-                :key="c.id"
-                @click="onUseCasePick(i, c)"
-                :class="[
-                  'flex items-center gap-4 text-left bg-white rounded-xl border p-4 transition-all cursor-pointer',
-                  m.selectedId === c.id
-                    ? 'border-om-orange-500 ring-2 ring-om-orange-200'
-                    : 'border-om-gray-200 hover:border-om-orange-300 hover:shadow-md'
-                ]"
-              >
-                <div class="shrink-0 w-12 h-12 rounded-lg bg-om-gray-100 flex items-center justify-center text-xl font-bold text-om-gray-700">{{ c.number }}</div>
-                <div class="min-w-0">
-                  <div class="text-sm font-semibold text-om-gray-700">{{ c.label }}</div>
-                  <div class="text-xs text-om-gray-500 leading-snug mt-0.5">{{ c.reason }}</div>
-                </div>
-              </button>
-            </div>
-          </div>
           <!-- User / AI text bubble — stays narrow (centered) even in wide mode -->
           <div
             v-else
@@ -115,16 +164,12 @@
               m.role === 'user' ? 'justify-end' : 'justify-start'
             ]"
           >
-            <div class="group flex flex-col max-w-[80%]" :class="m.role === 'user' ? 'items-end' : 'items-start'">
-              <div
-                class="px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap"
-                :class="m.role === 'user'
-                  ? 'bg-om-peach-100 text-om-gray-700 rounded-br-md'
-                  : 'bg-om-gray-100 text-om-gray-700 rounded-bl-md'"
-              >{{ m.text }}</div>
-              <!-- Hover meta: submission time -->
-              <div v-if="m.role === 'user' && m.time" class="opacity-0 group-hover:opacity-100 transition-opacity mt-1 px-1 text-[11px] text-om-gray-400">{{ m.time }}</div>
-            </div>
+            <div
+              class="px-4 py-2.5 rounded-2xl max-w-[80%] text-sm leading-relaxed whitespace-pre-wrap"
+              :class="m.role === 'user'
+                ? 'bg-om-peach-100 text-om-gray-700 rounded-br-md'
+                : 'bg-om-gray-100 text-om-gray-700 rounded-bl-md'"
+            >{{ m.text }}</div>
           </div>
         </template>
         <div v-if="aiTyping" class="flex justify-start mx-auto w-full" :class="chatWide ? 'max-w-180' : ''">
@@ -172,68 +217,68 @@
     </div>
   </div>
 
-  <!-- Step 3: Popup detail (steps + chat editor) -->
+  <!-- Step 3: Recommendation (own duplicate, no longer shared) -->
+  <PublicV3RecommendationScreen
+    v-else-if="step === 'wizard'"
+    :url="url"
+    :brand-name="brandName"
+    @select="handleSelectUseCase"
+  />
+
+  <!-- Step 4: Popup detail (steps + chat editor) -->
   <PublicV3PopupDetailScreen
     v-else
     :use-case="selectedUseCase"
     :generation-prompt="generationPrompt"
     :select-loading="selectLoading"
     :initial-chat-messages="chatMessages"
-    :coupon-code="discountCode"
-    embedded
-    @back="step = 'url'"
-    @published="onEditorDone"
+    @back="generationPrompt ? (step = 'url') : (step = 'wizard')"
   />
 
-  <!-- Registration modal shown on the chat step after picking a popup version -->
+  <!-- Registration modal shown on the V3 chat step after picking a popup version -->
   <RegistrationModal v-model="showRegistrationModal" @register="completeChatRegistration" />
 </template>
 
 <script setup>
-import { computed, ref, watch, onMounted, onUnmounted, markRaw } from 'vue'
-import { ArrowUp, Mail, ShoppingCart, Sparkles } from 'lucide-vue-next'
-import PublicV3PopupDetailScreen from '../components/onboarding/PublicV3PopupDetailScreen.vue'
-import RegistrationModal from '../components/onboarding/RegistrationModal.vue'
-import ChatDecisionQuestions from '../components/onboarding/ChatDecisionQuestions.vue'
-import Button from '../components/shared/Button.vue'
+import { computed, ref, reactive, onMounted, onUnmounted, markRaw } from 'vue'
+import { ArrowUp, Mail, ShoppingCart, CircleDot } from 'lucide-vue-next'
 
 const promptExamples = [
   { label: 'Discount Popup', value: 'Create a Discount Popup to capture more leads.', icon: markRaw(Mail) },
   { label: 'Cart Abandonment Stopper', value: 'Help me recover cart abandoners with a popup.', icon: markRaw(ShoppingCart) },
-  { label: 'Get recommendation', value: 'Analyze my website and recommend the best opportunity for me.', icon: markRaw(Sparkles), recommendation: true },
+  { label: 'Lucky Wheel', value: 'Create a Lucky Wheel to gamify email signups.', icon: markRaw(CircleDot) },
 ]
+import PublicV3RecommendationScreen from '../components/onboarding/PublicV3RecommendationScreen.vue'
+import PublicV3PopupDetailScreen from '../components/onboarding/PublicV3PopupDetailScreen.vue'
+import RegistrationModal from '../components/onboarding/RegistrationModal.vue'
+import ChatDecisionQuestions from '../components/onboarding/ChatDecisionQuestions.vue'
+import WebsiteScanAnimation from '../components/illustrations/WebsiteScanAnimation.vue'
 
-const props = defineProps({
+defineProps({
   registrationData: {
     type: Object,
     default: null
-  },
-  // When launched with a prompt (e.g. Today's plan "New task"), auto-start the flow
-  initialMessage: {
-    type: String,
-    default: ''
-  },
-  // Launched from inside the app (already logged in) → skip the registration modal
-  skipRegistration: {
-    type: Boolean,
-    default: false
   }
 })
 
-const emit = defineEmits(['task-created', 'navigate-to', 'phase-changed', 'menu-click', 'registration-completed'])
+defineEmits(['task-created', 'navigate-to', 'phase-changed', 'menu-click', 'registration-completed'])
 
 const step = ref('url')
-
-// Each phase of the flow drives its own route (handled in App.vue via a hash subpath)
-watch(step, (s) => emit('phase-changed', s), { immediate: true })
+const inputMode = ref('url') // 'url' | 'prompt'
+const url = ref('')
 const prompt = ref('')
-const discountCode = ref('') // captured in the discount flow, passed to the editor
-const recommendationMode = ref(false) // "Get recommendation" → only ask for the URL
 const selectedUseCase = ref(null)
 const generationPrompt = ref('')
 const selectLoading = ref(false)
 
-// ── Animated placeholder for the prompt input ──
+const handleSelectUseCase = (useCase) => {
+  selectedUseCase.value = useCase
+  generationPrompt.value = ''
+  selectLoading.value = true
+  step.value = 'detail'
+}
+
+// ── Animated placeholder for prompt mode ──
 const placeholderSuggestions = [
   'I want to capture more emails from first-time visitors...',
   'Reduce cart abandonment on my checkout page...',
@@ -266,35 +311,73 @@ const erasePlaceholder = (text, i) => {
 
 onMounted(() => {
   typePlaceholder(placeholderSuggestions[0])
-  // Launched with a prompt (e.g. from the Today's plan "New task") → start the flow
-  if (props.initialMessage && props.initialMessage.trim()) {
-    prompt.value = props.initialMessage
-    handleInitialSubmit()
+})
+
+const brandName = computed(() => {
+  if (!url.value) return 'Telekom'
+  try {
+    const u = url.value.startsWith('http') ? url.value : `https://${url.value}`
+    const host = new URL(u).hostname.replace(/^www\./, '')
+    const root = host.split('.')[0]
+    return root ? root.charAt(0).toUpperCase() + root.slice(1) : 'Telekom'
+  } catch {
+    return 'Telekom'
   }
 })
 
-const formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+// ── Analysis state ──
+const analysisPhases = [
+  { id: 'dom', label: 'Reading your DOM…' },
+  { id: 'brand', label: 'Detecting your brand style…' },
+  { id: 'traffic', label: 'Analyzing your traffic sources…' },
+  { id: 'opportunities', label: 'Finding conversion opportunities…' },
+]
+const currentlyAnalyzing = ref(null)
+const discoveries = reactive({ dom: false, brand: false, traffic: false, opportunities: false })
+const analysisTimeouts = []
 
-const goToHome = () => { window.location.hash = '#/agentic/home' }
+const resetAnalysis = () => {
+  analysisPhases.forEach((p) => { discoveries[p.id] = false })
+  currentlyAnalyzing.value = null
+  analysisTimeouts.splice(0).forEach((t) => clearTimeout(t))
+}
+
+const runAnalysis = () => {
+  resetAnalysis()
+  analysisTimeouts.push(setTimeout(() => { currentlyAnalyzing.value = 'dom' }, 400))
+  analysisTimeouts.push(setTimeout(() => { discoveries.dom = true; currentlyAnalyzing.value = 'brand' }, 2200))
+  analysisTimeouts.push(setTimeout(() => { discoveries.brand = true; currentlyAnalyzing.value = 'traffic' }, 4200))
+  analysisTimeouts.push(setTimeout(() => { discoveries.traffic = true; currentlyAnalyzing.value = 'opportunities' }, 6200))
+  analysisTimeouts.push(setTimeout(() => { discoveries.opportunities = true; currentlyAnalyzing.value = null }, 8200))
+  analysisTimeouts.push(setTimeout(() => { step.value = 'wizard' }, 10200))
+}
 
 // ── Step transitions ──
 const handleInitialSubmit = () => {
-  if (!prompt.value.trim()) return
-  chatMessages.value = [{ role: 'user', text: prompt.value.trim(), time: formatTime(new Date()) }]
-  step.value = 'chat'
-  runChatFlow()
+  if (inputMode.value === 'url') {
+    if (!url.value.trim()) return
+    step.value = 'analysis'
+    runAnalysis()
+  } else {
+    if (!prompt.value.trim()) return
+    // Prompt mode: enter full-width chat flow
+    chatMessages.value = [{ role: 'user', text: prompt.value.trim() }]
+    step.value = 'chat'
+    runChatFlow()
+  }
 }
 
-// ── Full-width chat flow ──
+// ── Full-width chat flow (after "I have an idea") ──
 const chatMessages = ref([])
 const chatInput = ref('')
 const aiTyping = ref(false)
 const chatScrollRef = ref(null)
 const chatTimeouts = []
+let chatStage = 0
 
 const activeQuestionsIdx = computed(() => chatMessages.value.findIndex((m) => m.role === 'questions' && !m.finalized))
 const activeQuestionsBlock = computed(() => activeQuestionsIdx.value >= 0 ? chatMessages.value[activeQuestionsIdx.value] : null)
-const chatWide = computed(() => chatMessages.value.some((m) => m.role === 'popup-versions' || m.role === 'usecase-cards'))
+const chatWide = computed(() => chatMessages.value.some((m) => m.role === 'popup-versions'))
 
 const waitMs = (ms) => new Promise((resolve) => {
   const t = setTimeout(resolve, ms)
@@ -320,7 +403,7 @@ const streamChatAi = async (text, charDelay = 18) => {
   }
 }
 
-const targetingQuestions = [
+const decisionQuestions = [
   {
     tabLabel: 'Lead type',
     text: 'Are you collecting emails, SMS, or both?',
@@ -343,28 +426,17 @@ const targetingQuestions = [
   },
 ]
 
-const urlQuestion = {
-  tabLabel: 'Website URL',
-  text: 'What’s your website URL?',
-  inputOnly: true,
-  inputPlaceholder: 'enter website URL',
-  options: [],
-}
-
 const runChatFlow = async () => {
+  chatStage = 0
   scrollChat()
   await waitMs(500)
-  // "Get recommendation" only needs the URL; idea-driven prompts get the targeting questions too
-  const questions = recommendationMode.value ? [urlQuestion] : [...targetingQuestions, urlQuestion]
-  await streamChatAi(recommendationMode.value
-    ? 'Great! Just drop your website URL and I’ll find the best opportunity for you.'
-    : 'Nice idea! A few quick questions to tailor this for you.')
+  await streamChatAi("Nice idea! Two quick questions to tailor this for you.")
   await waitMs(400)
   chatMessages.value.push({
     role: 'questions',
     activeTab: 0,
     finalized: false,
-    questions: questions.map((q) => ({ ...q, selectedId: null, otherValue: '' })),
+    questions: decisionQuestions.map((q) => ({ ...q, selectedId: null, otherValue: '' })),
   })
   scrollChat()
 }
@@ -372,87 +444,24 @@ const runChatFlow = async () => {
 const finalizeQuestionsBlock = async (msgIdx) => {
   const m = chatMessages.value[msgIdx]
   m.finalized = true
-  // Discount details → echo the offer + code, then show the designs
-  if (m.kind === 'discount') {
-    const dq = m.questions[0]
-    const opt = dq.options.find((o) => o.id === dq.selectedId)
-    const val = dq.otherValue?.trim() || ''
-    const offerText = opt ? `${opt.inputPrefix || ''}${val}${opt.inputSuffix || ''}` : 'Discount'
-    const code = m.questions[1]?.otherValue?.trim() || ''
-    discountCode.value = code
-    chatMessages.value.push({ role: 'user', text: code ? `${offerText} · Code: ${code}` : offerText, time: formatTime(new Date()) })
-    scrollChat()
-    await showPopupVersions(`Perfect. Here are 4 popup designs with ${offerText}. Pick one to keep editing.`)
-    return
-  }
-  const urlQ = m.questions.find((q) => q.inputOnly)
-  const websiteUrl = urlQ?.otherValue?.trim() || ''
   const summary = m.questions
     .map((q) => {
-      if (q.inputOnly) return `${q.tabLabel}: ${q.otherValue?.trim() || 'Skipped'}`
       const opt = q.options.find((o) => o.id === q.selectedId)
       if (!opt) return `${q.tabLabel}: Skipped`
       return `${q.tabLabel}: ${opt.allowInput ? (q.otherValue || opt.label) : opt.label}`
     })
     .join(' · ')
-  chatMessages.value.push({ role: 'user', text: summary, time: formatTime(new Date()) })
+  chatMessages.value.push({ role: 'user', text: summary })
   scrollChat()
-  if (recommendationMode.value) await runRecommendations(websiteUrl)
-  else await runAnalysisAndGenerate(websiteUrl)
-}
-
-// "Get recommendation": return 4 recommended use cases first (like the home chat)
-const usecaseCards = [
-  { id: 'smart-discount', number: 1, label: 'Smart Discount Popup', reason: 'Your new visitors have a 12% bounce rate, so a welcome discount can convert them into subscribers.' },
-  { id: 'lucky-wheel', number: 2, label: 'Lucky Wheel', reason: 'Gamified popups get 2x more engagement, perfect for your high-traffic pages.' },
-  { id: 'newsletter', number: 3, label: 'Newsletter Signup Popup', reason: 'Your email list grew only 3% last month, so a signup popup can accelerate that.' },
-  { id: 'cart-abandonment', number: 4, label: 'Cart Abandonment Stopper', reason: '68% of your carts are abandoned, and an exit offer can recover up to 15% of them.' },
-]
-
-const runRecommendations = async (websiteUrl) => {
   await waitMs(500)
-  await streamChatAi(websiteUrl ? `Got it. Analyzing ${websiteUrl} now…` : 'Got it. Analyzing your site now…')
-  await waitMs(700)
-  await streamChatAi('Based on your traffic and performance data, these use cases would have the biggest impact for you:')
-  chatMessages.value.push({ role: 'usecase-cards', cards: usecaseCards, selectedId: null })
-  scrollChat()
-}
-
-const onUseCasePick = async (msgIdx, card) => {
-  const m = chatMessages.value[msgIdx]
-  if (!m || m.selectedId) return
-  m.selectedId = card.id
-  selectedUseCase.value = { id: card.id, title: card.label, description: '' }
-  generationPrompt.value = card.label
-  scrollChat()
-  await waitMs(400)
-  // Discount use case: ask the discount amount + coupon code before the designs
-  if (card.id === 'smart-discount' || isDiscountIntent(card.label)) {
-    await askDiscountDetails()
-    return
-  }
-  await showPopupVersions(`Great pick! Here are 4 ${card.label} versions tailored to your site. Pick one to keep editing.`)
-}
-
-const runAnalysisAndGenerate = async (websiteUrl) => {
-  await waitMs(500)
-  await streamChatAi(websiteUrl ? `Got it. Analyzing ${websiteUrl} now…` : 'Got it. Analyzing your site now…')
-  await waitMs(700)
-  await streamChatAi('Found your brand colors, fonts and traffic patterns. Picking the right popup type…')
-  await waitMs(700)
-  // Discount popups: ask the discount amount + coupon code before the designs
-  if (isDiscountIntent(chatMessages.value[0]?.text)) {
-    await askDiscountDetails()
-    return
-  }
-  await showPopupVersions('Generated 4 popup versions tailored to your goal. Pick one to keep editing.')
+  await streamChatAi('Got it. Drop your website URL so I can take a quick look.')
 }
 
 const onQuestionsContinue = async (msgIdx) => {
   const m = chatMessages.value[msgIdx]
   if (m.finalized) return
   const current = m.questions[m.activeTab]
-  if (!current.selectedId && !current.inputOnly) return
+  if (!current.selectedId) return
   if (m.activeTab < m.questions.length - 1) {
     m.activeTab++
     return
@@ -464,7 +473,6 @@ const onQuestionsSkip = async (msgIdx) => {
   const m = chatMessages.value[msgIdx]
   if (m.finalized) return
   m.questions[m.activeTab].selectedId = null
-  m.questions[m.activeTab].otherValue = ''
   if (m.activeTab < m.questions.length - 1) {
     m.activeTab++
     return
@@ -479,55 +487,27 @@ const popupVersions = [
   { id: 'v4', label: 'Playful gift', image: '/templates/popup-style-4.png' },
 ]
 
-// Discount flow: ask the discount amount + coupon code before showing the designs
-const isDiscountIntent = (text) => /discount|coupon|kupon/i.test(text || '')
-
-const showPopupVersions = async (intro) => {
-  await waitMs(300)
-  await streamChatAi(intro)
-  chatMessages.value.push({ role: 'popup-versions', versions: popupVersions, selectedId: null })
-  scrollChat()
-}
-
-const askDiscountDetails = async () => {
-  await streamChatAi('First, set the discount this popup should offer.')
-  await waitMs(300)
-  chatMessages.value.push({
-    role: 'questions',
-    kind: 'discount',
-    activeTab: 0,
-    finalized: false,
-    questions: [
-      {
-        tabLabel: 'Discount',
-        text: 'How much discount should it offer?',
-        options: [
-          { id: 'percent', label: 'Percentage off', allowInput: true, inputPlaceholder: 'e.g. 10', inputSuffix: '% off' },
-          { id: 'amount', label: 'Fixed amount off', allowInput: true, inputPlaceholder: 'e.g. 2000', inputPrefix: 'HUF ', inputSuffix: ' off' },
-        ],
-        selectedId: null,
-        otherValue: '',
-      },
-      {
-        tabLabel: 'Code',
-        text: 'What coupon code should it use?',
-        inputOnly: true,
-        inputPlaceholder: 'e.g. SAVE10',
-        otherValue: '',
-      },
-    ],
-  })
-  scrollChat()
-}
-
 const handleChatSend = async () => {
   const text = chatInput.value.trim()
   if (!text || aiTyping.value) return
-  chatMessages.value.push({ role: 'user', text, time: formatTime(new Date()) })
+  chatMessages.value.push({ role: 'user', text })
   chatInput.value = ''
   scrollChat()
-  await waitMs(500)
-  await streamChatAi('Got it. Working on it…')
+
+  if (chatStage === 0) {
+    chatStage = 1
+    await waitMs(500)
+    await streamChatAi(`Got it. Analyzing ${text} now…`)
+    await waitMs(700)
+    await streamChatAi('Found your brand colors, fonts and traffic patterns. Picking the right popup type…')
+    await waitMs(700)
+    await streamChatAi('Generated 4 popup versions tailored to your goal. Pick one to keep editing.')
+    chatMessages.value.push({ role: 'popup-versions', versions: popupVersions, selectedId: null })
+    scrollChat()
+  } else {
+    await waitMs(500)
+    await streamChatAi('Got it. Working on it…')
+  }
 }
 
 const onPopupVersionPick = (msgIdx, version) => {
@@ -536,12 +516,8 @@ const onPopupVersionPick = (msgIdx, version) => {
   m.selectedId = version.id
   generationPrompt.value = chatMessages.value[0]?.text || ''
   selectedUseCase.value = { id: 'newsletter', title: version.label, description: '' }
-  // Already logged in (launched from the app) → straight to the editor; otherwise register first
-  if (props.skipRegistration) {
-    completeChatRegistration()
-  } else {
-    showRegistrationModal.value = true
-  }
+  // Open the registration modal on the chat itself — editor only loads after user passes the modal
+  showRegistrationModal.value = true
 }
 
 // ── Registration modal (shown on the chat after picking a popup version) ──
@@ -552,23 +528,27 @@ const completeChatRegistration = () => {
   step.value = 'detail'
 }
 
-// Editor "Done" → campaign created, land on the Today's plan home
-const onEditorDone = () => {
-  window.location.hash = '#/agentic/home'
-}
-
 onUnmounted(() => {
+  analysisTimeouts.forEach((t) => clearTimeout(t))
   chatTimeouts.forEach((t) => clearTimeout(t))
   if (placeholderTimeout) clearTimeout(placeholderTimeout)
 })
 
 defineExpose({
   navigateToStep: (s) => { step.value = s },
-  navigateToPhase: () => { step.value = 'chat' },
+  navigateToPhase: () => { step.value = 'wizard' },
 })
 </script>
 
 <style scoped>
+.slide-in-enter-active {
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+.slide-in-enter-from {
+  transform: translateY(8px);
+  opacity: 0;
+}
+
 .fade-message-enter-active,
 .fade-message-leave-active {
   transition: opacity 0.3s ease;

@@ -708,13 +708,45 @@
         <h2 class="text-xl font-semibold text-om-gray-700 mb-6">Inputs</h2>
         <div class="max-w-md space-y-6">
           <div>
-            <label class="block text-sm font-medium text-om-gray-700 mb-2">Text Input</label>
+            <label class="block text-sm font-medium text-om-gray-700 mb-2">Text Input (legacy raw)</label>
             <input
               type="text"
               placeholder="Placeholder text..."
               class="w-full px-3 py-2.5 border border-om-gray-300 rounded-xl text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:ring-2 focus:ring-om-orange-500 focus:border-transparent"
             />
           </div>
+
+          <!-- FormInput (shared component) -->
+          <div>
+            <h3 class="text-base font-medium text-om-gray-600 mb-4">FormInput (Component)</h3>
+            <div class="space-y-4">
+              <FormInput
+                v-model="formInputValue"
+                label="Email"
+                type="email"
+                placeholder="you@example.com"
+              />
+              <FormInput
+                v-model="formInputWithValue"
+                label="Email (required)"
+                type="email"
+                :required="true"
+                hint="We will never share your address."
+              />
+              <FormInput
+                v-model="formInputError"
+                label="Email (error state)"
+                type="email"
+                error="Please enter a valid email address."
+              />
+              <FormInput
+                v-model="formInputDisabled"
+                label="Disabled"
+                :disabled="true"
+              />
+            </div>
+          </div>
+
           <div>
             <label class="block text-sm font-medium text-om-gray-700 mb-2">Textarea</label>
             <textarea
@@ -1097,11 +1129,18 @@ import Checkbox from '../components/shared/Checkbox.vue'
 import RadioButton from '../components/shared/RadioButton.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import MultiSelect from '../components/shared/MultiSelect.vue'
+import FormInput from '../components/shared/FormInput.vue'
 import Button from '../components/shared/Button.vue'
 import Tag from '../components/shared/Tag.vue'
 import Modal from '../components/shared/Modal.vue'
 import OptimizationPlanCard from '../components/onboarding/OptimizationPlanCard.vue'
 import CampaignCard from '../components/shared/CampaignCard.vue'
+
+// FormInput (shared component) examples
+const formInputValue = ref('')
+const formInputWithValue = ref('hello@optimonk.com')
+const formInputError = ref('not-an-email')
+const formInputDisabled = ref('Disabled value')
 
 // Pill dropdown with logo
 const selectedOption = ref('Option 1')

@@ -64,7 +64,7 @@ defineEmits(['update:modelValue'])
 const inputId = computed(() => `input-${Math.random().toString(36).substr(2, 9)}`)
 
 const inputClasses = computed(() => {
-  const base = 'w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#ED5A29] focus:border-transparent transition-colors'
+  const base = 'w-full px-4 h-10 border rounded-lg focus:ring-2 focus:ring-[#ED5A29] focus:border-transparent transition-colors'
   const errorClass = props.error ? 'border-red-300' : 'border-[#D5D8DD]'
   const disabledClass = props.disabled ? 'bg-[#F1F2F4] cursor-not-allowed' : ''
 
