@@ -569,6 +569,7 @@ const activeEvents = computed(() => {
     'opticube-onboarding': { complete: () => handleDevNavigate('opticube'), back: () => handleDevNavigate('opticube-registration') },
     'picbear': { navigate: handleDevNavigate },
     'conversionlift': { navigate: handleDevNavigate },
+    'conversionlift-design-guide': { navigate: handleDevNavigate },
     'dev-start': {
       select: handleDevStartSelect,
       'go-home': () => { sessionKey.value++; flowSelected.value = true; wizardMessage.value = ''; currentView.value = 'home-old' },

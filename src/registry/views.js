@@ -137,6 +137,17 @@ const systemViews = [
     matchPrefix: 'conversionlift',
   },
   {
+    id: 'conversionlift-design-guide',
+    component: () => import('../conversionlift/ConversionLiftDesignGuideView.vue'),
+    label: 'Design Guide',
+    status: 'system',
+    section: null,
+    hideLogo: true,
+    product: 'conversionlift',
+    slug: 'conversionlift-design-guide',
+    hideInNav: true,
+  },
+  {
     id: 'dev-start',
     component: () => import('../views/DevStartView.vue'),
     label: 'Dev Start',

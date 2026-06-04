@@ -2,6 +2,7 @@
 
 ## Contents
 
+- [Project Specs](#project-specs)
 - [1. Behavioral Guidelines](#1-behavioral-guidelines)
 - [2. Hard Prohibitions](#2-hard-prohibitions)
   - [Commit Rule](#commit-rule)
@@ -14,6 +15,14 @@
 - [4. Component Reference](#4-component-reference)
   - [Shared Components Reference](#shared-components-reference)
   - [Component Details](#component-details)
+
+---
+
+## Project Specs
+
+Product specifications live in `docs/`. Read the relevant spec before starting work on that feature.
+
+- **ConversionLift** (CRO tool, prototype): [docs/conversionlift-spec-v1.md](docs/conversionlift-spec-v1.md) — domain model, screens, flow, demo data.
 
 ---
 

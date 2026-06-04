@@ -1,0 +1,18 @@
+/* ==========================================================================
+   ConversionLift product styles
+   ConversionLift reuses the OptiMonk design tokens (--color-om-*, --om-*) per
+   spec §8. The only product-specific token is the sky-blue accent used by the
+   product switcher / domain context. Everything else comes from om-* + shared
+   components. Keep this file lean.
+   ========================================================================== */
+
+:root {
+  /* Product accent · Sky (matches productDefinitions.conversionlift.accent) */
+  --cl-accent-50: #F0F9FF;
+  --cl-accent-100: #E0F2FE;
+  --cl-accent-200: #BAE6FD;
+  --cl-accent-400: #38BDF8;
+  --cl-accent-500: #0EA5E9;
+  --cl-accent-600: #0284C7;
+  --cl-accent-700: #0369A1;
+}
