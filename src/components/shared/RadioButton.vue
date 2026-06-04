@@ -53,7 +53,7 @@ defineEmits(['update:modelValue'])
 }
 
 .custom-radio:checked {
-  border-color: #ED5A29;
+  border-color: var(--om-primary);
   background-color: white;
 }
 
@@ -66,11 +66,11 @@ defineEmits(['update:modelValue'])
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: #ED5A29;
+  background-color: var(--om-primary);
 }
 
 .custom-radio:hover:not(:disabled) {
-  border-color: #C44D24;
+  border-color: var(--om-primary-hover);
 }
 
 .custom-radio:focus {

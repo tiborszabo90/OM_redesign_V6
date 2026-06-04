@@ -16,3 +16,19 @@
   --cl-accent-600: #0284C7;
   --cl-accent-700: #0369A1;
 }
+
+/* ConversionLift theme scope — toggled on <html> by App.vue when the active
+   product is ConversionLift. Overrides the semantic primary so every element
+   that inherits --om-primary (shared Button, etc.) recolours to sky.
+   Applies to teleported content (modals) too, since it sits on <html>. */
+html.cl-theme {
+  --om-primary: var(--cl-accent-500);        /* sky-500 */
+  --om-primary-hover: var(--cl-accent-600);  /* sky-600 */
+  --om-primary-active: var(--cl-accent-700); /* sky-700 */
+  --om-primary-strong: var(--cl-accent-600); /* sky-600 */
+  --om-primary-border: #7DD3FC;              /* sky-300 */
+  --om-primary-soft: var(--cl-accent-100);   /* sky-100 */
+  --om-primary-ring: var(--cl-accent-200);   /* sky-200 */
+  --om-primary-hover-bg: var(--cl-accent-400);/* sky-400 */
+  --om-primary-glow: 14, 165, 233;           /* sky RGB */
+}

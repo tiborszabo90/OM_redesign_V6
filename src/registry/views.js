@@ -128,7 +128,7 @@ const systemViews = [
   },
   {
     id: 'conversionlift',
-    component: () => import('../views/ComingSoonView.vue'),
+    component: () => import('../conversionlift/ConversionLiftStartView.vue'),
     label: 'ConversionLift',
     status: 'system',
     section: null,

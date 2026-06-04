@@ -12,7 +12,7 @@
         disabled
           ? 'bg-om-gray-100 text-om-gray-400 cursor-not-allowed'
           : 'bg-white text-[#23262A] cursor-pointer',
-        !disabled && (isOpen ? 'border-om-orange-300' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]')
+        !disabled && (isOpen ? 'border-(--om-primary-border)' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]')
       ]"
       :style="buttonStyle"
     >

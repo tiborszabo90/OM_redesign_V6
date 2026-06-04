@@ -52,7 +52,7 @@ defineProps({
   },
   iconBg: {
     type: String,
-    default: 'bg-om-orange-100'
+    default: 'bg-(--om-primary-soft)'
   },
   iconSize: {
     type: String,

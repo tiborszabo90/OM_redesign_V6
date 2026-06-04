@@ -31,18 +31,9 @@
       <section class="mb-14">
         <h2 class="text-2xl font-semibold text-om-gray-700 mb-6">Colors</h2>
 
-        <h3 class="text-base font-medium text-om-gray-500 mb-4">Brand · Orange (primary action)</h3>
-        <div class="grid grid-cols-5 md:grid-cols-10 gap-2 mb-8">
-          <div v-for="c in orangeScale" :key="c.step" class="space-y-2">
-            <div class="h-16 w-full rounded-[10px] border border-om-gray-200" :style="{ backgroundColor: c.hex }"></div>
-            <p class="text-xs text-om-gray-500" :class="c.brand ? 'font-semibold' : ''">{{ c.step }}</p>
-            <p class="text-xs text-om-gray-400 font-mono">{{ c.hex }}</p>
-          </div>
-        </div>
-
-        <h3 class="text-base font-medium text-om-gray-500 mb-4">Accent · Sky (product context)</h3>
+        <h3 class="text-base font-medium text-om-gray-500 mb-4">Brand · Sky (primary)</h3>
         <div class="grid grid-cols-4 md:grid-cols-7 gap-2 mb-8">
-          <div v-for="c in skyScale" :key="c.step" class="space-y-2">
+          <div v-for="c in brandScale" :key="c.step" class="space-y-2">
             <div class="h-16 w-full rounded-[10px] border border-om-gray-200" :style="{ backgroundColor: c.hex }"></div>
             <p class="text-xs text-om-gray-500" :class="c.brand ? 'font-semibold' : ''">{{ c.step }}</p>
             <p class="text-xs text-om-gray-400 font-mono">{{ c.hex }}</p>
@@ -212,7 +203,7 @@
         <h2 class="text-2xl font-semibold text-om-gray-700 mb-6">Radius &amp; Shadows</h2>
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <div v-for="r in radii" :key="r.name" class="space-y-2">
-            <div :class="['h-16 w-full bg-[var(--cl-accent-100)] border border-[var(--cl-accent-200)]', r.cls]"></div>
+            <div :class="['h-16 w-full bg-(--cl-accent-100) border border-(--cl-accent-200)', r.cls]"></div>
             <p class="text-sm font-medium text-om-gray-700">{{ r.name }}</p>
             <p class="text-xs text-om-gray-400 font-mono">{{ r.value }}</p>
           </div>
@@ -233,7 +224,7 @@ import { ref } from 'vue'
 import { ArrowLeft, Zap, Plus, Check, Sparkles, Type, Image, LayoutTemplate, TrendingUp } from 'lucide-vue-next'
 import './conversionlift.css'
 import {
-  orangeScale, skyScale, neutralScale, semanticColors, typeScale, radii, shadows,
+  brandScale, neutralScale, semanticColors, typeScale, radii, shadows,
   optimizationTypes, contentTypes, itemStatuses, experimentStatuses,
 } from './tokens.js'
 import Button from '../components/shared/Button.vue'

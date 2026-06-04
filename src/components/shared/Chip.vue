@@ -1,7 +1,7 @@
 <template>
   <button
     class="chip flex items-center gap-1.5 cursor-pointer transition-all duration-200 ease-out hover:scale-[1.02]"
-    :class="[sizeClasses, active ? 'bg-om-orange-50 border-2 border-om-orange-500 text-om-gray-700' : 'bg-white border border-om-gray-200 text-om-gray-700']"
+    :class="[sizeClasses, active ? 'bg-(--om-primary-soft) border-2 border-(--om-primary) text-om-gray-700' : 'bg-white border border-om-gray-200 text-om-gray-700']"
   >
     <slot name="icon" />
     <slot />

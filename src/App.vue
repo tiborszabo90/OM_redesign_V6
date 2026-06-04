@@ -53,6 +53,13 @@ const previousView = ref(null)
 const currentProduct = computed(() => getProductForView(currentView.value))
 const showDevNav = computed(() => currentProduct.value !== 'apps')
 
+// Toggle the ConversionLift theme scope on <html> so primary-coloured elements
+// (shared Button, etc.) inherit the sky brand colour. On <html> so it also
+// reaches teleported content (modals).
+watch(currentProduct, (product) => {
+  document.documentElement.classList.toggle('cl-theme', product === 'conversionlift')
+}, { immediate: true })
+
 watch(currentView, (newView, oldView) => {
   if (newView === 'new-campaign' && oldView) previousView.value = oldView
 })

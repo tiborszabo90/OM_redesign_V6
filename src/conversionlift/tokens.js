@@ -4,22 +4,8 @@
 // (--cl-accent-*). These arrays only drive the design-guide rendering.
 // ============================================================================
 
-// -- Brand · Orange (om-orange, the product's primary action colour) ---------
-export const orangeScale = [
-  { step: '50', hex: '#FEEFEA' },
-  { step: '100', hex: '#FEEFEA' },
-  { step: '200', hex: '#FBD9CE' },
-  { step: '300', hex: '#F7B59F' },
-  { step: '400', hex: '#F17E58' },
-  { step: '500', hex: '#ED5A29', brand: true },
-  { step: '600', hex: '#D14212' },
-  { step: '700', hex: '#B33810' },
-  { step: '800', hex: '#952E0D' },
-  { step: '900', hex: '#7A260B' },
-]
-
-// -- Accent · Sky (--cl-accent, the ConversionLift product accent) -----------
-export const skyScale = [
+// -- Brand · Sky (--cl-accent, the ConversionLift brand / primary colour) ----
+export const brandScale = [
   { step: '50', hex: '#F0F9FF' },
   { step: '100', hex: '#E0F2FE' },
   { step: '200', hex: '#BAE6FD' },

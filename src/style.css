@@ -53,6 +53,21 @@
 
 :root {
   --dev-nav-height: 0px;
+
+  /* Semantic primary colour — inherited by generic shared components (Button,
+     Checkbox, RadioButton, FormInput, Dropdown, MultiSelect, Chip, Accordion,
+     ScrollTimePicker). Defaults to om-orange so OptiMonk is unchanged; products
+     override it on a scope (e.g. html.cl-theme sets sky for ConversionLift).
+     OptiMonk-specific composites keep their own hardcoded orange. */
+  --om-primary: #ED5A29;        /* om-orange-500 */
+  --om-primary-hover: #E54D1F;
+  --om-primary-active: #B33810; /* om-orange-700 */
+  --om-primary-strong: #D14212; /* om-orange-600 — text on soft bg */
+  --om-primary-border: #F7B59F; /* om-orange-300 — soft border highlight */
+  --om-primary-soft: #FEEFEA;   /* om-orange-100 — soft background */
+  --om-primary-ring: #FBD9CE;   /* om-orange-200 — input focus glow */
+  --om-primary-hover-bg: #F17E58;/* om-orange-400 — primary button hover bg */
+  --om-primary-glow: 237, 90, 41;/* RGB triplet for hover-glow shadow alpha */
 }
 
 @keyframes sidebar-enter {
@@ -134,8 +149,8 @@ input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #F7B59F;
-  box-shadow: 0 0 0 2px #FBD9CE;
+  border-color: var(--om-primary-border);
+  box-shadow: 0 0 0 2px var(--om-primary-ring);
 }
 
 /* Placeholder color */
@@ -168,9 +183,10 @@ button:disabled {
 
 /* Primary button hover glow effect */
 button.bg-om-orange-500:not(:disabled):hover,
-button.bg-\[\#ED5A29\]:not(:disabled):hover {
-  background-color: #F17E58 !important; /* om-orange-400 */
-  box-shadow: 0 4px 14px rgba(237, 90, 41, 0.4);
+button.bg-\[\#ED5A29\]:not(:disabled):hover,
+button.bg-\(--om-primary\):not(:disabled):hover {
+  background-color: var(--om-primary-hover-bg) !important;
+  box-shadow: 0 4px 14px rgba(var(--om-primary-glow), 0.4);
 }
 
 /* Secondary button hover effect - orange border and glow */
@@ -178,8 +194,8 @@ button.bg-\[\#ED5A29\]:not(:disabled):hover {
 /* Excludes .style-card, .dropdown-select, and .color-swatch which have their own hover styles */
 button.border-om-gray-200:not(:disabled):not(.style-card):not(.dropdown-select):not(.color-swatch):not(.image-card):hover,
 button.border-\[\#E3E5E8\]:not(:disabled):not(.style-card):not(.dropdown-select):not(.color-swatch):not(.image-card):hover {
-  border-color: #ED5A29 !important; /* om-orange-500 */
-  box-shadow: 0 4px 14px rgba(237, 90, 41, 0.4);
+  border-color: var(--om-primary) !important;
+  box-shadow: 0 4px 14px rgba(var(--om-primary-glow), 0.4);
 }
 
 /* Smaller heading on short viewports and mobile */
@@ -323,18 +339,18 @@ button.border-\[\#E3E5E8\]:not(:disabled):not(.style-card):not(.dropdown-select)
 }
 
 .om-datepicker .dp__cell_inner:hover {
-  background-color: #FEEFEA !important;
-  color: #ED5A29 !important;
+  background-color: var(--om-primary-soft) !important;
+  color: var(--om-primary) !important;
 }
 
 .om-datepicker .dp__today {
-  background-color: #FEEFEA !important;
+  background-color: var(--om-primary-soft) !important;
   color: #23262A !important;
-  border: 2px solid #ED5A29 !important;
+  border: 2px solid var(--om-primary) !important;
 }
 
 .om-datepicker .dp__active_date {
-  background-color: #ED5A29 !important;
+  background-color: var(--om-primary) !important;
   color: white !important;
 }
 
@@ -356,18 +372,18 @@ button.border-\[\#E3E5E8\]:not(:disabled):not(.style-card):not(.dropdown-select)
 }
 
 .om-datepicker .dp__overlay_cell_active {
-  background-color: #ED5A29 !important;
+  background-color: var(--om-primary) !important;
   color: white !important;
 }
 
 .om-datepicker .dp__overlay_cell:hover {
-  background-color: #FEEFEA !important;
-  color: #ED5A29 !important;
+  background-color: var(--om-primary-soft) !important;
+  color: var(--om-primary) !important;
 }
 
 .om-datepicker .dp__month_year_select:hover {
-  background-color: #FEEFEA !important;
-  color: #ED5A29 !important;
+  background-color: var(--om-primary-soft) !important;
+  color: var(--om-primary) !important;
 }
 
 /* Global VueDatePicker styles (for teleported menu) */
@@ -466,18 +482,18 @@ svg[data-test="close-icon"],
 }
 
 .dp__cell_inner:hover {
-  background-color: #FEEFEA !important;
-  color: #ED5A29 !important;
+  background-color: var(--om-primary-soft) !important;
+  color: var(--om-primary) !important;
 }
 
 .dp__today {
-  background-color: #FEEFEA !important;
+  background-color: var(--om-primary-soft) !important;
   color: #23262A !important;
-  border: 2px solid #ED5A29 !important;
+  border: 2px solid var(--om-primary) !important;
 }
 
 .dp__active_date {
-  background-color: #ED5A29 !important;
+  background-color: var(--om-primary) !important;
   color: white !important;
 }
 
@@ -499,18 +515,18 @@ svg[data-test="close-icon"],
 }
 
 .dp__overlay_cell_active {
-  background-color: #ED5A29 !important;
+  background-color: var(--om-primary) !important;
   color: white !important;
 }
 
 .dp__overlay_cell:hover {
-  background-color: #FEEFEA !important;
-  color: #ED5A29 !important;
+  background-color: var(--om-primary-soft) !important;
+  color: var(--om-primary) !important;
 }
 
 .dp__month_year_select:hover {
-  background-color: #FEEFEA !important;
-  color: #ED5A29 !important;
+  background-color: var(--om-primary-soft) !important;
+  color: var(--om-primary) !important;
 }
 
 
@@ -535,10 +551,10 @@ input[type="time"].cursor-pointer:hover {
 }
 
 input[type="time"].cursor-pointer:focus {
-  border-color: #ED5A29 !important;
+  border-color: var(--om-primary) !important;
   background-color: white !important;
   outline: none !important;
-  box-shadow: 0 0 0 3px rgba(237, 90, 41, 0.1) !important;
+  box-shadow: 0 0 0 3px rgba(var(--om-primary-glow), 0.1) !important;
 }
 
 input[type="time"]::-webkit-calendar-picker-indicator {
@@ -581,7 +597,7 @@ input[type="time"]::-webkit-datetime-edit-ampm-field {
 input[type="time"]::-webkit-datetime-edit-hour-field:focus,
 input[type="time"]::-webkit-datetime-edit-minute-field:focus,
 input[type="time"]::-webkit-datetime-edit-ampm-field:focus {
-  background-color: #FEEFEA !important;
-  color: #ED5A29 !important;
+  background-color: var(--om-primary-soft) !important;
+  color: var(--om-primary) !important;
   outline: none !important;
 }
