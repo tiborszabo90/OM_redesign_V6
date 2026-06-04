@@ -497,7 +497,8 @@ const handleMenuClick = (menuId) => {
       sessionKey.value++
       currentView.value = 'home-onboarding'
     } else {
-      currentView.value = 'home-old'
+      // Default home is now the OptiMonk Agentic Today's plan (#/agentic/home)
+      handleDevNavigate('home-todays-plan')
     }
   } else if (menuId === 'analytics') {
     const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-review', 'home-onboarding-wizard', 'wizard-flow', 'campaigns-empty', 'analytics-empty']
