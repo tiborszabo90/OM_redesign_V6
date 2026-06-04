@@ -14,8 +14,8 @@
       v-if="isOpen"
       class="fixed bottom-0 left-0 right-0 bg-[#23262A] text-white py-2 px-2 md:px-4 z-50 flex items-center justify-center gap-2"
     >
-      <!-- Desktop-only: full nav contents -->
-      <div class="hidden md:flex items-center gap-2 flex-wrap justify-center">
+      <!-- Desktop-only: full nav contents (OptiMonk only) -->
+      <div v-if="isOptimonk" class="hidden md:flex items-center gap-2 flex-wrap justify-center">
       <!-- Flow type indicator -->
       <span v-if="flowSelected" class="text-xs text-[#8F97A4] capitalize">
         {{ registrationType }}:
@@ -184,9 +184,51 @@
       </div>
       <!-- end desktop-only contents -->
 
+      <!-- Desktop-only: OptiCube registration/onboarding flow steps -->
+      <div
+        v-if="product === 'opticube' && ['opticube-registration', 'opticube-onboarding'].includes(currentView)"
+        class="hidden md:flex items-center gap-2 flex-wrap justify-center"
+      >
+        <button
+          @click="$emit('navigate', 'opticube-registration')"
+          :class="ocStepClass(currentView === 'opticube-registration')"
+        >Registration</button>
+        <div class="flex items-center gap-1 ml-2">
+          <span class="text-xs text-[#8F97A4] mr-1">Onboarding:</span>
+          <button
+            v-for="step in totalSteps"
+            :key="step"
+            @click="$emit('go-to-step', step)"
+            :class="[
+              'w-8 h-8 text-sm rounded transition-colors flex items-center justify-center cursor-pointer',
+              currentView === 'opticube-onboarding' && currentStep === step ? 'bg-[#6366F1] text-white' : 'bg-[#505763] hover:bg-[#8F97A4]'
+            ]"
+          >{{ step }}</button>
+        </div>
+        <span class="text-[#505763] mx-1">|</span>
+      </div>
+
+      <!-- Desktop-only: minimal nav contents (other products) -->
+      <div v-if="!isOptimonk && productPages.length" class="hidden md:flex items-center gap-2 flex-wrap justify-center">
+        <span class="text-xs text-[#8F97A4]">{{ productLabel }}:</span>
+        <button v-for="page in productPages" :key="page.view"
+          @click="$emit('navigate', page.view)"
+          :class="stepClass(currentView === page.view)"
+        >{{ page.label }}</button>
+      </div>
+
+      <!-- Back to Apps button -->
+      <button
+        @click="$emit('navigate', 'apps')"
+        class="px-3 py-1 text-sm rounded transition-colors cursor-pointer bg-[#505763] hover:bg-[#8F97A4] text-white flex items-center gap-1"
+      >
+        <LayoutGrid :size="13" />
+        Apps
+      </button>
+
       <!-- Reset button -->
       <button
-        @click="$emit('navigate', 'dev-start')"
+        @click="$emit('navigate', productHome)"
         class="px-3 py-1 text-sm rounded transition-colors cursor-pointer bg-red-500/80 hover:bg-red-500 text-white"
       >
         Reset
@@ -205,8 +247,8 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { ChevronUp, X, Copy, Check, Loader2 } from 'lucide-vue-next'
-import { getArchivedViews, getSectionItems, getSectionForView, sectionLabels, flowDefinitions } from '../../registry'
+import { ChevronUp, X, Copy, Check, Loader2, LayoutGrid } from 'lucide-vue-next'
+import { getArchivedViews, getSectionItems, getSectionForView, sectionLabels, flowDefinitions, getProductViews, productDefinitions } from '../../registry'
 
 const props = defineProps({
   currentView: { type: String, required: true },
@@ -219,7 +261,18 @@ const props = defineProps({
   registrationType: { type: String, default: 'email' },
   publicWizardStep: { type: String, default: 'url' },
   wizardFlowStep: { type: String, default: 'url' },
+  product: { type: String, default: 'optimonk' },
 })
+
+// --- Product scoping ---
+const isOptimonk = computed(() => props.product === 'optimonk')
+const productHome = computed(() => productDefinitions[props.product]?.home || 'dev-start')
+const productLabel = computed(() => productDefinitions[props.product]?.label || '')
+const productPages = computed(() =>
+  getProductViews(props.product)
+    .filter(v => !v.hideInNav)
+    .map(v => ({ view: v.id, label: v.label }))
+)
 
 const emit = defineEmits(['navigate', 'go-to-step', 'go-to-image-step', 'go-to-task-phase', 'select-flow', 'update:isOpen'])
 
@@ -294,6 +347,11 @@ const archiveViews = computed(() => archiveItems.value.map(item => item.view))
 const stepClass = (isActive) => [
   'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
   isActive ? 'bg-[#ED5A29] text-white' : 'bg-[#505763] hover:bg-[#8F97A4]'
+]
+
+const ocStepClass = (isActive) => [
+  'px-3 py-1 text-sm rounded transition-colors cursor-pointer',
+  isActive ? 'bg-[#6366F1] text-white' : 'bg-[#505763] hover:bg-[#8F97A4]'
 ]
 
 const dropdownItemClass = (isActive) => [

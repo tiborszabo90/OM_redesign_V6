@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, defineAsyncComponent, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
-import { viewDefinitions, resolveView, getView, getSlugForView, isLogoHidden } from './registry'
+import { viewDefinitions, resolveView, getView, getSlugForView, isLogoHidden, getProductForView } from './registry'
 
 // ============================================================================
 // Component map — built from registry, lazy-loaded
@@ -46,8 +46,12 @@ const getViewFromHash = () => {
 
 const viewToHash = (view) => viewToSlug[view] || view
 
-const currentView = ref(getViewFromHash() || 'dev-start')
+const currentView = ref(getViewFromHash() || 'apps')
 const previousView = ref(null)
+
+// Product scoping — drives DevNavBar visibility & branding
+const currentProduct = computed(() => getProductForView(currentView.value))
+const showDevNav = computed(() => currentProduct.value !== 'apps')
 
 watch(currentView, (newView, oldView) => {
   if (newView === 'new-campaign' && oldView) previousView.value = oldView
@@ -186,6 +190,9 @@ const activeProps = computed(() => {
   // Per-view props configuration
   const propsConfig = {
     'dev-start': { initialShowArchive: devStartShowArchive.value },
+    'opticube': { product: 'opticube' },
+    'picbear': { product: 'picbear' },
+    'conversionlift': { product: 'conversionlift' },
     'registration-v1': { registrationType: registrationType.value },
     'onboarding': { registrationData: registrationData.value, registrationType: registrationType.value },
     'onboarding-mobile': { registrationData: registrationData.value, registrationType: registrationType.value },
@@ -555,6 +562,13 @@ const activeEvents = computed(() => {
   }
 
   const eventsConfig = {
+    'apps': { navigate: handleDevNavigate },
+    'opticube': { navigate: handleDevNavigate },
+    'opticube-design-guide': { navigate: handleDevNavigate },
+    'opticube-registration': { complete: () => handleDevNavigate('opticube-onboarding'), signIn: () => {} },
+    'opticube-onboarding': { complete: () => handleDevNavigate('opticube'), back: () => handleDevNavigate('opticube-registration') },
+    'picbear': { navigate: handleDevNavigate },
+    'conversionlift': { navigate: handleDevNavigate },
     'dev-start': {
       select: handleDevStartSelect,
       'go-home': () => { sessionKey.value++; flowSelected.value = true; wizardMessage.value = ''; currentView.value = 'home-old' },
@@ -941,6 +955,20 @@ const handleDevStartSelect = (type) => {
 }
 
 const handleDevGoToStep = async (step) => {
+  if (currentProduct.value === 'opticube') {
+    if (currentView.value !== 'opticube-onboarding') {
+      sessionKey.value++
+      currentView.value = null
+      await nextTick()
+      setTimeout(() => {
+        currentView.value = 'opticube-onboarding'
+        setTimeout(() => { viewRefs.opticubeOnboardingRef?.devGoToStep(step) }, 350)
+      }, 50)
+    } else {
+      viewRefs.opticubeOnboardingRef?.devGoToStep(step)
+    }
+    return
+  }
   flowSelected.value = true
   const targetView = mobileOnboardingVariant.value === 'hu' ? 'onboarding-mobile-hu'
                     : mobileOnboardingVariant.value === 'en' ? 'onboarding-mobile'
@@ -1011,10 +1039,6 @@ onMounted(() => {
   window.addEventListener('scroll', handleGlobalScroll, { capture: true, passive: true })
   const initialView = getViewFromHash()
   if (initialView && initialView !== 'dev-start') handleDevNavigate(initialView)
-  // Deep link into a public-wizard-v2 phase: apply the subpath step after the view mounts
-  if (initialView === 'public-wizard-v2') {
-    setTimeout(syncPublicWizardV2Step, 200)
-  }
 })
 
 onUnmounted(() => {
@@ -1062,9 +1086,11 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
   </div>
 
   <DevNavBar
+    v-if="showDevNav"
     :current-view="displayView"
-    :current-step="viewRefs.onboardingRef?.displayStepForNav || 1"
-    :total-steps="viewRefs.onboardingRef?.totalStepsCount || 4"
+    :product="currentProduct"
+    :current-step="(currentProduct === 'opticube' ? viewRefs.opticubeOnboardingRef?.displayStepForNav : viewRefs.onboardingRef?.displayStepForNav) || 1"
+    :total-steps="(currentProduct === 'opticube' ? viewRefs.opticubeOnboardingRef?.totalStepsCount : viewRefs.onboardingRef?.totalStepsCount) || 4"
     :current-image-step="viewRefs.imageWithBadgeRef?.currentStep || 1"
     :created-tasks="createdTasks"
     :current-task-phase="viewRefs.taskCreationRef?.stepDashboardRef?.currentPhase || 'analysis'"

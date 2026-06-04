@@ -2,6 +2,15 @@ import { viewDefinitions } from './views.js'
 import { flowDefinitions } from './flows.js'
 import { sectionLabels } from './sections.js'
 
+// Product ecosystem definitions
+// home = landing view id when entering / resetting the product
+export const productDefinitions = {
+  optimonk: { id: 'optimonk', label: 'OptiMonk', home: 'dev-start', accent: '#F06431' },
+  opticube: { id: 'opticube', label: 'OptiCube', home: 'opticube', accent: '#6366F1' },
+  picbear: { id: 'picbear', label: 'Picbear', home: 'picbear', accent: '#10B981' },
+  conversionlift: { id: 'conversionlift', label: 'ConversionLift', home: 'conversionlift', accent: '#0EA5E9' },
+}
+
 // Build lookup maps
 const viewMap = new Map()
 const slugToViewMap = new Map()
@@ -72,6 +81,22 @@ export function getSectionForView(viewId) {
 
 export function getFlow(id) {
   return flowDefinitions[id] || null
+}
+
+// Product scoping ------------------------------------------------------------
+// Returns the product a view belongs to. Views without an explicit `product`
+// field belong to OptiMonk (the original product).
+export function getProductForView(viewId) {
+  if (!viewId) return 'optimonk'
+  const def = resolveView(viewId)
+  return def?.product || 'optimonk'
+}
+
+// All views that belong to a given product (for product-scoped nav).
+export function getProductViews(product) {
+  return viewDefinitions.filter(
+    v => v.product === product && (v.status === 'active' || v.status === 'system')
+  )
 }
 
 export { sectionLabels, flowDefinitions, viewDefinitions }
