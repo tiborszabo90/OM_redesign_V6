@@ -1,0 +1,1019 @@
+<template>
+  <DashboardLayout active-menu-item="campaigns" @logo-click="handleLogoClick" @menu-click="$emit('menu-click', $event)" :right-panel-collapsed="!isChatOpen">
+    <template #content>
+      <div class="w-full max-w-[1400px] mx-auto -mt-3">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-5 max-960:flex-col max-960:items-start max-960:gap-3">
+          <h1 class="text-2xl max-960:text-xl font-semibold text-om-gray-700">Campaigns (32)</h1>
+          <Button variant="primary" size="md" @click="$emit('new-campaign')">New Campaign</Button>
+        </div>
+
+        <!-- Tier 1: Views (saved, criteria-based filters) -->
+        <div class="flex items-center gap-2 flex-wrap mb-3">
+          <button
+            v-for="v in systemViews"
+            :key="v.id"
+            @click="onViewClick(v)"
+            :class="[
+              'chip px-3 h-9 flex items-center rounded-lg text-sm transition-all duration-200 ease-out',
+              activeViewId === v.id ? 'bg-om-gray-200 text-om-gray-700 font-medium' : 'bg-om-gray-100 text-om-gray-700',
+              editMode ? 'opacity-40 cursor-default pointer-events-none' : 'cursor-pointer hover:bg-om-gray-200'
+            ]"
+          >
+            {{ v.label }}
+          </button>
+
+          <span v-if="customViews.length" class="w-px h-5 bg-om-gray-200 mx-1"></span>
+
+          <button
+            v-for="v in customViews"
+            :key="v.id"
+            @click="onViewClick(v)"
+            :class="[
+              'chip h-9 flex items-center rounded-lg text-sm cursor-pointer transition-all duration-200 ease-out',
+              editMode ? 'pl-3 pr-2 gap-1.5' : 'px-3',
+              activeViewId === v.id ? 'bg-om-gray-200 text-om-gray-700 font-medium' : 'bg-om-gray-100 text-om-gray-700 hover:bg-om-gray-200'
+            ]"
+          >
+            {{ v.label }}
+            <X v-if="editMode" :size="13" class="text-om-gray-400 hover:text-om-gray-700" @click.stop="deleteView(v)" />
+          </button>
+
+          <!-- Filter controls: create + edit, grouped together after the chips -->
+          <span class="w-px h-5 bg-om-gray-200 mx-1"></span>
+          <Button variant="ghost" size="sm" icon-only :disabled="editMode" title="New filter" @click="openNewFilter">
+            <template #icon><Plus :size="16" /></template>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            icon-only
+            :active="editMode"
+            :title="editMode ? 'Done editing filters' : 'Edit filters'"
+            @click="editMode = !editMode"
+          >
+            <template #icon><Pencil :size="16" /></template>
+          </Button>
+        </div>
+
+        <!-- Tier 2: Refine (ad-hoc filters) -->
+        <div class="flex items-center justify-between mb-4 max-960:flex-col max-960:items-start max-960:gap-3">
+          <!-- Left: Domain, search, tags -->
+          <div class="flex items-center gap-3">
+            <!-- Domain dropdown -->
+            <Dropdown
+              v-model="selectedDomain"
+              :options="domains"
+              style="width: 240px; min-width: 240px"
+            >
+              <template #icon>
+                <div class="w-6 h-6 rounded-full overflow-hidden">
+                  <img src="/demos/telekom/logo.png" alt="Telekom" class="w-full h-full object-cover" />
+                </div>
+              </template>
+            </Dropdown>
+
+            <!-- Search input -->
+            <div class="relative">
+              <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-400 pointer-events-none" />
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search campaigns..."
+                class="pl-9 pr-3 h-10 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300 w-[240px]"
+              />
+            </div>
+
+            <!-- Tag filter -->
+            <MultiSelect
+              v-model="selectedTags"
+              :options="allTags"
+              placeholder="Tags"
+              style="width: 180px; min-width: 180px"
+            />
+          </div>
+
+          <!-- Right: View controls and dropdown -->
+          <div class="flex items-center gap-2">
+            <div class="relative">
+              <Button variant="ghost" size="md" icon-only :class="sortOpen ? '!bg-[#505763]/10' : ''" @click="sortOpen = !sortOpen">
+                <template #icon><ArrowUpDown :size="18" /></template>
+              </Button>
+              <span
+                v-if="sortActive"
+                class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-om-orange-500 pointer-events-none"
+              ></span>
+              <div v-if="sortOpen" class="fixed inset-0 z-10" @click="sortOpen = false" />
+              <div
+                v-if="sortOpen"
+                class="absolute right-0 top-full mt-1 z-20 bg-white border border-[#D5D8DD] rounded-lg shadow-lg overflow-hidden min-w-[200px]"
+              >
+                <button
+                  v-for="opt in sortOptions"
+                  :key="opt.value"
+                  @click="sortBy = opt.value; sortOpen = false"
+                  class="w-full text-left text-sm text-[#23262A] px-4 py-2 hover:bg-[#F9FAFB] transition-colors cursor-pointer flex items-center justify-between"
+                  :class="sortBy === opt.value ? 'bg-[#F1F2F4] font-medium' : ''"
+                >
+                  {{ opt.label }}
+                  <Check v-if="sortBy === opt.value" :size="16" class="text-om-gray-500 shrink-0" />
+                </button>
+              </div>
+            </div>
+            <Dropdown
+              v-model="selectedTimeFilter"
+              :options="timeFilterOptions"
+              style="width: 240px; min-width: 240px"
+            >
+              <template #icon>
+                <Calendar :size="20" class="text-om-gray-600" />
+              </template>
+            </Dropdown>
+          </div>
+        </div>
+
+        <!-- Bulk Action Bar -->
+        <transition
+          enter-active-class="transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)]"
+          enter-from-class="opacity-0 -translate-y-3 scale-y-95"
+          enter-to-class="opacity-100 translate-y-0 scale-y-100"
+          leave-active-class="transition-all duration-250 ease-[cubic-bezier(0.4,0,1,1)]"
+          leave-from-class="opacity-100 translate-y-0 scale-y-100"
+          leave-to-class="opacity-0 -translate-y-3 scale-y-95"
+        >
+          <div v-if="selectedCount > 0" class="flex items-center gap-3 mb-4 px-4 py-2.5 bg-om-gray-100 rounded-xl origin-top">
+            <Checkbox :model-value="allSelected" :indeterminate="!allSelected && selectedCount > 0" @update:model-value="toggleSelectAll" />
+            <span class="text-sm text-om-gray-600">{{ selectedCount }} selected</span>
+            <div class="flex items-center gap-2 ml-auto">
+              <Button variant="ghost" size="sm" @click="archiveSelected">
+                <template #icon><Archive :size="16" /></template>
+                Archive
+              </Button>
+              <Button variant="ghost" size="sm" @click="deleteSelected">
+                <template #icon><Trash2 :size="16" /></template>
+                Delete
+              </Button>
+            </div>
+          </div>
+        </transition>
+
+        <!-- Campaign Cards List View -->
+        <div class="space-y-4">
+          <CampaignCard
+            v-for="campaign in pagedCampaigns"
+            :key="campaign.id"
+            :name="campaign.name"
+            :domain="campaign.domain"
+            :image="campaign.image"
+            :image-position="campaign.imagePosition || 'center'"
+            :active="campaign.active"
+            @update:active="campaign.active = $event"
+            :selected="campaign.selected"
+            @update:selected="campaign.selected = $event"
+            :metrics="campaign.metrics"
+            :last-updated="campaign.lastUpdated"
+            variant="list"
+            @click="handleCampaignClick(campaign.id)"
+          >
+            <template #thumbnail>
+              <div v-if="campaign.id === 'campaign-ppo' || campaign.id === 'campaign-ppo-single'" class="w-full h-full flex flex-col overflow-hidden bg-white px-2 pt-0.5 pb-1 gap-0.5">
+                <div class="h-6 flex gap-1.5 items-center shrink-0">
+                  <div class="h-full aspect-square bg-gray-200 rounded-sm shrink-0"></div>
+                  <div class="flex-1 flex flex-col justify-center gap-0.5">
+                    <div class="h-0.5 bg-gray-200 rounded-sm w-2/3"></div>
+                    <div class="h-0.5 bg-gray-200 rounded-sm w-1/2"></div>
+                    <div class="h-0.5 bg-gray-200 rounded-sm w-1/3"></div>
+                  </div>
+                </div>
+                <div class="flex items-start justify-center shrink-0">
+                  <img src="/SPP1.png" alt="Product Summary" class="w-full h-auto rounded-sm" />
+                </div>
+                <div class="flex gap-1 h-5 shrink-0">
+                  <div class="flex-1 bg-gray-200 rounded-sm"></div>
+                  <div class="flex-1 bg-gray-200 rounded-sm"></div>
+                  <div class="flex-1 bg-gray-200 rounded-sm"></div>
+                </div>
+              </div>
+              <img v-else :src="campaign.image" :alt="campaign.name" class="w-full h-full object-cover" :style="{ objectPosition: campaign.imagePosition || 'center' }" />
+            </template>
+
+            <!-- Inline tag pills + add/remove -->
+            <template #tags>
+              <div class="flex items-center gap-1.5 flex-wrap mt-1.5" @click.stop>
+                <Tag v-for="t in campaign.tags" :key="t" :color="tagColor(t)" size="sm">
+                  {{ t }}
+                  <button class="ml-0.5 inline-flex hover:opacity-60 cursor-pointer" @click.stop="removeTag(campaign, t)">
+                    <X :size="10" />
+                  </button>
+                </Tag>
+                <div class="relative">
+                  <button
+                    class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-medium text-om-gray-500 border border-dashed border-om-gray-300 hover:border-om-gray-400 hover:text-om-gray-700 cursor-pointer transition-colors"
+                    @click.stop="toggleTagMenu(campaign.id)"
+                  >
+                    <Plus :size="10" /> Tag
+                  </button>
+                  <div v-if="openTagMenu === campaign.id" class="fixed inset-0 z-10" @click.stop="openTagMenu = null"></div>
+                  <div v-if="openTagMenu === campaign.id" class="absolute left-0 top-full mt-1 z-20 bg-white border border-[#D5D8DD] rounded-lg shadow-lg w-52 p-2">
+                    <input
+                      v-model="newTagInput"
+                      placeholder="Search or create..."
+                      class="w-full mb-1 px-2 py-1 text-xs border border-om-gray-200 rounded focus:outline-none focus:border-om-gray-300"
+                      @keydown.enter="createTag(campaign)"
+                    />
+                    <div class="max-h-40 overflow-y-auto">
+                      <button
+                        v-for="t in tagMenuOptions"
+                        :key="t"
+                        class="w-full flex items-center justify-between px-2 py-1 text-xs rounded hover:bg-[#F9FAFB] cursor-pointer"
+                        @click.stop="toggleTagOnCampaign(campaign, t)"
+                      >
+                        <span class="inline-flex items-center gap-1.5">
+                          <span class="w-2 h-2 rounded-full shrink-0" :style="{ backgroundColor: tagColor(t) }"></span>
+                          {{ t }}
+                        </span>
+                        <Check v-if="campaign.tags.includes(t)" :size="12" class="text-om-gray-500 shrink-0" />
+                      </button>
+                      <button
+                        v-if="newTagInput.trim() && !allTags.includes(newTagInput.trim())"
+                        class="w-full text-left px-2 py-1 text-xs text-om-orange-600 rounded hover:bg-[#F9FAFB] cursor-pointer"
+                        @click.stop="createTag(campaign)"
+                      >
+                        + Create “{{ newTagInput.trim() }}”
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  class="inline-flex items-center justify-center w-[22px] h-[22px] rounded-full text-om-orange-500 border border-dashed border-om-gray-300 hover:border-om-orange-400 hover:bg-om-orange-50 cursor-pointer transition-colors"
+                  title="Suggest tags with AI"
+                  @click.stop="runSuggestTags(campaign)"
+                >
+                  <Sparkles :size="12" />
+                </button>
+              </div>
+            </template>
+          </CampaignCard>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-6">
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-om-gray-400">View</span>
+            <Dropdown v-model="perPage" :options="perPageOptions" size="sm" class="w-[72px]" :drop-up="true" />
+            <span class="text-sm text-om-gray-400">{{ (page - 1) * perPage + 1 }} - {{ Math.min(page * perPage, filteredCampaigns.length) }}/{{ filteredCampaigns.length }}</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <Button variant="ghost" size="sm" icon-only :disabled="page === 1" @click="page--">
+              <template #icon><ChevronLeft :size="18" /></template>
+            </Button>
+            <template v-for="p in totalPages" :key="p">
+              <Button v-if="p <= 3 || p === totalPages" variant="ghost" size="sm" :active="p === page" @click="page = p">{{ p }}</Button>
+              <span v-else-if="p === 4 && totalPages > 4" class="px-2 text-sm text-om-gray-400">...</span>
+            </template>
+            <Button variant="ghost" size="sm" icon-only :disabled="page === totalPages" @click="page++">
+              <template #icon><ChevronRight :size="18" /></template>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </template>
+    <template #right-panel>
+      <ChatPanel v-model="isChatOpen" :fab="true" :suggestions="chatSuggestions" :ai-responses="chatAiResponses" />
+    </template>
+    <AddDomainModal v-model="showAddDomainModal" @add="handleNewDomain" />
+    <Modal v-model="showFilterModal" :title="filterModalMode === 'edit' ? 'Edit filter' : 'New filter'" size="sm">
+      <FormInput
+        v-model="filterDraftName"
+        label="Filter name"
+        placeholder="e.g. Black Friday 2026"
+        @keydown.enter="saveFilter"
+      />
+      <div class="mt-3">
+        <label class="block text-sm font-medium text-om-gray-700 mb-1">Tags</label>
+        <MultiSelect v-model="filterDraftTags" :options="allTags" placeholder="Select tags" />
+        <p class="text-xs text-om-gray-400 mt-2">Campaigns must have all selected tags to match this filter.</p>
+      </div>
+      <template #footer="{ close }">
+        <Button variant="secondary" @click="close">Cancel</Button>
+        <Button variant="primary" :disabled="!filterDraftName.trim()" @click="saveFilter">{{ filterModalMode === 'edit' ? 'Save' : 'Create filter' }}</Button>
+      </template>
+    </Modal>
+
+    <!-- AI tag suggestions review -->
+    <Modal v-model="showSuggestModal" size="md">
+      <template #header>
+        <div class="flex items-center gap-2">
+          <Sparkles :size="18" class="text-om-orange-500" />
+          <span class="text-base font-semibold text-om-gray-700">Suggested tags</span>
+        </div>
+      </template>
+
+      <!-- Scope toggle -->
+      <div class="flex items-center gap-1 p-0.5 bg-om-gray-100 rounded-lg mb-3">
+        <button
+          class="flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer"
+          :class="suggestScope === 'single' ? 'bg-white text-om-gray-700 shadow-sm' : 'text-om-gray-500 hover:text-om-gray-700'"
+          :disabled="!suggestTarget"
+          @click="setSuggestScope('single')"
+        >
+          This campaign
+        </button>
+        <button
+          class="flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer"
+          :class="suggestScope === 'list' ? 'bg-white text-om-gray-700 shadow-sm' : 'text-om-gray-500 hover:text-om-gray-700'"
+          @click="setSuggestScope('list')"
+        >
+          All in this view ({{ filteredCampaigns.length }})
+        </button>
+      </div>
+
+      <!-- Analyzing -->
+      <div v-if="isAnalyzing" class="flex flex-col items-center justify-center py-10 gap-3">
+        <Loader2 :size="28" class="text-om-orange-500 animate-spin" />
+        <p class="text-sm text-om-gray-500">
+          Analyzing {{ suggestScopeCount }} {{ suggestScopeCount === 1 ? 'campaign' : 'campaigns' }}…
+        </p>
+      </div>
+
+      <!-- Empty -->
+      <div v-else-if="!suggestions.length" class="py-10 text-center">
+        <p class="text-sm text-om-gray-500">No new tags to suggest for the selected scope.</p>
+      </div>
+
+      <!-- Suggestions -->
+      <div v-else>
+        <p class="text-xs text-om-gray-400 mb-3">
+          AI suggested tags from campaign names and metrics. Click a tag to include or exclude it, then apply.
+        </p>
+        <div class="max-h-[55vh] overflow-y-auto -mx-1 px-1 space-y-3">
+          <div v-for="s in suggestions" :key="s.id" class="border border-om-gray-100 rounded-lg p-3">
+            <p class="text-sm font-medium text-om-gray-700 mb-2">{{ s.name }}</p>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button v-for="t in s.tags" :key="t.name" @click="t.accepted = !t.accepted">
+                <Tag
+                  :color="t.accepted ? tagColor(t.name) : ''"
+                  :class="!t.accepted ? 'opacity-50 line-through' : ''"
+                >
+                  {{ t.name }}
+                </Tag>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <template #footer="{ close }">
+        <Button variant="secondary" @click="close">Cancel</Button>
+        <Button
+          v-if="!isAnalyzing && suggestions.length"
+          variant="primary"
+          :disabled="acceptedCount === 0"
+          @click="applySuggestions"
+        >
+          Apply{{ acceptedCount ? ` (${acceptedCount})` : '' }}
+        </Button>
+      </template>
+    </Modal>
+  </DashboardLayout>
+</template>
+
+<script setup>
+import { ref, reactive, computed, watch } from 'vue'
+import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+import { Plus, Pencil, Search, Calendar, ArrowUpDown, Check, ChevronLeft, ChevronRight, Trash2, Archive, X, Sparkles, Loader2 } from 'lucide-vue-next'
+import Checkbox from '../components/shared/Checkbox.vue'
+import Dropdown from '../components/shared/Dropdown.vue'
+import Button from '../components/shared/Button.vue'
+import ChatPanel from '../components/shared/ChatPanel.vue'
+import CampaignCard from '../components/shared/CampaignCard.vue'
+import AddDomainModal from '../components/shared/AddDomainModal.vue'
+import Tag from '../components/shared/Tag.vue'
+import MultiSelect from '../components/shared/MultiSelect.vue'
+import Modal from '../components/shared/Modal.vue'
+import FormInput from '../components/shared/FormInput.vue'
+
+const emit = defineEmits(['menu-click', 'navigate-to-campaign', 'navigate-to-campaign-single', 'navigate-to-campaign-new', 'navigate-to-campaign-survey', 'navigate-to-ppo-detail', 'navigate-to-ppo-detail-single'])
+
+const isChatOpen = ref(false)
+
+const sortOpen = ref(false)
+const sortBy = ref('newest')
+const sortActive = computed(() => sortBy.value !== 'conversion-desc')
+const sortOptions = [
+  { value: 'conversion-desc', label: '↓ Conversion rate' },
+  { value: 'conversion-asc',  label: '↑ Conversion rate' },
+  { value: 'impressions-desc', label: '↓ Impressions' },
+  { value: 'impressions-asc',  label: '↑ Impressions' },
+  { value: 'name-asc',         label: '↓ Name A–Z' },
+  { value: 'name-desc',        label: '↑ Name Z–A' },
+  { value: 'newest',           label: '↓ Newest first' },
+  { value: 'oldest',           label: '↑ Oldest first' },
+]
+
+const chatSuggestions = [
+  'Which campaign has the best conversion rate?',
+  'Show me campaigns with low impressions',
+  'How can I improve my popup engagement?',
+  'Which campaigns should I pause?',
+  'How do I reduce cart abandonment?',
+]
+
+const chatAiResponses = {
+  'Which campaign has the best conversion rate?': 'Your **Smart Discount Popup** is leading with an **8.37% submit rate** and **84.23% conversion uplift**. It\'s significantly outperforming your other active campaigns.\n\nWould you like tips on how to replicate this success across your other campaigns?',
+  'Show me campaigns with low impressions': 'Based on your current data, **Feedback Survey** has the lowest impressions with only **1,456 visitors** reached.\n\nThis is likely due to a narrow audience targeting rule. I\'d recommend reviewing the trigger settings and expanding the target URL conditions.',
+  'How can I improve my popup engagement?': 'Here are the top strategies to boost engagement:\n\n**1. Timing** — Show your popup after 30–60 seconds or on exit intent, not immediately on page load.\n\n**2. Personalization** — Target by traffic source, device, or previous behavior.\n\n**3. Copy** — Use a clear value proposition and a single, specific CTA.\n\nWould you like me to audit a specific campaign?',
+  'Which campaigns should I pause?': 'I\'d recommend reviewing **Feedback Survey** and **Welcome Back** — both have high impression counts but below-average conversion rates.\n\n**Feedback Survey** in particular has a **0.8% conversion rate**, well below your account average of **3.2%**. Pausing or reworking it could free up audience exposure for better-performing campaigns.',
+  'How do I reduce cart abandonment?': 'Your **Cart Abandonment Stopper** campaign is already active. To improve it further:\n\n**1. Trigger earlier** — Show at 70% scroll on the cart page, not just on exit.\n**2. Offer a stronger incentive** — Free shipping converts better than % discounts.\n**3. Add urgency** — "Only 3 left in stock" messaging.\n\nWould you like me to suggest a specific template?',
+}
+
+
+const campaigns = reactive([
+  {
+    id: 'campaign1',
+    name: 'Smart Discount Popup',
+    domain: 'domain.com',
+    image: '/campaigns/smart-discount-popup.png',
+    active: true,
+    selected: false,
+    lastUpdated: '1 day ago',
+    metrics: [
+      { label: 'Impressions', value: '1,456' },
+      { label: 'Submits', value: '125' },
+      { label: 'Submit rate', value: '8.37%' },
+      { label: 'Conv. uplift', value: '84.23%', trend: true },
+    ],
+  },
+  {
+    id: 'campaign-survey',
+    name: 'Survey',
+    domain: 'domain.com',
+    image: '/campaigns/smart-discount-popup.png',
+    active: true,
+    selected: false,
+    lastUpdated: '1 day ago',
+    metrics: [
+      { label: 'Impressions', value: '1,456' },
+      { label: 'Submits', value: '125' },
+      { label: 'Submit rate', value: '8.37%' },
+      { label: 'Conv. uplift', value: '84.23%', trend: true },
+    ],
+  },
+  {
+    id: 'campaign-ppo',
+    name: 'Product Summary 1',
+    domain: 'domain.com',
+    image: '/image-with-badge/preview-1.png',
+    imagePosition: 'top',
+    active: true,
+    selected: false,
+    lastUpdated: '1 day ago',
+    metrics: [
+      { label: 'Visitors', value: '3,812' },
+      { label: 'Orders', value: '294' },
+      { label: 'Order rate', value: '7.71%' },
+      { label: 'Conv. uplift', value: '62.50%', trend: true },
+    ],
+  },
+  {
+    id: 'campaign-ppo-single',
+    name: 'Product Summary 2',
+    domain: 'domain.com',
+    image: '/image-with-badge/preview-1.png',
+    imagePosition: 'top',
+    active: true,
+    selected: false,
+    lastUpdated: '1 day ago',
+    metrics: [
+      { label: 'Visitors', value: '12,593' },
+      { label: 'Orders', value: '650' },
+      { label: 'Order rate', value: '7.25%' },
+    ],
+  },
+  {
+    id: 'campaign2',
+    name: 'Lucky Wheel',
+    domain: 'domain.com',
+    image: '/campaigns/lucky-wheel.png',
+    active: true,
+    selected: false,
+    lastUpdated: '1 day ago',
+    metrics: [
+      { label: 'Impressions', value: '1,456' },
+      { label: 'Submits', value: '125' },
+      { label: 'Submit rate', value: '8.37%' },
+    ],
+    gridMetrics: [
+      { label: 'Impressions', value: '2,341' },
+      { label: 'Submits', value: '187' },
+      { label: 'Submit rate', value: '7.99%' },
+      { label: 'Conversion uplift', value: '92.15%', trend: true },
+    ],
+  },
+  {
+    id: 'campaign3',
+    name: 'Campaign #1',
+    domain: 'domain.com',
+    image: '/campaigns/cart-abandonment-stopper.png',
+    active: false,
+    selected: false,
+    lastUpdated: '1 day ago',
+    metrics: [
+      { label: 'Visitors', value: '1,456' },
+      { label: 'Submits', value: '125' },
+      { label: 'Submit rate', value: '8.37%' },
+    ],
+    gridMetrics: [
+      { label: 'Impressions', value: '987' },
+      { label: 'Submits', value: '74' },
+      { label: 'Submit rate', value: '7.50%' },
+      { label: 'Conversion uplift', value: '78.90%', trend: true },
+    ],
+  },
+  {
+    id: 'campaign4',
+    name: 'Feedback Survey',
+    domain: 'domain.com',
+    image: '/campaigns/feedback-survey.png',
+    active: true,
+    selected: false,
+    lastUpdated: '14 days ago',
+    metrics: [
+      { label: 'Visitors', value: '1,456' },
+    ],
+  },
+  {
+    id: 'campaign5', name: 'Welcome Back Popup', domain: 'domain.com', image: '/campaigns/smart-discount-popup.png',
+    active: true, selected: false, lastUpdated: '7 days ago',
+    metrics: [{ label: 'Impressions', value: '2,891' }, { label: 'Submits', value: '203' }, { label: 'Submit rate', value: '7.02%' }],
+  },
+  {
+    id: 'campaign6', name: 'Exit Intent Offer', domain: 'domain.com', image: '/campaigns/cart-abandonment-stopper.png',
+    active: true, selected: false, lastUpdated: '3 days ago',
+    metrics: [{ label: 'Impressions', value: '4,120' }, { label: 'Submits', value: '298' }, { label: 'Submit rate', value: '7.23%' }],
+  },
+  {
+    id: 'campaign7', name: 'Newsletter Signup', domain: 'domain.com', image: '/campaigns/lucky-wheel.png',
+    active: false, selected: false, lastUpdated: '21 days ago',
+    metrics: [{ label: 'Impressions', value: '890' }, { label: 'Submits', value: '67' }, { label: 'Submit rate', value: '7.53%' }],
+  },
+  {
+    id: 'campaign8', name: 'Free Shipping Bar', domain: 'domain.com', image: '/campaigns/feedback-survey.png',
+    active: true, selected: false, lastUpdated: '1 day ago',
+    metrics: [{ label: 'Impressions', value: '6,234' }, { label: 'Submits', value: '412' }, { label: 'Submit rate', value: '6.61%' }],
+  },
+  {
+    id: 'campaign9', name: 'Black Friday Countdown', domain: 'domain.com', image: '/campaigns/smart-discount-popup.png',
+    active: false, selected: false, lastUpdated: '45 days ago',
+    metrics: [{ label: 'Impressions', value: '12,456' }, { label: 'Submits', value: '1,089' }, { label: 'Submit rate', value: '8.74%' }],
+  },
+  {
+    id: 'campaign10', name: 'Seasonal Sale Banner', domain: 'domain.com', image: '/campaigns/cart-abandonment-stopper.png',
+    active: true, selected: false, lastUpdated: '5 days ago',
+    metrics: [{ label: 'Impressions', value: '3,567' }, { label: 'Submits', value: '245' }, { label: 'Submit rate', value: '6.87%' }],
+  },
+  {
+    id: 'campaign11', name: 'Product Recommendation', domain: 'domain.com', image: '/image-with-badge/preview-1.png', imagePosition: 'top',
+    active: true, selected: false, lastUpdated: '2 days ago',
+    metrics: [{ label: 'Visitors', value: '5,210' }, { label: 'Add to cart', value: '389' }, { label: 'ATC rate', value: '7.47%' }],
+  },
+  {
+    id: 'campaign12', name: 'Social Proof Popup', domain: 'domain.com', image: '/campaigns/lucky-wheel.png',
+    active: true, selected: false, lastUpdated: '10 days ago',
+    metrics: [{ label: 'Impressions', value: '1,890' }, { label: 'Submits', value: '156' }, { label: 'Submit rate', value: '8.25%' }],
+  },
+  {
+    id: 'campaign13', name: 'Loyalty Reward Alert', domain: 'domain.com', image: '/campaigns/feedback-survey.png',
+    active: false, selected: false, lastUpdated: '30 days ago',
+    metrics: [{ label: 'Impressions', value: '756' }, { label: 'Submits', value: '42' }, { label: 'Submit rate', value: '5.56%' }],
+  },
+  {
+    id: 'campaign14', name: 'Bundle Upsell Widget', domain: 'domain.com', image: '/campaigns/smart-discount-popup.png',
+    active: true, selected: false, lastUpdated: '4 days ago',
+    metrics: [{ label: 'Impressions', value: '2,345' }, { label: 'Submits', value: '178' }, { label: 'Submit rate', value: '7.59%' }],
+  },
+  {
+    id: 'campaign15', name: 'Countdown Timer Bar', domain: 'domain.com', image: '/campaigns/cart-abandonment-stopper.png',
+    active: true, selected: false, lastUpdated: '6 days ago',
+    metrics: [{ label: 'Impressions', value: '4,567' }, { label: 'Submits', value: '312' }, { label: 'Submit rate', value: '6.83%' }],
+  },
+  {
+    id: 'campaign16', name: 'Spin the Wheel V2', domain: 'domain.com', image: '/campaigns/lucky-wheel.png',
+    active: true, selected: false, lastUpdated: '8 days ago',
+    metrics: [{ label: 'Impressions', value: '3,210' }, { label: 'Submits', value: '289' }, { label: 'Submit rate', value: '9.00%' }],
+  },
+  {
+    id: 'campaign17', name: 'VIP Early Access', domain: 'domain.com', image: '/campaigns/feedback-survey.png',
+    active: false, selected: false, lastUpdated: '60 days ago',
+    metrics: [{ label: 'Impressions', value: '1,120' }, { label: 'Submits', value: '95' }, { label: 'Submit rate', value: '8.48%' }],
+  },
+  {
+    id: 'campaign18', name: 'Back in Stock Alert', domain: 'domain.com', image: '/campaigns/smart-discount-popup.png',
+    active: true, selected: false, lastUpdated: '2 days ago',
+    metrics: [{ label: 'Impressions', value: '1,789' }, { label: 'Submits', value: '134' }, { label: 'Submit rate', value: '7.49%' }],
+  },
+  {
+    id: 'campaign19', name: 'Post-Purchase Survey', domain: 'domain.com', image: '/campaigns/feedback-survey.png',
+    active: true, selected: false, lastUpdated: '12 days ago',
+    metrics: [{ label: 'Impressions', value: '945' }, { label: 'Submits', value: '78' }, { label: 'Submit rate', value: '8.25%' }],
+  },
+  {
+    id: 'campaign20', name: 'Holiday Gift Guide', domain: 'domain.com', image: '/campaigns/cart-abandonment-stopper.png',
+    active: false, selected: false, lastUpdated: '90 days ago',
+    metrics: [{ label: 'Impressions', value: '8,901' }, { label: 'Submits', value: '645' }, { label: 'Submit rate', value: '7.25%' }],
+  },
+  {
+    id: 'campaign21', name: 'First Purchase Discount', domain: 'domain.com', image: '/campaigns/smart-discount-popup.png',
+    active: true, selected: false, lastUpdated: '1 day ago',
+    metrics: [{ label: 'Impressions', value: '5,678' }, { label: 'Submits', value: '423' }, { label: 'Submit rate', value: '7.45%' }],
+  },
+  {
+    id: 'campaign22', name: 'Referral Program Popup', domain: 'domain.com', image: '/campaigns/lucky-wheel.png',
+    active: true, selected: false, lastUpdated: '9 days ago',
+    metrics: [{ label: 'Impressions', value: '2,100' }, { label: 'Submits', value: '168' }, { label: 'Submit rate', value: '8.00%' }],
+  },
+  {
+    id: 'campaign23', name: 'Student Discount Offer', domain: 'domain.com', image: '/campaigns/feedback-survey.png',
+    active: false, selected: false, lastUpdated: '35 days ago',
+    metrics: [{ label: 'Impressions', value: '1,345' }, { label: 'Submits', value: '98' }, { label: 'Submit rate', value: '7.29%' }],
+  },
+  {
+    id: 'campaign24', name: 'Mobile App Install', domain: 'domain.com', image: '/campaigns/cart-abandonment-stopper.png',
+    active: true, selected: false, lastUpdated: '4 days ago',
+    metrics: [{ label: 'Impressions', value: '3,890' }, { label: 'Submits', value: '267' }, { label: 'Submit rate', value: '6.86%' }],
+  },
+  {
+    id: 'campaign25', name: 'Abandoned Browse Retarget', domain: 'domain.com', image: '/campaigns/smart-discount-popup.png',
+    active: true, selected: false, lastUpdated: '6 days ago',
+    metrics: [{ label: 'Impressions', value: '2,456' }, { label: 'Submits', value: '189' }, { label: 'Submit rate', value: '7.70%' }],
+  },
+  {
+    id: 'campaign26', name: 'Cross-Sell Sidebar', domain: 'domain.com', image: '/image-with-badge/preview-1.png', imagePosition: 'top',
+    active: true, selected: false, lastUpdated: '3 days ago',
+    metrics: [{ label: 'Visitors', value: '4,100' }, { label: 'Add to cart', value: '310' }, { label: 'ATC rate', value: '7.56%' }],
+  },
+  {
+    id: 'campaign27', name: 'Price Drop Notification', domain: 'domain.com', image: '/campaigns/lucky-wheel.png',
+    active: false, selected: false, lastUpdated: '25 days ago',
+    metrics: [{ label: 'Impressions', value: '678' }, { label: 'Submits', value: '51' }, { label: 'Submit rate', value: '7.52%' }],
+  },
+  {
+    id: 'campaign28', name: 'Summer Collection Promo', domain: 'domain.com', image: '/campaigns/cart-abandonment-stopper.png',
+    active: true, selected: false, lastUpdated: '2 days ago',
+    metrics: [{ label: 'Impressions', value: '7,890' }, { label: 'Submits', value: '534' }, { label: 'Submit rate', value: '6.77%' }],
+  },
+  {
+    id: 'campaign29', name: 'Wishlist Reminder', domain: 'domain.com', image: '/campaigns/feedback-survey.png',
+    active: true, selected: false, lastUpdated: '11 days ago',
+    metrics: [{ label: 'Impressions', value: '1,234' }, { label: 'Submits', value: '102' }, { label: 'Submit rate', value: '8.27%' }],
+  },
+  {
+    id: 'campaign30', name: 'New Arrivals Teaser', domain: 'domain.com', image: '/campaigns/smart-discount-popup.png',
+    active: true, selected: false, lastUpdated: '5 days ago',
+    metrics: [{ label: 'Impressions', value: '3,456' }, { label: 'Submits', value: '256' }, { label: 'Submit rate', value: '7.41%' }],
+  },
+  {
+    id: 'campaign31', name: 'Review Request Popup', domain: 'domain.com', image: '/campaigns/feedback-survey.png',
+    active: false, selected: false, lastUpdated: '40 days ago',
+    metrics: [{ label: 'Impressions', value: '890' }, { label: 'Submits', value: '72' }, { label: 'Submit rate', value: '8.09%' }],
+  },
+  {
+    id: 'campaign32', name: 'Flash Sale Announcement', domain: 'domain.com', image: '/campaigns/cart-abandonment-stopper.png',
+    active: true, selected: false, lastUpdated: '1 day ago',
+    metrics: [{ label: 'Impressions', value: '9,012' }, { label: 'Submits', value: '678' }, { label: 'Submit rate', value: '7.52%' }],
+  },
+])
+
+// Master tag list (user can create more inline) and per-campaign seed
+const allTags = ref(['Black Friday', '2026', 'Spring', 'Summer', 'Email', 'Promo', 'Evergreen', 'A/B test', 'VIP', 'Catalog', 'Gamification', 'Feedback'])
+const tagSeed = {
+  campaign1: ['Promo', 'Evergreen'], 'campaign-survey': ['Feedback', 'Evergreen'],
+  'campaign-ppo': ['Catalog', 'Promo'], 'campaign-ppo-single': ['Catalog'],
+  campaign2: ['Gamification', 'Promo'], campaign4: ['Feedback'],
+  campaign5: ['Evergreen', 'Email'], campaign6: ['Promo', 'Evergreen'],
+  campaign7: ['Email', 'Evergreen'], campaign8: ['Promo'],
+  campaign9: ['Black Friday', '2026', 'Promo'], campaign10: ['Spring', 'Promo'],
+  campaign11: ['Catalog', 'Evergreen'], campaign12: ['Evergreen'],
+  campaign13: ['VIP', 'Email'], campaign14: ['Promo', 'Catalog'],
+  campaign15: ['Promo', 'A/B test'], campaign16: ['Gamification', 'A/B test'],
+  campaign17: ['VIP', '2026'], campaign18: ['Email', 'Catalog'],
+  campaign19: ['Feedback'], campaign20: ['Black Friday', 'Promo'],
+  campaign21: ['Promo', 'Email'], campaign22: ['Evergreen', 'Email'],
+  campaign23: ['Promo'], campaign24: ['Evergreen'],
+  campaign25: ['Evergreen', 'A/B test'], campaign26: ['Catalog'],
+  campaign27: ['Email', 'Catalog'], campaign28: ['Summer', 'Promo'],
+  campaign29: ['Email', 'Evergreen'], campaign30: ['Spring', 'Catalog'],
+  campaign31: ['Feedback'], campaign32: ['Promo', '2026'],
+}
+campaigns.forEach(c => { c.tags = tagSeed[c.id] ? [...tagSeed[c.id]] : [] })
+
+// Stable auto-color for each tag via name hashing — zero-config visual distinction
+const tagPalette = ['#6366F1', '#EC4899', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EF4444', '#14B8A6', '#F97316', '#06B6D4']
+const tagColor = (tag) => {
+  let h = 0
+  for (let i = 0; i < tag.length; i++) h = (h * 31 + tag.charCodeAt(i)) >>> 0
+  return tagPalette[h % tagPalette.length]
+}
+
+// Pagination
+const page = ref(1)
+const perPage = ref(30)
+const perPageOptions = [
+  { value: 30, label: '30' },
+  { value: 50, label: '50' },
+  { value: 100, label: '100' },
+]
+const searchQuery = ref('')
+const activeStatusFilter = ref('all')
+const selectedTags = ref([])
+
+// Saved views = criteria-based snapshots of { status, tags }. The old status
+// chips are simply the first four (system) views.
+const savedViews = reactive([
+  { id: 'all', label: 'All', system: true, criteria: { status: 'all', tags: [] } },
+  { id: 'active', label: 'Active', system: true, criteria: { status: 'active', tags: [] } },
+  { id: 'inactive', label: 'Inactive', system: true, criteria: { status: 'inactive', tags: [] } },
+  { id: 'archive', label: 'Archive', system: true, criteria: { status: 'archive', tags: [] } },
+  { id: 'bf26', label: 'Black Friday 2026', system: false, criteria: { status: 'active', tags: ['Black Friday', '2026'] } },
+  { id: 'vip', label: 'VIP', system: false, criteria: { status: 'all', tags: ['VIP'] } },
+])
+const activeViewId = ref('all')
+const systemViews = computed(() => savedViews.filter(v => v.system))
+const customViews = computed(() => savedViews.filter(v => !v.system))
+const selectView = (view) => {
+  activeViewId.value = view.id
+  activeStatusFilter.value = view.criteria.status
+  selectedTags.value = [...view.criteria.tags]
+}
+const deleteView = (view) => {
+  if (view.system) return
+  const idx = savedViews.findIndex(v => v.id === view.id)
+  if (idx !== -1) savedViews.splice(idx, 1)
+  if (activeViewId.value === view.id) selectView(savedViews[0])
+}
+
+// Edit mode — rename/delete saved filters; clicking a chip in edit mode opens the builder
+const editMode = ref(false)
+const onViewClick = (view) => {
+  if (editMode.value) { if (!view.system) openEditFilter(view) }
+  else { selectView(view) }
+}
+
+// Top-down filter builder (create / edit)
+const showFilterModal = ref(false)
+const filterModalMode = ref('create') // 'create' | 'edit'
+const editingFilterId = ref(null)
+const filterDraftName = ref('')
+const filterDraftTags = ref([])
+const openNewFilter = () => {
+  filterModalMode.value = 'create'
+  editingFilterId.value = null
+  filterDraftName.value = ''
+  filterDraftTags.value = []
+  showFilterModal.value = true
+}
+const openEditFilter = (view) => {
+  filterModalMode.value = 'edit'
+  editingFilterId.value = view.id
+  filterDraftName.value = view.label
+  filterDraftTags.value = [...view.criteria.tags]
+  showFilterModal.value = true
+}
+const saveFilter = () => {
+  const name = filterDraftName.value.trim()
+  if (!name) return
+  if (filterModalMode.value === 'edit') {
+    const view = savedViews.find(v => v.id === editingFilterId.value)
+    if (view) {
+      view.label = name
+      view.criteria.tags = [...filterDraftTags.value]
+      if (activeViewId.value === view.id) selectView(view)
+    }
+  } else {
+    savedViews.push({ id: `filter-${Date.now()}`, label: name, system: false, criteria: { status: 'all', tags: [...filterDraftTags.value] } })
+    selectView(savedViews[savedViews.length - 1])
+  }
+  showFilterModal.value = false
+}
+
+// Inline per-campaign tag editing
+const openTagMenu = ref(null)
+const newTagInput = ref('')
+const tagMenuOptions = computed(() => allTags.value.filter(t => t.toLowerCase().includes(newTagInput.value.trim().toLowerCase())))
+const toggleTagMenu = (id) => { openTagMenu.value = openTagMenu.value === id ? null : id; newTagInput.value = '' }
+const toggleTagOnCampaign = (campaign, tag) => {
+  const i = campaign.tags.indexOf(tag)
+  if (i === -1) campaign.tags.push(tag); else campaign.tags.splice(i, 1)
+}
+const removeTag = (campaign, tag) => {
+  const i = campaign.tags.indexOf(tag)
+  if (i !== -1) campaign.tags.splice(i, 1)
+}
+const createTag = (campaign) => {
+  const t = newTagInput.value.trim()
+  if (!t) return
+  if (!allTags.value.includes(t)) allTags.value.push(t)
+  if (!campaign.tags.includes(t)) campaign.tags.push(t)
+  newTagInput.value = ''
+}
+
+const filteredCampaigns = computed(() => {
+  let result = [...campaigns]
+  if (activeStatusFilter.value === 'active') result = result.filter(c => c.active)
+  else if (activeStatusFilter.value === 'inactive') result = result.filter(c => !c.active)
+  if (selectedTags.value.length) {
+    result = result.filter(c => selectedTags.value.every(t => (c.tags || []).includes(t)))
+  }
+  if (searchQuery.value) {
+    const q = searchQuery.value.toLowerCase()
+    result = result.filter(c => c.name.toLowerCase().includes(q) || (c.tags || []).some(t => t.toLowerCase().includes(q)))
+  }
+  return result
+})
+
+// --- AI tag suggestions (mock heuristic over name + metrics) ---
+const tagKeywordMap = [
+  [['black friday'], 'Black Friday'],
+  [['cyber'], 'Cyber Monday'],
+  [['holiday', 'gift'], 'Holiday'],
+  [['summer'], 'Summer'],
+  [['spring'], 'Spring'],
+  [['seasonal'], 'Seasonal'],
+  [['sale', 'discount', 'offer', 'deal', 'flash', 'promo'], 'Promo'],
+  [['newsletter', 'signup', 'subscribe', 'email'], 'Email'],
+  [['survey', 'feedback', 'review'], 'Feedback'],
+  [['vip', 'loyalty', 'reward', 'early access'], 'VIP'],
+  [['wheel', 'spin', 'lucky'], 'Gamification'],
+  [['cart', 'abandon', 'exit'], 'Cart recovery'],
+  [['recommend', 'cross-sell', 'upsell', 'bundle', 'arrivals', 'stock', 'wishlist', 'price', 'product'], 'Catalog'],
+  [['countdown', 'timer', 'urgency'], 'Urgency'],
+  [['mobile', 'app'], 'Mobile'],
+  [['welcome'], 'Evergreen'],
+  [['social proof'], 'Social proof'],
+]
+const suggestTagsFor = (campaign) => {
+  const name = campaign.name.toLowerCase()
+  const set = new Set()
+  for (const [keywords, tag] of tagKeywordMap) {
+    if (keywords.some(k => name.includes(k))) set.add(tag)
+  }
+  const year = campaign.name.match(/20\d{2}/)
+  if (year) set.add(year[0])
+  // Metric-based: a strong conversion-style rate earns a performance tag
+  const rateMetric = (campaign.metrics || []).find(m => ['Submit rate', 'Order rate', 'Conv. uplift', 'ATC rate'].includes(m.label))
+  if (rateMetric && parseFloat(String(rateMetric.value).replace(/[,%]/g, '')) >= 8) set.add('High performer')
+  return [...set].filter(t => !(campaign.tags || []).includes(t))
+}
+
+const showSuggestModal = ref(false)
+const isAnalyzing = ref(false)
+const suggestions = ref([])
+const suggestScope = ref('single') // 'single' | 'list'
+const suggestTarget = ref(null)
+const acceptedCount = computed(() =>
+  suggestions.value.reduce((n, s) => n + s.tags.filter(t => t.accepted).length, 0)
+)
+const suggestScopeCount = computed(() =>
+  suggestScope.value === 'single' && suggestTarget.value ? 1 : filteredCampaigns.value.length
+)
+const computeSuggestions = () => {
+  isAnalyzing.value = true
+  suggestions.value = []
+  setTimeout(() => {
+    const scope = suggestScope.value === 'single' && suggestTarget.value
+      ? [suggestTarget.value]
+      : filteredCampaigns.value
+    suggestions.value = scope
+      .map(c => ({ id: c.id, name: c.name, tags: suggestTagsFor(c).map(name => ({ name, accepted: true })) }))
+      .filter(s => s.tags.length)
+    isAnalyzing.value = false
+  }, 700)
+}
+const runSuggestTags = (campaign = null) => {
+  suggestTarget.value = campaign
+  suggestScope.value = campaign ? 'single' : 'list'
+  showSuggestModal.value = true
+  computeSuggestions()
+}
+const setSuggestScope = (scope) => {
+  if (suggestScope.value === scope) return
+  suggestScope.value = scope
+  computeSuggestions()
+}
+const applySuggestions = () => {
+  for (const s of suggestions.value) {
+    const c = campaigns.find(x => x.id === s.id)
+    if (!c) continue
+    for (const t of s.tags) {
+      if (!t.accepted) continue
+      if (!allTags.value.includes(t.name)) allTags.value.push(t.name)
+      if (!c.tags.includes(t.name)) c.tags.push(t.name)
+    }
+  }
+  showSuggestModal.value = false
+}
+
+// Campaigns with their own dedicated detail route — always pinned to the top
+const featuredCampaignIds = new Set(['campaign1', 'campaign-survey', 'campaign-ppo', 'campaign-ppo-single', 'campaign2', 'campaign3'])
+
+const sortedCampaigns = computed(() => {
+  const arr = [...filteredCampaigns.value]
+  const getMetric = (campaign, labels) => {
+    for (const label of labels) {
+      const m = campaign.metrics?.find(m => m.label === label)
+      if (m) return parseFloat(String(m.value).replace(/[,%]/g, '')) || 0
+    }
+    return 0
+  }
+  const getDays = (str) => {
+    const m = String(str || '').match(/(\d+)/)
+    return m ? parseInt(m[1], 10) : Infinity
+  }
+  const conversionLabels = ['Conv. uplift', 'Submit rate', 'Order rate']
+  const impressionsLabels = ['Impressions', 'Visitors']
+  switch (sortBy.value) {
+    case 'conversion-desc': arr.sort((a, b) => getMetric(b, conversionLabels) - getMetric(a, conversionLabels)); break
+    case 'conversion-asc':  arr.sort((a, b) => getMetric(a, conversionLabels) - getMetric(b, conversionLabels)); break
+    case 'impressions-desc': arr.sort((a, b) => getMetric(b, impressionsLabels) - getMetric(a, impressionsLabels)); break
+    case 'impressions-asc':  arr.sort((a, b) => getMetric(a, impressionsLabels) - getMetric(b, impressionsLabels)); break
+    case 'name-asc':  arr.sort((a, b) => a.name.localeCompare(b.name)); break
+    case 'name-desc': arr.sort((a, b) => b.name.localeCompare(a.name)); break
+    case 'newest':    arr.sort((a, b) => getDays(a.lastUpdated) - getDays(b.lastUpdated)); break
+    case 'oldest':    arr.sort((a, b) => getDays(b.lastUpdated) - getDays(a.lastUpdated)); break
+  }
+  // Pin featured campaigns to the top while preserving their relative order
+  arr.sort((a, b) => Number(featuredCampaignIds.has(b.id)) - Number(featuredCampaignIds.has(a.id)))
+  return arr
+})
+
+const totalPages = computed(() => Math.ceil(sortedCampaigns.value.length / perPage.value))
+const pagedCampaigns = computed(() => sortedCampaigns.value.slice((page.value - 1) * perPage.value, page.value * perPage.value))
+
+const selectedDomain = ref('telekom.hu')
+const domains = ref(['telekom.hu', 'myshop.com', 'example-store.com', 'demo-site.com', 'testsite.com', '+ Add new domain'])
+const showAddDomainModal = ref(false)
+watch(selectedDomain, (val) => {
+  if (val === '+ Add new domain') {
+    selectedDomain.value = domains.value[0]
+    showAddDomainModal.value = true
+  }
+})
+const handleNewDomain = (newDomain) => {
+  const insertIdx = domains.value.indexOf('+ Add new domain')
+  domains.value.splice(insertIdx, 0, newDomain)
+  selectedDomain.value = newDomain
+}
+
+const timeFilterOptions = [
+  { value: '7days', label: 'Last 7 days' },
+  { value: '30days', label: 'Last 30 days' },
+  { value: 'this-month', label: 'This month' },
+  { value: 'prev-month', label: 'Previous month' },
+  { value: 'custom', label: 'Custom period' }
+]
+const selectedTimeFilter = ref(timeFilterOptions[0])
+
+const handleLogoClick = () => {
+  window.location.reload()
+}
+
+const ppoThumbnailItems = [
+  'Egyedülálló ír whiskey és vanília keverék',
+  'Selymesen lágy, tökéletes jéggel',
+  'Díjnyertes kézműves likőr',
+]
+
+const selectedCount = computed(() => campaigns.filter(c => c.selected).length)
+const allSelected = computed(() => filteredCampaigns.value.length > 0 && filteredCampaigns.value.every(c => c.selected))
+const toggleSelectAll = () => {
+  const newVal = !allSelected.value
+  filteredCampaigns.value.forEach(c => c.selected = newVal)
+}
+const archiveSelected = () => {
+  campaigns.forEach(c => { if (c.selected) c.selected = false })
+}
+const deleteSelected = () => {
+  const toDelete = campaigns.filter(c => c.selected).map(c => c.id)
+  toDelete.forEach(id => {
+    const idx = campaigns.findIndex(c => c.id === id)
+    if (idx !== -1) campaigns.splice(idx, 1)
+  })
+}
+
+const handleCampaignClick = (campaignId) => {
+  if (campaignId === 'campaign-ppo') {
+    emit('navigate-to-ppo-detail')
+  } else if (campaignId === 'campaign-ppo-single') {
+    emit('navigate-to-ppo-detail-single')
+  } else if (campaignId === 'campaign3') {
+    emit('navigate-to-campaign-new')
+  } else if (campaignId === 'campaign2') {
+    emit('navigate-to-campaign-single')
+  } else if (campaignId === 'campaign-survey') {
+    emit('navigate-to-campaign-survey')
+  } else {
+    emit('navigate-to-campaign')
+  }
+}
+</script>
+

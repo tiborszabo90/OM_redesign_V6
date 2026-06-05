@@ -907,6 +907,22 @@ const campaignViews = [
     hideLogo: true,
   },
   {
+    id: 'campaigns-v3-tagging',
+    component: () => import('../views/CampaignsV3TaggingView.vue'),
+    label: 'Campaigns (Tagging)',
+    status: 'active',
+    section: 'campaigns',
+    hideLogo: true,
+  },
+  {
+    id: 'campaigns-v3-taggingv2',
+    component: () => import('../views/CampaignsV3TaggingV2View.vue'),
+    label: 'Campaigns (Tagging V2)',
+    status: 'active',
+    section: 'campaigns',
+    hideLogo: true,
+  },
+  {
     id: 'campaigns-empty',
     component: () => import('../views/CampaignsEmptyView.vue'),
     label: 'Campaigns (empty)',
@@ -979,6 +995,15 @@ const campaignViews = [
     section: 'campaignPage',
     hideLogo: true,
     slug: 'campaign-detail',
+  },
+  {
+    id: 'campaign-detail-tagged',
+    component: () => import('../views/CampaignDetailTaggedView.vue'),
+    label: 'Campaign Page (Tagged)',
+    status: 'active',
+    section: 'campaignPage',
+    hideLogo: true,
+    slug: 'campaign-detail-tagged',
   },
   {
     id: 'campaign-page-survey',

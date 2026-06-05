@@ -53,6 +53,7 @@
         <div class="list-info flex-1 min-w-0">
           <h3 class="list-name text-base font-semibold text-om-gray-700 mb-1">{{ name }}</h3>
           <p class="text-xs text-om-gray-400">{{ domain }}</p>
+          <slot name="tags" />
         </div>
 
         <!-- Metrics (4 fixed-width slots) -->
@@ -156,6 +157,7 @@
         <div>
           <h3 class="text-base font-semibold text-om-gray-700 mb-1">{{ name }}</h3>
           <p class="text-xs text-om-gray-400">{{ domain }}</p>
+          <slot name="tags" />
         </div>
         <ToggleSwitch :model-value="active" @update:model-value="$emit('update:active', $event)" @click.stop />
       </div>

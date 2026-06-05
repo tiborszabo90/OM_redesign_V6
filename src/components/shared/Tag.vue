@@ -3,6 +3,7 @@
     :is="clickable ? 'button' : 'span'"
     class="inline-flex items-center gap-1.5 rounded-full font-medium w-fit"
     :class="[variantClasses, clickable && 'cursor-pointer transition-colors', size === 'sm' ? 'px-1.5 py-0.5 text-[10px]' : 'px-3 py-1 text-xs']"
+    :style="colorStyle"
   >
     <slot name="icon" />
     <slot />
@@ -21,6 +22,7 @@ const props = defineProps({
   size: { type: String, default: 'default' }, // 'default' | 'sm'
   clickable: { type: Boolean, default: false },
   active: { type: Boolean, default: false },
+  color: { type: String, default: '' }, // hex like '#6366F1' — overrides variant with a soft tinted pill
 })
 
 const variantMap = {
@@ -37,5 +39,10 @@ const variantMap = {
 const variantClasses = computed(() => {
   const v = variantMap[props.variant] ?? variantMap['gray']
   return props.active ? v.active : v.base
+})
+
+const colorStyle = computed(() => {
+  if (!props.color) return null
+  return { backgroundColor: `${props.color}1A`, color: props.color }
 })
 </script>
