@@ -55,6 +55,25 @@
                 </span>
               </button>
             </div>
+
+            <!-- Product feed connect panel -->
+            <transition name="oc-step">
+              <div v-if="showFeedConnect" class="mt-4 p-5 rounded-[14px] bg-white border border-[var(--oc-border)]">
+                <FormInput
+                  v-model="feedUrl"
+                  label="Product feed URL"
+                  type="url"
+                  placeholder="https://example.com/feed.xml"
+                  hint="Paste a CSV, XML or Google Shopping feed URL."
+                />
+                <div class="flex justify-end mt-4">
+                  <Button variant="primary" :disabled="!feedUrl.trim()" @click="handleConnectFeed">
+                    Connect feed
+                  </Button>
+                </div>
+              </div>
+            </transition>
+
             <button
               v-if="step.skip"
               class="mt-6 text-sm text-[var(--oc-text-muted)] hover:text-[var(--oc-primary-600)] underline underline-offset-2 cursor-pointer transition-colors"
@@ -87,11 +106,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { Box, ArrowLeft, Link, FileCode2, Facebook } from 'lucide-vue-next'
+import Button from '../components/shared/Button.vue'
+import FormInput from '../components/shared/FormInput.vue'
 import './opticube.css'
 
-const emit = defineEmits(['complete', 'back'])
+const emit = defineEmits(['complete', 'back', 'step-change'])
 
 const steps = [
   {
@@ -127,7 +148,7 @@ const steps = [
     type: 'cards',
     options: [
       { value: 'integration', label: 'Use an integration', description: 'Sync from Shopify, WooCommerce, and more.', icon: Link },
-      { value: 'file', label: 'Add CSV or XML', description: 'Upload a product feed file directly.', icon: FileCode2 },
+      { value: 'file', label: 'Connect product feed', description: 'Link a CSV, XML or Google Shopping feed URL.', icon: FileCode2 },
       { value: 'meta', label: 'Get it from Meta', description: 'Import your existing Meta product catalog.', icon: Facebook },
     ],
     skip: { value: 'sample', label: 'Skip for now — use sample data' },
@@ -136,12 +157,19 @@ const steps = [
 
 const currentIndex = ref(0)
 const answers = ref({})
+const feedUrl = ref('')
 
 const step = computed(() => steps[currentIndex.value])
 const progress = computed(() => Math.round(((currentIndex.value + 1) / steps.length) * 100))
+const showFeedConnect = computed(() => step.value.key === 'catalog' && answers.value.catalog === 'file')
+
+// Keep the DevNavBar step indicator in sync as the user moves through the flow.
+watch(currentIndex, (i) => emit('step-change', i + 1), { immediate: true })
 
 const handleSelect = (option) => {
   answers.value = { ...answers.value, [step.value.key]: option }
+  // The product feed card reveals a URL input instead of advancing immediately.
+  if (step.value.key === 'catalog' && option === 'file') return
   setTimeout(() => {
     if (currentIndex.value < steps.length - 1) {
       currentIndex.value++
@@ -149,6 +177,10 @@ const handleSelect = (option) => {
       emit('complete', { ...answers.value })
     }
   }, 180)
+}
+
+const handleConnectFeed = () => {
+  emit('complete', { ...answers.value, catalog: 'file', feedUrl: feedUrl.value.trim() })
 }
 
 const handleBack = () => {

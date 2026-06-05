@@ -74,6 +74,9 @@ const wizardSkipRegistration = ref(false)
 const wizardPhase = ref(null)
 const mobileOnboardingVariant = ref(null) // null | 'en' | 'hu'
 const useHuDesktopFlow = ref(false)
+// Current step of the OptiCube onboarding flow, kept in sync via its 'step-change' event
+// so the DevNavBar highlight tracks internal navigation (the viewRefs object is non-reactive).
+const opticubeOnboardingStep = ref(1)
 
 // View refs — keyed by refName from registry
 const viewRefs = {}
@@ -565,7 +568,7 @@ const activeEvents = computed(() => {
     'opticube': { navigate: handleDevNavigate },
     'opticube-design-guide': { navigate: handleDevNavigate },
     'opticube-registration': { complete: () => handleDevNavigate('opticube-onboarding'), signIn: () => {} },
-    'opticube-onboarding': { complete: () => handleDevNavigate('opticube'), back: () => handleDevNavigate('opticube-registration') },
+    'opticube-onboarding': { complete: () => handleDevNavigate('opticube'), back: () => handleDevNavigate('opticube-registration'), 'step-change': (s) => { opticubeOnboardingStep.value = s } },
     'picbear': { navigate: handleDevNavigate },
     'conversionlift': { navigate: handleDevNavigate },
     'dev-start': {
@@ -1088,7 +1091,7 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
     v-if="showDevNav"
     :current-view="displayView"
     :product="currentProduct"
-    :current-step="(currentProduct === 'opticube' ? viewRefs.opticubeOnboardingRef?.displayStepForNav : viewRefs.onboardingRef?.displayStepForNav) || 1"
+    :current-step="(currentProduct === 'opticube' ? opticubeOnboardingStep : viewRefs.onboardingRef?.displayStepForNav) || 1"
     :total-steps="(currentProduct === 'opticube' ? viewRefs.opticubeOnboardingRef?.totalStepsCount : viewRefs.onboardingRef?.totalStepsCount) || 4"
     :current-image-step="viewRefs.imageWithBadgeRef?.currentStep || 1"
     :created-tasks="createdTasks"
