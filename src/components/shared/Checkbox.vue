@@ -10,8 +10,8 @@
         disabled
           ? 'cursor-not-allowed bg-om-gray-100 border-om-gray-200'
           : (modelValue || indeterminate)
-            ? 'bg-om-orange-500 border-om-orange-500 cursor-pointer'
-            : 'bg-white border-om-gray-300 hover:border-om-orange-500 cursor-pointer'
+            ? 'bg-(--om-primary) border-(--om-primary) cursor-pointer'
+            : 'bg-white border-om-gray-300 hover:border-(--om-primary) cursor-pointer'
       ]"
     >
       <Check v-if="modelValue && !indeterminate" :size="size === 'sm' ? 12 : 14" :class="disabled ? 'text-om-gray-400' : 'text-white'" stroke-width="3" />

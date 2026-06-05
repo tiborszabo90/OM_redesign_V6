@@ -53,6 +53,13 @@ const previousView = ref(null)
 const currentProduct = computed(() => getProductForView(currentView.value))
 const showDevNav = computed(() => currentProduct.value !== 'apps')
 
+// Toggle the ConversionLift theme scope on <html> so primary-coloured elements
+// (shared Button, etc.) inherit the sky brand colour. On <html> so it also
+// reaches teleported content (modals).
+watch(currentProduct, (product) => {
+  document.documentElement.classList.toggle('cl-theme', product === 'conversionlift')
+}, { immediate: true })
+
 watch(currentView, (newView, oldView) => {
   if (newView === 'new-campaign' && oldView) previousView.value = oldView
 })
@@ -507,7 +514,8 @@ const handleMenuClick = (menuId) => {
       sessionKey.value++
       currentView.value = 'home-onboarding'
     } else {
-      currentView.value = 'home-old'
+      // Default home is now the OptiMonk Agentic Today's plan (#/agentic/home)
+      handleDevNavigate('home-todays-plan')
     }
   } else if (menuId === 'analytics') {
     const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-review', 'home-onboarding-wizard', 'wizard-flow', 'campaigns-empty', 'analytics-empty']
@@ -571,6 +579,7 @@ const activeEvents = computed(() => {
     'opticube-onboarding': { complete: () => handleDevNavigate('opticube'), back: () => handleDevNavigate('opticube-registration'), 'step-change': (s) => { opticubeOnboardingStep.value = s } },
     'picbear': { navigate: handleDevNavigate },
     'conversionlift': { navigate: handleDevNavigate },
+    'conversionlift-design-guide': { navigate: handleDevNavigate },
     'dev-start': {
       select: handleDevStartSelect,
       'go-home': () => { sessionKey.value++; flowSelected.value = true; wizardMessage.value = ''; currentView.value = 'home-old' },

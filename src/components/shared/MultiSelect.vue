@@ -7,7 +7,7 @@
         'dropdown-select w-full text-sm text-[#23262A] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 cursor-pointer bg-white text-left transition-colors border border-om-gray-200',
         size === 'default' ? 'px-4 pr-8 h-10 rounded-lg flex items-center' : '',
         size === 'sm' ? 'px-3 pr-8 h-8 rounded-lg flex items-center' : '',
-        isOpen ? 'border-om-orange-300' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'
+        isOpen ? 'border-(--om-primary-border)' : 'hover:border-om-gray-300 hover:bg-[#FAFAFA]'
       ]"
       :style="buttonStyle"
     >

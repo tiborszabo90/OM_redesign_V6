@@ -57,7 +57,7 @@ const buttonClasses = computed(() => {
 
   // Active state for ghost variant (selected/toggled look from campaign-page-v1)
   if (props.active && variant === 'ghost') {
-    const activeGhost = 'bg-[#505763]/10 text-[#505763] focus:ring-[#ED5A29]'
+    const activeGhost = 'bg-[#505763]/10 text-[#505763] focus:ring-(--om-primary)'
     const sizes = props.iconOnly
       ? { sm: 'w-8 h-8 text-sm', md: 'w-10 h-10', lg: 'w-[52px] h-[52px] text-lg' }
       : { sm: 'px-3 h-8 text-sm flex items-center', md: 'px-4 h-10 flex items-center', lg: 'px-6 py-3 text-lg' }
@@ -65,13 +65,13 @@ const buttonClasses = computed(() => {
   }
 
   const variantBase = {
-    primary: 'bg-[#ED5A29] text-white focus:ring-[#ED5A29]',
+    primary: 'bg-(--om-primary) text-white focus:ring-(--om-primary)',
     secondary: 'bg-white border border-[#D5D8DD] text-[#505763] focus:ring-[#8F97A4]',
-    ghost: 'bg-transparent text-[#505763] focus:ring-[#ED5A29]'
+    ghost: 'bg-transparent text-[#505763] focus:ring-(--om-primary)'
   }
 
   const variantInteractive = {
-    primary: 'hover:bg-[#E54D1F] active:bg-[#B33810]',
+    primary: 'hover:bg-(--om-primary-hover) active:bg-(--om-primary-active)',
     secondary: 'hover:bg-[#F9FAFB] active:bg-[#E3E5E8]',
     ghost: 'hover:bg-[#505763]/10 active:bg-[#505763]/15'
   }

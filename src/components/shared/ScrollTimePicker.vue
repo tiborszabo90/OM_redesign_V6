@@ -28,7 +28,7 @@
               :class="[
                 'w-full px-2 py-1.5 text-sm font-medium text-center rounded transition-colors font-funnel',
                 selectedHour === hour
-                  ? 'bg-om-orange-500 text-white'
+                  ? 'bg-(--om-primary) text-white'
                   : 'text-om-gray-700 hover:bg-om-gray-100'
               ]"
             >
@@ -47,7 +47,7 @@
               :class="[
                 'w-full px-2 py-1.5 text-sm font-medium text-center rounded transition-colors font-funnel',
                 selectedMinute === minute
-                  ? 'bg-om-orange-500 text-white'
+                  ? 'bg-(--om-primary) text-white'
                   : 'text-om-gray-700 hover:bg-om-gray-100'
               ]"
             >
