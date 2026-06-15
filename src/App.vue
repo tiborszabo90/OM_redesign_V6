@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, defineAsyncComponent, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import DevNavBar from './components/dev/DevNavBar.vue'
-import { viewDefinitions, resolveView, getView, getSlugForView, isLogoHidden, getProductForView } from './registry'
+import { viewDefinitions, resolveView, getView, getSlugForView, isLogoHidden, getProductForView, productDefinitions } from './registry'
 
 // ============================================================================
 // Component map — built from registry, lazy-loaded
@@ -40,6 +40,14 @@ const getViewFromHash = () => {
     const candidate = parts.slice(0, len).join('/')
     if (slugToView[candidate]) return slugToView[candidate]
     if (candidate === hash) continue
+  }
+  // Product-namespaced hash without a registered slug (e.g. `optimonk/settings`,
+  // a system view that never received an `optimonk/` slug): drop the leading
+  // product segment and resolve the remainder as a view id.
+  if (productDefinitions[parts[0]] && parts.length > 1) {
+    const rest = parts.slice(1).join('/')
+    if (slugToView[rest]) return slugToView[rest]
+    if (resolveView(rest)) return rest
   }
   return hash.split('/')[0] || hash
 }
