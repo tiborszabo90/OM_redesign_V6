@@ -1,0 +1,5390 @@
+<template>
+  <AgenticShell active-item="analytics">
+      <div v-if="!currentSubPage" class="analytics-outer w-full max-w-[1400px] mx-auto" :class="{ 'chat-open': isChatOpen }">
+        <button @click="backToInsights" class="inline-flex items-center gap-1 text-sm text-om-gray-500 hover:text-om-gray-700 transition-colors cursor-pointer mb-3">
+          <ArrowLeft :size="15" /> Back to insights
+        </button>
+        <!-- Header Section -->
+        <div class="flex items-center justify-between mb-5 max-960:flex-col max-960:items-start max-960:gap-3">
+          <h1 class="text-2xl max-960:text-xl font-semibold text-om-gray-700">Analytics</h1>
+          <div class="status-badge">
+            <RefreshCw :size="16" class="status-badge-icon" />
+            <p class="status-text">Freshly loaded data</p>
+          </div>
+        </div>
+
+        <!-- Filters section -->
+        <div class="filters-section">
+          <!-- Domain Selector -->
+          <div class="shrink-0" style="width:200px">
+            <Dropdown
+              v-model="selectedDomain"
+              :options="domains"
+              placeholder="Select domain"
+            >
+              <template #icon>
+                <div class="w-5 h-5 rounded-full bg-[#7AAF8A] flex items-center justify-center shrink-0">
+                  <Dice5 :size="12" class="text-white" />
+                </div>
+              </template>
+            </Dropdown>
+          </div>
+
+          <!-- Predefined filter chips (shown on new row) -->
+          <div class="flex items-center gap-2 w-full order-last flex-wrap -mt-1">
+              <!-- Segments button -->
+              <div class="relative">
+                <button
+                  @click="toggleSegmentsDropdown"
+                  :class="['px-3 h-10 flex items-center gap-1.5 rounded-lg text-sm cursor-pointer transition-all duration-200 ease-out', showSegmentsDropdown ? 'bg-om-gray-200 text-om-gray-700' : 'bg-om-gray-100 text-om-gray-500 hover:bg-om-gray-200 hover:text-om-gray-700']"
+                >
+                  <Users :size="16" />
+                  <span class="text-om-gray-700">{{ activeSegmentName }}</span>
+                  <ChevronDown :size="14" class="text-om-gray-400" />
+                </button>
+                <div v-if="showSegmentsDropdown" class="fixed inset-0 z-10" @click="closeSegmentsDropdown" />
+                <div v-if="showSegmentsDropdown" class="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-20 w-[300px]">
+                  <!-- Saved segments list -->
+                  <div class="py-1 max-h-[280px] overflow-y-auto">
+                    <!-- All visitors (default) -->
+                    <div
+                      :class="['w-full px-3 py-2 hover:bg-om-gray-50 transition-colors flex items-center gap-2 cursor-pointer', activeSegmentName === 'All visitors' ? 'bg-om-gray-50' : '']"
+                      @click="loadAllVisitors"
+                    >
+                      <Users :size="14" class="text-om-gray-400 shrink-0" />
+                      <div class="flex-1 min-w-0">
+                        <div class="text-sm text-om-gray-700 truncate">All visitors</div>
+                        <div class="text-xs text-om-gray-400 truncate">No filters</div>
+                      </div>
+                    </div>
+                    <div
+                      v-for="seg in savedSegments"
+                      :key="seg.id"
+                      :class="['group w-full px-3 py-2 hover:bg-om-gray-50 transition-colors flex items-center gap-2 cursor-pointer', activeSegmentName === seg.name ? 'bg-om-gray-50' : '']"
+                      @click="loadSegment(seg)"
+                    >
+                      <Users :size="14" class="text-om-gray-400 shrink-0" />
+                      <div class="flex-1 min-w-0">
+                        <div class="text-sm text-om-gray-700 truncate">{{ seg.name }}</div>
+                        <div class="text-xs text-om-gray-400 truncate">{{ seg.filters.length }} filter{{ seg.filters.length > 1 ? 's' : '' }}</div>
+                      </div>
+                      <button
+                        class="w-6 h-6 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 hover:bg-om-gray-200 text-om-gray-400 hover:text-om-gray-700 transition-all shrink-0"
+                        @click.stop="deleteSegment(seg.id)"
+                      >
+                        <Trash2 :size="14" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                v-for="(f, idx) in predefinedFilters"
+                :key="f.value"
+                class="group relative flex items-center"
+              >
+                <button
+                  @click="editFilter(f, idx)"
+                  class="inline-flex items-center gap-1.5 px-3 h-10 rounded-lg bg-om-orange-100 text-om-orange-600 text-sm font-medium cursor-pointer hover:bg-om-orange-200 transition-colors"
+                >
+                  {{ f.label }}
+                  <span class="inline-flex items-center overflow-hidden transition-all duration-200 ease-out w-0 group-hover:w-4 group-hover:ml-1">
+                    <X
+                      :size="14"
+                      class="shrink-0 text-om-orange-400 hover:text-om-orange-700"
+                      @click.stop="removePredefinedFilter(f.value)"
+                    />
+                  </span>
+                </button>
+                <!-- Filter dropdown anchored to this chip -->
+                <div v-if="showAddFilterDropdown && editingFilterIndex === idx" class="fixed inset-0 z-10" @click="closeFilterDropdown" />
+                <div v-if="showAddFilterDropdown && editingFilterIndex === idx" class="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-20 w-[280px]">
+                  <!-- Header -->
+                  <div class="px-3 pt-3 pb-2">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="text-xs font-medium text-om-gray-400 uppercase tracking-wide">
+                        {{ selectedFilterCategory?.label }}
+                      </span>
+                    </div>
+                    <!-- Condition selector -->
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <button
+                        v-for="cond in filterConditions"
+                        :key="cond.value"
+                        @click="selectedFilterCondition = cond.value"
+                        :class="['px-2.5 py-1 rounded-md text-xs cursor-pointer transition-all duration-150', selectedFilterCondition === cond.value ? 'bg-om-gray-200 text-om-gray-700 font-medium' : 'bg-om-gray-100 text-om-gray-500 hover:bg-om-gray-200']"
+                      >
+                        {{ cond.label }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Search -->
+                  <div v-if="showValuesSearch" class="px-3 pb-2">
+                    <div class="relative">
+                      <Search :size="14" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-om-gray-400 pointer-events-none" />
+                      <input
+                        v-model="filterDropdownSearch"
+                        type="text"
+                        :placeholder="`Search ${selectedFilterCategory?.label.toLowerCase()}...`"
+                        class="w-full pl-8 pr-3 h-8 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Free text input -->
+                  <div v-if="isFreeTextMode" class="px-3 pt-2 pb-1">
+                    <div class="flex gap-1.5">
+                      <input
+                        v-model="freeTextInput"
+                        type="text"
+                        :placeholder="`Type a value...`"
+                        class="flex-1 px-2.5 h-8 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300"
+                        @keydown.enter="addFreeTextValue"
+                      />
+                      <button
+                        @click="addFreeTextValue"
+                        class="px-2.5 h-8 rounded-lg bg-om-gray-100 text-om-gray-500 text-sm hover:bg-om-gray-200 transition-colors"
+                      >Add</button>
+                    </div>
+                    <div v-if="filterDropdownSelected.length > 0" class="flex flex-wrap gap-1.5 mt-2">
+                      <span
+                        v-for="val in filterDropdownSelected"
+                        :key="val"
+                        class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-om-orange-100 text-om-orange-600 text-xs font-medium"
+                      >
+                        {{ val }}
+                        <X :size="12" class="cursor-pointer hover:text-om-orange-700" @click="toggleFilterValue(val)" />
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Values list -->
+                  <div class="py-1">
+                    <label
+                      v-for="val in filteredValues"
+                      :key="val"
+                      class="w-full px-3 py-2 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors flex items-center gap-2.5 cursor-pointer"
+                    >
+                      <Checkbox
+                        :model-value="filterDropdownSelected.includes(val)"
+                        size="sm"
+                        @update:model-value="toggleFilterValue(val)"
+                      />
+                      <span>{{ val }}</span>
+                    </label>
+                  </div>
+
+                  <!-- Apply button -->
+                  <div v-if="filterDropdownSelected.length > 0" class="px-3 py-2 border-t border-om-gray-100">
+                    <Button variant="primary" size="sm" class="w-full" @click="applyDropdownFilter">
+                      Apply {{ filterDropdownSelected.length }} filter{{ filterDropdownSelected.length > 1 ? 's' : '' }}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add filter button -->
+              <div class="relative">
+                <button
+                  @click="toggleFilterDropdown"
+                  :class="['px-3 h-10 flex items-center gap-1.5 rounded-lg text-sm cursor-pointer transition-all duration-200 ease-out', showAddFilterDropdown && editingFilterIndex === null ? 'bg-om-gray-200 text-om-gray-700' : 'bg-om-gray-100 text-om-gray-500 hover:bg-om-gray-200 hover:text-om-gray-700']"
+                >
+                  <Plus :size="16" />
+                  <span class="text-om-gray-700">Filter</span>
+                </button>
+                <div v-if="showAddFilterDropdown && editingFilterIndex === null" class="fixed inset-0 z-10" @click="closeFilterDropdown" />
+                <div v-if="showAddFilterDropdown && editingFilterIndex === null" class="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-20 w-[280px]">
+                  <!-- Header -->
+                  <div v-if="filterDropdownStep === 'values'" class="px-3 pt-3 pb-2">
+                    <div class="flex items-center gap-2 mb-2">
+                      <button
+                        @click="filterDropdownStep = 'categories'"
+                        class="w-6 h-6 flex items-center justify-center rounded hover:bg-om-gray-100 text-om-gray-400 transition-colors"
+                      >
+                        <ChevronLeft :size="16" />
+                      </button>
+                      <span class="text-xs font-medium text-om-gray-400 uppercase tracking-wide">
+                        {{ selectedFilterCategory?.label }}
+                      </span>
+                    </div>
+                    <!-- Condition selector -->
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <button
+                        v-for="cond in filterConditions"
+                        :key="cond.value"
+                        @click="selectedFilterCondition = cond.value"
+                        :class="['px-2.5 py-1 rounded-md text-xs cursor-pointer transition-all duration-150', selectedFilterCondition === cond.value ? 'bg-om-gray-200 text-om-gray-700 font-medium' : 'bg-om-gray-100 text-om-gray-500 hover:bg-om-gray-200']"
+                      >
+                        {{ cond.label }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Search -->
+                  <div v-if="filterDropdownStep === 'categories' || showValuesSearch" class="px-3 pt-3 pb-2">
+                    <div class="relative">
+                      <Search :size="14" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-om-gray-400 pointer-events-none" />
+                      <input
+                        v-model="filterDropdownSearch"
+                        type="text"
+                        :placeholder="filterDropdownStep === 'categories' ? 'Search filters...' : `Search ${selectedFilterCategory?.label.toLowerCase()}...`"
+                        class="w-full pl-8 pr-3 h-8 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Categories list -->
+                  <div v-if="filterDropdownStep === 'categories'" class="py-1">
+                    <button
+                      v-for="cat in filteredCategories"
+                      :key="cat.value"
+                      @click="selectFilterCategory(cat)"
+                      class="w-full px-3 py-2 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors flex items-center gap-2"
+                    >
+                      <component :is="cat.icon" :size="16" class="text-om-gray-400 shrink-0" />
+                      {{ cat.label }}
+                    </button>
+                  </div>
+
+                  <!-- Free text input -->
+                  <div v-if="filterDropdownStep === 'values' && isFreeTextMode" class="px-3 py-2">
+                    <div class="flex gap-1.5">
+                      <input
+                        v-model="freeTextInput"
+                        type="text"
+                        :placeholder="`Type a value...`"
+                        class="flex-1 px-2.5 h-8 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300"
+                        @keydown.enter="addFreeTextValue"
+                      />
+                      <button
+                        @click="addFreeTextValue"
+                        class="px-2.5 h-8 rounded-lg bg-om-gray-100 text-om-gray-500 text-sm hover:bg-om-gray-200 transition-colors"
+                      >Add</button>
+                    </div>
+                    <div v-if="filterDropdownSelected.length > 0" class="flex flex-wrap gap-1.5 mt-2">
+                      <span
+                        v-for="val in filterDropdownSelected"
+                        :key="val"
+                        class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-om-orange-100 text-om-orange-600 text-xs font-medium"
+                      >
+                        {{ val }}
+                        <X :size="12" class="cursor-pointer hover:text-om-orange-700" @click="toggleFilterValue(val)" />
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Values list -->
+                  <div v-if="filterDropdownStep === 'values' && !isFreeTextMode" class="py-1">
+                    <label
+                      v-for="val in filteredValues"
+                      :key="val"
+                      class="w-full px-3 py-2 text-left text-sm text-om-gray-700 hover:bg-om-gray-50 transition-colors flex items-center gap-2.5 cursor-pointer"
+                    >
+                      <Checkbox
+                        :model-value="filterDropdownSelected.includes(val)"
+                        size="sm"
+                        @update:model-value="toggleFilterValue(val)"
+                      />
+                      <span>{{ val }}</span>
+                    </label>
+                  </div>
+
+                  <!-- Apply button -->
+                  <div v-if="filterDropdownStep === 'values' && filterDropdownSelected.length > 0" class="px-3 py-2 border-t border-om-gray-100">
+                    <Button variant="primary" size="sm" class="w-full" @click="applyDropdownFilter">
+                      Apply {{ filterDropdownSelected.length }} filter{{ filterDropdownSelected.length > 1 ? 's' : '' }}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Save as segment button -->
+              <div v-if="predefinedFilters.length > 0" class="relative">
+                <button
+                  @click="toggleSaveSegmentPopover"
+                  :class="['px-3 h-10 flex items-center gap-1.5 rounded-lg text-sm cursor-pointer transition-all duration-200 ease-out', showSaveSegmentPopover ? 'bg-om-gray-200 text-om-gray-700' : 'bg-om-gray-100 text-om-gray-500 hover:bg-om-gray-200 hover:text-om-gray-700']"
+                >
+                  <Save :size="16" />
+                  <span class="text-om-gray-700">Save as segment</span>
+                </button>
+                <div v-if="showSaveSegmentPopover" class="fixed inset-0 z-10" @click="closeSaveSegmentPopover" />
+                <div v-if="showSaveSegmentPopover" class="absolute top-full right-0 mt-1 bg-white rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-om-gray-100 z-20 w-[300px] p-3">
+                  <div class="text-xs font-medium text-om-gray-400 uppercase tracking-wide mb-2">Save current filters</div>
+                  <div class="flex gap-1.5">
+                    <input
+                      v-model="newSegmentName"
+                      type="text"
+                      placeholder="Segment name..."
+                      class="flex-1 px-2.5 h-8 text-sm border border-om-gray-200 rounded-lg bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:border-om-gray-300"
+                      @keydown.enter="saveCurrentAsSegment"
+                    />
+                    <Button variant="primary" size="sm" :disabled="!newSegmentName.trim()" @click="saveCurrentAsSegment">
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          <!-- Right-aligned filters -->
+          <div class="filters-right">
+            <!-- Goal Dropdown -->
+            <Dropdown
+              v-model="selectedGoal"
+              :options="goals"
+              placeholder="Select goal"
+            >
+              <template #icon>
+                <Target :size="20" class="text-om-gray-400" />
+              </template>
+            </Dropdown>
+
+            <!-- Period Dropdown -->
+            <Dropdown
+              v-model="selectedPeriod"
+              :options="periods"
+              placeholder="Select period"
+            >
+              <template #icon>
+                <Calendar :size="20" class="text-om-gray-400" />
+              </template>
+            </Dropdown>
+          </div>
+        </div>
+
+        <!-- Active Filter Chips -->
+        <div v-if="activeFilterChips.length > 0" class="flex items-center gap-2 mb-5 flex-wrap">
+          <span class="text-xs text-om-gray-400 font-medium">Active filters:</span>
+          <button
+            v-for="chip in activeFilterChips"
+            :key="chip.key"
+            @click="removeFilterChip(chip.key)"
+            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-om-orange-100 text-om-orange-600 text-xs font-medium cursor-pointer hover:bg-om-orange-200 transition-colors"
+          >
+            <span class="max-w-[200px] truncate">{{ chip.label }}</span>
+            <X :size="12" class="shrink-0" />
+          </button>
+        </div>
+
+        <!-- Trend Chart Section -->
+        <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 px-5">
+          <div class="trend-chart-tabs">
+            <Tooltip
+              v-for="tab in trendTabs"
+              :key="tab.id"
+              :text="tab.tooltip"
+              :class="['trend-chart-tab', { active: activeTab === tab.id }]"
+              @click="activeTab = tab.id"
+            >
+              <div class="trend-chart-tab-title">{{ tab.title }}</div>
+              <div class="trend-chart-stat">
+                <div class="trend-chart-value">{{ tab.value }}</div>
+                <div :class="['trend-chart-change', tab.isPositive ? 'positive' : 'negative']">
+                  <TrendingUp v-if="tab.isPositive" :size="14" />
+                  <TrendingDown v-else :size="14" />
+                  {{ tab.change }}
+                </div>
+              </div>
+            </Tooltip>
+          </div>
+          <div class="chart-canvas">
+            <!-- Dynamic Chart based on active tab -->
+            <VueApexCharts
+              :key="activeTab"
+              type="area"
+              height="280"
+              :options="chartOptions"
+              :series="chartSeries"
+            />
+          </div>
+        </div>
+
+        <!-- Top Optimization Opportunities -->
+        <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] mb-6 pt-5 pb-5">
+          <div class="opportunities-title-row">
+            <div class="opportunities-title-text">
+              <h2 class="section-title">Top Optimization Opportunities</h2>
+              <p class="opportunities-summary">AI-generated recommendations based on your site's traffic, campaign performance, and visitor behavior. Use them to spot the biggest conversion wins.</p>
+            </div>
+            <div class="opportunities-actions">
+              <button class="view-all-btn" @click="emit('navigate-to-opportunities')">View all</button>
+              <span class="opportunities-generated">
+                <Clock :size="12" />
+                Generated on May 11, 2026, 09:00
+              </span>
+            </div>
+          </div>
+          <div class="opp-grid">
+            <div
+              v-for="opp in optimizationOpportunities"
+              :key="opp.id"
+              class="opp-card"
+              @click="emit('navigate-to-opportunity', opp.id)"
+            >
+              <div class="opp-icon">
+                <component :is="insightIcons[opp.id]" :size="22" />
+              </div>
+              <div class="opp-info">
+                <div class="opp-header">
+                  <div class="opp-name">{{ opp.name }}</div>
+                  <div :class="['opp-badge', `badge-${opp.level}`]">{{ opp.value }} impact</div>
+                </div>
+                <p v-if="opp.campaign" class="opp-campaign"><strong>Campaign:</strong> {{ opp.campaign }}</p>
+                <div class="opp-desc">{{ opp.description }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Campaign Performance Section -->
+        <div v-if="!sectionHasActiveFilters('campaigns')" :class="['bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] mb-6 pt-5 pb-5', { 'has-selection': hasSelection }]">
+          <h2 class="section-title">Campaign Performance</h2>
+
+          <!-- Filter Bar - Full Width -->
+          <div v-if="hasSelection" class="campaign-filter-bar">
+            <Checkbox
+              :model-value="allSelected"
+              :indeterminate="isIndeterminate"
+              size="sm"
+              class="custom-checkbox"
+              @update:model-value="toggleSelectAll"
+            />
+            <span class="selection-count">{{ selectedCount }} selected</span>
+            <button class="filter-btn" @click="applyCampaignFilter">
+              Filter
+            </button>
+          </div>
+
+          <!-- Table Headers -->
+          <div v-if="!hasSelection" class="campaign-headers-row">
+            <div class="campaign-list-header">
+              <div class="header-cell">Campaign</div>
+            </div>
+            <div class="campaign-metrics-header">
+              <div class="header-cell numeric">Visitors</div>
+              <div v-if="!isPurchase && !isAddToCart" class="header-cell numeric">Impressions</div>
+              <div class="header-cell numeric">{{ labelSubmits }}</div>
+              <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              <div v-if="isSubmit" class="header-cell numeric">Assisted Orders</div>
+              <div v-if="isSubmit" class="header-cell numeric">Assisted Rev.</div>
+            </div>
+          </div>
+
+          <div class="campaign-performance-layout">
+            <!-- Left Column: Campaign List -->
+            <div class="campaign-list-column">
+              <div class="campaign-table-body">
+                <template v-for="campaign in campaignDataDisplay" :key="campaign.id">
+                  <div
+                    class="campaign-row"
+                    @mouseenter="setHoveredCampaign(campaign.id)"
+                    @mouseleave="clearHoveredCampaign()"
+                    :class="{ 'is-hovered': hoveredCampaignId === campaign.id }"
+                    @click="toggleSelection(campaign.id)"
+                  >
+                    <Checkbox
+                      :model-value="isSelected(campaign.id)"
+                      size="sm"
+                      class="custom-checkbox"
+                      @click.stop
+                      @update:model-value="toggleSelection(campaign.id)"
+                    />
+                    <div class="campaign-name-wrapper">
+                      <div class="campaign-name-with-icon" @click.stop="campaign.variants && toggleCampaign(campaign.id)">
+                        <div class="campaign-name">{{ campaign.name }}</div>
+                        <ExternalLink
+                          :size="14"
+                          class="campaign-link-icon"
+                          @click.stop="navigateToCampaignPage(campaign.id)"
+                        />
+                      </div>
+                      <ChevronDown
+                        v-if="campaign.variants"
+                        :size="16"
+                        :class="['campaign-chevron', { 'campaign-chevron-expanded': expandedCampaigns.has(campaign.id) }]"
+                        @click.stop="toggleCampaign(campaign.id)"
+                      />
+                    </div>
+                  </div>
+                  <template v-if="campaign.variants && expandedCampaigns.has(campaign.id)">
+                    <div
+                      v-for="(variant, index) in campaign.variants"
+                      :key="`${campaign.id}-variant-${index}`"
+                      class="campaign-variant-row"
+                      @click="toggleSelection(`${campaign.id}-variant-${index}`)"
+                    >
+                      <Checkbox
+                        :model-value="isSelected(`${campaign.id}-variant-${index}`)"
+                        size="sm"
+                        class="custom-checkbox"
+                        @click.stop
+                        @update:model-value="toggleSelection(`${campaign.id}-variant-${index}`)"
+                      />
+                      <div class="campaign-variant-name">{{ variant.name }}</div>
+                    </div>
+                  </template>
+                </template>
+              </div>
+            </div>
+
+            <!-- Right Column: Metrics -->
+            <div class="campaign-metrics-column">
+              <div class="campaign-table-body">
+                <template v-for="campaign in campaignDataDisplay" :key="campaign.id">
+                  <div
+                    class="campaign-metrics-row"
+                    @mouseenter="setHoveredCampaign(campaign.id)"
+                    @mouseleave="clearHoveredCampaign()"
+                    :class="{ 'is-hovered': hoveredCampaignId === campaign.id }"
+                  >
+                    <div class="metric-cell">{{ campaign.visitors.toLocaleString() }}</div>
+                    <div v-if="!isPurchase && !isAddToCart" class="metric-cell">{{ campaign.impressions.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ campaign.submits }}</div>
+                    <div class="metric-cell">{{ campaign.conversionRate }}%</div>
+                    <div v-if="isSubmit" class="metric-cell">{{ campaign.assistedOrders }}</div>
+                    <div v-if="isSubmit" class="metric-cell">${{ campaign.assistedRevenue?.toLocaleString() }}</div>
+                  </div>
+                  <template v-if="campaign.variants && expandedCampaigns.has(campaign.id)">
+                    <div
+                      v-for="(variant, index) in campaign.variants"
+                      :key="`${campaign.id}-variant-${index}`"
+                      class="campaign-variant-metrics-row"
+                    >
+                      <div class="metric-cell">{{ variant.visitors.toLocaleString() }}</div>
+                      <div v-if="!isPurchase && !isAddToCart" class="metric-cell">{{ variant.impressions.toLocaleString() }}</div>
+                      <div class="metric-cell">{{ variant.submits }}</div>
+                      <div class="metric-cell">{{ variant.conversionRate }}%</div>
+                      <div v-if="isSubmit" class="metric-cell">{{ variant.assistedOrders ?? '–' }}</div>
+                      <div v-if="isSubmit" class="metric-cell">{{ variant.assistedRevenue ? '$' + variant.assistedRevenue.toLocaleString() : '–' }}</div>
+                    </div>
+                  </template>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Devices + New vs Returning Row -->
+        <div :class="['devices-traffic-row', { 'single-column': sectionHasActiveFilters('devices') || sectionHasActiveFilters('visitorType') }]">
+          <!-- Devices Section -->
+          <div v-if="!sectionHasActiveFilters('devices')" class="devices-card bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 pr-8 min-w-0 overflow-hidden">
+            <h2 class="section-title">Devices</h2>
+            <div class="devices-content">
+              <!-- Devices Table -->
+              <div class="devices-table-wrap">
+                <div v-if="hasDevicesSelection" class="campaign-filter-bar">
+                  <Checkbox
+                    :model-value="allDevicesSelected"
+                    :indeterminate="isDevicesIndeterminate"
+                    size="sm"
+                    class="custom-checkbox"
+                    @update:model-value="toggleSelectAllDevices"
+                  />
+                  <span class="selection-count">{{ devicesSelectionCount }} selected</span>
+                  <button class="filter-btn" @click="applyDevicesFilter">Filter</button>
+                </div>
+                <div v-if="!hasDevicesSelection" class="campaign-headers-row">
+                  <div class="campaign-list-header">
+                    <div class="header-cell">Device Type</div>
+                  </div>
+                  <div class="campaign-metrics-header">
+                    <div class="header-cell numeric">Visitors</div>
+                    <div class="header-cell numeric">{{ labelSubmits }}</div>
+                    <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+                  </div>
+                </div>
+                <div class="campaign-performance-layout">
+                  <div class="campaign-list-column">
+                    <div class="campaign-table-body">
+                      <div
+                        v-for="row in devicesDisplay"
+                        :key="row.type"
+                        class="campaign-row"
+                        :class="{ 'is-hovered': hoveredDevicesRow === row.type }"
+                        @mouseenter="hoveredDevicesRow = row.type"
+                        @mouseleave="hoveredDevicesRow = null"
+                        @click="toggleDevicesRow(row.type)"
+                      >
+                        <Checkbox
+                          :model-value="isDevicesRowSelected(row.type)"
+                          size="sm"
+                          class="custom-checkbox"
+                          @click.stop
+                          @update:model-value="toggleDevicesRow(row.type)"
+                        />
+                        <div class="campaign-name-wrapper">
+                          <div class="campaign-name">{{ row.type }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="campaign-metrics-column">
+                    <div class="campaign-table-body">
+                      <div
+                        v-for="row in devicesDisplay"
+                        :key="row.type"
+                        class="campaign-metrics-row"
+                        :class="{ 'is-hovered': hoveredDevicesRow === row.type }"
+                        @mouseenter="hoveredDevicesRow = row.type"
+                        @mouseleave="hoveredDevicesRow = null"
+                      >
+                        <div class="metric-cell">{{ row.visitors.toLocaleString() }}</div>
+                        <div class="metric-cell">{{ row.submits.toLocaleString() }}</div>
+                        <div class="metric-cell">{{ row.submitRate }}%</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Devices Chart -->
+              <div class="devices-chart-wrap">
+                <VueApexCharts
+                  type="bar"
+                  height="120"
+                  :options="devicesChartOptions"
+                  :series="devicesChartSeries"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- New vs Returning Visitors -->
+          <div v-if="!sectionHasActiveFilters('visitorType')" class="new-vs-returning-card bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 pr-8 min-w-0 overflow-hidden">
+            <h2 class="section-title">New vs Returning Visitors</h2>
+            <div class="new-vs-returning-content">
+              <div class="new-vs-returning-table-wrap">
+                <div v-if="hasNvrSelection" class="campaign-filter-bar">
+                  <Checkbox
+                    :model-value="allNvrSelected"
+                    :indeterminate="isNvrIndeterminate"
+                    size="sm"
+                    class="custom-checkbox"
+                    @update:model-value="toggleSelectAllNvr"
+                  />
+                  <span class="selection-count">{{ nvrSelectionCount }} selected</span>
+                  <button class="filter-btn" @click="applyNvrFilter">Filter</button>
+                </div>
+                <div v-if="!hasNvrSelection" class="campaign-headers-row">
+                  <div class="campaign-list-header">
+                    <div class="header-cell">Visitor Type</div>
+                  </div>
+                  <div class="campaign-metrics-header">
+                    <div class="header-cell numeric">Visitors</div>
+                    <div class="header-cell numeric">{{ labelSubmits }}</div>
+                    <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+                  </div>
+                </div>
+                <div class="campaign-performance-layout">
+                  <div class="campaign-list-column">
+                    <div class="campaign-table-body">
+                      <div
+                        v-for="row in newVsReturningData"
+                        :key="row.type"
+                        class="campaign-row"
+                        :class="{ 'is-hovered': hoveredNvrRow === row.type }"
+                        @mouseenter="hoveredNvrRow = row.type"
+                        @mouseleave="hoveredNvrRow = null"
+                        @click="toggleNvrRow(row.type)"
+                      >
+                        <Checkbox
+                          :model-value="isNvrRowSelected(row.type)"
+                          size="sm"
+                          class="custom-checkbox"
+                          @click.stop
+                          @update:model-value="toggleNvrRow(row.type)"
+                        />
+                        <div class="campaign-name-wrapper">
+                          <div class="campaign-name">{{ row.type }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="campaign-metrics-column">
+                    <div class="campaign-table-body">
+                      <div
+                        v-for="row in newVsReturningData"
+                        :key="row.type"
+                        class="campaign-metrics-row"
+                        :class="{ 'is-hovered': hoveredNvrRow === row.type }"
+                        @mouseenter="hoveredNvrRow = row.type"
+                        @mouseleave="hoveredNvrRow = null"
+                      >
+                        <div class="metric-cell">{{ row.visitors.toLocaleString() }}</div>
+                        <div class="metric-cell">{{ row.submits.toLocaleString() }}</div>
+                        <div class="metric-cell">{{ row.submitRate }}%</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="new-vs-returning-chart-wrap">
+                <VueApexCharts
+                  type="bar"
+                  height="120"
+                  :options="newVsReturningChartOptions"
+                  :series="newVsReturningChartSeries"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /Devices + New vs Returning Row -->
+
+        <!-- Countries + Landing Pages Row -->
+        <div :class="['breakdown-modules-row', { 'single-column': sectionHasActiveFilters('countries') || sectionHasActiveFilters('landingPages') }]">
+          <!-- Countries -->
+          <div v-if="!sectionHasActiveFilters('countries')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
+            <div class="section-header">
+              <h2 class="section-title">Countries</h2>
+              <button class="view-all-btn" @click="openSubPage('countries')">View All</button>
+            </div>
+            <div v-if="hasCountriesSelection" class="campaign-filter-bar">
+              <Checkbox :model-value="allCountriesSelected" :indeterminate="isCountriesIndeterminate" size="sm" class="custom-checkbox" @update:model-value="toggleSelectAllCountries" />
+              <span class="selection-count">{{ countriesSelectionCount }} selected</span>
+              <button class="filter-btn" @click="applyCountriesFilter">Filter</button>
+            </div>
+            <div v-if="!hasCountriesSelection" class="campaign-headers-row">
+              <div class="breakdown-module-list-header"><div class="header-cell">Country</div></div>
+              <div class="breakdown-module-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="breakdown-module-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="row in countriesDisplay" :key="row.country" class="campaign-row" :class="{ 'is-hovered': hoveredCountriesRow === row.country }" @mouseenter="hoveredCountriesRow = row.country" @mouseleave="hoveredCountriesRow = null" @click="toggleCountriesRow(row.country)">
+                    <Checkbox :model-value="isCountriesRowSelected(row.country)" size="sm" class="custom-checkbox" @click.stop @update:model-value="toggleCountriesRow(row.country)" />
+                    <div class="campaign-name-wrapper">
+                      <div class="flex items-center gap-2">
+                        <img v-if="getFlagUrl(row.country)" :src="getFlagUrl(row.country)" :alt="row.country" class="w-5 h-5 rounded-full object-cover shrink-0 ring-1 ring-om-gray-200" />
+                        <div class="campaign-name">{{ row.country }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="breakdown-module-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="row in countriesDisplay" :key="row.country" class="campaign-metrics-row" :class="{ 'is-hovered': hoveredCountriesRow === row.country }" @mouseenter="hoveredCountriesRow = row.country" @mouseleave="hoveredCountriesRow = null">
+                    <div class="metric-cell">{{ row.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ row.submits !== null ? row.submits.toLocaleString() : '–' }}</div>
+                    <div class="metric-cell">{{ row.submitRate !== null ? row.submitRate + '%' : '–' }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Landing Pages -->
+          <div v-if="!sectionHasActiveFilters('landingPages')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
+            <div class="section-header">
+              <h2 class="section-title">Landing Pages</h2>
+              <button class="view-all-btn" @click="openSubPage('landing-pages')">View All</button>
+            </div>
+            <div v-if="hasLandingPagesSelection" class="campaign-filter-bar">
+              <Checkbox :model-value="allLandingPagesSelected" :indeterminate="isLandingPagesIndeterminate" size="sm" class="custom-checkbox" @update:model-value="toggleSelectAllLandingPages" />
+              <span class="selection-count">{{ selectedLandingPagesCount }} selected</span>
+              <button class="filter-btn" @click="applyLandingPagesFilter">Filter</button>
+            </div>
+            <div v-if="!hasLandingPagesSelection" class="campaign-headers-row">
+              <div class="breakdown-module-list-header"><div class="header-cell">Landing Page</div></div>
+              <div class="breakdown-module-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="breakdown-module-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="page in landingPagesDisplay" :key="page.url" class="campaign-row" @mouseenter="setHoveredLandingPage(page.url)" @mouseleave="clearHoveredLandingPage()" :class="{ 'is-hovered': hoveredLandingPageUrl === page.url }" @click="toggleLandingPageSelection(page.url)">
+                    <Checkbox :model-value="isLandingPageSelected(page.url)" size="sm" class="custom-checkbox" @click.stop @update:model-value="toggleLandingPageSelection(page.url)" />
+                    <div class="campaign-name-wrapper">
+                      <a :href="page.url" target="_blank" class="campaign-name-with-icon" @click.stop>
+                        <div class="campaign-name">{{ page.url }}</div>
+                        <ExternalLink :size="14" class="campaign-link-icon" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="breakdown-module-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="page in landingPagesDisplay" :key="page.url" class="campaign-metrics-row" @mouseenter="setHoveredLandingPage(page.url)" @mouseleave="clearHoveredLandingPage()" :class="{ 'is-hovered': hoveredLandingPageUrl === page.url }">
+                    <div class="metric-cell">{{ page.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ page.submits }}</div>
+                    <div class="metric-cell">{{ page.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Traffic Sources + Referring Sites Row -->
+        <div :class="['devices-traffic-row traffic-referring-row', { 'single-column': sectionHasActiveFilters('traffic') || sectionHasActiveFilters('referringSites') }]">
+          <!-- Traffic Sources -->
+          <div v-if="!sectionHasActiveFilters('traffic')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 min-w-0 overflow-hidden">
+            <div class="section-header" style="padding-left: 32px; padding-right: 32px; margin-bottom: 1.25rem;">
+              <h2 class="section-title" style="padding: 0; margin-bottom: 0;">Traffic Sources</h2>
+              <button class="view-all-btn" @click="openSubPage('traffic-sources')">View All</button>
+            </div>
+            <div class="traffic-plain-layout">
+              <div class="traffic-plain-table">
+                <div v-if="hasTrafficSelection" class="campaign-filter-bar">
+                  <Checkbox
+                    :model-value="allTrafficSelected"
+                    :indeterminate="isTrafficIndeterminate"
+                    size="sm"
+                    class="custom-checkbox"
+                    @update:model-value="toggleSelectAllTraffic"
+                  />
+                  <span class="selection-count">{{ trafficSelectionCount }} selected</span>
+                  <button class="filter-btn" @click="applyTrafficFilter">Filter</button>
+                </div>
+                <div v-if="!hasTrafficSelection" class="campaign-headers-row">
+                  <div class="campaign-list-header">
+                    <div class="header-cell">Referrer</div>
+                  </div>
+                  <div class="campaign-metrics-header">
+                    <div class="header-cell numeric">Visitors</div>
+                    <div class="header-cell numeric">{{ labelSubmits }}</div>
+                    <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+                  </div>
+                </div>
+                <div class="campaign-performance-layout">
+                  <div class="campaign-list-column">
+                    <div class="campaign-table-body">
+                      <div
+                        v-for="row in trafficDisplay"
+                        :key="row.referrer"
+                        class="campaign-row"
+                        :class="{ 'is-hovered': hoveredTrafficRow2 === row.referrer }"
+                        @mouseenter="hoveredTrafficRow2 = row.referrer"
+                        @mouseleave="hoveredTrafficRow2 = null"
+                        @click="toggleTrafficRow2(row.referrer)"
+                      >
+                        <Checkbox
+                          :model-value="isTrafficRow2Selected(row.referrer)"
+                          size="sm"
+                          class="custom-checkbox"
+                          @click.stop
+                          @update:model-value="toggleTrafficRow2(row.referrer)"
+                        />
+                        <div class="campaign-name-wrapper">
+                          <div class="campaign-name" style="display:flex;align-items:center;gap:6px;">
+                            <span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;" :style="{ background: trafficPieColors[trafficPieReferrerIndex[row.referrer] ?? 5] }" />
+                            {{ row.referrer }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="campaign-metrics-column">
+                    <div class="campaign-table-body">
+                      <div
+                        v-for="row in trafficDisplay"
+                        :key="row.referrer"
+                        class="campaign-metrics-row"
+                        :class="{ 'is-hovered': hoveredTrafficRow2 === row.referrer }"
+                        @mouseenter="hoveredTrafficRow2 = row.referrer"
+                        @mouseleave="hoveredTrafficRow2 = null"
+                      >
+                        <div class="metric-cell">{{ row.visitors.toLocaleString() }}</div>
+                        <div class="metric-cell">{{ row.submits !== null ? row.submits.toLocaleString() : '–' }}</div>
+                        <div class="metric-cell">{{ row.submitRate !== null ? row.submitRate + '%' : '–' }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="traffic-pie-chart">
+                <VueApexCharts
+                  type="donut"
+                  height="240"
+                  width="240"
+                  :options="trafficSubmitsPieOptions"
+                  :series="trafficSubmitsPieSeries"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Referring Sites -->
+          <div v-if="!sectionHasActiveFilters('referringSites')" class="referring-sites-card bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5 min-w-0 overflow-hidden">
+            <div class="section-header">
+              <h2 class="section-title">Referring Sites</h2>
+            </div>
+            <div v-if="hasReferringSitesSelection" class="campaign-filter-bar">
+              <Checkbox :model-value="allReferringSitesSelected" :indeterminate="isReferringSitesIndeterminate" size="sm" class="custom-checkbox" @update:model-value="toggleSelectAllReferringSites" />
+              <span class="selection-count">{{ selectedReferringSitesCount }} selected</span>
+              <button class="filter-btn" @click="applyReferringSitesFilter">Filter</button>
+            </div>
+            <div v-if="!hasReferringSitesSelection" class="campaign-headers-row">
+              <div class="campaign-list-header"><div class="header-cell">Site</div></div>
+              <div class="campaign-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="campaign-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="site in referringSitesDisplay" :key="site.site" class="campaign-row" :class="{ 'is-hovered': hoveredReferringSiteRow === site.site }" @mouseenter="hoveredReferringSiteRow = site.site" @mouseleave="hoveredReferringSiteRow = null" @click="toggleReferringSiteSelection(site.site)">
+                    <Checkbox :model-value="isReferringSiteSelected(site.site)" size="sm" class="custom-checkbox" @click.stop @update:model-value="toggleReferringSiteSelection(site.site)" />
+                    <div class="campaign-name-wrapper"><div class="campaign-name">{{ site.site }}</div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="campaign-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="site in referringSitesDisplay" :key="site.site" class="campaign-metrics-row" :class="{ 'is-hovered': hoveredReferringSiteRow === site.site }" @mouseenter="hoveredReferringSiteRow = site.site" @mouseleave="hoveredReferringSiteRow = null">
+                    <div class="metric-cell">{{ site.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ site.submits.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ site.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /Traffic Sources + Referring Sites Row -->
+
+        <!-- Browser Languages + Operating Systems Row -->
+        <div :class="['breakdown-modules-row', { 'single-column': sectionHasActiveFilters('browserLanguages') }]">
+          <!-- Browser Languages -->
+          <div v-if="!sectionHasActiveFilters('browserLanguages')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
+            <div class="section-header">
+              <h2 class="section-title">Browser Languages</h2>
+              <button class="view-all-btn" @click="openSubPage('browser-languages')">View All</button>
+            </div>
+            <div v-if="hasBrowserLanguagesSelection" class="campaign-filter-bar">
+              <Checkbox :model-value="allBrowserLanguagesSelected" :indeterminate="isBrowserLanguagesIndeterminate" size="sm" class="custom-checkbox" @update:model-value="toggleSelectAllBrowserLanguages" />
+              <span class="selection-count">{{ selectedBrowserLanguagesCount }} selected</span>
+              <button class="filter-btn" @click="applyBrowserLanguagesFilter">Filter</button>
+            </div>
+            <div v-if="!hasBrowserLanguagesSelection" class="campaign-headers-row">
+              <div class="breakdown-module-list-header"><div class="header-cell">Language</div></div>
+              <div class="breakdown-module-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="breakdown-module-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="lang in browserLanguagesDisplay" :key="lang.code" class="campaign-row" @mouseenter="setHoveredBrowserLanguage(lang.code)" @mouseleave="clearHoveredBrowserLanguage()" :class="{ 'is-hovered': hoveredBrowserLanguageCode === lang.code }" @click="toggleBrowserLanguageSelection(lang.code)">
+                    <Checkbox :model-value="isBrowserLanguageSelected(lang.code)" size="sm" class="custom-checkbox" @click.stop @update:model-value="toggleBrowserLanguageSelection(lang.code)" />
+                    <div class="campaign-name-wrapper"><div class="campaign-name">{{ lang.code }}</div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="breakdown-module-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="lang in browserLanguagesDisplay" :key="lang.code" class="campaign-metrics-row" @mouseenter="setHoveredBrowserLanguage(lang.code)" @mouseleave="clearHoveredBrowserLanguage()" :class="{ 'is-hovered': hoveredBrowserLanguageCode === lang.code }">
+                    <div class="metric-cell">{{ lang.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ lang.submits }}</div>
+                    <div class="metric-cell">{{ lang.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Operating Systems -->
+          <div v-if="!sectionHasActiveFilters('operatingSystems')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
+            <div class="section-header">
+              <h2 class="section-title">Operating Systems</h2>
+            </div>
+            <div v-if="hasOsSelection" class="campaign-filter-bar">
+              <Checkbox :model-value="allOsSelected" :indeterminate="isOsIndeterminate" size="sm" class="custom-checkbox" @update:model-value="toggleSelectAllOs" />
+              <span class="selection-count">{{ selectedOsCount }} selected</span>
+              <button class="filter-btn" @click="applyOperatingSystemsFilter">Filter</button>
+            </div>
+            <div v-if="!hasOsSelection" class="campaign-headers-row">
+              <div class="breakdown-module-list-header"><div class="header-cell">OS</div></div>
+              <div class="breakdown-module-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="breakdown-module-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="os in operatingSystemsDisplay" :key="os.name" class="campaign-row" :class="{ 'is-hovered': hoveredOsName === os.name }" @mouseenter="hoveredOsName = os.name" @mouseleave="hoveredOsName = null" @click="toggleOsSelection(os.name)">
+                    <Checkbox :model-value="isOsSelected(os.name)" size="sm" class="custom-checkbox" @click.stop @update:model-value="toggleOsSelection(os.name)" />
+                    <div class="campaign-name-wrapper"><div class="campaign-name">{{ os.name }}</div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="breakdown-module-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="os in operatingSystemsDisplay" :key="os.name" class="campaign-metrics-row" :class="{ 'is-hovered': hoveredOsName === os.name }" @mouseenter="hoveredOsName = os.name" @mouseleave="hoveredOsName = null">
+                    <div class="metric-cell">{{ os.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ os.submits.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ os.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visited Pages Row -->
+        <div class="breakdown-modules-row top-pages-row single-column">
+        <div v-if="!sectionHasActiveFilters('visitedPages')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
+          <div class="section-header">
+            <h2 class="section-title">Visited Pages</h2>
+            <button class="view-all-btn" @click="openSubPage('visited-pages')">View All</button>
+          </div>
+
+          <!-- Filter Bar - Full Width -->
+          <div v-if="hasVisitedPagesSelection" class="campaign-filter-bar">
+            <Checkbox
+              :model-value="allVisitedPagesSelected"
+              :indeterminate="isVisitedPagesIndeterminate"
+              size="sm"
+              class="custom-checkbox"
+              @update:model-value="toggleSelectAllVisitedPages"
+            />
+            <span class="selection-count">{{ selectedVisitedPagesCount }} selected</span>
+            <button class="filter-btn" @click="applyVisitedPagesFilter">
+              Filter
+            </button>
+          </div>
+
+          <!-- Table Headers -->
+          <div v-if="!hasVisitedPagesSelection" class="campaign-headers-row">
+            <div class="campaign-list-header">
+              <div class="header-cell">Page URL</div>
+            </div>
+            <div class="campaign-metrics-header">
+              <div class="header-cell numeric">Page Views</div>
+              <div class="header-cell numeric">Visitors</div>
+              <div class="header-cell numeric">{{ labelSubmits }}</div>
+              <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+            </div>
+          </div>
+
+          <div class="campaign-performance-layout">
+            <!-- Left Column: Page URLs -->
+            <div class="campaign-list-column">
+              <div class="campaign-table-body">
+                <div
+                  v-for="page in visitedPagesDisplay"
+                  :key="page.url"
+                  class="campaign-row"
+                  @mouseenter="setHoveredVisitedPage(page.url)"
+                  @mouseleave="clearHoveredVisitedPage()"
+                  :class="{ 'is-hovered': hoveredVisitedPageUrl === page.url }"
+                  @click="toggleVisitedPageSelection(page.url)"
+                >
+                  <Checkbox
+                    :model-value="isVisitedPageSelected(page.url)"
+                    size="sm"
+                    class="custom-checkbox"
+                    @click.stop
+                    @update:model-value="toggleVisitedPageSelection(page.url)"
+                  />
+                  <div class="campaign-name-wrapper">
+                    <a :href="page.url" target="_blank" class="campaign-name-with-icon" @click.stop>
+                      <div class="campaign-name">{{ page.url }}</div>
+                      <ExternalLink
+                        :size="14"
+                        class="campaign-link-icon"
+                      />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Metrics -->
+            <div class="campaign-metrics-column">
+              <div class="campaign-table-body">
+                <div
+                  v-for="page in visitedPagesDisplay"
+                  :key="page.url"
+                  class="campaign-metrics-row"
+                  @mouseenter="setHoveredVisitedPage(page.url)"
+                  @mouseleave="clearHoveredVisitedPage()"
+                  :class="{ 'is-hovered': hoveredVisitedPageUrl === page.url }"
+                >
+                  <div class="metric-cell">{{ page.pageViews.toLocaleString() }}</div>
+                  <div class="metric-cell">{{ page.visitors.toLocaleString() }}</div>
+                  <div class="metric-cell">{{ page.submits }}</div>
+                  <div class="metric-cell">{{ page.conversionRate }}%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+
+        <!-- UTM Modules Row -->
+        <div :class="['breakdown-modules-row', { 'single-column': sectionHasActiveFilters('utmCampaigns') || sectionHasActiveFilters('utmSources') }]">
+          <!-- UTM Campaigns -->
+          <div v-if="!sectionHasActiveFilters('utmCampaigns')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
+            <div class="section-header">
+              <h2 class="section-title">UTM Campaigns</h2>
+              <button class="view-all-btn" @click="openSubPage('utm-campaigns')">View All</button>
+            </div>
+
+            <!-- Filter Bar - Full Width -->
+            <div v-if="hasUtmCampaignsSelection" class="campaign-filter-bar">
+              <Checkbox
+                :model-value="allUtmCampaignsSelected"
+                :indeterminate="isUtmCampaignsIndeterminate"
+                size="sm"
+                class="custom-checkbox"
+                @update:model-value="toggleSelectAllUtmCampaigns"
+              />
+              <span class="selection-count">{{ selectedUtmCampaignsCount }} selected</span>
+              <button class="filter-btn" @click="applyUtmCampaignsFilter">
+                Filter
+              </button>
+            </div>
+
+            <!-- Table Headers -->
+            <div v-if="!hasUtmCampaignsSelection" class="campaign-headers-row">
+              <div class="breakdown-module-list-header">
+                <div class="header-cell">Campaign</div>
+              </div>
+              <div class="breakdown-module-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+
+            <div class="campaign-performance-layout">
+              <!-- Left Column: Campaign Names -->
+              <div class="breakdown-module-list-column">
+                <div class="campaign-table-body">
+                  <div
+                    v-for="campaign in utmCampaignsDisplay"
+                    :key="campaign.name"
+                    class="campaign-row"
+                    @mouseenter="setHoveredUtmCampaign(campaign.name)"
+                    @mouseleave="clearHoveredUtmCampaign()"
+                    :class="{ 'is-hovered': hoveredUtmCampaignName === campaign.name }"
+                    @click="toggleUtmCampaignSelection(campaign.name)"
+                  >
+                    <Checkbox
+                      :model-value="isUtmCampaignSelected(campaign.name)"
+                      size="sm"
+                      class="custom-checkbox"
+                      @click.stop
+                      @update:model-value="toggleUtmCampaignSelection(campaign.name)"
+                    />
+                    <div class="campaign-name-wrapper">
+                      <div class="campaign-name">{{ campaign.name }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Metrics -->
+              <div class="breakdown-module-metrics-column">
+                <div class="campaign-table-body">
+                  <div
+                    v-for="campaign in utmCampaignsDisplay"
+                    :key="campaign.name"
+                    class="campaign-metrics-row"
+                    @mouseenter="setHoveredUtmCampaign(campaign.name)"
+                    @mouseleave="clearHoveredUtmCampaign()"
+                    :class="{ 'is-hovered': hoveredUtmCampaignName === campaign.name }"
+                  >
+                    <div class="metric-cell">{{ campaign.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ campaign.submits }}</div>
+                    <div class="metric-cell">{{ campaign.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- UTM Sources -->
+          <div v-if="!sectionHasActiveFilters('utmSources')" class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] pt-5 pb-5">
+            <div class="section-header">
+              <h2 class="section-title">UTM Sources</h2>
+              <button class="view-all-btn" @click="openSubPage('utm-sources')">View All</button>
+            </div>
+
+            <!-- Filter Bar - Full Width -->
+            <div v-if="hasUtmSourcesSelection" class="campaign-filter-bar">
+              <Checkbox
+                :model-value="allUtmSourcesSelected"
+                :indeterminate="isUtmSourcesIndeterminate"
+                size="sm"
+                class="custom-checkbox"
+                @update:model-value="toggleSelectAllUtmSources"
+              />
+              <span class="selection-count">{{ selectedUtmSourcesCount }} selected</span>
+              <button class="filter-btn" @click="applyUtmSourcesFilter">
+                Filter
+              </button>
+            </div>
+
+            <!-- Table Headers -->
+            <div v-if="!hasUtmSourcesSelection" class="campaign-headers-row">
+              <div class="breakdown-module-list-header">
+                <div class="header-cell">Source</div>
+              </div>
+              <div class="breakdown-module-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+
+            <div class="campaign-performance-layout">
+              <!-- Left Column: Source Names -->
+              <div class="breakdown-module-list-column">
+                <div class="campaign-table-body">
+                  <div
+                    v-for="source in utmSourcesDisplay"
+                    :key="source.name"
+                    class="campaign-row"
+                    @mouseenter="setHoveredUtmSource(source.name)"
+                    @mouseleave="clearHoveredUtmSource()"
+                    :class="{ 'is-hovered': hoveredUtmSourceName === source.name }"
+                    @click="toggleUtmSourceSelection(source.name)"
+                  >
+                    <Checkbox
+                      :model-value="isUtmSourceSelected(source.name)"
+                      size="sm"
+                      class="custom-checkbox"
+                      @click.stop
+                      @update:model-value="toggleUtmSourceSelection(source.name)"
+                    />
+                    <div class="campaign-name-wrapper">
+                      <div class="campaign-name">{{ source.name }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Metrics -->
+              <div class="breakdown-module-metrics-column">
+                <div class="campaign-table-body">
+                  <div
+                    v-for="source in utmSourcesDisplay"
+                    :key="source.name"
+                    class="campaign-metrics-row"
+                    @mouseenter="setHoveredUtmSource(source.name)"
+                    @mouseleave="clearHoveredUtmSource()"
+                    :class="{ 'is-hovered': hoveredUtmSourceName === source.name }"
+                  >
+                    <div class="metric-cell">{{ source.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ source.submits }}</div>
+                    <div class="metric-cell">{{ source.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-page view -->
+      <div v-else class="analytics-outer w-full max-w-[1400px] mx-auto -mt-3">
+        <!-- Sub-page: Header -->
+        <div class="flex items-center justify-between mb-5 max-960:flex-col max-960:items-start max-960:gap-3">
+          <div class="flex items-center gap-3">
+            <button
+              @click="currentSubPage = null"
+              class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-om-gray-100 text-om-gray-500 hover:text-om-gray-700 transition-colors"
+            >
+              <ChevronLeft :size="20" />
+            </button>
+            <h1 class="text-2xl max-960:text-xl font-semibold text-om-gray-700">{{ subPageTitle }}</h1>
+          </div>
+          <div class="status-badge">
+            <RefreshCw :size="16" class="status-badge-icon" />
+            <p class="status-text">Freshly loaded data</p>
+          </div>
+        </div>
+
+        <!-- Sub-page: Filters -->
+        <div class="filters-section mb-6">
+          <div class="flex items-center gap-3">
+            <div class="shrink-0" style="width:200px">
+              <Dropdown v-model="selectedDomain" :options="domains" placeholder="Select domain">
+                <template #icon>
+                  <div class="w-5 h-5 rounded-full bg-[#7AAF8A] flex items-center justify-center shrink-0">
+                    <Dice5 :size="12" class="text-white" />
+                  </div>
+                </template>
+              </Dropdown>
+            </div>
+          </div>
+          <div class="filters-right">
+            <Dropdown v-model="selectedGoal" :options="goals" placeholder="Select goal">
+              <template #icon><Target :size="20" class="text-om-gray-400" /></template>
+            </Dropdown>
+            <Dropdown v-model="selectedPeriod" :options="periods" placeholder="Select period">
+              <template #icon><Calendar :size="20" class="text-om-gray-400" /></template>
+            </Dropdown>
+          </div>
+        </div>
+
+
+        <!-- Traffic Sources KPI summary -->
+        <div v-if="currentSubPage === 'traffic-sources'" class="grid grid-cols-4 gap-4 mb-4">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Sources</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">20</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +3</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Visitors</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">127,446</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +8.2%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">{{ labelTotalSubmits }}</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">2,299</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +11.4%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Top Source</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">Paid Search</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +2.18%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Countries KPI summary -->
+        <div v-if="currentSubPage === 'countries'" class="grid grid-cols-4 gap-4 mb-4">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Countries</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">24</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +2</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Visitors</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">26,002</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +12.5%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">{{ labelAvgSubmitRate }}</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">1.87%</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#E4252D]"><TrendingDown :size="12" /> -0.4%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Top Country</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">Hungary</div>
+              <div class="text-xs text-om-gray-400">(12,427 visitors)</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +5.2%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visited Pages KPI summary -->
+        <div v-if="currentSubPage === 'visited-pages'" class="grid grid-cols-4 gap-4 mb-4">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Pages</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">30</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +5</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Page Views</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">486,231</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +9.3%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Visitors</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">348,904</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +7.1%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Top Page</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700 truncate">/shop_search.php</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77] shrink-0"><TrendingUp :size="12" /> +14.2%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Landing Pages KPI summary -->
+        <div v-if="currentSubPage === 'landing-pages'" class="grid grid-cols-4 gap-4 mb-4">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Landing Pages</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">25</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +3</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Visitors</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">312,547</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +12.1%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">{{ labelTotalSubmits }}</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">2,184</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +8.7%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Top Landing Page</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700 truncate">tabletopshop.com</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77] shrink-0"><TrendingUp :size="12" /> +6.8%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Browser Languages KPI summary -->
+        <div v-if="currentSubPage === 'browser-languages'" class="grid grid-cols-4 gap-4 mb-4">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Languages</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">25</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +2</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Visitors</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">218,604</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +6.4%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">{{ labelAvgSubmitRate }}</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">0.71%</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#E4252D]"><TrendingDown :size="12" /> -0.3%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Top Language</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">hu-HU</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +5.1%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- UTM Campaigns KPI summary -->
+        <div v-if="currentSubPage === 'utm-campaigns'" class="grid grid-cols-4 gap-4 mb-4">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Campaigns</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">25</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +4</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Visitors</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">284,319</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +14.2%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">{{ labelTotalSubmits }}</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">1,947</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +9.8%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Top Campaign</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700 truncate">olcsobbat_shopping</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77] shrink-0"><TrendingUp :size="12" /> +18.3%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- UTM Sources KPI summary -->
+        <div v-if="currentSubPage === 'utm-sources'" class="grid grid-cols-4 gap-4 mb-4">
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Sources</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">25</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +3</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Total Visitors</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">261,874</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +11.7%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">{{ labelTotalSubmits }}</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">1,823</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +8.3%</div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] px-5 py-4">
+            <div class="text-xs text-om-gray-400 font-medium mb-2">Top Source</div>
+            <div class="flex items-baseline gap-2">
+              <div class="text-xl font-semibold text-om-gray-700">facebook</div>
+              <div class="flex items-center gap-0.5 text-xs font-medium text-[#239E77]"><TrendingUp :size="12" /> +22.1%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-page content card -->
+        <div class="subpage-table bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden">
+
+          <!-- Search bar -->
+          <div class="px-6 py-3 border-b border-om-gray-100 flex items-center justify-between">
+            <div class="relative">
+              <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-700 pointer-events-none" />
+              <input
+                v-model="subPageSearch"
+                type="text"
+                :placeholder="`Search ${subPageTitle}...`"
+                class="pl-9 pr-4 py-2 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 w-56"
+              />
+            </div>
+            <Button variant="secondary" size="sm">
+              <template #icon><Download :size="15" /></template>
+              Export
+            </Button>
+          </div>
+
+
+          <!-- Traffic Sources sub-page -->
+          <div v-if="currentSubPage === 'traffic-sources'">
+            <div class="campaign-headers-row">
+              <div class="campaign-list-header"><div class="header-cell">Source</div></div>
+              <div class="campaign-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="campaign-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="row in filteredTrafficSources" :key="row.referrer" class="campaign-row">
+                    <div class="campaign-name-wrapper">
+                      <div class="campaign-name">{{ row.referrer }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="campaign-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="row in filteredTrafficSources" :key="row.referrer" class="campaign-metrics-row">
+                    <div class="metric-cell">{{ row.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ row.submits !== null ? row.submits.toLocaleString() : '–' }}</div>
+                    <div class="metric-cell">{{ row.submitRate !== null ? row.submitRate + '%' : '–' }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Countries sub-page -->
+          <div v-else-if="currentSubPage === 'countries'">
+            <div class="campaign-headers-row">
+              <div class="campaign-list-header">
+                <div class="header-cell">Country</div>
+              </div>
+              <div class="campaign-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="campaign-list-column">
+                <div class="campaign-table-body">
+                  <div
+                    v-for="row in filteredCountries"
+                    :key="row.country"
+                    class="campaign-row"
+                    :class="{ 'is-hovered': hoveredCountriesRow === row.country }"
+                    @mouseenter="hoveredCountriesRow = row.country"
+                    @mouseleave="hoveredCountriesRow = null"
+                  >
+                    <div class="campaign-name-wrapper">
+                      <div class="flex items-center gap-2">
+                        <img
+                          v-if="getFlagUrl(row.country)"
+                          :src="getFlagUrl(row.country)"
+                          :alt="row.country"
+                          class="w-5 h-5 rounded-full object-cover shrink-0 ring-1 ring-om-gray-200"
+                        />
+                        <div class="campaign-name">{{ row.country }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="campaign-metrics-column">
+                <div class="campaign-table-body">
+                  <div
+                    v-for="row in filteredCountries"
+                    :key="row.country"
+                    class="campaign-metrics-row"
+                    :class="{ 'is-hovered': hoveredCountriesRow === row.country }"
+                    @mouseenter="hoveredCountriesRow = row.country"
+                    @mouseleave="hoveredCountriesRow = null"
+                  >
+                    <div class="metric-cell">{{ row.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ row.submits !== null ? row.submits.toLocaleString() : '–' }}</div>
+                    <div class="metric-cell">{{ row.submitRate !== null ? row.submitRate + '%' : '–' }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Visited Pages sub-page -->
+          <div v-else-if="currentSubPage === 'visited-pages'">
+            <div class="campaign-headers-row">
+              <div class="campaign-list-header"><div class="header-cell">Page URL</div></div>
+              <div class="campaign-metrics-header">
+                <div class="header-cell numeric">Page Views</div>
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="campaign-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="page in filteredVisitedPages" :key="page.url" class="campaign-row">
+                    <div class="campaign-name-wrapper">
+                      <a :href="page.url" target="_blank" class="campaign-name-with-icon" @click.stop>
+                        <div class="campaign-name">{{ page.url }}</div>
+                        <ExternalLink :size="14" class="campaign-link-icon" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="campaign-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="page in filteredVisitedPages" :key="page.url" class="campaign-metrics-row">
+                    <div class="metric-cell">{{ page.pageViews.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ page.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ page.submits }}</div>
+                    <div class="metric-cell">{{ page.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Landing Pages sub-page -->
+          <div v-else-if="currentSubPage === 'landing-pages'">
+            <div class="campaign-headers-row">
+              <div class="campaign-list-header"><div class="header-cell">Landing Page</div></div>
+              <div class="campaign-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="campaign-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="page in filteredLandingPages" :key="page.url" class="campaign-row">
+                    <div class="campaign-name-wrapper">
+                      <a :href="page.url" target="_blank" class="campaign-name-with-icon" @click.stop>
+                        <div class="campaign-name">{{ page.url }}</div>
+                        <ExternalLink :size="14" class="campaign-link-icon" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="campaign-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="page in filteredLandingPages" :key="page.url" class="campaign-metrics-row">
+                    <div class="metric-cell">{{ page.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ page.submits }}</div>
+                    <div class="metric-cell">{{ page.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Browser Languages sub-page -->
+          <div v-else-if="currentSubPage === 'browser-languages'">
+            <div class="campaign-headers-row">
+              <div class="campaign-list-header"><div class="header-cell">Language</div></div>
+              <div class="campaign-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="campaign-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="lang in filteredBrowserLanguages" :key="lang.code" class="campaign-row">
+                    <div class="campaign-name-wrapper">
+                      <div class="campaign-name">{{ lang.code }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="campaign-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="lang in filteredBrowserLanguages" :key="lang.code" class="campaign-metrics-row">
+                    <div class="metric-cell">{{ lang.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ lang.submits }}</div>
+                    <div class="metric-cell">{{ lang.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- UTM Campaigns sub-page -->
+          <div v-else-if="currentSubPage === 'utm-campaigns'">
+            <div class="campaign-headers-row">
+              <div class="campaign-list-header"><div class="header-cell">Campaign</div></div>
+              <div class="campaign-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="campaign-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="campaign in filteredUtmCampaigns" :key="campaign.name" class="campaign-row">
+                    <div class="campaign-name-wrapper">
+                      <div class="campaign-name">{{ campaign.name }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="campaign-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="campaign in filteredUtmCampaigns" :key="campaign.name" class="campaign-metrics-row">
+                    <div class="metric-cell">{{ campaign.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ campaign.submits }}</div>
+                    <div class="metric-cell">{{ campaign.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- UTM Sources sub-page -->
+          <div v-else-if="currentSubPage === 'utm-sources'">
+            <div class="campaign-headers-row">
+              <div class="campaign-list-header"><div class="header-cell">Source</div></div>
+              <div class="campaign-metrics-header">
+                <div class="header-cell numeric">Visitors</div>
+                <div class="header-cell numeric">{{ labelSubmits }}</div>
+                <div class="header-cell numeric"><span class="sr-full">{{ labelSubmitRate }}</span><span class="sr-short">{{ labelSubmitRateShort }}</span></div>
+              </div>
+            </div>
+            <div class="campaign-performance-layout">
+              <div class="campaign-list-column">
+                <div class="campaign-table-body">
+                  <div v-for="source in filteredUtmSources" :key="source.name" class="campaign-row">
+                    <div class="campaign-name-wrapper">
+                      <div class="campaign-name">{{ source.name }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="campaign-metrics-column">
+                <div class="campaign-table-body">
+                  <div v-for="source in filteredUtmSources" :key="source.name" class="campaign-metrics-row">
+                    <div class="metric-cell">{{ source.visitors.toLocaleString() }}</div>
+                    <div class="metric-cell">{{ source.submits }}</div>
+                    <div class="metric-cell">{{ source.conversionRate }}%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    <AddDomainModal v-model="showAddDomainModal" @add="handleNewDomain" />
+  </AgenticShell>
+</template>
+
+<script setup>
+import { ref, reactive, computed, watch, nextTick } from 'vue'
+import { ExternalLink, ChevronDown, ChevronRight, ChevronLeft, Target, Calendar, RefreshCw, TrendingUp, TrendingDown, X, Dice5, Search, Download, Plus, Monitor, Globe, Tag, MousePointerClick, BarChart3, Smartphone, FileText, Languages, Laptop, Link, Megaphone, AppWindow, Users, Save, Trash2, MessageCircle, Filter, FlaskConical, Clock, RotateCw, Facebook, Route, Sparkles, LayoutGrid, Layers, Info, ClipboardList, ShieldAlert, Eye, Wand2, ArrowDown, ArrowLeft, ShieldCheck, Truck } from 'lucide-vue-next'
+
+const insightIcons = {
+  1: MessageCircle,
+  2: MousePointerClick,
+  3: Filter,
+  4: FlaskConical,
+  5: Monitor,
+  6: Clock,
+  7: RotateCw,
+  8: Facebook,
+  9: Target,
+  10: Search,
+  11: Route,
+  12: Tag,
+  13: Sparkles,
+  14: LayoutGrid,
+  15: Layers,
+  16: Info,
+  17: ClipboardList,
+  18: ShieldAlert,
+  19: Smartphone,
+  20: Eye,
+  21: Wand2,
+  22: ArrowDown,
+  23: BarChart3,
+  24: ShieldCheck,
+  25: Globe,
+  26: Truck,
+}
+import AgenticShell from '../components/AgenticShell.vue'
+import Button from '../components/shared/Button.vue'
+import Checkbox from '../components/shared/Checkbox.vue'
+import Dropdown from '../components/shared/Dropdown.vue'
+import Tooltip from '../components/shared/Tooltip.vue'
+import VueApexCharts from 'vue3-apexcharts'
+import AddDomainModal from '../components/shared/AddDomainModal.vue'
+import { croInsights } from '../data/croInsights.js'
+
+const props = defineProps({
+  goal: {
+    type: String,
+    default: 'submits'
+  }
+})
+
+const emit = defineEmits(['menu-click', 'navigate-to-opportunity', 'navigate-to-opportunities', 'navigate-to-goal'])
+
+const backToInsights = () => { window.location.hash = '#/agentic/insights' }
+
+const isChatOpen = ref(false)
+
+const chatSuggestions = [
+  'What drove the conversion rate change this week?',
+  'Which page has the highest drop-off rate?',
+  'How can I improve my assisted revenue?',
+  'What are my top performing campaigns?',
+  'Show me trends for the last 30 days',
+]
+
+const chatAiResponses = {
+  'What drove the conversion rate change this week?': 'Your conversion rate increased by **+0.12%** this week, driven mainly by two factors:\n\n**1. Smart Discount Popup** — updated CTA copy boosted its submit rate from 7.1% to 8.4%\n\n**2. Mobile traffic share** — down 8% this week, which raises the overall rate since desktop converts significantly better.\n\nWould you like a breakdown by device or campaign?',
+  'Which page has the highest drop-off rate?': 'Based on your visited pages data, **/checkout** has the highest drop-off rate at **78%** — meaning only 22% of visitors who land there complete a purchase.\n\nThe second highest is **/cart** at **64%**. I\'d recommend deploying a cart abandonment popup on both pages to recover some of these visitors.',
+  'How can I improve my assisted revenue?': 'Your current assisted revenue is **$23,274**, up 15.8% month-over-month. To accelerate growth:\n\n**1. Upsell campaigns** — Add a post-purchase upsell popup to your thank-you page.\n**2. Expand to email captures** — Visitors who opt in convert at 3× the rate of anonymous traffic.\n**3. Increase campaign frequency** — Your current campaigns reach only 34% of your visitors.',
+  'What are my top performing campaigns?': 'Your top 3 campaigns by conversion rate this period:\n\n**1. Smart Discount Popup** — 8.37% conversion rate, +84% uplift\n**2. Black Friday 2025** — 5.2% conversion rate, +56% uplift\n**3. Exit Intent Offer** — 4.8% conversion rate, +41% uplift\n\nAll three are active and performing above your account average of 3.2%.',
+  'Show me trends for the last 30 days': 'Over the last 30 days:\n\n- **Impressions:** +12% (↑ trending)\n- **Conversion rate:** +0.57% (↑ trending)\n- **Submits:** +18% (↑ trending)\n- **Supported revenue:** +15.8% (↑ trending)\n\nAll key metrics are trending positively. The biggest growth driver is your Black Friday campaign which launched 2 weeks ago.',
+}
+
+const impactPriority = { Large: 5, 'Medium to large': 4, Medium: 3, 'Small to medium': 2, Small: 1 }
+const optimizationOpportunities = computed(() =>
+  [...croInsights]
+    .sort((a, b) => (impactPriority[b.value] ?? 0) - (impactPriority[a.value] ?? 0) || a.id - b.id)
+    .slice(0, 4)
+)
+
+const activeTab = ref('conversion-rate')
+
+// Domain selector
+const selectedDomain = ref('tabletopshop.com')
+const domains = ref([
+  'tabletopshop.com',
+  'telekom.hu',
+  'shop.telekom.hu',
+  'demo.optimonk.com',
+  '+ Add new domain'
+])
+const showAddDomainModal = ref(false)
+watch(selectedDomain, (val) => {
+  if (val === '+ Add new domain') {
+    selectedDomain.value = domains.value[0]
+    showAddDomainModal.value = true
+  }
+})
+const handleNewDomain = (newDomain) => {
+  const insertIdx = domains.value.indexOf('+ Add new domain')
+  domains.value.splice(insertIdx, 0, newDomain)
+  selectedDomain.value = newDomain
+}
+
+// Goal-specific labels
+const isPurchase = props.goal === 'purchase'
+const isAddToCart = props.goal === 'add-to-cart'
+const isEmailCapture = props.goal === 'email-capture'
+const isPhoneCapture = props.goal === 'phone-capture'
+const isSubmit = !isPurchase && !isAddToCart && !isEmailCapture && !isPhoneCapture
+const labelSubmits = isPurchase ? 'Orders' : isAddToCart ? 'Add to carts' : isEmailCapture ? 'Email capture' : isPhoneCapture ? 'Phone capture' : 'Submits'
+const labelSubmitRate = isPurchase ? 'Conversion Rate' : isAddToCart ? 'Add to cart Rate' : isEmailCapture ? 'Email capture rate' : isPhoneCapture ? 'Phone capture rate' : 'Submit Rate'
+const labelSubmitRateShort = isPurchase ? 'Conv. R.' : isAddToCart ? 'ATC Rate' : isEmailCapture ? 'ECR' : isPhoneCapture ? 'PCR' : 'Sub. R.'
+const labelTotalSubmits = isPurchase ? 'Total Orders' : isAddToCart ? 'Total Add to carts' : isEmailCapture ? 'Total Email captures' : isPhoneCapture ? 'Total Phone captures' : 'Total Submits'
+const labelAvgSubmitRate = isPurchase ? 'Avg Conversion Rate' : isAddToCart ? 'Avg ATC Rate' : isEmailCapture ? 'Avg Email capture rate' : isPhoneCapture ? 'Avg Phone capture rate' : 'Avg Submit Rate'
+
+// Goal dropdown
+const goalRouteMap = {
+  'Submit': 'submits',
+  'Order': 'purchase',
+  'Add to cart': 'add-to-cart',
+  'Email capture': 'email-capture',
+  'Phone capture': 'phone-capture',
+}
+const goalLabelMap = Object.fromEntries(Object.entries(goalRouteMap).map(([k, v]) => [v, k]))
+
+const goals = ref(Object.keys(goalRouteMap))
+const selectedGoal = ref(goalLabelMap[props.goal] ?? 'Submit')
+
+watch(selectedGoal, (label) => {
+  const route = goalRouteMap[label]
+  if (route) emit('navigate-to-goal', route)
+})
+
+// Period dropdown
+const selectedPeriod = ref('Last 30 days')
+const periods = ref([
+  'Yesterday',
+  'Last 7 days',
+  'Last 30 days',
+  'Last month',
+  'Last year',
+  'Custom period'
+])
+
+// Predefined filters
+const activePredefinedFilter = ref(null)
+const predefinedFilters = reactive([])
+
+const removePredefinedFilter = (value) => {
+  predefinedFilters.splice(predefinedFilters.findIndex(f => f.value === value), 1)
+  if (activePredefinedFilter.value === value) {
+    activePredefinedFilter.value = null
+  }
+  if (predefinedFilters.length === 0) {
+    activeSegmentName.value = 'All visitors'
+  }
+}
+
+// Add filter dropdown
+const showAddFilterDropdown = ref(false)
+const filterDropdownStep = ref('categories')
+const filterDropdownSearch = ref('')
+const selectedFilterCategory = ref(null)
+const filterDropdownSelected = ref([])
+const addedQuickFilters = ref([])
+const editingFilterIndex = ref(null)
+
+const allFilterOptions = [
+  { value: 'device', label: 'Device', icon: Smartphone, values: ['Mobile', 'Desktop', 'Tablet'] },
+  { value: 'traffic-source', label: 'Traffic source', icon: Globe, values: ['Google', 'Facebook', 'Instagram', 'Direct', 'Email', 'TikTok', 'Twitter/X', 'LinkedIn'] },
+  { value: 'country', label: 'Country', icon: Globe, values: ['Hungary', 'United States', 'Germany', 'United Kingdom', 'France', 'Austria', 'Romania', 'Slovakia'] },
+  { value: 'visitor-type', label: 'Visitor type', icon: MousePointerClick, values: ['New visitors', 'Returning visitors'] },
+  { value: 'campaign', label: 'Campaign', icon: Monitor, freeText: true, values: ['Smart Discount Popup', 'Black Friday 2025', 'Exit Intent Offer', 'Welcome Popup', 'Newsletter Signup', 'Cart Abandonment'] },
+  { value: 'campaign-type', label: 'Campaign type', icon: MousePointerClick, values: ['Popup', 'Embedded', 'Fullscreen', 'Sticky bar', 'Side message'] },
+  { value: 'conversion-goal', label: 'Conversion goal', icon: BarChart3, values: ['Purchase', 'Add to cart', 'Email capture', 'Phone capture', 'Submit'] },
+  { value: 'landing-page', label: 'Landing page', icon: FileText, freeText: true, values: ['/home', '/products', '/collections/sale', '/cart', '/checkout', '/about', '/contact', '/blog'] },
+  { value: 'browser-language', label: 'Browser language', icon: Languages, values: ['en', 'hu', 'de', 'fr', 'es', 'ro', 'sk', 'pl'] },
+  { value: 'operating-system', label: 'Operating system', icon: Laptop, values: ['Windows', 'macOS', 'iOS', 'Android', 'Linux'] },
+  { value: 'browser', label: 'Browser', icon: AppWindow, values: ['Chrome', 'Safari', 'Firefox', 'Edge', 'Opera', 'Samsung Internet'] },
+  { value: 'visited-page', label: 'Visited page', icon: FileText, freeText: true, values: ['/home', '/products', '/collections/sale', '/cart', '/checkout', '/about', '/contact', '/blog'] },
+  { value: 'referring-site', label: 'Referring site', icon: Link, freeText: true, values: ['google.com', 'facebook.com', 'instagram.com', 'tiktok.com', 'pinterest.com', 'reddit.com', 'twitter.com'] },
+  { value: 'utm-campaign', label: 'UTM campaign', icon: Megaphone, freeText: true, values: ['summer_sale_2025', 'black_friday', 'spring_launch', 'newsletter_jan', 'retargeting_q1', 'brand_awareness'] },
+  { value: 'utm-source', label: 'UTM source', icon: Megaphone, freeText: true, values: ['google', 'facebook', 'instagram', 'email', 'tiktok', 'linkedin', 'twitter'] },
+]
+
+const filteredCategories = computed(() => {
+  const q = filterDropdownSearch.value.toLowerCase()
+  if (!q) return allFilterOptions
+  return allFilterOptions.filter(c => c.label.toLowerCase().includes(q))
+})
+
+const filteredValues = computed(() => {
+  if (!selectedFilterCategory.value) return []
+  const q = filterDropdownSearch.value.toLowerCase()
+  const vals = selectedFilterCategory.value.values
+  if (!q) return vals
+  return vals.filter(v => v.toLowerCase().includes(q))
+})
+
+const toggleFilterDropdown = () => {
+  showAddFilterDropdown.value = !showAddFilterDropdown.value
+  if (showAddFilterDropdown.value) {
+    filterDropdownStep.value = 'categories'
+    filterDropdownSearch.value = ''
+    selectedFilterCategory.value = null
+    filterDropdownSelected.value = []
+    editingFilterIndex.value = null
+  }
+}
+
+const closeFilterDropdown = () => {
+  showAddFilterDropdown.value = false
+}
+
+const allFilterConditions = [
+  { value: 'is', label: 'Is' },
+  { value: 'is-not', label: 'Is not' },
+  { value: 'contains', label: 'Contains' },
+  { value: 'not-contains', label: 'Does not contain' },
+]
+const selectedFilterCondition = ref('is')
+
+const filterConditions = computed(() => {
+  const cat = selectedFilterCategory.value
+  if (cat?.freeText) return allFilterConditions
+  return allFilterConditions.filter(c => c.value === 'is' || c.value === 'is-not')
+})
+
+const isFreeTextMode = computed(() => {
+  const cat = selectedFilterCategory.value
+  return !!cat?.freeText
+})
+
+const showValuesSearch = computed(() => {
+  const cat = selectedFilterCategory.value
+  return !isFreeTextMode.value && cat && cat.values.length >= 10
+})
+
+const freeTextInput = ref('')
+const addFreeTextValue = () => {
+  const val = freeTextInput.value.trim()
+  if (val && !filterDropdownSelected.value.includes(val)) {
+    filterDropdownSelected.value.push(val)
+  }
+  freeTextInput.value = ''
+}
+
+const selectFilterCategory = (cat) => {
+  selectedFilterCategory.value = cat
+  filterDropdownStep.value = 'values'
+  filterDropdownSearch.value = ''
+  filterDropdownSelected.value = []
+  selectedFilterCondition.value = 'is'
+}
+
+const toggleFilterValue = (val) => {
+  const idx = filterDropdownSelected.value.indexOf(val)
+  if (idx >= 0) {
+    filterDropdownSelected.value.splice(idx, 1)
+  } else {
+    filterDropdownSelected.value.push(val)
+  }
+}
+
+const buildFilterLabel = (catLabel, condLabel, values) => {
+  const valStr = values.length <= 2 ? values.join(', ') : `${values.length} selected`
+  return `${catLabel} ${condLabel.toLowerCase()} ${valStr}`
+}
+
+const applyDropdownFilter = () => {
+  const cat = selectedFilterCategory.value
+  const cond = allFilterConditions.find(c => c.value === selectedFilterCondition.value)
+  const vals = [...filterDropdownSelected.value]
+  const label = buildFilterLabel(cat.label, cond.label, vals)
+
+  if (editingFilterIndex.value !== null) {
+    const f = predefinedFilters[editingFilterIndex.value]
+    f.category = cat.value
+    f.condition = selectedFilterCondition.value
+    f.selectedValues = vals
+    f.label = label
+    f.value = `${cat.value}-${selectedFilterCondition.value}-${vals.join(',')}`
+    editingFilterIndex.value = null
+  } else {
+    predefinedFilters.push({
+      value: `${cat.value}-${selectedFilterCondition.value}-${vals.join(',')}`,
+      label,
+      category: cat.value,
+      condition: selectedFilterCondition.value,
+      selectedValues: vals,
+    })
+  }
+  showAddFilterDropdown.value = false
+}
+
+const editFilter = (f, idx) => {
+  editingFilterIndex.value = idx
+  const cat = allFilterOptions.find(o => o.value === f.category)
+  selectedFilterCategory.value = cat
+  selectedFilterCondition.value = f.condition
+  filterDropdownSelected.value = [...f.selectedValues]
+  filterDropdownStep.value = 'values'
+  filterDropdownSearch.value = ''
+  showAddFilterDropdown.value = true
+}
+
+const backToCategories = () => {
+  editingFilterIndex.value = null
+  filterDropdownStep.value = 'categories'
+  filterDropdownSearch.value = ''
+  selectedFilterCategory.value = null
+  filterDropdownSelected.value = []
+}
+
+// Saved segments
+const savedSegments = ref([
+  {
+    id: 'seg-mobile-hu',
+    name: 'Mobile visitors – Hungary',
+    filters: [
+      { value: 'device-is-Mobile', label: 'Device is Mobile', category: 'device', condition: 'is', selectedValues: ['Mobile'] },
+      { value: 'country-is-Hungary', label: 'Country is Hungary', category: 'country', condition: 'is', selectedValues: ['Hungary'] },
+    ],
+  },
+  {
+    id: 'seg-returning-desktop',
+    name: 'Returning desktop buyers',
+    filters: [
+      { value: 'device-is-Desktop', label: 'Device is Desktop', category: 'device', condition: 'is', selectedValues: ['Desktop'] },
+      { value: 'visitor-type-is-Returning visitors', label: 'Visitor type is Returning visitors', category: 'visitor-type', condition: 'is', selectedValues: ['Returning visitors'] },
+    ],
+  },
+])
+const showSegmentsDropdown = ref(false)
+const showSaveSegmentPopover = ref(false)
+const newSegmentName = ref('')
+const activeSegmentName = ref('All visitors')
+
+const toggleSegmentsDropdown = () => {
+  showSegmentsDropdown.value = !showSegmentsDropdown.value
+  if (showSegmentsDropdown.value) {
+    showAddFilterDropdown.value = false
+    showSaveSegmentPopover.value = false
+  }
+}
+
+const closeSegmentsDropdown = () => {
+  showSegmentsDropdown.value = false
+}
+
+const toggleSaveSegmentPopover = () => {
+  showSaveSegmentPopover.value = !showSaveSegmentPopover.value
+  if (showSaveSegmentPopover.value) {
+    newSegmentName.value = ''
+    showAddFilterDropdown.value = false
+    showSegmentsDropdown.value = false
+  }
+}
+
+const closeSaveSegmentPopover = () => {
+  showSaveSegmentPopover.value = false
+  newSegmentName.value = ''
+}
+
+const saveCurrentAsSegment = () => {
+  const name = newSegmentName.value.trim()
+  if (!name || predefinedFilters.length === 0) return
+  savedSegments.value.push({
+    id: `seg-${Date.now()}`,
+    name,
+    filters: predefinedFilters.map(f => ({ ...f, selectedValues: [...f.selectedValues] })),
+  })
+  activeSegmentName.value = name
+  newSegmentName.value = ''
+  showSaveSegmentPopover.value = false
+}
+
+const loadSegment = (seg) => {
+  predefinedFilters.splice(0, predefinedFilters.length,
+    ...seg.filters.map(f => ({ ...f, selectedValues: [...f.selectedValues] }))
+  )
+  activePredefinedFilter.value = null
+  activeSegmentName.value = seg.name
+  showSegmentsDropdown.value = false
+}
+
+const loadAllVisitors = () => {
+  predefinedFilters.splice(0, predefinedFilters.length)
+  activePredefinedFilter.value = null
+  activeSegmentName.value = 'All visitors'
+  showSegmentsDropdown.value = false
+}
+
+const deleteSegment = (id) => {
+  const seg = savedSegments.value.find(s => s.id === id)
+  const idx = savedSegments.value.findIndex(s => s.id === id)
+  if (idx >= 0) savedSegments.value.splice(idx, 1)
+  if (seg && activeSegmentName.value === seg.name) {
+    activeSegmentName.value = 'All visitors'
+    predefinedFilters.splice(0, predefinedFilters.length)
+  }
+}
+
+// Chart data - 30 days of conversion rate (0.4% to 0.8%)
+// Chart data for each metric
+const conversionRateData = [
+  0.52, 0.48, 0.51, 0.49, 0.53, 0.50, 0.47, 0.52, 0.55, 0.54,
+  0.51, 0.53, 0.56, 0.58, 0.57, 0.59, 0.61, 0.58, 0.56, 0.60,
+  0.62, 0.59, 0.57, 0.61, 0.63, 0.60, 0.58, 0.61, 0.59, 0.57
+]
+
+const submitsData = [
+  62, 58, 65, 59, 68, 61, 57, 64, 71, 69,
+  65, 68, 74, 79, 76, 81, 85, 80, 77, 84,
+  88, 82, 79, 86, 91, 85, 81, 87, 83, 80
+]
+
+const impressionsData = [
+  11234, 10987, 11456, 10876, 11789, 11123, 10765, 11345, 12123, 11876,
+  11567, 11987, 12456, 12876, 12567, 13123, 13567, 12987, 12456, 13234,
+  13678, 13123, 12876, 13456, 13987, 13456, 12987, 13567, 13234, 12876
+]
+
+const uniqueVisitorsData = [
+  4876, 4654, 4987, 4723, 5123, 4865, 4587, 4923, 5287, 5134,
+  5023, 5234, 5456, 5687, 5523, 5876, 6123, 5876, 5543, 5987,
+  6234, 5943, 5687, 6087, 6345, 6123, 5876, 6187, 5987, 5723
+]
+
+const supportedOrdersData = [
+  8, 7, 9, 7, 10, 8, 7, 9, 11, 10,
+  9, 10, 11, 12, 11, 13, 14, 12, 11, 13,
+  14, 12, 11, 13, 15, 13, 12, 14, 13, 12
+]
+
+const supportedRevenueData = [
+  642, 612, 703, 599, 734, 657, 591, 681, 794, 763,
+  727, 767, 819, 856, 825, 886, 947, 880, 819, 916,
+  977, 904, 849, 931, 1008, 947, 886, 962, 928, 880
+]
+
+const addToCartsData = [
+  312, 298, 334, 287, 356, 321, 305, 341, 378, 362,
+  348, 371, 389, 402, 385, 418, 437, 412, 395, 423,
+  445, 421, 408, 431, 458, 439, 417, 448, 433, 421
+]
+
+const addToCartRateData = [
+  3.1, 2.9, 3.3, 2.8, 3.5, 3.2, 3.0, 3.4, 3.7, 3.6,
+  3.4, 3.6, 3.8, 4.0, 3.8, 4.1, 4.3, 4.0, 3.9, 4.2,
+  4.4, 4.1, 4.0, 4.2, 4.5, 4.3, 4.1, 4.4, 4.2, 4.1
+]
+
+const emailCaptureData = [
+  421, 398, 445, 378, 463, 432, 411, 452, 487, 471,
+  459, 478, 502, 518, 494, 531, 557, 523, 508, 541,
+  563, 537, 519, 548, 574, 552, 531, 561, 544, 528
+]
+
+const emailCaptureRateData = [
+  2.4, 2.2, 2.6, 2.1, 2.7, 2.5, 2.3, 2.6, 2.9, 2.8,
+  2.7, 2.8, 3.0, 3.1, 2.9, 3.2, 3.3, 3.1, 3.0, 3.2,
+  3.4, 3.2, 3.1, 3.3, 3.5, 3.3, 3.2, 3.4, 3.3, 3.2
+]
+
+const phoneCaptureData = [
+  187, 172, 198, 163, 211, 193, 178, 204, 223, 215,
+  208, 219, 234, 241, 228, 251, 263, 247, 238, 256,
+  271, 254, 243, 261, 278, 265, 251, 268, 257, 248
+]
+
+const phoneCaptureRateData = [
+  1.1, 1.0, 1.2, 0.9, 1.3, 1.1, 1.0, 1.2, 1.4, 1.3,
+  1.2, 1.3, 1.4, 1.5, 1.4, 1.6, 1.6, 1.5, 1.4, 1.6,
+  1.7, 1.6, 1.5, 1.6, 1.7, 1.6, 1.5, 1.7, 1.6, 1.5
+]
+
+// Devices chart
+const devicesTableData = [
+  { type: 'Mobile',  visitors: 104367, submits: 1707, submitRate: 1.64 },
+  { type: 'Desktop', visitors: 32733,  submits: 797,  submitRate: 2.43 },
+]
+
+const devicesChartSeries = [
+  {
+    name: 'Submits',
+    data: [1707, 797],
+  }
+]
+
+const devicesChartOptions = {
+  chart: {
+    type: 'bar',
+    toolbar: { show: false },
+    fontFamily: 'inherit',
+  },
+  plotOptions: {
+    bar: {
+      borderRadius: 6,
+      barHeight: '60%',
+      distributed: true,
+      horizontal: true,
+    },
+  },
+  colors: ['#FF6A45', '#FF9E89'],
+  dataLabels: { enabled: false },
+  legend: { show: false },
+  xaxis: {
+    categories: ['Mobile', 'Desktop'],
+    axisBorder: { show: false },
+    axisTicks: { show: false },
+    labels: {
+      style: { colors: '#9CA3AF', fontSize: '12px' },
+      formatter: (val) => val >= 1000 ? `${(val / 1000).toFixed(0)}K` : val,
+    },
+  },
+  yaxis: {
+    labels: {
+      show: true,
+      style: { colors: '#6B7280', fontSize: '13px' },
+    },
+  },
+  grid: {
+    borderColor: '#F3F4F6',
+    strokeDashArray: 4,
+    yaxis: { lines: { show: false } },
+  },
+  tooltip: {
+    custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+      const value = series[seriesIndex][dataPointIndex]
+      const label = w.globals.labels[dataPointIndex]
+      return `<div style="padding: 8px 12px; background: white; border: 1px solid #e3e5e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="width: 8px; height: 8px; background: #ed5a29; border-radius: 50%; display: inline-block;"></span>
+          <span style="color: #505763; font-weight: 500;">${label}: ${value.toLocaleString()}</span>
+        </div>
+      </div>`
+    }
+  },
+}
+
+// New vs Returning chart
+const newVsReturningData = [
+  { type: 'New',       visitors: 114864, submits: 2308, submitRate: 2.01 },
+  { type: 'Returning', visitors: 31714,  submits: 904,  submitRate: 2.85 },
+]
+
+const newVsReturningChartSeries = [
+  {
+    name: 'Submits',
+    data: [2308, 904],
+  }
+]
+
+const newVsReturningChartOptions = {
+  chart: {
+    type: 'bar',
+    toolbar: { show: false },
+    fontFamily: 'inherit',
+  },
+  plotOptions: {
+    bar: {
+      borderRadius: 6,
+      barHeight: '60%',
+      distributed: true,
+      horizontal: true,
+    },
+  },
+  colors: ['#FF6A45', '#FF9E89'],
+  dataLabels: { enabled: false },
+  legend: { show: false },
+  xaxis: {
+    categories: ['New', 'Returning'],
+    axisBorder: { show: false },
+    axisTicks: { show: false },
+    labels: {
+      style: { colors: '#9CA3AF', fontSize: '12px' },
+      formatter: (val) => val >= 1000 ? `${(val / 1000).toFixed(0)}K` : val,
+    },
+  },
+  yaxis: {
+    labels: {
+      show: true,
+      style: { colors: '#6B7280', fontSize: '13px' },
+    },
+  },
+  grid: {
+    borderColor: '#F3F4F6',
+    strokeDashArray: 4,
+    yaxis: { lines: { show: false } },
+  },
+  tooltip: {
+    custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+      const value = series[seriesIndex][dataPointIndex]
+      const label = w.globals.labels[dataPointIndex]
+      return `<div style="padding: 8px 12px; background: white; border: 1px solid #e3e5e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="width: 8px; height: 8px; background: #ed5a29; border-radius: 50%; display: inline-block;"></span>
+          <span style="color: #505763; font-weight: 500;">${label}: ${value.toLocaleString()}</span>
+        </div>
+      </div>`
+    }
+  },
+}
+
+// Full dates array for tooltip
+const chartDates = [
+  'Jan 6', 'Jan 7', 'Jan 8', 'Jan 9', 'Jan 10', 'Jan 11', 'Jan 12', 'Jan 13', 'Jan 14', 'Jan 15',
+  'Jan 16', 'Jan 17', 'Jan 18', 'Jan 19', 'Jan 20', 'Jan 21', 'Jan 22', 'Jan 23', 'Jan 24', 'Jan 25',
+  'Jan 26', 'Jan 27', 'Jan 28', 'Jan 29', 'Jan 30', 'Jan 31', 'Feb 1', 'Feb 2', 'Feb 3', 'Feb 4'
+]
+
+// Get chart config based on active tab
+const getChartConfig = () => {
+  // Helper function to calculate dynamic min/max with padding and nice rounding
+  const calculateRange = (data, paddingPercent = 15) => {
+    const dataMin = Math.min(...data)
+    const dataMax = Math.max(...data)
+    const range = dataMax - dataMin
+    const padding = range * (paddingPercent / 100)
+
+    // Calculate raw min/max with padding
+    const rawMin = dataMin - padding
+    const rawMax = dataMax + padding
+    const rawRange = rawMax - rawMin
+
+    // Calculate a "nice" step size for 4 intervals (5 grid lines)
+    const roughStep = rawRange / 4
+    const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)))
+    const normalized = roughStep / magnitude
+
+    // Choose nice step from [1, 2, 5, 10]
+    let niceStep
+    if (normalized < 1.5) niceStep = 1
+    else if (normalized < 3) niceStep = 2
+    else if (normalized < 7) niceStep = 5
+    else niceStep = 10
+
+    niceStep *= magnitude
+
+    // Round min down to nice step boundary
+    const yMin = Math.floor(rawMin / niceStep) * niceStep
+
+    // Calculate how many steps needed to cover all data
+    const stepsNeeded = Math.ceil((rawMax - yMin) / niceStep)
+
+    // Use at least 4 steps, or more if needed to cover all data
+    const steps = Math.max(4, stepsNeeded)
+
+    // Calculate max as exactly 'steps' steps from min to ensure even distribution
+    const yMax = yMin + (niceStep * steps)
+
+    return { yMin, yMax, tickAmount: steps }
+  }
+
+  const configs = {
+    'conversion-rate': {
+      data: conversionRateData,
+      name: 'Submit Rate',
+      ...calculateRange(conversionRateData, 15),
+      formatter: (value) => `${value.toFixed(1)}%`,
+      tooltipFormatter: (value) => `${value.toFixed(2)}%`
+    },
+    'submits': {
+      data: submitsData,
+      name: 'Submits',
+      ...calculateRange(submitsData, 15),
+      formatter: (value) => Math.round(value),
+      tooltipFormatter: (value) => Math.round(value)
+    },
+    'impressions': {
+      data: impressionsData,
+      name: 'Impressions',
+      ...calculateRange(impressionsData, 15),
+      formatter: (value) => `${(value / 1000).toFixed(1)}K`,
+      tooltipFormatter: (value) => value.toLocaleString()
+    },
+    'unique-visitors': {
+      data: uniqueVisitorsData,
+      name: 'Visitors',
+      ...calculateRange(uniqueVisitorsData, 15),
+      formatter: (value) => `${(value / 1000).toFixed(1)}K`,
+      tooltipFormatter: (value) => value.toLocaleString()
+    },
+    'supported-orders': {
+      data: supportedOrdersData,
+      name: 'Assisted Orders',
+      ...calculateRange(supportedOrdersData, 15),
+      formatter: (value) => Math.round(value),
+      tooltipFormatter: (value) => Math.round(value)
+    },
+    'supported-revenue': {
+      data: supportedRevenueData,
+      name: 'Assisted Revenue',
+      ...calculateRange(supportedRevenueData, 15),
+      formatter: (value) => `$${value.toFixed(0)}`,
+      tooltipFormatter: (value) => `$${value.toLocaleString()}`
+    },
+    'add-to-carts': {
+      data: addToCartsData,
+      name: 'Add to carts',
+      ...calculateRange(addToCartsData, 15),
+      formatter: (value) => Math.round(value),
+      tooltipFormatter: (value) => Math.round(value)
+    },
+    'add-to-cart-rate': {
+      data: addToCartRateData,
+      name: 'Add to cart Rate',
+      ...calculateRange(addToCartRateData, 15),
+      formatter: (value) => `${value.toFixed(1)}%`,
+      tooltipFormatter: (value) => `${value.toFixed(2)}%`
+    },
+    'email-capture': {
+      data: emailCaptureData,
+      name: 'Email capture',
+      ...calculateRange(emailCaptureData, 15),
+      formatter: (value) => Math.round(value),
+      tooltipFormatter: (value) => Math.round(value)
+    },
+    'email-capture-rate': {
+      data: emailCaptureRateData,
+      name: 'Email capture rate',
+      ...calculateRange(emailCaptureRateData, 15),
+      formatter: (value) => `${value.toFixed(1)}%`,
+      tooltipFormatter: (value) => `${value.toFixed(2)}%`
+    },
+    'phone-capture': {
+      data: phoneCaptureData,
+      name: 'Phone capture',
+      ...calculateRange(phoneCaptureData, 15),
+      formatter: (value) => Math.round(value),
+      tooltipFormatter: (value) => Math.round(value)
+    },
+    'phone-capture-rate': {
+      data: phoneCaptureRateData,
+      name: 'Phone capture rate',
+      ...calculateRange(phoneCaptureRateData, 15),
+      formatter: (value) => `${value.toFixed(1)}%`,
+      tooltipFormatter: (value) => `${value.toFixed(2)}%`
+    }
+  }
+  return configs[activeTab.value] || configs['conversion-rate']
+}
+
+// ApexCharts configuration - computed based on active tab
+const chartSeries = computed(() => {
+  const config = getChartConfig()
+  return [{
+    name: config.name,
+    data: config.data
+  }]
+})
+
+const chartOptions = computed(() => {
+  const config = getChartConfig()
+  return {
+    chart: {
+      type: 'area',
+      height: 280,
+      toolbar: {
+        show: false
+      },
+      zoom: {
+        enabled: false
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      curve: 'smooth',
+      width: 2,
+      colors: ['#ed5a29']
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.4,
+        opacityTo: 0.1,
+        stops: [0, 90, 100]
+      },
+      colors: ['#ed5a29']
+    },
+    grid: {
+      borderColor: '#f1f2f4',
+      strokeDashArray: 0,
+      xaxis: {
+        lines: {
+          show: false
+        }
+      },
+      yaxis: {
+        lines: {
+          show: true
+        }
+      }
+    },
+    xaxis: {
+      type: 'category',
+      categories: [
+        'Jan 6', '', '', 'Jan 9', '', '', 'Jan 12', '', '', 'Jan 15',
+        '', '', 'Jan 18', '', '', 'Jan 21', '', '', 'Jan 24', '',
+        '', 'Jan 27', '', '', 'Jan 30', '', '', 'Feb 2', '', 'Feb 4'
+      ],
+      labels: {
+        show: true,
+        rotate: -45,
+        rotateAlways: false,
+        hideOverlappingLabels: true,
+        style: {
+          colors: '#9ba2ad',
+          fontSize: '11px'
+        }
+      },
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      },
+      tooltip: {
+        enabled: false
+      }
+    },
+    yaxis: {
+      min: config.yMin,
+      max: config.yMax,
+      tickAmount: config.tickAmount,
+      labels: {
+        formatter: config.formatter,
+        style: {
+          colors: '#9ba2ad',
+          fontSize: '12px'
+        }
+      }
+    },
+    tooltip: {
+      enabled: true,
+      custom: function({ series, seriesIndex, dataPointIndex, w }) {
+        const value = series[seriesIndex][dataPointIndex]
+        const date = chartDates[dataPointIndex]
+        return `<div style="padding: 8px 12px; background: white; border: 1px solid #e3e5e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <div style="color: #9ba2ad; font-weight: 400; font-size: 11px; margin-bottom: 4px;">${date}, 2026</div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="width: 8px; height: 8px; background: #ed5a29; border-radius: 50%; display: inline-block;"></span>
+            <span style="color: #505763; font-weight: 500;">${config.name}: ${config.tooltipFormatter(value)}</span>
+          </div>
+        </div>`
+      }
+    },
+    markers: {
+      size: 0,
+      hover: {
+        size: 5
+      }
+    }
+  }
+})
+
+const getActiveTabTitle = () => {
+  const tab = trendTabs.value.find(t => t.id === activeTab.value)
+  return tab ? tab.title : ''
+}
+
+const trendTabs = ref(
+  props.goal === 'add-to-cart'
+    ? [
+        { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true, tooltip: 'The number of unique visitors who visited your site during the selected period.' },
+        { id: 'add-to-carts', title: 'Add to carts', value: '4.3K', change: '+11.2%', isPositive: true, tooltip: 'Number of times visitors added a product to their cart during the selected period.' },
+        { id: 'add-to-cart-rate', title: 'Add to cart rate', value: '4.1%', change: '+9.3%', isPositive: true, tooltip: 'Percentage of visitors who added a product to their cart during the selected period.' },
+      ]
+    : props.goal === 'email-capture'
+    ? [
+        { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true, tooltip: 'The number of unique visitors who visited your site during the selected period.' },
+        { id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true, tooltip: 'Total number of times your campaigns were displayed to visitors during the selected period.' },
+        { id: 'email-capture', title: 'Email capture', value: '3.1K', change: '+9.8%', isPositive: true, tooltip: 'Number of email addresses collected through your campaigns during the selected period.' },
+        { id: 'email-capture-rate', title: 'Email capture rate', value: '3.2%', change: '+7.4%', isPositive: true, tooltip: 'The percentage of email captures divided by impressions during the selected period.' },
+      ]
+    : props.goal === 'phone-capture'
+    ? [
+        { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true, tooltip: 'The number of unique visitors who visited your site during the selected period.' },
+        { id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true, tooltip: 'Total number of times your campaigns were displayed to visitors during the selected period.' },
+        { id: 'phone-capture', title: 'Phone capture', value: '1.8K', change: '+5.3%', isPositive: true, tooltip: 'Number of phone numbers collected through your campaigns during the selected period.' },
+        { id: 'phone-capture-rate', title: 'Phone capture rate', value: '1.6%', change: '+4.1%', isPositive: true, tooltip: 'The percentage of phone captures divided by impressions during the selected period.' },
+      ]
+    : [
+        { id: 'conversion-rate', title: isPurchase ? 'Conversion Rate' : 'Submit Rate', value: '0.57%', change: '+14.0%', isPositive: true, tooltip: isPurchase ? 'Percentage of visitors who completed a purchase during the selected period.' : 'The percentage of submits divided by impressions during the selected period.' },
+        { id: 'submits', title: isPurchase ? 'Orders' : 'Submits', value: '2.2K', change: '+8.3%', isPositive: true, tooltip: isPurchase ? 'Total number of orders placed by visitors during the selected period.' : 'When a visitor fills out a form, clicks a button or performs any action that is considered as a submit in your campaign during the selected period.' },
+        ...(!isPurchase ? [{ id: 'impressions', title: 'Impressions', value: '384.4K', change: '+12.5%', isPositive: true, tooltip: 'Total number of times your campaigns were displayed to visitors during the selected period.' }] : []),
+        { id: 'unique-visitors', title: 'Visitors', value: '168.2K', change: '+6.7%', isPositive: true, tooltip: 'The number of unique visitors who visited your site during the selected period.' },
+        ...(!isPurchase ? [{ id: 'supported-orders', title: 'Assisted Orders', value: '286', change: '-4.2%', isPositive: false, tooltip: 'Number of orders where the customer previously interacted with one of your campaigns during the selected period.' }] : []),
+        { id: 'supported-revenue', title: isPurchase ? 'Total Rev. (USD)' : 'Assisted Rev. (USD)', value: '$23,274', change: '+15.8%', isPositive: true, tooltip: isPurchase ? 'Total revenue generated by visitors during the selected period.' : 'Revenue from orders where the customer previously interacted with one of your campaigns during the selected period.' },
+        ...(isPurchase ? [{ id: 'aov', title: 'AOV', value: '$81.4', change: '-6.3%', isPositive: false, tooltip: 'Average Order Value — the average revenue per order during the selected period.' }] : []),
+      ]
+)
+
+const expandedCampaigns = ref(new Set())
+const hoveredCampaignId = ref(null)
+
+const toggleCampaign = (campaignId) => {
+  if (expandedCampaigns.value.has(campaignId)) {
+    expandedCampaigns.value.delete(campaignId)
+  } else {
+    expandedCampaigns.value.add(campaignId)
+  }
+}
+
+const setHoveredCampaign = (campaignId) => {
+  hoveredCampaignId.value = campaignId
+}
+
+const clearHoveredCampaign = () => {
+  hoveredCampaignId.value = null
+}
+
+// Hover state for Visited Pages
+const hoveredVisitedPageUrl = ref(null)
+const setHoveredVisitedPage = (url) => {
+  hoveredVisitedPageUrl.value = url
+}
+const clearHoveredVisitedPage = () => {
+  hoveredVisitedPageUrl.value = null
+}
+
+// Hover state for Landing Pages
+const hoveredLandingPageUrl = ref(null)
+const setHoveredLandingPage = (url) => {
+  hoveredLandingPageUrl.value = url
+}
+const clearHoveredLandingPage = () => {
+  hoveredLandingPageUrl.value = null
+}
+
+// Hover state for Browser Languages
+const hoveredBrowserLanguageCode = ref(null)
+const setHoveredBrowserLanguage = (code) => {
+  hoveredBrowserLanguageCode.value = code
+}
+const clearHoveredBrowserLanguage = () => {
+  hoveredBrowserLanguageCode.value = null
+}
+
+// Hover state for UTM Campaigns
+const hoveredUtmCampaignName = ref(null)
+const setHoveredUtmCampaign = (name) => {
+  hoveredUtmCampaignName.value = name
+}
+const clearHoveredUtmCampaign = () => {
+  hoveredUtmCampaignName.value = null
+}
+
+// Hover state for UTM Sources
+const hoveredUtmSourceName = ref(null)
+const setHoveredUtmSource = (name) => {
+  hoveredUtmSourceName.value = name
+}
+const clearHoveredUtmSource = () => {
+  hoveredUtmSourceName.value = null
+}
+
+const navigateToCampaignPage = (campaignId) => {
+  // Navigate to campaign page - you can pass campaign ID if needed
+  emit('menu-click', 'campaign-page')
+}
+
+// Checkbox selections
+const selectedCampaigns = ref(new Set())
+const selectionTrigger = ref(0)
+
+const isSelected = (id) => {
+  selectionTrigger.value // Access trigger to create reactivity
+  return selectedCampaigns.value.has(id)
+}
+
+const toggleSelection = (id) => {
+  const newSet = new Set(selectedCampaigns.value)
+  if (newSet.has(id)) {
+    newSet.delete(id)
+  } else {
+    newSet.add(id)
+  }
+  selectedCampaigns.value = newSet
+  selectionTrigger.value++ // Trigger reactivity
+}
+
+const selectedCount = computed(() => {
+  selectionTrigger.value
+  return selectedCampaigns.value.size
+})
+
+const hasSelection = computed(() => selectedCount.value > 0)
+
+const allSelected = computed(() => {
+  selectionTrigger.value
+  return campaignData.value.length > 0 && campaignData.value.every(campaign => selectedCampaigns.value.has(campaign.id))
+})
+
+const isIndeterminate = computed(() => {
+  selectionTrigger.value
+  return selectedCount.value > 0 && !allSelected.value
+})
+
+const toggleSelectAll = () => {
+  if (allSelected.value) {
+    // Deselect all
+    selectedCampaigns.value = new Set()
+  } else {
+    // Select all campaigns
+    const allIds = campaignData.value.map(campaign => campaign.id)
+    selectedCampaigns.value = new Set(allIds)
+  }
+  selectionTrigger.value++
+}
+
+const clearAllSelections = () => {
+  selectedCampaigns.value = new Set()
+  selectionTrigger.value++
+}
+
+// ============================================
+// Visited Pages Selection State
+// ============================================
+const selectedVisitedPages = ref(new Set())
+const visitedPagesSelectionTrigger = ref(0)
+
+const isVisitedPageSelected = (url) => {
+  visitedPagesSelectionTrigger.value // Track reactivity
+  return selectedVisitedPages.value.has(url)
+}
+
+const toggleVisitedPageSelection = (url) => {
+  const newSet = new Set(selectedVisitedPages.value)
+  if (newSet.has(url)) {
+    newSet.delete(url)
+  } else {
+    newSet.add(url)
+  }
+  selectedVisitedPages.value = newSet
+  visitedPagesSelectionTrigger.value++
+}
+
+const selectedVisitedPagesCount = computed(() => {
+  visitedPagesSelectionTrigger.value
+  return selectedVisitedPages.value.size
+})
+
+const hasVisitedPagesSelection = computed(() => selectedVisitedPagesCount.value > 0)
+
+const allVisitedPagesSelected = computed(() => {
+  visitedPagesSelectionTrigger.value
+  return visitedPages.value.length > 0 && visitedPages.value.every(page => selectedVisitedPages.value.has(page.url))
+})
+
+const isVisitedPagesIndeterminate = computed(() => {
+  return selectedVisitedPagesCount.value > 0 && !allVisitedPagesSelected.value
+})
+
+const toggleSelectAllVisitedPages = () => {
+  if (allVisitedPagesSelected.value) {
+    selectedVisitedPages.value = new Set()
+  } else {
+    const allUrls = visitedPages.value.map(page => page.url)
+    selectedVisitedPages.value = new Set(allUrls)
+  }
+  visitedPagesSelectionTrigger.value++
+}
+
+const clearVisitedPagesSelections = () => {
+  selectedVisitedPages.value = new Set()
+  visitedPagesSelectionTrigger.value++
+}
+
+// ============================================
+// Landing Pages Selection State
+// ============================================
+const selectedLandingPages = ref(new Set())
+const landingPagesSelectionTrigger = ref(0)
+
+const isLandingPageSelected = (url) => {
+  landingPagesSelectionTrigger.value
+  return selectedLandingPages.value.has(url)
+}
+
+const toggleLandingPageSelection = (url) => {
+  const newSet = new Set(selectedLandingPages.value)
+  if (newSet.has(url)) {
+    newSet.delete(url)
+  } else {
+    newSet.add(url)
+  }
+  selectedLandingPages.value = newSet
+  landingPagesSelectionTrigger.value++
+}
+
+const selectedLandingPagesCount = computed(() => {
+  landingPagesSelectionTrigger.value
+  return selectedLandingPages.value.size
+})
+
+const hasLandingPagesSelection = computed(() => selectedLandingPagesCount.value > 0)
+
+const allLandingPagesSelected = computed(() => {
+  landingPagesSelectionTrigger.value
+  return landingPages.value.length > 0 && landingPages.value.every(page => selectedLandingPages.value.has(page.url))
+})
+
+const isLandingPagesIndeterminate = computed(() => {
+  return selectedLandingPagesCount.value > 0 && !allLandingPagesSelected.value
+})
+
+const toggleSelectAllLandingPages = () => {
+  if (allLandingPagesSelected.value) {
+    selectedLandingPages.value = new Set()
+  } else {
+    const allUrls = landingPages.value.map(page => page.url)
+    selectedLandingPages.value = new Set(allUrls)
+  }
+  landingPagesSelectionTrigger.value++
+}
+
+const clearLandingPagesSelections = () => {
+  selectedLandingPages.value = new Set()
+  landingPagesSelectionTrigger.value++
+}
+
+// ============================================
+// Browser Languages Selection State
+// ============================================
+const selectedBrowserLanguages = ref(new Set())
+const browserLanguagesSelectionTrigger = ref(0)
+
+const isBrowserLanguageSelected = (code) => {
+  browserLanguagesSelectionTrigger.value
+  return selectedBrowserLanguages.value.has(code)
+}
+
+const toggleBrowserLanguageSelection = (code) => {
+  const newSet = new Set(selectedBrowserLanguages.value)
+  if (newSet.has(code)) {
+    newSet.delete(code)
+  } else {
+    newSet.add(code)
+  }
+  selectedBrowserLanguages.value = newSet
+  browserLanguagesSelectionTrigger.value++
+}
+
+const selectedBrowserLanguagesCount = computed(() => {
+  browserLanguagesSelectionTrigger.value
+  return selectedBrowserLanguages.value.size
+})
+
+const hasBrowserLanguagesSelection = computed(() => selectedBrowserLanguagesCount.value > 0)
+
+const allBrowserLanguagesSelected = computed(() => {
+  browserLanguagesSelectionTrigger.value
+  return browserLanguages.value.length > 0 && browserLanguages.value.every(lang => selectedBrowserLanguages.value.has(lang.code))
+})
+
+const isBrowserLanguagesIndeterminate = computed(() => {
+  return selectedBrowserLanguagesCount.value > 0 && !allBrowserLanguagesSelected.value
+})
+
+const toggleSelectAllBrowserLanguages = () => {
+  if (allBrowserLanguagesSelected.value) {
+    selectedBrowserLanguages.value = new Set()
+  } else {
+    const allCodes = browserLanguages.value.map(lang => lang.code)
+    selectedBrowserLanguages.value = new Set(allCodes)
+  }
+  browserLanguagesSelectionTrigger.value++
+}
+
+const hoveredOsName = ref(null)
+const selectedOperatingSystems = ref(new Set())
+const osSelectionTrigger = ref(0)
+
+const isOsSelected = (name) => {
+  osSelectionTrigger.value
+  return selectedOperatingSystems.value.has(name)
+}
+
+const toggleOsSelection = (name) => {
+  const newSet = new Set(selectedOperatingSystems.value)
+  if (newSet.has(name)) newSet.delete(name)
+  else newSet.add(name)
+  selectedOperatingSystems.value = newSet
+  osSelectionTrigger.value++
+}
+
+const selectedOsCount = computed(() => {
+  osSelectionTrigger.value
+  return selectedOperatingSystems.value.size
+})
+
+const hasOsSelection = computed(() => selectedOsCount.value > 0)
+
+const allOsSelected = computed(() => {
+  osSelectionTrigger.value
+  return operatingSystems.value.length > 0 && operatingSystems.value.every(os => selectedOperatingSystems.value.has(os.name))
+})
+
+const isOsIndeterminate = computed(() => selectedOsCount.value > 0 && !allOsSelected.value)
+
+const toggleSelectAllOs = () => {
+  if (allOsSelected.value) {
+    selectedOperatingSystems.value = new Set()
+  } else {
+    selectedOperatingSystems.value = new Set(operatingSystems.value.map(os => os.name))
+  }
+  osSelectionTrigger.value++
+}
+
+const clearOperatingSystemsSelections = () => {
+  selectedOperatingSystems.value = new Set()
+  osSelectionTrigger.value++
+}
+
+const hoveredReferringSiteRow = ref(null)
+const selectedReferringSites = ref(new Set())
+const referringSitesTrigger = ref(0)
+
+const isReferringSiteSelected = (site) => {
+  referringSitesTrigger.value
+  return selectedReferringSites.value.has(site)
+}
+
+const toggleReferringSiteSelection = (site) => {
+  const newSet = new Set(selectedReferringSites.value)
+  if (newSet.has(site)) newSet.delete(site)
+  else newSet.add(site)
+  selectedReferringSites.value = newSet
+  referringSitesTrigger.value++
+}
+
+const selectedReferringSitesCount = computed(() => {
+  referringSitesTrigger.value
+  return selectedReferringSites.value.size
+})
+
+const hasReferringSitesSelection = computed(() => selectedReferringSitesCount.value > 0)
+
+const allReferringSitesSelected = computed(() => {
+  referringSitesTrigger.value
+  return referringSites.value.length > 0 && referringSites.value.every(s => selectedReferringSites.value.has(s.site))
+})
+
+const isReferringSitesIndeterminate = computed(() => selectedReferringSitesCount.value > 0 && !allReferringSitesSelected.value)
+
+const toggleSelectAllReferringSites = () => {
+  if (allReferringSitesSelected.value) {
+    selectedReferringSites.value = new Set()
+  } else {
+    selectedReferringSites.value = new Set(referringSites.value.map(s => s.site))
+  }
+  referringSitesTrigger.value++
+}
+
+const clearReferringSitesSelections = () => {
+  selectedReferringSites.value = new Set()
+  referringSitesTrigger.value++
+}
+
+const clearBrowserLanguagesSelections = () => {
+  selectedBrowserLanguages.value = new Set()
+  browserLanguagesSelectionTrigger.value++
+}
+
+// ============================================
+// UTM Campaigns Selection State
+// ============================================
+const selectedUtmCampaigns = ref(new Set())
+const utmCampaignsSelectionTrigger = ref(0)
+
+const isUtmCampaignSelected = (name) => {
+  utmCampaignsSelectionTrigger.value
+  return selectedUtmCampaigns.value.has(name)
+}
+
+const toggleUtmCampaignSelection = (name) => {
+  const newSet = new Set(selectedUtmCampaigns.value)
+  if (newSet.has(name)) {
+    newSet.delete(name)
+  } else {
+    newSet.add(name)
+  }
+  selectedUtmCampaigns.value = newSet
+  utmCampaignsSelectionTrigger.value++
+}
+
+const selectedUtmCampaignsCount = computed(() => {
+  utmCampaignsSelectionTrigger.value
+  return selectedUtmCampaigns.value.size
+})
+
+const hasUtmCampaignsSelection = computed(() => selectedUtmCampaignsCount.value > 0)
+
+const allUtmCampaignsSelected = computed(() => {
+  utmCampaignsSelectionTrigger.value
+  return utmCampaigns.value.length > 0 && utmCampaigns.value.every(campaign => selectedUtmCampaigns.value.has(campaign.name))
+})
+
+const isUtmCampaignsIndeterminate = computed(() => {
+  return selectedUtmCampaignsCount.value > 0 && !allUtmCampaignsSelected.value
+})
+
+const toggleSelectAllUtmCampaigns = () => {
+  if (allUtmCampaignsSelected.value) {
+    selectedUtmCampaigns.value = new Set()
+  } else {
+    const allNames = utmCampaigns.value.map(campaign => campaign.name)
+    selectedUtmCampaigns.value = new Set(allNames)
+  }
+  utmCampaignsSelectionTrigger.value++
+}
+
+const clearUtmCampaignsSelections = () => {
+  selectedUtmCampaigns.value = new Set()
+  utmCampaignsSelectionTrigger.value++
+}
+
+// ============================================
+// UTM Sources Selection State
+// ============================================
+const selectedUtmSources = ref(new Set())
+const utmSourcesSelectionTrigger = ref(0)
+
+const isUtmSourceSelected = (name) => {
+  utmSourcesSelectionTrigger.value
+  return selectedUtmSources.value.has(name)
+}
+
+const toggleUtmSourceSelection = (name) => {
+  const newSet = new Set(selectedUtmSources.value)
+  if (newSet.has(name)) {
+    newSet.delete(name)
+  } else {
+    newSet.add(name)
+  }
+  selectedUtmSources.value = newSet
+  utmSourcesSelectionTrigger.value++
+}
+
+const selectedUtmSourcesCount = computed(() => {
+  utmSourcesSelectionTrigger.value
+  return selectedUtmSources.value.size
+})
+
+const hasUtmSourcesSelection = computed(() => selectedUtmSourcesCount.value > 0)
+
+const allUtmSourcesSelected = computed(() => {
+  utmSourcesSelectionTrigger.value
+  return utmSources.value.length > 0 && utmSources.value.every(source => selectedUtmSources.value.has(source.name))
+})
+
+const isUtmSourcesIndeterminate = computed(() => {
+  return selectedUtmSourcesCount.value > 0 && !allUtmSourcesSelected.value
+})
+
+const toggleSelectAllUtmSources = () => {
+  if (allUtmSourcesSelected.value) {
+    selectedUtmSources.value = new Set()
+  } else {
+    const allNames = utmSources.value.map(source => source.name)
+    selectedUtmSources.value = new Set(allNames)
+  }
+  utmSourcesSelectionTrigger.value++
+}
+
+const clearUtmSourcesSelections = () => {
+  selectedUtmSources.value = new Set()
+  utmSourcesSelectionTrigger.value++
+}
+
+// Sub-page state
+const currentSubPage = ref(null)
+const openSubPage = (page) => {
+  currentSubPage.value = page
+  nextTick(() => {
+    const el = document.querySelector('.overflow-y-auto')
+    if (el) el.scrollTop = 0
+  })
+}
+
+const subPageTitles = {
+  'traffic-sources': 'Traffic Sources',
+  'countries': 'Countries',
+  'visited-pages': 'Visited Pages',
+  'landing-pages': 'Landing Pages',
+  'browser-languages': 'Browser Languages',
+  'utm-campaigns': 'UTM Campaigns',
+  'utm-sources': 'UTM Sources',
+}
+
+const subPageTitle = computed(() => subPageTitles[currentSubPage.value] ?? '')
+
+const subPageSearch = ref('')
+watch(currentSubPage, () => { subPageSearch.value = '' })
+
+// ============================================
+// Active Filter Chips
+// ============================================
+const activeFilterChips = ref([])
+
+const applyFilterFromSelection = (section, selectedSet, getLabel) => {
+  const newChips = [...selectedSet].map(id => ({
+    key: `${section}-${id}`,
+    label: getLabel(id),
+    section,
+    id,
+  }))
+  activeFilterChips.value = [
+    ...activeFilterChips.value.filter(c => c.section !== section),
+    ...newChips,
+  ]
+}
+
+const removeFilterChip = (key) => {
+  activeFilterChips.value = activeFilterChips.value.filter(c => c.key !== key)
+  // Remove from addedQuickFilters if no more chips from that category
+  if (key.startsWith('quick-')) {
+    const section = activeFilterChips.value.find(c => c.key === key)?.section
+    if (section && !activeFilterChips.value.some(c => c.section === section)) {
+      const catValue = section.replace('quick-', '')
+      addedQuickFilters.value = addedQuickFilters.value.filter(v => v !== catValue)
+    }
+  }
+}
+
+const sectionHasActiveFilters = (section) => {
+  return activeFilterChips.value.some(c => c.section === section)
+}
+
+const applyCampaignFilter = () => {
+  applyFilterFromSelection('campaigns', selectedCampaigns.value,
+    id => campaignData.value.find(c => c.id === id)?.name ?? String(id))
+  clearAllSelections()
+}
+
+const applyVisitedPagesFilter = () => {
+  applyFilterFromSelection('visitedPages', selectedVisitedPages.value, url => {
+    try { return new URL(url).pathname } catch { return url }
+  })
+  clearVisitedPagesSelections()
+}
+
+const applyLandingPagesFilter = () => {
+  applyFilterFromSelection('landingPages', selectedLandingPages.value, url => {
+    try { return new URL(url).pathname } catch { return url }
+  })
+  clearLandingPagesSelections()
+}
+
+const applyBrowserLanguagesFilter = () => {
+  applyFilterFromSelection('browserLanguages', selectedBrowserLanguages.value, code => code)
+  clearBrowserLanguagesSelections()
+}
+
+const applyOperatingSystemsFilter = () => {
+  applyFilterFromSelection('operatingSystems', selectedOperatingSystems.value, name => name)
+  clearOperatingSystemsSelections()
+}
+
+const applyReferringSitesFilter = () => {
+  applyFilterFromSelection('referringSites', selectedReferringSites.value, site => site)
+  clearReferringSitesSelections()
+}
+
+const applyUtmCampaignsFilter = () => {
+  applyFilterFromSelection('utmCampaigns', selectedUtmCampaigns.value, name => name)
+  clearUtmCampaignsSelections()
+}
+
+const applyUtmSourcesFilter = () => {
+  applyFilterFromSelection('utmSources', selectedUtmSources.value, name => name)
+  clearUtmSourcesSelections()
+}
+
+const filteredTrafficSources = computed(() => {
+  const q = subPageSearch.value.toLowerCase()
+  return q ? allTrafficSources.filter(r => r.referrer.toLowerCase().includes(q)) : allTrafficSources
+})
+const filteredCountries = computed(() => {
+  const q = subPageSearch.value.toLowerCase()
+  return q ? allCountries.filter(r => r.country.toLowerCase().includes(q)) : allCountries
+})
+const filteredVisitedPages = computed(() => {
+  const q = subPageSearch.value.toLowerCase()
+  return q ? visitedPages.value.filter(r => r.url.toLowerCase().includes(q)) : visitedPages.value
+})
+const filteredLandingPages = computed(() => {
+  const q = subPageSearch.value.toLowerCase()
+  return q ? landingPages.value.filter(r => r.url.toLowerCase().includes(q)) : landingPages.value
+})
+const filteredBrowserLanguages = computed(() => {
+  const q = subPageSearch.value.toLowerCase()
+  return q ? browserLanguages.value.filter(r => r.code.toLowerCase().includes(q)) : browserLanguages.value
+})
+const filteredUtmCampaigns = computed(() => {
+  const q = subPageSearch.value.toLowerCase()
+  return q ? utmCampaigns.value.filter(r => r.name.toLowerCase().includes(q)) : utmCampaigns.value
+})
+const filteredUtmSources = computed(() => {
+  const q = subPageSearch.value.toLowerCase()
+  return q ? utmSources.value.filter(r => r.name.toLowerCase().includes(q)) : utmSources.value
+})
+
+const campaignData = ref([
+  {
+    id: 1,
+    name: 'Campaign #1108',
+    visitors: 72543,
+    impressions: 124567,
+    submits: 456,
+    conversionRate: 0.63,
+    assistedOrders: 38,
+    assistedRevenue: 3124,
+    variants: [
+      { name: 'Control Variant', visitors: 36000, impressions: 62000, submits: 228, conversionRate: 0.63, assistedOrders: 19, assistedRevenue: 1562 },
+      { name: 'Variant A', visitors: 36543, impressions: 62567, submits: 228, conversionRate: 0.62, assistedOrders: 19, assistedRevenue: 1562 }
+    ]
+  },
+  {
+    id: 2,
+    name: 'Limited package shipping from January 5',
+    visitors: 45678,
+    impressions: 98234,
+    submits: 234,
+    conversionRate: 0.51,
+    assistedOrders: 24,
+    assistedRevenue: 1876,
+    variants: [
+      { name: 'Control Variant', visitors: 22839, impressions: 49117, submits: 117, conversionRate: 0.51, assistedOrders: 12, assistedRevenue: 938 },
+      { name: 'Variant A', visitors: 22839, impressions: 49117, submits: 117, conversionRate: 0.51, assistedOrders: 12, assistedRevenue: 938 }
+    ]
+  },
+  { id: 3, name: 'Order confidently copy', visitors: 38902, impressions: 87456, submits: 189, conversionRate: 0.49, assistedOrders: 21, assistedRevenue: 1543 },
+  { id: 4, name: 'PX_01_Subscriber popup_gift_Reflexshop', visitors: 32145, impressions: 76543, submits: 167, conversionRate: 0.52, assistedOrders: 18, assistedRevenue: 1287 },
+  { id: 5, name: 'Service AI - Smart Product Page Optimizer v4 🎉 Winner', visitors: 28567, impressions: 65432, submits: 145, conversionRate: 0.51, assistedOrders: 15, assistedRevenue: 1124 },
+  { id: 6, name: 'Jungo traffic redirector', visitors: 24890, impressions: 54321, submits: 128, conversionRate: 0.51, assistedOrders: 13, assistedRevenue: 987 },
+  { id: 7, name: 'PC Service Smart Abandonment Stopper - Winner', visitors: 21456, impressions: 48765, submits: 112, conversionRate: 0.52, assistedOrders: 11, assistedRevenue: 834 },
+  { id: 8, name: 'Dynamic Content Visitor/Impression Ratio Test', visitors: 18234, impressions: 42345, submits: 98, conversionRate: 0.54, assistedOrders: 9, assistedRevenue: 712 },
+  { id: 9, name: 'Funko upsell', visitors: 15678, impressions: 38765, submits: 87, conversionRate: 0.55, assistedOrders: 8, assistedRevenue: 623 },
+  { id: 10, name: '18+ verification', visitors: 12345, impressions: 32456, submits: 72, conversionRate: 0.58, assistedOrders: 6, assistedRevenue: 498 }
+])
+
+const visitedPages = ref([
+  { url: 'https://tabletopshop.com/shop_search.php', pageViews: 45678, visitors: 32145, submits: 234, conversionRate: 0.73 },
+  { url: 'https://tabletopshop.com', pageViews: 38902, visitors: 28567, submits: 189, conversionRate: 0.66 },
+  { url: 'https://tabletopshop.com/shop_cart.php', pageViews: 32145, visitors: 24890, submits: 167, conversionRate: 0.67 },
+  { url: 'https://tabletopshop.com/Tarsasjatekok', pageViews: 28567, visitors: 21456, submits: 145, conversionRate: 0.68 },
+  { url: 'https://tabletopshop.com/shop_artspec.php', pageViews: 24890, visitors: 18234, submits: 128, conversionRate: 0.70 },
+  { url: 'https://tabletopshop.com/shop_login.php', pageViews: 21456, visitors: 15678, submits: 112, conversionRate: 0.71 },
+  { url: 'https://tabletopshop.com/akcios-termekek', pageViews: 18234, visitors: 12345, submits: 98, conversionRate: 0.79 },
+  { url: 'https://tabletopshop.com/Funko/Funko-POP-figurak', pageViews: 15678, visitors: 10234, submits: 87, conversionRate: 0.85 },
+  { url: 'https://tabletopshop.com/shop_reg.php', pageViews: 12345, visitors: 8765, submits: 72, conversionRate: 0.82 },
+  { url: 'https://tabletopshop.com/Funko', pageViews: 10234, visitors: 7456, submits: 65, conversionRate: 0.87 },
+  { url: 'https://tabletopshop.com/LEGO', pageViews: 9876, visitors: 6834, submits: 58, conversionRate: 0.85 },
+  { url: 'https://tabletopshop.com/shop_wishlist.php', pageViews: 8765, visitors: 5923, submits: 52, conversionRate: 0.88 },
+  { url: 'https://tabletopshop.com/Konyv', pageViews: 8234, visitors: 5467, submits: 48, conversionRate: 0.88 },
+  { url: 'https://tabletopshop.com/Puzzle', pageViews: 7654, visitors: 4989, submits: 43, conversionRate: 0.86 },
+  { url: 'https://tabletopshop.com/Filmek-sorozatok', pageViews: 7123, visitors: 4567, submits: 39, conversionRate: 0.85 },
+  { url: 'https://tabletopshop.com/shop_about.php', pageViews: 6789, visitors: 4234, submits: 36, conversionRate: 0.85 },
+  { url: 'https://tabletopshop.com/Kulfold', pageViews: 6234, visitors: 3876, submits: 32, conversionRate: 0.83 },
+  { url: 'https://tabletopshop.com/Magic-the-Gathering', pageViews: 5876, visitors: 3567, submits: 29, conversionRate: 0.81 },
+  { url: 'https://tabletopshop.com/Pokemon', pageViews: 5432, visitors: 3234, submits: 26, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/shop_contact.php', pageViews: 5123, visitors: 2987, submits: 24, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Gyerekjatekok', pageViews: 4876, visitors: 2765, submits: 22, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Yu-Gi-Oh', pageViews: 4567, visitors: 2543, submits: 20, conversionRate: 0.79 },
+  { url: 'https://tabletopshop.com/Warhammer', pageViews: 4234, visitors: 2345, submits: 18, conversionRate: 0.77 },
+  { url: 'https://tabletopshop.com/Strategiai-jatekok', pageViews: 3987, visitors: 2156, submits: 17, conversionRate: 0.79 },
+  { url: 'https://tabletopshop.com/Keszlet-jatekok', pageViews: 3765, visitors: 1987, submits: 15, conversionRate: 0.76 },
+  { url: 'https://tabletopshop.com/shop_faq.php', pageViews: 3543, visitors: 1834, submits: 14, conversionRate: 0.76 },
+  { url: 'https://tabletopshop.com/Kaland-jatekok', pageViews: 3321, visitors: 1687, submits: 13, conversionRate: 0.77 },
+  { url: 'https://tabletopshop.com/Party-jatekok', pageViews: 3123, visitors: 1543, submits: 12, conversionRate: 0.78 },
+  { url: 'https://tabletopshop.com/Csaladi-jatekok', pageViews: 2987, visitors: 1432, submits: 11, conversionRate: 0.77 },
+  { url: 'https://tabletopshop.com/shop_privacy.php', pageViews: 2765, visitors: 1321, submits: 10, conversionRate: 0.76 }
+])
+
+const landingPages = ref([
+  { url: 'https://tabletopshop.com', visitors: 120143, submits: 812, conversionRate: 0.68 },
+  { url: 'https://tabletopshop.com/Tarsasjatekok', visitors: 45678, submits: 345, conversionRate: 0.76 },
+  { url: 'https://tabletopshop.com/shop_search.php', visitors: 38902, submits: 289, conversionRate: 0.74 },
+  { url: 'https://tabletopshop.com/akcios-termekek', visitors: 32145, submits: 256, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Funko/Funko-POP-figurak', visitors: 28567, submits: 234, conversionRate: 0.82 },
+  { url: 'https://tabletopshop.com/shop_artspec.php', visitors: 24890, submits: 198, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Funko', visitors: 21456, submits: 178, conversionRate: 0.83 },
+  { url: 'https://tabletopshop.com/shop_cart.php', visitors: 18234, submits: 145, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/shop_login.php', visitors: 15678, submits: 123, conversionRate: 0.78 },
+  { url: 'https://tabletopshop.com/shop_reg.php', visitors: 12345, submits: 98, conversionRate: 0.79 },
+  { url: 'https://tabletopshop.com/LEGO', visitors: 11234, submits: 89, conversionRate: 0.79 },
+  { url: 'https://tabletopshop.com/Konyv', visitors: 10876, submits: 85, conversionRate: 0.78 },
+  { url: 'https://tabletopshop.com/Puzzle', visitors: 9765, submits: 78, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Filmek-sorozatok', visitors: 8943, submits: 72, conversionRate: 0.81 },
+  { url: 'https://tabletopshop.com/Kulfold', visitors: 8234, submits: 67, conversionRate: 0.81 },
+  { url: 'https://tabletopshop.com/Magic-the-Gathering', visitors: 7654, submits: 61, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Pokemon', visitors: 7123, submits: 58, conversionRate: 0.81 },
+  { url: 'https://tabletopshop.com/Gyerekjatekok', visitors: 6789, submits: 54, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Yu-Gi-Oh', visitors: 6321, submits: 51, conversionRate: 0.81 },
+  { url: 'https://tabletopshop.com/Warhammer', visitors: 5987, submits: 48, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Strategiai-jatekok', visitors: 5543, submits: 45, conversionRate: 0.81 },
+  { url: 'https://tabletopshop.com/Keszlet-jatekok', visitors: 5234, submits: 42, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Kaland-jatekok', visitors: 4876, submits: 39, conversionRate: 0.80 },
+  { url: 'https://tabletopshop.com/Party-jatekok', visitors: 4543, submits: 37, conversionRate: 0.81 },
+  { url: 'https://tabletopshop.com/Csaladi-jatekok', visitors: 4234, submits: 34, conversionRate: 0.80 }
+])
+
+const browserLanguages = ref([
+  { code: 'hu-HU', visitors: 120143, submits: 812, conversionRate: 0.68 },
+  { code: 'en-US', visitors: 21480, submits: 156, conversionRate: 0.73 },
+  { code: 'en-GB', visitors: 9748, submits: 72, conversionRate: 0.74 },
+  { code: 'hu', visitors: 8612, submits: 65, conversionRate: 0.75 },
+  { code: 'en', visitors: 4734, submits: 38, conversionRate: 0.80 },
+  { code: 'zh-CN', visitors: 913, submits: 8, conversionRate: 0.88 },
+  { code: 'de-DE', visitors: 393, submits: 3, conversionRate: 0.76 },
+  { code: 'en-HU', visitors: 300, submits: 2, conversionRate: 0.67 },
+  { code: 'ru-RU', visitors: 148, submits: 1, conversionRate: 0.68 },
+  { code: 'es-ES', visitors: 117, submits: 1, conversionRate: 0.85 },
+  { code: 'fr-FR', visitors: 234, submits: 2, conversionRate: 0.85 },
+  { code: 'it-IT', visitors: 198, submits: 2, conversionRate: 1.01 },
+  { code: 'pl-PL', visitors: 176, submits: 1, conversionRate: 0.57 },
+  { code: 'pt-PT', visitors: 143, submits: 1, conversionRate: 0.70 },
+  { code: 'nl-NL', visitors: 128, submits: 1, conversionRate: 0.78 },
+  { code: 'ro-RO', visitors: 112, submits: 1, conversionRate: 0.89 },
+  { code: 'cs-CZ', visitors: 98, submits: 1, conversionRate: 1.02 },
+  { code: 'sk-SK', visitors: 87, submits: 1, conversionRate: 1.15 },
+  { code: 'bg-BG', visitors: 76, submits: 0, conversionRate: 0.00 },
+  { code: 'hr-HR', visitors: 65, submits: 1, conversionRate: 1.54 },
+  { code: 'sr-RS', visitors: 54, submits: 0, conversionRate: 0.00 },
+  { code: 'sl-SI', visitors: 43, submits: 0, conversionRate: 0.00 },
+  { code: 'uk-UA', visitors: 38, submits: 0, conversionRate: 0.00 },
+  { code: 'sv-SE', visitors: 32, submits: 0, conversionRate: 0.00 },
+  { code: 'da-DK', visitors: 27, submits: 0, conversionRate: 0.00 }
+])
+
+const utmCampaigns = ref([
+  { name: 'olcsobbat_shopping_reflexshop', visitors: 45678, submits: 345, conversionRate: 0.76 },
+  { name: 'surfaces_across_google', visitors: 38902, submits: 289, conversionRate: 0.74 },
+  { name: 'KA-Konv-Kiemelt játékok', visitors: 32145, submits: 256, conversionRate: 0.80 },
+  { name: 'reflexshop_google_shopping', visitors: 28567, submits: 234, conversionRate: 0.82 },
+  { name: 'facebook_retargeting_q4', visitors: 24890, submits: 198, conversionRate: 0.80 },
+  { name: 'email_newsletter_december', visitors: 21456, submits: 178, conversionRate: 0.83 },
+  { name: 'instagram_stories_campaign', visitors: 18234, submits: 145, conversionRate: 0.80 },
+  { name: 'youtube_video_ads', visitors: 15678, submits: 123, conversionRate: 0.78 },
+  { name: 'google_search_brand', visitors: 12345, submits: 98, conversionRate: 0.79 },
+  { name: 'tiktok_influencer_collab', visitors: 10234, submits: 87, conversionRate: 0.85 },
+  { name: 'spring_sale_2026', visitors: 9876, submits: 82, conversionRate: 0.83 },
+  { name: 'black_friday_early_access', visitors: 8765, submits: 73, conversionRate: 0.83 },
+  { name: 'christmas_gift_guide', visitors: 7654, submits: 64, conversionRate: 0.84 },
+  { name: 'new_year_promotion', visitors: 6789, submits: 57, conversionRate: 0.84 },
+  { name: 'valentine_special', visitors: 5987, submits: 51, conversionRate: 0.85 },
+  { name: 'summer_clearance', visitors: 5432, submits: 46, conversionRate: 0.85 },
+  { name: 'back_to_school', visitors: 4876, submits: 42, conversionRate: 0.86 },
+  { name: 'halloween_treats', visitors: 4321, submits: 37, conversionRate: 0.86 },
+  { name: 'cyber_monday_deals', visitors: 3987, submits: 34, conversionRate: 0.85 },
+  { name: 'easter_egg_hunt', visitors: 3654, submits: 31, conversionRate: 0.85 },
+  { name: 'winter_wonderland', visitors: 3321, submits: 28, conversionRate: 0.84 },
+  { name: 'spring_cleaning_sale', visitors: 2987, submits: 26, conversionRate: 0.87 },
+  { name: 'mothers_day_gifts', visitors: 2765, submits: 24, conversionRate: 0.87 },
+  { name: 'fathers_day_deals', visitors: 2543, submits: 22, conversionRate: 0.87 },
+  { name: 'loyalty_program_bonus', visitors: 2321, submits: 20, conversionRate: 0.86 }
+])
+
+const utmSources = ref([
+  { name: 'facebook', visitors: 45678, submits: 345, conversionRate: 0.76 },
+  { name: 'olcsobbat', visitors: 38902, submits: 289, conversionRate: 0.74 },
+  { name: 'google', visitors: 32145, submits: 256, conversionRate: 0.80 },
+  { name: 'CJ', visitors: 28567, submits: 234, conversionRate: 0.82 },
+  { name: 'tarsasjatekok.com', visitors: 24890, submits: 198, conversionRate: 0.80 },
+  { name: 'TheMarketer', visitors: 21456, submits: 178, conversionRate: 0.83 },
+  { name: 'fb', visitors: 18234, submits: 145, conversionRate: 0.80 },
+  { name: 'ActiveCampaign', visitors: 15678, submits: 123, conversionRate: 0.78 },
+  { name: 'google_shopping', visitors: 12345, submits: 98, conversionRate: 0.79 },
+  { name: 'chatgpt.com', visitors: 10234, submits: 87, conversionRate: 0.85 },
+  { name: 'instagram', visitors: 9876, submits: 82, conversionRate: 0.83 },
+  { name: 'youtube', visitors: 8765, submits: 73, conversionRate: 0.83 },
+  { name: 'tiktok', visitors: 7654, submits: 64, conversionRate: 0.84 },
+  { name: 'pinterest', visitors: 6789, submits: 57, conversionRate: 0.84 },
+  { name: 'twitter', visitors: 5987, submits: 51, conversionRate: 0.85 },
+  { name: 'linkedin', visitors: 5432, submits: 46, conversionRate: 0.85 },
+  { name: 'reddit', visitors: 4876, submits: 42, conversionRate: 0.86 },
+  { name: 'newsletter', visitors: 4321, submits: 37, conversionRate: 0.86 },
+  { name: 'partner_site', visitors: 3987, submits: 34, conversionRate: 0.85 },
+  { name: 'affiliate_network', visitors: 3654, submits: 31, conversionRate: 0.85 },
+  { name: 'review_site', visitors: 3321, submits: 28, conversionRate: 0.84 },
+  { name: 'blog_post', visitors: 2987, submits: 26, conversionRate: 0.87 },
+  { name: 'podcast_sponsor', visitors: 2765, submits: 24, conversionRate: 0.87 },
+  { name: 'forum_post', visitors: 2543, submits: 22, conversionRate: 0.87 },
+  { name: 'mobile_app', visitors: 2321, submits: 20, conversionRate: 0.86 }
+])
+
+// Computed properties for display (only first 5 rows)
+const visitedPagesDisplay = computed(() => visitedPages.value.slice(0, 5))
+
+const referringSites = ref([
+  { site: 'google.com', visitors: 38452, submits: 721, conversionRate: 1.88 },
+  { site: 'facebook.com', visitors: 21340, submits: 312, conversionRate: 1.46 },
+  { site: 'instagram.com', visitors: 14782, submits: 198, conversionRate: 1.34 },
+  { site: 't.co', visitors: 8923, submits: 143, conversionRate: 1.60 },
+  { site: 'bing.com', visitors: 5614, submits: 98, conversionRate: 1.75 },
+])
+const referringSitesDisplay = computed(() => referringSites.value.slice(0, 5))
+const hoveredReferringSite = ref(null)
+const landingPagesDisplay = computed(() => landingPages.value.slice(0, 5))
+const browserLanguagesDisplay = computed(() => browserLanguages.value.slice(0, 5))
+
+const operatingSystems = ref([
+  { name: 'Windows', visitors: 89234, submits: 1124, conversionRate: 1.26 },
+  { name: 'Android', visitors: 72145, submits: 876, conversionRate: 1.21 },
+  { name: 'iOS', visitors: 43567, submits: 534, conversionRate: 1.23 },
+  { name: 'macOS', visitors: 28903, submits: 398, conversionRate: 1.38 },
+  { name: 'Linux', visitors: 4789, submits: 72, conversionRate: 1.50 },
+])
+const operatingSystemsDisplay = computed(() => operatingSystems.value.slice(0, 5))
+const utmCampaignsDisplay = computed(() => utmCampaigns.value.slice(0, 5))
+const utmSourcesDisplay = computed(() => utmSources.value.slice(0, 5))
+const campaignDataDisplay = computed(() => campaignData.value.slice(0, 5))
+const devicesDisplay = devicesTableData.slice(0, 5)
+const trafficDisplay = computed(() => trafficSourceData.slice(0, 5))
+const countriesDisplay = computed(() => countriesData.slice(0, 5))
+
+// Devices table selection
+const hoveredDevicesRow = ref(null)
+const selectedDevicesRows = ref(new Set())
+const toggleDevicesRow = (type) => {
+  const s = new Set(selectedDevicesRows.value)
+  s.has(type) ? s.delete(type) : s.add(type)
+  selectedDevicesRows.value = s
+}
+const isDevicesRowSelected = (type) => selectedDevicesRows.value.has(type)
+
+// Traffic source table selection
+const hoveredTrafficRow2 = ref(null)
+const selectedTrafficRows2 = ref(new Set())
+const toggleTrafficRow2 = (referrer) => {
+  const s = new Set(selectedTrafficRows2.value)
+  s.has(referrer) ? s.delete(referrer) : s.add(referrer)
+  selectedTrafficRows2.value = s
+}
+const isTrafficRow2Selected = (referrer) => selectedTrafficRows2.value.has(referrer)
+
+// Countries table
+const countryCodeMap = {
+  'Hungary': 'HU',
+  'United States': 'US',
+  'Austria': 'AT',
+  'Germany': 'DE',
+  'Singapore': 'SG',
+  'United Kingdom': 'GB',
+  'Romania': 'RO',
+  'Slovakia': 'SK',
+  'Netherlands': 'NL',
+  'Sweden': 'SE',
+  'France': 'FR',
+  'Poland': 'PL',
+  'Czech Republic': 'CZ',
+  'Italy': 'IT',
+  'Spain': 'ES',
+  'Switzerland': 'CH',
+  'Belgium': 'BE',
+  'Norway': 'NO',
+  'Denmark': 'DK',
+  'Finland': 'FI',
+  'Portugal': 'PT',
+  'Greece': 'GR',
+  'Canada': 'CA',
+  'Australia': 'AU',
+  'Croatia': 'HR',
+  'Ukraine': 'UA',
+  'Serbia': 'RS',
+  'Bulgaria': 'BG',
+  'Turkey': 'TR',
+  'Japan': 'JP',
+}
+const getFlagUrl = (country) => {
+  const code = countryCodeMap[country]
+  return code ? `https://flagcdn.com/w40/${code.toLowerCase()}.png` : null
+}
+
+const countriesData = [
+  { country: 'Hungary',        visitors: 12427,  submits: 148,  submitRate: 1.19 },
+  { country: 'United States',  visitors: 6086,   submits: 3,    submitRate: 0.05 },
+  { country: 'Austria',        visitors: 1161,   submits: 42,   submitRate: 3.62 },
+  { country: 'Germany',        visitors: 858,    submits: 14,   submitRate: 1.63 },
+  { country: 'Singapore',      visitors: 768,    submits: null, submitRate: null },
+  { country: 'United Kingdom', visitors: 560,    submits: 8,    submitRate: 1.43 },
+  { country: 'Romania',        visitors: 496,    submits: 15,   submitRate: 3.02 },
+  { country: 'Slovakia',       visitors: 336,    submits: 15,   submitRate: 4.46 },
+  { country: 'Netherlands',    visitors: 262,    submits: 3,    submitRate: 1.15 },
+  { country: 'Sweden',         visitors: 253,    submits: 1,    submitRate: 0.40 },
+]
+
+const allCountries = [
+  { country: 'Hungary',        visitors: 12427,  submits: 148,  submitRate: 1.19 },
+  { country: 'United States',  visitors: 6086,   submits: 3,    submitRate: 0.05 },
+  { country: 'Austria',        visitors: 1161,   submits: 42,   submitRate: 3.62 },
+  { country: 'Germany',        visitors: 858,    submits: 14,   submitRate: 1.63 },
+  { country: 'Singapore',      visitors: 768,    submits: null, submitRate: null },
+  { country: 'United Kingdom', visitors: 560,    submits: 8,    submitRate: 1.43 },
+  { country: 'Romania',        visitors: 496,    submits: 15,   submitRate: 3.02 },
+  { country: 'Slovakia',       visitors: 336,    submits: 15,   submitRate: 4.46 },
+  { country: 'Netherlands',    visitors: 262,    submits: 3,    submitRate: 1.15 },
+  { country: 'Sweden',         visitors: 253,    submits: 1,    submitRate: 0.40 },
+  { country: 'France',         visitors: 214,    submits: 6,    submitRate: 2.80 },
+  { country: 'Poland',         visitors: 198,    submits: 4,    submitRate: 2.02 },
+  { country: 'Czech Republic', visitors: 187,    submits: 9,    submitRate: 4.81 },
+  { country: 'Italy',          visitors: 163,    submits: 2,    submitRate: 1.23 },
+  { country: 'Spain',          visitors: 142,    submits: 3,    submitRate: 2.11 },
+  { country: 'Switzerland',    visitors: 118,    submits: 5,    submitRate: 4.24 },
+  { country: 'Belgium',        visitors: 97,     submits: 2,    submitRate: 2.06 },
+  { country: 'Norway',         visitors: 88,     submits: 1,    submitRate: 1.14 },
+  { country: 'Denmark',        visitors: 79,     submits: 2,    submitRate: 2.53 },
+  { country: 'Finland',        visitors: 71,     submits: null, submitRate: null },
+  { country: 'Portugal',       visitors: 64,     submits: 1,    submitRate: 1.56 },
+  { country: 'Greece',         visitors: 58,     submits: null, submitRate: null },
+  { country: 'Canada',         visitors: 52,     submits: 1,    submitRate: 1.92 },
+  { country: 'Australia',      visitors: 47,     submits: null, submitRate: null },
+  { country: 'Croatia',        visitors: 43,     submits: 2,    submitRate: 4.65 },
+  { country: 'Ukraine',        visitors: 38,     submits: null, submitRate: null },
+  { country: 'Serbia',         visitors: 34,     submits: 1,    submitRate: 2.94 },
+  { country: 'Bulgaria',       visitors: 29,     submits: null, submitRate: null },
+  { country: 'Turkey',         visitors: 24,     submits: null, submitRate: null },
+  { country: 'Japan',          visitors: 19,     submits: null, submitRate: null },
+]
+
+const hoveredCountriesRow = ref(null)
+const selectedCountriesRows = ref(new Set())
+const toggleCountriesRow = (country) => {
+  const s = new Set(selectedCountriesRows.value)
+  s.has(country) ? s.delete(country) : s.add(country)
+  selectedCountriesRows.value = s
+}
+const isCountriesRowSelected = (country) => selectedCountriesRows.value.has(country)
+
+const hasDevicesSelection = computed(() => selectedDevicesRows.value.size > 0)
+const devicesSelectionCount = computed(() => selectedDevicesRows.value.size)
+const allDevicesSelected = computed(() => devicesTableData.length > 0 && devicesTableData.every(r => selectedDevicesRows.value.has(r.type)))
+const isDevicesIndeterminate = computed(() => hasDevicesSelection.value && !allDevicesSelected.value)
+const toggleSelectAllDevices = () => {
+  selectedDevicesRows.value = allDevicesSelected.value ? new Set() : new Set(devicesTableData.map(r => r.type))
+}
+const clearDevicesRows = () => { selectedDevicesRows.value = new Set() }
+const applyDevicesFilter = () => {
+  applyFilterFromSelection('devices', selectedDevicesRows.value, type => type)
+  clearDevicesRows()
+}
+
+// New vs Returning table selection
+const hoveredNvrRow = ref(null)
+const selectedNvrRows = ref(new Set())
+const toggleNvrRow = (type) => {
+  const s = new Set(selectedNvrRows.value)
+  s.has(type) ? s.delete(type) : s.add(type)
+  selectedNvrRows.value = s
+}
+const isNvrRowSelected = (type) => selectedNvrRows.value.has(type)
+const hasNvrSelection = computed(() => selectedNvrRows.value.size > 0)
+const nvrSelectionCount = computed(() => selectedNvrRows.value.size)
+const allNvrSelected = computed(() => newVsReturningData.length > 0 && newVsReturningData.every(r => selectedNvrRows.value.has(r.type)))
+const isNvrIndeterminate = computed(() => hasNvrSelection.value && !allNvrSelected.value)
+const toggleSelectAllNvr = () => {
+  selectedNvrRows.value = allNvrSelected.value ? new Set() : new Set(newVsReturningData.map(r => r.type))
+}
+const clearNvrRows = () => { selectedNvrRows.value = new Set() }
+const applyNvrFilter = () => {
+  applyFilterFromSelection('visitor-type', selectedNvrRows.value, type => `${type} visitors`)
+  clearNvrRows()
+}
+
+const hasTrafficSelection = computed(() => selectedTrafficRows2.value.size > 0)
+const trafficSelectionCount = computed(() => selectedTrafficRows2.value.size)
+const allTrafficSelected = computed(() => trafficSourceData.length > 0 && trafficSourceData.every(r => selectedTrafficRows2.value.has(r.referrer)))
+const isTrafficIndeterminate = computed(() => hasTrafficSelection.value && !allTrafficSelected.value)
+const toggleSelectAllTraffic = () => {
+  selectedTrafficRows2.value = allTrafficSelected.value ? new Set() : new Set(trafficSourceData.map(r => r.referrer))
+}
+const clearTrafficRows = () => { selectedTrafficRows2.value = new Set() }
+const applyTrafficFilter = () => {
+  applyFilterFromSelection('traffic', selectedTrafficRows2.value, referrer => referrer)
+  clearTrafficRows()
+}
+
+const hasCountriesSelection = computed(() => selectedCountriesRows.value.size > 0)
+const countriesSelectionCount = computed(() => selectedCountriesRows.value.size)
+const allCountriesSelected = computed(() => countriesData.length > 0 && countriesData.every(r => selectedCountriesRows.value.has(r.country)))
+const isCountriesIndeterminate = computed(() => hasCountriesSelection.value && !allCountriesSelected.value)
+const toggleSelectAllCountries = () => {
+  selectedCountriesRows.value = allCountriesSelected.value ? new Set() : new Set(countriesData.map(r => r.country))
+}
+const clearCountriesRows = () => { selectedCountriesRows.value = new Set() }
+const applyCountriesFilter = () => {
+  applyFilterFromSelection('countries', selectedCountriesRows.value, country => country)
+  clearCountriesRows()
+}
+
+// Pie chart — only sources with submits
+// Top 5 by submits: Organic Search (1634), Facebook (378), Direct (272), Árukeresó (51), tarsasjatekok.com (32)
+// Other: Paid Search (13) + Instagram (9) + YouTube (5) + telex.hu (4) = 31
+// Series matches table row order (top 5) + Other
+// Organic Search, Direct, Facebook, Árukeresó, TikTok(0), Other(32+9+5+13+4=63)
+const trafficSubmitsPieSeries = [883, 673, 402, 164, 43, 0, 39]
+const trafficPieLabels = ['Paid Search', 'Organic Search', 'Facebook', 'Direct', 'Árukereső', 'TikTok', 'Other']
+const trafficPieColors = ['#FF6A45', '#FF8A6A', '#FFA48E', '#FFBFB2', '#FFD9D4', '#E5E7EB', '#D1D5DB']
+
+const trafficPieReferrerIndex = {
+  'Paid Search': 0, 'Organic Search': 1, 'Facebook': 2, 'Direct': 3,
+  'Árukereső': 4, 'TikTok': 5, 'Other': 6,
+}
+
+const hoveredChartIndex = computed(() =>
+  hoveredTrafficRow2.value !== null ? (trafficPieReferrerIndex[hoveredTrafficRow2.value] ?? null) : null
+)
+
+const maxCountrySubmits = Math.max(...countriesData.map(r => r.submits ?? 0))
+
+const trafficSubmitsPieOptions = computed(() => ({
+  chart: { type: 'donut', toolbar: { show: false }, fontFamily: 'inherit', animations: { dynamicAnimation: { enabled: false } } },
+  labels: trafficPieLabels,
+  colors: hoveredChartIndex.value !== null
+    ? trafficPieColors.map((c, i) => i === hoveredChartIndex.value ? c : c + '30')
+    : trafficPieColors,
+  dataLabels: { enabled: false },
+  legend: { show: false },
+  stroke: { width: 2, colors: ['#fff'] },
+  tooltip: {
+    custom: ({ series, seriesIndex, w }) => {
+      const value = series[seriesIndex]
+      const label = w.globals.labels[seriesIndex]
+      return `<div style="padding: 8px 12px; background: white; border: 1px solid #e3e5e8; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="width: 8px; height: 8px; background: ${w.globals.colors[seriesIndex]}; border-radius: 50%; display: inline-block;"></span>
+          <span style="color: #505763; font-weight: 500;">${label}: ${value.toLocaleString()}</span>
+        </div>
+      </div>`
+    }
+  },
+}))
+const trafficSourceData = [
+  { referrer: 'Paid Search',    visitors: 40552, submits: 883,  submitRate: 2.18 },
+  { referrer: 'Organic Search', visitors: 32037, submits: 673,  submitRate: 2.10 },
+  { referrer: 'Facebook',       visitors: 26453, submits: 402,  submitRate: 1.52 },
+  { referrer: 'Direct',         visitors: 23473, submits: 164,  submitRate: 0.70 },
+  { referrer: 'Árukereső',      visitors: 1617,  submits: 43,   submitRate: 2.66 },
+  { referrer: 'TikTok',         visitors: 1336,  submits: null, submitRate: null },
+  { referrer: 'Other',          visitors: 878,   submits: 39,   submitRate: 4.44 },
+]
+
+const allTrafficSources = [
+  { referrer: 'Paid Search',      visitors: 40552, submits: 883,  submitRate: 2.18 },
+  { referrer: 'Organic Search',   visitors: 32037, submits: 673,  submitRate: 2.10 },
+  { referrer: 'Facebook',         visitors: 26453, submits: 402,  submitRate: 1.52 },
+  { referrer: 'Direct',           visitors: 23473, submits: 164,  submitRate: 0.70 },
+  { referrer: 'Árukereső',        visitors: 1617,  submits: 43,   submitRate: 2.66 },
+  { referrer: 'TikTok',           visitors: 1336,  submits: null, submitRate: null },
+  { referrer: 'Other',            visitors: 878,   submits: 39,   submitRate: 4.44 },
+  { referrer: 'Instagram',        visitors: 642,   submits: 12,   submitRate: 1.87 },
+  { referrer: 'YouTube',          visitors: 487,   submits: 8,    submitRate: 1.64 },
+  { referrer: 'Email',            visitors: 398,   submits: 22,   submitRate: 5.53 },
+  { referrer: 'LinkedIn',         visitors: 287,   submits: 5,    submitRate: 1.74 },
+  { referrer: 'Pinterest',        visitors: 214,   submits: 3,    submitRate: 1.40 },
+  { referrer: 'Twitter/X',        visitors: 178,   submits: 2,    submitRate: 1.12 },
+  { referrer: 'telex.hu',         visitors: 143,   submits: 4,    submitRate: 2.80 },
+  { referrer: 'index.hu',         visitors: 118,   submits: 3,    submitRate: 2.54 },
+  { referrer: 'Google Shopping',  visitors: 97,    submits: 6,    submitRate: 6.19 },
+  { referrer: 'Bing',             visitors: 84,    submits: 2,    submitRate: 2.38 },
+  { referrer: 'Reddit',           visitors: 62,    submits: null, submitRate: null },
+  { referrer: 'Affiliate',        visitors: 48,    submits: 3,    submitRate: 6.25 },
+  { referrer: 'QR Code',          visitors: 31,    submits: 1,    submitRate: 3.23 },
+]
+</script>
+
+<style scoped>
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgb(227, 229, 232);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+}
+
+.status-badge-icon {
+  color: rgb(143, 151, 164);
+}
+
+.status-text {
+  font-size: 0.875rem;
+  color: rgb(80, 87, 99);
+}
+
+/* Filters Section */
+.filters-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 960px) {
+  .filters-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .filters-right {
+    flex-wrap: wrap;
+    margin-left: 0;
+  }
+  .filters-right > .relative {
+    width: auto;
+    flex: 1;
+    min-width: 160px;
+  }
+  .trend-chart-tabs {
+    flex-wrap: wrap;
+  }
+  .trend-chart-tab {
+    min-width: calc(50% - 0.25rem);
+  }
+}
+
+.filters-right {
+  display: flex;
+  gap: 1rem;
+  margin-left: auto;
+}
+
+.filters-section > .relative {
+  width: 240px;
+}
+
+.filters-right > .relative {
+  width: 210px;
+}
+
+@media (max-width: 1439px) {
+  .chat-open .filters-section {
+    justify-content: flex-start;
+  }
+
+  .chat-open .filters-section > .relative {
+    flex: 1;
+    width: auto;
+  }
+
+  .chat-open .filters-right {
+    flex: 3;
+    margin-left: 0;
+  }
+
+  .chat-open .filters-right > .relative {
+    flex: 1;
+    width: auto;
+  }
+}
+
+/* Trend Chart Tabs */
+.trend-chart-tabs {
+  display: flex;
+  border-bottom: 1px solid rgb(227, 229, 232);
+  overflow: visible;
+}
+
+.trend-chart-tab {
+  padding: 1.25rem 0.75rem;
+  flex: 1;
+  min-width: 140px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.trend-chart-tab:hover {
+  background: rgb(249, 250, 251);
+}
+
+.trend-chart-tab.active {
+  border-bottom-color: #ed5a29;
+}
+
+.trend-chart-tab-title {
+  font-size: 0.75rem;
+  color: rgb(80, 87, 99);
+  opacity: 0.8;
+  margin-bottom: 0.625rem;
+  font-weight: 500;
+}
+
+.trend-chart-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.trend-chart-value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgb(80, 87, 99);
+}
+
+.trend-chart-change {
+  font-size: 0.6875rem;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.trend-chart-change.positive {
+  color: rgb(35, 158, 119);
+}
+
+.trend-chart-change.negative {
+  color: rgb(228, 37, 45);
+}
+
+.chart-canvas {
+  padding: 0;
+}
+
+.line-chart {
+  width: 100%;
+  height: auto;
+}
+
+.chart-point {
+  cursor: pointer;
+  transition: r 0.2s;
+}
+
+.chart-point:hover {
+  r: 5;
+}
+
+.chart-placeholder {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(247, 247, 248);
+  border-radius: 0.5rem;
+  border: 2px dashed rgb(227, 229, 232);
+}
+
+/* Section Titles and Layout */
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: rgb(35, 38, 42);
+  margin-bottom: 1.25rem;
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
+.section-header .section-title {
+  padding-left: 0;
+  padding-right: 0;
+  margin-bottom: 0;
+}
+
+.countries-content {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.countries-table-side {
+  flex: 1;
+  min-width: 0;
+}
+
+.countries-chart-side {
+  width: 260px;
+  flex-shrink: 0;
+}
+
+.countries-bar-header {
+  height: 40px;
+}
+
+.countries-bar-row {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 40px 0 8px;
+  transition: background 0.2s ease;
+}
+
+
+.countries-bar-track {
+  flex: 1;
+  height: 10px;
+  background: rgb(243, 244, 246);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.countries-bar-fill {
+  height: 100%;
+  background: var(--color-om-orange-500);
+  border-radius: 0 5px 5px 0;
+  transition: width 0.3s ease;
+}
+
+.countries-bar-value {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #505763;
+  min-width: 28px;
+  text-align: right;
+}
+
+.campaign-performance-layout {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+}
+
+.campaign-list-column {
+  flex: 0 0 480px;
+}
+
+.campaign-metrics-column {
+  flex: 1;
+  min-width: 500px;
+}
+
+/* Smaller columns for breakdown module tables */
+.breakdown-module-list-column {
+  flex: 0 0 40%;
+  min-width: 0;
+}
+
+.breakdown-module-metrics-column {
+  flex: 0 0 60%;
+  min-width: 0;
+}
+
+.breakdown-module-list-header {
+  flex: 0 0 40%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.breakdown-module-metrics-header {
+  flex: 0 0 60%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.breakdown-module-metrics-header .header-cell:nth-child(2) {
+  flex: 1.5;
+}
+
+.breakdown-module-metrics-header .header-cell:last-child {
+  padding-right: 32px;
+}
+
+.breakdown-module-list-header .header-cell {
+  padding: 0.75rem calc(1rem + 16px);
+  flex: initial;
+  width: 100%;
+}
+
+.breakdown-module-metrics-header .header-cell {
+  flex: 1;
+  padding: 0.75rem 1rem;
+}
+
+.breakdown-module-metrics-header .header-cell:last-child {
+  padding-right: 32px;
+}
+
+.campaign-table-header {
+  display: flex;
+  border-bottom: 1px solid rgb(227, 229, 232);
+}
+
+.header-cell {
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: #8F97A4;
+  flex: 1;
+  container-type: inline-size;
+}
+
+.campaign-list-column .header-cell {
+  flex: initial;
+  width: 100%;
+}
+
+.header-cell.numeric {
+  text-align: right;
+}
+
+.campaign-table-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.campaign-row {
+  height: 44px;
+  padding: 0 calc(1rem + 20px) 0 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgb(243, 244, 246);
+  cursor: pointer;
+}
+
+.campaign-row.is-hovered {
+  background: rgb(249, 250, 251);
+}
+
+.campaign-name-wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.campaign-name-with-icon {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.campaign-name {
+  font-size: 0.8125rem;
+  color: #23262A;
+  font-weight: 400;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+  max-height: 2.275rem;
+  min-width: 0;
+}
+
+.campaign-link-icon {
+  color: #8F97A4;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.campaign-row:hover .campaign-link-icon {
+  opacity: 1;
+}
+
+.campaign-link-icon:hover {
+  color: #ed5a29;
+  transform: scale(1.1);
+}
+
+.campaign-chevron {
+  flex-shrink: 0;
+  color: #8F97A4;
+  transition: transform 0.25s ease, color 0.2s ease;
+  cursor: pointer;
+}
+
+.campaign-chevron:hover {
+  color: #23262A;
+}
+
+.campaign-chevron-expanded {
+  transform: rotate(180deg);
+}
+
+.campaign-variant-row {
+  height: 44px;
+  padding: 0 1rem 0 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgb(250, 251, 252);
+  border-bottom: 1px solid rgb(243, 244, 246);
+  cursor: default;
+}
+
+.campaign-variant-name {
+  font-size: 0.8125rem;
+  color: #8F97A4;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.campaign-variant-metrics-row {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  background: rgb(250, 251, 252);
+  border-bottom: 1px solid rgb(243, 244, 246);
+}
+
+.campaign-variant-metrics-row .metric-cell {
+  font-size: 0.8125rem;
+  color: #8F97A4;
+  font-weight: 400;
+}
+
+.campaign-variant-metrics-row .metric-cell:nth-child(2) {
+  flex: 1.5;
+}
+
+.campaign-metrics-row {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgb(243, 244, 246);
+}
+
+.campaign-metrics-row.is-hovered {
+  background: rgb(249, 250, 251);
+}
+
+.metric-cell {
+  padding: 0 1rem;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: #23262A;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.metric-cell:last-child {
+  padding-right: 32px;
+}
+
+/* Make Visitors column wider in breakdown tables */
+.campaign-metrics-row .metric-cell:nth-child(2) {
+  flex: 1.5;
+}
+
+.campaign-metrics-header .header-cell:nth-child(2) {
+  flex: 1.5;
+}
+
+/* Breakdown Tables */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
+.view-all-btn {
+  padding: 0.5rem 1.25rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgb(80, 87, 99);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-all-btn:hover {
+  background: rgb(243, 244, 246);
+  color: rgb(35, 38, 42);
+  transform: translateY(-1px);
+}
+
+.breakdown-filter-bar {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  gap: 0.5rem;
+  background: #F7F7F8;
+  border-bottom: 1px solid rgb(227, 229, 232);
+  height: 40px;
+  box-sizing: border-box;
+}
+
+.breakdown-filter-bar .custom-checkbox {
+  opacity: 1 !important;
+}
+
+.breakdown-header {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgb(227, 229, 232);
+  padding: 0;
+  gap: 0.5rem;
+}
+
+.breakdown-checkbox-header {
+  flex-shrink: 0;
+  opacity: 0;
+}
+
+.breakdown-header-cell {
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: #8F97A4;
+  flex: 1;
+}
+
+.breakdown-header-cell:first-child {
+  padding-left: 32px;
+}
+
+.breakdown-header-cell:last-child {
+  padding-right: 32px;
+}
+
+.breakdown-header-cell.numeric {
+  text-align: right;
+}
+
+.breakdown-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.breakdown-row {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgb(243, 244, 246);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  padding: 0;
+  gap: 0.5rem;
+}
+
+.breakdown-row:hover {
+  background: rgb(249, 250, 251);
+}
+
+.breakdown-row .custom-checkbox {
+  opacity: 0;
+  flex-shrink: 0;
+}
+
+.breakdown-row:hover .custom-checkbox {
+  opacity: 1;
+}
+
+.breakdown-cell {
+  padding: 0 1rem;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: #23262A;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.breakdown-cell:first-child {
+  padding-left: 1rem;
+}
+
+.breakdown-cell:last-child {
+  padding-right: 32px;
+}
+
+.breakdown-cell.numeric {
+  text-align: right;
+  justify-content: flex-end;
+}
+
+.url-cell {
+  overflow: hidden;
+}
+
+.url-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #23262A;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s ease;
+}
+
+.url-link:hover {
+  color: #ed5a29;
+}
+
+.external-icon {
+  flex-shrink: 0;
+  color: rgb(185, 190, 198);
+  opacity: 0;
+  transition: opacity 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.breakdown-row:hover .external-icon {
+  opacity: 1;
+}
+
+.url-link:hover .external-icon {
+  color: #ed5a29;
+  transform: translate(2px, -2px);
+}
+
+/* Breakdown Modules Row */
+.breakdown-modules-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 1199px) {
+  .breakdown-modules-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.breakdown-modules-row.single-column {
+  grid-template-columns: 1fr;
+}
+
+.top-pages-row > * {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.top-pages-row .campaign-list-header {
+  flex: 0 0 35%;
+  min-width: 0;
+}
+
+.top-pages-row .campaign-list-column {
+  flex: 0 0 35%;
+  min-width: 0;
+}
+
+.top-pages-row .campaign-metrics-header {
+  flex: 0 0 65%;
+  min-width: 0;
+}
+
+.top-pages-row .campaign-metrics-column {
+  flex: 0 0 65%;
+  min-width: 0;
+}
+
+.top-pages-row .campaign-performance-layout {
+  overflow-x: hidden;
+}
+
+/* Equal-width metric columns in top-pages-row (override global nth-child flex:1.5) */
+.top-pages-row .campaign-metrics-header .header-cell:nth-child(2),
+.top-pages-row .campaign-metrics-row .metric-cell:nth-child(2) {
+  flex: 1;
+}
+
+/* Single-line ellipsis for URLs in Top Pages */
+.top-pages-row .campaign-name {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: none;
+  -webkit-line-clamp: unset;
+  -webkit-box-orient: unset;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.modal-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 12px 20px -8px rgba(0, 0, 0, 0.08);
+  max-width: 1200px;
+  width: 100%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgb(227, 229, 232);
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: rgb(35, 38, 42);
+}
+
+.modal-close-btn {
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: rgb(143, 151, 164);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close-btn:hover {
+  background: rgb(243, 244, 246);
+  color: rgb(35, 38, 42);
+  transform: scale(1.05);
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-body .breakdown-table {
+  overflow-x: visible;
+}
+
+.modal-body .breakdown-header,
+.modal-body .breakdown-row {
+  min-width: 0;
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+.modal-fade-enter-active .modal-container,
+.modal-fade-leave-active .modal-container {
+  transition: transform 0.3s ease;
+}
+
+.modal-fade-enter-from .modal-container,
+.modal-fade-leave-to .modal-container {
+  transform: scale(0.95);
+}
+
+/* Custom Checkboxes */
+.custom-checkbox {
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+  opacity: 0;
+}
+
+/* Show checkboxes on row hover or when any selection exists */
+.campaign-row.is-hovered .custom-checkbox,
+.campaign-variant-row:hover .custom-checkbox,
+.has-selection .custom-checkbox {
+  opacity: 1;
+}
+
+/* Show checkbox when it's in checked/indeterminate state */
+.custom-checkbox:has(button.bg-om-orange-500) {
+  opacity: 1;
+}
+
+/* Filter Bar - Full Width */
+.campaign-filter-bar {
+  display: flex;
+  align-items: center;
+  padding: 0 1rem 0 0.5rem;
+  gap: 0.5rem;
+  background: #F7F7F8;
+  border-bottom: 1px solid rgb(227, 229, 232);
+  height: 40px;
+  box-sizing: border-box;
+}
+
+.campaign-filter-bar .custom-checkbox {
+  opacity: 1 !important;
+}
+
+/* Campaign Headers Row - Full Width */
+.campaign-headers-row {
+  display: flex;
+  border-bottom: 1px solid rgb(227, 229, 232);
+  height: 40px;
+}
+
+.campaign-list-header {
+  flex: 0 0 480px;
+  display: flex;
+  align-items: center;
+}
+
+.campaign-list-header .header-cell {
+  padding: 0.75rem calc(1rem + 16px);
+}
+
+.campaign-metrics-header {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 500px;
+}
+
+.campaign-metrics-header .header-cell {
+  flex: 1;
+  padding: 0.75rem 1rem;
+}
+
+.campaign-metrics-header .header-cell:last-child {
+  padding-right: 32px;
+}
+
+.selection-count {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: rgb(35, 38, 42);
+}
+
+.filter-btn {
+  padding: 0.375rem 0.75rem;
+  margin-left: 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  color: rgb(80, 87, 99);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 400;
+}
+
+.filter-btn:hover {
+  background: rgb(229, 231, 235);
+  color: rgb(35, 38, 42);
+}
+
+.clear-selection-btn {
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 1px solid rgb(213, 216, 221);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: rgb(80, 87, 99);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-selection-btn:hover {
+  background: rgb(243, 244, 246);
+  border-color: rgb(185, 190, 198);
+  color: rgb(35, 38, 42);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.chat-open .campaign-list-column {
+  flex: 0 0 320px;
+}
+
+.chat-open .campaign-list-header {
+  flex: 0 0 320px;
+}
+
+/* Optimization Opportunities — 2x2 grid */
+.opp-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 0 28px;
+}
+
+.opp-card {
+  display: flex;
+  align-items: flex-start;
+  cursor: pointer;
+  padding: 16px;
+  gap: 16px;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid #E5E7EB;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 0;
+}
+
+.opp-card:hover {
+  border-color: #ED5A29;
+  box-shadow: 0 4px 14px rgba(237, 90, 41, 0.4);
+}
+
+.opp-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #FFF0EB;
+  color: #C94B14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.opp-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.opp-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.opp-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #23262A;
+  line-height: 1.4;
+  flex: 1;
+  min-width: 0;
+}
+
+.opp-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.opp-campaign {
+  font-size: 0.8125rem;
+  color: #3F4248;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.opp-campaign strong {
+  color: #23262A;
+  font-weight: 600;
+}
+
+.opp-desc {
+  font-size: 0.8125rem;
+  color: #6B7280;
+  line-height: 1.5;
+}
+
+/* Old opportunity styles (kept for compatibility) */
+.opportunities-list {
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px;
+}
+
+.opportunity-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 13px 12px;
+  gap: 16px;
+  background: white;
+  position: relative;
+  transition: background 0.15s;
+}
+
+.opportunity-item + .opportunity-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 60px;
+  right: 12px;
+  height: 1px;
+  background: #F1F2F4;
+}
+
+.opportunity-item:hover {
+  background: #F1F2F4;
+  border-radius: 8px;
+}
+
+.opportunity-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #FFF0EB;
+  color: #C94B14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.opportunity-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.opportunity-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.opportunity-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #23262A;
+}
+
+.opportunity-campaign-tag {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #F1F2F4;
+  color: #4B5563;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.opportunity-desc {
+  font-size: 0.8125rem;
+  color: #6B7280;
+  line-height: 1.4;
+}
+
+.opportunity-badge {
+  font-size: 0.75rem;
+  font-weight: 400;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-high {
+  background: #FFF0EB;
+  color: #C94B14;
+}
+
+.badge-medium {
+  background: #FFF8E6;
+  color: #9A6400;
+}
+
+.badge-low {
+  background: #F1F2F4;
+  color: #6B7280;
+}
+
+.opportunity-chevron {
+  color: #D1D5DB;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.opportunity-item:hover .opportunity-chevron {
+  color: #9CA3AF;
+}
+
+.opportunities-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-right: 32px;
+  margin-bottom: 1.25rem;
+}
+
+.opportunities-title-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.opportunities-title-text .section-title {
+  margin-bottom: 0;
+}
+
+.opportunities-summary {
+  font-size: 0.8125rem;
+  color: #6B7280;
+  line-height: 1.5;
+  margin: 6px 32px 0;
+}
+
+.opportunities-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.opportunities-generated {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #4B5563;
+  background: #F1F2F4;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.view-all-btn {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #6B7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.view-all-btn:hover {
+  color: #23262A;
+  background: #F1F2F4;
+}
+
+/* Devices + Traffic Source Row */
+.analytics-outer {
+  container-type: inline-size;
+  container-name: analytics-outer;
+}
+
+.devices-card {
+  container-type: inline-size;
+}
+
+.devices-traffic-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  align-items: start;
+}
+
+@container (min-width: 1200px) {
+  .devices-traffic-row {
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+  }
+
+  .devices-traffic-row.traffic-referring-row {
+    grid-template-columns: 55fr 45fr;
+  }
+
+  .devices-traffic-row.single-column {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Traffic Source Table */
+.traffic-table {
+  padding: 0 20px;
+}
+
+.traffic-header {
+  display: flex;
+  align-items: center;
+  padding: 0 0 8px 0;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.traffic-header-cell {
+  font-size: 11px;
+  font-weight: 500;
+  color: #9CA3AF;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.traffic-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #F9FAFB;
+}
+
+.traffic-row:last-child {
+  border-bottom: none;
+}
+
+.traffic-cell {
+  font-size: 13px;
+  color: #374151;
+}
+
+.traffic-referrer-col {
+  flex: 2;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 12px;
+}
+
+.traffic-visitors-col {
+  flex: 3;
+  padding-right: 16px;
+}
+
+.traffic-visitors-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.traffic-visitors-value {
+  font-size: 13px;
+  color: #374151;
+  white-space: nowrap;
+  width: 56px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.traffic-num-col {
+  flex: 1;
+  text-align: right;
+  color: #6B7280;
+}
+
+.traffic-progress-track {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: #F3F4F6;
+  overflow: hidden;
+}
+
+.traffic-progress-bar {
+  height: 100%;
+  border-radius: 2px;
+  background: #FF6A45;
+}
+
+.traffic-plain-layout {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.devices-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.devices-chart-wrap {
+  padding: 0 20px;
+}
+
+.devices-table-wrap {
+  min-width: 0;
+}
+
+.devices-table-wrap .campaign-performance-layout {
+  overflow-x: hidden;
+}
+
+.devices-table-wrap .campaign-list-header,
+.devices-table-wrap .campaign-list-column {
+  flex: 0 0 40%;
+  min-width: 0;
+  max-width: 40%;
+}
+
+.devices-table-wrap .campaign-metrics-header,
+.devices-table-wrap .campaign-metrics-column {
+  flex: 0 0 60%;
+  min-width: 0;
+  max-width: 60%;
+}
+
+.devices-table-wrap .campaign-metrics-header .header-cell:last-child {
+  padding-right: 32px;
+}
+
+.devices-table-wrap .campaign-metrics-header,
+.traffic-plain-table .campaign-metrics-header,
+.new-vs-returning-table-wrap .campaign-metrics-header {
+  container-type: inline-size;
+}
+
+/* New vs Returning Visitors card */
+.new-vs-returning-card {
+  container-type: inline-size;
+}
+
+/* Referring Sites card (used inside traffic-referring-row) */
+.referring-sites-card .campaign-performance-layout {
+  overflow-x: hidden;
+}
+
+.referring-sites-card .campaign-list-header,
+.referring-sites-card .campaign-list-column {
+  flex: 0 0 40%;
+  min-width: 0;
+  max-width: 40%;
+}
+
+.referring-sites-card .campaign-metrics-header,
+.referring-sites-card .campaign-metrics-column {
+  flex: 0 0 60%;
+  min-width: 0;
+  max-width: 60%;
+}
+
+.referring-sites-card .campaign-metrics-header .header-cell:last-child {
+  padding-right: 32px;
+}
+
+.referring-sites-card .campaign-metrics-header .header-cell:nth-child(2),
+.referring-sites-card .campaign-metrics-row .metric-cell:nth-child(2) {
+  flex: 1;
+}
+
+.new-vs-returning-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.new-vs-returning-chart-wrap {
+  padding: 0 20px;
+}
+
+.new-vs-returning-table-wrap {
+  min-width: 0;
+}
+
+.new-vs-returning-table-wrap .campaign-performance-layout {
+  overflow-x: hidden;
+}
+
+.new-vs-returning-table-wrap .campaign-list-header,
+.new-vs-returning-table-wrap .campaign-list-column {
+  flex: 0 0 40%;
+  min-width: 0;
+  max-width: 40%;
+}
+
+.new-vs-returning-table-wrap .campaign-metrics-header,
+.new-vs-returning-table-wrap .campaign-metrics-column {
+  flex: 0 0 60%;
+  min-width: 0;
+  max-width: 60%;
+}
+
+.new-vs-returning-table-wrap .campaign-metrics-header .header-cell:last-child {
+  padding-right: 32px;
+}
+
+.sr-short { display: none; }
+
+@container (max-width: 140px) {
+  .sr-full { display: none; }
+  .sr-short { display: inline; }
+}
+
+.traffic-plain-layout .traffic-table,
+.traffic-plain-table {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 0;
+  padding: 0;
+}
+
+.traffic-plain-table .campaign-performance-layout {
+  overflow-x: hidden;
+}
+
+.traffic-plain-table .campaign-list-column {
+  flex: 0 0 40%;
+  min-width: 0;
+  max-width: 40%;
+}
+
+.traffic-plain-table .campaign-list-header {
+  flex: 0 0 40%;
+  min-width: 0;
+  max-width: 40%;
+}
+
+.traffic-plain-table .campaign-metrics-column {
+  flex: 0 0 60%;
+  min-width: 0;
+  max-width: 60%;
+}
+
+.traffic-plain-table .campaign-metrics-header {
+  flex: 0 0 60%;
+  min-width: 0;
+  max-width: 60%;
+}
+
+.traffic-plain-table .campaign-metrics-header .header-cell:nth-child(2) {
+  flex: 1.5;
+}
+
+.traffic-plain-table .campaign-metrics-header .header-cell:last-child {
+  padding-right: 32px;
+}
+
+.traffic-pie-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 240px;
+  height: 240px;
+  padding-right: 2rem;
+}
+
+.traffic-pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.traffic-pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.traffic-pie-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.traffic-pie-legend-label {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.subpage-table .campaign-row {
+  padding-left: calc(1rem + 16px);
+}
+
+.subpage-table-header {
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  height: 40px;
+  background: white;
+  border-bottom: 1px solid rgb(243, 244, 246);
+}
+
+.subpage-header-cell {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #23262A;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.subpage-header-cell.numeric {
+  text-align: right;
+  min-width: 100px;
+}
+
+.subpage-table-row {
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  height: 48px;
+  border-bottom: 1px solid rgb(249, 250, 251);
+  transition: background 0.15s ease;
+}
+
+.subpage-table-row:last-child {
+  border-bottom: none;
+}
+
+.subpage-table-row:hover {
+  background: rgb(249, 250, 251);
+}
+
+.subpage-cell {
+  font-size: 0.8125rem;
+  color: #505763;
+}
+
+.subpage-cell.numeric {
+  text-align: right;
+  min-width: 100px;
+}
+</style>

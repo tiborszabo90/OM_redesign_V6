@@ -4,7 +4,7 @@
       <Sidebar v-if="!embedded" :show-ai-button="false" />
       <!-- Embedded (agentic flow): no menu, just the OM logo in the top-left corner -->
       <button
-        v-else
+        v-else-if="!hideBack"
         @click="emit('back')"
         class="fixed top-4 left-4 z-20 w-8 h-8 flex items-center justify-center cursor-pointer"
         title="Back to Today's plan"
@@ -1044,6 +1044,8 @@ const props = defineProps({
   // Embedded in the Today's plan flow: open as a centered frameless chat (so the
   // conversation appears to stay in place), drop the editor's own draft chrome.
   embedded: { type: Boolean, default: false },
+  // Hide the embedded back button (the agentic sidebar already provides navigation).
+  hideBack: { type: Boolean, default: false },
   // Targeting parameters reviewed in-chat after "Done" (embedded flow only):
   // array of { label, items: [] }.
   targeting: { type: Array, default: () => [] },

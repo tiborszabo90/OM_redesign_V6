@@ -1,4 +1,11 @@
 {
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Bash(scripts/screenshot.sh *)",
+      "Bash(npm run dev)"
+    ]
+  },
   "hooks": {
     "PostToolUse": [
       {

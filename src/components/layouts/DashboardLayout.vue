@@ -3,35 +3,37 @@
   <div v-else class="h-screen-safe flex overflow-hidden relative" :style="{ backgroundColor: backgroundColor }">
     <!-- Left Sidebar - Always visible -->
     <aside v-show="!hideSidebar" :class="[
-      'sidebar-enter fixed left-0 top-0 h-screen-safe bg-white flex flex-col pt-6 pb-4 z-30',
-      wideSidebar ? 'w-60 items-stretch px-3' : 'w-19 items-center',
+      'sidebar-enter fixed left-0 top-0 h-screen-safe bg-white flex flex-col z-30',
+      wideSidebar ? 'w-60 items-stretch px-3 pt-4 pb-2' : 'w-19 items-center pt-6 pb-4',
       { 'border-r border-[#E5E7EB]': !hideSidebarBorder }
     ]">
       <!-- Logo -->
-      <button @click="$emit('logo-click'); navigateTo('agentic/home')" :class="['mb-5 flex items-center w-7 h-7', wideSidebar ? 'ml-2' : 'justify-center']">
-        <img src="/icons/optimonk-logo.svg" alt="OptiMonk" class="w-7 h-7 shrink-0" />
+      <button @click="$emit('logo-click'); navigateTo(wideSidebar ? 'agentic/home' : 'optimonk/home-old')" :class="['flex items-center', wideSidebar ? 'mb-2 h-8 pl-4' : 'mb-5 w-7 h-7 justify-center']">
+        <img v-if="wideSidebar" src="/OM-Logo-primary-basic.svg" alt="OptiMonk" class="h-6 w-auto shrink-0" />
+        <img v-else src="/icons/optimonk-logo.svg" alt="OptiMonk" class="w-7 h-7 shrink-0" />
       </button>
 
       <!-- Optional sidebar-top content (e.g. a domain/workspace switcher) -->
       <slot name="sidebar-top" />
 
-      <!-- Navigation Menu -->
-      <nav ref="navRef" class="flex-1 flex flex-col w-full px-1 gap-1 overflow-hidden">
+      <!-- Navigation + recents share one scroll area when a recents slot is present -->
+      <div :class="['w-full min-h-0 flex-1 flex flex-col sidebar-scroll', $slots['sidebar-recents'] ? 'overflow-y-auto' : 'overflow-hidden']">
+      <nav ref="navRef" :class="['flex flex-col w-full px-1 gap-1', $slots['sidebar-recents'] ? 'shrink-0' : 'flex-1 overflow-hidden']">
         <button
           v-for="item in visibleMenuItems"
           :key="item.id"
           data-nav-item
           @click="handleMenuClick(item.id)"
           :class="[
-            'w-full transition-colors cursor-pointer rounded-xl',
-            wideSidebar ? 'flex items-center gap-3 px-3 py-2.5' : 'py-2 flex flex-col items-center gap-0.5',
+            'w-full transition-colors cursor-pointer',
+            wideSidebar ? 'rounded-lg flex items-center gap-2.5 px-3 py-2' : 'rounded-xl py-2 flex flex-col items-center gap-0.5',
             activeItem === item.id
-              ? 'bg-om-orange-100 text-om-orange-500'
-              : 'text-om-gray-500 hover:bg-om-gray-100 hover:text-om-gray-600'
+              ? (wideSidebar ? 'bg-om-gray-100 text-om-gray-700' : 'bg-om-orange-100 text-om-orange-500')
+              : (wideSidebar ? 'text-om-gray-600 hover:bg-om-gray-100 hover:text-om-gray-700' : 'text-om-gray-500 hover:bg-om-gray-100 hover:text-om-gray-600')
           ]"
         >
-          <component :is="item.iconComponent" :size="20" class="shrink-0" />
-          <span :class="wideSidebar ? 'text-sm font-medium' : 'text-[10px] font-medium whitespace-pre-line text-center leading-tight'">{{ item.label }}</span>
+          <component :is="item.iconComponent" :size="wideSidebar ? 18 : 20" class="shrink-0" />
+          <span :class="wideSidebar ? 'text-sm font-normal' : 'text-[10px] font-medium whitespace-pre-line text-center leading-tight'">{{ item.label }}</span>
         </button>
 
         <!-- More button (shown when items overflow) -->
@@ -51,8 +53,36 @@
         </button>
       </nav>
 
+      <!-- Recent conversations scroll together with the nav -->
+      <div v-if="$slots['sidebar-recents']" class="px-1 mt-3">
+        <slot name="sidebar-recents" />
+      </div>
+      </div>
+
       <!-- Bottom section -->
-      <div :class="['flex flex-col gap-3 mt-auto pb-4', wideSidebar ? 'items-start px-1' : 'items-center']">
+      <!-- Wide sidebar: full-width profile button (matches the rest); the bell is a trailing icon over it -->
+      <div v-if="wideSidebar" class="mt-auto px-1 pb-1 relative">
+        <button
+          @click="showProfilePopover = !showProfilePopover"
+          class="w-full flex items-center gap-2 px-3 py-2 pr-11 rounded-lg hover:bg-om-gray-100 transition-colors cursor-pointer"
+        >
+          <span class="w-7 h-7 rounded-full bg-om-gray-500 flex items-center justify-center text-white text-xs font-medium shrink-0 overflow-hidden">
+            <img v-if="userAvatar" :src="userAvatar" alt="" class="w-full h-full object-cover" />
+            <template v-else>{{ userInitials }}</template>
+          </span>
+          <span class="flex-1 min-w-0 text-sm font-normal text-om-gray-700 truncate text-left">{{ userName || 'Account' }}</span>
+        </button>
+        <button
+          @click.stop
+          class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center text-om-gray-400 hover:text-om-gray-600 hover:bg-om-gray-200 transition-colors cursor-pointer"
+          title="Notifications"
+        >
+          <Bell :size="18" />
+        </button>
+      </div>
+
+      <!-- Narrow sidebar: stacked icon buttons -->
+      <div v-else class="flex flex-col items-center gap-3 mt-auto pb-4">
         <!-- AI Chat button (optional) -->
         <button
           v-if="showAiButton"
@@ -76,12 +106,13 @@
         </button>
 
         <!-- Profile Avatar -->
-          <button
-            @click="showProfilePopover = !showProfilePopover"
-            class="w-7 h-7 rounded-full bg-om-gray-500 flex items-center justify-center text-white text-xs font-medium overflow-hidden hover:ring-2 hover:ring-om-gray-500/30 transition-all cursor-pointer"
-          >
-            <span>TS</span>
-          </button>
+        <button
+          @click="showProfilePopover = !showProfilePopover"
+          class="w-7 h-7 rounded-full bg-om-gray-500 flex items-center justify-center text-white text-xs font-medium overflow-hidden hover:ring-2 hover:ring-om-gray-500/30 transition-all cursor-pointer"
+        >
+          <img v-if="userAvatar" :src="userAvatar" alt="" class="w-full h-full object-cover" />
+          <span v-else>{{ userInitials }}</span>
+        </button>
       </div>
     </aside>
 
@@ -261,6 +292,20 @@ const props = defineProps({
   navItems: {
     type: Array,
     default: null
+  },
+  // Profile shown at the bottom of a wide sidebar
+  userName: {
+    type: String,
+    default: ''
+  },
+  userInitials: {
+    type: String,
+    default: 'TS'
+  },
+  // Optional avatar image URL (e.g. a DiceBear avatar); falls back to initials
+  userAvatar: {
+    type: String,
+    default: ''
   }
 })
 
@@ -274,6 +319,9 @@ watch(() => props.activeMenuItem, (newValue) => {
 
 const handleMenuClick = (itemId) => {
   activeItem.value = itemId
+  // Nav items may declare their destination via `to` (a hash slug); navigate directly.
+  const item = menuItems.value.find((m) => m.id === itemId)
+  if (item && item.to) window.location.hash = '#/' + item.to
   emit('menu-click', itemId)
 }
 
@@ -303,6 +351,9 @@ const menuItems = computed(() =>
 
 // How many menu items fit in the available nav height
 const visibleCount = computed(() => {
+  // Wide sidebar always shows every item: there's room, and the stacked "More"
+  // button is a narrow-mode affordance that looks wrong here.
+  if (props.wideSidebar) return menuItems.value.length
   if (!itemHeights.value.length || !navAvailableHeight.value) return menuItems.value.length
 
   const available = navAvailableHeight.value
@@ -378,5 +429,13 @@ onUnmounted(() => {
 .popover-fade-leave-to {
   opacity: 0;
   transform: translateY(6px);
+}
+/* Hide the sidebar scroll bar so nav + recents use the full width (hover rects match the rest) */
+.sidebar-scroll {
+  scrollbar-width: none;
+}
+.sidebar-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 </style>

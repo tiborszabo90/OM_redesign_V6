@@ -4,15 +4,6 @@
 
       <!-- Main buttons -->
       <div v-if="!showArchive" class="flex flex-col gap-6 items-stretch">
-        <!-- Currently working on -->
-        <div class="rounded-2xl border-2 border-om-orange-400 bg-om-orange-50/50 p-5">
-          <div class="text-xs font-semibold text-om-orange-600 uppercase tracking-wider mb-3">Currently working on</div>
-          <div class="grid grid-cols-1 gap-2">
-            <Button variant="primary" size="sm" @click="$emit('go-public-wizard-v2')">OptiMonk Agentic</Button>
-          </div>
-        </div>
-
-        <!-- Everything else -->
         <div class="grid grid-cols-2 gap-3">
           <Button variant="secondary" size="sm" @click="$emit('select', 'email')">Email Registration</Button>
           <Button variant="secondary" size="sm" @click="$emit('select', 'email-hu')">Email Registration (HU)</Button>
@@ -84,7 +75,7 @@ const props = defineProps({
   initialShowArchive: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['select', 'go-home', 'go-home-onboarding', 'go-public-wizard', 'go-public-wizard-v2', 'go-public-wizard-v3', 'go-optimonk-agentic', 'go-optimonk-agentic-v2', 'go-design-guide', 'go-image-with-badge', 'go-chat-versions', 'go-editor', 'go-ai-texts-images', 'go-ai-texts-images-v2', 'navigate', 'show-archive'])
+const emit = defineEmits(['select', 'go-home', 'go-home-onboarding', 'go-public-wizard', 'go-public-wizard-v3', 'go-optimonk-agentic', 'go-optimonk-agentic-v2', 'go-design-guide', 'go-image-with-badge', 'go-chat-versions', 'go-editor', 'go-ai-texts-images', 'go-ai-texts-images-v2', 'navigate', 'show-archive'])
 
 const showArchive = ref(props.initialShowArchive)
 const archiveCategory = ref(null)

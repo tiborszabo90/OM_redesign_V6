@@ -11,22 +11,22 @@
     @back="showEditor = false"
     @published="onPublished"
   />
-  <DashboardLayout v-else active-menu-item="home" :nav-items="sidebarMenu" wide-sidebar :right-panel-collapsed="!chatOpen" :no-content-padding="!!reviewItem" @menu-click="onSidebarMenu">
-    <!-- Domain switcher at the top of the sidebar -->
+  <DashboardLayout v-else active-menu-item="home" :nav-items="sidebarMenu" wide-sidebar user-name="Csaba" user-initials="CS" :user-avatar="userAvatar" :right-panel-collapsed="!chatOpen" :no-content-padding="!!reviewItem" @menu-click="onSidebarMenu">
+    <!-- Domain switcher at the top of the sidebar (aligned with the nav: px-1 + px-3) -->
     <template #sidebar-top>
-      <div class="relative mb-4">
+      <div class="relative px-1 mb-1">
         <button
           @click="domainMenuOpen = !domainMenuOpen"
-          class="w-full flex items-center gap-2 px-2 py-2 rounded-lg border border-om-gray-200 hover:bg-om-gray-50 transition-colors cursor-pointer"
+          class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-om-gray-100 transition-colors cursor-pointer"
           title="Switch domain"
         >
-          <img src="/demos/telekom/logo.png" alt="Domain" class="w-6 h-6 rounded-full object-cover shrink-0" />
+          <img src="/demos/telekom/logo.png" alt="Domain" class="w-5 h-5 rounded-full object-cover shrink-0" />
           <span class="flex-1 min-w-0 text-sm text-om-gray-700 truncate text-left">{{ selectedDomain }}</span>
           <ChevronDown :size="14" class="text-om-gray-400 shrink-0" />
         </button>
         <template v-if="domainMenuOpen">
           <div class="fixed inset-0 z-30" @click="domainMenuOpen = false"></div>
-          <div class="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-om-gray-200 py-1 z-40">
+          <div class="absolute top-full left-1 right-1 mt-1 bg-white rounded-lg shadow-lg border border-om-gray-200 py-1 z-40">
             <button
               v-for="d in domains"
               :key="d"
@@ -35,12 +35,30 @@
             >
               <img v-if="!d.startsWith('+')" src="/demos/telekom/logo.png" class="w-4 h-4 rounded-full object-cover shrink-0" />
               <Plus v-else :size="14" class="text-om-gray-400 shrink-0" />
-              <span class="truncate">{{ d }}</span>
+              <span class="truncate">{{ d.replace(/^\+\s*/, '') }}</span>
             </button>
           </div>
         </template>
       </div>
+
+      <!-- New task button, below the domain switcher. This view IS the new-task
+           home, so it carries the active nav styling here. -->
+      <div class="px-1 mb-1">
+        <button
+          @click="homePrompt = ''; openCategory = null"
+          class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-normal bg-om-gray-100 text-om-gray-700 transition-colors cursor-pointer"
+        >
+          <Plus :size="18" class="shrink-0" />
+          New task
+        </button>
+      </div>
     </template>
+
+    <!-- Recent conversations, below the nav (scrollable, with rename/star/delete) -->
+    <template #sidebar-recents>
+      <RecentsList />
+    </template>
+
     <template #content>
       <!-- Expanded review, presented as a full-screen chat (no app-bar; back link sits with the content) -->
       <div v-if="reviewItem" class="h-full flex flex-col bg-white">
@@ -210,110 +228,116 @@
       </div>
 
       <!-- Dashboard (default) -->
-      <div v-else class="w-full max-w-3xl mx-auto">
-        <!-- Greeting + domain -->
-        <div class="text-center mb-8">
-          <h1 class="text-2xl font-semibold text-om-gray-700">Welcome back, Csaba. What should we work on today?</h1>
+      <div v-else class="w-full max-w-3xl mx-auto min-h-full flex flex-col justify-center pb-16">
+        <!-- Greeting: small eyebrow above, then the headline with the logo's 2x3 dot motif before it -->
+        <div class="text-center mb-7">
+          <p class="text-base text-om-gray-500 mb-3">Welcome back, Csaba.</p>
+          <div class="flex items-center justify-center gap-3">
+            <div class="grid grid-cols-2 gap-1 shrink-0" aria-hidden="true">
+              <span
+                v-for="n in 6"
+                :key="n"
+                class="w-2 h-2 rounded-full bg-om-orange-500 dot-wiggle"
+                :style="{ animationDelay: ((n - 1) * 0.1) + 's' }"
+              ></span>
+            </div>
+            <h1 class="text-[32px] leading-tight font-semibold text-om-gray-800 tracking-tight">What should we work on today?</h1>
+          </div>
         </div>
 
         <!-- New task composer (top of page): launches the full OptiMonk Agentic flow (#/agentic) -->
         <div class="mb-10">
-          <div class="relative">
+          <input ref="imageInput" type="file" accept="image/*" class="hidden" @change="onImageSelected" />
+          <div class="rounded-2xl border border-om-gray-200 bg-white shadow-[0_2px_16px_rgba(17,18,19,0.04)] hover:border-om-gray-300 focus-within:border-om-orange-300 focus-within:ring-2 focus-within:ring-om-orange-200 transition-all">
+            <!-- Selected image preview -->
+            <div v-if="attachedImage" class="px-3 pt-3">
+              <div class="relative inline-block w-16 h-16 rounded-lg overflow-hidden border border-om-gray-200">
+                <img :src="attachedImage.url" :alt="attachedImage.name" class="w-full h-full object-cover" />
+                <button
+                  @click="removeImage"
+                  class="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors cursor-pointer"
+                  title="Remove image"
+                >
+                  <X :size="12" />
+                </button>
+              </div>
+            </div>
             <textarea
               v-model="homePrompt"
               rows="3"
               @keydown.enter.exact.prevent="startTask(homePrompt)"
               placeholder="Describe a task and the agent will take care of it..."
-              class="w-full px-4 py-3 rounded-xl border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 focus:outline-none focus:ring-2 focus:ring-om-orange-400 focus:border-transparent text-sm resize-none pr-12"
+              class="home-composer-input w-full px-5 pt-4 bg-transparent border-0 text-om-gray-700 placeholder-om-gray-400 focus:outline-none text-[15px] leading-relaxed resize-none"
             ></textarea>
-            <button
-              @click="startTask(homePrompt)"
-              :disabled="!homePrompt.trim()"
-              :class="['absolute bottom-3 right-3 w-9 h-9 rounded-lg flex items-center justify-center transition-colors', homePrompt.trim() ? 'bg-om-orange-500 text-white cursor-pointer hover:bg-om-orange-600' : 'bg-om-gray-200 text-om-gray-500 cursor-default']"
-            >
-              <ArrowUp :size="16" />
-            </button>
+            <!-- Toolbar: image upload (left), send (right) -->
+            <div class="flex items-center justify-between px-4 pb-4 pt-1">
+              <button
+                @click="imageInput?.click()"
+                title="Upload an image"
+                class="w-9 h-9 rounded-xl flex items-center justify-center text-om-gray-500 hover:text-om-gray-700 hover:bg-om-gray-100 transition-colors cursor-pointer"
+              >
+                <ImagePlus :size="18" />
+              </button>
+              <button
+                @click="startTask(homePrompt)"
+                :disabled="!homePrompt.trim()"
+                :class="['w-9 h-9 rounded-xl flex items-center justify-center transition-all', homePrompt.trim() ? 'bg-om-orange-500 text-white cursor-pointer hover:bg-om-orange-600' : 'bg-om-gray-100 text-om-gray-400 cursor-default']"
+              >
+                <ArrowUp :size="16" />
+              </button>
+            </div>
           </div>
-          <div class="flex flex-wrap items-center justify-center gap-2 mt-3">
-            <span class="text-sm text-om-gray-500">Start with this:</span>
+          <!-- Category chips. The dropdown below is absolutely positioned so
+               opening it doesn't shift the composer's (centered) position. -->
+          <!-- min-height reserves the chip row's space so toggling the panel never
+               shifts the centered composer above it -->
+          <div class="relative mt-4 min-h-[32px]">
+            <!-- Chips hide while a category is open (Claude-style); the panel's own header closes it -->
+            <div v-show="!openCategory" class="flex flex-wrap items-center justify-center gap-2">
             <button
-              v-for="ex in promptExamples"
-              :key="ex.label"
+              v-for="cat in promptCategories"
+              :key="cat.id"
               type="button"
-              @click="homePrompt = ex.value"
-              class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-om-gray-200 text-sm text-om-gray-700 hover:border-om-orange-300 hover:bg-om-orange-50 transition-colors cursor-pointer"
+              @click="toggleCategory(cat.id)"
+              :class="[
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[13px] font-medium transition-all cursor-pointer',
+                openCategory === cat.id
+                  ? 'bg-om-orange-50 border-om-orange-300 text-om-orange-600'
+                  : 'bg-white border-om-gray-200 text-om-gray-600 hover:text-om-gray-700 shadow-[0_1px_2px_rgba(17,18,19,0.04)]'
+              ]"
             >
-              <component :is="ex.icon" :size="14" class="text-om-gray-500" />
-              {{ ex.label }}
+              <component :is="cat.icon" :size="14" :class="openCategory === cat.id ? 'text-om-orange-500' : 'text-om-gray-400'" />
+              {{ cat.label }}
             </button>
           </div>
-        </div>
 
-        <!-- Today's plan -->
-        <div class="mb-10">
-          <div class="flex items-center gap-2 mb-1">
-            <h2 class="text-lg font-semibold text-om-gray-700">Today's plan</h2>
-          </div>
-          <!-- Agent intro -->
-          <div class="flex items-start gap-2.5 mb-4">
-            <div class="shrink-0 w-7 h-7 rounded-full bg-om-orange-100 text-om-orange-500 flex items-center justify-center mt-0.5">
-              <Sparkles :size="15" />
+          <!-- Expanded suggestions: overlays in place of the chip row (doesn't push layout) -->
+          <div v-if="activeCategory" class="absolute left-0 right-0 top-0 z-20 bg-white rounded-2xl border border-om-gray-200 shadow-[0_12px_32px_rgba(17,18,19,0.10)] overflow-hidden">
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-om-gray-100">
+              <span class="flex items-center gap-2 text-sm font-semibold text-om-gray-700">
+                <component :is="activeCategory.icon" :size="15" class="text-om-orange-500" />
+                {{ activeCategory.label }}
+              </span>
+              <button
+                @click="openCategory = null"
+                class="w-7 h-7 flex items-center justify-center text-om-gray-400 hover:text-om-gray-700 hover:bg-om-gray-100 rounded-lg transition-colors cursor-pointer"
+              >
+                <X :size="16" />
+              </button>
             </div>
-            <p class="text-sm text-om-gray-500 leading-snug pt-1">
-              Based on {{ selectedDomain }}'s data, here's what I'd focus on today.
-            </p>
-          </div>
-
-          <!-- Recommendation cards (ranked: top = #1 tip) -->
-          <div class="flex flex-col gap-3">
-            <div
-              v-for="(r, i) in recommendations"
-              :key="r.id"
-              @click="openReview(r)"
-              class="relative bg-white rounded-xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-4 hover:shadow-[0_2px_4px_2px_rgb(0_0_0/0.05)] transition-shadow cursor-pointer"
+            <button
+              v-for="(s, i) in activeCategory.suggestions"
+              :key="s"
+              type="button"
+              @click="pickSuggestion(s)"
+              :class="['w-full text-left px-5 py-3.5 text-sm text-om-gray-600 leading-snug hover:bg-om-gray-50 hover:text-om-gray-700 transition-colors cursor-pointer', i > 0 ? 'border-t border-om-gray-100' : '']"
             >
-              <!-- Confidence: top-right corner -->
-              <Tag :variant="confidenceVariant(r.confidence)" size="sm" class="absolute top-4 right-4">{{ confidenceLabel(r.confidence) }}</Tag>
-              <div class="flex items-start gap-3">
-                <!-- Rank: far left so the eye starts on the #1 tip -->
-                <div class="shrink-0 w-7 h-7 rounded-full bg-om-peach-100 text-om-orange-500 flex items-center justify-center text-sm font-semibold">
-                  {{ i + 1 }}
-                </div>
-                <!-- Decision text: what (bold) leads, why supports, impact anchors the bottom -->
-                <div class="flex-1 min-w-0">
-                  <h3 class="text-sm font-semibold text-om-gray-700 leading-snug pr-28">{{ r.what }}</h3>
-                  <p class="text-sm text-om-gray-500 leading-snug mt-1">{{ r.why }}</p>
-                  <div class="flex items-center flex-wrap gap-x-3 gap-y-1.5 mt-2.5">
-                    <span class="text-sm font-medium text-om-gray-700">Est. {{ r.impact }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+              {{ s }}
+            </button>
+          </div>
           </div>
         </div>
 
-        <!-- Active campaigns (1 running) -->
-        <div>
-          <div class="flex items-center gap-2 mb-3">
-            <h2 class="text-lg font-semibold text-om-gray-700">Active campaigns</h2>
-            <Tag variant="gray" size="sm">1</Tag>
-          </div>
-          <div class="space-y-4">
-            <CampaignCard
-              :name="activeCampaign.name"
-              :domain="activeCampaign.domain"
-              :image="activeCampaign.image"
-              :active="activeCampaign.active"
-              @update:active="activeCampaign.active = $event"
-              :selected="activeCampaign.selected"
-              @update:selected="activeCampaign.selected = $event"
-              :metrics="activeCampaign.metrics"
-              :last-updated="activeCampaign.lastUpdated"
-              variant="list"
-              @click="openTopic(topicChats.campaign)"
-            />
-          </div>
-        </div>
       </div>
     </template>
 
@@ -384,26 +408,67 @@
 
 <script setup>
 import { ref, reactive, computed, nextTick, watch, onMounted, onUnmounted, markRaw } from 'vue'
-import { Sparkles, Plus, X, ArrowUp, ArrowDown, ChevronLeft, ChevronDown, Check, Mail, ShoppingCart, Home, LayoutGrid, Users, TrendingUp } from 'lucide-vue-next'
+import { Plus, X, ArrowUp, ArrowDown, ChevronLeft, ChevronDown, Check, Lightbulb, ImagePlus, LayoutGrid, Users, TrendingUp } from 'lucide-vue-next'
 
 // Sidebar menu for the agentic home (Projects/Audience/Analytics are placeholders for now)
+// No "Home" item: "New task" above the menu is the home / new-conversation entry.
 const sidebarMenu = [
-  { id: 'home', label: 'Home', iconComponent: markRaw(Home) },
-  { id: 'projects', label: 'Projects', iconComponent: markRaw(LayoutGrid) },
+  { id: 'experiences', label: 'Experiences', iconComponent: markRaw(LayoutGrid), to: 'agentic/experiences' },
+  { id: 'analytics', label: 'Insights', iconComponent: markRaw(TrendingUp), to: 'agentic/insights' },
   { id: 'audience', label: 'Audience', iconComponent: markRaw(Users) },
-  { id: 'analytics', label: 'Analytics', iconComponent: markRaw(TrendingUp) },
 ]
-// Home navigates to #/agentic/home; the others are no-ops for now
-const onSidebarMenu = (id) => { if (id === 'home') window.location.hash = '#/agentic/home' }
+const onSidebarMenu = (id) => {
+  if (id === 'experiences') window.location.hash = '#/agentic/experiences'
+}
 
 const emit = defineEmits(['start-task'])
 
-// New-task composer suggestions — same as the OptiMonk Agentic start page (#/agentic/start)
-const promptExamples = [
-  { label: 'Discount Popup', value: 'Create a Discount Popup to capture more leads.', icon: markRaw(Mail) },
-  { label: 'Cart Abandonment Stopper', value: 'Help me recover cart abandoners with a popup.', icon: markRaw(ShoppingCart) },
-  { label: 'Get recommendation', value: 'Analyze my website and recommend the best opportunity for me.', icon: markRaw(Sparkles) },
+// New-task composer entry points:
+//   1. Create a popup — direct "build now" fast lane, organised by popup type
+//   2. Boost my results — a single collector for outcome-led goals; picking one
+//      starts a conversation where the agent brings the data-grounded specifics
+//   3. Insights — per-campaign findings the agent surfaced, each with a recommendation
+// Clicking a chip expands its list; picking an item starts the conversation.
+const promptCategories = [
+  {
+    id: 'create-popup',
+    label: 'Create a popup',
+    icon: markRaw(Plus),
+    suggestions: [
+      'Create a discount popup to turn first-time visitors into buyers.',
+      'Add an email or newsletter signup to build a list you own.',
+      'Create a cart abandonment popup to win back shoppers who leave items behind.',
+      'Start from scratch with a blank canvas.',
+    ],
+  },
+  {
+    id: 'results',
+    label: 'Boost my results',
+    icon: markRaw(TrendingUp),
+    suggestions: [
+      'Make more sales by recovering the 966 carts (68%) abandoned every month.',
+      'Grow my list. Only 0.9% of new visitors sign up today, far below benchmark.',
+      'Re-engage visitors who leave without buying and rarely return on their own.',
+      "Recommend the best play. I'll pick the highest-impact one from your last 30 days.",
+    ],
+  },
+  {
+    id: 'insights',
+    label: 'Insights',
+    icon: markRaw(Lightbulb),
+    suggestions: [
+      "Show me everything that's underperforming.",
+      'Welcome Discount Popup: 3.2% submit rate, below benchmark. Test a benefit-led headline.',
+      'Welcome Discount Popup fires on a fixed 5s delay. Exit-intent catches higher-intent visitors.',
+      'Open a full performance overview, traffic, conversions, and revenue at a glance.',
+    ],
+  },
 ]
+const openCategory = ref(null)
+const activeCategory = computed(() => promptCategories.find((c) => c.id === openCategory.value) || null)
+const toggleCategory = (id) => { openCategory.value = openCategory.value === id ? null : id }
+const pickSuggestion = (s) => { openCategory.value = null; startTask(s) }
+
 const homePrompt = ref('')
 // Launch the full-screen agentic flow with the given prompt (App handles the nav + message)
 const startTask = (text) => {
@@ -411,17 +476,36 @@ const startTask = (text) => {
   if (!msg) return
   emit('start-task', msg)
 }
+
+// Image upload in the composer
+const imageInput = ref(null)
+const attachedImage = ref(null)
+const onImageSelected = (e) => {
+  const file = e.target.files?.[0]
+  if (!file) return
+  if (attachedImage.value?.url) URL.revokeObjectURL(attachedImage.value.url)
+  attachedImage.value = { name: file.name, url: URL.createObjectURL(file) }
+  e.target.value = '' // allow re-selecting the same file
+}
+const removeImage = () => {
+  if (attachedImage.value?.url) URL.revokeObjectURL(attachedImage.value.url)
+  attachedImage.value = null
+}
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
 import Tag from '../components/shared/Tag.vue'
 import Button from '../components/shared/Button.vue'
-import CampaignCard from '../components/shared/CampaignCard.vue'
 import ChatDecisionQuestions from '../components/onboarding/ChatDecisionQuestions.vue'
 import PublicV3PopupDetailScreen from '../components/onboarding/PublicV3PopupDetailScreen.vue'
+import RecentsList from '../components/RecentsList.vue'
 
 const selectedDomain = ref('reflexshop.hu')
 const domains = ref(['reflexshop.hu', 'telekom.hu', '+ Add new domain'])
 const domainMenuOpen = ref(false)
+
+// Profile avatar from the DiceBear "thumbs" family (deterministic by seed).
+// Swap the style segment (thumbs) for another family to change the look.
+const userAvatar = 'https://api.dicebear.com/9.x/thumbs/svg?seed=Csaba&backgroundColor=ffe0cc'
 
 // ── Right-side chat window (active campaign + new task) ──
 const chatOpen = ref(false)
@@ -973,19 +1057,32 @@ onMounted(() => {
   }
 })
 
-const activeCampaign = reactive({
-  id: 'campaign1',
-  name: 'Welcome Discount Popup',
-  domain: 'reflexshop.hu',
-  image: '/campaigns/smart-discount-popup.png',
-  active: true,
-  selected: false,
-  lastUpdated: '2 days ago',
-  metrics: [
-    { label: 'Impressions', value: '1,240' },
-    { label: 'Submits', value: '40' },
-    { label: 'Submit rate', value: '3.2%' },
-    { label: 'Conversion uplift', value: '62.10%', trend: true },
-  ],
-})
 </script>
+
+<style scoped>
+/* The greeting dots sit still most of the cycle, then hop up with a little bounce (staggered per dot). */
+@keyframes dotWiggle {
+  0%, 50%, 100% { transform: translateY(0); }
+  70% { transform: translateY(-4px); }
+  84% { transform: translateY(-1.5px); }
+}
+.dot-wiggle {
+  animation: dotWiggle 3s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dot-wiggle { animation: none; }
+}
+/* Kill the global textarea:focus border + ring so the composer shows only the
+   container's focus-within ring (no internal line). Scoped + higher specificity
+   beats the unlayered global rule that Tailwind utilities can't override. */
+.home-composer-input:focus {
+  border-color: transparent;
+  box-shadow: none;
+}
+/* Hover affects only the container border, never the input fill (overrides the
+   global textarea:hover background tint). */
+.home-composer-input:hover {
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+</style>

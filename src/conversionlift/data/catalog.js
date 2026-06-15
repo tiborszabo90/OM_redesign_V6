@@ -108,9 +108,11 @@ function buildCatalog(domainId, baseUrl, categories, count, currency) {
     const title = `${name} ${size} ${cat.suffix}`
     const slug = `${name}-${size}-${cat.suffix}`.toLowerCase().replace(/\s+/g, '-')
     const id = `${domainId}-p${String(products.length + 1).padStart(3, '0')}`
+    const sku = `${cat.key.slice(0, 3).toUpperCase()}-${size}-${String(products.length + 1).padStart(3, '0')}`
     products.push({
       id,
       product_page_id: id,
+      sku,
       url: `https://${baseUrl}/products/${slug}`,
       title,
       preview: placeholderImage(title, id),

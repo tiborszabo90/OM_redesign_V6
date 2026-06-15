@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import { Box, Image, TrendingUp, ArrowRight, Check, Clock } from 'lucide-vue-next'
+import { Box, Image, TrendingUp, Sparkles, ArrowRight, Check, Clock } from 'lucide-vue-next'
 import Tag from '../components/shared/Tag.vue'
 
 defineEmits(['navigate'])
@@ -86,6 +86,15 @@ const apps = [
     accent: '#0EA5E9',
     available: false,
     icon: TrendingUp,
+  },
+  {
+    id: 'agentic',
+    label: 'Agentic OptiMonk',
+    tagline: 'Your AI marketer. Describe a task and the agent runs it.',
+    target: 'home-todays-plan',
+    accent: '#ED5A29',
+    available: true,
+    icon: Sparkles,
   },
 ]
 </script>

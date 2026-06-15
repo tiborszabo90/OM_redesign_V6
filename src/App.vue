@@ -113,10 +113,11 @@ const displayView = computed(() => wizardPhase.value || currentView.value || '')
 // URL hash sync
 // ============================================================================
 let skipHashChange = false
-// Slug families that share tab suffixes (settings/analytics/submits)
+// Slug families that share tab suffixes (settings/analytics/submits).
+// Slugs carry the `optimonk/` product prefix (see registry route namespacing).
 const tabPreservingFamilies = [
-  ['campaign-detail', 'campaign-detail-pivoted', 'campaign-detail-bar-chart'],
-  ['ppo-campaign-detail-v3', 'ppo-campaign-detail-v3-pivoted', 'ppo-campaign-detail-v3-bar-chart'],
+  ['optimonk/campaign-detail', 'optimonk/campaign-detail-pivoted', 'optimonk/campaign-detail-bar-chart'],
+  ['optimonk/ppo-campaign-detail-v3', 'optimonk/ppo-campaign-detail-v3-pivoted', 'optimonk/ppo-campaign-detail-v3-bar-chart'],
 ]
 const sameFamily = (slugA, slugB) =>
   tabPreservingFamilies.some(family => family.includes(slugA) && family.includes(slugB))
@@ -127,11 +128,14 @@ watch(displayView, (view) => {
     const targetSlug = viewToSlug[view] || view
     if (currentHash.startsWith(targetSlug + '/') || currentHash === targetSlug) return
     skipHashChange = true
-    // Preserve tab suffix when switching within the same view family
+    // Preserve tab suffix when switching within the same view family. Slugs can
+    // be multi-segment (e.g. `optimonk/campaign-detail`), so split off the slug
+    // by its own segment count rather than assuming a single leading segment.
+    const slugDepth = targetSlug.split('/').length
     const currentParts = currentHash.split('/')
-    const currentSlug = currentParts[0]
-    const subpath = (currentParts.length > 1 && sameFamily(currentSlug, targetSlug))
-      ? '/' + currentParts.slice(1).join('/')
+    const currentSlug = currentParts.slice(0, slugDepth).join('/')
+    const subpath = (currentParts.length > slugDepth && sameFamily(currentSlug, targetSlug))
+      ? '/' + currentParts.slice(slugDepth).join('/')
       : ''
     window.location.hash = '/' + targetSlug + subpath
     skipHashChange = false
@@ -515,8 +519,10 @@ const handleMenuClick = (menuId) => {
       sessionKey.value++
       currentView.value = 'home-onboarding'
     } else {
-      // Default home is now the OptiMonk Agentic Today's plan (#/agentic/home)
-      handleDevNavigate('home-todays-plan')
+      // Classic OptiMonk pages keep their sidebar within the classic app: Home
+      // goes to the classic dashboard home (#/optimonk/home-old), never the
+      // agentic home. The agentic app self-manages its own sidebar nav.
+      handleDevNavigate('home-old')
     }
   } else if (menuId === 'analytics') {
     const onboardingViews = ['home-onboarding', 'home-onboarding-with-reco', 'home-onboarding-review', 'home-onboarding-wizard', 'wizard-flow', 'campaigns-empty', 'analytics-empty']
@@ -581,6 +587,25 @@ const activeEvents = computed(() => {
     'picbear': { navigate: handleDevNavigate },
     'conversionlift': { navigate: handleDevNavigate },
     'conversionlift-design-guide': { navigate: handleDevNavigate },
+    'cl-flow-1': { navigate: handleDevNavigate },
+    'cl-flow-2': { navigate: handleDevNavigate },
+    'cl-flow-3': { navigate: handleDevNavigate },
+    'cl-flow-4': { navigate: handleDevNavigate },
+    'cl-flow-5': { navigate: handleDevNavigate },
+    'cl-flow-6': { navigate: handleDevNavigate },
+    'cl-scope-1': { navigate: handleDevNavigate },
+    'cl-scope-2': { navigate: handleDevNavigate },
+    'cl-scope-3': { navigate: handleDevNavigate },
+    'cl-scope-4': { navigate: handleDevNavigate },
+    'cl-audience': { navigate: handleDevNavigate },
+    'cl-generate': { navigate: handleDevNavigate },
+    'cl-home-b': { navigate: handleDevNavigate },
+    'cl-projects': { navigate: handleDevNavigate },
+    'cl-project': { navigate: handleDevNavigate },
+    'cl-abtests': { navigate: handleDevNavigate },
+    'cl-abtest': { navigate: handleDevNavigate },
+    'cl-abtest-setup': { navigate: handleDevNavigate },
+    'cl-recommendation': { navigate: handleDevNavigate },
     'dev-start': {
       select: handleDevStartSelect,
       'go-home': () => { sessionKey.value++; flowSelected.value = true; wizardMessage.value = ''; currentView.value = 'home-old' },
@@ -645,7 +670,10 @@ const activeEvents = computed(() => {
     'task-creation': { 'task-created': handleTaskCreated },
     'home-old': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
     'home-todays-plan': {
-      'menu-click': handleMenuClick,
+      // No 'menu-click' handler: the agentic home self-manages its sidebar nav
+      // (DashboardLayout's per-item `to` + onSidebarMenu). Binding the legacy
+      // handleMenuClick here leaks via fallthrough and hijacks 'analytics' →
+      // the legacy analytics view instead of #/agentic/insights.
       'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' },
       'start-task': (msg) => {
         wizardMessage.value = msg || ''

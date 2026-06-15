@@ -55,8 +55,9 @@
   </div>
 
   <!-- Step 2: Full-width chat -->
-  <div v-else-if="step === 'chat'" class="min-h-screen-safe h-screen-safe bg-white flex flex-col px-6">
-    <div class="shrink-0 flex justify-center pt-6 pb-2">
+  <AgenticShell v-else-if="step === 'chat'" :passthrough="!skipRegistration" full-bleed>
+  <div class="min-h-screen-safe h-screen-safe bg-white flex flex-col px-6">
+    <div v-if="!skipRegistration" class="shrink-0 flex justify-center pt-6 pb-2">
       <img src="/OM-Logo-primary-basic.svg" alt="OptiMonk" class="h-8" />
     </div>
     <div class="flex-1 flex flex-col min-h-0 w-full mx-auto transition-[max-width] duration-300" :class="chatWide ? 'max-w-6xl' : 'max-w-180'">
@@ -128,10 +129,17 @@
           </div>
         </template>
         <div v-if="aiTyping" class="flex justify-start mx-auto w-full" :class="chatWide ? 'max-w-180' : ''">
-          <div class="px-4 py-2.5 rounded-2xl rounded-bl-md bg-om-gray-100 flex items-center gap-1">
-            <span class="w-1.5 h-1.5 bg-om-gray-400 rounded-full animate-pulse"></span>
-            <span class="w-1.5 h-1.5 bg-om-gray-400 rounded-full animate-pulse" style="animation-delay: 0.2s"></span>
-            <span class="w-1.5 h-1.5 bg-om-gray-400 rounded-full animate-pulse" style="animation-delay: 0.4s"></span>
+          <!-- Thinking loader: the 2x3 dot motif (small, bare) + a label -->
+          <div class="flex items-center gap-2.5 px-1 py-2">
+            <div class="grid grid-cols-2 gap-1 think-dots">
+              <span
+                v-for="n in 6"
+                :key="n"
+                class="w-1 h-1 rounded-full bg-om-orange-500"
+                :style="{ animationDelay: ((n - 1) * 0.12) + 's' }"
+              ></span>
+            </div>
+            <span class="text-sm text-om-gray-500">Thinking…</span>
           </div>
         </div>
       </div>
@@ -171,19 +179,22 @@
       </div>
     </div>
   </div>
+  </AgenticShell>
 
-  <!-- Step 3: Popup detail (steps + chat editor) -->
-  <PublicV3PopupDetailScreen
-    v-else
-    :use-case="selectedUseCase"
-    :generation-prompt="generationPrompt"
-    :select-loading="selectLoading"
-    :initial-chat-messages="chatMessages"
-    :coupon-code="discountCode"
-    embedded
-    @back="step = 'url'"
-    @published="onEditorDone"
-  />
+  <!-- Step 3: Popup detail (editor) — keep the agentic sidebar beside the editor -->
+  <AgenticShell v-else :passthrough="!skipRegistration" full-bleed>
+    <PublicV3PopupDetailScreen
+      :use-case="selectedUseCase"
+      :generation-prompt="generationPrompt"
+      :select-loading="selectLoading"
+      :initial-chat-messages="chatMessages"
+      :coupon-code="discountCode"
+      embedded
+      :hide-back="skipRegistration"
+      @back="step = 'url'"
+      @published="onEditorDone"
+    />
+  </AgenticShell>
 
   <!-- Registration modal shown on the chat step after picking a popup version -->
   <RegistrationModal v-model="showRegistrationModal" @register="completeChatRegistration" />
@@ -192,6 +203,7 @@
 <script setup>
 import { computed, ref, watch, onMounted, onUnmounted, markRaw } from 'vue'
 import { ArrowUp, Mail, ShoppingCart, Sparkles } from 'lucide-vue-next'
+import AgenticShell from '../components/AgenticShell.vue'
 import PublicV3PopupDetailScreen from '../components/onboarding/PublicV3PopupDetailScreen.vue'
 import RegistrationModal from '../components/onboarding/RegistrationModal.vue'
 import ChatDecisionQuestions from '../components/onboarding/ChatDecisionQuestions.vue'
@@ -277,6 +289,9 @@ const formatTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2
 
 const goToHome = () => { window.location.hash = '#/agentic/home' }
 
+// The chat-flow analysis uses the logged-in domain (the sidebar lives in AgenticShell).
+const selectedDomain = ref('reflexshop.hu')
+
 // ── Step transitions ──
 const handleInitialSubmit = () => {
   if (!prompt.value.trim()) return
@@ -309,7 +324,7 @@ const scrollChat = () => {
 
 const streamChatAi = async (text, charDelay = 18) => {
   aiTyping.value = true
-  await waitMs(400)
+  await waitMs(2200)
   aiTyping.value = false
   chatMessages.value.push({ role: 'ai', text: '' })
   const idx = chatMessages.value.length - 1
@@ -354,8 +369,16 @@ const urlQuestion = {
 const runChatFlow = async () => {
   scrollChat()
   await waitMs(500)
-  // "Get recommendation" only needs the URL; idea-driven prompts get the targeting questions too
-  const questions = recommendationMode.value ? [urlQuestion] : [...targetingQuestions, urlQuestion]
+  // Logged-in (launched from the app): the site is already known, so never ask for the URL.
+  const loggedIn = props.skipRegistration
+  const questions = recommendationMode.value
+    ? (loggedIn ? [] : [urlQuestion])
+    : (loggedIn ? [...targetingQuestions] : [...targetingQuestions, urlQuestion])
+  // "Get recommendation" while logged in needs nothing more — analyze the known site directly.
+  if (recommendationMode.value && loggedIn) {
+    await runRecommendations(selectedDomain.value)
+    return
+  }
   await streamChatAi(recommendationMode.value
     ? 'Great! Just drop your website URL and I’ll find the best opportunity for you.'
     : 'Nice idea! A few quick questions to tailor this for you.')
@@ -386,7 +409,7 @@ const finalizeQuestionsBlock = async (msgIdx) => {
     return
   }
   const urlQ = m.questions.find((q) => q.inputOnly)
-  const websiteUrl = urlQ?.otherValue?.trim() || ''
+  const websiteUrl = urlQ?.otherValue?.trim() || (props.skipRegistration ? selectedDomain.value : '')
   const summary = m.questions
     .map((q) => {
       if (q.inputOnly) return `${q.tabLabel}: ${q.otherValue?.trim() || 'Skipped'}`
@@ -600,5 +623,17 @@ defineExpose({
 .modal-step-fade-enter-from,
 .modal-step-fade-leave-to {
   opacity: 0;
+}
+
+/* Thinking loader: the 2x3 dot motif gently bounces while the AI "thinks" (staggered per dot) */
+@keyframes thinkBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
+}
+.think-dots span {
+  animation: thinkBounce 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .think-dots span { animation: none; }
 }
 </style>

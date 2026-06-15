@@ -9,7 +9,7 @@
 // ============================================================================
 
 import { getOptimizations } from './data/optimizations.js'
-import { placeholderImage } from './data/placeholder.js'
+import { storeImages } from './data/storeImages.js'
 
 // -- 1) Scan: CRO assistant suggestions --------------------------------------
 
@@ -43,11 +43,13 @@ function buildContent(optimization, product) {
     }
     case 'opt-pg-trust': {
       const text = ['Free 30-day returns', '2-year warranty', 'Secure checkout'].join(' · ')
-      return { text, image: placeholderImage('Trust', `${product.id}-trust`) }
+      return { text }
     }
     case 'opt-pg-hero': {
       const text = `Field-tested ${a.category.toLowerCase()} for every trail`
-      return { text, image: placeholderImage(product.title, `${product.id}-hero`) }
+      // Image with badge: a dummy lifestyle image + a 3-line badge (icon added by the UI).
+      const badge = ['Field-tested', `${a.rating.toFixed(1)}★`, '2-yr warranty']
+      return { text, image: storeImages.hero, badge }
     }
     default:
       return { text: `Optimized content for ${product.title}` }
@@ -105,7 +107,7 @@ export function chatReply(message, domainId) {
   if (msg.includes('image') || msg.includes('kép') || msg.includes('kep') || msg.includes('lifestyle')) {
     return {
       kind: 'new_card',
-      text: 'Added an image-led variant. Lifestyle visuals raise perceived value in this category.',
+      text: 'Added an image-led block. Lifestyle visuals raise perceived value in this category.',
       card: {
         id: `opt-chat-image-${chatCardCounter++}`,
         type: 'embed',
@@ -123,6 +125,6 @@ export function chatReply(message, domainId) {
 
   return {
     kind: 'note',
-    text: 'Refined the suggestions based on your note. Tell me to make a block more aggressive, shorter, or add an image variant.',
+    text: 'Refined the suggestions based on your note. Tell me to make a block more aggressive, shorter, or add an image block.',
   }
 }
