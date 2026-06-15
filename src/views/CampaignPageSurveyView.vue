@@ -1969,17 +1969,18 @@ const openSettingsAccordion = (section) => {
 // Tab routing — each tab gets its own URL
 const VIEW_SLUG = (() => {
   const hash = window.location.hash.replace('#/', '').replace('#', '')
-  const slug = hash.split('/')[0]
-  return slug || 'campaign-detail'
+  const parts = hash.split('/')
+  if (parts.length > 1 && ['settings', 'submits', 'analytics'].includes(parts[parts.length - 1])) parts.pop()
+  return parts.join('/') || 'campaign-detail'
 })()
 const TAB_SLUGS = { Overview: '', Settings: 'settings', Submits: 'submits', Analytics: 'analytics' }
 const SLUG_TO_TAB = { '': 'Overview', settings: 'Settings', submits: 'Submits', analytics: 'Analytics' }
 
 const getTabFromHash = () => {
   const hash = window.location.hash.replace('#/', '').replace('#', '')
-  const parts = hash.split('/')
-  if (parts[0] !== VIEW_SLUG) return 'Overview'
-  return SLUG_TO_TAB[parts[1] || ''] || 'Overview'
+  if (hash !== VIEW_SLUG && !hash.startsWith(VIEW_SLUG + '/')) return 'Overview'
+  const tabSlug = hash.slice(VIEW_SLUG.length).replace(/^\//, '')
+  return SLUG_TO_TAB[tabSlug] || 'Overview'
 }
 
 const updateHashForTab = (tab) => {
