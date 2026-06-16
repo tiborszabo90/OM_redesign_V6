@@ -8,4 +8,5 @@ export const sectionLabels = {
   ppoV1: 'PPO v1',
   aiContent: 'AI Content',
   audience: 'Audience',
+  conversionLift: 'Conversion Lift',
 }

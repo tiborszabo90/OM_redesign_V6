@@ -1,13 +1,13 @@
 <template>
-  <DashboardLayout active-menu-item="" background-color="#F9FAFB" :no-content-padding="true" @menu-click="$emit('menu-click', $event)">
+  <DashboardLayout :active-menu-item="layoutActiveMenuItem" :nav-items="layoutNavItems" :logo-src="layoutLogoSrc" background-color="#F9FAFB" :no-content-padding="true" @menu-click="$emit('menu-click', $event)">
     <template #content>
       <div class="flex gap-12 min-h-full">
         <!-- Settings Sidebar -->
         <aside class="w-60 shrink-0 bg-white px-6 pb-4 pt-6 border-r border-[#E5E7EB]">
-          <h2 class="text-2xl font-semibold text-om-gray-700 mb-6 ml-1">Settings</h2>
+          <h2 class="text-2xl font-semibold text-om-gray-700 mb-6 ml-1">{{ sidebarTitle }}</h2>
 
           <!-- Contact information -->
-          <div class="mb-5">
+          <div v-if="showGroup('contact')" class="mb-5">
             <p class="text-sm font-semibold text-om-gray-700 mb-1 px-2">Contact information</p>
             <nav class="flex flex-col pl-2">
               <button
@@ -20,7 +20,7 @@
           </div>
 
           <!-- Billing -->
-          <div class="mb-5">
+          <div v-if="showGroup('billing')" class="mb-5">
             <p class="text-sm font-semibold text-om-gray-700 mb-1 px-2">Billing</p>
             <nav class="flex flex-col pl-2">
               <button
@@ -33,8 +33,8 @@
           </div>
 
           <!-- Products -->
-          <div class="mb-5">
-            <p class="text-sm font-semibold text-om-gray-700 mb-1 px-2">Products</p>
+          <div v-if="showGroup('products')" class="mb-5">
+            <p v-if="!navGroups" class="text-sm font-semibold text-om-gray-700 mb-1 px-2">Products</p>
             <nav class="flex flex-col pl-2">
               <button
                 v-for="item in productsItems"
@@ -46,7 +46,7 @@
           </div>
 
           <!-- Account -->
-          <div>
+          <div v-if="showGroup('account')">
             <p class="text-sm font-semibold text-om-gray-700 mb-1 px-2">Account</p>
             <nav class="flex flex-col pl-2">
               <button
@@ -200,7 +200,18 @@ import AiTextsImagesV2AiInputView from './AiTextsImagesV2AiInputView.vue'
 const props = defineProps({
   initialSection: { type: String, default: 'personal-details' },
   initialScreen: { type: String, default: 'list' },
+  // Limit which sidebar groups are shown. null = all groups (default Settings).
+  // e.g. ['products'] renders only the Products group (used by Conversion Lift).
+  navGroups: { type: Array, default: null },
+  // Override the left settings sidebar heading (default "Settings").
+  sidebarTitle: { type: String, default: 'Settings' },
+  // Forwarded to the app's DashboardLayout (icon rail).
+  layoutActiveMenuItem: { type: String, default: '' },
+  layoutNavItems: { type: Array, default: null },
+  layoutLogoSrc: { type: String, default: '' },
 })
+
+const showGroup = (group) => !props.navGroups || props.navGroups.includes(group)
 
 const emit = defineEmits(['menu-click', 'navigate'])
 

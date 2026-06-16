@@ -224,6 +224,11 @@ const activeProps = computed(() => {
     'shopify-account-choice': { registrationData: registrationData.value },
     'task-creation': { registrationData: registrationData.value },
     'home-old': { registrationData: registrationData.value },
+    'home-conversion-lift': { registrationData: registrationData.value },
+    'cl-menu-flyout': { registrationData: registrationData.value, flyoutProducts: true },
+    'conversion-lift-product': { product: 'ai-texts-images' },
+    'conversion-lift-catalog': { product: 'product-catalog' },
+    'conversion-lift-reco': { product: 'ai-recommendations' },
     'home-alerts': { registrationData: registrationData.value },
     'home-alerts-v3': { registrationData: registrationData.value },
     'home-insights-v2': { registrationData: registrationData.value },
@@ -537,6 +542,8 @@ const handleMenuClick = (menuId) => {
     currentView.value = onboardingViews.includes(currentView.value) ? 'analytics-empty' : 'analytics-v4-opps-v2'
   } else if (menuId === 'insights') {
     currentView.value = 'opportunities-all-v4'
+  } else if (menuId === 'conversion-lift') {
+    handleDevNavigate('conversion-lift-products')
   } else if (menuId === 'campaign-page') {
     currentView.value = 'campaign-page-v1'
   } else if (menuId === 'audience') {
@@ -677,6 +684,13 @@ const activeEvents = computed(() => {
     'onboarding-hu': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated },
     'task-creation': { 'task-created': handleTaskCreated },
     'home-old': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
+    'home-conversion-lift': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
+    'conversion-lift-products': { 'menu-click': handleMenuClick },
+    'conversion-lift-product': { 'menu-click': handleMenuClick },
+    'conversion-lift-catalog': { 'menu-click': handleMenuClick },
+    'conversion-lift-reco': { 'menu-click': handleMenuClick },
+    'cl-menu-flyout': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
+    'cl-menu-tabs': { 'menu-click': handleMenuClick },
     'home-todays-plan': {
       // No 'menu-click' handler: the agentic home self-manages its sidebar nav
       // (DashboardLayout's per-item `to` + onSidebarMenu). Binding the legacy
@@ -845,6 +859,7 @@ const activeEvents = computed(() => {
     'wizard-recommendation-public-v2': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
     'editor': { 'go-back': () => handleDevNavigate('campaign-page-v1'), 'save-and-exit': () => handleDevNavigate('campaign-settings-step') },
     'campaign-settings-step': { 'menu-click': handleMenuClick, next: () => handleDevNavigate('campaign-page-with-review') },
+    'subscription': { 'menu-click': handleMenuClick },
     'wizard': { submit: handleWizardSubmit },
   }
 

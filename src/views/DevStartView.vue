@@ -15,6 +15,7 @@
           <Button variant="secondary" size="sm" @click="$emit('go-public-wizard')">Public Wizard</Button>
           <Button variant="secondary" size="sm" @click="$emit('go-home-onboarding')">Home Onboarding</Button>
           <Button variant="secondary" size="sm" @click="$emit('go-home')">Home</Button>
+          <Button variant="secondary" size="sm" @click="$emit('navigate', 'home-conversion-lift')">Conversion Lift</Button>
           <Button variant="secondary" size="sm" @click="$emit('navigate', 'new-campaign')">New Campaign MVP</Button>
           <Button variant="secondary" size="sm" @click="$emit('navigate', 'campaign-page-v1')">Campaign Page (A/B)</Button>
           <Button variant="secondary" size="sm" @click="$emit('go-design-guide')">Design Guide</Button>

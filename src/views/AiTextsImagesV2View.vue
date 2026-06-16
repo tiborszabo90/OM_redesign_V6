@@ -2277,7 +2277,7 @@
       <!-- List screen -->
       <div v-else class="w-full max-w-[1400px] mx-auto -mt-3">
         <!-- Header -->
-        <div class="flex items-center justify-between mb-5">
+        <div v-if="!hideHeading" class="flex items-center justify-between mb-5">
           <h1 class="text-2xl font-semibold text-om-gray-700">AI Texts &amp; Images</h1>
           <Button variant="primary" size="md" @click="emit('navigate', 'ai-texts-images-v2-new')">New Variable</Button>
         </div>
@@ -2307,14 +2307,17 @@
             </div>
           </div>
 
-          <div class="relative">
-            <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-700" />
-            <input
-              v-model="search"
-              type="text"
-              placeholder="Search variables..."
-              class="pl-9 pr-4 py-2 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 w-56"
-            />
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-om-gray-700" />
+              <input
+                v-model="search"
+                type="text"
+                placeholder="Search variables..."
+                class="pl-9 pr-4 py-2 text-sm rounded-lg border border-om-gray-200 bg-white text-om-gray-700 placeholder-om-gray-400 outline-none focus:border-om-gray-400 w-56"
+              />
+            </div>
+            <Button v-if="hideHeading" variant="primary" size="md" @click="emit('navigate', 'ai-texts-images-v2-new')">New Variable</Button>
           </div>
         </div>
 
@@ -2391,6 +2394,9 @@ import { workflowSteps, workflowReferences, newStep } from '../composables/useWo
 const props = defineProps({
   screen: { type: String, default: 'list' },
   embedded: { type: Boolean, default: false },
+  // Hide the list-screen "AI Texts & Images" title (when the parent already
+  // labels it, e.g. the Conversion Lift tabs).
+  hideHeading: { type: Boolean, default: false },
 })
 const emit = defineEmits(['menu-click', 'navigate'])
 

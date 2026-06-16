@@ -10,7 +10,7 @@
       <!-- Logo -->
       <button @click="$emit('logo-click'); navigateTo(wideSidebar ? 'agentic/home' : 'optimonk/home-old')" :class="['flex items-center', wideSidebar ? 'mb-2 h-8 pl-4' : 'mb-5 w-7 h-7 justify-center']">
         <img v-if="wideSidebar" src="/OM-Logo-primary-basic.svg" alt="OptiMonk" class="h-6 w-auto shrink-0" />
-        <img v-else src="/icons/optimonk-logo.svg" alt="OptiMonk" class="w-7 h-7 shrink-0" />
+        <img v-else :src="logoSrc || '/icons/optimonk-logo.svg'" alt="OptiMonk" class="w-7 h-7 shrink-0" />
       </button>
 
       <!-- Optional sidebar-top content (e.g. a domain/workspace switcher) -->
@@ -19,15 +19,14 @@
       <!-- Navigation + recents share one scroll area when a recents slot is present -->
       <div :class="['w-full min-h-0 flex-1 flex flex-col sidebar-scroll', $slots['sidebar-recents'] ? 'overflow-y-auto' : 'overflow-hidden']">
       <nav ref="navRef" :class="['flex flex-col w-full px-1 gap-1', $slots['sidebar-recents'] ? 'shrink-0' : 'flex-1 overflow-hidden']">
+        <template v-for="item in visibleMenuItems" :key="item.id">
         <button
-          v-for="item in visibleMenuItems"
-          :key="item.id"
           data-nav-item
-          @click="handleMenuClick(item.id)"
+          @click="handleMenuClick(item.id, $event)"
           :class="[
             'w-full transition-colors cursor-pointer',
             wideSidebar ? 'rounded-lg flex items-center gap-2.5 px-3 py-2' : 'rounded-xl py-2 flex flex-col items-center gap-0.5',
-            activeItem === item.id
+            (activeItem === item.id || submenuOpenId === item.id)
               ? (wideSidebar ? 'bg-om-gray-100 text-om-gray-700' : 'bg-om-orange-100 text-om-orange-500')
               : (wideSidebar ? 'text-om-gray-600 hover:bg-om-gray-100 hover:text-om-gray-700' : 'text-om-gray-500 hover:bg-om-gray-100 hover:text-om-gray-600')
           ]"
@@ -35,6 +34,21 @@
           <component :is="item.iconComponent" :size="wideSidebar ? 18 : 20" class="shrink-0" />
           <span :class="wideSidebar ? 'text-sm font-normal' : 'text-[10px] font-medium whitespace-pre-line text-center leading-tight'">{{ item.label }}</span>
         </button>
+
+        <!-- Inline (accordion) children -->
+        <template v-if="submenuDisplay === 'inline' && item.children && submenuOpenId === item.id">
+          <button
+            v-for="child in item.children"
+            :key="child.id"
+            @click="handleSubmenuChildClick(item.id, child)"
+            :class="[
+              'w-full text-left text-sm rounded-lg transition-colors cursor-pointer',
+              wideSidebar ? 'pl-10 pr-3 py-1.5' : 'px-1 py-1 text-[10px] text-center leading-tight',
+              activeItem === child.id ? 'text-om-orange-500 font-medium' : 'text-om-gray-500 hover:bg-om-gray-100 hover:text-om-gray-700'
+            ]"
+          >{{ child.label.replace('\n', ' ') }}</button>
+        </template>
+        </template>
 
         <!-- More button (shown when items overflow) -->
         <button
@@ -82,7 +96,7 @@
       </div>
 
       <!-- Narrow sidebar: stacked icon buttons -->
-      <div v-else class="flex flex-col items-center gap-3 mt-auto pb-4">
+      <div v-else class="flex flex-col items-center gap-3 mt-auto pt-12 pb-4">
         <!-- AI Chat button (optional) -->
         <button
           v-if="showAiButton"
@@ -118,10 +132,33 @@
 
     <!-- Click outside overlay -->
     <div
-      v-if="showProfilePopover || showMorePopover"
+      v-if="showProfilePopover || showMorePopover || submenuOpenId"
       class="fixed inset-0 z-40"
-      @click="showProfilePopover = false; showMorePopover = false"
+      @click="showProfilePopover = false; showMorePopover = false; submenuOpenId = null"
     ></div>
+
+    <!-- Submenu flyout popover (teleported outside aside stacking context) -->
+    <Teleport to="body">
+      <transition name="popover-fade">
+        <div
+          v-if="submenuParent && submenuDisplay !== 'inline'"
+          class="fixed left-20 w-56 bg-white rounded-xl shadow-xl border border-om-gray-100 overflow-hidden z-50"
+          :style="{ top: submenuTop + 'px' }"
+        >
+          <div class="flex flex-col py-1 px-2">
+            <button
+              v-for="child in submenuParent.children"
+              :key="child.id"
+              @click="handleSubmenuChildClick(submenuParent.id, child)"
+              :class="[
+                'px-2 py-2 text-sm font-medium text-left cursor-pointer transition-colors rounded-lg',
+                activeItem === child.id ? 'bg-om-orange-100 text-om-orange-500' : 'text-om-gray-600 hover:bg-om-gray-100 active:bg-om-gray-200'
+              ]"
+            >{{ child.label.replace('\n', ' ') }}</button>
+          </div>
+        </div>
+      </transition>
+    </Teleport>
 
     <!-- Profile Popover (teleported outside aside stacking context) -->
     <Teleport to="body">
@@ -140,7 +177,7 @@
           <div class="flex">
             <!-- Left: nav links -->
             <div class="flex flex-col py-2 px-2 border-r border-om-gray-100 shrink-0 w-52">
-              <button class="px-2 py-1.5 text-sm font-medium text-om-gray-600 hover:bg-om-gray-100 active:bg-om-gray-200 text-left cursor-pointer transition-colors whitespace-nowrap rounded-lg">Subscription</button>
+              <button @click="navigateTo('subscription')" class="px-2 py-1.5 text-sm font-medium text-om-gray-600 hover:bg-om-gray-100 active:bg-om-gray-200 text-left cursor-pointer transition-colors whitespace-nowrap rounded-lg">Subscription</button>
               <button @click="navigateTo('settings')" class="px-2 py-1.5 text-sm font-medium text-om-gray-600 hover:bg-om-gray-100 active:bg-om-gray-200 text-left cursor-pointer transition-colors whitespace-nowrap rounded-lg">Settings</button>
               <button class="px-2 py-1.5 text-sm font-medium text-om-gray-600 hover:bg-om-gray-100 active:bg-om-gray-200 text-left cursor-pointer transition-colors whitespace-nowrap rounded-lg">Invite your team</button>
               <button class="px-2 py-1.5 text-sm font-medium text-om-gray-600 hover:bg-om-gray-100 active:bg-om-gray-200 text-left cursor-pointer transition-colors whitespace-nowrap rounded-lg">Ambassador program</button>
@@ -288,10 +325,23 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  // Custom menu list override: [{ id, label, iconComponent }]
+  // Custom menu list override: [{ id, label, iconComponent, children? }]
+  // A nav item may carry `children: [{ id, label }]` to expose a submenu.
   navItems: {
     type: Array,
     default: null
+  },
+  // How a nav item's `children` are revealed: 'flyout' (popover next to the
+  // rail) or 'inline' (accordion rows expanded under the item). Default off-path
+  // for items without children, so existing callers are unaffected.
+  submenuDisplay: {
+    type: String,
+    default: 'flyout'
+  },
+  // Override the narrow-sidebar logo (defaults to the OptiMonk mark).
+  logoSrc: {
+    type: String,
+    default: ''
   },
   // Profile shown at the bottom of a wide sidebar
   userName: {
@@ -317,12 +367,35 @@ watch(() => props.activeMenuItem, (newValue) => {
   activeItem.value = newValue
 })
 
-const handleMenuClick = (itemId) => {
-  activeItem.value = itemId
-  // Nav items may declare their destination via `to` (a hash slug); navigate directly.
+// Submenu (children) state — used by flyout/inline submenu items.
+const submenuOpenId = ref(null)
+const submenuTop = ref(0)
+const submenuParent = computed(() => menuItems.value.find((m) => m.id === submenuOpenId.value) || null)
+
+const handleMenuClick = (itemId, event) => {
   const item = menuItems.value.find((m) => m.id === itemId)
+  // Items with children reveal a submenu instead of navigating directly.
+  if (item && item.children && item.children.length) {
+    if (submenuOpenId.value === itemId) {
+      submenuOpenId.value = null
+    } else {
+      submenuOpenId.value = itemId
+      if (event && event.currentTarget) submenuTop.value = event.currentTarget.getBoundingClientRect().top
+    }
+    return
+  }
+  activeItem.value = itemId
+  submenuOpenId.value = null
+  // Nav items may declare their destination via `to` (a hash slug); navigate directly.
   if (item && item.to) window.location.hash = '#/' + item.to
   emit('menu-click', itemId)
+}
+
+const handleSubmenuChildClick = (parentId, child) => {
+  activeItem.value = parentId
+  submenuOpenId.value = null
+  if (child.to) window.location.hash = '#/' + child.to
+  emit('menu-click', child.id)
 }
 
 const navigateTo = (view) => {
