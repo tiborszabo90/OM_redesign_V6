@@ -194,3 +194,71 @@ campaigns get suggested tags instead of labeling everything by hand. Suggestions
 > hypothesis that high-campaign-count users benefit from AI-assisted tagging.
 
 Everything else (system views, tags-on-cards, inline tag editing, auto-color) is unchanged from v1.
+
+---
+
+## 8. Implementation brief — `campaigns-v3-taggingv2` (acceptance criteria)
+
+Scope is the **tagging + filtering** behavior only. Each item is a testable acceptance
+criterion. **AI suggested tags (§8.6) is _nice to have_** — ship everything else first; the
+feature set is complete without it. Everything else in the campaigns list (header, sort, cards,
+pagination, multi-select bar, chat) is unchanged from the base view and out of scope here.
+
+### 8.1 Tier 1 — Saved filters (chips)
+- [ ] **System views** render first: **All, Active, Inactive, Archive**. Each carries
+  `criteria = { status, tags: [] }` (`all` / `active` / `inactive` / `archive`).
+- [ ] **Custom views** render after a divider (seed: **Black Friday 2026** =
+  `{status:'active', tags:['Black Friday','2026']}`, **VIP** = `{status:'all', tags:['VIP']}`).
+- [ ] Default active view is **All**; the active chip is visually highlighted.
+- [ ] Clicking a chip (normal mode) **applies** that view: sets the status filter and the
+  selected tags from its `criteria`.
+
+### 8.2 Filter controls cluster
+- [ ] Two **icon-only** ghost buttons sit together after the chips (divider before them,
+  left-aligned): a **+** ("New filter") and a **pencil** ("Edit filters").
+- [ ] **+** opens the builder in **create** mode. It is **disabled (dimmed)** while edit mode
+  is on (stays visible so the row width is stable).
+- [ ] The **pencil** toggles edit mode and shows an active state while on (tooltip flips to
+  "Done editing filters").
+
+### 8.3 Filter builder modal (create / edit)
+- [ ] Title is **"New filter"** (create) or **"Edit filter"** (edit).
+- [ ] Fields: **name** (required; Enter submits) and **tags** (`MultiSelect` over the master
+  tag list). It is **tags-only** — no status picker.
+- [ ] **Create:** appends a custom view `{ status:'all', tags }` and activates it.
+- [ ] **Edit:** updates the view's label + tags; if it's the active view, re-applies it.
+- [ ] Primary button is disabled until the name is non-empty; **Cancel** closes without saving.
+
+### 8.4 Edit mode
+- [ ] While on: clicking a **custom** chip opens the builder pre-populated (rename/modify, **no
+  filtering**); clicking a system chip does nothing.
+- [ ] Each **custom** chip shows an **✕** (delete) — visible **only in edit mode**.
+- [ ] **System** chips are **dimmed and inert** (no hover, no click) in edit mode.
+- [ ] Deleting the active custom view falls back to the first saved view.
+
+### 8.5 Tier 2 — Refine (ad-hoc filters)
+- [ ] **Domain** dropdown (with logo icon); choosing **"+ Add new domain"** opens
+  `AddDomainModal` and inserts the new domain.
+- [ ] **Search** input filters by **campaign name OR tag name** (case-insensitive substring).
+- [ ] **Tags** `MultiSelect` drives ad-hoc tag filtering; selecting a saved view pre-fills it,
+  but refine edits are transient (not persisted to the view).
+- [ ] **Filtering semantics:** status (active/inactive/all) ∧ **all** selected tags present
+  (AND) ∧ search match.
+
+### 8.6 Inline per-campaign tagging (card `#tags` slot)
+- [ ] Show each campaign's tags as color-coded `Tag` pills, each with an **✕** to remove.
+- [ ] A **"+ Tag"** popover (one open at a time) has a search/create input and a list of all
+  tags filtered by the input; applied tags show a checkmark and toggle on click.
+- [ ] When the typed value is new, a **"+ Create '…'"** row adds it to the master list and the
+  campaign. Enter also creates.
+- [ ] **Auto-color:** each tag's color is derived by hashing its name (stable, zero-config).
+
+### 8.7 AI suggested tags — _nice to have_
+> Build last; the view is shippable without it. Suggestions are **proposed, never auto-applied**.
+- [ ] A **Sparkles** button on each card opens a **"Suggested tags"** review modal.
+- [ ] Scope toggle: **This campaign** / **All in this view (N)**; switching re-runs analysis.
+- [ ] Suggestions come from a **mock heuristic over name + metrics** (keyword map; a
+  "High performer" tag for high-conversion campaigns); only tags not already applied are shown.
+  Include a short analyzing spinner and an empty state.
+- [ ] Each suggested tag is individually **accept/exclude** (accepted by default); **Apply (N)**
+  commits only accepted tags, creating any new tag names.
