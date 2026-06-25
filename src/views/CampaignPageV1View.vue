@@ -1030,8 +1030,24 @@
                   </div>
                 </div>
               </div>
+              <div v-for="(rule, i) in addedTargetingRules" :key="`added-rule-${i}`" class="trigger-timeline-item">
+                <div class="trigger-card">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-om-orange-400 rounded-xl flex items-center justify-center shrink-0">
+                      <component :is="rule.icon" :size="28" class="text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <div class="text-sm font-semibold text-om-gray-700">{{ rule.title }}</div>
+                      <div v-if="rule.description" class="text-sm text-om-gray-500 mt-0.5">{{ rule.description }}</div>
+                    </div>
+                    <button class="text-om-gray-400 hover:text-om-gray-700 shrink-0" @click="addedTargetingRules.splice(i, 1)">
+                      <X :size="18" />
+                    </button>
+                  </div>
+                </div>
+              </div>
               <div class="trigger-timeline-add pl-6 flex items-center justify-between gap-3">
-                <Button variant="secondary" size="md">
+                <Button variant="secondary" size="md" @click="showTargetingModal = true">
                   <template #icon><Plus :size="18" /></template>
                   Add new rule
                 </Button>
@@ -1424,6 +1440,9 @@
       </div>
     </div>
   </transition>
+
+  <!-- Targeting rules picker modal -->
+  <TargetingRulesModal v-model="showTargetingModal" @select="addTargetingRule" />
   </div>
 </template>
 
@@ -1447,6 +1466,7 @@ import ChatPanel from '../components/shared/ChatPanel.vue'
 import EditableTitle from '../components/shared/EditableTitle.vue'
 import Tag from '../components/shared/Tag.vue'
 import CampaignAnalyticsTab from '../components/shared/CampaignAnalyticsTab.vue'
+import TargetingRulesModal from '../components/shared/TargetingRulesModal.vue'
 
 const props = defineProps({
   abTestVersion: { type: String, default: 'comparison' }, // 'comparison' | 'pivoted' | 'bar-chart'
@@ -1608,6 +1628,11 @@ const isActive = ref(true)
 
 // Settings tab - Accordion state
 const openAccordion = ref(null)
+const showTargetingModal = ref(false)
+const addedTargetingRules = ref([])
+const addTargetingRule = (rule) => {
+  addedTargetingRules.value.push(rule)
+}
 const emailNotification = ref(false)
 const notificationEmails = ref([
   { email: 'product@optimonk.com', status: 'accepted' },
