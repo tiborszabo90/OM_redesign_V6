@@ -1342,6 +1342,15 @@ const campaignViews = [
     slug: 'campaign-detail',
   },
   {
+    id: 'campaign-detail-segment-size',
+    component: () => import('../views/CampaignDetailSegmentSizeView.vue'),
+    label: 'Campaign Page (Segment Size)',
+    status: 'active',
+    section: 'campaignPage',
+    hideLogo: true,
+    slug: 'campaign-detail-segment-size',
+  },
+  {
     id: 'campaign-detail-tagged',
     component: () => import('../views/CampaignDetailTaggedView.vue'),
     label: 'Campaign Page (Tagged)',
