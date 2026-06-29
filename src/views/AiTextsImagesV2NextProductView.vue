@@ -818,7 +818,7 @@
               </div>
               <div class="bg-white rounded-2xl shadow-[0_2px_8px_0_rgba(0,0,0,0.04),0_1px_2px_0_rgba(0,0,0,0.02)] overflow-hidden relative" style="height: 500px;">
                 <template v-if="selectedProduct.status === 'generated'">
-                  <img src="/product2.png" class="w-full h-full object-contain transition-all duration-300" :class="[promptChanged ? 'blur-sm scale-105' : '', isIgnored(selectedProduct.id) ? 'blur-[2px] grayscale' : '']" />
+                  <img :src="getCurrentImage(selectedProduct)?.src || '/product2.png'" class="w-full h-full object-contain transition-all duration-300" :class="[promptChanged ? 'blur-sm scale-105' : '', isIgnored(selectedProduct.id) ? 'blur-[2px] grayscale' : '']" />
                   <Transition name="modal-fade">
                     <div v-if="promptChanged" class="absolute inset-0 bg-black/20 flex flex-col items-center justify-center">
                       <Button variant="primary" size="md" @click="regenerateProduct">
@@ -834,6 +834,17 @@
                   <div v-if="!promptChanged && isIgnored(selectedProduct.id)" class="absolute inset-0 bg-black/60 flex items-center justify-center">
                     <EyeOff :size="40" class="text-white" />
                   </div>
+                  <Button
+                    v-if="!promptChanged"
+                    variant="secondary"
+                    size="sm"
+                    class="absolute bottom-3 right-3 z-10"
+                    :disabled="getHistory(selectedProduct).length <= 1"
+                    @click="openHistoryModal(selectedProduct)"
+                  >
+                    <template #icon><History :size="14" /></template>
+                    History
+                  </Button>
                 </template>
                 <template v-else-if="selectedProduct.status === 'generating'">
                   <div class="w-full h-full flex flex-col items-center justify-center gap-3">
@@ -2213,6 +2224,14 @@ const regenerateProduct = () => {
   setTimeout(() => {
     genProducts.value = genProducts.value.map(p => p.id === id ? { ...p, status: 'generated' } : p)
     selectedProduct.value = { ...selectedProduct.value, status: 'generated' }
+    // Record this generation as a new image-history version
+    ensureHistory(selectedProduct.value)
+    const list = historyByProduct.value[id] || []
+    const nextN = list.length + 1
+    const src = historyGalleryPool[(nextN - 1) % historyGalleryPool.length]
+    const entry = { value: `${id}-v${nextN}`, label: `Version ${nextN} - ${formatVersionDate(new Date())}`, src }
+    historyByProduct.value = { ...historyByProduct.value, [id]: [...list, entry] }
+    currentImageByProduct.value = { ...currentImageByProduct.value, [id]: entry }
     setApproved(id, false)
   }, 2000)
 }
