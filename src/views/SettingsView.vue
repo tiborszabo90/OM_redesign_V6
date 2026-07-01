@@ -162,6 +162,15 @@
             />
           </template>
 
+          <!-- AI Texts & Images V2 Parent · Child Product embedded -->
+          <template v-else-if="activeSection === 'products-ai-texts-images-v2-parent-child-product'">
+            <AiTextsImagesV2ParentChildProductView
+              :screen="embeddedScreen"
+              :embedded="true"
+              @navigate="handleEmbeddedNavigateV2ParentChildProduct"
+            />
+          </template>
+
           <!-- AI Texts & Images V2 (AI Input on preview pages) embedded -->
           <template v-else-if="activeSection === 'products-ai-texts-images-v2-ai-input'">
             <AiTextsImagesV2AiInputView
@@ -195,6 +204,7 @@ import AiTextsImagesV2FeedbacksView from './AiTextsImagesV2FeedbacksView.vue'
 import AiTextsImagesV2FeedbacksModalView from './AiTextsImagesV2FeedbacksModalView.vue'
 import AiTextsImagesV2NextProductView from './AiTextsImagesV2NextProductView.vue'
 import AiTextsImagesV2NextProductAiInputView from './AiTextsImagesV2NextProductAiInputView.vue'
+import AiTextsImagesV2ParentChildProductView from './AiTextsImagesV2ParentChildProductView.vue'
 import AiTextsImagesV2AiInputView from './AiTextsImagesV2AiInputView.vue'
 
 const props = defineProps({
@@ -284,6 +294,7 @@ const sectionRouteMap = {
   'products-ai-texts-images-v2-feedbacks-modal': 'settings-ai-texts-images-v2-feedbacks-modal',
   'products-ai-texts-images-v2-next-product': 'settings-ai-texts-images-v2-next-product',
   'products-ai-texts-images-v2-next-product-ai-input': 'settings-ai-texts-images-v2-next-product-ai-input',
+  'products-ai-texts-images-v2-parent-child-product': 'settings-ai-texts-images-v2-parent-child-product',
   'products-ai-texts-images-v2-ai-input': 'settings-ai-texts-images-v2-ai-input',
 }
 
@@ -302,6 +313,9 @@ const handleSectionClick = (id) => {
     embeddedScreen.value = 'generation'
   }
   if (id === 'products-ai-texts-images-v2-next-product-ai-input') {
+    embeddedScreen.value = 'generation'
+  }
+  if (id === 'products-ai-texts-images-v2-parent-child-product') {
     embeddedScreen.value = 'generation'
   }
   if (id === 'products-ai-texts-images-v2-ai-input') {
@@ -386,6 +400,11 @@ const handleEmbeddedNavigateV2NextProduct = (route) => {
 }
 
 const handleEmbeddedNavigateV2NextProductAiInput = (route) => {
+  // Same containment logic as the next-product handler above.
+  embeddedScreen.value = screenMapV2[route] ?? 'generation'
+}
+
+const handleEmbeddedNavigateV2ParentChildProduct = (route) => {
   // Same containment logic as the next-product handler above.
   embeddedScreen.value = screenMapV2[route] ?? 'generation'
 }

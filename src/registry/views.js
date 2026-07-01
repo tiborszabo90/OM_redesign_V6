@@ -2076,6 +2076,14 @@ const settingsAiViews = [
     hideLogo: true,
   },
   {
+    id: 'settings-ai-texts-images-v2-parent-child-product',
+    component: () => import('../views/SettingsView.vue'),
+    label: 'AI Texts & Images V2 (parent · child product)',
+    status: 'active',
+    section: 'aiContent',
+    hideLogo: true,
+  },
+  {
     id: 'settings-ai-texts-images-v2-ai-input',
     component: () => import('../views/SettingsView.vue'),
     label: 'AI Texts & Images V2 (AI input)',
