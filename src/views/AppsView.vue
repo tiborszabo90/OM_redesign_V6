@@ -72,10 +72,10 @@ const apps = [
   {
     id: 'picbear',
     label: 'Picbear',
-    tagline: 'A new product in the OptiMonk family',
+    tagline: 'AI product images for Shopify stores',
     target: 'picbear',
     accent: '#10B981',
-    available: false,
+    available: true,
     icon: Image,
   },
   {

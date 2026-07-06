@@ -177,7 +177,7 @@
           <div class="flex">
             <!-- Left: nav links -->
             <div class="flex flex-col py-2 px-2 border-r border-om-gray-100 shrink-0 w-52">
-              <button @click="navigateTo('subscription')" class="px-2 py-1.5 text-sm font-medium text-om-gray-600 hover:bg-om-gray-100 active:bg-om-gray-200 text-left cursor-pointer transition-colors whitespace-nowrap rounded-lg">Subscription</button>
+              <button @click="navigateTo('subscription-cl-a')" class="px-2 py-1.5 text-sm font-medium text-om-gray-600 hover:bg-om-gray-100 active:bg-om-gray-200 text-left cursor-pointer transition-colors whitespace-nowrap rounded-lg">Subscription</button>
               <button @click="navigateTo('settings')" class="px-2 py-1.5 text-sm font-medium text-om-gray-600 hover:bg-om-gray-100 active:bg-om-gray-200 text-left cursor-pointer transition-colors whitespace-nowrap rounded-lg">Settings</button>
               <button class="px-2 py-1.5 text-sm font-medium text-om-gray-600 hover:bg-om-gray-100 active:bg-om-gray-200 text-left cursor-pointer transition-colors whitespace-nowrap rounded-lg">Invite your team</button>
               <button class="px-2 py-1.5 text-sm font-medium text-om-gray-600 hover:bg-om-gray-100 active:bg-om-gray-200 text-left cursor-pointer transition-colors whitespace-nowrap rounded-lg">Ambassador program</button>

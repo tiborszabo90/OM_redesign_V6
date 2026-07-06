@@ -215,6 +215,8 @@ const activeProps = computed(() => {
     'dev-start': { initialShowArchive: devStartShowArchive.value },
     'opticube': { product: 'opticube' },
     'picbear': { product: 'picbear' },
+    'subscription-cl-a': { variant: 'A' },
+    'subscription-cl-d': { variant: 'D' },
     'conversionlift': { product: 'conversionlift' },
     'registration-v1': { registrationType: registrationType.value },
     'onboarding': { registrationData: registrationData.value, registrationType: registrationType.value },
@@ -868,7 +870,11 @@ const activeEvents = computed(() => {
     'wizard-recommendation-public-v2': { 'task-created': handleTaskCreated, 'menu-click': handleMenuClick },
     'editor': { 'go-back': () => handleDevNavigate('campaign-page-v1'), 'save-and-exit': () => handleDevNavigate('campaign-settings-step') },
     'campaign-settings-step': { 'menu-click': handleMenuClick, next: () => handleDevNavigate('campaign-page-with-review') },
-    'subscription': { 'menu-click': handleMenuClick },
+    'subscription-cl-a': { 'menu-click': handleMenuClick },
+    'subscription-cl-d': { 'menu-click': handleMenuClick },
+    'subscription-cl-tabs': { 'menu-click': handleMenuClick },
+    'subscription-cl-usage': { 'menu-click': handleMenuClick },
+    'subscription-cl-combined': { 'menu-click': handleMenuClick },
     'wizard': { submit: handleWizardSubmit },
   }
 

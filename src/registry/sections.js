@@ -9,4 +9,5 @@ export const sectionLabels = {
   aiContent: 'AI Content',
   audience: 'Audience',
   conversionLift: 'Conversion Lift',
+  subscription: 'Subscription',
 }

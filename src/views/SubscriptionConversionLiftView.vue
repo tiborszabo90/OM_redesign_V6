@@ -4,11 +4,11 @@
       <div class="w-full max-w-[1500px] mx-auto pb-10 -mt-[10px]">
         <h1 class="text-2xl font-semibold text-om-gray-700 mb-[22px]">Subscription</h1>
 
-        <!-- Summary + Payment -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-7">
+        <!-- Summary + Payment (+ Conversion Lift as a 3rd card in variant D) -->
+        <div :class="['grid grid-cols-1 gap-6 mb-7', variant === 'D' ? 'lg:grid-cols-2 xl:grid-cols-3' : 'lg:grid-cols-2']">
           <!-- Current plan summary -->
           <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-6">
-            <h2 class="text-base font-semibold text-om-gray-700 mb-6">Essential 20 plan (annual)</h2>
+            <h2 class="text-base font-semibold text-om-gray-700 mb-6">{{ variant === 'D' ? 'OptiMonk · ' : '' }}Essential 20 plan (annual)</h2>
 
             <div class="flex items-center justify-between text-sm mb-6">
               <span class="text-om-gray-600">Basic pageview (20,000 / month)</span>
@@ -36,13 +36,51 @@
             </div>
           </div>
 
+          <!-- Variant D: Conversion Lift (third summary card) -->
+          <div v-if="variant === 'D'" class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-6 flex flex-col">
+            <h2 class="text-base font-semibold text-om-gray-700 mb-6">Conversion Lift · {{ clPlan.period }} plan</h2>
+
+            <div class="flex items-center justify-between text-sm mb-6">
+              <span class="text-om-gray-600">{{ clPlan.visitors }}</span>
+              <span class="font-semibold text-om-gray-700">{{ clPlan.price }}</span>
+            </div>
+
+            <div class="mb-5">
+              <div class="flex items-center justify-between text-sm mb-2">
+                <span class="text-om-gray-600">Visitors (reset on {{ creditsResetDate }})</span>
+                <span class="text-om-gray-500">{{ visitors.used.toLocaleString() }} / {{ visitors.total.toLocaleString() }}</span>
+              </div>
+              <div class="h-1.5 bg-om-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-[#7C93E8] rounded-full" :style="{ width: visitorsUsedPct + '%' }"></div>
+              </div>
+            </div>
+
+            <div class="mb-5">
+              <div class="flex items-center justify-between text-sm mb-2">
+                <span class="text-om-gray-600">Credits (reset on {{ creditsResetDate }})</span>
+                <span class="text-om-gray-500">{{ (credits.total - credits.available).toLocaleString() }} / {{ credits.total.toLocaleString() }}</span>
+              </div>
+              <div class="h-1.5 bg-om-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-[#7C93E8] rounded-full" :style="{ width: creditsUsedPct + '%' }"></div>
+              </div>
+            </div>
+
+            <div class="mt-auto flex items-center justify-end gap-2">
+              <Button variant="ghost" size="sm" @click="historyOpen = true">
+                <template #icon><History :size="14" /></template>
+                Credit history
+              </Button>
+              <Button variant="primary" size="sm">Buy credits</Button>
+            </div>
+          </div>
+
           <!-- Payment details -->
           <div class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-6">
             <h2 class="text-base font-semibold text-om-gray-700 mb-6">Payment details</h2>
 
             <div class="flex items-start justify-between mb-5">
               <div>
-                <p class="text-xs text-om-gray-400 mb-1.5">Payment method</p>
+                <p class="text-sm text-om-gray-600 mb-1.5">Payment method</p>
                 <p class="text-sm text-om-gray-700 flex items-center gap-2">
                   <span class="inline-flex items-center justify-center h-5 px-1.5 rounded bg-[#1A1F71] text-white text-[10px] font-bold tracking-wide">VISA</span>
                   <span class="font-semibold">471527******0932. Expiry date: 03/2029</span>
@@ -53,7 +91,7 @@
 
             <div class="flex items-start justify-between mb-5">
               <div>
-                <p class="text-xs text-om-gray-400 mb-1.5">Billing address</p>
+                <p class="text-sm text-om-gray-600 mb-1.5">Billing address</p>
                 <p class="text-sm font-semibold text-om-gray-700">University of New England, Armidale, Australia</p>
               </div>
               <button class="text-sm font-medium text-om-orange-500 hover:text-om-orange-600 cursor-pointer shrink-0">Edit</button>
@@ -61,10 +99,52 @@
 
             <div class="flex items-start justify-between">
               <div>
-                <p class="text-xs text-om-gray-400 mb-1.5">Next payment</p>
+                <p class="text-sm text-om-gray-600 mb-1.5">Next payment</p>
                 <p class="text-sm font-semibold text-om-gray-700">Jun 11, 2027</p>
               </div>
               <button class="text-sm font-medium text-om-orange-500 hover:text-om-orange-600 cursor-pointer shrink-0">Cancel subscription</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Variant A: dedicated Conversion Lift status card -->
+        <div v-if="variant === 'A'" class="bg-white rounded-2xl shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-6 mb-7 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+          <div class="flex flex-col justify-center gap-4 min-w-0">
+            <div class="flex items-center gap-4 min-w-0">
+              <div class="w-11 h-11 rounded-xl bg-om-orange-100 flex items-center justify-center shrink-0">
+                <ArrowUpRight :size="22" class="text-om-orange-500" />
+              </div>
+              <div class="min-w-0">
+                <h2 class="text-base font-semibold text-om-gray-700 mb-0.5">Conversion Lift</h2>
+                <p class="text-sm text-om-gray-500 leading-relaxed">AI product-page optimization, managed by our CRO team.</p>
+              </div>
+            </div>
+            <!-- Visitor usage meter -->
+            <div>
+              <div class="flex items-center justify-between text-sm mb-2">
+                <span class="text-om-gray-600">Visitors (this month)</span>
+                <span class="text-om-gray-500">{{ visitors.used.toLocaleString() }} / {{ visitors.total.toLocaleString() }}</span>
+              </div>
+              <div class="h-1.5 bg-om-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-om-orange-400 rounded-full" :style="{ width: visitorsUsedPct + '%' }"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Credits widget -->
+          <div class="bg-om-gray-50 rounded-xl p-5 ml-5 flex items-center justify-between gap-6">
+            <div>
+              <div class="flex items-baseline gap-1.5 mb-0.5">
+                <span class="text-2xl font-semibold text-om-gray-700">{{ credits.available.toLocaleString() }}</span>
+                <span class="text-sm text-om-gray-500">credits available</span>
+              </div>
+              <p class="text-xs text-om-gray-400">Resets to {{ credits.total.toLocaleString() }} credits on {{ creditsResetDate }}</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <Button variant="secondary" size="md" @click="historyOpen = true">
+                <template #icon><History :size="14" /></template>
+                Credit history
+              </Button>
+              <Button variant="primary" size="md">Buy credits</Button>
             </div>
           </div>
         </div>
@@ -151,20 +231,84 @@
           <img src="/monk-hi-user.svg" alt="" class="hidden lg:block absolute -bottom-10 right-12 h-56 w-auto" />
         </div>
       </div>
+
+      <!-- Credit history modal -->
+      <Modal v-model="historyOpen" title="Credit history" size="lg">
+        <div class="flex items-center justify-between gap-4 pb-4 mb-1 border-b border-om-gray-100">
+          <div>
+            <div class="flex items-baseline gap-1.5">
+              <span class="text-2xl font-semibold text-om-gray-700">{{ credits.available.toLocaleString() }}</span>
+              <span class="text-sm text-om-gray-500">credits available</span>
+            </div>
+            <p class="text-xs text-om-gray-400 mt-0.5">Credits reset on {{ creditsResetDate }}</p>
+          </div>
+          <Button variant="primary" size="sm">Buy credits</Button>
+        </div>
+        <div>
+          <div
+            v-for="(h, i) in creditHistory"
+            :key="i"
+            class="flex items-center justify-between gap-4 py-3 border-b border-om-gray-100 last:border-0"
+          >
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="h.amount > 0 ? 'bg-[#D6F5EC]' : 'bg-om-gray-100'">
+                <component :is="h.amount > 0 ? Plus : Minus" :size="15" :class="h.amount > 0 ? 'text-[#2CC896]' : 'text-om-gray-500'" />
+              </span>
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-om-gray-700 truncate">{{ h.desc }}</p>
+                <p class="text-xs text-om-gray-400">{{ h.date }}</p>
+              </div>
+            </div>
+            <span :class="['text-sm font-semibold shrink-0', h.amount > 0 ? 'text-[#2CC896]' : 'text-om-gray-700']">
+              {{ h.amount > 0 ? '+' : '' }}{{ h.amount.toLocaleString() }}
+            </span>
+          </div>
+        </div>
+      </Modal>
     </template>
   </DashboardLayout>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { Check, X, Info } from 'lucide-vue-next'
+import { Check, X, Info, ArrowUpRight, History, Plus, Minus } from 'lucide-vue-next'
 import DashboardLayout from '../components/layouts/DashboardLayout.vue'
 import Button from '../components/shared/Button.vue'
 import Dropdown from '../components/shared/Dropdown.vue'
+import Modal from '../components/shared/Modal.vue'
 
+defineProps({
+  // Conversion Lift subscriber indication style:
+  // 'A' = full-width status card, 'D' = third summary card.
+  variant: { type: String, default: 'A' },
+})
 defineEmits(['menu-click'])
 
 const billing = ref('annual')
+
+// Conversion Lift credit balance (consumption unit for AI generation).
+const credits = { available: 2700, total: 5000 }
+const creditsUsedPct = Math.round(((credits.total - credits.available) / credits.total) * 100)
+const creditsResetDate = '2026-07-11'
+
+// Conversion Lift plan (traffic-tiered, billed annually or monthly).
+const clPlan = { period: 'Annual', price: '$1,656 / year', visitors: '50,000 visitors / month' }
+
+// Conversion Lift monthly traffic usage against the plan's visitor allowance.
+const visitors = { used: 31200, total: 50000 }
+const visitorsUsedPct = Math.round((visitors.used / visitors.total) * 100)
+
+const historyOpen = ref(false)
+const creditHistory = [
+  { date: 'Jun 14, 2026', desc: 'AI image generation · Don Papa Baroko rum', amount: -40 },
+  { date: 'Jun 12, 2026', desc: 'SPPO – Benefit List · 33 products', amount: -33 },
+  { date: 'Jun 10, 2026', desc: 'Credit purchase', amount: 2000 },
+  { date: 'Jun 6, 2026', desc: 'AI lifestyle image · batch run', amount: -120 },
+  { date: 'Jun 2, 2026', desc: 'SPPO3 – USP · 100 products', amount: -100 },
+  { date: 'Jun 1, 2026', desc: 'Monthly credit allocation', amount: 5000 },
+  { date: 'May 28, 2026', desc: 'Product Description Generator · 500 products', amount: -500 },
+  { date: 'May 20, 2026', desc: 'Credit purchase', amount: 1000 },
+]
 
 const plans = reactive([
   {
