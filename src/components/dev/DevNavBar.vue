@@ -137,7 +137,7 @@
           <ChevronUp :size="12" :class="{ 'rotate-180': sectionDropdownOpen }" />
         </button>
         <transition name="fade">
-          <div v-if="sectionDropdownOpen" class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-hidden min-w-48">
+          <div v-if="sectionDropdownOpen" class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-y-auto max-h-[70vh] min-w-48">
             <button v-for="item in activeSection" :key="item.view"
               @click="selectSection(item.view)"
               :class="dropdownItemClass(currentView === item.view)"
