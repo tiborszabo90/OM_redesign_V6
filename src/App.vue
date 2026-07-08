@@ -185,6 +185,7 @@ const settingsInitialSection = computed(() => {
   if (currentView.value === 'settings-ai-texts-images-v2-parent-child-product') return 'products-ai-texts-images-v2-parent-child-product'
   if (currentView.value === 'settings-ai-texts-images-v2-next-product') return 'products-ai-texts-images-v2-next-product'
   if (currentView.value === 'settings-ai-texts-images-v2-ai-input') return 'products-ai-texts-images-v2-ai-input'
+  if (currentView.value === 'settings-ai-texts-images-v2-credit-buying') return 'products-ai-texts-images-v2-credit-buying'
   if (currentView.value?.startsWith('settings-ai-texts-images-v2')) return 'products-ai-texts-images-v2'
   if (currentView.value?.startsWith('settings-ai-texts-images-v1')) return 'products-ai-texts-images-v1'
   return 'personal-details'
@@ -216,6 +217,7 @@ const activeProps = computed(() => {
     'opticube': { product: 'opticube' },
     'picbear': { product: 'picbear' },
     'subscription-cl-a': { variant: 'A' },
+    'subscription-credit-buy': { variant: 'A' },
     'subscription-cl-d': { variant: 'D' },
     'conversionlift': { product: 'conversionlift' },
     'registration-v1': { registrationType: registrationType.value },
@@ -368,6 +370,12 @@ const activeProps = computed(() => {
     return {
       initialSection: settingsInitialSection.value,
       initialScreen: 'image-preview',
+    }
+  }
+  if (id === 'settings-ai-texts-images-v2-credit-buying') {
+    return {
+      initialSection: settingsInitialSection.value,
+      initialScreen: 'list',
     }
   }
   if (id.startsWith('settings-ai')) {
@@ -871,6 +879,7 @@ const activeEvents = computed(() => {
     'editor': { 'go-back': () => handleDevNavigate('campaign-page-v1'), 'save-and-exit': () => handleDevNavigate('campaign-settings-step') },
     'campaign-settings-step': { 'menu-click': handleMenuClick, next: () => handleDevNavigate('campaign-page-with-review') },
     'subscription-cl-a': { 'menu-click': handleMenuClick },
+    'subscription-credit-buy': { 'menu-click': handleMenuClick },
     'subscription-cl-d': { 'menu-click': handleMenuClick },
     'subscription-cl-tabs': { 'menu-click': handleMenuClick },
     'subscription-cl-usage': { 'menu-click': handleMenuClick },

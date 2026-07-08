@@ -398,6 +398,14 @@ const systemViews = [
     hideLogo: true,
   },
   {
+    id: 'subscription-credit-buy',
+    component: () => import('../views/SubscriptionCreditBuyView.vue'),
+    label: 'CL · Credit buy',
+    status: 'active',
+    section: 'subscription',
+    hideLogo: true,
+  },
+  {
     id: 'subscription-cl-d',
     component: () => import('../views/SubscriptionConversionLiftView.vue'),
     label: 'CL · Summary card',
@@ -2116,6 +2124,14 @@ const settingsAiViews = [
     hideLogo: true,
   },
   {
+    id: 'settings-ai-texts-images-v2-credit-buying',
+    component: () => import('../views/SettingsView.vue'),
+    label: 'AI Texts & Images V2 (credit buying)',
+    status: 'active',
+    section: 'aiContent',
+    hideLogo: true,
+  },
+  {
     id: 'settings-ai-texts-images-v2-ai-input',
     component: () => import('../views/SettingsView.vue'),
     label: 'AI Texts & Images V2 (AI input)',
@@ -2152,6 +2168,15 @@ const allViews = [
 // already namespaced under `agentic/`. Navigation is id-based internally, so
 // this only changes URLs; bare legacy hashes still resolve via App.vue's
 // trailing-segment fallback in getViewFromHash.
+// Generated sub-views to archive individually (frozen; moved to the archive dropdown).
+const ARCHIVED_IDS = new Set([
+  'ai-texts-images-v2-add-products',
+  'ai-texts-images-v2-choose-products',
+])
+for (const def of allViews) {
+  if (ARCHIVED_IDS.has(def.id)) def.status = 'archived'
+}
+
 const CLASSIC_SECTIONS = new Set([
   'home', 'campaigns', 'campaignPage', 'analytics', 'ppo', 'ppoV1', 'aiContent', 'audience',
 ])

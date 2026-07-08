@@ -126,6 +126,15 @@
             />
           </template>
 
+          <!-- AI Texts & Images V2 Credit Buying embedded -->
+          <template v-else-if="activeSection === 'products-ai-texts-images-v2-credit-buying'">
+            <AiTextsImagesV2CreditBuyingView
+              :screen="embeddedScreen"
+              :embedded="true"
+              @navigate="handleEmbeddedNavigateV2CreditBuying"
+            />
+          </template>
+
           <!-- AI Texts & Images V2 Feedbacks embedded -->
           <template v-else-if="activeSection === 'products-ai-texts-images-v2-feedbacks'">
             <AiTextsImagesV2FeedbacksView
@@ -200,6 +209,7 @@ import RadioButton from '../components/shared/RadioButton.vue'
 import AiTextsImagesView from './AiTextsImagesView.vue'
 import AiTextsImagesV1View from './AiTextsImagesV1View.vue'
 import AiTextsImagesV2View from './AiTextsImagesV2View.vue'
+import AiTextsImagesV2CreditBuyingView from './AiTextsImagesV2CreditBuyingView.vue'
 import AiTextsImagesV2FeedbacksView from './AiTextsImagesV2FeedbacksView.vue'
 import AiTextsImagesV2FeedbacksModalView from './AiTextsImagesV2FeedbacksModalView.vue'
 import AiTextsImagesV2NextProductView from './AiTextsImagesV2NextProductView.vue'
@@ -290,6 +300,7 @@ const handleSave = () => {
 
 const sectionRouteMap = {
   'products-ai-texts-images-v2': 'settings-ai-texts-images-v2',
+  'products-ai-texts-images-v2-credit-buying': 'settings-ai-texts-images-v2-credit-buying',
   'products-ai-texts-images-v2-feedbacks': 'settings-ai-texts-images-v2-feedbacks',
   'products-ai-texts-images-v2-feedbacks-modal': 'settings-ai-texts-images-v2-feedbacks-modal',
   'products-ai-texts-images-v2-next-product': 'settings-ai-texts-images-v2-next-product',
@@ -380,6 +391,11 @@ const screenMapV2 = {
 const handleEmbeddedNavigateV2 = (route) => {
   embeddedScreen.value = screenMapV2[route] ?? 'list'
   emit('navigate', 'settings-' + route)
+}
+
+const handleEmbeddedNavigateV2CreditBuying = (route) => {
+  // Keep navigation contained inside the credit-buying frame (don't bubble to App.vue).
+  embeddedScreen.value = screenMapV2[route] ?? 'list'
 }
 
 const handleEmbeddedNavigateV2Feedbacks = (route) => {

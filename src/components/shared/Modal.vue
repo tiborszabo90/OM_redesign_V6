@@ -56,7 +56,7 @@ const props = defineProps({
   size: {
     type: String,
     default: 'md',
-    validator: (v) => ['sm', 'md', 'lg', 'xl'].includes(v)
+    validator: (v) => ['sm', 'md', 'lg', 'xl', '2xl'].includes(v)
   },
   closeOnBackdrop: { type: Boolean, default: true },
   closeOnEsc: { type: Boolean, default: true },
@@ -73,7 +73,8 @@ const sizeClass = computed(() => ({
   sm: 'max-w-sm',
   md: 'max-w-md',
   lg: 'max-w-2xl',
-  xl: 'max-w-4xl'
+  xl: 'max-w-4xl',
+  '2xl': 'max-w-6xl'
 }[props.size]))
 
 const hasHeaderDivider = computed(() => props.dividers)

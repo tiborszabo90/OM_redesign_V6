@@ -213,6 +213,18 @@
                   <div class="h-full bg-om-orange-400 rounded-full" style="width: 50%"></div>
                 </div>
               </div>
+
+              <!-- AI credits -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs text-om-gray-400">AI credits</span>
+                  <span class="text-xs font-medium text-om-gray-700">20,000 / 25,000</span>
+                </div>
+                <div class="h-1.5 bg-om-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-om-orange-400 rounded-full" style="width: 80%"></div>
+                </div>
+                <div class="text-[11px] text-om-gray-400 mt-1">+2,144 additional · never expires</div>
+              </div>
             </div>
           </div>
         </div>
