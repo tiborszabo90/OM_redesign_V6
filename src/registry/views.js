@@ -127,6 +127,15 @@ const systemViews = [
     matchPrefix: 'picbear',
   },
   {
+    id: 'picbear-current',
+    component: () => import('../picbear-current/PicbearAppView.vue'),
+    label: 'Picbear (current)',
+    status: 'system',
+    section: null,
+    hideLogo: true,
+    product: 'picbear',
+  },
+  {
     id: 'conversionlift',
     component: () => import('../conversionlift/ConversionLiftStartView.vue'),
     label: 'ConversionLift',

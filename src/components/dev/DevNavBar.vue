@@ -211,10 +211,31 @@
       <!-- Desktop-only: minimal nav contents (other products) -->
       <div v-if="!isOptimonk && productPages.length" class="hidden md:flex items-center gap-2 flex-wrap justify-center">
         <span class="text-xs text-[#8F97A4]">{{ productLabel }}:</span>
-        <button v-for="page in productPages" :key="page.view"
-          @click="$emit('navigate', page.view)"
-          :class="stepClass(currentView === page.view)"
-        >{{ page.label }}</button>
+        <!-- Version selector dropdown when the product has multiple versions -->
+        <div v-if="productPages.length > 1" class="relative">
+          <button
+            @click="sectionDropdownOpen = !sectionDropdownOpen"
+            :class="[stepClass(true), 'flex items-center gap-1']"
+          >
+            {{ currentProductPageLabel }}
+            <ChevronUp :size="12" :class="{ 'rotate-180': sectionDropdownOpen }" />
+          </button>
+          <transition name="fade">
+            <div v-if="sectionDropdownOpen" class="absolute bottom-full left-0 mb-2 bg-[#23262A] border border-[#505763] rounded-lg shadow-lg overflow-y-auto max-h-[70vh] min-w-48">
+              <button v-for="page in productPages" :key="page.view"
+                @click="selectSection(page.view)"
+                :class="dropdownItemClass(currentView === page.view)"
+              >{{ page.label }}</button>
+            </div>
+          </transition>
+        </div>
+        <!-- Single version: plain button -->
+        <template v-else>
+          <button v-for="page in productPages" :key="page.view"
+            @click="$emit('navigate', page.view)"
+            :class="stepClass(currentView === page.view)"
+          >{{ page.label }}</button>
+        </template>
       </div>
 
       <!-- Back to Apps button -->
@@ -273,6 +294,12 @@ const productPages = computed(() =>
     .filter(v => !v.hideInNav)
     .map(v => ({ view: v.id, label: v.label }))
 )
+
+// Label shown on the version-selector dropdown button for non-OptiMonk products
+const currentProductPageLabel = computed(() => {
+  const page = productPages.value.find(p => p.view === props.currentView)
+  return page?.label || productLabel.value
+})
 
 const emit = defineEmits(['navigate', 'go-to-step', 'go-to-image-step', 'go-to-task-phase', 'select-flow', 'update:isOpen'])
 
