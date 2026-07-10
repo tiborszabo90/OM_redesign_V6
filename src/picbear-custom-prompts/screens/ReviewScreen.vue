@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { state, products, createGeneratingVariation } from '../store'
 import { PawPrint, ChevronRight, ArrowRight, Check } from 'lucide-vue-next'
+import SavePromptControl from '../components/SavePromptControl.vue'
 
 // picbear-current mirror of the currently-live Generate images step
 // (app.onboarding.generate.tsx): summary line, sample preview, shared AI
@@ -78,6 +79,9 @@ function startGenerating() {
           placeholder="e.g. Use a warm outdoor background with natural lighting..."
           class="w-full px-3 py-2 rounded-md border border-[#c9cccf] text-[13px] resize-y focus:outline-none focus:border-[#5548e0]"
         ></textarea>
+        <div class="mt-2">
+          <SavePromptControl :instructions="instructions" />
+        </div>
       </div>
     </div>
 

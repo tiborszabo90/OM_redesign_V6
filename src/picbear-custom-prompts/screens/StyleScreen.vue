@@ -1,9 +1,9 @@
 <script setup>
 import { state } from '../store'
-import { PawPrint, ChevronRight } from 'lucide-vue-next'
+import { PawPrint, ChevronRight, Sparkles } from 'lucide-vue-next'
 
-// picbear-current mirror of the currently-live onboarding style step
-// (app.onboarding.style.tsx): "Choose image upgrade style" with 4 mode cards.
+// picbear-custom-prompts: the live onboarding style step plus a 5th "Custom"
+// option that picks from saved custom prompts (managed under the Prompts tab).
 const modes = [
   {
     value: 'lifestyle',
@@ -33,8 +33,16 @@ const modes = [
 
 function selectStyle(value) {
   state.style = value
+  state.customPromptId = null
   state.steps.style = true
   state.screen = 'placement'
+}
+
+function selectCustom() {
+  // The specific prompt (saved or from scratch) is chosen on the next screen.
+  state.style = 'custom'
+  state.steps.style = true
+  state.screen = 'custompick'
 }
 
 function back() {
@@ -77,6 +85,25 @@ function back() {
         <p class="text-[13px] text-[#4a4a4a] mt-2">{{ mode.description }}</p>
         <div class="mt-3">
           <button class="pb-btn-primary" @click="selectStyle(mode.value)">Select this style</button>
+        </div>
+      </div>
+
+      <!-- Custom prompt card -->
+      <div class="rounded-lg border border-[#e1e3e5] p-5 flex flex-col bg-white">
+        <div class="h-[180px] flex items-center justify-center mb-3 bg-[#f6f6f7] rounded-md overflow-hidden">
+          <div class="w-[62%] flex flex-col items-center gap-3">
+            <Sparkles :size="38" class="text-[#b9bcc2]" />
+            <div class="w-full flex flex-col gap-2">
+              <div class="h-2.5 rounded-full bg-[#e1e3e5] w-full"></div>
+              <div class="h-2.5 rounded-full bg-[#e1e3e5] w-4/5"></div>
+              <div class="h-2.5 rounded-full bg-[#e1e3e5] w-3/5"></div>
+            </div>
+          </div>
+        </div>
+        <div class="text-[20px] font-bold leading-7 text-[#1a1a1a]">Custom prompt</div>
+        <p class="text-[13px] text-[#4a4a4a] mt-2">Write your own AI instructions or reuse a saved prompt. You'll pick which one on the next step.</p>
+        <div class="mt-3">
+          <button class="pb-btn-primary" @click="selectCustom">Select this style</button>
         </div>
       </div>
     </div>

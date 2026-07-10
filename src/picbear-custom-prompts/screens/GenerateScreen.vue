@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { state, bestseller } from '../store'
 import { PawPrint, ChevronRight, ArrowUpRight, Search, ShoppingBag } from 'lucide-vue-next'
+import SavePromptControl from '../components/SavePromptControl.vue'
 
 // picbear-current mirror of the currently-live first-upgrade Preview step
 // (app.onboarding.preview.tsx): Content / Placement tabs on the left, a live
@@ -92,7 +93,10 @@ function generateAll() {
             rows="3"
             class="w-full px-3 py-2 rounded-md border border-[#c9cccf] text-[14px] resize-y focus:outline-none focus:border-[#5548e0] mb-3"
           ></textarea>
-          <button class="pb-btn-secondary mb-5">Regenerate</button>
+          <div class="flex items-center gap-2 mb-5">
+            <button class="pb-btn-secondary">Regenerate</button>
+            <SavePromptControl :instructions="instructions" />
+          </div>
 
           <div class="text-[14px] font-bold text-[#1a1a1a] mb-2">Image ratios</div>
           <label class="flex items-center gap-2 text-[13px] text-[#1a1a1a] mb-3 cursor-pointer">

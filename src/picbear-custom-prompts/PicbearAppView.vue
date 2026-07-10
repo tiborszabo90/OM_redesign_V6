@@ -9,6 +9,7 @@ import {
 } from 'lucide-vue-next'
 import HomeScreen from './screens/HomeScreen.vue'
 import StyleScreen from './screens/StyleScreen.vue'
+import CustomPromptScreen from './screens/CustomPromptScreen.vue'
 import PlacementScreen from './screens/PlacementScreen.vue'
 import ProductsScreen from './screens/ProductsScreen.vue'
 import GenerateScreen from './screens/GenerateScreen.vue'
@@ -19,6 +20,7 @@ import DoneScreen from './screens/DoneScreen.vue'
 import VariationsScreen from './screens/VariationsScreen.vue'
 import VariationDetailScreen from './screens/VariationDetailScreen.vue'
 import ABTestsScreen from './screens/ABTestsScreen.vue'
+import PromptsScreen from './screens/PromptsScreen.vue'
 
 // Passed by the host App.vue for product views; not used internally.
 defineProps({ product: { type: String, default: 'picbear' } })
@@ -44,11 +46,13 @@ const appTabs = [
   { id: 'home', label: 'Home' },
   { id: 'variations', label: 'Variations' },
   { id: 'abtests', label: 'A/B Tests' },
+  { id: 'prompts', label: 'Prompts' },
 ]
 
 const wizardScreens = {
   home: HomeScreen,
   style: StyleScreen,
+  custompick: CustomPromptScreen,
   placement: PlacementScreen,
   products: ProductsScreen,
   generate: GenerateScreen,
@@ -63,11 +67,13 @@ const screenComponent = computed(() => {
     return state.variationDetailId ? VariationDetailScreen : VariationsScreen
   }
   if (state.appTab === 'abtests') return ABTestsScreen
+  if (state.appTab === 'prompts') return PromptsScreen
   return wizardScreens[state.screen] || HomeScreen
 })
 
 function goTab(id) {
   if (id === 'variations') state.variationDetailId = null
+  if (id === 'prompts') state.promptEditorId = null
   state.appTab = id
 }
 </script>

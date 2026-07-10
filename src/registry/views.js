@@ -136,6 +136,15 @@ const systemViews = [
     product: 'picbear',
   },
   {
+    id: 'picbear-custom-prompts',
+    component: () => import('../picbear-custom-prompts/PicbearAppView.vue'),
+    label: 'Picbear (custom prompts)',
+    status: 'system',
+    section: null,
+    hideLogo: true,
+    product: 'picbear',
+  },
+  {
     id: 'conversionlift',
     component: () => import('../conversionlift/ConversionLiftStartView.vue'),
     label: 'ConversionLift',
