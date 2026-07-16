@@ -73,7 +73,7 @@ const apps = [
     id: 'picbear',
     label: 'Picbear',
     tagline: 'AI product images for Shopify stores',
-    target: 'picbear',
+    target: 'picbear-dev-start',
     accent: '#10B981',
     available: true,
     icon: Image,

@@ -1,0 +1,90 @@
+/* Picbear sub-app styles.
+   All classes are pb- prefixed so nothing leaks into the main OM app
+   (this file becomes global CSS once the Picbear chunk loads). */
+
+.pb-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.pb-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  border: none;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+  background: linear-gradient(#3b3b3b, #2a2a2a);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+.pb-btn-primary:hover { background: #222; }
+.pb-btn-primary:disabled { opacity: 0.45; cursor: default; }
+
+.pb-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #303030;
+  background: #fff;
+  border: 1px solid #d4d4d4;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+.pb-btn-secondary:hover { background: #fafafa; }
+
+.pb-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a4a4a;
+  cursor: pointer;
+  user-select: none;
+}
+.pb-btn-ghost:hover { background: rgba(0, 0, 0, 0.05); }
+
+@keyframes pb-shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.pb-skeleton {
+  background: linear-gradient(90deg, #ececec 25%, #f7f7f7 50%, #ececec 75%);
+  background-size: 800px 100%;
+  animation: pb-shimmer 1.3s infinite linear;
+}
+
+@keyframes pb-fade-in-kf {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+.pb-fade-in { animation: pb-fade-in-kf 0.45s ease both; }
+
+@keyframes pb-confetti-fall {
+  0% { transform: translateY(-40px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(420px) rotate(540deg); opacity: 0; }
+}
+.pb-confetti-piece {
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  animation: pb-confetti-fall 2.6s ease-in forwards;
+}
