@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { state, products, styleById, subscriptionPlans, variationBatches } from '../store'
+import { state, products, styleById, subscriptionPlans, variationBatches, abTests } from '../store'
 import StyledImage from '../components/StyledImage.vue'
 import {
   PawPrint, MoreHorizontal, ChevronRight, Sparkles, FlaskConical,
@@ -36,8 +36,11 @@ function goVariations() {
   state.appTab = 'variations'
 }
 
+const runningTest = computed(() => abTests.find(t => t.status === 'running') || null)
+
 function goAbTests() {
   state.appTab = 'abtests'
+  state.openAbTest = runningTest.value ? runningTest.value.id : null
 }
 </script>
 
@@ -135,17 +138,20 @@ function goAbTests() {
           <p class="font-semibold text-[#1a1a1a]">A/B testing</p>
           <span
             class="text-[11px] font-semibold rounded-full px-2 py-0.5"
-            :class="state.abTestRunning ? 'text-[#0c6b45] bg-[#d7f2e4]' : 'text-[#616161] bg-[#f1f1f1]'"
+            :class="runningTest ? 'text-[#0c6b45] bg-[#d7f2e4]' : 'text-[#616161] bg-[#f1f1f1]'"
           >
-            {{ state.abTestRunning ? 'Running' : 'Not running' }}
+            {{ runningTest ? 'Running' : 'Not running' }}
           </span>
         </div>
         <p class="text-[12px] text-[#616161] mb-3 flex-1">
-          <template v-if="state.abTestRunning">Original vs AI images, day 3 of 14. AI variant leads with +11% add-to-cart.</template>
+          <template v-if="runningTest">
+            {{ runningTest.name }}, day {{ runningTest.day }} of {{ runningTest.days }}.
+            <template v-if="runningTest.uplift"> AI variant leads with {{ runningTest.uplift }} add-to-cart.</template>
+          </template>
           <template v-else>Run original vs AI images side by side and let the numbers decide.</template>
         </p>
         <button class="pb-btn-secondary self-start" @click="goAbTests">
-          <FlaskConical :size="13" /> {{ state.abTestRunning ? 'View test' : 'Start an A/B test' }}
+          <FlaskConical :size="13" /> {{ runningTest ? 'View test' : 'Start an A/B test' }}
           <ArrowUpRight :size="12" />
         </button>
       </div>

@@ -87,6 +87,11 @@ export function ratioCss(r) {
 
 export const subscriptionPlans = [
   {
+    id: 'free', name: 'Free', price: '€0', per: 'month', images: 10,
+    blurb: 'Try Picbear on your bestsellers, no card needed.',
+    features: ['10 AI images included', 'All 4 styles', 'Fine-tune & regenerate'],
+  },
+  {
     id: 'starter', name: 'Starter', price: '€9', per: 'month', images: 50,
     blurb: 'For small catalogs that want every product covered.',
     features: ['50 AI images / month', 'All 4 styles', 'Fine-tune & regenerate'],
@@ -96,26 +101,59 @@ export const subscriptionPlans = [
     blurb: 'The full toolkit to turn images into revenue.',
     features: ['200 AI images / month', 'A/B testing', 'Seasonal variations', 'Priority support'],
   },
-  {
-    id: 'scale', name: 'Scale', price: '€49', per: 'month', images: 999,
-    blurb: 'For large catalogs and agencies.',
-    features: ['Unlimited AI images', 'Everything in Growth', 'Multi-store support'],
-  },
 ]
 
 // Named variation batches shown on the Variations list page.
 // Each opens a sub-page with a review-style list of its products.
-export const variationBatches = [
-  { id: 'main', name: 'Product image change', styleId: 'lifestyle', count: 10, status: 'live', ctr: '4.8%' },
-  { id: 'badge', name: 'Image with badge', styleId: 'badge', count: 6, status: 'live', ctr: '4.1%' },
-  { id: 'callouts', name: 'Value prop callouts', styleId: 'callouts', count: 4, status: 'draft', ctr: null },
-  { id: 'people', name: 'People using product', styleId: 'people', count: 3, status: 'paused', ctr: '3.6%' },
-]
+// autoAdd / autoPublish are per-variation automation toggles.
+export const variationBatches = reactive([
+  { id: 'main', name: 'Product image change', styleId: 'lifestyle', count: 10, status: 'live', ctr: '4.8%', autoAdd: true, autoPublish: false },
+  { id: 'badge', name: 'Image with badge', styleId: 'badge', count: 6, status: 'live', ctr: '4.1%', autoAdd: false, autoPublish: false },
+  { id: 'callouts', name: 'Value prop callouts', styleId: 'callouts', count: 4, status: 'draft', ctr: null, autoAdd: false, autoPublish: false },
+  { id: 'people', name: 'People using product', styleId: 'people', count: 3, status: 'paused', ctr: '3.6%', autoAdd: false, autoPublish: false },
+])
+
+// A/B tests: each test pits a variation's AI images against the original photos
+// on a 50/50 traffic split. Two seeds: one finished (proof), one in progress.
+export const abTests = reactive([
+  {
+    id: 'badge-test',
+    variationId: 'badge',
+    name: 'Image with badge vs Original',
+    status: 'completed',       // running | completed
+    day: 14, days: 14,
+    winner: 'variant',
+    applied: false,
+    confidence: 96,
+    uplift: '+27%',
+    arms: {
+      original: { visitors: 1418, atc: '4.1%', orders: 39, revenue: '€612' },
+      variant: { visitors: 1425, atc: '5.2%', orders: 51, revenue: '€844' },
+    },
+  },
+  {
+    id: 'main-test',
+    variationId: 'main',
+    name: 'Product image change vs Original',
+    status: 'running',
+    day: 3, days: 14,
+    winner: null,
+    applied: false,
+    confidence: 62,
+    uplift: '+11%',
+    arms: {
+      original: { visitors: 402, atc: '3.9%', orders: 9, revenue: '€141' },
+      variant: { visitors: 396, atc: '4.4%', orders: 11, revenue: '€177' },
+    },
+  },
+])
 
 export const state = reactive({
   screen: 'welcome',         // launch on the welcome intro; it leads to the type selector. welcome | home (active account) | home-onboarding-fallback (setup guide) | style | placement | products | generate | review | finetune | enable | done | plans
   appTab: 'home',            // picbear subnav: home | variations | abtests
   openVariation: null,       // variation batch id open on the Variations sub-page (drives the URL)
+  openAbTest: null,          // A/B test id open on the A/B Tests sub-page, or 'new' for setup (drives the URL)
+  abTestPrefill: null,       // variation id to preselect when the A/B test setup opens
   style: null,
   placement: 'below-hero',
   selected: products.filter(p => p.sales >= 121).map(p => p.id),
@@ -133,6 +171,10 @@ export const state = reactive({
   imageSettings: {},         // id -> { instructions, ratioSame, desktopRatio, mobileRatio, placement }
   plan: 'trial',             // 'trial' | subscription plan id ('starter' | 'growth' | 'scale')
   imageLimit: 10,            // selectable products; lifted by subscribing
+  settings: {                // app settings (Settings screen)
+    emailOnFinish: true,     // email when a batch finishes
+    weeklyDigest: true,      // weekly performance summary email
+  },
 })
 
 export function stepsDone() {
@@ -160,5 +202,6 @@ export function openEditor(id, from) {
   editSettings(id)
   state.editingId = id
   state.editReturn = from
+  state.appTab = 'home'      // finetune is a wizard screen; leave the variations/abtests tab
   state.screen = 'finetune'
 }

@@ -22,7 +22,12 @@ function regenerate() {
 }
 
 function done() {
-  state.screen = state.editReturn
+  if (state.editReturn === 'variations') {
+    state.appTab = 'variations'   // openVariation is still set, back to that sub-page
+  } else {
+    state.appTab = 'home'
+    state.screen = state.editReturn
+  }
 }
 </script>
 

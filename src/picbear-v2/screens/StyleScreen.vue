@@ -3,14 +3,14 @@ import { reactive, onMounted } from 'vue'
 import { state, bestseller, styleOptions } from '../store'
 import WizardHeader from '../components/WizardHeader.vue'
 import StyledImage from '../components/StyledImage.vue'
-import { RefreshCw, Sparkles } from 'lucide-vue-next'
+import { RefreshCw, Sparkles, Loader2 } from 'lucide-vue-next'
 
 const ready = reactive({})
 
 function reveal(stagger = true) {
   styleOptions.forEach((opt, i) => {
     ready[opt.id] = false
-    setTimeout(() => { ready[opt.id] = true }, stagger ? 500 + i * 450 : 0)
+    setTimeout(() => { ready[opt.id] = true }, stagger ? 1800 + i * 1600 : 0)
   })
 }
 
@@ -54,7 +54,7 @@ function next() {
       <img :src="bestseller.img" class="w-10 h-10 rounded-lg object-cover" />
       <div class="flex-1">
         <p class="font-semibold text-[#1a1a1a]">{{ bestseller.name }}</p>
-        <p class="text-[12px] text-[#616161]">Your bestseller, 412 sold in the last 30 days. This is the current photo.</p>
+        <p class="text-[12px] text-[#616161]">Your bestseller, 412 sold in the last 30 days.</p>
       </div>
       <span class="text-[11px] font-semibold text-[#3a3468] bg-[#f6f5ff] border border-[#dedbf7] rounded-full px-2 py-0.5 inline-flex items-center gap-1">
         <Sparkles :size="10" /> 4 AI previews ready
@@ -71,7 +71,9 @@ function next() {
       >
         <div class="aspect-[16/9] relative">
           <div v-if="!ready[opt.id]" class="absolute inset-0 pb-skeleton flex items-center justify-center">
-            <span class="text-[11px] font-medium text-[#8a8a8a] bg-white/80 rounded-full px-2 py-0.5">Generating preview...</span>
+            <span class="text-[11px] font-medium text-[#8a8a8a] bg-white/80 rounded-full pl-1.5 pr-2.5 py-0.5 inline-flex items-center gap-1.5">
+              <Loader2 :size="12" class="animate-spin text-[#5548e0]" /> Generating preview...
+            </span>
           </div>
           <div v-else class="absolute inset-0 pb-fade-in">
             <StyledImage :src="opt.img" :overlay="opt.overlay" enhance />

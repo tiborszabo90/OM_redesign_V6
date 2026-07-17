@@ -21,6 +21,7 @@ import DoneScreen from './screens/DoneScreen.vue'
 import VariationsScreen from './screens/VariationsScreen.vue'
 import ABTestsScreen from './screens/ABTestsScreen.vue'
 import PlansScreen from './screens/PlansScreen.vue'
+import SettingsScreen from './screens/SettingsScreen.vue'
 
 // Passed by the host App.vue for product views; not used internally.
 defineProps({ product: { type: String, default: 'picbear' } })
@@ -61,6 +62,7 @@ const wizardScreens = {
   enable: EnableScreen,
   done: DoneScreen,
   plans: PlansScreen,
+  settings: SettingsScreen,
 }
 
 const screenComponent = computed(() => {
@@ -72,8 +74,10 @@ const screenComponent = computed(() => {
 function goTab(id) {
   state.appTab = id
   if (id === 'variations') state.openVariation = null
-  // The Home menu item always lands on the dashboard, never a leftover wizard/done screen.
-  if (id === 'home') state.screen = 'home'
+  if (id === 'abtests') state.openAbTest = null
+  // The Home menu item always lands on the dashboard of the current world:
+  // the active dashboard once published, the setup-guide fallback before that.
+  if (id === 'home') state.screen = state.published ? 'home' : 'home-onboarding-fallback'
 }
 
 function goPlans() {
@@ -81,20 +85,34 @@ function goPlans() {
   state.screen = 'plans'
 }
 
-// ── URL sync: each step gets a unique hash subpath (#/picbear-v2/<slug>) ──
+function goSettings() {
+  state.appTab = 'home'
+  state.screen = 'settings'
+}
+
+// ── URL sync ──────────────────────────────────────────────────────────────
+// Two URL worlds keep onboarding/empty surfaces apart from the active account:
+//   #/picbear-v2/onboarding/<page>   (not published: wizard steps, setup-guide
+//                                     home, locked variations/abtests)
+//   #/picbear-v2/app/<page>          (published: active dashboard, live
+//                                     variations (+/<id>), abtests, plans, ...)
+// Deep-linking a world also sets the account state (app → published).
 const BASE = 'picbear-v2'
 const tabSlugs = ['variations', 'abtests']
 
-// The slug that represents the current view: a subnav tab, or the wizard step.
-// The published variations list has its own slug (variations-live); an open variation
-// adds a second segment (variations-live/<id>) so each sub-page is deep-linkable.
 const currentSlug = computed(() => {
+  const world = state.published ? 'app' : 'onboarding'
   if (state.appTab === 'variations') {
-    if (!state.published) return 'variations'
-    return state.openVariation ? `variations-live/${state.openVariation}` : 'variations-live'
+    if (state.published && state.openVariation) return `app/variations/${state.openVariation}`
+    return `${world}/variations`
   }
-  if (tabSlugs.includes(state.appTab)) return state.appTab
-  return state.screen
+  if (state.appTab === 'abtests') {
+    if (state.published && state.openAbTest) return `app/abtests/${state.openAbTest}`
+    return `${world}/abtests`
+  }
+  if (state.screen === 'home') return 'app/home'
+  if (state.screen === 'home-onboarding-fallback') return 'onboarding/home'
+  return `${world}/${state.screen}`
 })
 
 function slugFromHash() {
@@ -102,20 +120,37 @@ function slugFromHash() {
   return parts[0] === BASE ? parts.slice(1).join('/') : ''
 }
 
-function applySlug(slug) {
+// Old, world-less slugs still resolve (variations-live, home-onboarding-fallback,
+// bare wizard steps); the watcher then rewrites the hash to the canonical form.
+function legacySlug(slug) {
   const [head, sub] = slug.split('/')
-  if (head === 'variations-live') {
-    // Deep link to the published state: set up an active account.
-    state.published = true
-    state.appTab = 'variations'
-    state.openVariation = sub || null
-  } else if (tabSlugs.includes(head)) {
-    state.appTab = head
-    state.openVariation = null
-  } else if (wizardScreens[head]) {
+  if (head === 'variations-live') return 'app/variations' + (sub ? `/${sub}` : '')
+  if (head === 'home-onboarding-fallback') return 'onboarding/home'
+  if (head === 'home') return 'app/home'
+  if (tabSlugs.includes(head) || wizardScreens[head]) return `onboarding/${head}`
+  return null
+}
+
+function applySlug(slug) {
+  let [world, page, sub] = slug.split('/')
+  if (world !== 'onboarding' && world !== 'app') {
+    const mapped = legacySlug(slug)
+    if (!mapped) return
+    ;[world, page, sub] = mapped.split('/')
+  }
+
+  state.published = world === 'app'
+  if (page === 'variations' || page === 'abtests') {
+    state.appTab = page
+    if (page === 'variations') state.openVariation = sub || null
+    if (page === 'abtests') state.openAbTest = sub || null
+  } else if (page === 'home') {
     state.appTab = 'home'
-    state.screen = head
-    state.openVariation = null
+    state.screen = state.published ? 'home' : 'home-onboarding-fallback'
+  } else if (wizardScreens[page]) {
+    // Leave openVariation intact so a fine-tune round trip returns to its sub-page.
+    state.appTab = 'home'
+    state.screen = page
   }
 }
 
@@ -217,7 +252,10 @@ onUnmounted(() => {
         </nav>
 
         <div class="px-3 pb-2">
-          <div class="flex items-center gap-2 px-2 py-[5px] rounded-lg text-[#303030] font-medium hover:bg-[#e0e0e0] cursor-pointer">
+          <div class="flex items-center gap-2 px-2 py-[5px] rounded-lg font-medium cursor-pointer"
+            :class="state.appTab === 'home' && state.screen === 'settings' ? 'bg-white shadow-sm text-[#1a1a1a]' : 'text-[#303030] hover:bg-[#e0e0e0]'"
+            @click="goSettings"
+          >
             <Settings :size="15" class="text-[#5c5c5c]" />
             Settings
           </div>

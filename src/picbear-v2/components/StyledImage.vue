@@ -1,10 +1,9 @@
 <script setup>
-import { Star, Sparkles } from 'lucide-vue-next'
+import { Star } from 'lucide-vue-next'
 
 defineProps({
   src: { type: String, required: true },
   overlay: { type: String, default: null }, // 'badge' | 'callouts'
-  aiTag: { type: Boolean, default: false },
   enhance: { type: Boolean, default: false },
   compact: { type: Boolean, default: false }, // tiny thumbs: icon-only overlays
   callouts: { type: Array, default: () => ['Single origin', 'Freshly roasted'] },
@@ -46,12 +45,5 @@ defineProps({
         </span>
       </template>
     </template>
-
-    <span
-      v-if="aiTag && !compact"
-      class="absolute bottom-2 left-2 inline-flex items-center gap-1 bg-[#5548e0] text-white rounded-md px-1.5 py-0.5 text-[10px] font-semibold shadow"
-    >
-      <Sparkles :size="10" /> AI
-    </span>
   </div>
 </template>
