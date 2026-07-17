@@ -27,7 +27,7 @@ function clearAll() {
 function next() {
   if (!count.value) return
   state.steps.products = true
-  state.genPhase = 'idle'
+  state.genPhase = 'preview'
   state.screen = 'generate'
 }
 

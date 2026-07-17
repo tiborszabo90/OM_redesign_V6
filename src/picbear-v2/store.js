@@ -127,7 +127,7 @@ export const state = reactive({
   published: false,
   steps: { style: false, placement: false, products: false, generate: false, live: false },
   abTestRunning: false,
-  genPhase: 'idle',          // generate screen: idle | sampling | sample-ready | batch
+  genPhase: 'preview',       // generate screen: preview (fine-tune the already-generated image) | batch
   editingId: null,           // product id being fine-tuned
   editReturn: 'review',      // screen to return to from the editor
   imageSettings: {},         // id -> { instructions, ratioSame, desktopRatio, mobileRatio, placement }

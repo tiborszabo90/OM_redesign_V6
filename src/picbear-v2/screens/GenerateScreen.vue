@@ -5,26 +5,27 @@ import WizardHeader from '../components/WizardHeader.vue'
 import StyledImage from '../components/StyledImage.vue'
 import { Sparkles, ArrowRight, Pencil, RefreshCw, Check, Loader2, SlidersHorizontal } from 'lucide-vue-next'
 
-// idle | sampling | sample-ready | batch (persisted so it survives the fine-tune round trip)
+// preview | batch (persisted so it survives the fine-tune round trip)
 const phase = computed({
   get: () => state.genPhase,
   set: v => { state.genPhase = v },
 })
 const doneCount = ref(0)
+const regenerating = ref(false)
 
 const selectedProducts = computed(() => products.filter(p => state.selected.includes(p.id)))
 const chosenStyle = computed(() => styleById(state.style) || styleById('lifestyle'))
 const chosenPlacement = computed(() => placementOptions.find(o => o.id === state.placement))
-const restCount = computed(() => Math.max(selectedProducts.value.length - 1, 0))
 
-function generateSample() {
-  phase.value = 'sampling'
-  setTimeout(() => { phase.value = 'sample-ready' }, 3200)
+function regenerate() {
+  if (regenerating.value) return
+  regenerating.value = true
+  setTimeout(() => { regenerating.value = false }, 1500)
 }
 
 function generateAll() {
   phase.value = 'batch'
-  // the sample (bestseller) is already done
+  // the fine-tuned bestseller image is already done
   state.generated = { [bestseller.id]: 'done' }
   doneCount.value = 1
   const rest = selectedProducts.value.filter(p => p.id !== bestseller.id)
@@ -42,7 +43,7 @@ function generateAll() {
 }
 
 function edit(screen) {
-  if (phase.value === 'idle' || phase.value === 'sample-ready') state.screen = screen
+  if (phase.value !== 'batch') state.screen = screen
 }
 </script>
 
@@ -51,8 +52,8 @@ function edit(screen) {
     <div class="max-w-[960px] mx-auto px-6">
       <WizardHeader
         :step="4"
-        title="Generate your images"
-        subtitle="First we make one sample so you can check the quality. Approve it, then we generate the rest."
+        title="Fine-tune your image"
+        subtitle="Your bestseller is already rendered in the look you picked. Tweak it here, then apply the same look to every product."
         back-to="products"
       />
 
@@ -74,29 +75,29 @@ function edit(screen) {
         <span v-else-if="phase === 'batch'" class="text-[12px] font-semibold text-[#0c6b45]">All done, taking you to review</span>
       </div>
 
-      <!-- SAMPLE-FIRST -->
+      <!-- FINE-TUNE (single generated image) -->
       <template v-if="phase !== 'batch'">
         <!-- AI instructions -->
         <div class="pb-card p-4 mb-4">
           <p class="font-semibold text-[#1a1a1a] mb-1">Additional AI instructions <span class="font-normal text-[#8a8a8a]">(optional)</span></p>
-          <p class="text-[12px] text-[#616161] mb-2">Applied to the sample and every image after it. Tweak this, then regenerate the sample to test it.</p>
+          <p class="text-[12px] text-[#616161] mb-2">Applied to this image and every one after it. Tweak it, then regenerate to preview the change.</p>
           <textarea
             v-model="state.instructions"
             rows="2"
-            :disabled="phase === 'sampling'"
+            :disabled="regenerating"
             placeholder="e.g. Use a warm outdoor background with natural morning light"
             class="w-full rounded-lg border border-[#d4d4d4] px-3 py-2 text-[13px] outline-none focus:border-[#5548e0] resize-none disabled:opacity-60"
           ></textarea>
         </div>
 
-        <!-- Sample pb-card -->
+        <!-- Generated image pb-card -->
         <div class="pb-card p-5">
           <div class="flex items-center justify-between mb-4">
             <div>
-              <p class="font-semibold text-[#1a1a1a]">Your sample · {{ bestseller.name }}</p>
-              <p class="text-[12px] text-[#616161]">We generate one image first so you can confirm the look before the full batch.</p>
+              <p class="font-semibold text-[#1a1a1a]">{{ bestseller.name }}</p>
+              <p class="text-[12px] text-[#616161]">Your bestseller in the {{ chosenStyle.name.toLowerCase() }} look. Fine-tune it before we apply the look to the rest.</p>
             </div>
-            <span class="text-[11px] font-semibold text-[#3a3468] bg-[#f6f5ff] border border-[#dedbf7] rounded-full px-2 py-0.5">Sample 1 of {{ selectedProducts.length }}</span>
+            <span class="text-[11px] font-semibold text-[#3a3468] bg-[#f6f5ff] border border-[#dedbf7] rounded-full px-2 py-0.5">Preview</span>
           </div>
 
           <div class="flex items-center justify-center gap-6">
@@ -108,12 +109,11 @@ function edit(screen) {
               </div>
             </div>
             <ArrowRight :size="22" class="text-[#8a8a8a] shrink-0" />
-            <!-- after -->
+            <!-- after (already generated) -->
             <div class="shrink-0 w-96 h-96 rounded-xl overflow-hidden ring-1 ring-[#dedbf7] relative">
-              <div v-if="phase === 'idle'" class="absolute inset-0 border-2 border-dashed border-[#d4d4d4] rounded-xl flex items-center justify-center bg-[#fafafa]">
-                <span class="text-[13px] text-[#8a8a8a] text-center px-3">Your sample<br />appears here</span>
+              <div v-if="regenerating" class="absolute inset-0 pb-skeleton flex items-center justify-center">
+                <Loader2 :size="22" class="animate-spin text-[#c9c9c9]" />
               </div>
-              <div v-else-if="phase === 'sampling'" class="absolute inset-0 pb-skeleton"></div>
               <div v-else class="absolute inset-0 pb-fade-in">
                 <StyledImage :src="bestseller.img" :overlay="chosenStyle.overlay" ai-tag enhance />
               </div>
@@ -167,37 +167,21 @@ function edit(screen) {
       </template>
     </div>
 
-    <!-- Sticky action bar (sample-first phase only) -->
+    <!-- Sticky action bar (fine-tune phase only) -->
     <div v-if="phase !== 'batch'" class="sticky bottom-[var(--dev-nav-height,0px)] mt-5 px-6 py-3 bg-[#f1f1f1]/90 backdrop-blur border-t border-[#e3e3e3]">
       <div class="max-w-[960px] mx-auto flex items-center justify-between gap-4">
-        <template v-if="phase === 'idle'">
-          <p class="text-[12px] text-[#8a8a8a]">Takes a few seconds. Nothing is added to your store yet.</p>
-          <button class="pb-btn-primary" @click="generateSample">
-            <Sparkles :size="13" /> Generate a sample
+        <p class="text-[12px] text-[#616161]">This look will be applied to all {{ selectedProducts.length }} selected products.</p>
+        <div class="flex flex-wrap justify-end gap-2 shrink-0">
+          <button class="pb-btn-secondary" :disabled="regenerating" @click="regenerate">
+            <RefreshCw :size="13" /> Regenerate
           </button>
-        </template>
-        <template v-else-if="phase === 'sampling'">
-          <p class="text-[13px] font-medium text-[#616161] flex items-center gap-2">
-            <Loader2 :size="15" class="animate-spin text-[#5548e0]" /> Generating your sample...
-          </p>
-          <span></span>
-        </template>
-        <template v-else>
-          <p class="text-[12px] text-[#616161] flex items-center gap-1.5">
-            <Check :size="14" class="text-[#0c6b45] shrink-0" /> Sample ready. We will apply this look to the other {{ restCount }} products.
-          </p>
-          <div class="flex flex-wrap justify-end gap-2 shrink-0">
-            <button class="pb-btn-secondary" @click="generateSample">
-              <RefreshCw :size="13" /> Regenerate
-            </button>
-            <button class="pb-btn-secondary" @click="openEditor(bestseller.id, 'generate')">
-              <SlidersHorizontal :size="13" /> Fine-tune
-            </button>
-            <button class="pb-btn-primary" @click="generateAll">
-              <Sparkles :size="13" /> Looks good, generate all {{ selectedProducts.length }}
-            </button>
-          </div>
-        </template>
+          <button class="pb-btn-secondary" @click="openEditor(bestseller.id, 'generate')">
+            <SlidersHorizontal :size="13" /> Fine-tune
+          </button>
+          <button class="pb-btn-primary" @click="generateAll">
+            <Sparkles :size="13" /> Generate all {{ selectedProducts.length }}
+          </button>
+        </div>
       </div>
     </div>
   </div>

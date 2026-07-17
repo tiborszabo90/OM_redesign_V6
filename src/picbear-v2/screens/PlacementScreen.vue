@@ -19,7 +19,8 @@ function skip() {
 </script>
 
 <template>
-  <div class="max-w-[960px] mx-auto px-6 py-5">
+  <div class="py-5">
+    <div class="max-w-[960px] mx-auto px-6">
     <WizardHeader
       :step="2"
       title="Choose where the image appears"
@@ -29,7 +30,7 @@ function skip() {
       @skip="skip"
     />
 
-    <div class="grid grid-cols-[1fr_1.15fr] gap-4 mb-5">
+    <div class="grid grid-cols-[1fr_1.15fr] gap-4 mb-0">
       <!-- Options -->
       <div class="flex flex-col gap-3">
         <div
@@ -139,9 +140,14 @@ function skip() {
         </div>
       </div>
     </div>
+    </div>
 
-    <div class="flex justify-end">
-      <button class="pb-btn-primary" @click="next">Continue <ArrowRight :size="13" /></button>
+    <!-- Sticky action bar -->
+    <div class="sticky bottom-[var(--dev-nav-height,0px)] mt-5 px-6 py-3 bg-[#f1f1f1]/90 backdrop-blur border-t border-[#e3e3e3]">
+      <div class="max-w-[960px] mx-auto flex items-center justify-between gap-4">
+        <p class="text-[12px] text-[#616161]">You can change the placement anytime after setup.</p>
+        <button class="pb-btn-primary" @click="next">Continue <ArrowRight :size="13" /></button>
+      </div>
     </div>
   </div>
 </template>
