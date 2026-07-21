@@ -4,7 +4,7 @@ import { state, products, abTests, variationBatches, styleById } from '../store'
 import StyledImage from '../components/StyledImage.vue'
 import {
   FlaskConical, Lock, Play, Plus, ArrowLeft, ChevronRight,
-  Check, Trophy, StopCircle, X, Pause, Pencil, Trash2, SlidersHorizontal,
+  Check, Trophy, StopCircle, X, Pause, Pencil, Trash2, SlidersHorizontal, ExternalLink,
 } from 'lucide-vue-next'
 
 // ── setup modal state ──
@@ -131,6 +131,14 @@ function openSetup() {
 
 function backToList() {
   state.openAbTest = null
+}
+
+// Jump to the tested variation's page on the Variations tab.
+function viewVariation(test) {
+  if (!test.variationId) return
+  state.openAbTest = null
+  state.openVariation = test.variationId
+  state.appTab = 'variations'
 }
 
 // Re-open the setup modal to edit an existing draft, pre-filled with its config.
@@ -436,8 +444,8 @@ function finishSetup() {
       <div class="grid grid-cols-[1.3fr_1fr_1fr] items-end gap-3 pb-3 border-b border-[#ececec]">
         <span></span>
         <div class="flex flex-col items-start gap-2">
-          <div class="flex gap-1.5">
-            <div v-for="p in armProducts" :key="p.id" class="w-16 h-16 rounded-lg overflow-hidden ring-1 ring-[#ececec]">
+          <div class="flex -space-x-3">
+            <div v-for="p in armProducts" :key="p.id" class="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-white shadow-sm">
               <img :src="p.img" class="w-full h-full object-cover" />
             </div>
           </div>
@@ -446,14 +454,21 @@ function finishSetup() {
             <p class="text-[11px] text-[#8a8a8a]">{{ armLabels.origSub }}</p>
           </div>
         </div>
-        <div class="flex flex-col items-start gap-2">
-          <div class="flex gap-1.5">
-            <div v-for="p in armProducts" :key="p.id" class="w-16 h-16 rounded-lg overflow-hidden ring-1 ring-[#dedbf7]">
+        <div
+          class="flex flex-col items-start gap-2"
+          :class="currentTest.variationId ? 'group cursor-pointer' : ''"
+          @click="currentTest.variationId && viewVariation(currentTest)"
+        >
+          <div class="flex -space-x-3">
+            <div v-for="p in armProducts" :key="p.id" class="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-white shadow-sm transition-transform group-hover:-translate-y-0.5">
               <StyledImage :src="p.img" :overlay="styleById(batchFor(currentTest)?.styleId || 'lifestyle').overlay" enhance compact />
             </div>
           </div>
           <div class="text-left">
-            <p class="text-[13px] font-semibold text-[#3a3468] leading-tight">{{ armLabels.variant }}</p>
+            <p class="text-[13px] font-semibold text-[#3a3468] leading-tight flex items-center gap-1 group-hover:text-[#5548e0]">
+              {{ armLabels.variant }}
+              <ExternalLink v-if="currentTest.variationId" :size="12" class="opacity-0 group-hover:opacity-100 transition-opacity" />
+            </p>
             <p class="text-[11px] text-[#8a8a8a] flex items-center gap-1.5 justify-start">
               {{ armLabels.variantSub }}
               <span v-if="currentTest.status === 'completed' && currentTest.winner === 'variant'" class="text-[10px] font-semibold text-white bg-[#36c98e] rounded-full px-1.5 py-0.5">Winner</span>
@@ -552,9 +567,6 @@ function finishSetup() {
         class="pb-card px-4 py-3.5 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow"
         @click="openTest(t.id)"
       >
-        <span class="w-9 h-9 rounded-lg bg-[#f6f5ff] border border-[#dedbf7] flex items-center justify-center shrink-0">
-          <FlaskConical :size="16" class="text-[#5548e0]" />
-        </span>
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-[#1a1a1a] truncate">{{ t.name }}</p>
           <p class="text-[12px] text-[#616161]">{{ t.type === 'aa' ? 'Original vs generated' : `${batchFor(t)?.count} products` }} · 50/50 split</p>
