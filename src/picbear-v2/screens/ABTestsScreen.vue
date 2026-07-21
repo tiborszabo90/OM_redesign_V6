@@ -33,6 +33,8 @@ const testableVariations = computed(() =>
 )
 
 const previewProduct = computed(() => products[0])
+// A few distinct product shots to preview each arm as a small gallery.
+const armProducts = [products[0], products[1], products[3]]
 
 // Entering setup (from the list button or a variation sub-page deep link):
 // initialize the form, honoring a preselected variation.
@@ -287,25 +289,29 @@ function finishSetup() {
       <!-- column headers -->
       <div class="grid grid-cols-[1.3fr_1fr_1fr] items-end gap-3 pb-3 border-b border-[#ececec]">
         <span></span>
-        <div class="flex items-center gap-2 justify-end text-right">
-          <div class="w-8 h-8 rounded-lg overflow-hidden shrink-0 ring-1 ring-[#ececec]">
-            <img :src="previewProduct.img" class="w-full h-full object-cover" />
+        <div class="flex flex-col items-end gap-2">
+          <div class="flex gap-1.5">
+            <div v-for="p in armProducts" :key="p.id" class="w-16 h-16 rounded-lg overflow-hidden ring-1 ring-[#ececec]">
+              <img :src="p.img" class="w-full h-full object-cover" />
+            </div>
           </div>
-          <div class="min-w-0">
-            <p class="text-[12px] font-semibold text-[#1a1a1a] leading-tight">Original</p>
-            <p class="text-[10px] text-[#8a8a8a]">Control</p>
+          <div class="text-right">
+            <p class="text-[13px] font-semibold text-[#1a1a1a] leading-tight">Original</p>
+            <p class="text-[11px] text-[#8a8a8a]">Control</p>
           </div>
         </div>
-        <div class="flex items-center gap-2 justify-end text-right">
-          <div class="w-8 h-8 rounded-lg overflow-hidden shrink-0 ring-1 ring-[#dedbf7]">
-            <StyledImage :src="previewProduct.img" :overlay="styleById(batchFor(currentTest)?.styleId || 'lifestyle').overlay" enhance compact />
+        <div class="flex flex-col items-end gap-2">
+          <div class="flex gap-1.5">
+            <div v-for="p in armProducts" :key="p.id" class="w-16 h-16 rounded-lg overflow-hidden ring-1 ring-[#dedbf7]">
+              <StyledImage :src="p.img" :overlay="styleById(batchFor(currentTest)?.styleId || 'lifestyle').overlay" enhance compact />
+            </div>
           </div>
-          <div class="min-w-0">
-            <p class="text-[12px] font-semibold text-[#3a3468] leading-tight flex items-center gap-1.5 justify-end">
+          <div class="text-right">
+            <p class="text-[13px] font-semibold text-[#3a3468] leading-tight flex items-center gap-1.5 justify-end">
               AI variation
-              <span v-if="currentTest.status === 'completed' && currentTest.winner === 'variant'" class="text-[9px] font-semibold text-white bg-[#36c98e] rounded-full px-1.5">Winner</span>
+              <span v-if="currentTest.status === 'completed' && currentTest.winner === 'variant'" class="text-[10px] font-semibold text-white bg-[#36c98e] rounded-full px-1.5 py-0.5">Winner</span>
             </p>
-            <p class="text-[10px] text-[#8a8a8a]">Variant</p>
+            <p class="text-[11px] text-[#8a8a8a]">Variant</p>
           </div>
         </div>
       </div>
