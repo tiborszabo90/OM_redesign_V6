@@ -589,10 +589,6 @@ function finishSetup() {
       <div class="flex items-start justify-between gap-4 mb-4">
         <div>
           <p class="text-lg font-bold text-[#1a1a1a] leading-tight">{{ modalTitle }}</p>
-          <p class="text-[12px] text-[#616161] mt-0.5">
-            <template v-if="setupIsAA">No variation selected, so your original photos are tested against a default AI-generated image.</template>
-            <template v-else>Half your visitors see the original photos, the other half the AI variation. Nothing else changes.</template>
-          </p>
         </div>
         <button class="text-[#8a8a8a] hover:text-[#1a1a1a] cursor-pointer shrink-0" @click="closeSetup">
           <X :size="18" />
