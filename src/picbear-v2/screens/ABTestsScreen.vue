@@ -3,11 +3,12 @@ import { ref, computed, watch } from 'vue'
 import { state, products, abTests, variationBatches, styleById } from '../store'
 import StyledImage from '../components/StyledImage.vue'
 import {
-  FlaskConical, Lock, Play, TrendingUp, Plus, ArrowLeft, ChevronRight,
-  Check, Loader2, Trophy, StopCircle, X,
+  FlaskConical, Lock, Play, Plus, ArrowLeft, ChevronRight,
+  Check, Trophy, StopCircle, X, Pause, Pencil, Trash2, SlidersHorizontal,
 } from 'lucide-vue-next'
 
 // ── setup modal state ──
+// Test type is derived from the picks: no variation selected → A/A, otherwise A/B.
 const setupVariations = ref([])   // variation ids to test (one test created per variation)
 const setupControl = ref(true)    // include an original-photos control group
 const setupDays = ref(14)
@@ -15,7 +16,7 @@ const setupAutoStop = ref(true)
 const setupMinOrders = ref(50)
 const setupConfidence = ref(95)
 const confidenceOptions = [90, 95, 99]
-const starting = ref(false)
+const editingId = ref(null)       // when set, the modal edits an existing draft
 
 const currentTest = computed(() =>
   state.openAbTest && state.openAbTest !== 'new'
@@ -23,14 +24,14 @@ const currentTest = computed(() =>
     : null
 )
 const isSetup = computed(() => state.openAbTest === 'new')
+const editMode = computed(() => editingId.value !== null)
+const modalOpen = computed(() => isSetup.value || editMode.value)
+// No variation picked → A/A (original vs original); a variation picked → A/B.
+const setupIsAA = computed(() => setupVariations.value.length === 0)
+const modalTitle = computed(() => `${editMode.value ? 'Edit' : 'Create'} ${setupIsAA.value ? 'A/A' : 'A/B'} test`)
 
-// Live variations that don't already have a running test.
-const testableVariations = computed(() =>
-  variationBatches.filter(b =>
-    b.status === 'live' &&
-    !abTests.some(t => t.variationId === b.id && t.status === 'running')
-  )
-)
+// All variations are selectable when creating a test.
+const testableVariations = computed(() => variationBatches)
 
 const previewProduct = computed(() => products[0])
 // A few distinct product shots to preview each arm as a small gallery.
@@ -125,48 +126,105 @@ function openTest(id) {
 }
 
 function openSetup() {
-  state.openAbTest = 'new'   // the isSetup watcher initializes the form
+  state.openAbTest = 'new'   // the isSetup watcher initializes the rest of the form
 }
 
 function backToList() {
   state.openAbTest = null
 }
 
-function startTest() {
-  if (!setupVariations.value.length || starting.value) return
-  starting.value = true
-  setTimeout(() => {
-    let firstId = null
-    // One test per selected variation, each run against the original photos.
-    setupVariations.value.forEach((vid) => {
-      const batch = variationBatches.find(b => b.id === vid)
-      if (!batch) return
-      const id = `${batch.id}-test-${abTests.length + 1}`
-      if (!firstId) firstId = id
-      abTests.unshift({
-        id,
-        variationId: batch.id,
-        name: setupControl.value ? `${batch.name} vs Original` : batch.name,
-        status: 'running',
-        day: 1, days: setupDays.value,
-        winner: null,
-        applied: false,
-        confidence: 8,
-        uplift: null,
-        includeControl: setupControl.value,
-        autoStop: setupAutoStop.value,
-        minOrders: setupMinOrders.value,
-        stopConfidence: setupConfidence.value,
-        arms: {
-          original: { visitors: 41, addToCarts: 2, orders: 1, revenue: 15, chanceToWin: 50 },
-          variant: { visitors: 38, addToCarts: 2, orders: 1, revenue: 14, chanceToWin: 50 },
-        },
-      })
+// Re-open the setup modal to edit an existing draft, pre-filled with its config.
+function openEdit(test) {
+  setupControl.value = test.includeControl
+  setupVariations.value = test.variationId ? [test.variationId] : []
+  setupDays.value = test.days
+  setupAutoStop.value = test.autoStop
+  setupMinOrders.value = test.minOrders
+  setupConfidence.value = test.stopConfidence
+  editingId.value = test.id
+}
+
+function saveEdit() {
+  const t = abTests.find(x => x.id === editingId.value)
+  if (t) {
+    const vid = setupVariations.value[0] || null
+    const batch = vid ? variationBatches.find(b => b.id === vid) : null
+    t.variationId = vid
+    t.type = setupIsAA.value ? 'aa' : 'ab'
+    t.includeControl = setupControl.value
+    t.days = setupDays.value
+    t.autoStop = setupAutoStop.value
+    t.minOrders = setupMinOrders.value
+    t.stopConfidence = setupConfidence.value
+    // Keep the name in sync with the config.
+    t.name = setupIsAA.value
+      ? 'A/A test — Original photos'
+      : (batch ? (setupControl.value ? `${batch.name} vs Original` : batch.name) : t.name)
+  }
+  editingId.value = null
+}
+
+// Close the modal: drop back to the list when creating, stay on the draft when editing.
+function closeSetup() {
+  if (editMode.value) editingId.value = null
+  else backToList()
+}
+
+const emptyArms = () => ({
+  original: { visitors: 0, addToCarts: 0, orders: 0, revenue: 0, chanceToWin: 50 },
+  variant: { visitors: 0, addToCarts: 0, orders: 0, revenue: 0, chanceToWin: 50 },
+})
+
+// Create the test(s) as a DRAFT — the user starts them from the detail page.
+// No variation selected → a single A/A test; otherwise one A/B test per variation.
+function createTests() {
+  if (!setupVariations.value.length && !setupControl.value) return
+
+  const base = {
+    status: 'draft',
+    day: 0, days: setupDays.value,
+    winner: null,
+    applied: false,
+    confidence: 0,
+    uplift: null,
+    includeControl: setupControl.value,
+    autoStop: setupAutoStop.value,
+    minOrders: setupMinOrders.value,
+    stopConfidence: setupConfidence.value,
+  }
+
+  // A/A test: control group only, no variation.
+  if (setupIsAA.value) {
+    const id = `aa-test-${abTests.length + 1}`
+    abTests.unshift({ id, variationId: null, type: 'aa', name: 'A/A test — Original photos', ...base, arms: emptyArms() })
+    state.openAbTest = id
+    return
+  }
+
+  // A/B test: one per selected variation, each against the original photos.
+  let firstId = null
+  setupVariations.value.forEach((vid) => {
+    const batch = variationBatches.find(b => b.id === vid)
+    if (!batch) return
+    const id = `${batch.id}-test-${abTests.length + 1}`
+    if (!firstId) firstId = id
+    abTests.unshift({
+      id,
+      variationId: batch.id,
+      type: 'ab',
+      name: setupControl.value ? `${batch.name} vs Original` : batch.name,
+      ...base,
+      arms: emptyArms(),
     })
-    state.abTestRunning = true
-    starting.value = false
-    state.openAbTest = firstId
-  }, 1400)
+  })
+  state.openAbTest = firstId
+}
+
+// Start a draft or resume a paused test.
+function runTest(test) {
+  if (test.day === 0) test.day = 1
+  test.status = 'running'
+  state.abTestRunning = true
 }
 
 function stopTest(test) {
@@ -175,8 +233,52 @@ function stopTest(test) {
   state.abTestRunning = abTests.some(t => t.status === 'running')
 }
 
+function pauseTest(test) {
+  test.status = 'paused'
+  state.abTestRunning = abTests.some(t => t.status === 'running')
+}
+
+function deleteTest(test) {
+  const i = abTests.indexOf(test)
+  if (i >= 0) abTests.splice(i, 1)
+  state.abTestRunning = abTests.some(t => t.status === 'running')
+  backToList()
+}
+
 function applyWinner(test) {
   test.applied = true
+}
+
+// A/A test = original photos vs a default AI-generated image (no named variation).
+const isAA = computed(() => currentTest.value?.type === 'aa')
+const armLabels = computed(() => isAA.value
+  ? { orig: 'Original', origSub: 'Control', variant: 'Generated', variantSub: 'AI' }
+  : { orig: 'Original', origSub: 'Control', variant: 'AI variation', variantSub: 'Variant' })
+
+// ── rename ──
+const renaming = ref(false)
+const renameDraft = ref('')
+const confirmDelete = ref(false)
+function startRename() {
+  renameDraft.value = currentTest.value?.name || ''
+  renaming.value = true
+}
+function saveRename() {
+  const v = renameDraft.value.trim()
+  if (v && currentTest.value) currentTest.value.name = v
+  renaming.value = false
+}
+function cancelRename() {
+  renaming.value = false
+}
+watch(() => state.openAbTest, () => { renaming.value = false; confirmDelete.value = false })
+
+// Status pill label + colour, shared by the detail header and the list.
+function statusMeta(t) {
+  if (t.status === 'draft') return { label: 'Draft', cls: 'text-[#616161] bg-[#f1f1f1] border border-[#e3e3e3]' }
+  if (t.status === 'running') return { label: `Running · day ${t.day} of ${t.days}`, cls: 'text-[#0c6b45] bg-[#d7f2e4]' }
+  if (t.status === 'paused') return { label: 'Paused', cls: 'text-[#9a6a00] bg-[#fdf1e3]' }
+  return { label: t.applied ? 'Completed · applied' : 'Completed', cls: 'text-[#3a3468] bg-[#f6f5ff] border border-[#dedbf7]' }
 }
 
 function finishSetup() {
@@ -209,25 +311,59 @@ function finishSetup() {
       <ArrowLeft :size="14" /> A/B tests
     </button>
     <div class="mb-4 flex items-start justify-between gap-4">
-      <div>
-        <h1 class="text-xl font-bold text-[#1a1a1a]">{{ currentTest.name }}</h1>
-        <p class="text-[13px] text-[#616161] mt-1">{{ batchFor(currentTest)?.count }} products · 50/50 traffic split</p>
+      <div class="min-w-0">
+        <div class="flex items-center gap-2">
+          <template v-if="renaming">
+            <input
+              v-model="renameDraft"
+              @keyup.enter="saveRename" @keyup.escape="cancelRename"
+              class="pb-field text-xl font-bold text-[#1a1a1a] rounded-lg border border-[#d4d4d4] px-2 py-0.5 outline-none"
+            />
+            <button class="pb-btn-primary shrink-0" @click="saveRename" aria-label="Save"><Check :size="14" /></button>
+            <button class="pb-btn-ghost shrink-0" @click="cancelRename" aria-label="Cancel"><X :size="14" /></button>
+          </template>
+          <template v-else>
+            <h1 class="text-xl font-bold text-[#1a1a1a] truncate">{{ currentTest.name }}</h1>
+            <button class="text-[#8a8a8a] hover:text-[#5548e0] cursor-pointer shrink-0" @click="startRename" aria-label="Rename">
+              <Pencil :size="15" />
+            </button>
+          </template>
+        </div>
+        <p class="text-[13px] text-[#616161] mt-1">{{ isAA ? 'Original vs generated' : `${batchFor(currentTest)?.count} products` }} · 50/50 traffic split</p>
       </div>
-      <span
-        class="text-[11px] font-semibold rounded-full px-2 py-0.5 shrink-0 mt-1"
-        :class="currentTest.status === 'running' ? 'text-[#0c6b45] bg-[#d7f2e4]' : 'text-[#3a3468] bg-[#f6f5ff] border border-[#dedbf7]'"
-      >
-        {{ currentTest.status === 'running' ? `Running · day ${currentTest.day} of ${currentTest.days}` : 'Completed' }}
-      </span>
+
+      <div class="flex items-center gap-2 shrink-0 mt-1">
+        <span class="text-[11px] font-semibold rounded-full px-2 py-0.5" :class="statusMeta(currentTest).cls">
+          {{ statusMeta(currentTest).label }}
+        </span>
+        <button v-if="currentTest.status === 'draft'" class="pb-btn-secondary" @click="openEdit(currentTest)">
+          <SlidersHorizontal :size="14" /> Edit setup
+        </button>
+        <button v-if="currentTest.status === 'draft'" class="pb-btn-primary" @click="runTest(currentTest)">
+          <Play :size="14" /> Start test
+        </button>
+        <button v-else-if="currentTest.status === 'running'" class="pb-btn-secondary" @click="pauseTest(currentTest)">
+          <Pause :size="14" /> Pause
+        </button>
+        <button v-else-if="currentTest.status === 'paused'" class="pb-btn-primary" @click="runTest(currentTest)">
+          <Play :size="14" /> Resume
+        </button>
+        <button
+          v-if="currentTest.status === 'running' || currentTest.status === 'paused'"
+          class="pb-btn-secondary" @click="stopTest(currentTest)"
+        >
+          <StopCircle :size="14" /> Stop test early
+        </button>
+      </div>
     </div>
 
-    <!-- Winner banner -->
+    <!-- Result banner (completed) -->
     <div v-if="currentTest.status === 'completed'" class="pb-card p-4 mb-4 flex items-center gap-3 bg-[#f2fbf6]!">
       <span class="w-9 h-9 rounded-lg bg-[#36c98e] flex items-center justify-center shrink-0">
         <Trophy :size="17" class="text-white" />
       </span>
       <div class="flex-1">
-        <p class="font-semibold text-[#1a1a1a]">The AI images won with {{ currentTest.uplift }} more add-to-carts</p>
+        <p class="font-semibold text-[#1a1a1a]">The {{ isAA ? 'generated' : 'AI' }} images won with {{ currentTest.uplift }} more add-to-carts</p>
         <p class="text-[12px] text-[#616161]">{{ currentTest.confidence }}% confidence over {{ currentTest.days }} days. Safe to roll out.</p>
       </div>
       <button v-if="!currentTest.applied" class="pb-btn-primary shrink-0" @click="applyWinner(currentTest)">
@@ -238,18 +374,28 @@ function finishSetup() {
       </p>
     </div>
 
-    <!-- Progress (running) -->
-    <template v-if="currentTest.status === 'running'">
+    <!-- Draft notice -->
+    <div v-else-if="currentTest.status === 'draft'" class="rounded-xl bg-[#f7f7f7] border border-[#ececec] px-4 py-3 mb-4 text-[13px] text-[#616161]">
+      This test is a draft. Review the setup, then hit <span class="font-semibold text-[#1a1a1a]">Start test</span> to launch it.
+    </div>
+
+    <!-- Progress (running / paused) -->
+    <template v-else>
       <div class="h-1.5 bg-[#ececec] rounded-full overflow-hidden mb-2">
-        <div class="h-full bg-[#5548e0] rounded-full" :style="{ width: (currentTest.day / currentTest.days) * 100 + '%' }"></div>
+        <div
+          class="h-full rounded-full"
+          :class="currentTest.status === 'paused' ? 'bg-[#d4a24a]' : 'bg-[#5548e0]'"
+          :style="{ width: (currentTest.day / currentTest.days) * 100 + '%' }"
+        ></div>
       </div>
       <p class="text-[12px] text-[#616161] mb-4">
-        Day {{ currentTest.day }} of {{ currentTest.days }} · {{ currentTest.days - currentTest.day }} days left
+        <template v-if="currentTest.status === 'paused'">Paused on day {{ currentTest.day }} of {{ currentTest.days }}. Resume anytime.</template>
+        <template v-else>Day {{ currentTest.day }} of {{ currentTest.days }} · {{ currentTest.days - currentTest.day }} days left</template>
       </p>
     </template>
 
-    <!-- Confidence meter: how sure we are of the leader, on the way to the 95% winner threshold -->
-    <div class="pb-card p-5 mb-4">
+    <!-- Confidence meter: hidden for drafts (no data yet) -->
+    <div v-if="currentTest.status !== 'draft'" class="pb-card p-5 mb-4">
       <div class="flex items-end justify-between mb-4">
         <div>
           <p class="text-[13px] font-semibold text-[#1a1a1a]">{{ significant ? `${leaderLabel} is the winner` : `${leaderLabel} is ahead` }}</p>
@@ -264,7 +410,7 @@ function finishSetup() {
         </div>
       </div>
 
-      <!-- track with a 95% "winner" threshold marker -->
+      <!-- track with a threshold marker -->
       <div class="relative pt-4">
         <div class="absolute top-0 -translate-x-1/2 flex flex-col items-center" :style="{ left: SIGNIFICANCE + '%' }">
           <span class="text-[10px] font-semibold text-[#8a8a8a] leading-none">{{ SIGNIFICANCE }}%</span>
@@ -289,29 +435,29 @@ function finishSetup() {
       <!-- column headers -->
       <div class="grid grid-cols-[1.3fr_1fr_1fr] items-end gap-3 pb-3 border-b border-[#ececec]">
         <span></span>
-        <div class="flex flex-col items-end gap-2">
+        <div class="flex flex-col items-start gap-2">
           <div class="flex gap-1.5">
             <div v-for="p in armProducts" :key="p.id" class="w-16 h-16 rounded-lg overflow-hidden ring-1 ring-[#ececec]">
               <img :src="p.img" class="w-full h-full object-cover" />
             </div>
           </div>
-          <div class="text-right">
-            <p class="text-[13px] font-semibold text-[#1a1a1a] leading-tight">Original</p>
-            <p class="text-[11px] text-[#8a8a8a]">Control</p>
+          <div class="text-left">
+            <p class="text-[13px] font-semibold text-[#1a1a1a] leading-tight">{{ armLabels.orig }}</p>
+            <p class="text-[11px] text-[#8a8a8a]">{{ armLabels.origSub }}</p>
           </div>
         </div>
-        <div class="flex flex-col items-end gap-2">
+        <div class="flex flex-col items-start gap-2">
           <div class="flex gap-1.5">
             <div v-for="p in armProducts" :key="p.id" class="w-16 h-16 rounded-lg overflow-hidden ring-1 ring-[#dedbf7]">
               <StyledImage :src="p.img" :overlay="styleById(batchFor(currentTest)?.styleId || 'lifestyle').overlay" enhance compact />
             </div>
           </div>
-          <div class="text-right">
-            <p class="text-[13px] font-semibold text-[#3a3468] leading-tight flex items-center gap-1.5 justify-end">
-              AI variation
+          <div class="text-left">
+            <p class="text-[13px] font-semibold text-[#3a3468] leading-tight">{{ armLabels.variant }}</p>
+            <p class="text-[11px] text-[#8a8a8a] flex items-center gap-1.5 justify-start">
+              {{ armLabels.variantSub }}
               <span v-if="currentTest.status === 'completed' && currentTest.winner === 'variant'" class="text-[10px] font-semibold text-white bg-[#36c98e] rounded-full px-1.5 py-0.5">Winner</span>
             </p>
-            <p class="text-[11px] text-[#8a8a8a]">Variant</p>
           </div>
         </div>
       </div>
@@ -323,33 +469,69 @@ function finishSetup() {
       >
         <span class="text-[13px] text-[#616161]">{{ def.label }}</span>
         <span
-          class="text-right text-[15px] tabular-nums"
+          class="text-left text-[15px] tabular-nums"
           :class="better(def) === 'original' ? 'font-bold text-[#1a1a1a]' : 'font-semibold text-[#8a8a8a]'"
         >{{ fmtVal('original', def) }}</span>
-        <span class="text-right flex items-center justify-end gap-2">
+        <span class="flex items-center justify-start gap-2">
           <span
             class="text-[15px] tabular-nums"
             :class="better(def) === 'variant' ? 'font-bold text-[#3a3468]' : 'font-semibold text-[#8a8a8a]'"
           >{{ fmtVal('variant', def) }}</span>
           <span
             v-if="def.delta"
-            class="text-[11px] font-semibold tabular-nums w-11 text-right shrink-0"
+            class="text-[11px] font-semibold tabular-nums shrink-0"
             :class="deltaPct(def) >= 0 ? 'text-[#0c6b45]' : 'text-[#c0392b]'"
           >{{ deltaText(def) }}</span>
-          <span v-else class="w-11 shrink-0"></span>
         </span>
       </div>
     </div>
 
-    <!-- Actions (running) -->
-    <div v-if="currentTest.status === 'running'" class="flex items-center justify-between gap-4">
-      <p class="text-[12px] text-[#8a8a8a] flex items-center gap-1">
-        <TrendingUp :size="12" />
-        <template v-if="currentTest.autoStop">Auto-stops at {{ SIGNIFICANCE }}% confidence and {{ currentTest.minOrders }}+ orders. We'll email you.</template>
-        <template v-else>We'll email you when there is a statistically significant winner.</template>
-      </p>
-      <button class="pb-btn-secondary shrink-0" @click="stopTest(currentTest)">
-        <StopCircle :size="13" /> Stop test early
+    <!-- Auto-stop settings — editable while the test is not finished -->
+    <div v-if="currentTest.status !== 'completed'" class="pb-card p-5 mb-4">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="font-semibold text-[#1a1a1a] text-[13px]">Auto-stop</p>
+          <p class="text-[12px] text-[#616161] mt-0.5">End the test on its own once there is a clear winner. You can change this any time.</p>
+        </div>
+        <button class="flex items-center gap-2 shrink-0 cursor-pointer" @click="currentTest.autoStop = !currentTest.autoStop">
+          <span class="w-9 h-[20px] rounded-full transition-colors duration-300 relative" :class="currentTest.autoStop ? 'bg-[#36c98e]' : 'bg-[#d4d4d4]'">
+            <span class="absolute top-[2px] w-4 h-4 rounded-full bg-white shadow transition-all duration-300" :class="currentTest.autoStop ? 'left-[18px]' : 'left-[2px]'"></span>
+          </span>
+          <span class="text-[13px] font-medium text-[#303030] w-6">{{ currentTest.autoStop ? 'On' : 'Off' }}</span>
+        </button>
+      </div>
+      <div v-if="currentTest.autoStop" class="grid grid-cols-2 gap-3 mt-3 max-w-[420px]">
+        <div>
+          <label class="text-[12px] font-medium text-[#616161] block mb-1">Minimum orders</label>
+          <input
+            v-model.number="currentTest.minOrders"
+            type="number" min="1"
+            class="pb-field w-full rounded-lg border border-[#d4d4d4] px-2.5 py-1.5 text-[13px] bg-white outline-none"
+          />
+        </div>
+        <div>
+          <label class="text-[12px] font-medium text-[#616161] block mb-1">Confidence threshold</label>
+          <select
+            v-model.number="currentTest.stopConfidence"
+            class="pb-field w-full rounded-lg border border-[#d4d4d4] px-2.5 py-1.5 text-[13px] bg-white outline-none"
+          >
+            <option v-for="c in confidenceOptions" :key="c" :value="c">{{ c }}%</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete -->
+    <div class="flex items-center justify-end gap-2">
+      <template v-if="confirmDelete">
+        <span class="text-[12px] text-[#616161]">Delete this test permanently?</span>
+        <button class="pb-btn-secondary" @click="confirmDelete = false">Cancel</button>
+        <button class="inline-flex items-center gap-1.5 rounded-lg bg-[#c0392b] text-white text-[13px] font-semibold px-3 py-1.5 cursor-pointer hover:brightness-110" @click="deleteTest(currentTest)">
+          <Trash2 :size="13" /> Delete test
+        </button>
+      </template>
+      <button v-else class="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#c0392b] hover:underline cursor-pointer" @click="confirmDelete = true">
+        <Trash2 :size="14" /> Delete test
       </button>
     </div>
   </div>
@@ -361,7 +543,7 @@ function finishSetup() {
         <h1 class="text-xl font-bold text-[#1a1a1a]">A/B tests</h1>
         <p class="text-[13px] text-[#616161] mt-1">Original photos vs an AI variation, on a 50/50 traffic split. Let the numbers decide.</p>
       </div>
-      <button class="pb-btn-primary shrink-0" @click="openSetup"><Plus :size="13" /> New A/B test</button>
+      <button class="pb-btn-primary shrink-0" @click="openSetup"><Plus :size="13" /> Create new test</button>
     </div>
 
     <div class="flex flex-col gap-3">
@@ -375,32 +557,32 @@ function finishSetup() {
         </span>
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-[#1a1a1a] truncate">{{ t.name }}</p>
-          <p class="text-[12px] text-[#616161]">{{ batchFor(t)?.count }} products · 50/50 split</p>
+          <p class="text-[12px] text-[#616161]">{{ t.type === 'aa' ? 'Original vs generated' : `${batchFor(t)?.count} products` }} · 50/50 split</p>
         </div>
         <span v-if="t.uplift" class="text-[12px] font-semibold shrink-0" :class="t.status === 'completed' ? 'text-[#0c6b45]' : 'text-[#616161]'">
           {{ t.uplift }} add-to-cart
         </span>
-        <span
-          class="text-[11px] font-semibold rounded-full px-2 py-0.5 shrink-0"
-          :class="t.status === 'running' ? 'text-[#0c6b45] bg-[#d7f2e4]' : 'text-[#3a3468] bg-[#f6f5ff] border border-[#dedbf7]'"
-        >
-          {{ t.status === 'running' ? `Running · day ${t.day} of ${t.days}` : (t.applied ? 'Completed · applied' : 'Completed') }}
+        <span class="text-[11px] font-semibold rounded-full px-2 py-0.5 shrink-0" :class="statusMeta(t).cls">
+          {{ statusMeta(t).label }}
         </span>
         <ChevronRight :size="16" class="text-[#8a8a8a] shrink-0" />
       </div>
     </div>
   </div>
 
-  <!-- Create A/B test modal -->
-  <div v-if="isSetup" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-black/40" @click="backToList"></div>
+  <!-- Create / edit test modal -->
+  <div v-if="modalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/40" @click="closeSetup"></div>
     <div class="pb-card relative z-10 w-full max-w-[540px] max-h-[90vh] overflow-y-auto p-5">
       <div class="flex items-start justify-between gap-4 mb-4">
         <div>
-          <p class="text-lg font-bold text-[#1a1a1a] leading-tight">Create A/B test</p>
-          <p class="text-[12px] text-[#616161] mt-0.5">Half your visitors see the original photos, the other half the AI variation. Nothing else changes.</p>
+          <p class="text-lg font-bold text-[#1a1a1a] leading-tight">{{ modalTitle }}</p>
+          <p class="text-[12px] text-[#616161] mt-0.5">
+            <template v-if="setupIsAA">No variation selected, so your original photos are tested against a default AI-generated image.</template>
+            <template v-else>Half your visitors see the original photos, the other half the AI variation. Nothing else changes.</template>
+          </p>
         </div>
-        <button class="text-[#8a8a8a] hover:text-[#1a1a1a] cursor-pointer shrink-0" @click="backToList">
+        <button class="text-[#8a8a8a] hover:text-[#1a1a1a] cursor-pointer shrink-0" @click="closeSetup">
           <X :size="18" />
         </button>
       </div>
@@ -415,7 +597,10 @@ function finishSetup() {
       </label>
 
       <!-- Select variations -->
-      <p class="text-[12px] font-semibold text-[#616161] mb-2">Select variations</p>
+      <div class="flex items-baseline justify-between mb-2">
+        <p class="text-[12px] font-semibold text-[#616161]">Select variations</p>
+        <p class="text-[11px] text-[#8a8a8a]">None selected = A/A test</p>
+      </div>
       <div class="flex flex-col gap-2">
         <label
           v-for="b in testableVariations" :key="b.id"
@@ -487,10 +672,22 @@ function finishSetup() {
 
       <!-- Actions -->
       <div class="flex justify-end gap-2 mt-5">
-        <button class="pb-btn-secondary" @click="backToList">Cancel</button>
-        <button class="pb-btn-primary" :disabled="!setupVariations.length || starting" @click="startTest">
-          <template v-if="starting"><Loader2 :size="13" class="animate-spin" /> Creating...</template>
-          <template v-else><Play :size="13" /> Create A/B test</template>
+        <button class="pb-btn-secondary" @click="closeSetup">Cancel</button>
+        <button
+          v-if="editMode"
+          class="pb-btn-primary"
+          :disabled="!setupVariations.length && !setupControl"
+          @click="saveEdit"
+        >
+          <Check :size="13" /> Save changes
+        </button>
+        <button
+          v-else
+          class="pb-btn-primary"
+          :disabled="!setupVariations.length && !setupControl"
+          @click="createTests"
+        >
+          <Plus :size="13" /> {{ setupIsAA ? 'Create A/A test' : 'Create A/B test' }}
         </button>
       </div>
     </div>
