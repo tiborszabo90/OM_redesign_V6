@@ -605,10 +605,7 @@ function finishSetup() {
       </label>
 
       <!-- Select variations -->
-      <div class="flex items-baseline justify-between mb-2">
-        <p class="text-[12px] font-semibold text-[#616161]">Select variations</p>
-        <p class="text-[11px] text-[#8a8a8a]">None selected = A/A test</p>
-      </div>
+      <p class="text-[12px] font-semibold text-[#616161] mb-2">Select variations</p>
       <div class="flex flex-col gap-2">
         <label
           v-for="b in testableVariations" :key="b.id"
