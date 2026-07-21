@@ -77,6 +77,21 @@ export const placementOptions = [
   { id: 'replace', name: 'Replace main image', desc: 'Swap the hero photo with the AI version.' },
   { id: 'below-hero', name: 'Below the hero', desc: 'Add the AI image right after the main photos.', recommended: true },
   { id: 'below-desc', name: 'Below the description', desc: 'Add the AI image under the product description.' },
+  { id: 'custom', name: 'Custom', desc: 'Specify a CSS selector manually.' },
+]
+
+// Insert position relative to the custom CSS selector.
+export const insertModes = [
+  { value: 'above', label: 'Above' },
+  { value: 'below', label: 'Below' },
+]
+
+// Gallery slot the AI image takes when the placement is "Replace main image".
+// The original product photo is always kept, just reordered.
+export const galleryPositions = [
+  { value: 'main', label: 'Main image' },
+  { value: 'second', label: 'Second image' },
+  { value: 'last', label: 'Last image' },
 ]
 
 export const ratioOptions = ['1:1', '4:3', '3:4', '16:9', '4:5']
@@ -107,10 +122,10 @@ export const subscriptionPlans = [
 // Each opens a sub-page with a review-style list of its products.
 // autoAdd / autoPublish are per-variation automation toggles.
 export const variationBatches = reactive([
-  { id: 'main', name: 'Product image change', styleId: 'lifestyle', count: 10, status: 'live', ctr: '4.8%', autoAdd: true, autoPublish: false },
-  { id: 'badge', name: 'Image with badge', styleId: 'badge', count: 6, status: 'live', ctr: '4.1%', autoAdd: false, autoPublish: false },
-  { id: 'callouts', name: 'Value prop callouts', styleId: 'callouts', count: 4, status: 'draft', ctr: null, autoAdd: false, autoPublish: false },
-  { id: 'people', name: 'People using product', styleId: 'people', count: 3, status: 'paused', ctr: '3.6%', autoAdd: false, autoPublish: false },
+  { id: 'main', name: 'Product image change', styleId: 'lifestyle', count: 10, status: 'live', ctr: '4.8%', autoAdd: true, autoPublish: false, placement: 'below-hero', galleryPos: 'main', customSelector: '', customMode: 'below' },
+  { id: 'badge', name: 'Image with badge', styleId: 'badge', count: 6, status: 'live', ctr: '4.1%', autoAdd: false, autoPublish: false, placement: 'replace', galleryPos: 'main', customSelector: '', customMode: 'below' },
+  { id: 'callouts', name: 'Value prop callouts', styleId: 'callouts', count: 4, status: 'draft', ctr: null, autoAdd: false, autoPublish: false, placement: 'below-desc', galleryPos: 'main', customSelector: '', customMode: 'below' },
+  { id: 'people', name: 'People using product', styleId: 'people', count: 3, status: 'paused', ctr: '3.6%', autoAdd: false, autoPublish: false, placement: 'below-hero', galleryPos: 'main', customSelector: '', customMode: 'below' },
 ])
 
 // A/B tests: each test pits a variation's AI images against the original photos
@@ -126,9 +141,13 @@ export const abTests = reactive([
     applied: false,
     confidence: 96,
     uplift: '+27%',
+    autoStop: true,
+    minOrders: 50,
+    stopConfidence: 95,
+    // Raw counts; rates (ATC, CVR, AOV) are derived in the view.
     arms: {
-      original: { visitors: 1418, atc: '4.1%', orders: 39, revenue: '€612' },
-      variant: { visitors: 1425, atc: '5.2%', orders: 51, revenue: '€844' },
+      original: { visitors: 1418, addToCarts: 58, orders: 39, revenue: 612, chanceToWin: 4 },
+      variant: { visitors: 1425, addToCarts: 74, orders: 51, revenue: 844, chanceToWin: 96 },
     },
   },
   {
@@ -140,10 +159,13 @@ export const abTests = reactive([
     winner: null,
     applied: false,
     confidence: 62,
-    uplift: '+11%',
+    uplift: '+14%',
+    autoStop: true,
+    minOrders: 50,
+    stopConfidence: 95,
     arms: {
-      original: { visitors: 402, atc: '3.9%', orders: 9, revenue: '€141' },
-      variant: { visitors: 396, atc: '4.4%', orders: 11, revenue: '€177' },
+      original: { visitors: 402, addToCarts: 16, orders: 9, revenue: 141, chanceToWin: 38 },
+      variant: { visitors: 396, addToCarts: 18, orders: 11, revenue: 177, chanceToWin: 62 },
     },
   },
 ])
@@ -156,6 +178,9 @@ export const state = reactive({
   abTestPrefill: null,       // variation id to preselect when the A/B test setup opens
   style: null,
   placement: 'below-hero',
+  galleryPos: 'main',        // gallery slot used when placement is 'replace'
+  customSelector: '',        // CSS selector used when placement is 'custom'
+  customMode: 'below',       // 'above' | 'below' the custom selector
   selected: products.filter(p => p.sales >= 121).map(p => p.id),
   instructions: '',
   previewsSeen: false,

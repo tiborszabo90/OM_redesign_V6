@@ -89,6 +89,12 @@
   animation: pb-confetti-fall 2.6s ease-in forwards;
 }
 
+/* Form fields: override the app-wide orange focus glow with Picbear's indigo. */
+.pb-field:focus {
+  border-color: #5548e0;
+  box-shadow: 0 0 0 2px rgba(85, 72, 224, 0.15);
+}
+
 /* Icon-button tooltip: wrap the button in a `group` element. */
 .pb-tip {
   position: absolute;

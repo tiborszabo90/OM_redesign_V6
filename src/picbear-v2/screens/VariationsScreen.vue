@@ -2,9 +2,11 @@
 import { ref, reactive, computed } from 'vue'
 import { state, products, styleOptions, styleById, placementOptions, variationBatches, abTests, openEditor } from '../store'
 import StyledImage from '../components/StyledImage.vue'
-import { Layers, Lock, Plus, ArrowRight, ArrowLeft, RefreshCw, Shuffle, Check, Pause, ChevronRight, Zap, Settings, SlidersHorizontal, X, FlaskConical } from 'lucide-vue-next'
+import PlacementEditor from '../components/PlacementEditor.vue'
+import { Layers, Lock, Plus, ArrowRight, ArrowLeft, RefreshCw, Shuffle, Check, Pause, ChevronRight, Zap, Settings, SlidersHorizontal, X, FlaskConical, LayoutTemplate } from 'lucide-vue-next'
 
 const showSettings = ref(false)
+const showPlacement = ref(false)
 
 const automationRows = [
   { key: 'autoAdd', title: 'Add new products automatically', desc: 'New products get an image in this look, no prompting needed.' },
@@ -16,7 +18,13 @@ const rowStyle = reactive({})   // product id -> style id override
 const paused = reactive({})     // product id -> true when paused
 
 const liveProducts = computed(() => products.filter(p => state.selected.includes(p.id)))
-const chosenPlacement = computed(() => placementOptions.find(o => o.id === state.placement))
+const chosenPlacement = computed(() =>
+  placementOptions.find(o => o.id === currentBatch.value?.placement)
+    || placementOptions.find(o => o.id === state.placement),
+)
+const currentStyle = computed(() =>
+  styleById(currentBatch.value?.styleId) || styleById('lifestyle'),
+)
 const currentBatch = computed(() => variationBatches.find(b => b.id === state.openVariation) || null)
 const batchProducts = computed(() =>
   currentBatch.value ? liveProducts.value.slice(0, currentBatch.value.count) : []
@@ -126,6 +134,9 @@ function finishSetup() {
       <div class="flex gap-2 shrink-0">
         <button v-if="!runningTestForBatch" class="pb-btn-secondary" @click="goAbTest">
           <FlaskConical :size="14" /> Start A/B test
+        </button>
+        <button class="pb-btn-secondary" @click="showPlacement = true">
+          <LayoutTemplate :size="14" /> Placement
         </button>
         <button class="pb-btn-secondary" @click="showSettings = true">
           <Settings :size="14" /> Settings
@@ -259,6 +270,34 @@ function finishSetup() {
 
         <div class="flex justify-end mt-4">
           <button class="pb-btn-primary" @click="showSettings = false">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visual placement editor (live storefront preview) -->
+    <div v-if="showPlacement" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/40" @click="showPlacement = false"></div>
+      <div class="pb-card relative z-10 w-full max-w-[900px] max-h-[90vh] overflow-y-auto p-5">
+        <div class="flex items-start gap-3 mb-4">
+          <div class="flex-1 min-w-0">
+            <p class="font-bold text-[#1a1a1a] leading-tight truncate">Where should the image appear?</p>
+            <p class="text-[12px] text-[#616161]">{{ currentBatch.name }} · click a spot on your live product page</p>
+          </div>
+          <button class="text-[#8a8a8a] hover:text-[#1a1a1a] cursor-pointer shrink-0" @click="showPlacement = false">
+            <X :size="18" />
+          </button>
+        </div>
+
+        <PlacementEditor
+          v-model="currentBatch.placement"
+          v-model:gallery-pos="currentBatch.galleryPos"
+          v-model:custom-selector="currentBatch.customSelector"
+          v-model:custom-mode="currentBatch.customMode"
+          :style-obj="currentStyle"
+        />
+
+        <div class="flex justify-end mt-5">
+          <button class="pb-btn-primary" @click="showPlacement = false">Done</button>
         </div>
       </div>
     </div>
