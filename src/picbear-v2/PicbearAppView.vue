@@ -20,6 +20,7 @@ import EnableScreen from './screens/EnableScreen.vue'
 import DoneScreen from './screens/DoneScreen.vue'
 import VariationsScreen from './screens/VariationsScreen.vue'
 import ABTestsScreen from './screens/ABTestsScreen.vue'
+import ABTestsScreenV2 from './screens/ABTestsScreenV2.vue'
 import PlansScreen from './screens/PlansScreen.vue'
 import SettingsScreen from './screens/SettingsScreen.vue'
 
@@ -47,6 +48,7 @@ const appTabs = [
   { id: 'home', label: 'Home' },
   { id: 'variations', label: 'Variations' },
   { id: 'abtests', label: 'A/B Tests' },
+  { id: 'abtests-v2', label: 'A/B Tests V2' },
 ]
 
 const wizardScreens = {
@@ -68,13 +70,14 @@ const wizardScreens = {
 const screenComponent = computed(() => {
   if (state.appTab === 'variations') return VariationsScreen
   if (state.appTab === 'abtests') return ABTestsScreen
+  if (state.appTab === 'abtests-v2') return ABTestsScreenV2
   return wizardScreens[state.screen] || HomeScreen
 })
 
 function goTab(id) {
   state.appTab = id
   if (id === 'variations') state.openVariation = null
-  if (id === 'abtests') state.openAbTest = null
+  if (id === 'abtests' || id === 'abtests-v2') state.openAbTest = null
   // The Home menu item always lands on the dashboard of the current world:
   // the active dashboard once published, the setup-guide fallback before that.
   if (id === 'home') state.screen = state.published ? 'home' : 'home-onboarding-fallback'
@@ -98,7 +101,7 @@ function goSettings() {
 //                                     variations (+/<id>), abtests, plans, ...)
 // Deep-linking a world also sets the account state (app → published).
 const BASE = 'picbear-v2'
-const tabSlugs = ['variations', 'abtests']
+const tabSlugs = ['variations', 'abtests', 'abtests-v2']
 
 const currentSlug = computed(() => {
   const world = state.published ? 'app' : 'onboarding'
@@ -109,6 +112,10 @@ const currentSlug = computed(() => {
   if (state.appTab === 'abtests') {
     if (state.published && state.openAbTest) return `app/abtests/${state.openAbTest}`
     return `${world}/abtests`
+  }
+  if (state.appTab === 'abtests-v2') {
+    if (state.published && state.openAbTest) return `app/abtests-v2/${state.openAbTest}`
+    return `${world}/abtests-v2`
   }
   if (state.screen === 'home') return 'app/home'
   if (state.screen === 'home-onboarding-fallback') return 'onboarding/home'
@@ -140,10 +147,10 @@ function applySlug(slug) {
   }
 
   state.published = world === 'app'
-  if (page === 'variations' || page === 'abtests') {
+  if (page === 'variations' || page === 'abtests' || page === 'abtests-v2') {
     state.appTab = page
     if (page === 'variations') state.openVariation = sub || null
-    if (page === 'abtests') state.openAbTest = sub || null
+    if (page === 'abtests' || page === 'abtests-v2') state.openAbTest = sub || null
   } else if (page === 'home') {
     state.appTab = 'home'
     state.screen = state.published ? 'home' : 'home-onboarding-fallback'
