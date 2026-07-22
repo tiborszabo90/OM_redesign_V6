@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { state, products, abTests, variationBatches, styleById } from '../store'
 import StyledImage from '../components/StyledImage.vue'
 import {
@@ -36,6 +36,45 @@ const testableVariations = computed(() => variationBatches)
 const previewProduct = computed(() => products[0])
 // A few distinct product shots to preview each arm as a small gallery.
 const armProducts = [products[0], products[1], products[3]]
+
+// ── list previews ──
+// A/B thumbnails rotate through real shots so the list feels alive. Arm A is always
+// a plain product photo; arm B is always a lifestyle scene, so the two never match.
+const armAImages = [
+  '/picbear/bag-studio.jpg',
+  '/picbear/beans-burlap.jpg',
+  '/picbear/beans-pile.jpg',
+  '/picbear/cup-espresso.jpg',
+  '/picbear/cup-topview.jpg',
+  '/picbear/mug-cookies.jpg',
+]
+const armBImages = [
+  '/picbear/lattes-plants.jpg',
+  '/picbear/people-kitchen.jpg',
+  '/picbear/people-latte.jpg',
+  '/picbear/pouring.jpg',
+  '/picbear/cold-brew.jpg',
+  '/picbear/machine-counter.jpg',
+]
+const rotateTick = ref(0)
+let rotateTimer = null
+onMounted(() => { rotateTimer = setInterval(() => { rotateTick.value++ }, 2600) })
+onUnmounted(() => { clearInterval(rotateTimer) })
+// Each row starts at a different point in its set and advances, so rows stay distinct.
+function rowThumbA(i) {
+  return armAImages[(rotateTick.value + i * 3) % armAImages.length]
+}
+function rowThumbB(i) {
+  return armBImages[(rotateTick.value + i * 3) % armBImages.length]
+}
+
+// Chance to win, for the list: the leading arm's win probability + which arm leads.
+function chanceToWin(t) {
+  return Math.max(t.arms.variant.chanceToWin, t.arms.original.chanceToWin)
+}
+function chanceLeadsVariant(t) {
+  return t.arms.variant.chanceToWin >= t.arms.original.chanceToWin
+}
 
 // Entering setup (from the list button or a variation sub-page deep link):
 // initialize the form, honoring a preselected variation.
@@ -387,15 +426,8 @@ function finishSetup() {
       This test is a draft. Review the setup, then hit <span class="font-semibold text-[#1a1a1a]">Start test</span> to launch it.
     </div>
 
-    <!-- Progress (running / paused) -->
+    <!-- Time status (running / paused) -->
     <template v-else>
-      <div class="h-1.5 bg-[#ececec] rounded-full overflow-hidden mb-2">
-        <div
-          class="h-full rounded-full"
-          :class="currentTest.status === 'paused' ? 'bg-[#d4a24a]' : 'bg-[#5548e0]'"
-          :style="{ width: (currentTest.day / currentTest.days) * 100 + '%' }"
-        ></div>
-      </div>
       <p class="text-[12px] text-[#616161] mb-4">
         <template v-if="currentTest.status === 'paused'">Paused on day {{ currentTest.day }} of {{ currentTest.days }}. Resume anytime.</template>
         <template v-else>Day {{ currentTest.day }} of {{ currentTest.days }} · {{ currentTest.days - currentTest.day }} days left</template>
@@ -563,20 +595,48 @@ function finishSetup() {
 
     <div class="flex flex-col gap-3">
       <div
-        v-for="t in abTests" :key="t.id"
-        class="pb-card px-4 py-3.5 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow"
+        v-for="(t, i) in abTests" :key="t.id"
+        class="pb-card pb-card-interactive px-3 py-2.5 flex items-center gap-4 cursor-pointer"
         @click="openTest(t.id)"
       >
+        <!-- A vs B rotating preview -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <div class="relative w-16 h-16 rounded-md overflow-hidden ring-1 ring-[#ececec]">
+            <img :src="rowThumbA(i)" class="absolute inset-0 w-full h-full object-cover" />
+            <span class="absolute bottom-0 left-0 z-10 text-[8px] font-bold text-white bg-black/55 px-1 rounded-tr-md">A</span>
+          </div>
+          <div class="relative w-16 h-16 rounded-md overflow-hidden ring-1 ring-[#dedbf7]">
+            <div class="absolute inset-0">
+              <StyledImage :src="rowThumbB(i)" :overlay="styleById(batchFor(t)?.styleId || 'lifestyle').overlay" enhance compact />
+            </div>
+            <span class="absolute bottom-0 left-0 z-10 text-[8px] font-bold text-white bg-[#5548e0] px-1 rounded-tr-md">B</span>
+          </div>
+        </div>
+
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-[#1a1a1a] truncate">{{ t.name }}</p>
           <p class="text-[12px] text-[#616161]">{{ t.type === 'aa' ? 'Original vs generated' : `${batchFor(t)?.count} products` }} · 50/50 split</p>
         </div>
-        <span v-if="t.uplift" class="text-[12px] font-semibold shrink-0" :class="t.status === 'completed' ? 'text-[#0c6b45]' : 'text-[#616161]'">
-          {{ t.uplift }} add-to-cart
+
+        <!-- Chance to win -->
+        <div v-if="t.status !== 'draft'" class="shrink-0 w-24">
+          <div class="flex items-baseline justify-between gap-1 mb-1.5">
+            <span class="text-[10px] text-[#8a8a8a] leading-none">{{ chanceLeadsVariant(t) ? 'B' : 'A' }} to win</span>
+            <span class="text-[12px] font-bold tabular-nums leading-none" :class="t.status === 'completed' ? 'text-[#0c6b45]' : 'text-[#3a3468]'">{{ chanceToWin(t) }}%</span>
+          </div>
+          <div class="h-1 rounded-full bg-[#ececec] overflow-hidden">
+            <div class="h-full rounded-full" :class="t.status === 'completed' ? 'bg-[#36c98e]' : 'bg-[#5548e0]'" :style="{ width: chanceToWin(t) + '%' }"></div>
+          </div>
+        </div>
+
+        <span class="w-32 shrink-0 ml-4 text-[12px] font-semibold" :class="t.status === 'completed' ? 'text-[#0c6b45]' : 'text-[#616161]'">
+          <template v-if="t.uplift">{{ t.uplift }} add-to-cart</template>
         </span>
-        <span class="text-[11px] font-semibold rounded-full px-2 py-0.5 shrink-0" :class="statusMeta(t).cls">
-          {{ statusMeta(t).label }}
-        </span>
+        <div class="w-40 flex justify-end shrink-0">
+          <span class="text-[11px] font-semibold rounded-full px-2 py-0.5" :class="statusMeta(t).cls">
+            {{ statusMeta(t).label }}
+          </span>
+        </div>
         <ChevronRight :size="16" class="text-[#8a8a8a] shrink-0" />
       </div>
     </div>

@@ -9,6 +9,14 @@
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
 }
 
+/* Clickable card rows: a slightly stronger drop shadow on hover. */
+.pb-card-interactive {
+  transition: box-shadow 0.15s ease;
+}
+.pb-card-interactive:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
 .pb-btn-primary {
   display: inline-flex;
   align-items: center;
