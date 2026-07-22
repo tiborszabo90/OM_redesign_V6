@@ -154,6 +154,15 @@ const systemViews = [
     product: 'picbear',
   },
   {
+    id: 'picbear-generation-limit',
+    component: () => import('../picbear-generation-limit/PicbearAppView.vue'),
+    label: 'Picbear (generation limit)',
+    status: 'system',
+    section: null,
+    hideLogo: true,
+    product: 'picbear',
+  },
+  {
     id: 'picbear-v2',
     component: () => import('../picbear-v2/PicbearAppView.vue'),
     label: 'Picbear V2',
