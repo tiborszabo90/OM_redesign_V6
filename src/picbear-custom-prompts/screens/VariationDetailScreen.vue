@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { state, variationList, variationProducts, products } from '../store'
-import { PawPrint, ChevronRight, ArrowUpRight, ArrowRight, Search, ShoppingBag, History, X, Loader2 } from 'lucide-vue-next'
+import { PawPrint, ChevronRight, ArrowUpRight, ArrowRight, Search, ShoppingBag, History, X, Loader2, Ban, Undo2 } from 'lucide-vue-next'
 
 // picbear-current mirror of the variation detail page
 // (app.variations.$variationId.tsx): action bar, stats, storefront preview,
@@ -11,8 +11,12 @@ const variation = computed(() =>
 )
 
 // Variations created via "Start generating" carry their own product list with
-// live statuses; pre-existing ones fall back to an all-done list.
-const detailProducts = computed(() => variation.value.products || variationProducts(variation.value.count))
+// live statuses; pre-existing ones get one materialized on the variation so
+// per-product edits (restore a version, skip an image) persist across renders.
+if (!variation.value.products) {
+  variation.value.products = variationProducts(variation.value.count)
+}
+const detailProducts = computed(() => variation.value.products)
 
 const device = ref('desktop')
 const selectedProductId = ref(detailProducts.value[0]?.id ?? null)
@@ -49,13 +53,39 @@ const brand = 'roast-and-co'
 // Per-product edit modal
 const editProduct = ref(null)
 const editPrompt = ref('')
+const historyOpen = ref(false)
+
+// Mock regeneration history for the edited product: the current version first,
+// then a couple of older generated versions the user could restore.
+const editHistory = computed(() => {
+  if (!editProduct.value) return []
+  const pool = ['/picbear/people-latte.jpg', '/picbear/people-kitchen.jpg', '/picbear/lattes-plants.jpg', '/picbear/pouring.jpg']
+  const olders = pool.filter(img => img !== editProduct.value.after).slice(0, 2)
+  return [
+    { img: editProduct.value.after, time: 'just now', current: true },
+    { img: olders[0], time: '2 min ago', current: false },
+    { img: olders[1], time: '24 min ago', current: false },
+  ]
+})
+
 function openEdit(p) {
   editProduct.value = p
   editPrompt.value = ''
+  historyOpen.value = false
 }
 function closeEdit() {
   editProduct.value = null
   editPrompt.value = ''
+  historyOpen.value = false
+}
+function restoreVersion(entry) {
+  editProduct.value.after = entry.img
+  historyOpen.value = false
+}
+// Skip = don't serve the AI image for this product; the original stays live.
+function toggleSkip(p) {
+  p.skipped = !p.skipped
+  historyOpen.value = false
 }
 
 function backToList() {
@@ -217,18 +247,28 @@ function del() {
           v-for="p in detailProducts" :key="p.id"
           class="flex items-center gap-4 py-3 border-b border-[#ececec] last:border-0"
         >
-          <div class="flex items-center gap-2 shrink-0">
-            <div class="w-12 h-12 rounded-md overflow-hidden border border-[#e0e0e0] bg-[#f6f6f6]">
+          <div
+            class="flex items-center gap-2 shrink-0"
+            :class="p.status === 'done' ? 'cursor-pointer group' : ''"
+            @click="p.status === 'done' && openEdit(p)"
+          >
+            <div class="w-12 h-12 rounded-md overflow-hidden border border-[#e0e0e0] bg-[#f6f6f6] transition-colors group-hover:border-[#5548e0]">
               <img :src="p.before" alt="" class="w-full h-full object-cover" />
             </div>
             <ArrowRight :size="16" class="text-[#999]" />
-            <div class="w-12 h-12 rounded-md overflow-hidden border border-[#e0e0e0] bg-[#f6f6f6]">
-              <img :src="p.after" alt="" class="w-full h-full object-cover transition-opacity" :class="p.status === 'done' ? 'opacity-100' : 'opacity-40'" />
+            <div class="relative w-12 h-12 rounded-md overflow-hidden border border-[#e0e0e0] bg-[#f6f6f6] transition-colors group-hover:border-[#5548e0]">
+              <img :src="p.after" alt="" class="w-full h-full object-cover transition-opacity" :class="p.status === 'done' && !p.skipped ? 'opacity-100' : 'opacity-40'" />
+              <div v-if="p.skipped" class="absolute inset-0 flex items-center justify-center bg-white/40">
+                <Ban :size="18" class="text-[#8a8f96]" />
+              </div>
             </div>
           </div>
           <div class="flex-1 min-w-0">
             <p class="text-[13px] font-semibold text-[#2c6ecb] truncate">{{ p.name }}</p>
-            <p v-if="p.status === 'done'" class="text-[12px] text-[#008060] mt-1">Done</p>
+            <p v-if="p.skipped" class="text-[12px] text-[#8a8f96] mt-1 flex items-center gap-1">
+              <Ban :size="12" /> Skipped — original image served
+            </p>
+            <p v-else-if="p.status === 'done'" class="text-[12px] text-[#008060] mt-1">Done</p>
             <p v-else-if="p.status === 'generating'" class="text-[12px] text-[#6d7175] mt-1 flex items-center gap-1">
               <Loader2 :size="12" class="animate-spin" /> Generating...
             </p>
@@ -237,6 +277,11 @@ function del() {
           <div class="flex items-center gap-4 shrink-0">
             <button v-if="p.status === 'done'" class="text-[13px] text-[#2c6ecb] hover:underline cursor-pointer" @click="openEdit(p)">Edit</button>
             <span
+              v-if="p.skipped"
+              class="text-[12px] font-semibold rounded-full px-2.5 py-0.5 bg-[#f1f1f1] text-[#616161]"
+            >Skipped</span>
+            <span
+              v-else
               class="text-[12px] font-semibold rounded-full px-2.5 py-0.5"
               :class="variation.status === 'active' ? 'bg-[#d4edda] text-[#155724]' : 'bg-[#fff3cd] text-[#856404]'"
             >{{ variation.status === 'active' ? 'Active' : 'Inactive' }}</span>
@@ -254,7 +299,9 @@ function del() {
       style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif"
       @click.self="closeEdit"
     >
-      <div class="w-full max-w-4xl bg-white rounded-xl shadow-2xl overflow-hidden">
+      <div class="w-full max-w-4xl bg-white rounded-xl shadow-2xl overflow-hidden relative">
+        <!-- Click-catcher to dismiss the history popover -->
+        <div v-if="historyOpen" class="absolute inset-0 z-10" @click="historyOpen = false"></div>
         <!-- Header -->
         <div class="flex items-center justify-between px-5 py-3.5 bg-[#f6f6f7] border-b border-[#e3e3e3]">
           <p class="text-[14px] font-semibold text-[#1a1a1a]">Edit: {{ editProduct.name }}</p>
@@ -271,14 +318,58 @@ function del() {
             <div class="flex-1">
               <div class="flex items-center justify-between gap-2 mb-2">
                 <p class="text-[13px] font-semibold text-[#1a1a1a]">Current upgraded</p>
-                <button
-                  class="flex items-center gap-1 text-[13px] text-[#8a8f96] cursor-default"
-                  disabled
-                >
-                  <History :size="16" /> History
-                </button>
+                <div class="flex items-center gap-3">
+                  <button
+                    class="relative z-20 flex items-center gap-1 text-[13px] font-semibold cursor-pointer transition-colors"
+                    :class="editProduct.skipped ? 'text-[#5548e0] hover:text-[#4339c9]' : 'text-[#616161] hover:text-[#d72c0d]'"
+                    @click="toggleSkip(editProduct)"
+                  >
+                    <component :is="editProduct.skipped ? Undo2 : Ban" :size="15" />
+                    {{ editProduct.skipped ? 'Use AI image' : 'Skip' }}
+                  </button>
+                  <span class="w-px h-3.5 bg-[#d4d4d4]"></span>
+                  <button
+                    class="relative z-20 flex items-center gap-1 text-[13px] cursor-pointer transition-colors"
+                    :class="historyOpen ? 'text-[#5548e0]' : 'text-[#616161] hover:text-[#1a1a1a]'"
+                    @click="historyOpen = !historyOpen"
+                  >
+                    <History :size="16" /> History
+                  </button>
+                </div>
               </div>
-              <img :src="editProduct.after" alt="Upgraded" class="w-full max-h-[280px] object-contain rounded-lg border border-[#e0e0e0]" />
+              <div class="relative">
+                <img :src="editProduct.after" alt="Upgraded" class="w-full max-h-[280px] object-contain rounded-lg border border-[#e0e0e0] transition-opacity" :class="editProduct.skipped ? 'opacity-30' : ''" />
+
+                <!-- Skipped state: AI image won't be served -->
+                <div v-if="editProduct.skipped" class="absolute inset-0 flex flex-col items-center justify-center gap-1.5 rounded-lg bg-white/50">
+                  <Ban :size="26" class="text-[#8a8f96]" />
+                  <p class="text-[12px] font-semibold text-[#616161]">Original image will be served</p>
+                </div>
+
+                <!-- Compact history popover (Option C) -->
+                <div
+                  v-if="historyOpen"
+                  class="absolute top-2 right-2 z-20 w-[230px] bg-white rounded-xl border border-[#d4d4d4] shadow-xl p-1.5"
+                >
+                  <p class="text-[11px] font-semibold text-[#8a8f96] px-2 pt-1 pb-1.5">Image history</p>
+                  <button
+                    v-for="(entry, i) in editHistory" :key="i"
+                    class="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-left transition-colors"
+                    :class="entry.current ? 'bg-[#f1efff] cursor-default' : 'hover:bg-[#f6f6f7] cursor-pointer'"
+                    :disabled="entry.current"
+                    @click="restoreVersion(entry)"
+                  >
+                    <img :src="entry.img" alt="" class="w-9 h-9 rounded-md object-cover border border-[#e0e0e0] shrink-0" />
+                    <div class="flex-1 min-w-0">
+                      <p class="text-[12px] font-medium truncate" :class="entry.current ? 'text-[#5548e0]' : 'text-[#1a1a1a]'">
+                        {{ entry.current ? 'Current' : 'Version ' + (editHistory.length - i) }}
+                      </p>
+                      <p class="text-[11px] text-[#8a8f96]">{{ entry.time }}</p>
+                    </div>
+                    <span v-if="!entry.current" class="text-[11px] font-semibold text-[#5548e0] shrink-0">Restore</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -298,7 +389,7 @@ function del() {
 
         <!-- Footer -->
         <div class="flex justify-end px-6 py-4 border-t border-[#e3e3e3]">
-          <button class="pb-btn-primary disabled:opacity-45 disabled:cursor-default" :disabled="!editPrompt.trim()">
+          <button class="pb-btn-primary disabled:opacity-45 disabled:cursor-default" :disabled="!editPrompt.trim() || editProduct.skipped">
             Regenerate image
           </button>
         </div>
