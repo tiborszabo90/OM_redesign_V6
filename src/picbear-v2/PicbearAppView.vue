@@ -19,6 +19,7 @@ import FineTuneScreen from './screens/FineTuneScreen.vue'
 import EnableScreen from './screens/EnableScreen.vue'
 import DoneScreen from './screens/DoneScreen.vue'
 import VariationsScreen from './screens/VariationsScreen.vue'
+import VariationEditScreen from './screens/VariationEditScreen.vue'
 import ABTestsScreen from './screens/ABTestsScreen.vue'
 import ABTestsScreenV2 from './screens/ABTestsScreenV2.vue'
 import PlansScreen from './screens/PlansScreen.vue'
@@ -67,8 +68,13 @@ const wizardScreens = {
   settings: SettingsScreen,
 }
 
+const editSections = ['image', 'placement', 'products', 'automation']
+
 const screenComponent = computed(() => {
-  if (state.appTab === 'variations') return VariationsScreen
+  if (state.appTab === 'variations') {
+    if (state.openVariation && state.editSection) return VariationEditScreen
+    return VariationsScreen
+  }
   if (state.appTab === 'abtests') return ABTestsScreen
   if (state.appTab === 'abtests-v2') return ABTestsScreenV2
   return wizardScreens[state.screen] || HomeScreen
@@ -76,7 +82,10 @@ const screenComponent = computed(() => {
 
 function goTab(id) {
   state.appTab = id
-  if (id === 'variations') state.openVariation = null
+  if (id === 'variations') {
+    state.openVariation = null
+    state.editSection = null
+  }
   if (id === 'abtests' || id === 'abtests-v2') state.openAbTest = null
   // The Home menu item always lands on the dashboard of the current world:
   // the active dashboard once published, the setup-guide fallback before that.
@@ -106,7 +115,10 @@ const tabSlugs = ['variations', 'abtests', 'abtests-v2']
 const currentSlug = computed(() => {
   const world = state.published ? 'app' : 'onboarding'
   if (state.appTab === 'variations') {
-    if (state.published && state.openVariation) return `app/variations/${state.openVariation}`
+    if (state.published && state.openVariation) {
+      const base = `app/variations/${state.openVariation}`
+      return state.editSection ? `${base}/${state.editSection}` : base
+    }
     return `${world}/variations`
   }
   if (state.appTab === 'abtests') {
@@ -139,17 +151,22 @@ function legacySlug(slug) {
 }
 
 function applySlug(slug) {
-  let [world, page, sub] = slug.split('/')
+  let [world, page, sub, section] = slug.split('/')
   if (world !== 'onboarding' && world !== 'app') {
     const mapped = legacySlug(slug)
     if (!mapped) return
-    ;[world, page, sub] = mapped.split('/')
+    ;[world, page, sub, section] = mapped.split('/')
   }
 
   state.published = world === 'app'
+  // A live account always has the theme embed on, even when deep-linked.
+  if (state.published) state.themeEnabled = true
   if (page === 'variations' || page === 'abtests' || page === 'abtests-v2') {
     state.appTab = page
-    if (page === 'variations') state.openVariation = sub || null
+    if (page === 'variations') {
+      state.openVariation = sub || null
+      state.editSection = editSections.includes(section) ? section : null
+    }
     if (page === 'abtests' || page === 'abtests-v2') state.openAbTest = sub || null
   } else if (page === 'home') {
     state.appTab = 'home'
@@ -157,6 +174,7 @@ function applySlug(slug) {
   } else if (wizardScreens[page]) {
     // Leave openVariation intact so a fine-tune round trip returns to its sub-page.
     state.appTab = 'home'
+    state.editSection = null
     state.screen = page
   }
 }

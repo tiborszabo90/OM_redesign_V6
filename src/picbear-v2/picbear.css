@@ -103,6 +103,19 @@
   box-shadow: 0 0 0 2px rgba(85, 72, 224, 0.15);
 }
 
+/* Read-only summary chip (fine-tune page header). */
+.pb-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f1f1;
+  color: #1a1a1a;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
 /* Icon-button tooltip: wrap the button in a `group` element. */
 .pb-tip {
   position: absolute;

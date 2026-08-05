@@ -376,7 +376,7 @@ function finishSetup() {
             </button>
           </template>
         </div>
-        <p class="text-[13px] text-[#616161] mt-1">{{ isAA ? 'Original vs generated' : `${batchFor(currentTest)?.count} products` }} · 50/50 traffic split</p>
+        <p class="text-[13px] text-[#616161] mt-1">{{ isAA ? 'Original vs generated' : `${batchFor(currentTest)?.productIds.length} products` }} · 50/50 traffic split</p>
       </div>
 
       <div class="flex items-center gap-2 shrink-0 mt-1">
@@ -615,7 +615,7 @@ function finishSetup() {
 
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-[#1a1a1a] truncate">{{ t.name }}</p>
-          <p class="text-[12px] text-[#616161]">{{ t.type === 'aa' ? 'Original vs generated' : `${batchFor(t)?.count} products` }} · 50/50 split</p>
+          <p class="text-[12px] text-[#616161]">{{ t.type === 'aa' ? 'Original vs generated' : `${batchFor(t)?.productIds.length} products` }} · 50/50 split</p>
         </div>
 
         <!-- Chance to win -->
@@ -677,7 +677,7 @@ function finishSetup() {
             <StyledImage :src="previewProduct.img" :overlay="styleById(b.styleId).overlay" enhance compact />
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-[13px] font-medium text-[#1a1a1a] truncate">{{ b.name }} <span class="text-[#8a8a8a] font-normal">({{ b.count }} products)</span></p>
+            <p class="text-[13px] font-medium text-[#1a1a1a] truncate">{{ b.name }} <span class="text-[#8a8a8a] font-normal">({{ b.productIds.length }} products)</span></p>
             <p class="text-[12px] text-[#616161]">{{ styleById(b.styleId).name }}</p>
           </div>
         </label>

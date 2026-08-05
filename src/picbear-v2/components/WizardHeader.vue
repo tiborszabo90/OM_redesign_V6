@@ -1,6 +1,6 @@
 <script setup>
 import { ArrowLeft } from 'lucide-vue-next'
-import { state } from '../store'
+import { state, exitVariationFlow } from '../store'
 
 const props = defineProps({
   step: { type: Number, required: true },
@@ -12,6 +12,8 @@ const props = defineProps({
 const emit = defineEmits(['skip'])
 
 function back() {
+  // Backing out of step 1 while adding a variation returns to the Variations list.
+  if (state.newVariationFlow && props.step === 1) return exitVariationFlow()
   state.screen = props.backTo
 }
 </script>

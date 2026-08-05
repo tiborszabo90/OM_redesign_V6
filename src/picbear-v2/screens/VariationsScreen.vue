@@ -1,33 +1,26 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
-import { state, products, styleOptions, styleById, placementOptions, variationBatches, abTests, openEditor } from '../store'
+import { state, products, styleOptions, styleById, placementOptions, variationBatches, abTests, openEditor, startVariationFlow, startVariationFlowFrom } from '../store'
 import StyledImage from '../components/StyledImage.vue'
-import PlacementEditor from '../components/PlacementEditor.vue'
-import { Layers, Lock, Plus, ArrowRight, ArrowLeft, RefreshCw, Shuffle, Check, Pause, ChevronRight, Zap, Settings, SlidersHorizontal, X, FlaskConical, LayoutTemplate } from 'lucide-vue-next'
+import { Layers, Lock, Plus, ArrowRight, ArrowLeft, RefreshCw, Shuffle, Check, Pause, ChevronRight, SlidersHorizontal, FlaskConical, Settings, CopyPlus } from 'lucide-vue-next'
 
-const showSettings = ref(false)
-const showPlacement = ref(false)
-
-const automationRows = [
-  { key: 'autoAdd', title: 'Add new products automatically', desc: 'New products get an image in this look, no prompting needed.' },
-  { key: 'autoPublish', title: 'Publish without review', desc: 'Skip manual review for images in this variation.' },
-]
+// Variation-level settings live on their own sub-pages (VariationEditScreen),
+// entered through the Edit settings button; fine-tune is the default entry.
+function openEdit(section = 'image') {
+  state.editSection = section
+}
 
 const regenerating = reactive({})
 const rowStyle = reactive({})   // product id -> style id override
 const paused = reactive({})     // product id -> true when paused
 
-const liveProducts = computed(() => products.filter(p => state.selected.includes(p.id)))
 const chosenPlacement = computed(() =>
   placementOptions.find(o => o.id === currentBatch.value?.placement)
     || placementOptions.find(o => o.id === state.placement),
 )
-const currentStyle = computed(() =>
-  styleById(currentBatch.value?.styleId) || styleById('lifestyle'),
-)
 const currentBatch = computed(() => variationBatches.find(b => b.id === state.openVariation) || null)
 const batchProducts = computed(() =>
-  currentBatch.value ? liveProducts.value.slice(0, currentBatch.value.count) : []
+  currentBatch.value ? products.filter(p => currentBatch.value.productIds.includes(p.id)) : []
 )
 const liveCount = computed(() => batchProducts.value.filter(p => !paused[p.id]).length)
 const allPaused = computed(() => batchProducts.value.length > 0 && batchProducts.value.every(p => paused[p.id]))
@@ -35,10 +28,6 @@ const allPaused = computed(() => batchProducts.value.length > 0 && batchProducts
 function toggleAll() {
   const target = !allPaused.value
   batchProducts.value.forEach(p => { paused[p.id] = target })
-}
-
-function toggleAuto(key) {
-  if (currentBatch.value) currentBatch.value[key] = !currentBatch.value[key]
 }
 
 // Running A/B test for a variation, if any.
@@ -61,7 +50,7 @@ function goAbTest() {
 }
 
 function previewImgs(batch) {
-  return liveProducts.value.slice(0, 3).map(p => p.img)
+  return products.filter(p => batch.productIds.includes(p.id)).slice(0, 3).map(p => p.img)
 }
 
 function statusClass(status) {
@@ -126,20 +115,26 @@ function finishSetup() {
     <button class="pb-btn-ghost -ml-2 mb-3" @click="state.openVariation = null">
       <ArrowLeft :size="14" /> Variations
     </button>
-    <div class="mb-4 flex items-start justify-between gap-4">
-      <div>
+    <div class="mb-3 flex flex-wrap items-start justify-between gap-3">
+      <div class="min-w-[240px]">
         <h1 class="text-xl font-bold text-[#1a1a1a]">{{ currentBatch.name }}</h1>
-        <p class="text-[13px] text-[#616161] mt-1">{{ styleFor(batchProducts[0]?.id).name }} · shown {{ chosenPlacement.name.toLowerCase() }}</p>
+        <p class="text-[13px] text-[#616161] mt-1">
+          {{ styleById(currentBatch.styleId).name }} · shown {{ chosenPlacement.name.toLowerCase() }} ·
+          {{ currentBatch.ratioSame ? currentBatch.desktopRatio : `${currentBatch.desktopRatio} desktop, ${currentBatch.mobileRatio} mobile` }}
+        </p>
       </div>
-      <div class="flex gap-2 shrink-0">
+      <div class="flex flex-wrap gap-2 shrink-0">
         <button v-if="!runningTestForBatch" class="pb-btn-secondary" @click="goAbTest">
           <FlaskConical :size="14" /> Start A/B test
         </button>
-        <button class="pb-btn-secondary" @click="showPlacement = true">
-          <LayoutTemplate :size="14" /> Placement
-        </button>
-        <button class="pb-btn-secondary" @click="showSettings = true">
-          <Settings :size="14" /> Settings
+        <span class="relative group">
+          <button class="pb-btn-secondary" @click="startVariationFlowFrom(currentBatch.id)">
+            <CopyPlus :size="14" /> New variation from this
+          </button>
+          <span class="pb-tip opacity-0 group-hover:opacity-100">Same look, you pick new placement and products</span>
+        </span>
+        <button class="pb-btn-secondary" @click="openEdit()">
+          <Settings :size="14" /> Edit settings
         </button>
       </div>
     </div>
@@ -227,80 +222,6 @@ function finishSetup() {
       </div>
     </div>
 
-    <!-- Per-variation settings modal -->
-    <div v-if="showSettings" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div class="absolute inset-0 bg-black/40" @click="showSettings = false"></div>
-      <div class="pb-card relative z-10 w-full max-w-[440px] p-5">
-        <!-- header: which variation -->
-        <div class="flex items-center gap-3 mb-4">
-          <div class="w-10 h-10 rounded-lg overflow-hidden shrink-0 ring-1 ring-[#ececec]">
-            <StyledImage :src="batchProducts[0]?.img" :overlay="styleById(currentBatch.styleId).overlay" enhance compact />
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="font-bold text-[#1a1a1a] leading-tight truncate">{{ currentBatch.name }}</p>
-            <p class="text-[12px] text-[#616161]">Variation settings</p>
-          </div>
-          <button class="text-[#8a8a8a] hover:text-[#1a1a1a] cursor-pointer" @click="showSettings = false">
-            <X :size="18" />
-          </button>
-        </div>
-
-        <div class="flex items-center gap-2 mb-1">
-          <Zap :size="14" class="text-[#5548e0]" />
-          <p class="font-semibold text-[#1a1a1a] text-[13px]">Automation</p>
-        </div>
-        <div class="divide-y divide-[#ececec]">
-          <div v-for="row in automationRows" :key="row.key" class="flex items-center gap-4 py-3">
-            <div class="flex-1">
-              <p class="font-medium text-[#1a1a1a] text-[13px]">{{ row.title }}</p>
-              <p class="text-[12px] text-[#616161] mt-0.5">{{ row.desc }}</p>
-            </div>
-            <span
-              class="w-9 h-[20px] rounded-full transition-colors duration-300 relative shrink-0 cursor-pointer"
-              :class="currentBatch[row.key] ? 'bg-[#36c98e]' : 'bg-[#d4d4d4]'"
-              @click="toggleAuto(row.key)"
-            >
-              <span
-                class="absolute top-[2px] w-4 h-4 rounded-full bg-white shadow transition-all duration-300"
-                :class="currentBatch[row.key] ? 'left-[18px]' : 'left-[2px]'"
-              ></span>
-            </span>
-          </div>
-        </div>
-
-        <div class="flex justify-end mt-4">
-          <button class="pb-btn-primary" @click="showSettings = false">Done</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Visual placement editor (live storefront preview) -->
-    <div v-if="showPlacement" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div class="absolute inset-0 bg-black/40" @click="showPlacement = false"></div>
-      <div class="pb-card relative z-10 w-full max-w-[900px] max-h-[90vh] overflow-y-auto p-5">
-        <div class="flex items-start gap-3 mb-4">
-          <div class="flex-1 min-w-0">
-            <p class="font-bold text-[#1a1a1a] leading-tight truncate">Where should the image appear?</p>
-            <p class="text-[12px] text-[#616161]">{{ currentBatch.name }} · click a spot on your live product page</p>
-          </div>
-          <button class="text-[#8a8a8a] hover:text-[#1a1a1a] cursor-pointer shrink-0" @click="showPlacement = false">
-            <X :size="18" />
-          </button>
-        </div>
-
-        <PlacementEditor
-          v-model="currentBatch.placement"
-          v-model:gallery-pos="currentBatch.galleryPos"
-          v-model:custom-selector="currentBatch.customSelector"
-          v-model:custom-mode="currentBatch.customMode"
-          :style-obj="currentStyle"
-        />
-
-        <div class="flex justify-end mt-5">
-          <button class="pb-btn-primary" @click="showPlacement = false">Done</button>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- Variations main list -->
@@ -310,7 +231,7 @@ function finishSetup() {
         <h1 class="text-xl font-bold text-[#1a1a1a]">Variations</h1>
         <p class="text-[13px] text-[#616161] mt-1">Each variation is a batch of AI images with its own look. Open one to manage its products.</p>
       </div>
-      <button class="pb-btn-secondary shrink-0"><Plus :size="13" /> New variation</button>
+      <button class="pb-btn-secondary shrink-0" @click="startVariationFlow"><Plus :size="13" /> New variation</button>
     </div>
 
     <div class="flex flex-col gap-3">
@@ -329,7 +250,7 @@ function finishSetup() {
         </div>
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-[#1a1a1a] truncate">{{ b.name }}</p>
-          <p class="text-[12px] text-[#616161]">{{ styleById(b.styleId).name }} · {{ b.count }} products</p>
+          <p class="text-[12px] text-[#616161]">{{ styleById(b.styleId).name }} · {{ b.productIds.length }} products</p>
         </div>
         <span v-if="b.ctr" class="text-[12px] text-[#616161] shrink-0">CTR {{ b.ctr }}</span>
         <span
@@ -344,5 +265,6 @@ function finishSetup() {
         <ChevronRight :size="16" class="text-[#8a8a8a] shrink-0" />
       </div>
     </div>
+
   </div>
 </template>

@@ -120,12 +120,13 @@ export const subscriptionPlans = [
 
 // Named variation batches shown on the Variations list page.
 // Each opens a sub-page with a review-style list of its products.
-// autoAdd / autoPublish are per-variation automation toggles.
+// autoAdd / autoPublish are per-variation automation toggles; instructions and
+// the ratios apply to every image in the batch (edited on its fine-tune sub-page).
 export const variationBatches = reactive([
-  { id: 'main', name: 'Product image change', styleId: 'lifestyle', count: 10, status: 'live', ctr: '4.8%', autoAdd: true, autoPublish: false, placement: 'below-hero', galleryPos: 'main', customSelector: '', customMode: 'below' },
-  { id: 'badge', name: 'Image with badge', styleId: 'badge', count: 6, status: 'live', ctr: '4.1%', autoAdd: false, autoPublish: false, placement: 'replace', galleryPos: 'main', customSelector: '', customMode: 'below' },
-  { id: 'callouts', name: 'Value prop callouts', styleId: 'callouts', count: 4, status: 'draft', ctr: null, autoAdd: false, autoPublish: false, placement: 'below-desc', galleryPos: 'main', customSelector: '', customMode: 'below' },
-  { id: 'people', name: 'People using product', styleId: 'people', count: 3, status: 'paused', ctr: '3.6%', autoAdd: false, autoPublish: false, placement: 'below-hero', galleryPos: 'main', customSelector: '', customMode: 'below' },
+  { id: 'main', name: 'Product image change', styleId: 'lifestyle', productIds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], status: 'live', ctr: '4.8%', autoAdd: true, autoPublish: false, placement: 'below-hero', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', ratioSame: true, desktopRatio: '4:3', mobileRatio: '4:3' },
+  { id: 'badge', name: 'Image with badge', styleId: 'badge', productIds: [1, 2, 3, 4, 5, 6], status: 'live', ctr: '4.1%', autoAdd: false, autoPublish: false, placement: 'replace', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', ratioSame: true, desktopRatio: '1:1', mobileRatio: '1:1' },
+  { id: 'callouts', name: 'Value prop callouts', styleId: 'callouts', productIds: [1, 2, 3, 4], status: 'draft', ctr: null, autoAdd: false, autoPublish: false, placement: 'below-desc', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', ratioSame: true, desktopRatio: '4:3', mobileRatio: '4:3' },
+  { id: 'people', name: 'People using product', styleId: 'people', productIds: [1, 2, 3], status: 'paused', ctr: '3.6%', autoAdd: false, autoPublish: false, placement: 'below-hero', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', ratioSame: false, desktopRatio: '16:9', mobileRatio: '4:5' },
 ])
 
 // A/B tests: each test pits a variation's AI images against the original photos
@@ -174,6 +175,7 @@ export const state = reactive({
   screen: 'welcome',         // launch on the welcome intro; it leads to the type selector. welcome | home (active account) | home-onboarding-fallback (setup guide) | style | placement | products | generate | review | finetune | enable | done | plans
   appTab: 'home',            // picbear subnav: home | variations | abtests
   openVariation: null,       // variation batch id open on the Variations sub-page (drives the URL)
+  editSection: null,         // 'image' | 'placement' | 'automation' when editing that variation (drives the URL)
   openAbTest: null,          // A/B test id open on the A/B Tests sub-page, or 'new' for setup (drives the URL)
   abTestPrefill: null,       // variation id to preselect when the A/B test setup opens
   style: null,
@@ -190,6 +192,7 @@ export const state = reactive({
   published: false,
   steps: { style: false, placement: false, products: false, generate: false, live: false },
   abTestRunning: false,
+  newVariationFlow: false,   // true while the wizard runs to add a variation, not to onboard
   genPhase: 'preview',       // generate screen: preview (fine-tune the already-generated image) | batch
   editingId: null,           // product id being fine-tuned
   editReturn: 'review',      // screen to return to from the editor
@@ -221,6 +224,82 @@ export function editSettings(id) {
     }
   }
   return state.imageSettings[id]
+}
+
+// Adding a variation after setup reuses the onboarding wizard (style → placement
+// → products → generate → review → enable). The flag marks that run so the last
+// step creates a new batch instead of onboarding the account again.
+export function startVariationFlow() {
+  state.newVariationFlow = true
+  state.style = null
+  state.instructions = ''
+  state.previewsSeen = true   // the previews already exist by now, no generating skeletons
+  state.generated = {}
+  state.approved = {}
+  state.genPhase = 'preview'
+  state.appTab = 'home'
+  state.screen = 'style'
+}
+
+// Start a new variation based on an existing one: the look and instructions
+// carry over, placement and products start fresh (this is not a duplicate).
+// The wizard picks up at the placement step since the look is already set.
+export function startVariationFlowFrom(batchId) {
+  const src = variationBatches.find(b => b.id === batchId)
+  if (!src) return startVariationFlow()
+  state.newVariationFlow = true
+  state.style = src.styleId
+  state.instructions = src.instructions
+  state.previewsSeen = true
+  state.generated = {}
+  state.approved = {}
+  state.genPhase = 'preview'
+  state.placement = 'below-hero'
+  state.galleryPos = 'main'
+  state.customSelector = ''
+  state.customMode = 'below'
+  state.selected = products.filter(p => p.sales >= 121).map(p => p.id)
+  state.steps.style = true
+  state.appTab = 'home'
+  state.screen = 'placement'
+}
+
+export function exitVariationFlow() {
+  state.newVariationFlow = false
+  state.appTab = 'variations'
+  state.openVariation = null
+  state.editSection = null
+  state.screen = 'home'
+}
+
+// Publishing at the end of that run turns the wizard picks into a live batch.
+export function finishVariationFlow() {
+  const style = styleById(state.style) || styleOptions[0]
+  const sameLook = variationBatches.filter(b => b.name.startsWith(style.name)).length
+  const id = 'batch-' + (variationBatches.length + 1)
+  variationBatches.push({
+    id,
+    name: sameLook ? `${style.name} ${sameLook + 1}` : style.name,
+    styleId: style.id,
+    productIds: [...state.selected],
+    status: 'live',
+    ctr: null,
+    autoAdd: false,
+    autoPublish: false,
+    placement: state.placement,
+    galleryPos: state.galleryPos,
+    customSelector: state.customSelector,
+    customMode: state.customMode,
+    instructions: state.instructions,
+    ratioSame: true,
+    desktopRatio: '4:3',
+    mobileRatio: '4:3',
+  })
+  state.newVariationFlow = false
+  state.appTab = 'variations'
+  state.openVariation = id
+  state.editSection = null
+  state.screen = 'home'
 }
 
 export function openEditor(id, from) {

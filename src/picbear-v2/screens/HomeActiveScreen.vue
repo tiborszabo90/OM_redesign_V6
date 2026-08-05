@@ -99,7 +99,7 @@ function goAbTests() {
           </div>
           <div class="flex-1 min-w-0">
             <p class="font-medium text-[#1a1a1a] text-[13px] truncate">{{ b.name }}</p>
-            <p class="text-[12px] text-[#616161]">{{ styleById(b.styleId).name }} · {{ b.count }} products</p>
+            <p class="text-[12px] text-[#616161]">{{ styleById(b.styleId).name }} · {{ b.productIds.length }} products</p>
           </div>
           <span v-if="b.ctr" class="text-[12px] text-[#616161] shrink-0">CTR {{ b.ctr }}</span>
           <span class="text-[11px] font-semibold text-[#0c6b45] bg-[#d7f2e4] rounded-full px-2 py-0.5 shrink-0">Live</span>

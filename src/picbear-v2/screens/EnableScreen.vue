@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { state, products } from '../store'
+import { state, products, finishVariationFlow } from '../store'
 import WizardHeader from '../components/WizardHeader.vue'
 import { ExternalLink, Check, Rocket, ShieldCheck, Loader2 } from 'lucide-vue-next'
 
@@ -22,6 +22,7 @@ function openEditor() {
 
 function publish() {
   if (status.value !== 'on' || !approvedCount.value) return
+  if (state.newVariationFlow) return finishVariationFlow()
   state.steps.live = true
   state.published = true
   state.screen = 'done'

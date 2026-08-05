@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, onMounted } from 'vue'
-import { state, bestseller, styleOptions } from '../store'
+import { state, bestseller, styleOptions, styleById, products, variationBatches, startVariationFlowFrom } from '../store'
 import WizardHeader from '../components/WizardHeader.vue'
 import StyledImage from '../components/StyledImage.vue'
 import { RefreshCw, Sparkles, Loader2 } from 'lucide-vue-next'
@@ -37,6 +37,18 @@ function next() {
   if (!state.style) return
   state.steps.style = true
   state.screen = 'placement'
+}
+
+// Adding a variation to a live account: existing variations double as starting
+// points (same look and instructions, new placement and products).
+function previewImg(batch) {
+  return products.find(p => batch.productIds.includes(p.id))?.img || bestseller.img
+}
+
+function statusClass(status) {
+  if (status === 'live') return 'text-[#0c6b45] bg-[#d7f2e4]'
+  if (status === 'paused') return 'text-[#9a6a00] bg-[#fdf1e3]'
+  return 'text-[#616161] bg-[#f1f1f1]'
 }
 </script>
 
@@ -85,6 +97,35 @@ function next() {
         </div>
       </div>
     </div>
+
+    <!-- Start from an existing variation (only when adding to a live account) -->
+    <template v-if="state.newVariationFlow && variationBatches.length">
+      <div class="mt-10 pt-6 border-t border-[#e3e3e3] mb-4">
+        <h2 class="text-lg font-bold text-[#1a1a1a]">Or start from an existing variation</h2>
+        <p class="text-[13px] text-[#616161] mt-1">Reuse the look and instructions of a variation you already have. You pick new placement and products.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-4 mb-5">
+        <div
+          v-for="b in variationBatches" :key="b.id"
+          class="pb-card overflow-hidden cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:border-[#c3bdf5]"
+          @click="startVariationFlowFrom(b.id)"
+        >
+          <div class="aspect-[16/9]">
+            <StyledImage :src="previewImg(b)" :overlay="styleById(b.styleId).overlay" enhance />
+          </div>
+          <div class="p-3.5">
+            <div class="flex items-center gap-2">
+              <p class="font-semibold text-[#1a1a1a] flex-1 min-w-0 truncate">{{ b.name }}</p>
+              <span v-if="b.ctr" class="text-[12px] text-[#616161] shrink-0">CTR {{ b.ctr }}</span>
+              <span class="text-[11px] font-semibold rounded-full px-2 py-0.5 shrink-0 capitalize" :class="statusClass(b.status)">
+                {{ b.status }}
+              </span>
+            </div>
+            <p class="text-[12px] text-[#616161] mt-0.5">{{ styleById(b.styleId).name }} · same look and instructions, you pick new placement and products.</p>
+          </div>
+        </div>
+      </div>
+    </template>
 
     <!-- Footer actions -->
     <div class="flex items-center justify-between">
