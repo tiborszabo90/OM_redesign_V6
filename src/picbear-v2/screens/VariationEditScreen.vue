@@ -1,9 +1,10 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { state, products, styleById, placementOptions, ratioOptions, variationBatches } from '../store'
+import { ref, computed, watch } from 'vue'
+import { state, products, styleById, placementOptions, ratioOptions, variationBatches, productCategories } from '../store'
 import StyledImage from '../components/StyledImage.vue'
 import PlacementEditor from '../components/PlacementEditor.vue'
-import { ArrowLeft, ArrowRight, Check, RefreshCw, Loader2, Star, SlidersHorizontal, LayoutTemplate, Tag, Zap } from 'lucide-vue-next'
+import GenerateLimit from '../components/GenerateLimit.vue'
+import { ArrowLeft, ArrowRight, Check, RefreshCw, Loader2, Star, SlidersHorizontal, LayoutTemplate, Tag, Zap, Sparkles, Search, X } from 'lucide-vue-next'
 
 // Variation settings, opened from the Edit settings button: a menu on the left,
 // one sub-page per entry (own URL). Fine-tune is first and the default entry.
@@ -15,15 +16,52 @@ const menu = [
 ]
 
 const batch = computed(() => variationBatches.find(b => b.id === state.openVariation) || null)
-const batchProducts = computed(() => (batch.value ? products.filter(p => batch.value.productIds.includes(p.id)) : []))
+const batchProducts = computed(() => (batch.value ? products.filter(p => batch.value.generatedIds.includes(p.id)) : []))
+// Selected products that still need their first image.
+const waitingIds = computed(() => (batch.value ? batch.value.productIds.filter(id => !batch.value.generatedIds.includes(id)) : []))
 const hero = computed(() => batchProducts.value[0] || products[0])
 const currentStyle = computed(() => styleById(batch.value?.styleId) || styleById('lifestyle'))
 const chosenPlacement = computed(() => placementOptions.find(o => o.id === batch.value?.placement))
 const autoCount = computed(() => [batch.value?.autoAdd, batch.value?.autoPublish].filter(Boolean).length)
 const activeItem = computed(() => menu.find(m => m.section === state.editSection) || menu[0])
 
+// Product picker: the catalog is large, so it is searchable and paged.
+const query = ref('')
+const category = ref('all')
+const PAGE = 48
+const shown = ref(PAGE)
+const matching = computed(() => {
+  const q = query.value.trim().toLowerCase()
+  return ranked.value.filter(p => {
+    if (q && !p.name.toLowerCase().includes(q)) return false
+    if (category.value !== 'all' && p.category !== category.value) return false
+    return true
+  })
+})
+function categoryCount(c) {
+  return products.filter(p => p.category === c).length
+}
+const pagedProducts = computed(() => matching.value.slice(0, shown.value))
+const hiddenCount = computed(() => Math.max(0, matching.value.length - pagedProducts.value.length))
+watch([query, category], () => { shown.value = PAGE })
+
 const regenerating = ref(false)
+const generatingBatch = ref(0)      // how many are being generated right now
+const batchLimit = ref(0)
 const ranked = computed(() => [...products].sort((a, b) => b.sales - a.sales))
+
+// Generate the next batchLimit products that are still waiting.
+function generateMore() {
+  if (generatingBatch.value || !batchLimit.value) return
+  const queue = waitingIds.value.slice(0, batchLimit.value)
+  generatingBatch.value = queue.length
+  queue.forEach((id, i) => {
+    setTimeout(() => {
+      batch.value.generatedIds.push(id)
+      generatingBatch.value -= 1
+    }, 700 + i * 500)
+  })
+}
 
 function regenerateAll() {
   if (regenerating.value) return
@@ -101,11 +139,34 @@ function backToVariation() {
       <div v-else-if="state.editSection === 'products'" class="pb-card p-5">
         <p class="font-semibold text-[#1a1a1a]">Products in this variation</p>
         <p class="text-[12px] text-[#616161] mb-4">
-          {{ batchProducts.length }} of {{ products.length }} products get an image in the {{ currentStyle.name.toLowerCase() }} look.
+          {{ batch.productIds.length }} of {{ products.length }} products are in this variation, {{ batchProducts.length }} of them generated.
         </p>
+
+        <div class="flex items-center gap-3 mb-4 flex-wrap">
+          <div class="relative flex-1 min-w-[220px]">
+            <Search :size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-[#8a8a8a]" />
+            <input
+              v-model="query"
+              type="text"
+              placeholder="Search products"
+              class="w-full rounded-lg border border-[#d4d4d4] pl-9 pr-8 py-2 text-[13px] outline-none focus:border-[#5548e0]"
+            />
+            <button v-if="query" class="absolute right-2 top-1/2 -translate-y-1/2 text-[#8a8a8a] hover:text-[#1a1a1a] cursor-pointer" @click="query = ''">
+              <X :size="14" />
+            </button>
+          </div>
+          <select
+            v-model="category"
+            class="rounded-lg border border-[#d4d4d4] px-2.5 py-2 text-[13px] bg-white outline-none focus:border-[#5548e0]"
+          >
+            <option value="all">All categories ({{ products.length }})</option>
+            <option v-for="c in productCategories" :key="c" :value="c">{{ c }} ({{ categoryCount(c) }})</option>
+          </select>
+          <p class="text-[12px] text-[#616161]">Showing {{ pagedProducts.length }} of {{ matching.length }}</p>
+        </div>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <div
-            v-for="p in ranked" :key="p.id"
+            v-for="p in pagedProducts" :key="p.id"
             class="rounded-xl border overflow-hidden cursor-pointer relative"
             :class="batch.productIds.includes(p.id) ? 'border-[#5548e0]' : 'border-[#ececec] hover:border-[#c3bdf5]'"
             @click="toggleProduct(p.id)"
@@ -127,6 +188,10 @@ function backToVariation() {
               <p class="text-[12px] text-[#616161]">{{ p.price }} · {{ p.sales }} sold</p>
             </div>
           </div>
+        </div>
+
+        <div v-if="hiddenCount" class="flex justify-center mt-4">
+          <button class="pb-btn-secondary" @click="shown += PAGE">Show {{ Math.min(PAGE, hiddenCount) }} more ({{ hiddenCount }} left)</button>
         </div>
       </div>
 
@@ -177,7 +242,7 @@ function backToVariation() {
         <div class="pb-card px-4 py-3 mb-4 flex items-center gap-2 flex-wrap">
           <span class="pb-chip">Style: {{ currentStyle.name }}</span>
           <span class="pb-chip">Placement: {{ chosenPlacement.name }}</span>
-          <span class="pb-chip">{{ batchProducts.length }} products</span>
+          <span class="pb-chip">{{ batchProducts.length }} of {{ batch.productIds.length }} products generated</span>
           <span class="pb-chip">Automation: {{ autoCount ? `${autoCount} on` : 'off' }}</span>
         </div>
 
@@ -242,6 +307,24 @@ function backToVariation() {
               </select>
             </div>
           </div>
+        </div>
+
+        <!-- Products still waiting for their first image -->
+        <div v-if="waitingIds.length || generatingBatch" class="pb-card p-4 mb-4">
+          <template v-if="generatingBatch">
+            <p class="font-semibold text-[#1a1a1a] flex items-center gap-2">
+              <Loader2 :size="15" class="animate-spin text-[#5548e0]" /> Generating {{ generatingBatch }} more images...
+            </p>
+            <p class="text-[12px] text-[#616161] mt-1">You can leave this page, we will email you when the batch is ready.</p>
+          </template>
+          <template v-else>
+            <GenerateLimit :remaining="waitingIds.length" v-model="batchLimit" />
+            <div class="flex justify-end mt-4">
+              <button class="pb-btn-primary" @click="generateMore">
+                <Sparkles :size="13" /> Generate {{ batchLimit }} image{{ batchLimit !== 1 ? 's' : '' }}
+              </button>
+            </div>
+          </template>
         </div>
 
         <div class="pb-card px-4 py-3 flex items-center justify-between gap-4 flex-wrap">

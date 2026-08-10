@@ -7,7 +7,11 @@ import { Check, RefreshCw, ArrowRight, SlidersHorizontal } from 'lucide-vue-next
 
 const regenerating = reactive({})
 
-const selectedProducts = computed(() => products.filter(p => state.selected.includes(p.id)))
+// Only the products generated in this run land in review; the rest of the
+// selection is waiting for a later batch.
+const selectedProducts = computed(() =>
+  products.filter(p => state.selected.includes(p.id) && state.generated[p.id] === 'done')
+)
 const chosenStyle = computed(() => styleById(state.style) || styleById('lifestyle'))
 const chosenPlacement = computed(() => placementOptions.find(o => o.id === state.placement))
 const approvedCount = computed(() => selectedProducts.value.filter(p => state.approved[p.id]).length)

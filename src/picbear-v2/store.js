@@ -3,46 +3,70 @@ import { reactive } from 'vue'
 // Product-list thumbnails use the 3 clean studio product shots we have,
 // mapped by category (bag = coffee/beans, cup = drinks/glassware, mug = mugs/gear),
 // so the grid reads like a real product catalog rather than lifestyle photos.
-export const products = [
-  { id: 1, name: 'Signature Roast 250g', price: '€14.90', img: '/picbear/bag-studio.jpg', sales: 412, bestseller: true },
-  { id: 2, name: 'Espresso cup, stone white', price: '€19.00', img: '/picbear/cup-espresso.jpg', sales: 356 },
-  { id: 3, name: 'Cold brew glass', price: '€9.50', img: '/picbear/cup-espresso.jpg', sales: 301 },
-  { id: 4, name: 'Ceramic mug, cream', price: '€12.00', img: '/picbear/mug-cookies.jpg', sales: 287 },
-  { id: 5, name: 'Whole beans 1kg', price: '€24.90', img: '/picbear/bag-studio.jpg', sales: 244 },
-  { id: 6, name: 'Single origin Ethiopia', price: '€16.50', img: '/picbear/bag-studio.jpg', sales: 231 },
-  { id: 7, name: 'Latte set for two', price: '€22.00', img: '/picbear/cup-espresso.jpg', sales: 198 },
-  { id: 8, name: 'Home barista machine', price: '€349.00', img: '/picbear/mug-cookies.jpg', sales: 176 },
-  { id: 9, name: 'Walnut coffee cup', price: '€11.00', img: '/picbear/cup-espresso.jpg', sales: 154 },
-  { id: 10, name: 'Filter starter kit', price: '€29.00', img: '/picbear/mug-cookies.jpg', sales: 121 },
-  { id: 11, name: 'Barista workshop ticket', price: '€45.00', img: '/picbear/mug-cookies.jpg', sales: 87 },
-  { id: 12, name: 'Coffee tasting for two', price: '€39.00', img: '/picbear/cup-espresso.jpg', sales: 45 },
-  { id: 13, name: 'Decaf house blend 250g', price: '€14.90', img: '/picbear/bag-studio.jpg', sales: 118 },
-  { id: 14, name: 'Colombia Huila 250g', price: '€16.50', img: '/picbear/bag-studio.jpg', sales: 109 },
-  { id: 15, name: 'Guatemala Antigua 250g', price: '€16.50', img: '/picbear/bag-studio.jpg', sales: 102 },
-  { id: 16, name: 'Brazil Santos 1kg', price: '€24.90', img: '/picbear/bag-studio.jpg', sales: 96 },
-  { id: 17, name: 'Cortado glass set', price: '€18.00', img: '/picbear/cup-espresso.jpg', sales: 91 },
-  { id: 18, name: 'Milk frother, matte black', price: '€29.00', img: '/picbear/mug-cookies.jpg', sales: 88 },
-  { id: 19, name: 'Reusable travel cup', price: '€16.00', img: '/picbear/cup-espresso.jpg', sales: 84 },
-  { id: 20, name: 'Manual coffee grinder', price: '€39.00', img: '/picbear/mug-cookies.jpg', sales: 79 },
-  { id: 21, name: 'Gooseneck kettle', price: '€45.00', img: '/picbear/mug-cookies.jpg', sales: 74 },
-  { id: 22, name: 'Paper filters, 100 pack', price: '€6.50', img: '/picbear/mug-cookies.jpg', sales: 71 },
-  { id: 23, name: 'Cold brew bottle 1L', price: '€19.00', img: '/picbear/cup-espresso.jpg', sales: 66 },
-  { id: 24, name: 'Espresso tamper', price: '€22.00', img: '/picbear/mug-cookies.jpg', sales: 61 },
-  { id: 25, name: 'Knock box', price: '€26.00', img: '/picbear/mug-cookies.jpg', sales: 57 },
-  { id: 26, name: 'Tasting flight set', price: '€34.00', img: '/picbear/cup-espresso.jpg', sales: 52 },
-  { id: 27, name: "Roaster's tote bag", price: '€12.00', img: '/picbear/mug-cookies.jpg', sales: 48 },
-  { id: 28, name: 'Ceramic pour-over dripper', price: '€24.00', img: '/picbear/mug-cookies.jpg', sales: 44 },
-  { id: 29, name: 'Double-wall glasses, pair', price: '€21.00', img: '/picbear/cup-espresso.jpg', sales: 40 },
-  { id: 30, name: 'Signature Roast 1kg', price: '€39.00', img: '/picbear/bag-studio.jpg', sales: 36 },
-  { id: 31, name: 'Holiday blend 250g', price: '€15.90', img: '/picbear/bag-studio.jpg', sales: 33 },
-  { id: 32, name: 'Oat milk, barista edition', price: '€3.50', img: '/picbear/cup-espresso.jpg', sales: 29 },
-  { id: 33, name: 'Digital coffee scale', price: '€32.00', img: '/picbear/mug-cookies.jpg', sales: 25 },
-  { id: 34, name: 'Storage canister, steel', price: '€18.00', img: '/picbear/mug-cookies.jpg', sales: 21 },
-  { id: 35, name: 'Gift card', price: '€25.00', img: '/picbear/mug-cookies.jpg', sales: 18 },
-  { id: 36, name: 'Sampler box, 4 origins', price: '€29.00', img: '/picbear/bag-studio.jpg', sales: 15 },
+// The first 36 are hand-written; the catalog is then padded out to CATALOG_SIZE
+// with long-tail variants, so the demo store is the size of a real one.
+const curatedProducts = [
+  { id: 1, name: 'Signature Roast 250g', price: '€14.90', img: '/picbear/bag-studio.jpg', category: 'Coffee', sales: 412, bestseller: true },
+  { id: 2, name: 'Espresso cup, stone white', price: '€19.00', img: '/picbear/cup-espresso.jpg', category: 'Drinkware', sales: 356 },
+  { id: 3, name: 'Cold brew glass', price: '€9.50', img: '/picbear/cup-espresso.jpg', category: 'Drinkware', sales: 301 },
+  { id: 4, name: 'Ceramic mug, cream', price: '€12.00', img: '/picbear/mug-cookies.jpg', category: 'Drinkware', sales: 287 },
+  { id: 5, name: 'Whole beans 1kg', price: '€24.90', img: '/picbear/bag-studio.jpg', category: 'Coffee', sales: 244 },
+  { id: 6, name: 'Single origin Ethiopia', price: '€16.50', img: '/picbear/bag-studio.jpg', category: 'Coffee', sales: 231 },
+  { id: 7, name: 'Latte set for two', price: '€22.00', img: '/picbear/cup-espresso.jpg', category: 'Drinkware', sales: 198 },
+  { id: 8, name: 'Home barista machine', price: '€349.00', img: '/picbear/mug-cookies.jpg', category: 'Equipment', sales: 176 },
+  { id: 9, name: 'Walnut coffee cup', price: '€11.00', img: '/picbear/cup-espresso.jpg', category: 'Drinkware', sales: 154 },
+  { id: 10, name: 'Filter starter kit', price: '€29.00', img: '/picbear/mug-cookies.jpg', category: 'Equipment', sales: 121 },
+  { id: 11, name: 'Barista workshop ticket', price: '€45.00', img: '/picbear/mug-cookies.jpg', category: 'Experiences', sales: 87 },
+  { id: 12, name: 'Coffee tasting for two', price: '€39.00', img: '/picbear/cup-espresso.jpg', category: 'Experiences', sales: 45 },
+  { id: 13, name: 'Decaf house blend 250g', price: '€14.90', img: '/picbear/bag-studio.jpg', category: 'Coffee', sales: 118 },
+  { id: 14, name: 'Colombia Huila 250g', price: '€16.50', img: '/picbear/bag-studio.jpg', category: 'Coffee', sales: 109 },
+  { id: 15, name: 'Guatemala Antigua 250g', price: '€16.50', img: '/picbear/bag-studio.jpg', category: 'Coffee', sales: 102 },
+  { id: 16, name: 'Brazil Santos 1kg', price: '€24.90', img: '/picbear/bag-studio.jpg', category: 'Coffee', sales: 96 },
+  { id: 17, name: 'Cortado glass set', price: '€18.00', img: '/picbear/cup-espresso.jpg', category: 'Drinkware', sales: 91 },
+  { id: 18, name: 'Milk frother, matte black', price: '€29.00', img: '/picbear/mug-cookies.jpg', category: 'Equipment', sales: 88 },
+  { id: 19, name: 'Reusable travel cup', price: '€16.00', img: '/picbear/cup-espresso.jpg', category: 'Drinkware', sales: 84 },
+  { id: 20, name: 'Manual coffee grinder', price: '€39.00', img: '/picbear/mug-cookies.jpg', category: 'Equipment', sales: 79 },
+  { id: 21, name: 'Gooseneck kettle', price: '€45.00', img: '/picbear/mug-cookies.jpg', category: 'Equipment', sales: 74 },
+  { id: 22, name: 'Paper filters, 100 pack', price: '€6.50', img: '/picbear/mug-cookies.jpg', category: 'Accessories', sales: 71 },
+  { id: 23, name: 'Cold brew bottle 1L', price: '€19.00', img: '/picbear/cup-espresso.jpg', category: 'Drinkware', sales: 66 },
+  { id: 24, name: 'Espresso tamper', price: '€22.00', img: '/picbear/mug-cookies.jpg', category: 'Accessories', sales: 61 },
+  { id: 25, name: 'Knock box', price: '€26.00', img: '/picbear/mug-cookies.jpg', category: 'Accessories', sales: 57 },
+  { id: 26, name: 'Tasting flight set', price: '€34.00', img: '/picbear/cup-espresso.jpg', category: 'Drinkware', sales: 52 },
+  { id: 27, name: "Roaster's tote bag", price: '€12.00', img: '/picbear/mug-cookies.jpg', category: 'Merch', sales: 48 },
+  { id: 28, name: 'Ceramic pour-over dripper', price: '€24.00', img: '/picbear/mug-cookies.jpg', category: 'Equipment', sales: 44 },
+  { id: 29, name: 'Double-wall glasses, pair', price: '€21.00', img: '/picbear/cup-espresso.jpg', category: 'Drinkware', sales: 40 },
+  { id: 30, name: 'Signature Roast 1kg', price: '€39.00', img: '/picbear/bag-studio.jpg', category: 'Coffee', sales: 36 },
+  { id: 31, name: 'Holiday blend 250g', price: '€15.90', img: '/picbear/bag-studio.jpg', category: 'Coffee', sales: 33 },
+  { id: 32, name: 'Oat milk, barista edition', price: '€3.50', img: '/picbear/cup-espresso.jpg', category: 'Accessories', sales: 29 },
+  { id: 33, name: 'Digital coffee scale', price: '€32.00', img: '/picbear/mug-cookies.jpg', category: 'Equipment', sales: 25 },
+  { id: 34, name: 'Storage canister, steel', price: '€18.00', img: '/picbear/mug-cookies.jpg', category: 'Accessories', sales: 21 },
+  { id: 35, name: 'Gift card', price: '€25.00', img: '/picbear/mug-cookies.jpg', category: 'Merch', sales: 18 },
+  { id: 36, name: 'Sampler box, 4 origins', price: '€29.00', img: '/picbear/bag-studio.jpg', category: 'Coffee', sales: 15 },
 ]
 
+// Long tail: every curated product gets a few variants so the catalog reaches a
+// realistic size. Sales keep declining, so the curated ones stay the bestsellers.
+const CATALOG_SIZE = 234
+const variantSuffixes = ['2-pack', 'Gift box', 'Refill', 'Limited edition', 'Subscription', 'Sample size', 'Bulk pack', 'Seasonal edition']
+
+export const products = [...curatedProducts]
+for (let i = products.length; i < CATALOG_SIZE; i++) {
+  const base = curatedProducts[i % curatedProducts.length]
+  const suffix = variantSuffixes[Math.floor(i / curatedProducts.length) % variantSuffixes.length]
+  products.push({
+    id: i + 1,
+    name: `${base.name} · ${suffix}`,
+    price: base.price,
+    img: base.img,
+    category: base.category,
+    sales: Math.max(1, 14 - Math.floor((i - curatedProducts.length) / 16)),
+  })
+}
+
 export const bestseller = products[0]
+
+// Storefront collections, derived from the catalog (used by the product filters).
+export const productCategories = [...new Set(products.map(p => p.category))]
 
 export const styleOptions = [
   {
@@ -122,11 +146,13 @@ export const subscriptionPlans = [
 // Each opens a sub-page with a review-style list of its products.
 // autoAdd / autoPublish are per-variation automation toggles; instructions and
 // the ratios apply to every image in the batch (edited on its fine-tune sub-page).
+// productIds = products picked for the variation, generatedIds = the ones that
+// already have an image; the rest are waiting for a later generation batch.
 export const variationBatches = reactive([
-  { id: 'main', name: 'Product image change', styleId: 'lifestyle', productIds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], status: 'live', ctr: '4.8%', autoAdd: true, autoPublish: false, placement: 'below-hero', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', ratioSame: true, desktopRatio: '4:3', mobileRatio: '4:3' },
-  { id: 'badge', name: 'Image with badge', styleId: 'badge', productIds: [1, 2, 3, 4, 5, 6], status: 'live', ctr: '4.1%', autoAdd: false, autoPublish: false, placement: 'replace', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', ratioSame: true, desktopRatio: '1:1', mobileRatio: '1:1' },
-  { id: 'callouts', name: 'Value prop callouts', styleId: 'callouts', productIds: [1, 2, 3, 4], status: 'draft', ctr: null, autoAdd: false, autoPublish: false, placement: 'below-desc', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', ratioSame: true, desktopRatio: '4:3', mobileRatio: '4:3' },
-  { id: 'people', name: 'People using product', styleId: 'people', productIds: [1, 2, 3], status: 'paused', ctr: '3.6%', autoAdd: false, autoPublish: false, placement: 'below-hero', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', ratioSame: false, desktopRatio: '16:9', mobileRatio: '4:5' },
+  { id: 'main', name: 'Product image change', styleId: 'lifestyle', productIds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], generatedIds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], status: 'live', ctr: '4.8%', autoAdd: true, autoPublish: false, placement: 'below-hero', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', ratioSame: true, desktopRatio: '4:3', mobileRatio: '4:3' },
+  { id: 'badge', name: 'Image with badge', styleId: 'badge', productIds: [1, 2, 3, 4, 5, 6], generatedIds: [1, 2, 3, 4, 5, 6], status: 'live', ctr: '4.1%', autoAdd: false, autoPublish: false, placement: 'replace', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', ratioSame: true, desktopRatio: '1:1', mobileRatio: '1:1' },
+  { id: 'callouts', name: 'Value prop callouts', styleId: 'callouts', productIds: [1, 2, 3, 4], generatedIds: [1, 2, 3, 4], status: 'draft', ctr: null, autoAdd: false, autoPublish: false, placement: 'below-desc', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', ratioSame: true, desktopRatio: '4:3', mobileRatio: '4:3' },
+  { id: 'people', name: 'People using product', styleId: 'people', productIds: [1, 2, 3], generatedIds: [1, 2, 3], status: 'paused', ctr: '3.6%', autoAdd: false, autoPublish: false, placement: 'below-hero', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', ratioSame: false, desktopRatio: '16:9', mobileRatio: '4:5' },
 ])
 
 // A/B tests: each test pits a variation's AI images against the original photos
@@ -282,6 +308,7 @@ export function finishVariationFlow() {
     name: sameLook ? `${style.name} ${sameLook + 1}` : style.name,
     styleId: style.id,
     productIds: [...state.selected],
+    generatedIds: state.selected.filter(pid => state.generated[pid] === 'done'),
     status: 'live',
     ctr: null,
     autoAdd: false,

@@ -3,9 +3,11 @@ import { ref, computed } from 'vue'
 import { state, products, bestseller, styleById, placementOptions, openEditor } from '../store'
 import WizardHeader from '../components/WizardHeader.vue'
 import StyledImage from '../components/StyledImage.vue'
+import GenerateLimit from '../components/GenerateLimit.vue'
 import { Sparkles, ArrowRight, Pencil, RefreshCw, Check, Loader2, SlidersHorizontal } from 'lucide-vue-next'
 
-// preview | batch (persisted so it survives the fine-tune round trip)
+// preview (fine-tune) | scope (how many to generate) | batch (running)
+// Persisted so it survives the fine-tune round trip.
 const phase = computed({
   get: () => state.genPhase,
   set: v => { state.genPhase = v },
@@ -14,6 +16,12 @@ const doneCount = ref(0)
 const regenerating = ref(false)
 
 const selectedProducts = computed(() => products.filter(p => state.selected.includes(p.id)))
+
+// A live account picks from the whole catalog, so it also picks how many of the
+// selected products to generate now; onboarding always generates its 10.
+const capped = computed(() => !state.published)
+const batchLimit = ref(selectedProducts.value.length)
+const batch = computed(() => (capped.value ? selectedProducts.value : selectedProducts.value.slice(0, batchLimit.value)))
 const chosenStyle = computed(() => styleById(state.style) || styleById('lifestyle'))
 const chosenPlacement = computed(() => placementOptions.find(o => o.id === state.placement))
 
@@ -23,19 +31,30 @@ function regenerate() {
   setTimeout(() => { regenerating.value = false }, 1500)
 }
 
+// Onboarding generates its 10 credits straight away; a live account first picks
+// how many of the selected products to generate on the scope step.
+function nextFromPreview() {
+  if (capped.value) return generateAll()
+  phase.value = 'scope'
+}
+
 function generateAll() {
   phase.value = 'batch'
   // the fine-tuned bestseller image is already done
   state.generated = { [bestseller.id]: 'done' }
   doneCount.value = 1
-  const rest = selectedProducts.value.filter(p => p.id !== bestseller.id)
+  const rest = batch.value.filter(p => p.id !== bestseller.id)
+  if (!rest.length) {
+    state.approved[bestseller.id] = true
+    return setTimeout(() => { state.screen = 'review' }, 700)
+  }
   rest.forEach((p, i) => {
     state.generated[p.id] = 'pending'
     setTimeout(() => {
       state.generated[p.id] = 'done'
       doneCount.value = i + 2
       if (i === rest.length - 1) {
-        selectedProducts.value.forEach(sp => { state.approved[sp.id] = true })
+        batch.value.forEach(sp => { state.approved[sp.id] = true })
         setTimeout(() => { state.screen = 'review' }, 700)
       }
     }, 1400 + i * 1400)
@@ -48,9 +67,20 @@ function edit(screen) {
 </script>
 
 <template>
-  <div class="py-5">
-    <div class="max-w-[960px] mx-auto px-6">
+  <!-- Column layout so the action bar sits at the bottom on short pages too. -->
+  <div class="min-h-full flex flex-col">
+    <div class="flex-1 py-5">
+      <div class="max-w-[960px] mx-auto px-6">
       <WizardHeader
+        v-if="phase === 'scope'"
+        :step="4"
+        title="Generate images"
+        subtitle="Pick how many of the selected products to generate now. The rest stay in the variation and can be topped up later."
+        back-to=""
+        @back="phase = 'preview'"
+      />
+      <WizardHeader
+        v-else
         :step="4"
         title="Fine-tune your image"
         subtitle="Your bestseller is already rendered in the look you picked. Tweak it here, then apply the same look to every product."
@@ -69,14 +99,19 @@ function edit(screen) {
           {{ selectedProducts.length }} products <Pencil :size="10" class="text-[#8a8a8a]" />
         </span>
         <span class="flex-1"></span>
-        <span v-if="phase === 'batch' && doneCount < selectedProducts.length" class="text-[12px] font-medium text-[#616161]">
-          Generating {{ doneCount }} of {{ selectedProducts.length }}...
+        <span v-if="phase === 'batch' && doneCount < batch.length" class="text-[12px] font-medium text-[#616161]">
+          Generating {{ doneCount }} of {{ batch.length }}...
         </span>
         <span v-else-if="phase === 'batch'" class="text-[12px] font-semibold text-[#0c6b45]">All done, taking you to review</span>
       </div>
 
+      <!-- SCOPE (how many to generate) -->
+      <div v-if="phase === 'scope'" class="pb-card p-5">
+        <GenerateLimit :remaining="selectedProducts.length" v-model="batchLimit" />
+      </div>
+
       <!-- FINE-TUNE (single generated image) -->
-      <template v-if="phase !== 'batch'">
+      <template v-else-if="phase === 'preview'">
         <!-- AI instructions -->
         <div class="pb-card p-4 mb-4">
           <p class="font-semibold text-[#1a1a1a] mb-1">Additional AI instructions <span class="font-normal text-[#8a8a8a]">(optional)</span></p>
@@ -125,15 +160,15 @@ function edit(screen) {
       <!-- BATCH -->
       <template v-else>
         <div class="h-1.5 bg-[#ececec] rounded-full overflow-hidden mb-3">
-          <div class="h-full bg-[#5548e0] rounded-full transition-all duration-500" :style="{ width: (doneCount / selectedProducts.length) * 100 + '%' }"></div>
+          <div class="h-full bg-[#5548e0] rounded-full transition-all duration-500" :style="{ width: (doneCount / batch.length) * 100 + '%' }"></div>
         </div>
 
         <div class="flex items-center justify-between mb-3 px-1">
-          <p class="text-[12px] text-[#616161]">{{ doneCount }} of {{ selectedProducts.length }} generated</p>
+          <p class="text-[12px] text-[#616161]">{{ doneCount }} of {{ batch.length }} generated</p>
         </div>
 
         <div class="flex flex-col gap-3">
-          <div v-for="p in selectedProducts" :key="p.id" class="pb-card px-4 py-3 flex items-center gap-4">
+          <div v-for="p in batch" :key="p.id" class="pb-card px-4 py-3 flex items-center gap-4">
             <div class="flex items-center gap-2.5 shrink-0">
               <div class="w-16 h-16 rounded-lg overflow-hidden relative">
                 <img :src="p.img" class="w-full h-full object-cover" />
@@ -161,25 +196,39 @@ function edit(screen) {
           </div>
         </div>
 
-        <p v-if="doneCount < selectedProducts.length" class="text-[12px] text-[#8a8a8a] mt-4">
+        <p v-if="doneCount < batch.length" class="text-[12px] text-[#8a8a8a] mt-4">
           You can leave this page, we will send you an email when everything is ready.
         </p>
       </template>
     </div>
 
-    <!-- Sticky action bar (fine-tune phase only) -->
+    </div>
+
+    <!-- Sticky action bar (not while the batch runs) -->
     <div v-if="phase !== 'batch'" class="sticky bottom-[var(--dev-nav-height,0px)] mt-5 px-6 py-3 bg-[#f1f1f1]/90 backdrop-blur border-t border-[#e3e3e3]">
       <div class="max-w-[960px] mx-auto flex items-center justify-between gap-4">
-        <p class="text-[12px] text-[#616161]">This look will be applied to all {{ selectedProducts.length }} selected products.</p>
-        <div class="flex flex-wrap justify-end gap-2 shrink-0">
+        <p class="text-[12px] text-[#616161]">
+          <template v-if="phase === 'scope'">Nothing is generated until you start. You can top up the rest any time.</template>
+          <template v-else-if="capped">This look will be applied to all {{ selectedProducts.length }} selected products.</template>
+          <template v-else>This look will be applied to every image in the variation, now and later.</template>
+        </p>
+
+        <div v-if="phase === 'scope'" class="shrink-0">
+          <button class="pb-btn-primary" @click="generateAll">
+            <Sparkles :size="13" /> Start generating ({{ batch.length }} product{{ batch.length !== 1 ? 's' : '' }})
+          </button>
+        </div>
+
+        <div v-else class="flex flex-wrap justify-end gap-2 shrink-0">
           <button class="pb-btn-secondary" :disabled="regenerating" @click="regenerate">
             <RefreshCw :size="13" /> Regenerate
           </button>
           <button class="pb-btn-secondary" @click="openEditor(bestseller.id, 'generate')">
             <SlidersHorizontal :size="13" /> Fine-tune
           </button>
-          <button class="pb-btn-primary" @click="generateAll">
-            <Sparkles :size="13" /> Generate all {{ selectedProducts.length }}
+          <button class="pb-btn-primary" @click="nextFromPreview">
+            <template v-if="capped"><Sparkles :size="13" /> Generate all {{ selectedProducts.length }}</template>
+            <template v-else>Next <ArrowRight :size="13" /></template>
           </button>
         </div>
       </div>

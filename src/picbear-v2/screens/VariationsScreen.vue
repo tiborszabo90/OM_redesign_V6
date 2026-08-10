@@ -2,7 +2,7 @@
 import { ref, reactive, computed } from 'vue'
 import { state, products, styleOptions, styleById, placementOptions, variationBatches, abTests, openEditor, startVariationFlow, startVariationFlowFrom } from '../store'
 import StyledImage from '../components/StyledImage.vue'
-import { Layers, Lock, Plus, ArrowRight, ArrowLeft, RefreshCw, Shuffle, Check, Pause, ChevronRight, SlidersHorizontal, FlaskConical, Settings, CopyPlus } from 'lucide-vue-next'
+import { Layers, Lock, Plus, ArrowRight, ArrowLeft, RefreshCw, Shuffle, Check, Pause, ChevronRight, SlidersHorizontal, FlaskConical, Settings, CopyPlus, Clock, Sparkles } from 'lucide-vue-next'
 
 // Variation-level settings live on their own sub-pages (VariationEditScreen),
 // entered through the Edit settings button; fine-tune is the default entry.
@@ -19,8 +19,14 @@ const chosenPlacement = computed(() =>
     || placementOptions.find(o => o.id === state.placement),
 )
 const currentBatch = computed(() => variationBatches.find(b => b.id === state.openVariation) || null)
+// Products picked for the variation, split by whether they already have an image.
 const batchProducts = computed(() =>
-  currentBatch.value ? products.filter(p => currentBatch.value.productIds.includes(p.id)) : []
+  currentBatch.value ? products.filter(p => currentBatch.value.generatedIds.includes(p.id)) : []
+)
+const waitingProducts = computed(() =>
+  currentBatch.value
+    ? products.filter(p => currentBatch.value.productIds.includes(p.id) && !currentBatch.value.generatedIds.includes(p.id))
+    : []
 )
 const liveCount = computed(() => batchProducts.value.filter(p => !paused[p.id]).length)
 const allPaused = computed(() => batchProducts.value.length > 0 && batchProducts.value.every(p => paused[p.id]))
@@ -50,7 +56,7 @@ function goAbTest() {
 }
 
 function previewImgs(batch) {
-  return products.filter(p => batch.productIds.includes(p.id)).slice(0, 3).map(p => p.img)
+  return products.filter(p => batch.generatedIds.includes(p.id)).slice(0, 3).map(p => p.img)
 }
 
 function statusClass(status) {
@@ -164,6 +170,22 @@ function finishSetup() {
       </div>
     </div>
 
+    <!-- Products still waiting for their first image -->
+    <div v-if="waitingProducts.length" class="pb-card p-4 mb-4 flex items-center gap-3">
+      <span class="w-9 h-9 rounded-lg bg-[#f1f1f1] flex items-center justify-center shrink-0">
+        <Clock :size="17" class="text-[#616161]" />
+      </span>
+      <div class="flex-1 min-w-0">
+        <p class="font-semibold text-[#1a1a1a]">{{ waitingProducts.length }} products are waiting for an image</p>
+        <p class="text-[12px] text-[#616161]">
+          {{ batchProducts.length }} of {{ currentBatch.productIds.length }} selected products are generated so far.
+        </p>
+      </div>
+      <button class="pb-btn-primary shrink-0" @click="openEdit()">
+        <Sparkles :size="13" /> Generate more
+      </button>
+    </div>
+
     <div class="flex items-center justify-between mb-3 px-1">
       <p class="text-[12px] text-[#616161]">{{ liveCount }} of {{ batchProducts.length }} images live</p>
       <button
@@ -250,7 +272,9 @@ function finishSetup() {
         </div>
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-[#1a1a1a] truncate">{{ b.name }}</p>
-          <p class="text-[12px] text-[#616161]">{{ styleById(b.styleId).name }} · {{ b.productIds.length }} products</p>
+          <p class="text-[12px] text-[#616161]">
+            {{ styleById(b.styleId).name }} · {{ b.generatedIds.length }} of {{ b.productIds.length }} products
+          </p>
         </div>
         <span v-if="b.ctr" class="text-[12px] text-[#616161] shrink-0">CTR {{ b.ctr }}</span>
         <span

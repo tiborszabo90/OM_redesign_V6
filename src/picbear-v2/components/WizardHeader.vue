@@ -9,11 +9,13 @@ const props = defineProps({
   backTo: { type: String, default: 'home-onboarding-fallback' },
   skipLabel: { type: String, default: '' },
 })
-const emit = defineEmits(['skip'])
+const emit = defineEmits(['skip', 'back'])
 
 function back() {
   // Backing out of step 1 while adding a variation returns to the Variations list.
   if (state.newVariationFlow && props.step === 1) return exitVariationFlow()
+  // An empty back-to means the screen handles Back itself (e.g. sub-phases).
+  if (!props.backTo) return emit('back')
   state.screen = props.backTo
 }
 </script>
