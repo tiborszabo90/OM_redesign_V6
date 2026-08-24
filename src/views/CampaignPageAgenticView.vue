@@ -344,51 +344,46 @@
         </div>
 
         <!-- Agentic OptiMonk — this campaign, reimagined -->
-        <div v-if="showAgenticSection" class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 p-5">
-          <!-- Header -->
-          <div class="flex items-start justify-between gap-4 mb-5">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <h3 class="text-base font-semibold text-om-gray-700">This campaign, reimagined</h3>
-                  <Tag variant="orange">New</Tag>
-                </div>
-                <p class="text-sm text-om-gray-500 mt-0.5">
-                  Agentic OptiMonk redesigned <span class="font-medium text-om-gray-700">{{ campaignName }}</span> from your brand and offer. Pick a concept to open and refine it in Agentic OptiMonk.
-                </p>
-              </div>
-            </div>
-            <Button variant="ghost" size="sm" icon-only class="shrink-0" @click="showAgenticSection = false">
-              <template #icon><X :size="16" /></template>
-            </Button>
-          </div>
+        <div v-if="showAgenticSection" class="relative bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] mb-5 p-5">
+          <Button variant="ghost" size="sm" icon-only class="absolute top-3 right-3" @click="showAgenticSection = false">
+            <template #icon><X :size="16" /></template>
+          </Button>
 
-          <!-- AI concepts -->
-          <div class="grid grid-cols-4 gap-3">
-            <button
-              v-for="(concept, i) in agenticConcepts"
-              :key="concept.label"
-              class="group text-left cursor-pointer"
-              @click="openConceptPreview(i)"
-            >
-              <div class="relative rounded-lg overflow-hidden border border-om-gray-200 transition-all group-hover:border-om-gray-300 group-hover:shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
-                <div class="w-full h-[152px] flex items-center justify-center bg-om-gray-200 p-2.5 overflow-hidden">
-                  <img
-                    :src="concept.image"
-                    :alt="concept.label"
-                    class="max-h-full max-w-full object-contain rounded-md shadow-sm transition-transform duration-200 group-hover:scale-[1.02]"
-                  />
+          <div class="flex items-center gap-6">
+            <!-- Copy + CTA -->
+            <div class="w-[340px] shrink-0">
+              <h3 class="text-xl font-semibold text-om-gray-700">This campaign, reimagined</h3>
+              <p class="text-sm text-om-gray-500 mt-2.5 mb-6">
+                Agentic OptiMonk designed 2 fresh concepts for <span class="font-medium text-om-gray-700">{{ campaignName }}</span> from your brand and offer.
+              </p>
+              <Button variant="primary" size="sm" @click="showAgenticModal = true">Open in Agentic</Button>
+            </div>
+
+            <!-- AI concepts -->
+            <div class="grid grid-cols-2 gap-3 flex-1 min-w-0">
+              <button
+                v-for="(concept, i) in agenticConcepts"
+                :key="concept.label"
+                class="group text-left cursor-pointer"
+                @click="openConceptPreview(i)"
+              >
+                <div class="relative rounded-lg overflow-hidden border border-om-gray-200 transition-all group-hover:border-om-gray-300 group-hover:shadow-[0_4px_14px_rgba(0,0,0,0.08)]">
+                  <div class="w-full h-[300px] flex items-center justify-center bg-om-gray-200 p-3 overflow-hidden">
+                    <img
+                      :src="concept.image"
+                      :alt="concept.label"
+                      class="max-h-[85%] max-w-[85%] object-contain rounded-md shadow-sm transition-transform duration-200 group-hover:scale-[1.02]"
+                    />
+                  </div>
+                  <div class="absolute inset-0 bg-om-gray-700/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span class="inline-flex items-center gap-1 text-xs font-semibold text-white">
+                      Take a closer look
+                      <ZoomIn :size="13" />
+                    </span>
+                  </div>
                 </div>
-                <div class="absolute inset-0 bg-om-gray-700/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <span class="inline-flex items-center gap-1 text-xs font-semibold text-white">
-                    Take a closer look
-                    <ZoomIn :size="13" />
-                  </span>
-                </div>
-              </div>
-              <div class="text-sm font-medium text-om-gray-700 mt-2">{{ concept.label }}</div>
-              <div class="text-xs text-om-gray-400 mt-0.5">{{ concept.style }}</div>
-            </button>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1555,12 +1550,10 @@ const handleAgenticConfirm = () => {
   showAgenticModal.value = false
   window.open('http://localhost:5050', '_blank')
 }
-// Same four concepts the home promo shows in AgenticVariationsModal.
+// Same two concepts the home promo shows in AgenticVariationsModal.
 const agenticConcepts = [
   { label: 'Lifestyle hero', style: 'Full-bleed image', image: '/agentic-popups/lf-elevate.png' },
   { label: 'Editorial', style: 'Bold typography', image: '/agentic-popups/lf-gold-standard.png' },
-  { label: 'Aspirational', style: 'Hero with overlay', image: '/agentic-popups/lf-elevate.png' },
-  { label: 'Exit intent', style: 'Split layout', image: '/agentic-popups/lf-goals.png' },
 ]
 
 // Clicking a concept enlarges it first; "Make this one" then asks to switch apps.

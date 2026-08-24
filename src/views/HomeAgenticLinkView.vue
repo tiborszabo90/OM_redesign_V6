@@ -103,12 +103,12 @@
           <!-- Agentic OptiMonk promo card -->
           <div class="bg-white rounded-lg shadow-[0_1px_2px_1px_rgb(0_0_0/0.03)] p-4 flex flex-col">
             <div class="agentic-promo-thumb">
-              <img src="/agentic.svg" alt="Agentic OptiMonk" class="agentic-promo-illustration" />
+              <img src="/agentic-popups/lf-elevate.png" alt="Lifestyle hero popup concept" class="agentic-promo-illustration" />
             </div>
-            <h3 class="text-[15px] font-semibold text-om-gray-700 mt-3 mb-1">Agentic OptiMonk</h3>
-            <p class="text-sm text-om-gray-500 leading-relaxed flex-1">Turn any reference image into an editable, responsive popup, or let AI design fresh concepts from your brand and goal. Try the new agentic OptiMonk.</p>
+            <h3 class="text-[15px] font-semibold text-om-gray-700 mt-3 mb-1">Your best campaign, reimagined</h3>
+            <p class="text-sm text-om-gray-500 leading-relaxed flex-1">Try the new Agentic OptiMonk. We designed 2 fresh popup concepts from your brand.</p>
             <div class="flex justify-end mt-3">
-              <Button variant="secondary" size="sm" @click="showAgenticModal = true">Try it now</Button>
+              <Button variant="secondary" size="sm" @click="showVariationsModal = true">See the concepts</Button>
             </div>
           </div>
         </div>
@@ -1112,17 +1112,20 @@ onUnmounted(() => {
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: 6px;
-  background: linear-gradient(135deg, #FFF3EC 0%, #FFE4D6 100%);
+  background: var(--color-om-gray-200);
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 12px;
 }
 
 .agentic-promo-illustration {
   display: block;
-  height: 100%;
-  width: auto;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <Modal :model-value="modelValue" size="lg" hide-close @update:model-value="$emit('update:modelValue', $event)">
+  <Modal :model-value="modelValue" size="2xl" hide-close @update:model-value="$emit('update:modelValue', $event)">
     <div class="relative px-2 pt-2 pb-1">
       <Button variant="ghost" size="sm" icon-only class="absolute -top-1 -right-1 z-10" @click="$emit('update:modelValue', false)">
         <template #icon><X :size="16" /></template>
@@ -7,10 +7,10 @@
 
       <!-- Level 1: concept gallery -->
       <template v-if="!selected">
-        <div class="flex flex-col items-center text-center mb-3">
-          <h2 class="text-xl font-semibold text-om-gray-700 mb-1">Your best campaign, reimagined</h2>
-          <p class="text-sm text-om-gray-500 leading-relaxed max-w-md">
-            Try the new Agentic OptiMonk. We designed 4 fresh popup concepts from your brand.
+        <div class="flex flex-col items-center text-center mb-7">
+          <h2 class="text-2xl font-semibold text-om-gray-700 mb-2">Your best campaign, reimagined</h2>
+          <p class="text-base text-om-gray-500 leading-relaxed whitespace-nowrap">
+            Try the new Agentic OptiMonk. We designed 2 fresh popup concepts from your brand.
           </p>
         </div>
 
@@ -21,7 +21,7 @@
             class="image-card group flex flex-col w-full rounded-xl overflow-hidden border border-om-gray-200 cursor-pointer hover:border-om-gray-300 hover:shadow-[0_4px_14px_rgba(0,0,0,0.08)] transition-all duration-200 text-left"
             @click="selected = v"
           >
-            <div class="relative w-full h-[152px] flex items-center justify-center bg-om-gray-200 p-2.5 overflow-hidden">
+            <div class="relative w-full h-[320px] flex items-center justify-center bg-om-gray-200 p-3 overflow-hidden">
               <img
                 :src="v.image"
                 :alt="v.label"
@@ -31,9 +31,6 @@
                 <ZoomIn :size="14" />
               </span>
             </div>
-            <div class="w-full px-3 py-2 border-t border-om-gray-200 bg-white">
-              <span class="text-sm font-medium text-om-gray-700">{{ v.label }}</span>
-            </div>
           </button>
         </div>
       </template>
@@ -41,8 +38,8 @@
       <!-- Level 2: one concept, full size -->
       <template v-else>
         <div class="flex flex-col items-center text-center mb-3">
-          <h2 class="text-xl font-semibold text-om-gray-700 mb-1">{{ selected.label }}</h2>
-          <p class="text-sm text-om-gray-500 leading-relaxed max-w-md">
+          <h2 class="text-2xl font-semibold text-om-gray-700 mb-2">{{ selected.label }}</h2>
+          <p class="text-base text-om-gray-500 leading-relaxed max-w-md">
             Concept {{ variations.indexOf(selected) + 1 }} of {{ variations.length }}, designed from your brand.
           </p>
         </div>
@@ -85,12 +82,10 @@ const props = defineProps({
 
 defineEmits(['update:modelValue', 'confirm', 'select'])
 
-// Four AI-designed popup concepts for the brand.
+// Two AI-designed popup concepts for the brand.
 const variations = [
   { label: 'Lifestyle hero', image: '/agentic-popups/lf-elevate.png' },
   { label: 'Editorial', image: '/agentic-popups/lf-gold-standard.png' },
-  { label: 'Gamified', image: '/agentic-popups/lf-spin.png' },
-  { label: 'Exit intent', image: '/agentic-popups/lf-goals.png' },
 ]
 
 // Second level of the modal: the concept being previewed full size.
