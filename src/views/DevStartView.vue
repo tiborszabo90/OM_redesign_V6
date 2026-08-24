@@ -4,6 +4,15 @@
 
       <!-- Main buttons -->
       <div v-if="!showArchive" class="flex flex-col gap-6 items-stretch">
+        <!-- Agentic OptiMonk views -->
+        <div class="grid grid-cols-2 gap-3">
+          <Button variant="secondary" size="sm" @click="$emit('navigate', 'home-agentic-link')">Home (agentic link)</Button>
+          <Button variant="secondary" size="sm" @click="$emit('navigate', 'new-campaign-agentic')">New Campaign (agentic)</Button>
+          <Button variant="secondary" size="sm" @click="$emit('navigate', 'campaign-page-agentic')">Campaign Page (agentic)</Button>
+        </div>
+
+        <div class="border-t border-om-gray-200"></div>
+
         <div class="grid grid-cols-2 gap-3">
           <Button variant="secondary" size="sm" @click="$emit('select', 'email')">Email Registration</Button>
           <Button variant="secondary" size="sm" @click="$emit('select', 'email-hu')">Email Registration (HU)</Button>

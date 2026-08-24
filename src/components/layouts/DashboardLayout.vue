@@ -114,6 +114,9 @@
           </svg>
         </button>
 
+        <!-- Optional sidebar-bottom content (e.g. an Agentic OptiMonk entry point) -->
+        <slot name="sidebar-bottom" />
+
         <!-- Notifications -->
         <button class="w-10 h-10 rounded-full flex items-center justify-center text-om-gray-500 hover:text-om-gray-600 hover:bg-[#F3F4F6] transition-colors cursor-pointer">
           <Bell :size="24" />

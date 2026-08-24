@@ -230,6 +230,8 @@ const activeProps = computed(() => {
     'shopify-account-choice': { registrationData: registrationData.value },
     'task-creation': { registrationData: registrationData.value },
     'home-old': { registrationData: registrationData.value },
+    'home-agentic-link': { registrationData: registrationData.value, showVariationsPromo: true },
+    'home-agentic-link-promo': { registrationData: registrationData.value, showVariationsPromo: true },
     'home-conversion-lift': { registrationData: registrationData.value },
     'cl-menu-flyout': { registrationData: registrationData.value, flyoutProducts: true },
     'conversion-lift-product': { product: 'ai-texts-images' },
@@ -301,6 +303,7 @@ const activeProps = computed(() => {
     'opportunities-all-v4': { initialInsightId: selectedOpportunityId.value },
     'audience-profile': { lead: selectedLead.value },
     'campaign-page-v1': { abTestVersion: 'comparison' },
+    'campaign-page-agentic': { abTestVersion: 'comparison' },
     'campaign-detail-segment-size': { abTestVersion: 'comparison' },
     'campaign-detail-tagged': { abTestVersion: 'comparison' },
     'campaign-page-survey': { abTestVersion: 'comparison' },
@@ -705,6 +708,8 @@ const activeEvents = computed(() => {
     'onboarding-hu': { complete: handleOnboardingComplete, 'go-to-wizard': handleGoToWizard, 'task-created': handleTaskCreated },
     'task-creation': { 'task-created': handleTaskCreated },
     'home-old': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
+    'home-agentic-link': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign-agentic' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
+    'home-agentic-link-promo': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign-agentic' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
     'home-conversion-lift': { 'menu-click': handleMenuClick, 'navigate-to': handleDevNavigate, 'new-campaign': () => { currentView.value = 'new-campaign' }, 'go-chat-left': () => { currentView.value = 'home-chat-left' }, 'navigate-to-opportunity': handleNavigateToOpportunityV4, 'navigate-to-opportunities': handleNavigateToOpportunitiesV4, 'open-editor-with-chat': (messages) => { editorChatHistory.value = messages; currentView.value = 'editor' }, 'visitor-click': handleVisitorClick },
     'conversion-lift-products': { 'menu-click': handleMenuClick },
     'conversion-lift-product': { 'menu-click': handleMenuClick },
@@ -773,6 +778,7 @@ const activeEvents = computed(() => {
     'campaigns-v3-taggingv2': { 'menu-click': handleMenuClick, 'navigate-to-campaign': () => { currentView.value = 'campaign-page-v1' }, 'navigate-to-campaign-single': () => { currentView.value = 'campaign-page-single' }, 'navigate-to-campaign-new': () => { currentView.value = 'campaign-page-with-review' }, 'navigate-to-campaign-survey': () => { currentView.value = 'campaign-page-survey' }, 'navigate-to-ppo-detail': () => { currentView.value = 'ppo-campaign-detail-v3' }, 'navigate-to-ppo-detail-single': () => { currentView.value = 'ppo-campaign-detail-v3-single' }, 'new-campaign': () => { currentView.value = 'new-campaign' } },
     'campaigns-empty': { 'menu-click': handleMenuClick },
     'new-campaign': { 'menu-click': handleMenuClick, back: () => { currentView.value = previousView.value || 'campaigns-v3' }, navigate: handleDevNavigate },
+    'new-campaign-agentic': { 'menu-click': handleMenuClick, back: () => { currentView.value = 'home-agentic-link' }, navigate: handleDevNavigate },
     'ppo-loading': { 'menu-click': handleMenuClick, done: () => {
       const types = ppoWizardState.value.selectedTypes
       if (types.length === 1 && types[0] === 'image-badge') {
@@ -796,6 +802,7 @@ const activeEvents = computed(() => {
     'ppo-campaign-setup-preview-v3': { back: () => { currentView.value = 'ppo-campaign-flow-mvp' }, next: () => { currentView.value = 'ppo-campaign-detail-v2' } },
     'ppo-generation': { back: () => { currentView.value = 'ppo-campaign-setup-preview' }, create: () => { currentView.value = 'ppo-campaign-detail' } },
     'campaign-page-v1': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
+    'campaign-page-agentic': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
     'campaign-detail-segment-size': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
     'campaign-detail-tagged': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
     'campaign-page-survey': { 'menu-click': handleMenuClick, navigate: handleDevNavigate, 'navigate-to-opportunity': handleNavigateToOppsV4FirstCampaign, 'navigate-to-opportunities': handleNavigateToOppsV4FirstCampaign },
