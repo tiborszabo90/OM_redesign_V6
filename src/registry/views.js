@@ -1465,6 +1465,15 @@ const campaignViews = [
     slug: 'campaign-detail-agentic',
   },
   {
+    id: 'campaign-page-agentic-2',
+    component: () => import('../views/CampaignPageAgenticV2View.vue'),
+    label: 'Campaign Page 2 (agentic concepts)',
+    status: 'active',
+    section: 'campaignPage',
+    hideLogo: true,
+    slug: 'campaign-detail-agentic-2',
+  },
+  {
     id: 'campaign-detail-segment-size',
     component: () => import('../views/CampaignDetailSegmentSizeView.vue'),
     label: 'Campaign Page (Segment Size)',

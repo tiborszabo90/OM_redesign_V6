@@ -9,6 +9,7 @@
           <Button variant="secondary" size="sm" @click="$emit('navigate', 'home-agentic-link')">Home (agentic link)</Button>
           <Button variant="secondary" size="sm" @click="$emit('navigate', 'new-campaign-agentic')">New Campaign (agentic)</Button>
           <Button variant="secondary" size="sm" @click="$emit('navigate', 'campaign-page-agentic')">Campaign Page (agentic)</Button>
+          <Button variant="secondary" size="sm" @click="$emit('navigate', 'campaign-page-agentic-2')">Campaign Page 2 (agentic)</Button>
         </div>
 
         <div class="border-t border-om-gray-200"></div>
