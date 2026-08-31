@@ -11,11 +11,6 @@ function next() {
   state.steps.placement = true
   state.screen = 'products'
 }
-
-function skip() {
-  state.placement = 'below-hero'
-  next()
-}
 </script>
 
 <template>
@@ -27,8 +22,6 @@ function skip() {
         title="Choose where the image appears"
         subtitle="The preview on the right shows your product page as customers will see it."
         back-to="style"
-        skip-label="Use recommended"
-        @skip="skip"
       />
 
       <PlacementEditor

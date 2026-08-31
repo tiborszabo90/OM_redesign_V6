@@ -1,8 +1,8 @@
 <script setup>
-import { ref, reactive, computed } from 'vue'
-import { state, products, styleOptions, styleById, placementOptions, variationBatches, abTests, openEditor, startVariationFlow, startVariationFlowFrom } from '../store'
+import { ref, reactive, computed, watch } from 'vue'
+import { state, products, styleOptions, styleById, placementOptions, variationBatches, abTests, openEditor, startVariationFlow, startVariationFlowFrom, deleteVariation } from '../store'
 import StyledImage from '../components/StyledImage.vue'
-import { Layers, Lock, Plus, ArrowRight, ArrowLeft, RefreshCw, Shuffle, Check, Pause, ChevronRight, SlidersHorizontal, FlaskConical, Settings, CopyPlus, Clock, Sparkles } from 'lucide-vue-next'
+import { Layers, Lock, Plus, ArrowRight, ArrowLeft, RefreshCw, Shuffle, Check, Pause, ChevronRight, SlidersHorizontal, FlaskConical, Settings, CopyPlus, Clock, Sparkles, Trash2, MoreVertical, Play, Loader2 } from 'lucide-vue-next'
 
 // Variation-level settings live on their own sub-pages (VariationEditScreen),
 // entered through the Edit settings button; fine-tune is the default entry.
@@ -12,7 +12,7 @@ function openEdit(section = 'image') {
 
 const regenerating = reactive({})
 const rowStyle = reactive({})   // product id -> style id override
-const paused = reactive({})     // product id -> true when paused
+const paused = reactive({})     // `${batchId}:${productId}` -> true when paused
 
 const chosenPlacement = computed(() =>
   placementOptions.find(o => o.id === currentBatch.value?.placement)
@@ -23,17 +23,47 @@ const currentBatch = computed(() => variationBatches.find(b => b.id === state.op
 const batchProducts = computed(() =>
   currentBatch.value ? products.filter(p => currentBatch.value.generatedIds.includes(p.id)) : []
 )
-const waitingProducts = computed(() =>
+// Products picked but without an image yet: the current batch is rendering,
+// the rest sit queued until the next one.
+const ungenerated = computed(() =>
   currentBatch.value
     ? products.filter(p => currentBatch.value.productIds.includes(p.id) && !currentBatch.value.generatedIds.includes(p.id))
     : []
 )
-const liveCount = computed(() => batchProducts.value.filter(p => !paused[p.id]).length)
-const allPaused = computed(() => batchProducts.value.length > 0 && batchProducts.value.every(p => paused[p.id]))
+const renderingProducts = computed(() => ungenerated.value.filter(p => state.generated[p.id] === 'pending'))
+const waitingProducts = computed(() => ungenerated.value.filter(p => state.generated[p.id] !== 'pending'))
+// Live/paused is tracked per variation, so two variations covering the same
+// product don't share its state. A draft or paused variation opens with nothing
+// live, which is what its status on the list page says.
+function pauseKey(id) {
+  return `${state.openVariation}:${id}`
+}
+function isPaused(id) {
+  const flag = paused[pauseKey(id)]
+  // No flag yet (including images that finish rendering later): follow the
+  // variation, so nothing in a draft or paused batch shows as live.
+  return flag === undefined ? currentBatch.value?.status !== 'live' : flag
+}
+
+const liveCount = computed(() => batchProducts.value.filter(p => !isPaused(p.id)).length)
+const allPaused = computed(() => batchProducts.value.length > 0 && batchProducts.value.every(p => isPaused(p.id)))
+
+// The header toggle shows the same status as the list row, draft included.
+const statusLabel = computed(() => {
+  const s = currentBatch.value?.status
+  return s === 'draft' ? 'Draft' : s === 'paused' ? 'Paused' : 'Live'
+})
+
+// A draft has never served an image; Start puts the whole batch live at once.
+function startVariation() {
+  batchProducts.value.forEach(p => { paused[pauseKey(p.id)] = false })
+  currentBatch.value.status = 'live'
+}
 
 function toggleAll() {
   const target = !allPaused.value
-  batchProducts.value.forEach(p => { paused[p.id] = target })
+  batchProducts.value.forEach(p => { paused[pauseKey(p.id)] = target })
+  currentBatch.value.status = target ? 'paused' : 'live'
 }
 
 // Running A/B test for a variation, if any.
@@ -43,6 +73,22 @@ function runningTestFor(batchId) {
 
 const runningTestForBatch = computed(() =>
   currentBatch.value ? runningTestFor(currentBatch.value.id) : null
+)
+
+// ── actions menu ──
+// Every variation-level action lives in the kebab next to the Live toggle,
+// so the destructive one is never a stray click away.
+const menuOpen = ref(false)
+const confirmDelete = ref(false)
+watch(() => state.openVariation, () => { menuOpen.value = false; confirmDelete.value = false })
+
+function runAction(fn) {
+  menuOpen.value = false
+  fn()
+}
+
+const testsForBatch = computed(() =>
+  currentBatch.value ? abTests.filter(t => t.variationId === currentBatch.value.id) : []
 )
 
 function goAbTest() {
@@ -82,7 +128,8 @@ function regenerate(id) {
 }
 
 function toggleLive(id) {
-  paused[id] = !paused[id]
+  paused[pauseKey(id)] = !isPaused(id)
+  currentBatch.value.status = allPaused.value ? 'paused' : 'live'
 }
 
 function finishSetup() {
@@ -121,27 +168,59 @@ function finishSetup() {
     <button class="pb-btn-ghost -ml-2 mb-3" @click="state.openVariation = null">
       <ArrowLeft :size="14" /> Variations
     </button>
-    <div class="mb-3 flex flex-wrap items-start justify-between gap-3">
-      <div class="min-w-[240px]">
+    <div class="mb-3 flex items-start justify-between gap-4">
+      <div class="min-w-0">
         <h1 class="text-xl font-bold text-[#1a1a1a]">{{ currentBatch.name }}</h1>
         <p class="text-[13px] text-[#616161] mt-1">
           {{ styleById(currentBatch.styleId).name }} · shown {{ chosenPlacement.name.toLowerCase() }} ·
           {{ currentBatch.ratioSame ? currentBatch.desktopRatio : `${currentBatch.desktopRatio} desktop, ${currentBatch.mobileRatio} mobile` }}
         </p>
       </div>
-      <div class="flex flex-wrap gap-2 shrink-0">
-        <button v-if="!runningTestForBatch" class="pb-btn-secondary" @click="goAbTest">
-          <FlaskConical :size="14" /> Start A/B test
-        </button>
-        <span class="relative group">
-          <button class="pb-btn-secondary" @click="startVariationFlowFrom(currentBatch.id)">
-            <CopyPlus :size="14" /> New variation from this
+
+      <div class="flex items-center gap-2 shrink-0">
+        <template v-if="statusLabel === 'Draft'">
+          <span class="text-[12px] font-semibold text-[#616161] bg-[#f1f1f1] border border-[#e3e3e3] rounded-full px-2.5 py-1">Draft</span>
+          <button class="pb-btn-primary h-9 px-4 text-[14px]" @click="startVariation">
+            <Play :size="14" /> Start
           </button>
-          <span class="pb-tip opacity-0 group-hover:opacity-100">Same look, you pick new placement and products</span>
-        </span>
-        <button class="pb-btn-secondary" @click="openEdit()">
-          <Settings :size="14" /> Edit settings
+        </template>
+        <button
+          v-else
+          class="inline-flex items-center gap-1.5 rounded-lg h-9 px-4 text-[14px] font-semibold cursor-pointer"
+          :class="statusLabel === 'Live' ? 'bg-[#008060] text-white' : 'bg-white border border-[#d4d4d4] text-[#303030]'"
+          @click="toggleAll"
+        >
+          <Check v-if="statusLabel === 'Live'" :size="15" />
+          <Pause v-else :size="15" />
+          {{ statusLabel }}
         </button>
+
+        <!-- Every variation-level action -->
+        <div class="relative">
+          <div v-if="menuOpen" class="fixed inset-0 z-20" @click="menuOpen = false"></div>
+          <button
+            class="relative z-30 inline-flex items-center justify-center w-9 h-9 rounded-lg text-[#4a4a4a] hover:bg-black/5 cursor-pointer"
+            @click="menuOpen = !menuOpen"
+            aria-label="More actions"
+          >
+            <MoreVertical :size="16" />
+          </button>
+          <div v-if="menuOpen" class="pb-menu">
+            <button v-if="!runningTestForBatch" class="pb-menu-item" @click="runAction(goAbTest)">
+              <FlaskConical :size="14" /> Start A/B test
+            </button>
+            <button class="pb-menu-item" @click="runAction(() => startVariationFlowFrom(currentBatch.id))">
+              <CopyPlus :size="14" /> New variation from this
+            </button>
+            <button class="pb-menu-item" @click="runAction(() => openEdit())">
+              <Settings :size="14" /> Edit settings
+            </button>
+            <div class="pb-menu-sep"></div>
+            <button class="pb-menu-item" @click="runAction(() => { confirmDelete = true })">
+              <Trash2 :size="14" /> Delete variation
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -186,27 +265,19 @@ function finishSetup() {
       </button>
     </div>
 
-    <div class="flex items-center justify-between mb-3 px-1">
-      <p class="text-[12px] text-[#616161]">{{ liveCount }} of {{ batchProducts.length }} images live</p>
-      <button
-        class="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-[14px] font-semibold cursor-pointer"
-        :class="allPaused ? 'bg-white border border-[#d4d4d4] text-[#303030]' : 'bg-[#d7f2e4] text-[#0c6b45]'"
-        @click="toggleAll"
-      >
-        <template v-if="allPaused"><Pause :size="15" /> Paused</template>
-        <template v-else><Check :size="15" /> Live</template>
-      </button>
-    </div>
+    <p class="text-[12px] text-[#616161] mb-3 px-1">
+      {{ liveCount }} of {{ batchProducts.length }} images live<span v-if="renderingProducts.length"> · {{ renderingProducts.length }} still generating</span>
+    </p>
 
     <div class="flex flex-col gap-3">
       <div v-for="p in batchProducts" :key="p.id" class="pb-card px-4 py-3 flex items-center gap-4">
         <div class="flex items-center gap-2.5 shrink-0">
-          <div class="w-16 h-16 rounded-lg overflow-hidden relative">
+          <div class="w-16 h-16 rounded-lg overflow-hidden ring-1 ring-[#e3e3e3] relative">
             <img :src="p.img" class="w-full h-full object-cover" />
             <span class="absolute bottom-1 left-1 text-[9px] font-semibold bg-white/90 rounded px-1">Before</span>
           </div>
           <ArrowRight :size="14" class="text-[#8a8a8a]" />
-          <div class="w-24 h-24 rounded-lg overflow-hidden relative ring-1 ring-[#dedbf7]" :class="paused[p.id] ? 'opacity-50' : ''">
+          <div class="w-24 h-24 rounded-lg overflow-hidden relative ring-1 ring-[#dedbf7]" :class="isPaused(p.id) ? 'opacity-50' : ''">
             <div v-if="regenerating[p.id]" class="absolute inset-0 pb-skeleton"></div>
             <StyledImage v-else :src="p.img" :overlay="styleFor(p.id).overlay" ai-tag enhance />
           </div>
@@ -235,12 +306,52 @@ function finishSetup() {
         </span>
         <button
           class="shrink-0 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-semibold cursor-pointer"
-          :class="paused[p.id] ? 'bg-white border border-[#d4d4d4] text-[#303030]' : 'bg-[#d7f2e4] text-[#0c6b45]'"
+          :class="isPaused(p.id) ? 'bg-white border border-[#d4d4d4] text-[#303030]' : 'bg-[#d7f2e4] text-[#0c6b45]'"
           @click="toggleLive(p.id)"
         >
-          <template v-if="paused[p.id]"><Pause :size="13" /> Paused</template>
+          <template v-if="isPaused(p.id)"><Pause :size="13" /> Paused</template>
           <template v-else><Check :size="13" /> Live</template>
         </button>
+      </div>
+
+      <!-- Images the current batch is still rendering -->
+      <div v-for="p in renderingProducts" :key="'gen-' + p.id" class="pb-card px-4 py-3 flex items-center gap-4">
+        <div class="flex items-center gap-2.5 shrink-0">
+          <div class="w-16 h-16 rounded-lg overflow-hidden ring-1 ring-[#e3e3e3] relative">
+            <img :src="p.img" class="w-full h-full object-cover" />
+            <span class="absolute bottom-1 left-1 text-[9px] font-semibold bg-white/90 rounded px-1">Before</span>
+          </div>
+          <ArrowRight :size="14" class="text-[#8a8a8a]" />
+          <div class="w-24 h-24 rounded-lg overflow-hidden relative ring-1 ring-[#ececec]">
+            <div class="absolute inset-0 pb-skeleton flex items-center justify-center">
+              <Loader2 :size="18" class="animate-spin text-[#c9c9c9]" />
+            </div>
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold text-[#1a1a1a] truncate">{{ p.name }}</p>
+          <p class="text-[12px] text-[#616161]">{{ styleById(currentBatch.styleId).name }} · shown {{ chosenPlacement.name.toLowerCase() }}</p>
+        </div>
+        <span class="shrink-0 inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#8a8a8a]">
+          <Loader2 :size="13" class="animate-spin" /> Generating...
+        </span>
+      </div>
+    </div>
+
+    <!-- Delete confirmation -->
+    <div v-if="confirmDelete" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/40" @click="confirmDelete = false"></div>
+      <div class="pb-card relative z-10 w-full max-w-[420px] p-5">
+        <p class="text-lg font-bold text-[#1a1a1a] leading-tight mb-1.5">Delete this variation?</p>
+        <p class="text-[13px] text-[#616161] mb-4">
+          {{ currentBatch.name }} and its {{ batchProducts.length }} AI images are gone for good.<template v-if="testsForBatch.length"> Its {{ testsForBatch.length === 1 ? 'A/B test goes' : testsForBatch.length + ' A/B tests go' }} with it.</template>
+        </p>
+        <div class="flex justify-end gap-2">
+          <button class="pb-btn-secondary" @click="confirmDelete = false">Cancel</button>
+          <button class="inline-flex items-center gap-1.5 rounded-lg bg-[#c0392b] text-white text-[13px] font-semibold px-3 py-1.5 cursor-pointer hover:brightness-110" @click="deleteVariation(currentBatch.id)">
+            <Trash2 :size="13" /> Delete variation
+          </button>
+        </div>
       </div>
     </div>
 

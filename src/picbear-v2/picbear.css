@@ -67,6 +67,8 @@
   user-select: none;
 }
 .pb-btn-ghost:hover { background: rgba(0, 0, 0, 0.05); }
+.pb-btn-ghost:disabled { opacity: 0.4; cursor: default; }
+.pb-btn-ghost:disabled:hover { background: transparent; }
 
 @keyframes pb-shimmer {
   0% { background-position: -400px 0; }
@@ -114,6 +116,43 @@
   font-weight: 600;
   padding: 4px 10px;
   border-radius: 999px;
+}
+
+/* Kebab dropdown menu: anchor it on a `relative` wrapper. */
+.pb-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 208px;
+  background: #fff;
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  z-index: 30;
+}
+
+.pb-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  padding: 7px 9px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a1a;
+  text-align: left;
+  cursor: pointer;
+}
+.pb-menu-item:hover { background: #f1f1f1; }
+
+.pb-menu-sep {
+  height: 1px;
+  background: #ececec;
+  margin: 4px 0;
 }
 
 /* Icon-button tooltip: wrap the button in a `group` element. */

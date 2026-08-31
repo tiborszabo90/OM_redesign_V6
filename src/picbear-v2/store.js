@@ -211,6 +211,9 @@ export const state = reactive({
   customMode: 'below',       // 'above' | 'below' the custom selector
   selected: products.filter(p => p.sales >= 121).map(p => p.id),
   instructions: '',
+  ratioSame: true,          // image ratio picked on the generate step, applies to the whole batch
+  desktopRatio: '4:3',
+  mobileRatio: '4:3',
   previewsSeen: false,
   generated: {},             // id -> 'pending' | 'done'
   approved: {},
@@ -318,11 +321,73 @@ export function finishVariationFlow() {
     customSelector: state.customSelector,
     customMode: state.customMode,
     instructions: state.instructions,
-    ratioSame: true,
-    desktopRatio: '4:3',
-    mobileRatio: '4:3',
+    ratioSame: state.ratioSame,
+    desktopRatio: state.desktopRatio,
+    mobileRatio: state.mobileRatio,
   })
   state.newVariationFlow = false
+  state.appTab = 'variations'
+  state.openVariation = id
+  state.editSection = null
+  state.screen = 'home'
+}
+
+// Deleting a variation drops its A/B tests as well: a test that measures images
+// which no longer exist has nothing left to compare.
+export function deleteVariation(batchId) {
+  const i = variationBatches.findIndex(b => b.id === batchId)
+  if (i >= 0) variationBatches.splice(i, 1)
+  for (let j = abTests.length - 1; j >= 0; j--) {
+    if (abTests[j].variationId === batchId) abTests.splice(j, 1)
+  }
+  state.abTestRunning = abTests.some(t => t.status === 'running')
+  state.openVariation = null
+  state.editSection = null
+}
+
+// The generate step ends here: the wizard picks become a draft variation and its
+// first batch starts rendering on that variation's own page.
+export function startVariationBatch(batchSize) {
+  const style = styleById(state.style) || styleOptions[0]
+  const sameLook = variationBatches.filter(b => b.name.startsWith(style.name)).length
+  const id = 'batch-' + (variationBatches.length + 1)
+  const productIds = [...state.selected]
+
+  const batch = {
+    id,
+    name: sameLook ? `${style.name} ${sameLook + 1}` : style.name,
+    styleId: style.id,
+    productIds,
+    generatedIds: [],
+    status: 'draft',
+    ctr: null,
+    autoAdd: false,
+    autoPublish: false,
+    placement: state.placement,
+    galleryPos: state.galleryPos,
+    customSelector: state.customSelector,
+    customMode: state.customMode,
+    instructions: state.instructions,
+    ratioSame: state.ratioSame,
+    desktopRatio: state.desktopRatio,
+    mobileRatio: state.mobileRatio,
+  }
+  variationBatches.push(batch)
+  const live = variationBatches[variationBatches.length - 1]
+
+  // Only the picked amount renders now; the rest stay queued in the variation.
+  state.generated = {}
+  productIds.slice(0, batchSize).forEach((pid, i) => {
+    state.generated[pid] = 'pending'
+    setTimeout(() => {
+      state.generated[pid] = 'done'
+      live.generatedIds.push(pid)
+    }, 1200 + i * 1200)
+  })
+
+  state.newVariationFlow = false
+  state.published = true
+  state.themeEnabled = true
   state.appTab = 'variations'
   state.openVariation = id
   state.editSection = null

@@ -16,7 +16,7 @@ const atLimit = computed(() => capped.value && count.value >= limit.value)
 
 // ── catalog filters (live account) ──
 const query = ref('')
-const filter = ref('all')       // all | bestsellers | no-image | has-image
+const filter = ref('all')       // all | bestsellers | no-image | has-image, or null after Clear selection
 const category = ref('all')     // storefront collection
 
 // Products that already have an AI image in some variation.
@@ -84,13 +84,30 @@ function toggleVisible() {
   }
 }
 
+// "All products" doubles as a select-all. On the free plan it fills up to the
+// included credits, a live account takes the whole catalog.
+function pickFilter(id) {
+  filter.value = id
+  if (id !== 'all') return
+  const ids = visible.value.map(p => p.id)
+  state.selected = capped.value ? ids.slice(0, limit.value) : ids
+}
+
 function keepTop10() {
   state.selected = products.slice(0, 10).map(p => p.id)
   next()
 }
 
+// Clearing drops the filters too, back to the untouched full catalog: no chip
+// active, not even "All products".
+const filtersActive = computed(() => !!query.value.trim() || category.value !== 'all' || filter.value !== null)
+const canClear = computed(() => count.value > 0 || filtersActive.value)
+
 function clearAll() {
   state.selected = []
+  query.value = ''
+  category.value = 'all'
+  filter.value = null
 }
 
 function next() {
@@ -158,7 +175,7 @@ function next() {
             v-for="f in filters" :key="f.id"
             class="rounded-lg border px-3 py-1.5 text-[13px] cursor-pointer transition-colors"
             :class="filter === f.id ? 'border-[#5548e0] bg-[#f6f5ff] text-[#3a3468] font-semibold' : 'border-[#d4d4d4] text-[#303030] hover:border-[#a0a0a0]'"
-            @click="filter = f.id"
+            @click="pickFilter(f.id)"
           >{{ f.label }} <span class="text-[#8a8a8a] font-normal">{{ f.count }}</span></button>
         </div>
       </div>
@@ -172,7 +189,7 @@ function next() {
           <button v-if="!capped" class="pb-btn-ghost" @click="toggleVisible">
             {{ allVisibleSelected ? 'Deselect these' : `Select these ${visible.length}` }}
           </button>
-          <button class="pb-btn-ghost" @click="clearAll">Clear selection</button>
+          <button class="pb-btn-ghost" :disabled="!canClear" @click="clearAll">Clear selection</button>
         </div>
       </div>
 
