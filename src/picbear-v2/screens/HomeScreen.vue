@@ -53,7 +53,7 @@ const nextStepKey = computed(() => guideSteps.value.find(s => !s.done)?.key)
     <!-- Page header -->
     <div class="flex items-center justify-between mb-5">
       <div class="flex items-center gap-2">
-        <span class="w-7 h-7 rounded-lg bg-[#5548e0] flex items-center justify-center">
+        <span class="w-7 h-7 rounded-lg bg-[#b2592e] flex items-center justify-center">
           <PawPrint :size="15" class="text-white" />
         </span>
         <ChevronRight :size="14" class="text-[#8a8a8a]" />
@@ -112,9 +112,9 @@ const nextStepKey = computed(() => guideSteps.value.find(s => !s.done)?.key)
 
           <!-- Expanded first pending step: the hook -->
           <div v-if="s.key === 'style' && nextStepKey === 'style'" class="pb-4 pl-8">
-            <div class="rounded-xl bg-[#f6f5ff] border border-[#dedbf7] p-3.5">
-              <p class="text-[13px] text-[#3a3468] font-medium flex items-center gap-1.5 mb-2.5">
-                <Sparkles :size="13" class="text-[#5548e0]" />
+            <div class="rounded-xl bg-[#fdf4ef] border border-[#f2d9c9] p-3.5">
+              <p class="text-[13px] text-[#6b3319] font-medium flex items-center gap-1.5 mb-2.5">
+                <Sparkles :size="13" class="text-[#b2592e]" />
                 While you were reading this, we generated 4 preview versions of your bestseller, {{ bestseller.name }}.
               </p>
               <div class="flex items-center gap-3">

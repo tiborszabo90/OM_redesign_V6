@@ -40,17 +40,17 @@ watch(limit, v => emit('update:modelValue', v), { immediate: true })
       <button
         v-for="n in presets" :key="n"
         class="rounded-lg border px-3 py-1.5 text-[13px] cursor-pointer transition-colors"
-        :class="scope === n ? 'border-[#5548e0] bg-[#f6f5ff] text-[#3a3468] font-semibold' : 'border-[#d4d4d4] text-[#303030] hover:border-[#a0a0a0]'"
+        :class="scope === n ? 'border-[#b2592e] bg-[#fdf4ef] text-[#6b3319] font-semibold' : 'border-[#d4d4d4] text-[#303030] hover:border-[#a0a0a0]'"
         @click="scope = n"
       >Next {{ n }}</button>
       <button
         class="rounded-lg border px-3 py-1.5 text-[13px] cursor-pointer transition-colors"
-        :class="scope === 'all' ? 'border-[#5548e0] bg-[#f6f5ff] text-[#3a3468] font-semibold' : 'border-[#d4d4d4] text-[#303030] hover:border-[#a0a0a0]'"
+        :class="scope === 'all' ? 'border-[#b2592e] bg-[#fdf4ef] text-[#6b3319] font-semibold' : 'border-[#d4d4d4] text-[#303030] hover:border-[#a0a0a0]'"
         @click="scope = 'all'"
       >All {{ remaining }}</button>
       <button
         class="rounded-lg border px-3 py-1.5 text-[13px] cursor-pointer transition-colors"
-        :class="scope === 'custom' ? 'border-[#5548e0] bg-[#f6f5ff] text-[#3a3468] font-semibold' : 'border-[#d4d4d4] text-[#303030] hover:border-[#a0a0a0]'"
+        :class="scope === 'custom' ? 'border-[#b2592e] bg-[#fdf4ef] text-[#6b3319] font-semibold' : 'border-[#d4d4d4] text-[#303030] hover:border-[#a0a0a0]'"
         @click="scope = 'custom'"
       >Custom</button>
     </div>
@@ -59,7 +59,7 @@ watch(limit, v => emit('update:modelValue', v), { immediate: true })
       <input
         v-model.number="customAmount"
         type="number" min="1" :max="remaining"
-        class="w-28 rounded-lg border border-[#d4d4d4] px-3 py-1.5 text-[13px] outline-none focus:border-[#5548e0]"
+        class="w-28 rounded-lg border border-[#d4d4d4] px-3 py-1.5 text-[13px] outline-none focus:border-[#b2592e]"
       />
       <span class="text-[13px] text-[#616161]">products (max {{ remaining }})</span>
     </div>

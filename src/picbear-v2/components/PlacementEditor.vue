@@ -66,15 +66,15 @@ const heroType = computed(() => (isGallery.value ? 'ai' : gallerySlots.value[0])
       <template v-for="opt in placementOptions" :key="opt.id">
         <div
           class="pb-card p-3.5 cursor-pointer"
-          :class="modelValue === opt.id ? 'ring-2 ring-[#5548e0] border-transparent!' : 'hover:shadow-md'"
+          :class="modelValue === opt.id ? 'ring-2 ring-[#b2592e] border-transparent!' : 'hover:shadow-md'"
           @click="select(opt.id)"
         >
           <div class="flex items-start gap-3">
             <span
               class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5"
-              :class="modelValue === opt.id ? 'border-[#5548e0]' : 'border-[#c9c9c9]'"
+              :class="modelValue === opt.id ? 'border-[#b2592e]' : 'border-[#c9c9c9]'"
             >
-              <span v-if="modelValue === opt.id" class="w-2 h-2 rounded-full bg-[#5548e0]"></span>
+              <span v-if="modelValue === opt.id" class="w-2 h-2 rounded-full bg-[#b2592e]"></span>
             </span>
             <div class="flex-1">
               <p class="font-semibold text-[#1a1a1a] flex items-center gap-2">
@@ -92,7 +92,7 @@ const heroType = computed(() => (isGallery.value ? 'ai' : gallerySlots.value[0])
               <button
                 v-for="o in galleryPositions" :key="o.value"
                 class="rounded-lg border p-2 flex flex-col items-center gap-1.5 cursor-pointer transition-colors"
-                :class="galleryPos === o.value ? 'border-[#5548e0] ring-1 ring-[#5548e0] bg-[#f6f5ff]' : 'border-[#ececec] bg-white hover:border-[#c4bdf0]'"
+                :class="galleryPos === o.value ? 'border-[#b2592e] ring-1 ring-[#b2592e] bg-[#fdf4ef]' : 'border-[#ececec] bg-white hover:border-[#c4bdf0]'"
                 @click="galleryPosProxy = o.value"
               >
                 <div class="w-full rounded-md bg-[#f4f4f5] border border-[#e8e8ec] p-1.5">
@@ -100,7 +100,7 @@ const heroType = computed(() => (isGallery.value ? 'ai' : gallerySlots.value[0])
                     <div
                       v-for="(cell, i) in galleryIllustration[o.value]" :key="i"
                       class="flex-1 aspect-square rounded-[3px] flex items-center justify-center"
-                      :class="cell === 'ai' ? 'bg-[#5548e0]' : cell === 'dots' ? 'bg-[#eeeef2]' : 'bg-[#d8d8de]'"
+                      :class="cell === 'ai' ? 'bg-[#b2592e]' : cell === 'dots' ? 'bg-[#eeeef2]' : 'bg-[#d8d8de]'"
                     >
                       <span v-if="cell === 'dots'" class="flex gap-[2px]">
                         <span class="w-[3px] h-[3px] rounded-full bg-[#9a9aa2]"></span>
@@ -110,7 +110,7 @@ const heroType = computed(() => (isGallery.value ? 'ai' : gallerySlots.value[0])
                     </div>
                   </div>
                 </div>
-                <span class="text-[11px] font-medium text-center leading-tight" :class="galleryPos === o.value ? 'text-[#3a3468]' : 'text-[#616161]'">{{ o.label }}</span>
+                <span class="text-[11px] font-medium text-center leading-tight" :class="galleryPos === o.value ? 'text-[#6b3319]' : 'text-[#616161]'">{{ o.label }}</span>
               </button>
             </div>
             <p class="text-[12px] text-[#616161] mt-2">Your original product image is always kept.</p>
@@ -171,7 +171,7 @@ const heroType = computed(() => (isGallery.value ? 'ai' : gallerySlots.value[0])
           <div>
             <div
               class="rounded-lg overflow-hidden aspect-square mb-1.5 relative group cursor-pointer"
-              :class="isGallery ? 'ring-2 ring-[#5548e0]' : 'border border-[#f0f0f0]'"
+              :class="isGallery ? 'ring-2 ring-[#b2592e]' : 'border border-[#f0f0f0]'"
               @click="select('replace')"
             >
               <StyledImage
@@ -180,8 +180,8 @@ const heroType = computed(() => (isGallery.value ? 'ai' : gallerySlots.value[0])
               />
               <template v-else>
                 <img :src="product.img" class="w-full h-full object-cover" />
-                <div v-if="!isGallery" class="absolute inset-0 flex items-center justify-center bg-[#5548e0]/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span class="text-[10px] font-semibold text-white bg-[#5548e0] rounded-md px-2 py-1 flex items-center gap-1">
+                <div v-if="!isGallery" class="absolute inset-0 flex items-center justify-center bg-[#b2592e]/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span class="text-[10px] font-semibold text-white bg-[#b2592e] rounded-md px-2 py-1 flex items-center gap-1">
                     <ImagePlus :size="12" /> Replace with AI
                   </span>
                 </div>
@@ -191,7 +191,7 @@ const heroType = computed(() => (isGallery.value ? 'ai' : gallerySlots.value[0])
               <div
                 v-for="(slot, i) in gallerySlots" :key="i"
                 class="w-8 h-8 rounded-md overflow-hidden relative"
-                :class="slot === 'ai' ? 'ring-2 ring-[#5548e0]' : slot === 'orig' ? 'ring-1 ring-[#1a1a1a]' : 'bg-[#ececec]'"
+                :class="slot === 'ai' ? 'ring-2 ring-[#b2592e]' : slot === 'orig' ? 'ring-1 ring-[#1a1a1a]' : 'bg-[#ececec]'"
               >
                 <StyledImage v-if="slot === 'ai'" :src="styleObj.img" :overlay="styleObj.overlay" enhance compact />
                 <img v-else-if="slot === 'orig'" :src="product.img" class="w-full h-full object-cover" />
@@ -221,7 +221,7 @@ const heroType = computed(() => (isGallery.value ? 'ai' : gallerySlots.value[0])
         <!-- Below-hero slot -->
         <div
           v-if="modelValue === 'below-hero'"
-          class="rounded-lg overflow-hidden aspect-[16/7] mt-3 ring-2 ring-[#5548e0] pb-fade-in cursor-pointer"
+          class="rounded-lg overflow-hidden aspect-[16/7] mt-3 ring-2 ring-[#b2592e] pb-fade-in cursor-pointer"
           @click="select('below-hero')"
         >
           <StyledImage :src="styleObj.img" :overlay="styleObj.overlay" ai-tag enhance />
@@ -238,7 +238,7 @@ const heroType = computed(() => (isGallery.value ? 'ai' : gallerySlots.value[0])
         <!-- Below-description slot -->
         <div
           v-if="modelValue === 'below-desc'"
-          class="rounded-lg overflow-hidden aspect-[16/7] mt-2 ring-2 ring-[#5548e0] pb-fade-in cursor-pointer"
+          class="rounded-lg overflow-hidden aspect-[16/7] mt-2 ring-2 ring-[#b2592e] pb-fade-in cursor-pointer"
           @click="select('below-desc')"
         >
           <StyledImage :src="styleObj.img" :overlay="styleObj.overlay" ai-tag enhance />
@@ -246,12 +246,12 @@ const heroType = computed(() => (isGallery.value ? 'ai' : gallerySlots.value[0])
 
         <!-- Custom-selector slot -->
         <template v-if="modelValue === 'custom'">
-          <div class="rounded-lg overflow-hidden aspect-[16/7] mt-2 ring-2 ring-[#5548e0] pb-fade-in">
+          <div class="rounded-lg overflow-hidden aspect-[16/7] mt-2 ring-2 ring-[#b2592e] pb-fade-in">
             <StyledImage :src="styleObj.img" :overlay="styleObj.overlay" ai-tag enhance />
           </div>
           <p class="text-[9px] text-[#8a8a8a] mt-1 text-center">
             Inserted {{ customMode }}
-            <span class="font-mono text-[#5548e0]">{{ customSelector || '.your-selector' }}</span>
+            <span class="font-mono text-[#b2592e]">{{ customSelector || '.your-selector' }}</span>
           </p>
         </template>
       </div>

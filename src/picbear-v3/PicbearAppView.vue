@@ -1,0 +1,295 @@
+<script setup>
+import { computed, watch, onMounted, onUnmounted } from 'vue'
+import { state } from './store'
+import './picbear.css'
+import {
+  Home, Package, Tag, Users, TrendingUp, Percent, FileText, Globe,
+  Landmark, BarChart3, Store, Bot, Settings, Search, Bell, Inbox,
+  ChevronRight, PawPrint, CornerDownRight,
+} from 'lucide-vue-next'
+import WelcomeScreen from './screens/WelcomeScreen.vue'
+import HomeScreen from './screens/HomeScreen.vue'
+import HomeActiveScreen from './screens/HomeActiveScreen.vue'
+import StyleScreen from './screens/StyleScreen.vue'
+import PlacementScreen from './screens/PlacementScreen.vue'
+import ProductsScreen from './screens/ProductsScreen.vue'
+import GenerateScreen from './screens/GenerateScreen.vue'
+import BatchScreen from './screens/BatchScreen.vue'
+import ReviewScreen from './screens/ReviewScreen.vue'
+import FineTuneScreen from './screens/FineTuneScreen.vue'
+import EnableScreen from './screens/EnableScreen.vue'
+import DoneScreen from './screens/DoneScreen.vue'
+import VariationsScreen from './screens/VariationsScreen.vue'
+import VariationEditScreen from './screens/VariationEditScreen.vue'
+import ABTestsScreen from './screens/ABTestsScreen.vue'
+import ABTestsScreenV2 from './screens/ABTestsScreenV2.vue'
+import PlansScreen from './screens/PlansScreen.vue'
+import SettingsScreen from './screens/SettingsScreen.vue'
+
+// Passed by the host App.vue for product views; not used internally.
+defineProps({ product: { type: String, default: 'picbear' } })
+defineEmits(['navigate'])
+
+const mainNav = [
+  { label: 'Home', icon: Home },
+  { label: 'Orders', icon: Package },
+  { label: 'Products', icon: Tag },
+  { label: 'Customers', icon: Users },
+  { label: 'Growth', icon: TrendingUp },
+  { label: 'Discounts', icon: Percent },
+  { label: 'Content', icon: FileText },
+  { label: 'Markets', icon: Globe },
+  { label: 'Finance', icon: Landmark },
+  { label: 'Analytics', icon: BarChart3 },
+]
+const channels = [
+  { label: 'Online Store', icon: Store },
+  { label: 'Agentic', icon: Bot },
+]
+const appTabs = [
+  { id: 'home', label: 'Home' },
+  { id: 'variations', label: 'Variations' },
+  // Only the V2 A/B tests screen is in the menu; the older one stays reachable
+  // by URL for comparison.
+  { id: 'abtests-v2', label: 'A/B Tests V2' },
+]
+
+const wizardScreens = {
+  welcome: WelcomeScreen,
+  home: HomeActiveScreen,
+  'home-onboarding-fallback': HomeScreen,
+  style: StyleScreen,
+  placement: PlacementScreen,
+  products: ProductsScreen,
+  generate: GenerateScreen,
+  batch: BatchScreen,
+  review: ReviewScreen,
+  finetune: FineTuneScreen,
+  enable: EnableScreen,
+  done: DoneScreen,
+  plans: PlansScreen,
+  settings: SettingsScreen,
+}
+
+const editSections = ['image', 'placement', 'products', 'automation']
+
+const screenComponent = computed(() => {
+  if (state.appTab === 'variations') {
+    if (state.openVariation && state.editSection) return VariationEditScreen
+    return VariationsScreen
+  }
+  if (state.appTab === 'abtests') return ABTestsScreen
+  if (state.appTab === 'abtests-v2') return ABTestsScreenV2
+  return wizardScreens[state.screen] || HomeScreen
+})
+
+function goTab(id) {
+  state.appTab = id
+  if (id === 'variations') {
+    state.openVariation = null
+    state.editSection = null
+  }
+  if (id === 'abtests' || id === 'abtests-v2') state.openAbTest = null
+  // The Home menu item always lands on the dashboard of the current world:
+  // the active dashboard once published, the setup-guide fallback before that.
+  if (id === 'home') state.screen = state.published ? 'home' : 'home-onboarding-fallback'
+}
+
+function goSettings() {
+  state.appTab = 'home'
+  state.screen = 'settings'
+}
+
+// ── URL sync ──────────────────────────────────────────────────────────────
+// Two URL worlds keep onboarding/empty surfaces apart from the active account:
+//   #/picbear-v3/onboarding/<page>   (not published: wizard steps, setup-guide
+//                                     home, locked variations/abtests)
+//   #/picbear-v3/app/<page>          (published: active dashboard, live
+//                                     variations (+/<id>), abtests, plans, ...)
+// Deep-linking a world also sets the account state (app → published).
+const BASE = 'picbear-v3'
+const tabSlugs = ['variations', 'abtests', 'abtests-v2']
+
+const currentSlug = computed(() => {
+  const world = state.published ? 'app' : 'onboarding'
+  if (state.appTab === 'variations') {
+    if (state.published && state.openVariation) {
+      const base = `app/variations/${state.openVariation}`
+      return state.editSection ? `${base}/${state.editSection}` : base
+    }
+    return `${world}/variations`
+  }
+  if (state.appTab === 'abtests') {
+    if (state.published && state.openAbTest) return `app/abtests/${state.openAbTest}`
+    return `${world}/abtests`
+  }
+  if (state.appTab === 'abtests-v2') {
+    if (state.published && state.openAbTest) return `app/abtests-v2/${state.openAbTest}`
+    return `${world}/abtests-v2`
+  }
+  if (state.screen === 'home') return 'app/home'
+  if (state.screen === 'home-onboarding-fallback') return 'onboarding/home'
+  return `${world}/${state.screen}`
+})
+
+function slugFromHash() {
+  const parts = window.location.hash.replace(/^#\/?/, '').split('/')
+  return parts[0] === BASE ? parts.slice(1).join('/') : ''
+}
+
+// Old, world-less slugs still resolve (variations-live, home-onboarding-fallback,
+// bare wizard steps); the watcher then rewrites the hash to the canonical form.
+function legacySlug(slug) {
+  const [head, sub] = slug.split('/')
+  if (head === 'variations-live') return 'app/variations' + (sub ? `/${sub}` : '')
+  if (head === 'home-onboarding-fallback') return 'onboarding/home'
+  if (head === 'home') return 'app/home'
+  if (tabSlugs.includes(head) || wizardScreens[head]) return `onboarding/${head}`
+  return null
+}
+
+function applySlug(slug) {
+  let [world, page, sub, section] = slug.split('/')
+  if (world !== 'onboarding' && world !== 'app') {
+    const mapped = legacySlug(slug)
+    if (!mapped) return
+    ;[world, page, sub, section] = mapped.split('/')
+  }
+
+  state.published = world === 'app'
+  // A live account always has the theme embed on, even when deep-linked.
+  if (state.published) state.themeEnabled = true
+  if (page === 'variations' || page === 'abtests' || page === 'abtests-v2') {
+    state.appTab = page
+    if (page === 'variations') {
+      state.openVariation = sub || null
+      state.editSection = editSections.includes(section) ? section : null
+    }
+    if (page === 'abtests' || page === 'abtests-v2') state.openAbTest = sub || null
+  } else if (page === 'home') {
+    state.appTab = 'home'
+    state.screen = state.published ? 'home' : 'home-onboarding-fallback'
+  } else if (wizardScreens[page]) {
+    // Leave openVariation intact so a fine-tune round trip returns to its sub-page.
+    state.appTab = 'home'
+    state.editSection = null
+    state.screen = page
+  }
+}
+
+function syncHashFromState() {
+  const target = '#/' + BASE + '/' + currentSlug.value
+  if (window.location.hash !== target) window.location.hash = target
+}
+
+function onHash() {
+  applySlug(slugFromHash())
+}
+
+watch(currentSlug, syncHashFromState)
+
+onMounted(() => {
+  const slug = slugFromHash()
+  if (slug) applySlug(slug)   // deep-link / reload: the URL wins
+  else syncHashFromState()    // no subpath yet: reflect current step in the URL
+  window.addEventListener('hashchange', onHash)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('hashchange', onHash)
+})
+</script>
+
+<template>
+  <div
+    class="pb-app h-screen flex flex-col overflow-hidden bg-[#f1f1f1] text-[13px] text-[#303030] antialiased"
+    style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif"
+  >
+    <!-- Top bar -->
+    <header class="h-14 shrink-0 bg-[#1a1a1a] flex items-center px-4 gap-4">
+      <div class="flex items-center gap-2 w-56 shrink-0">
+        <svg viewBox="0 0 24 24" class="w-6 h-6" fill="#95BF47"><path d="M19.2 5.6c0-.1-.1-.2-.2-.2s-1.6-.1-1.6-.1-1.2-1.2-1.4-1.3c-.1-.1-.4-.1-.5 0l-.7.2c-.4-1.2-1.2-2.3-2.5-2.3h-.1c-.4-.5-.8-.7-1.2-.7C8.3 1.2 7 4.6 6.6 6.3l-2 .6c-.6.2-.6.2-.7.8L2.3 19.9 14 22l6.3-1.4S19.2 5.7 19.2 5.6zM12.2 4.5l-1 .3v-.2c0-.7-.1-1.2-.2-1.6C11.6 3.1 12 3.7 12.2 4.5zM10.4 3.1c.2.4.3 1 .3 1.8v.1l-2.1.6C9 4.1 9.8 3.3 10.4 3.1zM9.6 2.3c.1 0 .2 0 .4.1-.8.4-1.6 1.3-2 3.2l-1.6.5C6.8 4.6 7.9 2.3 9.6 2.3z"/></svg>
+        <span class="text-white font-bold text-[15px] tracking-tight">shopify</span>
+        <span class="text-[11px] text-[#b5b5b5] border border-[#4a4a4a] rounded-full px-2 py-0.5">Spring '26</span>
+      </div>
+      <div class="flex-1 max-w-2xl mx-auto">
+        <div class="flex items-center gap-2 bg-[#303030] text-[#b5b5b5] rounded-lg px-3 py-1.5">
+          <Search :size="14" />
+          <span class="flex-1 text-[13px]">Search</span>
+          <span class="text-[11px] border border-[#4a4a4a] rounded px-1">⌘</span>
+          <span class="text-[11px] border border-[#4a4a4a] rounded px-1">K</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 w-56 shrink-0 justify-end">
+        <Inbox :size="16" class="text-[#b5b5b5]" />
+        <Bell :size="16" class="text-[#b5b5b5]" />
+        <div class="flex items-center gap-2 bg-[#303030] rounded-lg pl-1 pr-2 py-1">
+          <span class="w-6 h-6 rounded-md bg-[#36c98e] text-[#0c3a26] text-[10px] font-bold flex items-center justify-center">RC</span>
+          <span class="text-white text-[12px] font-medium">roast-and-co</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="flex-1 flex min-h-0">
+      <!-- Sidebar -->
+      <aside class="w-60 shrink-0 bg-[#ebebeb] flex flex-col text-[13px]">
+        <nav class="flex-1 overflow-y-auto px-3 py-2">
+          <div
+            v-for="item in mainNav" :key="item.label"
+            class="flex items-center gap-2 px-2 py-1 rounded-lg text-[#303030] font-medium hover:bg-[#e0e0e0] cursor-pointer"
+          >
+            <component :is="item.icon" :size="15" class="text-[#5c5c5c]" />
+            {{ item.label }}
+          </div>
+
+          <div class="flex items-center justify-between px-2 pt-3 pb-0.5 text-[12px] font-semibold text-[#616161]">
+            Sales channels <ChevronRight :size="12" />
+          </div>
+          <div
+            v-for="item in channels" :key="item.label"
+            class="flex items-center gap-2 px-2 py-1 rounded-lg text-[#303030] font-medium hover:bg-[#e0e0e0] cursor-pointer"
+          >
+            <component :is="item.icon" :size="15" class="text-[#5c5c5c]" />
+            {{ item.label }}
+          </div>
+
+          <div class="flex items-center justify-between px-2 pt-3 pb-0.5 text-[12px] font-semibold text-[#616161]">
+            Apps <ChevronRight :size="12" />
+          </div>
+          <div class="flex items-center gap-2 px-2 py-1 rounded-lg font-medium text-[#303030]">
+            <span class="w-5 h-5 rounded-md bg-[#b2592e] flex items-center justify-center">
+              <PawPrint :size="12" class="text-white" />
+            </span>
+            Picbear
+          </div>
+          <div
+            v-for="tab in appTabs" :key="tab.id"
+            @click="goTab(tab.id)"
+            class="flex items-center gap-2 pl-4 pr-2 py-1 rounded-lg font-medium cursor-pointer"
+            :class="state.appTab === tab.id ? 'bg-white shadow-sm text-[#1a1a1a]' : 'text-[#4a4a4a] hover:bg-[#e0e0e0]'"
+          >
+            <CornerDownRight v-if="tab.id === 'home'" :size="12" class="text-[#8a8a8a]" />
+            <span v-else class="w-3"></span>
+            {{ tab.label }}
+          </div>
+        </nav>
+
+        <div class="px-3 pb-2">
+          <div class="flex items-center gap-2 px-2 py-[5px] rounded-lg font-medium cursor-pointer"
+            :class="state.appTab === 'home' && state.screen === 'settings' ? 'bg-white shadow-sm text-[#1a1a1a]' : 'text-[#303030] hover:bg-[#e0e0e0]'"
+            @click="goSettings"
+          >
+            <Settings :size="15" class="text-[#5c5c5c]" />
+            Settings
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- Main content -->
+      <main class="flex-1 min-w-0 overflow-y-auto bg-[#f1f1f1]">
+        <component :is="screenComponent" />
+      </main>
+    </div>
+  </div>
+</template>

@@ -1,26 +1,45 @@
 <script setup>
-import { reactive, onMounted } from 'vue'
-import { state, bestseller, styleOptions, styleById, products, variationBatches, startVariationFlowFrom } from '../store'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { state, bestseller, styleOptions, styleById, products, variationBatches, inspirationFeed, startVariationFlowFrom } from '../store'
 import WizardHeader from '../components/WizardHeader.vue'
 import StyledImage from '../components/StyledImage.vue'
-import { RefreshCw, Sparkles, Loader2 } from 'lucide-vue-next'
+import { RefreshCw, Loader2, X } from 'lucide-vue-next'
+
+// Feed image opened in the inspiration modal.
+const preview = ref(null)
+
+function onKeydown(e) {
+  if (e.key === 'Escape') preview.value = null
+}
+
+// All four previews land together, after one generation run.
+const GENERATION_MS = 10000
 
 const ready = reactive({})
+const generating = computed(() => styleOptions.some(o => !ready[o.id]))
+let revealTimer = null
 
-function reveal(stagger = true) {
-  styleOptions.forEach((opt, i) => {
-    ready[opt.id] = false
-    setTimeout(() => { ready[opt.id] = true }, stagger ? 1800 + i * 1600 : 0)
-  })
+function reveal() {
+  clearTimeout(revealTimer)
+  styleOptions.forEach(o => { ready[o.id] = false })
+  revealTimer = setTimeout(() => {
+    styleOptions.forEach(o => { ready[o.id] = true })
+  }, GENERATION_MS)
 }
 
 onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
   if (state.previewsSeen) {
     styleOptions.forEach(o => { ready[o.id] = true })
   } else {
     reveal()
     state.previewsSeen = true
   }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKeydown)
+  clearTimeout(revealTimer)
 })
 
 function regenerate() {
@@ -68,32 +87,26 @@ function statusClass(status) {
         <p class="font-semibold text-[#1a1a1a]">{{ bestseller.name }}</p>
         <p class="text-[12px] text-[#616161]">Your bestseller, 412 sold in the last 30 days.</p>
       </div>
-      <span class="text-[11px] font-semibold text-[#3a3468] bg-[#f6f5ff] border border-[#dedbf7] rounded-full px-2 py-0.5 inline-flex items-center gap-1">
-        <Sparkles :size="10" /> 4 AI previews ready
-      </span>
     </div>
 
     <!-- Style cards -->
-    <div class="grid grid-cols-2 gap-4 mb-5">
+    <div class="grid grid-cols-4 gap-4 mb-5">
       <div
         v-for="opt in styleOptions" :key="opt.id"
         class="pb-card overflow-hidden cursor-pointer transition-all duration-200 hover:scale-[1.02]"
-        :class="state.style === opt.id ? 'ring-2 ring-[#5548e0] border-transparent!' : 'hover:shadow-lg hover:border-[#c3bdf5]'"
+        :class="!ready[opt.id]
+          ? 'pb-skeleton'
+          : (state.style === opt.id ? 'ring-2 ring-[#b2592e] border-transparent!' : 'hover:shadow-lg hover:border-[#e3b394]')"
         @click="pick(opt.id)"
       >
-        <div class="aspect-[16/9] relative">
-          <div v-if="!ready[opt.id]" class="absolute inset-0 pb-skeleton flex items-center justify-center">
-            <span class="text-[11px] font-medium text-[#8a8a8a] bg-white/80 rounded-full pl-1.5 pr-2.5 py-0.5 inline-flex items-center gap-1.5">
-              <Loader2 :size="12" class="animate-spin text-[#5548e0]" /> Generating preview...
-            </span>
+        <div class="aspect-square relative">
+          <div v-if="!ready[opt.id]" class="absolute inset-0 flex flex-col items-center justify-center gap-2.5">
+            <Loader2 :size="30" class="animate-spin text-[#b2592e]" />
+            <span class="text-[11px] font-medium text-[#8a8a8a]">Generating preview...</span>
           </div>
           <div v-else class="absolute inset-0 pb-fade-in">
-            <StyledImage :src="opt.img" :overlay="opt.overlay" enhance />
+            <img :src="opt.preview" :alt="opt.name" class="w-full h-full object-cover" />
           </div>
-        </div>
-        <div class="p-3.5">
-          <p class="font-semibold text-[#1a1a1a]">{{ opt.name }}</p>
-          <p class="text-[12px] text-[#616161] mt-0.5">{{ opt.desc }}</p>
         </div>
       </div>
     </div>
@@ -107,7 +120,7 @@ function statusClass(status) {
       <div class="grid grid-cols-2 gap-4 mb-5">
         <div
           v-for="b in variationBatches" :key="b.id"
-          class="pb-card overflow-hidden cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:border-[#c3bdf5]"
+          class="pb-card overflow-hidden cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:border-[#e3b394]"
           @click="startVariationFlowFrom(b.id)"
         >
           <div class="aspect-[16/9]">
@@ -133,6 +146,60 @@ function statusClass(status) {
         <RefreshCw :size="13" /> Regenerate previews
       </button>
       <p class="text-[12px] text-[#8a8a8a]">Pick a look to continue</p>
+    </div>
+
+    <!-- Something to look at while the previews render -->
+    <div class="mt-10 pt-6 border-t border-[#e3e3e3]">
+      <h2 class="text-lg font-bold text-[#1a1a1a]">See what other stores made</h2>
+      <p class="text-[13px] text-[#616161] mt-1 mb-4">
+        {{ generating
+          ? 'Your previews take about 10 seconds. Have a look around while Picbear works.'
+          : 'Real Picbear images from other Shopify stores.' }}
+      </p>
+      <div class="grid grid-cols-4 gap-3">
+        <button
+          v-for="item in inspirationFeed" :key="item.img"
+          class="aspect-square rounded-xl overflow-hidden border border-[#e3e3e3] bg-white cursor-zoom-in"
+          @click="preview = item"
+        >
+          <img :src="item.img" :alt="item.title" loading="lazy" class="w-full h-full object-cover transition-transform duration-200 hover:scale-[1.04]" />
+        </button>
+      </div>
+    </div>
+
+    <!-- Inspiration preview -->
+    <div
+      v-if="preview"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      @click="preview = null"
+    >
+      <div class="grid w-full max-w-[57.6rem] sm:grid-cols-[1fr_336px] rounded-2xl overflow-hidden bg-white shadow-xl" @click.stop>
+        <div class="bg-white p-6">
+          <img :src="preview.img" :alt="preview.title" class="w-full rounded-xl" />
+        </div>
+        <div class="flex flex-col p-5">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <p class="text-[12px] font-medium uppercase tracking-wide text-[#8a8a8a]">Inspiration</p>
+              <h3 class="mt-1 text-lg font-semibold text-[#1a1a1a]">{{ preview.title }}</h3>
+              <p class="mt-1 text-[13px] text-[#8a8a8a]">PicBear gallery · {{ preview.style }}</p>
+            </div>
+            <button class="rounded-md p-1 text-[#8a8a8a] hover:text-[#1a1a1a] cursor-pointer" aria-label="Close" @click="preview = null">
+              <X :size="16" />
+            </button>
+          </div>
+          <p class="mt-4 flex-1 text-[13px] leading-relaxed text-[#616161]">
+            Start a new task for <strong class="text-[#1a1a1a]">roast-and-co.com</strong> using this
+            creative as a visual reference. The image will be attached; you can refine in chat next.
+          </p>
+          <button
+            class="mt-4 w-full rounded-lg px-4 py-2.5 text-[13px] font-semibold text-white bg-[#b2592e] hover:bg-[#96481f] cursor-pointer"
+            @click="preview = null"
+          >
+            Use this as Inspiration
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>

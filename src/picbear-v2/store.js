@@ -6,7 +6,7 @@ import { reactive } from 'vue'
 // The first 36 are hand-written; the catalog is then padded out to CATALOG_SIZE
 // with long-tail variants, so the demo store is the size of a real one.
 const curatedProducts = [
-  { id: 1, name: 'Signature Roast 250g', price: '€14.90', img: '/picbear/bag-studio.jpg', category: 'Coffee', sales: 412, bestseller: true },
+  { id: 1, name: 'Lumina Glow Cream 50ml', price: '€14.90', img: '/picbear/lumina-glow-cream-50ml.jpg', category: 'Coffee', sales: 412, bestseller: true },
   { id: 2, name: 'Espresso cup, stone white', price: '€19.00', img: '/picbear/cup-espresso.jpg', category: 'Drinkware', sales: 356 },
   { id: 3, name: 'Cold brew glass', price: '€9.50', img: '/picbear/cup-espresso.jpg', category: 'Drinkware', sales: 301 },
   { id: 4, name: 'Ceramic mug, cream', price: '€12.00', img: '/picbear/mug-cookies.jpg', category: 'Drinkware', sales: 287 },
@@ -74,6 +74,7 @@ export const styleOptions = [
     name: 'Lifestyle background',
     desc: 'Your product in a realistic scene with natural light and real context.',
     img: '/picbear/lattes-plants.jpg',
+    preview: '/picbear/style-lifestyle.jpg',
   },
   {
     id: 'badge',
@@ -81,6 +82,7 @@ export const styleOptions = [
     desc: 'Keeps your clean background and adds one tasteful badge that fits the product.',
     img: '/picbear/bag-studio.jpg',
     overlay: 'badge',
+    preview: '/picbear/style-badge.jpg',
   },
   {
     id: 'callouts',
@@ -88,13 +90,40 @@ export const styleOptions = [
     desc: '1 to 3 benefit callouts, extracted from your title, description and tags.',
     img: '/picbear/bag-studio.jpg',
     overlay: 'callouts',
+    preview: '/picbear/style-callouts.jpg',
   },
   {
     id: 'people',
     name: 'People using product',
     desc: 'Real people enjoying your product in an authentic everyday setting.',
     img: '/picbear/people-kitchen.jpg',
+    preview: '/picbear/style-people.jpg',
   },
+]
+
+// Images other stores already generated, shown while the previews render.
+// Titles and style labels come from the PicBear gallery these creatives are from.
+export const inspirationFeed = [
+  { img: '/picbear/feed/gen_01.jpg', title: 'Catalog sample 01', style: 'Lifestyle' },
+  { img: '/picbear/feed/badge-02-floating-pills.jpg', title: 'Floating pills', style: 'Badge' },
+  { img: '/picbear/feed/gen_02.jpg', title: 'Catalog sample 02', style: 'Badge' },
+  { img: '/picbear/feed/lifestyle-01-classic-split.jpg', title: 'Classic vertical split', style: 'Lifestyle' },
+  { img: '/picbear/feed/gen_03.jpg', title: 'Catalog sample 03', style: 'Mixed' },
+  { img: '/picbear/feed/mixed-01-kitchen-headline.jpg', title: 'Kitchen headline', style: 'Mixed' },
+  { img: '/picbear/feed/gen_04.jpg', title: 'Catalog sample 04', style: 'Callout' },
+  { img: '/picbear/feed/lifestyle-03-soft-diagonal.jpg', title: 'Soft diagonal', style: 'Lifestyle' },
+  { img: '/picbear/feed/gen_05.jpg', title: 'Catalog sample 05', style: 'Mixed' },
+  { img: '/picbear/feed/callout-05-toothbrush.jpg', title: 'Curved leaders', style: 'Callout' },
+  { img: '/picbear/feed/gen_06.jpg', title: 'Catalog sample 06', style: 'Callout' },
+  { img: '/picbear/feed/mixed-02-gaming-caps.jpg', title: 'Bold caps promo', style: 'Mixed' },
+  { img: '/picbear/feed/gen_07.jpg', title: 'Catalog sample 07', style: 'Mixed' },
+  { img: '/picbear/feed/badge-05-horizontal-rows.jpg', title: 'Horizontal rows', style: 'Badge' },
+  { img: '/picbear/feed/gen_08.jpg', title: 'Catalog sample 08', style: 'Callout' },
+  { img: '/picbear/feed/mixed-04-outdoor-pills.jpg', title: 'Bottom pill row', style: 'Mixed' },
+  { img: '/picbear/feed/gen_09.jpg', title: 'Catalog sample 09', style: 'Callout' },
+  { img: '/picbear/feed/callout-04-circular.jpg', title: 'Circular / top-down', style: 'Callout' },
+  { img: '/picbear/feed/gen_10.jpg', title: 'Catalog sample 10', style: 'Callout' },
+  { img: '/picbear/feed/gen_12.jpg', title: 'Catalog sample 11', style: 'Lifestyle' },
 ]
 
 export const placementOptions = [

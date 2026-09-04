@@ -101,7 +101,7 @@
 
 /* Form fields: override the app-wide orange focus glow with Picbear's indigo. */
 .pb-field:focus {
-  border-color: #5548e0;
+  border-color: #b2592e;
   box-shadow: 0 0 0 2px rgba(85, 72, 224, 0.15);
 }
 

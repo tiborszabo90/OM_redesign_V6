@@ -294,7 +294,7 @@ function statusMeta(t) {
   if (t.status === 'draft') return { label: 'Draft', cls: 'text-[#616161] bg-[#f1f1f1] border border-[#e3e3e3]' }
   if (t.status === 'running') return { label: `Running · day ${t.day} of ${t.days}`, cls: 'text-[#0c6b45] bg-[#d7f2e4]' }
   if (t.status === 'paused') return { label: 'Paused', cls: 'text-[#9a6a00] bg-[#fdf1e3]' }
-  return { label: t.applied ? 'Completed · applied' : 'Completed', cls: 'text-[#3a3468] bg-[#f6f5ff] border border-[#dedbf7]' }
+  return { label: t.applied ? 'Completed · applied' : 'Completed', cls: 'text-[#6b3319] bg-[#fdf4ef] border border-[#f2d9c9]' }
 }
 
 function finishSetup() {
@@ -307,8 +307,8 @@ function finishSetup() {
   <!-- Locked until first publish -->
   <div v-if="!state.published" class="max-w-[760px] mx-auto px-6 py-10">
     <div class="pb-card p-8 text-center">
-      <span class="w-12 h-12 rounded-xl bg-[#f6f5ff] border border-[#dedbf7] inline-flex items-center justify-center mb-4">
-        <FlaskConical :size="22" class="text-[#5548e0]" />
+      <span class="w-12 h-12 rounded-xl bg-[#fdf4ef] border border-[#f2d9c9] inline-flex items-center justify-center mb-4">
+        <FlaskConical :size="22" class="text-[#b2592e]" />
       </span>
       <h1 class="text-xl font-bold text-[#1a1a1a] mb-1.5">Prove that better images sell more</h1>
       <p class="text-[13px] text-[#616161] max-w-md mx-auto mb-5">
@@ -340,7 +340,7 @@ function finishSetup() {
           </template>
           <template v-else>
             <h1 class="text-xl font-bold text-[#1a1a1a] truncate">{{ currentTest.name }}</h1>
-            <button class="text-[#8a8a8a] hover:text-[#5548e0] cursor-pointer shrink-0" @click="startRename" aria-label="Rename">
+            <button class="text-[#8a8a8a] hover:text-[#b2592e] cursor-pointer shrink-0" @click="startRename" aria-label="Rename">
               <Pencil :size="15" />
             </button>
           </template>
@@ -414,7 +414,7 @@ function finishSetup() {
           </p>
         </div>
         <div class="text-right shrink-0">
-          <p class="text-3xl font-bold leading-none tabular-nums" :class="significant ? 'text-[#0c6b45]' : 'text-[#3a3468]'">{{ winProb }}%</p>
+          <p class="text-3xl font-bold leading-none tabular-nums" :class="significant ? 'text-[#0c6b45]' : 'text-[#6b3319]'">{{ winProb }}%</p>
           <p class="text-[11px] text-[#8a8a8a] mt-1">sure it wins</p>
         </div>
       </div>
@@ -427,7 +427,7 @@ function finishSetup() {
         <div class="relative h-2.5 rounded-full bg-[#ececec]">
           <div
             class="h-full rounded-full transition-all duration-700"
-            :class="significant ? 'bg-[#36c98e]' : 'bg-[#5548e0]'"
+            :class="significant ? 'bg-[#36c98e]' : 'bg-[#b2592e]'"
             :style="{ width: winProb + '%' }"
           ></div>
           <div class="absolute -top-1 -bottom-1 border-l border-dashed border-[#9a9a9a]" :style="{ left: SIGNIFICANCE + '%' }"></div>
@@ -466,7 +466,7 @@ function finishSetup() {
             </div>
           </div>
           <div class="text-left">
-            <p class="text-[13px] font-semibold text-[#3a3468] leading-tight flex items-center gap-1 group-hover:text-[#5548e0]">
+            <p class="text-[13px] font-semibold text-[#6b3319] leading-tight flex items-center gap-1 group-hover:text-[#b2592e]">
               {{ armLabels.variant }}
               <ExternalLink v-if="currentTest.variationId" :size="12" class="opacity-0 group-hover:opacity-100 transition-opacity" />
             </p>
@@ -491,7 +491,7 @@ function finishSetup() {
         <span class="flex items-center justify-start gap-2">
           <span
             class="text-[15px] tabular-nums"
-            :class="better(def) === 'variant' ? 'font-bold text-[#3a3468]' : 'font-semibold text-[#8a8a8a]'"
+            :class="better(def) === 'variant' ? 'font-bold text-[#6b3319]' : 'font-semibold text-[#8a8a8a]'"
           >{{ fmtVal('variant', def) }}</span>
           <span
             v-if="def.delta"
@@ -577,10 +577,10 @@ function finishSetup() {
         <div v-if="t.status !== 'draft'" class="shrink-0 w-24">
           <div class="flex items-baseline justify-between gap-1 mb-1.5">
             <span class="text-[10px] text-[#8a8a8a] leading-none">{{ chanceLeadsVariant(t) ? 'B' : 'A' }} to win</span>
-            <span class="text-[12px] font-bold tabular-nums leading-none" :class="t.status === 'completed' ? 'text-[#0c6b45]' : 'text-[#3a3468]'">{{ chanceToWin(t) }}%</span>
+            <span class="text-[12px] font-bold tabular-nums leading-none" :class="t.status === 'completed' ? 'text-[#0c6b45]' : 'text-[#6b3319]'">{{ chanceToWin(t) }}%</span>
           </div>
           <div class="h-1 rounded-full bg-[#ececec] overflow-hidden">
-            <div class="h-full rounded-full" :class="t.status === 'completed' ? 'bg-[#36c98e]' : 'bg-[#5548e0]'" :style="{ width: chanceToWin(t) + '%' }"></div>
+            <div class="h-full rounded-full" :class="t.status === 'completed' ? 'bg-[#36c98e]' : 'bg-[#b2592e]'" :style="{ width: chanceToWin(t) + '%' }"></div>
           </div>
         </div>
 
@@ -612,7 +612,7 @@ function finishSetup() {
 
       <!-- Control group -->
       <label class="flex items-start gap-2.5 cursor-pointer mb-4">
-        <input type="checkbox" v-model="setupControl" class="pb-field mt-0.5 w-4 h-4 accent-[#5548e0]" />
+        <input type="checkbox" v-model="setupControl" class="pb-field mt-0.5 w-4 h-4 accent-[#b2592e]" />
         <span class="text-[13px] text-[#1a1a1a] leading-snug">
           Include control group
           <span class="text-[#616161]">(show your original photos to a portion of visitors)</span>
@@ -625,9 +625,9 @@ function finishSetup() {
         <label
           v-for="b in testableVariations" :key="b.id"
           class="flex items-center gap-3 rounded-xl border p-2.5 cursor-pointer"
-          :class="setupVariations.includes(b.id) ? 'border-[#5548e0] bg-[#f6f5ff]' : 'border-[#ececec] hover:border-[#d4d4d4]'"
+          :class="setupVariations.includes(b.id) ? 'border-[#b2592e] bg-[#fdf4ef]' : 'border-[#ececec] hover:border-[#d4d4d4]'"
         >
-          <input type="checkbox" :value="b.id" v-model="setupVariations" class="pb-field w-4 h-4 accent-[#5548e0] shrink-0" />
+          <input type="checkbox" :value="b.id" v-model="setupVariations" class="pb-field w-4 h-4 accent-[#b2592e] shrink-0" />
           <div class="w-9 h-9 rounded-lg overflow-hidden shrink-0 ring-1 ring-[#ececec]">
             <StyledImage :src="previewProduct.img" :overlay="styleById(b.styleId).overlay" enhance compact />
           </div>
@@ -647,10 +647,10 @@ function finishSetup() {
         <button
           v-for="d in [7, 14, 28]" :key="d"
           class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[13px] font-medium cursor-pointer"
-          :class="setupDays === d ? 'border-[#5548e0] text-[#3a3468] bg-[#f6f5ff]' : 'border-[#d4d4d4] text-[#303030] bg-white hover:bg-[#fafafa]'"
+          :class="setupDays === d ? 'border-[#b2592e] text-[#6b3319] bg-[#fdf4ef]' : 'border-[#d4d4d4] text-[#303030] bg-white hover:bg-[#fafafa]'"
           @click="setupDays = d"
         >
-          <Check v-if="setupDays === d" :size="13" class="text-[#5548e0]" />
+          <Check v-if="setupDays === d" :size="13" class="text-[#b2592e]" />
           {{ d }} days
         </button>
       </div>

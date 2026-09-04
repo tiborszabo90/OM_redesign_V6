@@ -108,13 +108,13 @@ function backToVariation() {
         <button
           v-for="m in menu" :key="m.section"
           class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-semibold text-left whitespace-nowrap cursor-pointer"
-          :class="state.editSection === m.section ? 'bg-[#f6f5ff] text-[#1a1a1a]' : 'text-[#616161] hover:bg-[#f7f7f7]'"
+          :class="state.editSection === m.section ? 'bg-[#fdf4ef] text-[#1a1a1a]' : 'text-[#616161] hover:bg-[#f7f7f7]'"
           @click="go(m.section)"
         >
           <component
             :is="m.icon" :size="15"
             class="shrink-0"
-            :class="state.editSection === m.section ? 'text-[#5548e0]' : 'text-[#8a8a8a]'"
+            :class="state.editSection === m.section ? 'text-[#b2592e]' : 'text-[#8a8a8a]'"
           />
           {{ m.label }}
         </button>
@@ -149,7 +149,7 @@ function backToVariation() {
               v-model="query"
               type="text"
               placeholder="Search products"
-              class="w-full rounded-lg border border-[#d4d4d4] pl-9 pr-8 py-2 text-[13px] outline-none focus:border-[#5548e0]"
+              class="w-full rounded-lg border border-[#d4d4d4] pl-9 pr-8 py-2 text-[13px] outline-none focus:border-[#b2592e]"
             />
             <button v-if="query" class="absolute right-2 top-1/2 -translate-y-1/2 text-[#8a8a8a] hover:text-[#1a1a1a] cursor-pointer" @click="query = ''">
               <X :size="14" />
@@ -157,7 +157,7 @@ function backToVariation() {
           </div>
           <select
             v-model="category"
-            class="rounded-lg border border-[#d4d4d4] px-2.5 py-2 text-[13px] bg-white outline-none focus:border-[#5548e0]"
+            class="rounded-lg border border-[#d4d4d4] px-2.5 py-2 text-[13px] bg-white outline-none focus:border-[#b2592e]"
           >
             <option value="all">All categories ({{ products.length }})</option>
             <option v-for="c in productCategories" :key="c" :value="c">{{ c }} ({{ categoryCount(c) }})</option>
@@ -168,12 +168,12 @@ function backToVariation() {
           <div
             v-for="p in pagedProducts" :key="p.id"
             class="rounded-xl border overflow-hidden cursor-pointer relative"
-            :class="batch.productIds.includes(p.id) ? 'border-[#5548e0]' : 'border-[#ececec] hover:border-[#c3bdf5]'"
+            :class="batch.productIds.includes(p.id) ? 'border-[#b2592e]' : 'border-[#ececec] hover:border-[#e3b394]'"
             @click="toggleProduct(p.id)"
           >
             <span
               class="absolute top-2 left-2 z-10 w-5 h-5 rounded-md flex items-center justify-center"
-              :class="batch.productIds.includes(p.id) ? 'bg-[#5548e0]' : 'bg-white/90 border border-[#d4d4d4]'"
+              :class="batch.productIds.includes(p.id) ? 'bg-[#b2592e]' : 'bg-white/90 border border-[#d4d4d4]'"
             >
               <Check v-if="batch.productIds.includes(p.id)" :size="13" class="text-white" />
             </span>
@@ -255,7 +255,7 @@ function backToVariation() {
             rows="2"
             :disabled="regenerating"
             placeholder="e.g. Use a warm outdoor background with natural morning light"
-            class="w-full rounded-lg border border-[#d4d4d4] px-3 py-2 text-[13px] outline-none focus:border-[#5548e0] resize-none disabled:opacity-60"
+            class="w-full rounded-lg border border-[#d4d4d4] px-3 py-2 text-[13px] outline-none focus:border-[#b2592e] resize-none disabled:opacity-60"
           ></textarea>
         </div>
 
@@ -266,7 +266,7 @@ function backToVariation() {
               <p class="font-semibold text-[#1a1a1a] truncate">{{ hero.name }}</p>
               <p class="text-[12px] text-[#616161]">This variation in the {{ currentStyle.name.toLowerCase() }} look. Fine-tune it before we apply the change to the rest.</p>
             </div>
-            <span class="text-[11px] font-semibold text-[#3a3468] bg-[#f6f5ff] border border-[#dedbf7] rounded-full px-2 py-0.5 shrink-0">Preview</span>
+            <span class="text-[11px] font-semibold text-[#6b3319] bg-[#fdf4ef] border border-[#f2d9c9] rounded-full px-2 py-0.5 shrink-0">Preview</span>
           </div>
 
           <div class="flex items-center justify-center gap-5 flex-wrap">
@@ -275,7 +275,7 @@ function backToVariation() {
               <span class="absolute bottom-1.5 left-1.5 text-[11px] font-semibold bg-white/90 rounded px-1.5 py-0.5">Before</span>
             </div>
             <ArrowRight :size="22" class="text-[#8a8a8a] shrink-0" />
-            <div class="w-80 h-80 rounded-xl overflow-hidden ring-1 ring-[#dedbf7] relative shrink-0">
+            <div class="w-80 h-80 rounded-xl overflow-hidden ring-1 ring-[#f2d9c9] relative shrink-0">
               <div v-if="regenerating" class="absolute inset-0 pb-skeleton flex items-center justify-center">
                 <Loader2 :size="22" class="animate-spin text-[#c9c9c9]" />
               </div>
@@ -290,19 +290,19 @@ function backToVariation() {
         <div class="pb-card p-4 mb-4">
           <p class="font-semibold text-[#1a1a1a] mb-2">Image ratios</p>
           <label class="flex items-center gap-2 text-[13px] text-[#303030] mb-3 cursor-pointer select-none">
-            <input type="checkbox" v-model="batch.ratioSame" class="w-4 h-4 accent-[#5548e0]" />
+            <input type="checkbox" v-model="batch.ratioSame" class="w-4 h-4 accent-[#b2592e]" />
             Use same image for desktop and mobile
           </label>
           <div class="flex gap-3 max-w-[420px]">
             <div class="flex-1">
               <label class="text-[12px] font-medium text-[#616161] mb-1 block">Desktop ratio</label>
-              <select v-model="batch.desktopRatio" class="w-full rounded-lg border border-[#d4d4d4] px-2.5 py-1.5 text-[13px] bg-white outline-none focus:border-[#5548e0]">
+              <select v-model="batch.desktopRatio" class="w-full rounded-lg border border-[#d4d4d4] px-2.5 py-1.5 text-[13px] bg-white outline-none focus:border-[#b2592e]">
                 <option v-for="r in ratioOptions" :key="r" :value="r">{{ r }}</option>
               </select>
             </div>
             <div class="flex-1" :class="batch.ratioSame ? 'opacity-45 pointer-events-none' : ''">
               <label class="text-[12px] font-medium text-[#616161] mb-1 block">Mobile ratio</label>
-              <select v-model="batch.mobileRatio" :disabled="batch.ratioSame" class="w-full rounded-lg border border-[#d4d4d4] px-2.5 py-1.5 text-[13px] bg-white outline-none focus:border-[#5548e0]">
+              <select v-model="batch.mobileRatio" :disabled="batch.ratioSame" class="w-full rounded-lg border border-[#d4d4d4] px-2.5 py-1.5 text-[13px] bg-white outline-none focus:border-[#b2592e]">
                 <option v-for="r in ratioOptions" :key="r" :value="r">{{ r }}</option>
               </select>
             </div>
@@ -313,7 +313,7 @@ function backToVariation() {
         <div v-if="waitingIds.length || generatingBatch" class="pb-card p-4 mb-4">
           <template v-if="generatingBatch">
             <p class="font-semibold text-[#1a1a1a] flex items-center gap-2">
-              <Loader2 :size="15" class="animate-spin text-[#5548e0]" /> Generating {{ generatingBatch }} more images...
+              <Loader2 :size="15" class="animate-spin text-[#b2592e]" /> Generating {{ generatingBatch }} more images...
             </p>
             <p class="text-[12px] text-[#616161] mt-1">You can leave this page, we will email you when the batch is ready.</p>
           </template>

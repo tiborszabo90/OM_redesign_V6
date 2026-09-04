@@ -1,0 +1,178 @@
+/* Picbear sub-app styles.
+   All classes are pb- prefixed so nothing leaks into the main OM app
+   (this file becomes global CSS once the Picbear chunk loads). */
+
+.pb-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+/* Clickable card rows: a slightly stronger drop shadow on hover. */
+.pb-card-interactive {
+  transition: box-shadow 0.15s ease;
+}
+.pb-card-interactive:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.pb-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  border: none;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+  background: linear-gradient(#3b3b3b, #2a2a2a);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+.pb-btn-primary:hover { background: #222; }
+.pb-btn-primary:disabled { opacity: 0.45; cursor: default; }
+
+.pb-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #303030;
+  background: #fff;
+  border: 1px solid #d4d4d4;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+.pb-btn-secondary:hover { background: #fafafa; }
+
+.pb-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a4a4a;
+  cursor: pointer;
+  user-select: none;
+}
+.pb-btn-ghost:hover { background: rgba(0, 0, 0, 0.05); }
+.pb-btn-ghost:disabled { opacity: 0.4; cursor: default; }
+.pb-btn-ghost:disabled:hover { background: transparent; }
+
+@keyframes pb-shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.pb-skeleton {
+  background: linear-gradient(90deg, #ececec 25%, #f7f7f7 50%, #ececec 75%);
+  background-size: 800px 100%;
+  animation: pb-shimmer 1.3s infinite linear;
+}
+
+@keyframes pb-fade-in-kf {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+.pb-fade-in { animation: pb-fade-in-kf 0.45s ease both; }
+
+@keyframes pb-confetti-fall {
+  0% { transform: translateY(-40px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(420px) rotate(540deg); opacity: 0; }
+}
+.pb-confetti-piece {
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  animation: pb-confetti-fall 2.6s ease-in forwards;
+}
+
+/* One focus treatment for every field in the app: the main OM app's orange glow
+   is not ours, and a field should not look different from screen to screen. */
+.pb-app input:focus,
+.pb-app select:focus,
+.pb-app textarea:focus {
+  outline: none;
+  border-color: #1a1a1a;
+  box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.12);
+}
+
+/* Read-only summary chip (fine-tune page header). */
+.pb-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f1f1;
+  color: #1a1a1a;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+/* Kebab dropdown menu: anchor it on a `relative` wrapper. */
+.pb-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 208px;
+  background: #fff;
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  z-index: 30;
+}
+
+.pb-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  padding: 7px 9px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a1a;
+  text-align: left;
+  cursor: pointer;
+}
+.pb-menu-item:hover { background: #f1f1f1; }
+
+.pb-menu-sep {
+  height: 1px;
+  background: #ececec;
+  margin: 4px 0;
+}
+
+/* Icon-button tooltip: wrap the button in a `group` element. */
+.pb-tip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 7px;
+  border-radius: 6px;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+  z-index: 20;
+}

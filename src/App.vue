@@ -81,7 +81,7 @@ const wizardFlowStep = ref('url')
 const selectedOpportunityId = ref(1)
 const selectedLead = ref(null)
 const sessionKey = ref(0)
-const devNavOpen = ref(true)
+const devNavOpen = ref(false)
 const devStartShowArchive = ref(false)
 const wizardMessage = ref('')
 // When the wizard is launched from inside the app (logged in), skip the registration modal
@@ -217,6 +217,7 @@ const activeProps = computed(() => {
     'opticube': { product: 'opticube' },
     'picbear': { product: 'picbear' },
     'picbear-v2': { product: 'picbear' },
+    'picbear-v3': { product: 'picbear' },
     'subscription-cl-a': { variant: 'A' },
     'subscription-credit-buy': { variant: 'A' },
     'subscription-cl-d': { variant: 'D' },
@@ -625,6 +626,7 @@ const activeEvents = computed(() => {
     'picbear-dev-start': { navigate: handleDevNavigate },
     'picbear': { navigate: handleDevNavigate },
     'picbear-v2': { navigate: handleDevNavigate },
+    'picbear-v3': { navigate: handleDevNavigate },
     'conversionlift': { navigate: handleDevNavigate },
     'conversionlift-design-guide': { navigate: handleDevNavigate },
     'cl-flow-1': { navigate: handleDevNavigate },

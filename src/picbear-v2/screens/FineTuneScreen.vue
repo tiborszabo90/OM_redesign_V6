@@ -58,7 +58,7 @@ function done() {
           <button
             v-for="t in ['content', 'placement']" :key="t"
             class="text-[13px] font-semibold py-3 mr-5 border-b-2 -mb-px cursor-pointer capitalize"
-            :class="tab === t ? 'border-[#5548e0] text-[#1a1a1a]' : 'border-transparent text-[#8a8a8a]'"
+            :class="tab === t ? 'border-[#b2592e] text-[#1a1a1a]' : 'border-transparent text-[#8a8a8a]'"
             @click="tab = t"
           >{{ t }}</button>
         </div>
@@ -73,7 +73,7 @@ function done() {
             rows="3"
             :disabled="regenerating"
             placeholder="e.g. Warmer tones, morning light, more space around the product"
-            class="w-full rounded-lg border border-[#d4d4d4] px-3 py-2 text-[13px] outline-none focus:border-[#5548e0] resize-none disabled:opacity-60 mb-3"
+            class="w-full rounded-lg border border-[#d4d4d4] px-3 py-2 text-[13px] outline-none focus:border-[#b2592e] resize-none disabled:opacity-60 mb-3"
           ></textarea>
           <button class="pb-btn-secondary" :disabled="regenerating" @click="regenerate">
             <Loader2 v-if="regenerating" :size="13" class="animate-spin" />
@@ -85,20 +85,20 @@ function done() {
 
           <p class="font-semibold text-[#1a1a1a] mb-2">Image ratios</p>
           <label class="flex items-center gap-2 text-[13px] text-[#303030] mb-3 cursor-pointer select-none">
-            <input type="checkbox" v-model="s.ratioSame" class="w-4 h-4 accent-[#5548e0]" />
+            <input type="checkbox" v-model="s.ratioSame" class="w-4 h-4 accent-[#b2592e]" />
             Use same image for desktop and mobile
           </label>
 
           <div class="flex gap-3">
             <div class="flex-1">
               <label class="text-[12px] font-medium text-[#616161] mb-1 block">Desktop ratio</label>
-              <select v-model="s.desktopRatio" class="w-full rounded-lg border border-[#d4d4d4] px-2.5 py-1.5 text-[13px] bg-white outline-none focus:border-[#5548e0]">
+              <select v-model="s.desktopRatio" class="w-full rounded-lg border border-[#d4d4d4] px-2.5 py-1.5 text-[13px] bg-white outline-none focus:border-[#b2592e]">
                 <option v-for="r in ratioOptions" :key="r" :value="r">{{ r }}</option>
               </select>
             </div>
             <div class="flex-1" :class="s.ratioSame ? 'opacity-45 pointer-events-none' : ''">
               <label class="text-[12px] font-medium text-[#616161] mb-1 block">Mobile ratio</label>
-              <select v-model="s.mobileRatio" :disabled="s.ratioSame" class="w-full rounded-lg border border-[#d4d4d4] px-2.5 py-1.5 text-[13px] bg-white outline-none focus:border-[#5548e0]">
+              <select v-model="s.mobileRatio" :disabled="s.ratioSame" class="w-full rounded-lg border border-[#d4d4d4] px-2.5 py-1.5 text-[13px] bg-white outline-none focus:border-[#b2592e]">
                 <option v-for="r in ratioOptions" :key="r" :value="r">{{ r }}</option>
               </select>
             </div>
@@ -111,11 +111,11 @@ function done() {
           <div
             v-for="opt in placementOptions" :key="opt.id"
             class="rounded-xl border p-3 cursor-pointer flex items-start gap-2.5"
-            :class="s.placement === opt.id ? 'border-[#5548e0] ring-1 ring-[#5548e0]' : 'border-[#ececec] hover:border-[#d4d4d4]'"
+            :class="s.placement === opt.id ? 'border-[#b2592e] ring-1 ring-[#b2592e]' : 'border-[#ececec] hover:border-[#d4d4d4]'"
             @click="s.placement = opt.id"
           >
-            <span class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5" :class="s.placement === opt.id ? 'border-[#5548e0]' : 'border-[#c9c9c9]'">
-              <span v-if="s.placement === opt.id" class="w-2 h-2 rounded-full bg-[#5548e0]"></span>
+            <span class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5" :class="s.placement === opt.id ? 'border-[#b2592e]' : 'border-[#c9c9c9]'">
+              <span v-if="s.placement === opt.id" class="w-2 h-2 rounded-full bg-[#b2592e]"></span>
             </span>
             <div>
               <p class="text-[13px] font-medium text-[#1a1a1a]">{{ opt.name }}</p>
@@ -150,7 +150,7 @@ function done() {
             :style="{ width: device === 'mobile' ? '260px' : '100%' }"
           >
             <!-- hero -->
-            <div class="rounded-lg overflow-hidden mb-2 relative" :class="s.placement === 'replace' ? 'ring-2 ring-[#5548e0]' : ''" style="aspect-ratio: 16 / 9">
+            <div class="rounded-lg overflow-hidden mb-2 relative" :class="s.placement === 'replace' ? 'ring-2 ring-[#b2592e]' : ''" style="aspect-ratio: 16 / 9">
               <div v-if="regenerating" class="absolute inset-0 pb-skeleton"></div>
               <template v-else>
                 <StyledImage v-if="s.placement === 'replace'" :src="product.img" :overlay="chosenStyle.overlay" ai-tag enhance />
@@ -164,7 +164,7 @@ function done() {
             </div>
 
             <!-- AI image below hero -->
-            <div v-if="s.placement === 'below-hero'" class="rounded-lg overflow-hidden mb-2 ring-2 ring-[#5548e0] relative" :style="{ aspectRatio: ratioCss(activeRatio) }">
+            <div v-if="s.placement === 'below-hero'" class="rounded-lg overflow-hidden mb-2 ring-2 ring-[#b2592e] relative" :style="{ aspectRatio: ratioCss(activeRatio) }">
               <div v-if="regenerating" class="absolute inset-0 pb-skeleton"></div>
               <StyledImage v-else :src="product.img" :overlay="chosenStyle.overlay" ai-tag enhance />
             </div>
@@ -177,7 +177,7 @@ function done() {
             <div class="h-2 w-3/4 bg-[#ececec] rounded"></div>
 
             <!-- AI image below description -->
-            <div v-if="s.placement === 'below-desc'" class="rounded-lg overflow-hidden mt-2 ring-2 ring-[#5548e0] relative" :style="{ aspectRatio: ratioCss(activeRatio) }">
+            <div v-if="s.placement === 'below-desc'" class="rounded-lg overflow-hidden mt-2 ring-2 ring-[#b2592e] relative" :style="{ aspectRatio: ratioCss(activeRatio) }">
               <div v-if="regenerating" class="absolute inset-0 pb-skeleton"></div>
               <StyledImage v-else :src="product.img" :overlay="chosenStyle.overlay" ai-tag enhance />
             </div>

@@ -259,7 +259,7 @@ onUnmounted(() => {
             Apps <ChevronRight :size="12" />
           </div>
           <div class="flex items-center gap-2 px-2 py-1 rounded-lg font-medium text-[#303030]">
-            <span class="w-5 h-5 rounded-md bg-[#5548e0] flex items-center justify-center">
+            <span class="w-5 h-5 rounded-md bg-[#b2592e] flex items-center justify-center">
               <PawPrint :size="12" class="text-white" />
             </span>
             Picbear

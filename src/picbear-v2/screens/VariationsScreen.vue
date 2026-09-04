@@ -142,8 +142,8 @@ function finishSetup() {
   <!-- Locked empty state until setup is finished -->
   <div v-if="!state.published" class="max-w-[760px] mx-auto px-6 py-10">
     <div class="pb-card p-8 text-center">
-      <span class="w-12 h-12 rounded-xl bg-[#f6f5ff] border border-[#dedbf7] inline-flex items-center justify-center mb-4">
-        <Layers :size="22" class="text-[#5548e0]" />
+      <span class="w-12 h-12 rounded-xl bg-[#fdf4ef] border border-[#f2d9c9] inline-flex items-center justify-center mb-4">
+        <Layers :size="22" class="text-[#b2592e]" />
       </span>
       <h1 class="text-xl font-bold text-[#1a1a1a] mb-1.5">Try different looks per product</h1>
       <p class="text-[13px] text-[#616161] max-w-md mx-auto mb-5">
@@ -225,9 +225,9 @@ function finishSetup() {
     </div>
 
     <!-- Running A/B test banner -->
-    <div v-if="runningTestForBatch" class="pb-card p-4 mb-4 bg-[#f6f5ff]!">
+    <div v-if="runningTestForBatch" class="pb-card p-4 mb-4 bg-[#fdf4ef]!">
       <div class="flex items-center gap-3">
-        <span class="w-9 h-9 rounded-lg bg-[#5548e0] flex items-center justify-center shrink-0">
+        <span class="w-9 h-9 rounded-lg bg-[#b2592e] flex items-center justify-center shrink-0">
           <FlaskConical :size="17" class="text-white" />
         </span>
         <div class="flex-1 min-w-0">
@@ -244,8 +244,8 @@ function finishSetup() {
           View test <ArrowRight :size="13" />
         </button>
       </div>
-      <div class="h-1 bg-[#dedbf7] rounded-full overflow-hidden mt-3">
-        <div class="h-full bg-[#5548e0] rounded-full" :style="{ width: (runningTestForBatch.day / runningTestForBatch.days) * 100 + '%' }"></div>
+      <div class="h-1 bg-[#f2d9c9] rounded-full overflow-hidden mt-3">
+        <div class="h-full bg-[#b2592e] rounded-full" :style="{ width: (runningTestForBatch.day / runningTestForBatch.days) * 100 + '%' }"></div>
       </div>
     </div>
 
@@ -277,7 +277,7 @@ function finishSetup() {
             <span class="absolute bottom-1 left-1 text-[9px] font-semibold bg-white/90 rounded px-1">Before</span>
           </div>
           <ArrowRight :size="14" class="text-[#8a8a8a]" />
-          <div class="w-24 h-24 rounded-lg overflow-hidden relative ring-1 ring-[#dedbf7]" :class="isPaused(p.id) ? 'opacity-50' : ''">
+          <div class="w-24 h-24 rounded-lg overflow-hidden relative ring-1 ring-[#f2d9c9]" :class="isPaused(p.id) ? 'opacity-50' : ''">
             <div v-if="regenerating[p.id]" class="absolute inset-0 pb-skeleton"></div>
             <StyledImage v-else :src="p.img" :overlay="styleFor(p.id).overlay" ai-tag enhance />
           </div>
@@ -390,9 +390,9 @@ function finishSetup() {
         <span v-if="b.ctr" class="text-[12px] text-[#616161] shrink-0">CTR {{ b.ctr }}</span>
         <span
           v-if="runningTestFor(b.id)"
-          class="text-[11px] font-semibold text-[#3a3468] bg-[#f6f5ff] border border-[#dedbf7] rounded-full px-2 py-0.5 shrink-0 inline-flex items-center gap-1"
+          class="text-[11px] font-semibold text-[#6b3319] bg-[#fdf4ef] border border-[#f2d9c9] rounded-full px-2 py-0.5 shrink-0 inline-flex items-center gap-1"
         >
-          <FlaskConical :size="11" class="text-[#5548e0]" /> A/B test · day {{ runningTestFor(b.id).day }}
+          <FlaskConical :size="11" class="text-[#b2592e]" /> A/B test · day {{ runningTestFor(b.id).day }}
         </span>
         <span class="text-[11px] font-semibold rounded-full px-2 py-0.5 shrink-0 capitalize" :class="statusClass(b.status)">
           {{ b.status }}

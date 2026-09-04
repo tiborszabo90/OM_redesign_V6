@@ -304,7 +304,8 @@ const currentProductPageLabel = computed(() => {
 const emit = defineEmits(['navigate', 'go-to-step', 'go-to-image-step', 'go-to-task-phase', 'select-flow', 'update:isOpen'])
 
 // --- State ---
-const isOpen = ref(true)
+// The bar starts collapsed: it is a dev tool, not part of the design.
+const isOpen = ref(false)
 const sectionDropdownOpen = ref(false)
 const archiveDropdownOpen = ref(false)
 

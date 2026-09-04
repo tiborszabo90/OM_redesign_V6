@@ -135,8 +135,8 @@ function next() {
       />
 
       <!-- Credits framing (onboarding only; a live account is not capped here) -->
-      <div v-if="capped" class="mb-5 flex items-center gap-3 rounded-xl bg-[#f6f5ff] border border-[#dedbf7] p-4">
-        <span class="w-9 h-9 rounded-lg bg-[#5548e0] flex items-center justify-center shrink-0">
+      <div v-if="capped" class="mb-5 flex items-center gap-3 rounded-xl bg-[#fdf4ef] border border-[#f2d9c9] p-4">
+        <span class="w-9 h-9 rounded-lg bg-[#b2592e] flex items-center justify-center shrink-0">
           <Gift :size="18" class="text-white" />
         </span>
         <div v-if="isTrial">
@@ -157,7 +157,7 @@ function next() {
             v-model="query"
             type="text"
             placeholder="Search products"
-            class="w-full rounded-lg border border-[#d4d4d4] pl-9 pr-8 py-2 text-[13px] outline-none focus:border-[#5548e0]"
+            class="w-full rounded-lg border border-[#d4d4d4] pl-9 pr-8 py-2 text-[13px] outline-none focus:border-[#b2592e]"
           />
           <button v-if="query" class="absolute right-2 top-1/2 -translate-y-1/2 text-[#8a8a8a] hover:text-[#1a1a1a] cursor-pointer" @click="query = ''">
             <X :size="14" />
@@ -165,7 +165,7 @@ function next() {
         </div>
         <select
           v-model="category"
-          class="rounded-lg border border-[#d4d4d4] px-2.5 py-2 text-[13px] bg-white outline-none focus:border-[#5548e0]"
+          class="rounded-lg border border-[#d4d4d4] px-2.5 py-2 text-[13px] bg-white outline-none focus:border-[#b2592e]"
         >
           <option value="all">All categories ({{ products.length }})</option>
           <option v-for="c in productCategories" :key="c" :value="c">{{ c }} ({{ categoryCount(c) }})</option>
@@ -174,7 +174,7 @@ function next() {
           <button
             v-for="f in filters" :key="f.id"
             class="rounded-lg border px-3 py-1.5 text-[13px] cursor-pointer transition-colors"
-            :class="filter === f.id ? 'border-[#5548e0] bg-[#f6f5ff] text-[#3a3468] font-semibold' : 'border-[#d4d4d4] text-[#303030] hover:border-[#a0a0a0]'"
+            :class="filter === f.id ? 'border-[#b2592e] bg-[#fdf4ef] text-[#6b3319] font-semibold' : 'border-[#d4d4d4] text-[#303030] hover:border-[#a0a0a0]'"
             @click="pickFilter(f.id)"
           >{{ f.label }} <span class="text-[#8a8a8a] font-normal">{{ f.count }}</span></button>
         </div>
@@ -198,14 +198,14 @@ function next() {
         <div
           v-for="p in paged" :key="p.id"
           class="pb-card overflow-hidden cursor-pointer relative"
-          :class="state.selected.includes(p.id) ? 'ring-2 ring-[#5548e0] border-transparent!' : (atLimit ? 'opacity-60' : 'hover:shadow-md')"
+          :class="state.selected.includes(p.id) ? 'ring-2 ring-[#b2592e] border-transparent!' : (atLimit ? 'opacity-60' : 'hover:shadow-md')"
           @click="toggle(p.id)"
         >
           <div class="aspect-square relative">
             <img :src="p.img" class="w-full h-full object-cover" />
             <span
               class="absolute top-2 left-2 w-5 h-5 rounded-md flex items-center justify-center"
-              :class="state.selected.includes(p.id) ? 'bg-[#5548e0]' : 'bg-white/95 border border-[#c9c9c9]'"
+              :class="state.selected.includes(p.id) ? 'bg-[#b2592e]' : 'bg-white/95 border border-[#c9c9c9]'"
             >
               <Check v-if="state.selected.includes(p.id)" :size="12" class="text-white" />
             </span>

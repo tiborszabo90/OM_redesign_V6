@@ -55,8 +55,16 @@ const versions = [
   {
     id: 'v2',
     label: 'Version 2',
-    tagline: 'The new iteration. Copied from V1 as a starting point.',
+    tagline: 'The second iteration. Copied from V1 as a starting point.',
     target: 'picbear-v2',
+    badge: 'Previous',
+    badgeVariant: 'gray',
+  },
+  {
+    id: 'v3',
+    label: 'Version 3',
+    tagline: 'The latest iteration. Copied from V2 as a starting point.',
+    target: 'picbear-v3',
     badge: 'New',
     badgeVariant: 'green-light',
   },

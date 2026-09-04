@@ -1,0 +1,246 @@
+{
+ "source": "naturisimo.com (Shopify), pulled from /products.json",
+ "pulled": "2026-09-02",
+ "products": [
+  {
+   "name": "Susanne Kaufmann Collagen Mousse Serum",
+   "brand": "Susanne Kaufmann",
+   "price": 55.0,
+   "category": "Skincare",
+   "img": "/picbear/shop/susanne-kaufmann-collagen-mousse-serum.jpg",
+   "source": "https://naturisimo.com/products/susanne-kaufmann-collagen-mousse-serum"
+  },
+  {
+   "name": "Bioeffect Imprinting Hydrogel Mask",
+   "brand": "Bioeffect",
+   "price": 75.0,
+   "category": "Skincare",
+   "img": "/picbear/shop/imprinting-hydrogel-mask.jpg",
+   "source": "https://naturisimo.com/products/imprinting-hydrogel-mask"
+  },
+  {
+   "name": "Beauty of Joseon Revive Eye Serum Ginseng + Retinal",
+   "brand": "Beauty of Joseon",
+   "price": 22.0,
+   "category": "Skincare",
+   "img": "/picbear/shop/beauty-of-joseon-revive-eye-serum-ginseng-retina.jpg",
+   "source": "https://naturisimo.com/products/beauty-of-joseon-revive-eye-serum-ginseng-retinal"
+  },
+  {
+   "name": "Noble Panacea The Exceptional Eye Lift Concentrate - 12 Doses",
+   "brand": "Noble Panacea",
+   "price": 280.0,
+   "category": "Skincare",
+   "img": "/picbear/shop/noble-panacea-the-exceptional-eye-lift-concentra.jpg",
+   "source": "https://naturisimo.com/products/noble-panacea-the-exceptional-eye-lift-concentrate-12-doses"
+  },
+  {
+   "name": "Le Rub Repairing Face Mask",
+   "brand": "Le Rub",
+   "price": 44.0,
+   "category": "Skincare",
+   "img": "/picbear/shop/le-rub-repairing-face-mask.jpg",
+   "source": "https://naturisimo.com/products/le-rub-repairing-face-mask"
+  },
+  {
+   "name": "Odacité Bu+L Sagging Skin Serum Concentrate",
+   "brand": "Odacité",
+   "price": 26.4,
+   "category": "Skincare",
+   "img": "/picbear/shop/odacite-sagging-skin-serum-concentrate.jpg",
+   "source": "https://naturisimo.com/products/odacite-sagging-skin-serum-concentrate"
+  },
+  {
+   "name": "Axis-y Spot The Difference Blemish Treatment",
+   "brand": "Axis-y",
+   "price": 22.0,
+   "category": "Skincare",
+   "img": "/picbear/shop/axis-y-spot-the-difference-blemish-treatment.jpg",
+   "source": "https://naturisimo.com/products/axis-y-spot-the-difference-blemish-treatment"
+  },
+  {
+   "name": "Oskia Midnight Eye-Q Intelligent Peptide Eye Cream",
+   "brand": "Oskia",
+   "price": 90.0,
+   "category": "Skincare",
+   "img": "/picbear/shop/oskia-midnight-eye-q-intelligent-peptide-eye-cre.jpg",
+   "source": "https://naturisimo.com/products/oskia-midnight-eye-q-intelligent-peptide-eye-cream"
+  },
+  {
+   "name": "Biodance Radiant Vita Niacinamide Serum",
+   "brand": "Biodance",
+   "price": 24.0,
+   "category": "Skincare",
+   "img": "/picbear/shop/biodance-radiant-vita-niacinamide-serum.jpg",
+   "source": "https://naturisimo.com/products/biodance-radiant-vita-niacinamide-serum"
+  },
+  {
+   "name": "Skin1004 Madagascar Centella Ampoule",
+   "brand": "Skin1004",
+   "price": 26.0,
+   "category": "Skincare",
+   "img": "/picbear/shop/skin1004-madagascar-centella-ampoule.jpg",
+   "source": "https://naturisimo.com/products/skin1004-madagascar-centella-ampoule"
+  },
+  {
+   "name": "Talm Sunveil SPF50+ Dark Spot Correcting Fluid Sunscreen",
+   "brand": "Talm",
+   "price": 32.0,
+   "category": "Skincare",
+   "img": "/picbear/shop/talm-sunveil-spf50-dark-spot-correcting-fluid-su.jpg",
+   "source": "https://naturisimo.com/products/talm-sunveil-spf50-dark-spot-correcting-fluid-sunscreen"
+  },
+  {
+   "name": "Tata Harper Water-Lock Moisturizer Travel Size",
+   "brand": "Tata Harper",
+   "price": 25.0,
+   "category": "Skincare",
+   "img": "/picbear/shop/tata-harper-water-lock-moisturizer-travel-size.jpg",
+   "source": "https://naturisimo.com/products/tata-harper-water-lock-moisturizer-travel-size"
+  },
+  {
+   "name": "Dermalogica Stabilizing Repair Serum",
+   "brand": "Dermalogica",
+   "price": 65.0,
+   "category": "Body",
+   "img": "/picbear/shop/dermalogica-stabilizing-repair-serum.jpg",
+   "source": "https://naturisimo.com/products/dermalogica-stabilizing-repair-serum"
+  },
+  {
+   "name": "Cecily Braden The Lymphatic Brush Combo",
+   "brand": "Cecily Braden",
+   "price": 133.0,
+   "category": "Body",
+   "img": "/picbear/shop/cecily-braden-the-lymphatic-brush-combo.jpg",
+   "source": "https://naturisimo.com/products/cecily-braden-the-lymphatic-brush-combo"
+  },
+  {
+   "name": "Le Rub Sunscreen Mist SPF50",
+   "brand": "Le Rub",
+   "price": 44.0,
+   "category": "Body",
+   "img": "/picbear/shop/le-rub-sunscreen-mist-spf50.jpg",
+   "source": "https://naturisimo.com/products/le-rub-sunscreen-mist-spf50"
+  },
+  {
+   "name": "L:a Bruket Solstice Revival Body Set",
+   "brand": "L:a Bruket",
+   "price": 33.0,
+   "category": "Body",
+   "img": "/picbear/shop/la-bruket-solstice-revival-body-set.jpg",
+   "source": "https://naturisimo.com/products/la-bruket-solstice-revival-body-set"
+  },
+  {
+   "name": "Birkenstock 3-Step Foot Care Kit",
+   "brand": "Birkenstock",
+   "price": 28.0,
+   "category": "Body",
+   "img": "/picbear/shop/birkenstock-3-step-foot-care-kit.jpg",
+   "source": "https://naturisimo.com/products/birkenstock-3-step-foot-care-kit"
+  },
+  {
+   "name": "Cair Cleansing Water",
+   "brand": "Cair",
+   "price": 54.0,
+   "category": "Hair",
+   "img": "/picbear/shop/cair-cleansing-water.jpg",
+   "source": "https://naturisimo.com/products/cair-cleansing-water"
+  },
+  {
+   "name": "K18 AirWash™ Dry Shampoo",
+   "brand": "K18",
+   "price": 48.0,
+   "category": "Hair",
+   "img": "/picbear/shop/k18-airwash-dry-shampoo.jpg",
+   "source": "https://naturisimo.com/products/k18-airwash-dry-shampoo"
+  },
+  {
+   "name": "Slip Pure Silk Scrunchies Back to Basics – Black",
+   "brand": "Slip",
+   "price": 42.0,
+   "category": "Hair",
+   "img": "/picbear/shop/slip-pure-silk-scrunchies-back-to-basics-black.jpg",
+   "source": "https://naturisimo.com/products/slip-pure-silk-scrunchies-back-to-basics-black"
+  },
+  {
+   "name": "Flora Lab Paris Pure Ingredient Booster No.1 Hyaluronic Acid",
+   "brand": "Flora Lab Paris",
+   "price": 70.0,
+   "category": "Hair",
+   "img": "/picbear/shop/flora-lab-paris-pure-ingredient-booster-no-1-hya.jpg",
+   "source": "https://naturisimo.com/products/flora-lab-paris-pure-ingredient-booster-no-1-hyaluronic-acid"
+  },
+  {
+   "name": "Combeau The Rebalancing Hair Calm Duo",
+   "brand": "Combeau",
+   "price": 97.0,
+   "category": "Hair",
+   "img": "/picbear/shop/combeau-the-rebalancing-hair-calm-duo.jpg",
+   "source": "https://naturisimo.com/products/combeau-the-rebalancing-hair-calm-duo"
+  },
+  {
+   "name": "Westman Atelier Liquid Foundation Brush",
+   "brand": "Westman Atelier",
+   "price": 88.0,
+   "category": "Make-up",
+   "img": "/picbear/shop/westman-atelier-liquid-foundation-brush.jpg",
+   "source": "https://naturisimo.com/products/westman-atelier-liquid-foundation-brush"
+  },
+  {
+   "name": "Violette_FR Invisible Bandage Soothing & Repairing Gel",
+   "brand": "Violette_FR",
+   "price": 18.0,
+   "category": "Make-up",
+   "img": "/picbear/shop/violette-fr-invisible-bandage-soothing-repairing.jpg",
+   "source": "https://naturisimo.com/products/violette-fr-invisible-bandage-soothing-repairing-gel"
+  },
+  {
+   "name": "Les Filles En Rouje Lola Blush Brush",
+   "brand": "Les Filles En Rouje",
+   "price": 27.0,
+   "category": "Make-up",
+   "img": "/picbear/shop/les-filles-en-rouje-lola-blush-brush.jpg",
+   "source": "https://naturisimo.com/products/les-filles-en-rouje-lola-blush-brush"
+  },
+  {
+   "name": "Westman Atelier Suprême Bio Complex Liquid Foundation",
+   "brand": "Westman Atelier",
+   "price": 65.0,
+   "category": "Make-up",
+   "img": "/picbear/shop/westman-atelier-supreme-bio-complex-liquid-found.jpg",
+   "source": "https://naturisimo.com/products/westman-atelier-supreme-bio-complex-liquid-foundation"
+  },
+  {
+   "name": "Mimétique Skin 360° – The Starter Kit",
+   "brand": "Mimétique",
+   "price": 49.0,
+   "category": "Wellness",
+   "img": "/picbear/shop/mimetique-skin-360-the-starter-kit.jpg",
+   "source": "https://naturisimo.com/products/mimetique-skin-360-the-starter-kit"
+  },
+  {
+   "name": "Lauvée Sponge Sleeves",
+   "brand": "Lauvée",
+   "price": 9.0,
+   "category": "Wellness",
+   "img": "/picbear/shop/lauvee-sponge-sleeves.jpg",
+   "source": "https://naturisimo.com/products/lauvee-sponge-sleeves"
+  },
+  {
+   "name": "Combeau The Moisturizer Discovery Set",
+   "brand": "Combeau",
+   "price": 49.0,
+   "category": "Wellness",
+   "img": "/picbear/shop/combeau-the-moisturizer-discovery-set.jpg",
+   "source": "https://naturisimo.com/products/combeau-the-moisturizer-discovery-set"
+  },
+  {
+   "name": "Nooance LED Eye Mask X200",
+   "brand": "Nooance",
+   "price": 245.0,
+   "category": "Wellness",
+   "img": "/picbear/shop/nooance-led-eye-mask-x200.jpg",
+   "source": "https://naturisimo.com/products/nooance-led-eye-mask-x200"
+  }
+ ]
+}
