@@ -122,11 +122,6 @@ function allCategories() {
   syncSelection()
 }
 
-function keepTop10() {
-  state.selected = products.slice(0, 10).map(p => p.id)
-  next()
-}
-
 // Clearing drops the filters too, back to the untouched full catalog: no chip
 // active, not even "All products".
 const filtersActive = computed(() => !!query.value.trim() || categories.value.length > 0 || filter.value !== null)
@@ -157,8 +152,6 @@ function next() {
         title="Pick the products to upgrade"
         subtitle="Your whole catalog is selected. Narrow it to categories, or unpick single products; the next step decides how many to generate now."
         back-to="placement"
-        :skip-label="capped ? 'Keep top 10' : ''"
-        @skip="keepTop10"
       />
 
       <!-- Catalog filters -->
