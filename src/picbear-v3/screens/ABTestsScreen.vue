@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { state, products, abTests, variationBatches, styleById } from '../store'
+import { state, products, abTests, variationBatches, styleById, armSplit, testVariationIds } from '../store'
 import StyledImage from '../components/StyledImage.vue'
 import {
   FlaskConical, Lock, Play, Plus, ArrowLeft, ChevronRight,
@@ -69,11 +69,15 @@ function rowThumbB(i) {
 }
 
 // Chance to win, for the list: the leading arm's win probability + which arm leads.
-function chanceToWin(t) {
-  return Math.max(t.arms.variant.chanceToWin, t.arms.original.chanceToWin)
+// Arms are labelled A, B, C… in the order they were set up, control first.
+function leadingArm(t) {
+  return t.arms.reduce((best, a) => (a.chanceToWin > best.chanceToWin ? a : best), t.arms[0])
 }
-function chanceLeadsVariant(t) {
-  return t.arms.variant.chanceToWin >= t.arms.original.chanceToWin
+function chanceToWin(t) {
+  return leadingArm(t).chanceToWin
+}
+function armInitial(t, a) {
+  return String.fromCharCode(65 + t.arms.indexOf(a))
 }
 
 // Entering setup (from the list button or a variation sub-page deep link):
@@ -97,6 +101,14 @@ function batchFor(test) {
   return variationBatches.find(b => b.id === test.variationId)
 }
 
+// A product only counts if every tested variation has an image for it —
+// otherwise one arm would serve the original and the comparison would be unfair.
+function testedProductCount(test) {
+  const batches = test.arms.filter(a => a.variationId).map(a => variationBatches.find(b => b.id === a.variationId)).filter(Boolean)
+  if (!batches.length) return 0
+  return batches[0].generatedIds.filter(id => batches.every(b => b.generatedIds.includes(id))).length
+}
+
 // ── derived KPIs for the running/completed test ──
 // Raw arm counts -> full KPI set (ATC rate, conversion rate, AOV) used by the view.
 function withRates(a) {
@@ -110,15 +122,19 @@ function withRates(a) {
 const kpi = computed(() => {
   const t = currentTest.value
   if (!t) return null
-  return { original: withRates(t.arms.original), variant: withRates(t.arms.variant) }
+  return t.arms.map(withRates)
 })
+// Everything is read against the control; without one, the first arm stands in.
+const controlKpi = computed(() => kpi.value?.find(a => a.isControl) || kpi.value?.[0] || null)
+// One column per arm, plus the metric-name column.
+const armGrid = computed(() => `1.3fr repeat(${kpi.value?.length || 1}, 1fr)`)
 
 // Confidence = probability the leading arm is truly better. Winner called at the
 // test's auto-stop threshold (default 95%).
 const SIGNIFICANCE = computed(() => currentTest.value?.stopConfidence || 95)
-const leadsVariant = computed(() => kpi.value.variant.chanceToWin >= kpi.value.original.chanceToWin)
-const leaderLabel = computed(() => (leadsVariant.value ? 'AI variation' : 'Original photos'))
-const winProb = computed(() => (leadsVariant.value ? kpi.value.variant.chanceToWin : kpi.value.original.chanceToWin))
+const leader = computed(() => kpi.value.reduce((best, a) => (a.chanceToWin > best.chanceToWin ? a : best), kpi.value[0]))
+const leaderLabel = computed(() => leader.value.label)
+const winProb = computed(() => leader.value.chanceToWin)
 const significant = computed(() => winProb.value >= SIGNIFICANCE.value)
 
 // Metric rows shown in each arm card, in funnel order.
@@ -136,28 +152,29 @@ const fmtInt = n => n.toLocaleString('en-US')
 const fmtPct = n => n.toFixed(2) + '%'
 const fmtMoney = n => '€' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
-function fmtVal(arm, def) {
-  const v = kpi.value[arm][def.key]
+function fmtVal(a, def) {
+  const v = a[def.key]
   if (def.type === 'money') return fmtMoney(v)
   if (def.type === 'pct') return fmtPct(v)
   return fmtInt(v)
 }
-function deltaPct(def) {
-  const c = kpi.value.original[def.key]
-  const v = kpi.value.variant[def.key]
-  return c ? ((v - c) / c) * 100 : 0
+// Every arm is read against the control, so the control itself carries no delta.
+function deltaPct(a, def) {
+  const c = controlKpi.value
+  if (!c || a === c || !c[def.key]) return null
+  return ((a[def.key] - c[def.key]) / c[def.key]) * 100
 }
-function deltaText(def) {
-  const d = deltaPct(def)
-  return (d >= 0 ? '+' : '') + d.toFixed(0) + '%'
+function deltaText(a, def) {
+  const d = deltaPct(a, def)
+  return d === null ? '' : (d >= 0 ? '+' : '') + d.toFixed(0) + '%'
 }
-// Which arm wins a given metric (visitors excluded — that's just the traffic split).
-function better(def) {
+// Which arm wins a given metric (visitors excluded — that's just the traffic
+// split). A tie has no winner, so nothing is highlighted.
+function bestArmKey(def) {
   if (def.key === 'visitors') return null
-  const c = kpi.value.original[def.key]
-  const v = kpi.value.variant[def.key]
-  if (v === c) return null
-  return v > c ? 'variant' : 'original'
+  const top = Math.max(...kpi.value.map(a => a[def.key]))
+  const winners = kpi.value.filter(a => a[def.key] === top)
+  return winners.length === 1 ? winners[0].key : null
 }
 
 function openTest(id) {
@@ -172,18 +189,18 @@ function backToList() {
   state.openAbTest = null
 }
 
-// Jump to the tested variation's page on the Variations tab.
-function viewVariation(test) {
-  if (!test.variationId) return
+// Jump to the variation an arm shows, on the Variations tab.
+function viewVariationId(variationId) {
+  if (!variationId) return
   state.openAbTest = null
-  state.openVariation = test.variationId
+  state.openVariation = variationId
   state.appTab = 'variations'
 }
 
 // Re-open the setup modal to edit an existing draft, pre-filled with its config.
 function openEdit(test) {
   setupControl.value = test.includeControl
-  setupVariations.value = test.variationId ? [test.variationId] : []
+  setupVariations.value = testVariationIds(test)
   setupDays.value = test.days
   setupAutoStop.value = test.autoStop
   setupMinOrders.value = test.minOrders
@@ -194,19 +211,15 @@ function openEdit(test) {
 function saveEdit() {
   const t = abTests.find(x => x.id === editingId.value)
   if (t) {
-    const vid = setupVariations.value[0] || null
-    const batch = vid ? variationBatches.find(b => b.id === vid) : null
-    t.variationId = vid
+    t.variationId = setupVariations.value[0] || null
     t.type = setupIsAA.value ? 'aa' : 'ab'
     t.includeControl = setupControl.value
     t.days = setupDays.value
     t.autoStop = setupAutoStop.value
     t.minOrders = setupMinOrders.value
     t.stopConfidence = setupConfidence.value
-    // Keep the name in sync with the config.
-    t.name = setupIsAA.value
-      ? 'A/A test — Original photos'
-      : (batch ? (setupControl.value ? `${batch.name} vs Original` : batch.name) : t.name)
+    t.arms = buildArms()
+    t.name = testName()
   }
   editingId.value = null
 }
@@ -217,17 +230,53 @@ function closeSetup() {
   else backToList()
 }
 
-const emptyArms = () => ({
-  original: { visitors: 0, addToCarts: 0, orders: 0, revenue: 0, chanceToWin: 50 },
-  variant: { visitors: 0, addToCarts: 0, orders: 0, revenue: 0, chanceToWin: 50 },
-})
+const zero = () => ({ visitors: 0, addToCarts: 0, orders: 0, revenue: 0, chanceToWin: 0 })
 
-// Create the test(s) as a DRAFT — the user starts them from the detail page.
-// No variation selected → a single A/A test; otherwise one A/B test per variation.
+// One arm per pick: the control first when it is included, then a variation each.
+// An A/A test is the control against itself, which is how the app checks the
+// split is honest before anyone trusts a real result.
+function buildArms() {
+  const arms = []
+  if (setupIsAA.value) {
+    arms.push({ key: 'control', label: 'Original photos', variationId: null, isControl: true, ...zero() })
+    arms.push({ key: 'control_b', label: 'Original photos (B)', variationId: null, isControl: true, ...zero() })
+  } else {
+    if (setupControl.value) arms.push({ key: 'control', label: 'Original photos', variationId: null, isControl: true, ...zero() })
+    setupVariations.value.forEach((vid, i) => {
+      const batch = variationBatches.find(b => b.id === vid)
+      if (batch) arms.push({ key: `v${i + 1}`, label: batch.name, variationId: batch.id, isControl: false, ...zero() })
+    })
+  }
+  // Every arm starts equally likely to win.
+  const even = Math.round(100 / arms.length)
+  arms.forEach(a => { a.chanceToWin = even })
+  return arms
+}
+
+function testName() {
+  if (setupIsAA.value) return 'A/A test — Original photos'
+  const names = setupVariations.value
+    .map(vid => variationBatches.find(b => b.id === vid)?.name)
+    .filter(Boolean)
+  if (names.length > 1) return `${names.length} variations vs Original`
+  return setupControl.value ? `${names[0]} vs Original` : names[0]
+}
+
+// Create the test as a DRAFT — the user starts it from the detail page. Picking
+// several variations makes one test with several arms, not several tests.
 function createTests() {
   if (!setupVariations.value.length && !setupControl.value) return
 
-  const base = {
+  const arms = buildArms()
+  if (arms.length < 2) return
+  const primary = arms.find(a => a.variationId)
+  const id = `${primary ? primary.variationId : 'aa'}-test-${abTests.length + 1}`
+
+  abTests.unshift({
+    id,
+    variationId: primary ? primary.variationId : null,
+    type: setupIsAA.value ? 'aa' : 'ab',
+    name: testName(),
     status: 'draft',
     day: 0, days: setupDays.value,
     winner: null,
@@ -238,33 +287,9 @@ function createTests() {
     autoStop: setupAutoStop.value,
     minOrders: setupMinOrders.value,
     stopConfidence: setupConfidence.value,
-  }
-
-  // A/A test: control group only, no variation.
-  if (setupIsAA.value) {
-    const id = `aa-test-${abTests.length + 1}`
-    abTests.unshift({ id, variationId: null, type: 'aa', name: 'A/A test — Original photos', ...base, arms: emptyArms() })
-    state.openAbTest = id
-    return
-  }
-
-  // A/B test: one per selected variation, each against the original photos.
-  let firstId = null
-  setupVariations.value.forEach((vid) => {
-    const batch = variationBatches.find(b => b.id === vid)
-    if (!batch) return
-    const id = `${batch.id}-test-${abTests.length + 1}`
-    if (!firstId) firstId = id
-    abTests.unshift({
-      id,
-      variationId: batch.id,
-      type: 'ab',
-      name: setupControl.value ? `${batch.name} vs Original` : batch.name,
-      ...base,
-      arms: emptyArms(),
-    })
+    arms,
   })
-  state.openAbTest = firstId
+  state.openAbTest = id
 }
 
 // Start a draft or resume a paused test.
@@ -276,7 +301,7 @@ function runTest(test) {
 
 function stopTest(test) {
   test.status = 'completed'
-  test.winner = 'variant'
+  test.winner = leadingArm(test).key
   state.abTestRunning = abTests.some(t => t.status === 'running')
 }
 
@@ -296,11 +321,15 @@ function applyWinner(test) {
   test.applied = true
 }
 
-// A/A test = original photos vs a default AI-generated image (no named variation).
+// A/A test = the original photos against themselves, to sanity-check the split.
 const isAA = computed(() => currentTest.value?.type === 'aa')
-const armLabels = computed(() => isAA.value
-  ? { orig: 'Original', origSub: 'Control', variant: 'Generated', variantSub: 'AI' }
-  : { orig: 'Original', origSub: 'Control', variant: 'AI variation', variantSub: 'Variant' })
+// The variation an arm shows, so its thumbnails and link are the right ones.
+function batchForArm(a) {
+  return a.variationId ? variationBatches.find(b => b.id === a.variationId) : null
+}
+function armSub(a) {
+  return a.isControl ? 'Control' : styleById(batchForArm(a)?.styleId || 'lifestyle').name
+}
 
 // ── rename ──
 const renaming = ref(false)
@@ -368,11 +397,11 @@ function finishSetup() {
             </div>
             <div class="flex-1 min-w-0">
               <p class="text-[13px] font-semibold text-[#1a1a1a] truncate">{{ shortName(t.name) }}</p>
-              <p class="text-[11px] text-[#616161]">50/50 split</p>
+              <p class="text-[11px] text-[#616161]">{{ t.arms.length }} arms</p>
             </div>
             <div v-if="t.status !== 'draft'" class="shrink-0 w-16">
               <div class="flex items-baseline justify-between gap-1 mb-1">
-                <span class="text-[10px] text-[#8a8a8a] leading-none whitespace-nowrap">{{ chanceLeadsVariant(t) ? 'B' : 'A' }} wins</span>
+                <span class="text-[10px] text-[#8a8a8a] leading-none whitespace-nowrap">{{ armInitial(t, leadingArm(t)) }} wins</span>
                 <span class="text-[11px] font-bold tabular-nums leading-none" :class="t.status === 'completed' ? 'text-[#0c6b45]' : 'text-[#6b3319]'">{{ chanceToWin(t) }}%</span>
               </div>
               <div class="h-1 rounded-full bg-[#ececec] overflow-hidden">
@@ -414,7 +443,10 @@ function finishSetup() {
             </button>
           </template>
         </div>
-        <p class="text-[13px] text-[#616161] mt-1">{{ isAA ? 'Original vs generated' : `${batchFor(currentTest)?.generatedIds.length} products` }} · 50/50 traffic split</p>
+        <p class="text-[13px] text-[#616161] mt-1">
+          {{ isAA ? 'Original photos against themselves' : `${testedProductCount(currentTest)} products in every arm` }} ·
+          {{ currentTest.arms.length }} arms · {{ armSplit(currentTest) }}% of traffic each
+        </p>
       </div>
 
       <div class="flex items-center gap-2 shrink-0 mt-1">
@@ -448,7 +480,7 @@ function finishSetup() {
         <Trophy :size="17" class="text-white" />
       </span>
       <div class="flex-1">
-        <p class="font-semibold text-[#1a1a1a]">The {{ isAA ? 'generated' : 'AI' }} images won with {{ currentTest.uplift }} more add-to-carts</p>
+        <p class="font-semibold text-[#1a1a1a]">{{ leaderLabel }} won with {{ currentTest.uplift }} more add-to-carts</p>
         <p class="text-[12px] text-[#616161]">{{ currentTest.confidence }}% confidence over {{ currentTest.days }} days. Safe to roll out.</p>
       </div>
       <button v-if="!currentTest.applied" class="pb-btn-primary shrink-0" @click="applyWinner(currentTest)">
@@ -510,38 +542,36 @@ function finishSetup() {
 
     <!-- Arms comparison: aligned side by side so every KPI reads on one row -->
     <div class="pb-card p-5 mb-4">
-      <!-- column headers -->
-      <div class="grid grid-cols-[1.3fr_1fr_1fr] items-end gap-3 pb-3 border-b border-[#ececec]">
+      <!-- column headers: one per arm, control first -->
+      <div class="grid items-end gap-3 pb-3 border-b border-[#ececec]" :style="{ gridTemplateColumns: armGrid }">
         <span></span>
-        <div class="flex flex-col items-start gap-2">
-          <div class="flex -space-x-3">
-            <div v-for="p in armProducts" :key="p.id" class="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-white shadow-sm">
-              <img :src="p.img" class="w-full h-full object-cover" />
-            </div>
-          </div>
-          <div class="text-left">
-            <p class="text-[13px] font-semibold text-[#1a1a1a] leading-tight">{{ armLabels.orig }}</p>
-            <p class="text-[11px] text-[#8a8a8a]">{{ armLabels.origSub }}</p>
-          </div>
-        </div>
         <div
+          v-for="(a, i) in kpi" :key="a.key"
           class="flex flex-col items-start gap-2"
-          :class="currentTest.variationId ? 'group cursor-pointer' : ''"
-          @click="currentTest.variationId && viewVariation(currentTest)"
+          :class="a.variationId ? 'group cursor-pointer' : ''"
+          @click="a.variationId && viewVariationId(a.variationId)"
         >
           <div class="flex -space-x-3">
-            <div v-for="p in armProducts" :key="p.id" class="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-white shadow-sm transition-transform group-hover:-translate-y-0.5">
-              <StyledImage :src="p.img" :overlay="styleById(batchFor(currentTest)?.styleId || 'lifestyle').overlay" enhance compact />
+            <div
+              v-for="p in armProducts" :key="p.id"
+              class="w-12 h-12 rounded-xl overflow-hidden ring-2 ring-white shadow-sm transition-transform group-hover:-translate-y-0.5"
+            >
+              <img v-if="a.isControl" :src="p.img" class="w-full h-full object-cover" />
+              <StyledImage v-else :src="p.img" :overlay="styleById(batchForArm(a)?.styleId || 'lifestyle').overlay" enhance compact />
             </div>
           </div>
           <div class="text-left">
-            <p class="text-[13px] font-semibold text-[#6b3319] leading-tight flex items-center gap-1 group-hover:text-[#b2592e]">
-              {{ armLabels.variant }}
-              <ExternalLink v-if="currentTest.variationId" :size="12" class="opacity-0 group-hover:opacity-100 transition-opacity" />
+            <p
+              class="text-[13px] font-semibold leading-tight flex items-center gap-1"
+              :class="a.isControl ? 'text-[#1a1a1a]' : 'text-[#6b3319] group-hover:text-[#b2592e]'"
+            >
+              <span class="text-[10px] font-bold text-[#8a8a8a] shrink-0">{{ String.fromCharCode(65 + i) }}</span>
+              <span class="truncate">{{ a.label }}</span>
+              <ExternalLink v-if="a.variationId" :size="12" class="opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
             </p>
             <p class="text-[11px] text-[#8a8a8a] flex items-center gap-1.5 justify-start">
-              {{ armLabels.variantSub }}
-              <span v-if="currentTest.status === 'completed' && currentTest.winner === 'variant'" class="text-[10px] font-semibold text-white bg-[#36c98e] rounded-full px-1.5 py-0.5">Winner</span>
+              {{ armSub(a) }}
+              <span v-if="currentTest.status === 'completed' && currentTest.winner === a.key" class="text-[10px] font-semibold text-white bg-[#36c98e] rounded-full px-1.5 py-0.5">Winner</span>
             </p>
           </div>
         </div>
@@ -550,23 +580,20 @@ function finishSetup() {
       <!-- KPI rows -->
       <div
         v-for="def in metricDefs" :key="def.key"
-        class="grid grid-cols-[1.3fr_1fr_1fr] items-center gap-3 py-2.5 border-b border-[#f4f4f4] last:border-0"
+        class="grid items-center gap-3 py-2.5 border-b border-[#f4f4f4] last:border-0"
+        :style="{ gridTemplateColumns: armGrid }"
       >
         <span class="text-[13px] text-[#616161]">{{ def.label }}</span>
-        <span
-          class="text-left text-[15px] tabular-nums"
-          :class="better(def) === 'original' ? 'font-bold text-[#1a1a1a]' : 'font-semibold text-[#8a8a8a]'"
-        >{{ fmtVal('original', def) }}</span>
-        <span class="flex items-center justify-start gap-2">
+        <span v-for="a in kpi" :key="a.key" class="flex items-center justify-start gap-2">
           <span
             class="text-[15px] tabular-nums"
-            :class="better(def) === 'variant' ? 'font-bold text-[#6b3319]' : 'font-semibold text-[#8a8a8a]'"
-          >{{ fmtVal('variant', def) }}</span>
+            :class="bestArmKey(def) === a.key ? (a.isControl ? 'font-bold text-[#1a1a1a]' : 'font-bold text-[#6b3319]') : 'font-semibold text-[#8a8a8a]'"
+          >{{ fmtVal(a, def) }}</span>
           <span
-            v-if="def.delta"
+            v-if="def.delta && deltaText(a, def)"
             class="text-[11px] font-semibold tabular-nums shrink-0"
-            :class="deltaPct(def) >= 0 ? 'text-[#0c6b45]' : 'text-[#c0392b]'"
-          >{{ deltaText(def) }}</span>
+            :class="deltaPct(a, def) >= 0 ? 'text-[#0c6b45]' : 'text-[#c0392b]'"
+          >{{ deltaText(a, def) }}</span>
         </span>
       </div>
     </div>
@@ -626,7 +653,7 @@ function finishSetup() {
     <div class="mb-5 flex items-start justify-between gap-4">
       <div>
         <h1 class="text-xl font-bold text-[#1a1a1a]">A/B tests</h1>
-        <p class="text-[13px] text-[#616161] mt-1">Original photos vs an AI variation, on a 50/50 traffic split. Let the numbers decide.</p>
+        <p class="text-[13px] text-[#616161] mt-1">Your original photos against one or more AI variations, traffic split evenly. Let the numbers decide.</p>
       </div>
       <button class="pb-btn-primary shrink-0" @click="openSetup"><Plus :size="13" /> Create new test</button>
     </div>
@@ -653,13 +680,13 @@ function finishSetup() {
 
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-[#1a1a1a] truncate">{{ t.name }}</p>
-          <p class="text-[12px] text-[#616161]">{{ t.type === 'aa' ? 'Original vs generated' : `${batchFor(t)?.generatedIds.length} products` }} · 50/50 split</p>
+          <p class="text-[12px] text-[#616161]">{{ t.type === 'aa' ? 'Original photos against themselves' : `${testedProductCount(t)} products` }} · {{ t.arms.length }} arms · {{ armSplit(t) }}% each</p>
         </div>
 
         <!-- Chance to win -->
         <div v-if="t.status !== 'draft'" class="shrink-0 w-24">
           <div class="flex items-baseline justify-between gap-1 mb-1.5">
-            <span class="text-[10px] text-[#8a8a8a] leading-none">{{ chanceLeadsVariant(t) ? 'B' : 'A' }} to win</span>
+            <span class="text-[10px] text-[#8a8a8a] leading-none">{{ armInitial(t, leadingArm(t)) }} to win</span>
             <span class="text-[12px] font-bold tabular-nums leading-none" :class="t.status === 'completed' ? 'text-[#0c6b45]' : 'text-[#6b3319]'">{{ chanceToWin(t) }}%</span>
           </div>
           <div class="h-1 rounded-full bg-[#ececec] overflow-hidden">
@@ -703,7 +730,11 @@ function finishSetup() {
       </label>
 
       <!-- Select variations -->
-      <p class="text-[12px] font-semibold text-[#616161] mb-2">Select variations</p>
+      <p class="text-[12px] font-semibold text-[#616161] mb-1">Select variations</p>
+      <p class="text-[12px] text-[#616161] mb-2">
+        Pick more than one and they run in the same test, each against the control and
+        against each other. Traffic is split evenly between the arms.
+      </p>
       <div class="flex flex-col gap-2">
         <label
           v-for="b in testableVariations" :key="b.id"

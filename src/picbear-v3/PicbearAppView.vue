@@ -4,7 +4,7 @@ import { state } from './store'
 import './picbear.css'
 import {
   Home, Package, Tag, Users, TrendingUp, Percent, FileText, Globe,
-  Landmark, BarChart3, Store, Bot, Settings, Search, Bell, Inbox,
+  Landmark, BarChart3, Store, Bot, Search, Bell, Inbox,
   ChevronRight, PawPrint, CornerDownRight,
 } from 'lucide-vue-next'
 import WelcomeScreen from './screens/WelcomeScreen.vue'
@@ -52,6 +52,7 @@ const appTabs = [
   // Only the V2 A/B tests screen is in the menu; the older one stays reachable
   // by URL for comparison.
   { id: 'abtests-v2', label: 'A/B Tests V2' },
+  { id: 'settings', label: 'Settings' },
 ]
 
 const wizardScreens = {
@@ -71,7 +72,12 @@ const wizardScreens = {
   settings: SettingsScreen,
 }
 
-const editSections = ['image', 'placement', 'products', 'automation']
+const editSections = ['image', 'placement', 'products']
+
+// Settings lives on the home tab as a screen, so Home must not light up with it.
+const activeTab = computed(() =>
+  state.appTab === 'home' && state.screen === 'settings' ? 'settings' : state.appTab
+)
 
 const screenComponent = computed(() => {
   if (state.appTab === 'variations') {
@@ -84,6 +90,11 @@ const screenComponent = computed(() => {
 })
 
 function goTab(id) {
+  if (id === 'settings') {
+    state.appTab = 'home'
+    state.screen = 'settings'
+    return
+  }
   state.appTab = id
   if (id === 'variations') {
     state.openVariation = null
@@ -93,11 +104,6 @@ function goTab(id) {
   // The Home menu item always lands on the dashboard of the current world:
   // the active dashboard once published, the setup-guide fallback before that.
   if (id === 'home') state.screen = state.published ? 'home' : 'home-onboarding-fallback'
-}
-
-function goSettings() {
-  state.appTab = 'home'
-  state.screen = 'settings'
 }
 
 // ── URL sync ──────────────────────────────────────────────────────────────
@@ -266,23 +272,13 @@ onUnmounted(() => {
             v-for="tab in appTabs" :key="tab.id"
             @click="goTab(tab.id)"
             class="flex items-center gap-2 pl-4 pr-2 py-1 rounded-lg font-medium cursor-pointer"
-            :class="state.appTab === tab.id ? 'bg-white shadow-sm text-[#1a1a1a]' : 'text-[#4a4a4a] hover:bg-[#e0e0e0]'"
+            :class="activeTab === tab.id ? 'bg-white shadow-sm text-[#1a1a1a]' : 'text-[#4a4a4a] hover:bg-[#e0e0e0]'"
           >
             <CornerDownRight v-if="tab.id === 'home'" :size="12" class="text-[#8a8a8a]" />
             <span v-else class="w-3"></span>
             {{ tab.label }}
           </div>
         </nav>
-
-        <div class="px-3 pb-2">
-          <div class="flex items-center gap-2 px-2 py-[5px] rounded-lg font-medium cursor-pointer"
-            :class="state.appTab === 'home' && state.screen === 'settings' ? 'bg-white shadow-sm text-[#1a1a1a]' : 'text-[#303030] hover:bg-[#e0e0e0]'"
-            @click="goSettings"
-          >
-            <Settings :size="15" class="text-[#5c5c5c]" />
-            Settings
-          </div>
-        </div>
 
       </aside>
 

@@ -4,7 +4,7 @@ import { state, products, styleById, placementOptions, ratioOptions, variationBa
 import StyledImage from '../components/StyledImage.vue'
 import PlacementEditor from '../components/PlacementEditor.vue'
 import GenerateLimit from '../components/GenerateLimit.vue'
-import { ArrowLeft, ArrowRight, Check, RefreshCw, Loader2, Star, SlidersHorizontal, LayoutTemplate, Tag, Zap, Sparkles, Search, X } from 'lucide-vue-next'
+import { ArrowLeft, ArrowRight, Check, RefreshCw, Loader2, Star, SlidersHorizontal, LayoutTemplate, Tag, Sparkles, Search, X } from 'lucide-vue-next'
 
 // Variation settings, opened from the Edit settings button: a menu on the left,
 // one sub-page per entry (own URL). Fine-tune is first and the default entry.
@@ -12,7 +12,6 @@ const menu = [
   { section: 'image', label: 'Fine-tune', icon: SlidersHorizontal },
   { section: 'placement', label: 'Placement', icon: LayoutTemplate },
   { section: 'products', label: 'Products', icon: Tag },
-  { section: 'automation', label: 'Automation', icon: Zap },
 ]
 
 const batch = computed(() => variationBatches.find(b => b.id === state.openVariation) || null)
@@ -22,7 +21,6 @@ const waitingIds = computed(() => (batch.value ? batch.value.productIds.filter(i
 const hero = computed(() => batchProducts.value[0] || products[0])
 const currentStyle = computed(() => styleById(batch.value?.styleId) || styleById('lifestyle'))
 const chosenPlacement = computed(() => placementOptions.find(o => o.id === batch.value?.placement))
-const autoCount = computed(() => [batch.value?.autoAdd, batch.value?.autoPublish].filter(Boolean).length)
 const activeItem = computed(() => menu.find(m => m.section === state.editSection) || menu[0])
 
 // Product picker: the catalog is large, so it is searchable and paged.
@@ -195,40 +193,6 @@ function backToVariation() {
         </div>
       </div>
 
-      <!-- Automation -->
-      <div v-else-if="state.editSection === 'automation'" class="pb-card p-5">
-        <p class="font-semibold text-[#1a1a1a]">Automation</p>
-        <p class="text-[12px] text-[#616161] mb-2">What Picbear does on its own for this variation.</p>
-        <div class="divide-y divide-[#ececec] max-w-[560px]">
-          <div class="flex items-center gap-4 py-3">
-            <div class="flex-1">
-              <p class="font-medium text-[#1a1a1a] text-[13px]">Add new products automatically</p>
-              <p class="text-[12px] text-[#616161] mt-0.5">New products get an image in this look, no prompting needed.</p>
-            </div>
-            <span
-              class="w-9 h-[20px] rounded-full transition-colors duration-300 relative shrink-0 cursor-pointer"
-              :class="batch.autoAdd ? 'bg-[#36c98e]' : 'bg-[#d4d4d4]'"
-              @click="batch.autoAdd = !batch.autoAdd"
-            >
-              <span class="absolute top-[2px] w-4 h-4 rounded-full bg-white shadow transition-all duration-300" :class="batch.autoAdd ? 'left-[18px]' : 'left-[2px]'"></span>
-            </span>
-          </div>
-          <div class="flex items-center gap-4 py-3">
-            <div class="flex-1">
-              <p class="font-medium text-[#1a1a1a] text-[13px]">Publish without review</p>
-              <p class="text-[12px] text-[#616161] mt-0.5">Skip manual review for images in this variation.</p>
-            </div>
-            <span
-              class="w-9 h-[20px] rounded-full transition-colors duration-300 relative shrink-0 cursor-pointer"
-              :class="batch.autoPublish ? 'bg-[#36c98e]' : 'bg-[#d4d4d4]'"
-              @click="batch.autoPublish = !batch.autoPublish"
-            >
-              <span class="absolute top-[2px] w-4 h-4 rounded-full bg-white shadow transition-all duration-300" :class="batch.autoPublish ? 'left-[18px]' : 'left-[2px]'"></span>
-            </span>
-          </div>
-        </div>
-      </div>
-
       <!-- Fine-tune (default) -->
       <div v-else>
         <div class="mb-4">
@@ -243,7 +207,6 @@ function backToVariation() {
           <span class="pb-chip">Style: {{ currentStyle.name }}</span>
           <span class="pb-chip">Placement: {{ chosenPlacement.name }}</span>
           <span class="pb-chip">{{ batchProducts.length }} of {{ batch.productIds.length }} products generated</span>
-          <span class="pb-chip">Automation: {{ autoCount ? `${autoCount} on` : 'off' }}</span>
         </div>
 
         <!-- AI instructions -->
@@ -257,6 +220,27 @@ function backToVariation() {
             placeholder="e.g. Use a warm outdoor background with natural morning light"
             class="w-full rounded-lg border border-[#d4d4d4] px-3 py-2 text-[13px] outline-none resize-none disabled:opacity-60"
           ></textarea>
+        </div>
+
+        <!-- What the model gets to look at -->
+        <div class="pb-card p-4 mb-4 flex items-center gap-4">
+          <div class="flex-1">
+            <p class="font-semibold text-[#1a1a1a] text-[13px]">Use every product photo</p>
+            <p class="text-[12px] text-[#616161] mt-0.5">
+              Send up to 5 of the product's photos to the model instead of the main one alone.
+              More angles usually mean a truer product, and a slower generation.
+            </p>
+          </div>
+          <span
+            class="w-9 h-[20px] rounded-full transition-colors duration-300 relative shrink-0 cursor-pointer"
+            :class="batch.useMultipleImages ? 'bg-[#36c98e]' : 'bg-[#d4d4d4]'"
+            @click="batch.useMultipleImages = !batch.useMultipleImages"
+          >
+            <span
+              class="absolute top-[2px] w-4 h-4 rounded-full bg-white shadow transition-all duration-300"
+              :class="batch.useMultipleImages ? 'left-[18px]' : 'left-[2px]'"
+            ></span>
+          </span>
         </div>
 
         <!-- Generated image -->

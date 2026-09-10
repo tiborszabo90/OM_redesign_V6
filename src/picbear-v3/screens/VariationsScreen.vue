@@ -1,8 +1,8 @@
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
-import { state, products, styleById, placementOptions, variationBatches, abTests, batchRun, stopBatch, generateMore, isApproved as approvedFor, isImageLive, toggleImageLive, openEditor, startVariationFlow, startVariationFlowFrom, deleteVariation } from '../store'
+import { ref, reactive, computed, watch, nextTick } from 'vue'
+import { state, products, styleById, placementOptions, variationBatches, abTests, batchRun, stopBatch, generateMore, isApproved as approvedFor, isImageLive, toggleImageLive, openEditor, startVariationFlow, startVariationFlowFrom, deleteVariation, isOutdated, outdatedIds, regenerateImage, regenerateOutdated, currentImage, testVariationIds, armSplit, isSkipped, toggleSkip } from '../store'
 import StyledImage from '../components/StyledImage.vue'
-import { Layers, Lock, Plus, ArrowRight, ArrowLeft, Check, Pause, ChevronRight, FlaskConical, Settings, CopyPlus, Sparkles, Trash2, MoreVertical, Play, Square, Loader2 } from 'lucide-vue-next'
+import { Layers, Lock, Plus, ArrowRight, ArrowLeft, Check, Pause, ChevronRight, FlaskConical, Settings, CopyPlus, Sparkles, Trash2, MoreVertical, Play, Square, Loader2, Pencil, X, RefreshCw, History, Undo2 } from 'lucide-vue-next'
 
 // Variation-level settings live on their own sub-pages (VariationEditScreen),
 // entered through the Edit settings button; fine-tune is the default entry.
@@ -29,6 +29,13 @@ const ungenerated = computed(() =>
 )
 const renderingProducts = computed(() => ungenerated.value.filter(p => state.generated[p.id] === 'pending'))
 const waitingProducts = computed(() => ungenerated.value.filter(p => state.generated[p.id] !== 'pending'))
+
+function skipped(id) {
+  return isSkipped(state.openVariation, id)
+}
+function unskip(id) {
+  toggleSkip(state.openVariation, id)
+}
 // Everything picked for the variation is listed, so a batch of 5 out of 40
 // still shows the other 35 as waiting for their turn.
 // Whether an image is served, tracked per variation so two variations covering
@@ -62,6 +69,9 @@ function generateNext() {
 const runHere = computed(() => batchRun.running && batchRun.batchId === currentBatch.value?.id)
 const runPct = computed(() => batchRun.ids.length ? Math.round((batchRun.done / batchRun.ids.length) * 100) : 0)
 
+const skippedCount = computed(() =>
+  currentBatch.value ? currentBatch.value.productIds.filter(id => skipped(id)).length : 0
+)
 const approvedProducts = computed(() => batchProducts.value.filter(p => isApproved(p.id)))
 const liveCount = computed(() => batchProducts.value.filter(p => isLive(p.id)).length)
 
@@ -83,7 +93,7 @@ function toggleAll() {
 
 // Running A/B test for a variation, if any.
 function runningTestFor(batchId) {
-  return abTests.find(t => t.variationId === batchId && t.status === 'running') || null
+  return abTests.find(t => testVariationIds(t).includes(batchId) && t.status === 'running') || null
 }
 
 const runningTestForBatch = computed(() =>
@@ -95,7 +105,25 @@ const runningTestForBatch = computed(() =>
 // so the destructive one is never a stray click away.
 const menuOpen = ref(false)
 const confirmDelete = ref(false)
-watch(() => state.openVariation, () => { menuOpen.value = false; confirmDelete.value = false })
+// ── rename ──
+// The name is how a variation is recognised everywhere else, so it is editable
+// in place rather than buried in the settings sub-pages.
+const renaming = ref(false)
+const renameDraft = ref('')
+const renameInput = ref(null)
+
+function startRename() {
+  renameDraft.value = currentBatch.value?.name || ''
+  renaming.value = true
+  nextTick(() => renameInput.value?.select())
+}
+function saveRename() {
+  const v = renameDraft.value.trim()
+  if (v && currentBatch.value) currentBatch.value.name = v
+  renaming.value = false
+}
+
+watch(() => state.openVariation, () => { menuOpen.value = false; confirmDelete.value = false; renaming.value = false })
 
 function runAction(fn) {
   menuOpen.value = false
@@ -103,7 +131,7 @@ function runAction(fn) {
 }
 
 const testsForBatch = computed(() =>
-  currentBatch.value ? abTests.filter(t => t.variationId === currentBatch.value.id) : []
+  currentBatch.value ? abTests.filter(t => testVariationIds(t).includes(currentBatch.value.id)) : []
 )
 
 function goAbTest() {
@@ -124,6 +152,26 @@ function statusClass(status) {
   if (status === 'live') return 'text-[#0c6b45] bg-[#d7f2e4]'
   if (status === 'paused') return 'text-[#9a6a00] bg-[#fdf1e3]'
   return 'text-[#616161] bg-[#f1f1f1]'
+}
+
+// An image made before the variation's settings changed is not wrong, just older.
+// It keeps serving until someone decides to spend a regeneration on it.
+function stale(id) {
+  return currentBatch.value ? isOutdated(currentBatch.value, id) && !skipped(id) : false
+}
+const staleIds = computed(() =>
+  currentBatch.value ? outdatedIds(currentBatch.value).filter(id => !skipped(id)) : []
+)
+
+function regenOne(id) {
+  regenerateImage(currentBatch.value.id, id, styleFor(id).preview)
+}
+function regenAll() {
+  regenerateOutdated(currentBatch.value.id, styleById(currentBatch.value.styleId).preview)
+}
+
+function shownImage(id) {
+  return currentImage(state.openVariation, id, products.find(p => p.id === id).img)
 }
 
 function styleFor(id) {
@@ -193,7 +241,27 @@ function finishSetup() {
     </button>
     <div class="mb-3 flex items-start justify-between gap-4">
       <div class="min-w-0">
-        <h1 class="text-xl font-bold text-[#1a1a1a]">{{ currentBatch.name }}</h1>
+        <div v-if="renaming" class="flex items-center gap-2">
+          <input
+            ref="renameInput"
+            v-model="renameDraft"
+            type="text"
+            class="text-xl font-bold text-[#1a1a1a] rounded-lg border border-[#d4d4d4] px-2 py-1 outline-none min-w-[280px]"
+            @keyup.enter="saveRename"
+            @keyup.escape="renaming = false"
+          />
+          <button class="pb-btn-primary" @click="saveRename"><Check :size="13" /> Save</button>
+          <button class="pb-btn-ghost" @click="renaming = false"><X :size="14" /></button>
+        </div>
+        <h1 v-else class="text-xl font-bold text-[#1a1a1a] inline-flex items-center gap-2 group">
+          {{ currentBatch.name }}
+          <button
+            class="text-[#8a8a8a] hover:text-[#1a1a1a] opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+            title="Rename" @click="startRename"
+          >
+            <Pencil :size="14" />
+          </button>
+        </h1>
         <p class="text-[13px] text-[#616161] mt-1">
           {{ styleById(currentBatch.styleId).name }} · shown {{ chosenPlacement.name.toLowerCase() }} ·
           {{ currentBatch.ratioSame ? currentBatch.desktopRatio : `${currentBatch.desktopRatio} desktop, ${currentBatch.mobileRatio} mobile` }}
@@ -259,7 +327,7 @@ function finishSetup() {
             <span class="text-[10px] font-semibold text-[#0c6b45] bg-[#d7f2e4] rounded-full px-1.5 py-0.5">Day {{ runningTestForBatch.day }} of {{ runningTestForBatch.days }}</span>
           </p>
           <p class="text-[12px] text-[#616161]">
-            This variation runs against the original photos on a 50/50 split.
+            This variation is one of {{ runningTestForBatch.arms.length }} arms in the test, each getting {{ armSplit(runningTestForBatch) }}% of traffic.
             <template v-if="runningTestForBatch.uplift"> The AI variant leads with {{ runningTestForBatch.uplift }} add-to-cart.</template>
           </p>
         </div>
@@ -292,8 +360,26 @@ function finishSetup() {
       </div>
     </div>
 
+    <!-- Images made before the last settings change -->
+    <div v-if="staleIds.length" class="pb-card p-4 mb-4 flex items-center gap-3">
+      <span class="w-9 h-9 rounded-lg bg-[#fdf1e3] border border-[#f5e0c2] flex items-center justify-center shrink-0">
+        <History :size="17" class="text-[#9a6a00]" />
+      </span>
+      <div class="flex-1 min-w-0">
+        <p class="font-semibold text-[#1a1a1a]">
+          {{ staleIds.length }} {{ staleIds.length === 1 ? 'image was' : 'images were' }} made with previous settings
+        </p>
+        <p class="text-[12px] text-[#616161]">
+          They keep serving as they are. Regenerating brings them in line with the settings you have now.
+        </p>
+      </div>
+      <button class="pb-btn-secondary shrink-0" @click="regenAll">
+        <RefreshCw :size="13" /> Regenerate {{ staleIds.length }}
+      </button>
+    </div>
+
     <p class="text-[12px] text-[#616161] mb-3 px-1">
-      {{ liveCount }} of {{ batchProducts.length }} images live<span v-if="pendingApproval.length"> · {{ pendingApproval.length }} waiting for approval</span><span v-if="renderingProducts.length"> · {{ renderingProducts.length }} still generating</span>
+      {{ liveCount }} of {{ batchProducts.length }} images live<span v-if="pendingApproval.length"> · {{ pendingApproval.length }} waiting for approval</span><span v-if="renderingProducts.length"> · {{ renderingProducts.length }} still generating</span><span v-if="skippedCount"> · {{ skippedCount }} skipped</span>
     </p>
 
     <div class="flex flex-col gap-3">
@@ -308,30 +394,48 @@ function finishSetup() {
             <span class="absolute bottom-1 left-1 text-[9px] font-semibold bg-white/90 rounded px-1">Before</span>
           </div>
           <ArrowRight :size="14" class="text-[#8a8a8a]" />
-          <div class="w-24 h-24 rounded-lg overflow-hidden relative ring-1 ring-[#f2d9c9]" :class="isLive(p.id) ? '' : 'opacity-50'">
-            <StyledImage :src="p.img" :overlay="styleFor(p.id).overlay" ai-tag enhance />
+          <div class="w-24 h-24 rounded-lg overflow-hidden relative ring-1 ring-[#f2d9c9]" :class="isLive(p.id) && !skipped(p.id) ? '' : 'opacity-50'">
+            <div v-if="state.generated[p.id] === 'pending'" class="absolute inset-0 pb-skeleton flex items-center justify-center">
+              <Loader2 :size="18" class="animate-spin text-[#c9c9c9]" />
+            </div>
+            <StyledImage v-else :src="shownImage(p.id)" :overlay="styleFor(p.id).overlay" ai-tag enhance />
           </div>
         </div>
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-[#1a1a1a] truncate">{{ p.name }}</p>
           <p class="text-[12px] text-[#616161]">{{ styleFor(p.id).name }} · shown {{ chosenPlacement.name.toLowerCase() }}</p>
         </div>
-        <span
-          v-if="!isApproved(p.id)"
-          class="shrink-0 text-[12px] font-semibold text-[#9a6a00] bg-[#fdf1e3] rounded-full px-2.5 py-1"
-        >Needs approval</span>
-        <span
-          v-else
-          class="w-9 h-[20px] rounded-full transition-colors duration-300 relative shrink-0 cursor-pointer"
-          :class="isLive(p.id) ? 'bg-[#36c98e]' : 'bg-[#d4d4d4]'"
-          role="switch" :aria-checked="isLive(p.id)" :aria-label="p.name + ' live on the storefront'"
-          @click.stop="toggleLive(p.id)"
-        >
+        <!-- Skipped: the product's own photo serves, so nothing else applies -->
+        <template v-if="skipped(p.id)">
+          <span class="shrink-0 text-[12px] font-semibold text-[#616161] bg-[#f1f1f1] rounded-full px-2.5 py-1">Original image will be served</span>
+          <button class="pb-btn-ghost shrink-0" title="Use the AI image again" @click.stop="unskip(p.id)">
+            <Undo2 :size="15" />
+          </button>
+        </template>
+        <template v-else>
+          <template v-if="stale(p.id) && state.generated[p.id] !== 'pending'">
+            <span class="shrink-0 text-[12px] font-semibold text-[#9a6a00] bg-[#fdf1e3] rounded-full px-2.5 py-1">Previous settings</span>
+            <button class="pb-btn-ghost shrink-0" title="Regenerate with the current settings" @click.stop="regenOne(p.id)">
+              <RefreshCw :size="15" />
+            </button>
+          </template>
           <span
-            class="absolute top-[2px] w-4 h-4 rounded-full bg-white shadow transition-all duration-300"
-            :class="isLive(p.id) ? 'left-[18px]' : 'left-[2px]'"
-          ></span>
-        </span>
+            v-if="!isApproved(p.id)"
+            class="shrink-0 text-[12px] font-semibold text-[#9a6a00] bg-[#fdf1e3] rounded-full px-2.5 py-1"
+          >Needs approval</span>
+          <span
+            v-else
+            class="w-9 h-[20px] rounded-full transition-colors duration-300 relative shrink-0 cursor-pointer"
+            :class="isLive(p.id) ? 'bg-[#36c98e]' : 'bg-[#d4d4d4]'"
+            role="switch" :aria-checked="isLive(p.id)" :aria-label="p.name + ' live on the storefront'"
+            @click.stop="toggleLive(p.id)"
+          >
+            <span
+              class="absolute top-[2px] w-4 h-4 rounded-full bg-white shadow transition-all duration-300"
+              :class="isLive(p.id) ? 'left-[18px]' : 'left-[2px]'"
+            ></span>
+          </span>
+        </template>
       </div>
 
       <!-- Images the current batch is still rendering -->

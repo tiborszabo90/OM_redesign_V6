@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { state, products, bestseller, styleById, placementOptions, ratioOptions } from '../store'
 import WizardHeader from '../components/WizardHeader.vue'
-import StyledImage from '../components/StyledImage.vue'
+import RatioPreview from '../components/RatioPreview.vue'
 import { Pencil, RefreshCw, ArrowRight, Loader2 } from 'lucide-vue-next'
 
 const regenerating = ref(false)
@@ -66,14 +66,14 @@ function edit(screen) {
       <!-- The generated image on the left, everything you can change on the right -->
       <div class="grid grid-cols-[1fr_360px] gap-4 items-start">
 
-        <!-- Generated image -->
-        <div class="pb-card overflow-hidden">
-          <!-- The creative picked on the style step, full column width and whole. -->
-          <div v-if="regenerating" class="pb-skeleton w-full aspect-square flex items-center justify-center">
-            <Loader2 :size="22" class="animate-spin text-[#c9c9c9]" />
-          </div>
-          <img v-else :src="creative" class="w-full block pb-fade-in" />
-        </div>
+        <!-- Generated image, cropped to the ratio it goes out in -->
+        <RatioPreview
+          :src="creative"
+          :desktop-ratio="state.desktopRatio"
+          :mobile-ratio="state.mobileRatio"
+          :same="state.ratioSame"
+          :loading="regenerating"
+        />
 
         <!-- Options -->
         <div class="flex flex-col gap-4">
@@ -98,6 +98,24 @@ function edit(screen) {
                 </select>
               </div>
             </div>
+          </div>
+
+          <!-- What the model gets to look at -->
+          <div class="pb-card p-4 flex items-center gap-3">
+            <div class="flex-1">
+              <p class="font-semibold text-[#1a1a1a] text-[13px]">Use every product photo</p>
+              <p class="text-[12px] text-[#616161] mt-0.5">Send up to 5 photos to the model, not just the main one.</p>
+            </div>
+            <span
+              class="w-9 h-[20px] rounded-full transition-colors duration-300 relative shrink-0 cursor-pointer"
+              :class="state.useMultipleImages ? 'bg-[#36c98e]' : 'bg-[#d4d4d4]'"
+              @click="state.useMultipleImages = !state.useMultipleImages"
+            >
+              <span
+                class="absolute top-[2px] w-4 h-4 rounded-full bg-white shadow transition-all duration-300"
+                :class="state.useMultipleImages ? 'left-[18px]' : 'left-[2px]'"
+              ></span>
+            </span>
           </div>
 
           <!-- AI instructions -->

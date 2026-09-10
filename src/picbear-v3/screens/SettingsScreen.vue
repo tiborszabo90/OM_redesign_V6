@@ -1,7 +1,8 @@
 <script setup>
 import { computed } from 'vue'
-import { state, products, subscriptionPlans } from '../store'
-import { Settings, Check, CreditCard, Bell, Store, ArrowRight } from 'lucide-vue-next'
+import { state, products, subscriptionPlans, disclosureIcons, DISCLOSURE_MAX, bestseller, styleById } from '../store'
+import AiLabel from '../components/AiLabel.vue'
+import { Settings, Check, CreditCard, Bell, Store, ArrowRight, BadgeInfo, TriangleAlert } from 'lucide-vue-next'
 
 const liveCount = computed(() => products.filter(p => state.selected.includes(p.id)).length)
 const plan = computed(() => subscriptionPlans.find(p => p.id === state.plan))
@@ -22,6 +23,15 @@ function goPlans() {
 
 function goEnable() {
   state.screen = 'enable'
+}
+
+// ── AI label ──
+const d = state.disclosure
+// The sample the merchant checks the label against is a real generated image.
+const labelSample = computed(() => styleById('lifestyle').preview)
+
+function pickIcon(id) {
+  d.icon = id
 }
 </script>
 
@@ -58,6 +68,96 @@ function goEnable() {
               :class="state.settings[row.key] ? 'left-[18px]' : 'left-[2px]'"
             ></span>
           </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI label on generated images (EU AI Act Art. 50(4)) -->
+    <div class="pb-card p-5 mb-4">
+      <div class="flex items-center gap-2 mb-1">
+        <BadgeInfo :size="15" class="text-[#b2592e]" />
+        <p class="font-semibold text-[#1a1a1a]">AI label on your images</p>
+      </div>
+      <p class="text-[12px] text-[#616161] mb-4">
+        The EU AI Act asks you to tell shoppers when an image is AI generated. Picbear
+        puts this label in the corner of every image it makes.
+      </p>
+
+      <div class="grid grid-cols-[1fr_240px] gap-5 items-start">
+        <div>
+          <!-- On/off. Off is a deliberate choice, so it reads as one. -->
+          <div class="flex items-center gap-4 pb-4 border-b border-[#ececec]">
+            <div class="flex-1">
+              <p class="font-medium text-[#1a1a1a] text-[13px]">Show the label</p>
+              <p class="text-[12px] text-[#616161] mt-0.5">Applies to every image, on every product page.</p>
+            </div>
+            <span
+              class="w-9 h-[20px] rounded-full transition-colors duration-300 relative shrink-0 cursor-pointer"
+              :class="d.enabled ? 'bg-[#36c98e]' : 'bg-[#d4d4d4]'"
+              @click="d.enabled = !d.enabled"
+            >
+              <span
+                class="absolute top-[2px] w-4 h-4 rounded-full bg-white shadow transition-all duration-300"
+                :class="d.enabled ? 'left-[18px]' : 'left-[2px]'"
+              ></span>
+            </span>
+          </div>
+
+          <div v-if="!d.enabled" class="flex items-start gap-2 mt-3 rounded-lg bg-[#fdf4ef] border border-[#f2d9c9] px-3 py-2.5">
+            <TriangleAlert :size="14" class="text-[#b2592e] shrink-0 mt-0.5" />
+            <p class="text-[12px] text-[#6b3319]">
+              With the label off, nothing on your product pages says the images are AI
+              generated. Whether that is allowed where you sell is your call.
+            </p>
+          </div>
+
+          <div :class="d.enabled ? '' : 'opacity-45 pointer-events-none'">
+            <div class="mt-4">
+              <label class="text-[12px] font-medium text-[#616161] mb-1 flex items-center justify-between">
+                <span>Label text</span>
+                <span class="tabular-nums text-[#8a8a8a]">{{ d.text.length }} / {{ DISCLOSURE_MAX }}</span>
+              </label>
+              <input
+                v-model="d.text"
+                type="text"
+                :maxlength="DISCLOSURE_MAX"
+                placeholder="AI Generated"
+                class="w-full rounded-lg border border-[#d4d4d4] px-3 py-2 text-[13px] outline-none"
+              />
+              <p class="text-[12px] text-[#616161] mt-1.5">Leave it empty to show the icon on its own.</p>
+            </div>
+
+            <div class="mt-4">
+              <p class="text-[12px] font-medium text-[#616161] mb-2">Icon</p>
+              <div class="flex flex-col gap-2">
+                <button
+                  v-for="opt in disclosureIcons" :key="opt.id"
+                  class="flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left cursor-pointer transition-colors"
+                  :class="d.icon === opt.id ? 'border-[#b2592e] bg-[#fdf4ef]' : 'border-[#d4d4d4] hover:border-[#a0a0a0]'"
+                  @click="pickIcon(opt.id)"
+                >
+                  <span class="shrink-0 rounded-md bg-[#1a1a1a] px-1.5 py-1 inline-flex">
+                    <AiLabel :icon="opt.id" text="" compact />
+                  </span>
+                  <span class="flex-1 min-w-0">
+                    <span class="block text-[13px] font-semibold text-[#1a1a1a]">{{ opt.name }}</span>
+                    <span class="block text-[12px] text-[#616161]">{{ opt.hint }}</span>
+                  </span>
+                  <Check v-if="d.icon === opt.id" :size="15" class="text-[#b2592e] shrink-0" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live sample, so the label is judged on an image and not in a field -->
+        <div>
+          <p class="text-[12px] font-medium text-[#616161] mb-2">On your images</p>
+          <div class="relative rounded-lg overflow-hidden ring-1 ring-[#e3e3e3]">
+            <img :src="labelSample" class="w-full block" />
+            <AiLabel v-if="d.enabled" class="absolute bottom-2 left-2" />
+          </div>
+          <p class="text-[12px] text-[#616161] mt-2">{{ bestseller.name }}</p>
         </div>
       </div>
     </div>

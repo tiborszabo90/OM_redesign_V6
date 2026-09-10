@@ -175,64 +175,84 @@ export const subscriptionPlans = [
 
 // Named variation batches shown on the Variations list page.
 // Each opens a sub-page with a review-style list of its products.
-// autoAdd / autoPublish are per-variation automation toggles; instructions and
-// the ratios apply to every image in the batch (edited on its fine-tune sub-page).
+// instructions and the ratios apply to every image in the batch (edited on its
+// fine-tune sub-page).
 // productIds = products picked for the variation, generatedIds = the ones that
 // already have an image; the rest are waiting for a later generation batch.
 export const variationBatches = reactive([
-  { id: 'main', name: 'Product image change', styleId: 'lifestyle', productIds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], generatedIds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], status: 'live', ctr: '4.8%', autoAdd: true, autoPublish: false, placement: 'below-hero', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', ratioSame: true, desktopRatio: '4:3', mobileRatio: '4:3' },
-  { id: 'badge', name: 'Image with badge', styleId: 'badge', productIds: [1, 2, 3, 4, 5, 6], generatedIds: [1, 2, 3, 4, 5, 6], status: 'live', ctr: '4.1%', autoAdd: false, autoPublish: false, placement: 'replace', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', ratioSame: true, desktopRatio: '1:1', mobileRatio: '1:1' },
-  { id: 'callouts', name: 'Value prop callouts', styleId: 'callouts', productIds: [1, 2, 3, 4], generatedIds: [1, 2, 3, 4], status: 'draft', ctr: null, autoAdd: false, autoPublish: false, placement: 'below-desc', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', ratioSame: true, desktopRatio: '4:3', mobileRatio: '4:3' },
-  { id: 'people', name: 'People using product', styleId: 'people', productIds: [1, 2, 3], generatedIds: [1, 2, 3], status: 'paused', ctr: '3.6%', autoAdd: false, autoPublish: false, placement: 'below-hero', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', ratioSame: false, desktopRatio: '16:9', mobileRatio: '4:5' },
+  { id: 'main', name: 'Product image change', styleId: 'lifestyle', productIds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], generatedIds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], status: 'live', ctr: '4.8%', placement: 'below-hero', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', useMultipleImages: true, ratioSame: true, desktopRatio: '4:3', mobileRatio: '4:3' },
+  { id: 'badge', name: 'Image with badge', styleId: 'badge', productIds: [1, 2, 3, 4, 5, 6], generatedIds: [1, 2, 3, 4, 5, 6], status: 'live', ctr: '4.1%', placement: 'replace', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', useMultipleImages: true, ratioSame: true, desktopRatio: '1:1', mobileRatio: '1:1' },
+  { id: 'callouts', name: 'Value prop callouts', styleId: 'callouts', productIds: [1, 2, 3, 4], generatedIds: [1, 2, 3, 4], status: 'draft', ctr: null, placement: 'below-desc', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', useMultipleImages: true, ratioSame: true, desktopRatio: '4:3', mobileRatio: '4:3' },
+  { id: 'people', name: 'People using product', styleId: 'people', productIds: [1, 2, 3], generatedIds: [1, 2, 3], status: 'paused', ctr: '3.6%', placement: 'below-hero', galleryPos: 'main', customSelector: '', customMode: 'below', instructions: '', useMultipleImages: true, ratioSame: false, desktopRatio: '16:9', mobileRatio: '4:5' },
 ])
 
-// A/B tests: each test pits a variation's AI images against the original photos
-// on a 50/50 traffic split. Two seeds: one finished (proof), one in progress.
+// A/B tests: a control arm (the original photos) plus one arm per variation
+// under test, traffic split evenly between them. Two seeds: one finished
+// two-arm test (proof), one three-arm test in progress.
+function arm(key, label, variationId, isControl, counts) {
+  return { key, label, variationId, isControl, ...counts }
+}
+
 export const abTests = reactive([
   {
     id: 'badge-test',
     variationId: 'badge',
     name: 'Image with badge vs Original',
-    status: 'completed',       // running | completed
+    type: 'ab',
+    status: 'completed',       // draft | running | paused | completed
     day: 14, days: 14,
-    winner: 'variant',
+    winner: 'v1',              // arm key
     applied: false,
     confidence: 96,
     uplift: '+27%',
+    includeControl: true,
     autoStop: true,
     minOrders: 50,
     stopConfidence: 95,
     // Raw counts; rates (ATC, CVR, AOV) are derived in the view.
-    arms: {
-      original: { visitors: 1418, addToCarts: 58, orders: 39, revenue: 612, chanceToWin: 4 },
-      variant: { visitors: 1425, addToCarts: 74, orders: 51, revenue: 844, chanceToWin: 96 },
-    },
+    arms: [
+      arm('control', 'Original photos', null, true, { visitors: 1418, addToCarts: 58, orders: 39, revenue: 612, chanceToWin: 4 }),
+      arm('v1', 'Image with badge', 'badge', false, { visitors: 1425, addToCarts: 74, orders: 51, revenue: 844, chanceToWin: 96 }),
+    ],
   },
   {
     id: 'main-test',
     variationId: 'main',
     name: 'Product image change vs Original',
+    type: 'ab',
     status: 'running',
     day: 3, days: 14,
     winner: null,
     applied: false,
     confidence: 62,
     uplift: '+14%',
+    includeControl: true,
     autoStop: true,
     minOrders: 50,
     stopConfidence: 95,
-    arms: {
-      original: { visitors: 402, addToCarts: 16, orders: 9, revenue: 141, chanceToWin: 38 },
-      variant: { visitors: 396, addToCarts: 18, orders: 11, revenue: 177, chanceToWin: 62 },
-    },
+    arms: [
+      arm('control', 'Original photos', null, true, { visitors: 402, addToCarts: 16, orders: 9, revenue: 141, chanceToWin: 21 }),
+      arm('v1', 'Product image change', 'main', false, { visitors: 396, addToCarts: 18, orders: 11, revenue: 177, chanceToWin: 47 }),
+      arm('v2', 'People using product', 'people', false, { visitors: 399, addToCarts: 17, orders: 10, revenue: 168, chanceToWin: 32 }),
+    ],
   },
 ])
+
+// Every variation an arm points at. Used to keep tests and variations in sync.
+export function testVariationIds(t) {
+  return t.arms.filter(a => a.variationId).map(a => a.variationId)
+}
+
+// Arms share the traffic evenly, the way the app splits it.
+export function armSplit(t) {
+  return Math.round(100 / t.arms.length)
+}
 
 export const state = reactive({
   screen: 'welcome',         // launch on the welcome intro; it leads to the type selector. welcome | home (active account) | home-onboarding-fallback (setup guide) | style | placement | products | generate | review | finetune | enable | done | plans
   appTab: 'home',            // picbear subnav: home | variations | abtests
   openVariation: null,       // variation batch id open on the Variations sub-page (drives the URL)
-  editSection: null,         // 'image' | 'placement' | 'automation' when editing that variation (drives the URL)
+  editSection: null,         // 'image' | 'placement' | 'products' when editing that variation (drives the URL)
   openAbTest: null,          // A/B test id open on the A/B Tests sub-page, or 'new' for setup (drives the URL)
   abTestPrefill: null,       // variation id to preselect when the A/B test setup opens
   style: null,
@@ -245,6 +265,7 @@ export const state = reactive({
   ratioSame: true,          // image ratio picked on the generate step, applies to the whole batch
   desktopRatio: '4:3',
   mobileRatio: '4:3',
+  useMultipleImages: true,   // feed every product photo to the model, not just the hero
   previewsSeen: false,
   generated: {},             // id -> 'pending' | 'done'
   approved: {},
@@ -263,7 +284,23 @@ export const state = reactive({
     emailOnFinish: true,     // email when a batch finishes
     weeklyDigest: true,      // weekly performance summary email
   },
+  // The AI label the EU AI Act (Art. 50(4)) asks for, burned into the corner of
+  // every generated image. On by default; switching it off is the merchant's call.
+  disclosure: {
+    enabled: true,
+    text: 'AI Generated',
+    icon: 'ai',              // see disclosureIcons
+  },
 })
+
+export const DISCLOSURE_MAX = 40
+
+// The official EU icon set, in the three variants the app offers.
+export const disclosureIcons = [
+  { id: 'ai', name: 'AI', hint: 'Basic disc' },
+  { id: 'ai-generated', name: 'AI GENERATED', hint: 'Wordmark' },
+  { id: 'ai-modified', name: 'AI MODIFIED', hint: 'Wordmark' },
+]
 
 export function stepsDone() {
   return Object.values(state.steps).filter(Boolean).length
@@ -345,13 +382,12 @@ export function finishVariationFlow() {
     generatedIds: state.selected.filter(pid => state.generated[pid] === 'done'),
     status: 'live',
     ctr: null,
-    autoAdd: false,
-    autoPublish: false,
     placement: state.placement,
     galleryPos: state.galleryPos,
     customSelector: state.customSelector,
     customMode: state.customMode,
     instructions: state.instructions,
+    useMultipleImages: state.useMultipleImages,
     ratioSame: state.ratioSame,
     desktopRatio: state.desktopRatio,
     mobileRatio: state.mobileRatio,
@@ -369,7 +405,7 @@ export function deleteVariation(batchId) {
   const i = variationBatches.findIndex(b => b.id === batchId)
   if (i >= 0) variationBatches.splice(i, 1)
   for (let j = abTests.length - 1; j >= 0; j--) {
-    if (abTests[j].variationId === batchId) abTests.splice(j, 1)
+    if (testVariationIds(abTests[j]).includes(batchId)) abTests.splice(j, 1)
   }
   state.abTestRunning = abTests.some(t => t.status === 'running')
   state.openVariation = null
@@ -403,6 +439,111 @@ export function toggleImageLive(batchId, productId) {
   liveImages[key] = !liveImages[key]
 }
 
+// ── image settings signature, history and restore ─────────────────────────
+// Everything a generated image depends on. When a variation's settings change,
+// the images made before the change no longer match it — they are not wrong,
+// just older, so the app says so instead of silently re-billing a regeneration.
+export function settingsSignature(batch) {
+  return [
+    batch.styleId, batch.instructions, batch.useMultipleImages,
+    batch.ratioSame, batch.desktopRatio, batch.ratioSame ? batch.desktopRatio : batch.mobileRatio,
+  ].join('|')
+}
+
+// key -> the signature the image was made with.
+export const imageStamps = reactive({})
+// key -> a restored (or otherwise replaced) image URL that wins over the style creative.
+export const imageOverrides = reactive({})
+// key -> older versions, newest first.
+export const imageHistory = reactive({})
+
+const imgKey = (batchId, productId) => `${batchId}:${productId}`
+
+export function stampImage(batchId, productId) {
+  const batch = variationBatches.find(b => b.id === batchId)
+  if (batch) imageStamps[imgKey(batchId, productId)] = settingsSignature(batch)
+}
+
+export function isOutdated(batch, productId) {
+  const stamp = imageStamps[imgKey(batch.id, productId)]
+  return !!stamp && stamp !== settingsSignature(batch)
+}
+
+export function outdatedIds(batch) {
+  return batch.generatedIds.filter(id => isOutdated(batch, id))
+}
+
+export function currentImage(batchId, productId, fallback) {
+  return imageOverrides[imgKey(batchId, productId)] || fallback
+}
+
+export function historyFor(batchId, productId) {
+  return imageHistory[imgKey(batchId, productId)] || []
+}
+
+// Restoring swaps: the picked version becomes current, the one it replaces takes
+// its place in the list. Nothing is deleted and nothing is generated again.
+export function restoreImage(batchId, productId, entryId, fallback) {
+  const key = imgKey(batchId, productId)
+  const list = imageHistory[key]
+  if (!list) return
+  const i = list.findIndex(e => e.id === entryId)
+  if (i < 0) return
+  const picked = list[i]
+  const replaced = { id: `v-${Date.now()}`, img: currentImage(batchId, productId, fallback), when: 'Just now', note: picked.note ? 'Replaced on restore' : 'Replaced on restore' }
+  list.splice(i, 1, replaced)
+  imageOverrides[key] = picked.img
+}
+
+// Re-running one image: it renders again and comes back stamped with the current
+// settings, and the version it replaces drops into the history.
+export function regenerateImage(batchId, productId, fallback) {
+  const key = imgKey(batchId, productId)
+  const list = imageHistory[key] || (imageHistory[key] = [])
+  list.unshift({ id: `v-${Date.now()}`, img: currentImage(batchId, productId, fallback), when: 'Just now', note: 'Made with previous settings' })
+  delete imageOverrides[key]
+  state.generated[productId] = 'pending'
+  setTimeout(() => {
+    state.generated[productId] = 'done'
+    stampImage(batchId, productId)
+  }, 1400)
+}
+
+export function regenerateOutdated(batchId, fallback) {
+  const batch = variationBatches.find(b => b.id === batchId)
+  if (!batch) return
+  outdatedIds(batch).forEach((pid, i) => setTimeout(() => regenerateImage(batchId, pid, fallback), i * 250))
+}
+
+// The seeded variations already have their images, so stamp them with the
+// settings they were made with; editing a variation is what makes them stale.
+variationBatches.forEach(b => b.generatedIds.forEach(pid => stampImage(b.id, pid)))
+
+// Two seeded products carry an earlier version, so the history is not empty on
+// first look. The older shots come from the sample feed.
+imageHistory['main:1'] = [
+  { id: 'h1', img: '/picbear/style-people.jpg', when: '3 days ago', note: 'Before the scene was dropped' },
+  { id: 'h2', img: '/picbear/style-callouts.jpg', when: '6 days ago', note: 'First generation' },
+]
+imageHistory['main:2'] = [
+  { id: 'h3', img: '/picbear/style-badge.jpg', when: '6 days ago', note: 'First generation' },
+]
+
+// ── skip ──────────────────────────────────────────────────────────────────
+// Skipping leaves the product's own photo in place for this variation: no AI
+// image is served for it, and the next batch does not spend a generation on it.
+// It is per variation, so a product skipped in one look can still get another.
+export const skippedImages = reactive({})
+
+export function isSkipped(batchId, productId) {
+  return !!skippedImages[`${batchId}:${productId}`]
+}
+
+export function toggleSkip(batchId, productId) {
+  const key = `${batchId}:${productId}`
+  skippedImages[key] = !skippedImages[key]
+}
+
 // The generation run in progress, so a variation page can follow it and stop it.
 export const batchRun = reactive({ batchId: null, ids: [], done: 0, running: false })
 let batchTimers = []
@@ -432,13 +573,12 @@ export function startVariationBatch(batchSize) {
     generatedIds: [],
     status: 'draft',
     ctr: null,
-    autoAdd: false,
-    autoPublish: false,
     placement: state.placement,
     galleryPos: state.galleryPos,
     customSelector: state.customSelector,
     customMode: state.customMode,
     instructions: state.instructions,
+    useMultipleImages: state.useMultipleImages,
     ratioSame: state.ratioSame,
     desktopRatio: state.desktopRatio,
     mobileRatio: state.mobileRatio,
@@ -458,6 +598,7 @@ export function startVariationBatch(batchSize) {
     return setTimeout(() => {
       state.generated[pid] = 'done'
       live.generatedIds.push(pid)
+      stampImage(id, pid)
       batchRun.done++
       if (batchRun.done >= batchRun.ids.length) batchRun.running = false
     }, 1200 + i * 1200)
@@ -490,6 +631,7 @@ export function generateMore(batchId, count) {
     return setTimeout(() => {
       state.generated[pid] = 'done'
       live.generatedIds.push(pid)
+      stampImage(batchId, pid)
       batchRun.done++
       if (batchRun.done >= batchRun.ids.length) batchRun.running = false
     }, 1200 + i * 1200)

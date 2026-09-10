@@ -1,13 +1,17 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { state, products, editSettings, styleById, placementOptions, ratioOptions, variationBatches, isApproved, approveImage, isImageLive, toggleImageLive } from '../store'
-import { ArrowLeft, Check, RefreshCw, Loader2, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { ref, computed, watch } from 'vue'
+import { state, products, editSettings, styleById, placementOptions, ratioOptions, variationBatches, isApproved, approveImage, isImageLive, toggleImageLive, isOutdated, historyFor, restoreImage, regenerateImage, currentImage, isSkipped, toggleSkip } from '../store'
+import RatioPreview from '../components/RatioPreview.vue'
+import { ArrowLeft, Check, RefreshCw, Loader2, ChevronLeft, ChevronRight, History, Undo2, X, Ban } from 'lucide-vue-next'
 
 const product = computed(() => products.find(p => p.id === state.editingId) || products[0])
 const s = computed(() => editSettings(state.editingId))
 const chosenStyle = computed(() => styleById(state.style) || styleById('lifestyle'))
-// The generated image is the creative picked on the style step, same as in setup.
-const creative = computed(() => chosenStyle.value.preview || chosenStyle.value.img)
+// The creative picked on the style step, unless an older version was restored.
+const styleCreative = computed(() => chosenStyle.value.preview || chosenStyle.value.img)
+const creative = computed(() =>
+  batch.value ? currentImage(batch.value.id, state.editingId, styleCreative.value) : styleCreative.value
+)
 
 const regenerating = ref(false)
 
@@ -23,6 +27,32 @@ function step(by) {
   editSettings(state.editingId)
 }
 
+// Ratios are a variation-level setting, so on a variation the preview follows
+// the batch; only the setup review edits them per image.
+const ratios = computed(() => batch.value || s.value)
+
+// ── history and staleness ──
+// Every edit keeps what it replaced, so going back costs nothing and generates
+// nothing. Only makes sense on a variation, where the versions are recorded.
+const historyOpen = ref(false)
+const pending = computed(() => state.generated[state.editingId] === 'pending')
+const history = computed(() => (batch.value ? historyFor(batch.value.id, state.editingId) : []))
+const stale = computed(() => (batch.value ? isOutdated(batch.value, state.editingId) && !isSkipped(batch.value.id, state.editingId) : false))
+
+function restore(entryId) {
+  restoreImage(batch.value.id, state.editingId, entryId, styleCreative.value)
+  historyOpen.value = false
+}
+
+function regenerateCurrent() {
+  if (!batch.value) return regenerate()
+  historyOpen.value = false
+  regenerateImage(batch.value.id, state.editingId, styleCreative.value)
+}
+
+// Paging to another image closes the history of the one you left.
+watch(() => state.editingId, () => { historyOpen.value = false })
+
 const approved = computed(() => (batch.value ? isApproved(batch.value.id, state.editingId) : false))
 const live = computed(() => (batch.value ? isImageLive(batch.value.id, state.editingId) : false))
 
@@ -35,6 +65,20 @@ function approve() {
   if (!batch.value) return
   approveImage(batch.value.id, state.editingId)
   step(1)
+}
+
+// Skipping is the other half of the same decision: keep the product's own photo
+// for this variation. Like approving, it moves to the next image.
+const skipped = computed(() => (batch.value ? isSkipped(batch.value.id, state.editingId) : false))
+
+function skip() {
+  if (!batch.value) return
+  toggleSkip(batch.value.id, state.editingId)
+  step(1)
+}
+
+function unskip() {
+  if (batch.value) toggleSkip(batch.value.id, state.editingId)
 }
 
 function regenerate() {
@@ -82,20 +126,52 @@ function done() {
       </div>
     </div>
 
+    <!-- Made before the variation's settings changed -->
+    <div v-if="stale" class="pb-card px-4 py-3 mb-4 flex items-center gap-3">
+      <span class="w-8 h-8 rounded-lg bg-[#fdf1e3] border border-[#f5e0c2] flex items-center justify-center shrink-0">
+        <History :size="15" class="text-[#9a6a00]" />
+      </span>
+      <p class="flex-1 min-w-0 text-[13px] text-[#303030]">
+        <span class="font-semibold">This image was made with previous settings.</span>
+        It keeps serving until you regenerate it.
+      </p>
+      <button class="pb-btn-secondary shrink-0" :disabled="pending" @click="regenerateCurrent">
+        <RefreshCw :size="13" /> Regenerate
+      </button>
+    </div>
+
     <div class="grid grid-cols-[1fr_360px] gap-4 items-start">
 
-      <!-- Generated image -->
-      <div class="pb-card overflow-hidden">
-        <div v-if="regenerating" class="pb-skeleton w-full aspect-square flex items-center justify-center">
-          <Loader2 :size="22" class="animate-spin text-[#c9c9c9]" />
-        </div>
-        <img v-else :src="creative" class="w-full block pb-fade-in" />
-      </div>
+      <!-- Generated image, cropped to the ratio it goes out in -->
+      <RatioPreview
+        :src="creative"
+        :desktop-ratio="ratios.desktopRatio"
+        :mobile-ratio="ratios.mobileRatio"
+        :same="ratios.ratioSame"
+        :loading="regenerating || pending"
+      />
 
       <!-- Options -->
       <div class="flex flex-col gap-4">
-        <!-- Image ratios -->
-        <div class="pb-card p-4">
+        <!-- Earlier versions of this image; the list itself opens in a modal so
+             it stays usable however many versions pile up. -->
+        <div v-if="batch" class="pb-card p-4 flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <p class="font-semibold text-[#1a1a1a] inline-flex items-center gap-2">
+              <History :size="15" class="text-[#8a8a8a]" /> Image history
+            </p>
+            <p class="text-[12px] text-[#616161] mt-0.5">
+              {{ history.length ? `${history.length} earlier ${history.length === 1 ? 'version' : 'versions'} kept` : 'No earlier version yet' }}
+            </p>
+          </div>
+          <button class="pb-btn-secondary shrink-0" :disabled="!history.length" @click="historyOpen = true">
+            View all
+          </button>
+        </div>
+
+        <!-- Image ratios: not per image, so they are out of the way when the
+             editor is paging through a variation's generated images. -->
+        <div v-if="!batch" class="pb-card p-4">
           <p class="font-semibold text-[#1a1a1a] mb-2">Image ratios</p>
           <label class="flex items-center gap-2 text-[13px] text-[#303030] mb-3 cursor-pointer select-none">
             <input type="checkbox" v-model="s.ratioSame" class="w-4 h-4 accent-[#1a1a1a]" />
@@ -124,14 +200,14 @@ function done() {
           <textarea
             v-model="s.instructions"
             rows="3"
-            :disabled="regenerating"
+            :disabled="regenerating || pending"
             placeholder="e.g. Warmer tones, morning light, more space around the product"
             class="w-full rounded-lg border border-[#d4d4d4] px-3 py-2 text-[13px] outline-none resize-none disabled:opacity-60 mb-3"
           ></textarea>
-          <button class="pb-btn-secondary" :disabled="regenerating" @click="regenerate">
-            <Loader2 v-if="regenerating" :size="13" class="animate-spin" />
+          <button class="pb-btn-secondary" :disabled="regenerating || pending" @click="regenerateCurrent">
+            <Loader2 v-if="regenerating || pending" :size="13" class="animate-spin" />
             <RefreshCw v-else :size="13" />
-            {{ regenerating ? 'Generating...' : 'Regenerate image' }}
+            {{ regenerating || pending ? 'Generating...' : 'Regenerate image' }}
           </button>
         </div>
 
@@ -139,11 +215,63 @@ function done() {
     </div>
     </div>
 
+    <!-- Image history -->
+    <div v-if="historyOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/40" @click="historyOpen = false"></div>
+      <div class="pb-card relative z-10 w-full max-w-[720px] max-h-[85vh] flex flex-col p-5">
+        <div class="flex items-start justify-between gap-4 mb-1">
+          <div class="min-w-0">
+            <p class="text-lg font-bold text-[#1a1a1a] leading-tight">Image history</p>
+            <p class="text-[13px] text-[#616161] mt-0.5 truncate">{{ product.name }}</p>
+          </div>
+          <button class="text-[#8a8a8a] hover:text-[#1a1a1a] cursor-pointer shrink-0" @click="historyOpen = false" aria-label="Close">
+            <X :size="18" />
+          </button>
+        </div>
+        <p class="text-[12px] text-[#616161] mb-4">
+          Restoring swaps a version back in and keeps the one it replaces. Nothing is
+          generated and nothing is charged.
+        </p>
+
+        <div class="overflow-y-auto -mx-1 px-1">
+          <!-- What is serving right now, so the versions have something to compare to -->
+          <div class="flex items-center gap-3 rounded-lg border border-[#f2d9c9] bg-[#fdf4ef] p-2.5 mb-3">
+            <div class="w-14 h-14 rounded-md overflow-hidden ring-1 ring-[#f2d9c9] shrink-0">
+              <img :src="creative" class="w-full h-full object-cover" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-[13px] font-semibold text-[#6b3319]">Current image</p>
+              <p class="text-[12px] text-[#8a6a55]">{{ stale ? 'Made with previous settings' : 'Made with the settings you have now' }}</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div
+              v-for="h in history" :key="h.id"
+              class="flex items-center gap-3 rounded-lg border border-[#ececec] p-2.5"
+            >
+              <div class="w-14 h-14 rounded-md overflow-hidden ring-1 ring-[#e3e3e3] shrink-0">
+                <img :src="h.img" class="w-full h-full object-cover" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-medium text-[#1a1a1a]">{{ h.when }}</p>
+                <p class="text-[12px] text-[#616161] truncate">{{ h.note }}</p>
+              </div>
+              <button class="pb-btn-secondary shrink-0" @click="restore(h.id)">
+                <Undo2 :size="13" /> Restore
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Sticky action bar, same place as in setup -->
     <div class="sticky bottom-[var(--dev-nav-height,0px)] mt-5 px-6 py-3 bg-white border-t border-[#e3e3e3]">
       <div class="max-w-[960px] mx-auto flex items-center justify-between gap-4">
         <p class="text-[12px] text-[#616161]">
-          Approving puts the image live and opens the next one.
+          <template v-if="skipped">This product keeps its own photo in this variation.</template>
+          <template v-else>Approving puts the image live and opens the next one. Skipping keeps the original photo.</template>
         </p>
 
         <div class="flex items-center gap-2 shrink-0">
@@ -163,7 +291,16 @@ function done() {
             </button>
           </template>
 
-          <template v-if="approved">
+          <template v-if="skipped">
+            <span class="text-[12px] font-semibold text-[#616161] bg-[#f1f1f1] rounded-full px-3 py-1 inline-flex items-center gap-1.5 ml-1">
+              <Ban :size="13" /> Skipped
+            </span>
+            <button class="pb-btn-secondary ml-1" @click="unskip">
+              <Undo2 :size="13" /> Use the AI image
+            </button>
+          </template>
+
+          <template v-else-if="approved">
             <span class="text-[12px] font-semibold text-[#0c6b45] bg-[#d7f2e4] rounded-full px-3 py-1 inline-flex items-center gap-1.5 ml-1">
               <Check :size="13" /> Approved
             </span>
@@ -179,9 +316,14 @@ function done() {
               ></span>
             </span>
           </template>
-          <button v-else-if="batch" class="pb-btn-primary ml-1" @click="approve">
-            <Check :size="13" /> Approve
-          </button>
+          <template v-else-if="batch">
+            <button class="pb-btn-secondary ml-1" @click="skip">
+              <Ban :size="13" /> Skip
+            </button>
+            <button class="pb-btn-primary" @click="approve">
+              <Check :size="13" /> Approve
+            </button>
+          </template>
         </div>
       </div>
     </div>
