@@ -231,7 +231,6 @@ Minden képernyőhöz előre megadott fake adat, hogy a flow connect/AI nélkül
 - OptiMonk brand tokenek (`--color-om-orange-*`, `om-*`) a `@theme` blokkból; PrimeVue 4 + lucide ikonok.
 - Domain-váltó, kártyák, badge-ek a `shared/` komponensekből (Button, Modal, Dropdown).
 - Chartok: ApexCharts (`vue3-apexcharts`). Datepicker: `@vuepic/vue-datepicker`. Mikro-animációk (kártya-megjelenés, scan-„folyamat"): GSAP / Lottie.
-- Opticube `Oc*` komponensek, ahol illeszkedik.
 
 ---
 

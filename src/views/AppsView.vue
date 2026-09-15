@@ -61,12 +61,12 @@ const apps = [
     logo: '/icons/optimonk-logo.svg',
   },
   {
-    id: 'opticube',
-    label: 'OptiCube',
-    tagline: 'A new product in the OptiMonk family',
-    target: 'opticube',
-    accent: '#6366F1',
-    available: false,
+    id: 'optiqube',
+    label: 'OptiQube',
+    tagline: 'Agentic Meta catalog creative studio',
+    target: 'optiqube-dev-start',
+    accent: '#007FFF',
+    available: true,
     icon: Box,
   },
   {

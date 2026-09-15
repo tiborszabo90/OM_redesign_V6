@@ -89,9 +89,6 @@ const wizardSkipRegistration = ref(false)
 const wizardPhase = ref(null)
 const mobileOnboardingVariant = ref(null) // null | 'en' | 'hu'
 const useHuDesktopFlow = ref(false)
-// Current step of the OptiCube onboarding flow, kept in sync via its 'step-change' event
-// so the DevNavBar highlight tracks internal navigation (the viewRefs object is non-reactive).
-const opticubeOnboardingStep = ref(1)
 
 // View refs — keyed by refName from registry
 const viewRefs = {}
@@ -214,7 +211,7 @@ const activeProps = computed(() => {
   // Per-view props configuration
   const propsConfig = {
     'dev-start': { initialShowArchive: devStartShowArchive.value },
-    'opticube': { product: 'opticube' },
+    'optiqube': { product: 'optiqube' },
     'picbear': { product: 'picbear' },
     'picbear-v2': { product: 'picbear' },
     'picbear-v3': { product: 'picbear' },
@@ -619,10 +616,8 @@ const activeEvents = computed(() => {
 
   const eventsConfig = {
     'apps': { navigate: handleDevNavigate },
-    'opticube': { navigate: handleDevNavigate },
-    'opticube-design-guide': { navigate: handleDevNavigate },
-    'opticube-registration': { complete: () => handleDevNavigate('opticube-onboarding'), signIn: () => {} },
-    'opticube-onboarding': { complete: () => handleDevNavigate('opticube'), back: () => handleDevNavigate('opticube-registration'), 'step-change': (s) => { opticubeOnboardingStep.value = s } },
+    'optiqube-dev-start': { navigate: handleDevNavigate },
+    'optiqube': { navigate: handleDevNavigate },
     'picbear-dev-start': { navigate: handleDevNavigate },
     'picbear': { navigate: handleDevNavigate },
     'picbear-v2': { navigate: handleDevNavigate },
@@ -1059,20 +1054,6 @@ const handleDevStartSelect = (type) => {
 }
 
 const handleDevGoToStep = async (step) => {
-  if (currentProduct.value === 'opticube') {
-    if (currentView.value !== 'opticube-onboarding') {
-      sessionKey.value++
-      currentView.value = null
-      await nextTick()
-      setTimeout(() => {
-        currentView.value = 'opticube-onboarding'
-        setTimeout(() => { viewRefs.opticubeOnboardingRef?.devGoToStep(step) }, 350)
-      }, 50)
-    } else {
-      viewRefs.opticubeOnboardingRef?.devGoToStep(step)
-    }
-    return
-  }
   flowSelected.value = true
   const targetView = mobileOnboardingVariant.value === 'hu' ? 'onboarding-mobile-hu'
                     : mobileOnboardingVariant.value === 'en' ? 'onboarding-mobile'
@@ -1193,8 +1174,8 @@ watch(devNavOpen, updateNavHeight, { immediate: true })
     v-if="showDevNav"
     :current-view="displayView"
     :product="currentProduct"
-    :current-step="(currentProduct === 'opticube' ? opticubeOnboardingStep : viewRefs.onboardingRef?.displayStepForNav) || 1"
-    :total-steps="(currentProduct === 'opticube' ? viewRefs.opticubeOnboardingRef?.totalStepsCount : viewRefs.onboardingRef?.totalStepsCount) || 4"
+    :current-step="viewRefs.onboardingRef?.displayStepForNav || 1"
+    :total-steps="viewRefs.onboardingRef?.totalStepsCount || 4"
     :current-image-step="viewRefs.imageWithBadgeRef?.currentStep || 1"
     :created-tasks="createdTasks"
     :current-task-phase="viewRefs.taskCreationRef?.stepDashboardRef?.currentPhase || 'analysis'"

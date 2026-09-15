@@ -26,7 +26,7 @@ the relevant one before starting work on that project.**
 |---------|--------|------------|
 | Main OM-redesign | `src/views/`, `src/components/shared/` | this file + [docs/component-reference.md](docs/component-reference.md) |
 | ConversionLift (CRO tool) | `src/conversionlift/` | **[docs/conversionlift-implementation.md](docs/conversionlift-implementation.md) — the as-built baseline (read first, build on it)** · [docs/conversionlift-spec-v1.md](docs/conversionlift-spec-v1.md) — domain model · [docs/conversionlift-flows-v1.md](docs/conversionlift-flows-v1.md) — the 3 flows |
-| Opticube | `src/opticube/` | [docs/opticube-guide.md](docs/opticube-guide.md) — tokens, CSS, `Oc*` components |
+| OptiQube | `src/optiqube/` | [docs/optiqube-guide.md](docs/optiqube-guide.md) — tokens, CSS, `Oq*` components |
 
 **ConversionLift baseline:** the store page, in-context suggestion overlay, the 3
 flows, components, and mock layer in [docs/conversionlift-implementation.md](docs/conversionlift-implementation.md)

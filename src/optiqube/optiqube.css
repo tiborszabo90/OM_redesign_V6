@@ -1,0 +1,224 @@
+/*
+ * OptiQube theme tokens — ported from the product's `client/src/index.css`.
+ *
+ * Scoped to `.oq-root` rather than `:root`, because this prototype shares a
+ * document with the other products in this repo. The dark block is a second
+ * selector on the same element (`.oq-root[data-oq-theme="dark"]`) so the two
+ * sets stay side by side, the way the source keeps them.
+ *
+ * The `gray*` names in `tokens.js` describe the light-mode origin, not the
+ * rendered colour — `gray200` is the hairline rule, `gray100` a sunken fill.
+ */
+
+.oq-root {
+  color-scheme: light;
+
+  --oq-page-bg: #f7f8fa;
+  --oq-surface: #ffffff;
+  --oq-surface-raised: #ffffff;
+  --oq-surface-subtle: #f9fafb;
+  --oq-surface-sunken: #f1f2f4;
+  --oq-surface-blur: rgb(255 255 255 / 0.9);
+  --oq-hover: #f1f2f4;
+
+  --oq-line: #e3e5e8;
+  --oq-line-strong: #d5d8dd;
+
+  --oq-ink: #23262a;
+  --oq-ink-secondary: #505763;
+  --oq-ink-muted: #8f97a4;
+  --oq-ink-faint: #b9bec6;
+
+  --oq-blue: #007fff;
+  --oq-blue-solid: #007fff;
+  --oq-blue-soft: #e5f2ff;
+  --oq-blue-muted: #b3d7ff;
+
+  --oq-success: #2cc896;
+  --oq-success-text: #10b981;
+  --oq-success-soft: #ecfdf5;
+  --oq-success-line: #a7f3d0;
+  --oq-danger: #dc3545;
+  --oq-danger-solid: #dc3545;
+  --oq-danger-soft: #fdecee;
+  --oq-danger-line: #fecaca;
+  --oq-danger-text: #991b1b;
+  --oq-warning-soft: #fff8f0;
+  --oq-warning-line: #f5d0a9;
+  --oq-warning-text: #92400e;
+
+  --oq-info-soft: #eef2ff;
+  --oq-info-line: #c7d2fe;
+  --oq-info-text: #4338ca;
+
+  --oq-media-mat: #f1f2f4;
+  --oq-media-edge: #e3e5e8;
+
+  --oq-shadow-card: 0 1px 2px 0 rgb(16 24 40 / 0.04), 0 1px 3px 0 rgb(16 24 40 / 0.06);
+  --oq-shadow-popover: 0 1px 3px rgb(16 24 40 / 0.06), 0 4px 12px rgb(16 24 40 / 0.12);
+  --oq-shadow-modal: 0 24px 60px -20px rgb(35 38 42 / 0.28);
+  --oq-shadow-lift: 0 4px 12px rgb(16 24 40 / 0.1);
+  --oq-shimmer-band: rgb(255 255 255 / 0.55);
+  --oq-shimmer-tint: rgb(0 127 255 / 0.12);
+  --oq-veil: rgb(255 255 255 / 0.4);
+
+  /* Same in both themes on purpose. */
+  --oq-on-accent: #ffffff;
+  --oq-ink-fixed: #23262a;
+
+  /* Gutter around the floating panels of the workspace. */
+  --oq-workspace-inset: 0.5625rem;
+}
+
+.oq-root[data-oq-theme="dark"] {
+  color-scheme: dark;
+
+  --oq-page-bg: #0d1016;
+  --oq-surface: #151a22;
+  --oq-surface-raised: #1c222c;
+  --oq-surface-subtle: #1a2029;
+  --oq-surface-sunken: #0a0d12;
+  --oq-surface-blur: rgb(21 26 34 / 0.9);
+  --oq-hover: rgb(255 255 255 / 0.07);
+
+  --oq-line: #262d38;
+  --oq-line-strong: #39424f;
+
+  --oq-ink: #e9ecf1;
+  --oq-ink-secondary: #b3bac6;
+  --oq-ink-muted: #858e9c;
+  --oq-ink-faint: #626c7a;
+
+  /* Two blues: #58a6ff carries text at 7.5:1, #1f6feb carries a white label at
+     4.6:1. One value cannot do both on a dark ground. */
+  --oq-blue: #58a6ff;
+  --oq-blue-solid: #1f6feb;
+  --oq-blue-soft: #16243a;
+  --oq-blue-muted: #274a73;
+
+  --oq-success: #34d399;
+  --oq-success-text: #34d399;
+  --oq-success-soft: #12291f;
+  --oq-success-line: #2f6b52;
+  --oq-danger: #f87171;
+  /* Unchanged from light: #dc3545 still clears 4.5:1 under a white label. */
+  --oq-danger-solid: #dc3545;
+  --oq-danger-soft: #2a1518;
+  --oq-danger-line: #7f3838;
+  --oq-danger-text: #f87171;
+  --oq-warning-soft: #2a2113;
+  --oq-warning-line: #6b5327;
+  --oq-warning-text: #fbbf24;
+
+  --oq-info-soft: #1b1f3b;
+  --oq-info-line: #3d4489;
+  --oq-info-text: #a5b4fc;
+
+  --oq-media-mat: #1c222c;
+  --oq-media-edge: #39424f;
+
+  /* A drop shadow is invisible on a dark ground, so the hairline ring does the
+     separating and the shadow only adds depth under it. */
+  --oq-shadow-card: 0 0 0 1px rgb(255 255 255 / 0.06), 0 2px 8px rgb(0 0 0 / 0.5);
+  --oq-shadow-popover: 0 0 0 1px rgb(255 255 255 / 0.08), 0 8px 24px rgb(0 0 0 / 0.6);
+  --oq-shadow-modal: 0 0 0 1px rgb(255 255 255 / 0.08), 0 24px 60px rgb(0 0 0 / 0.7);
+  --oq-shadow-lift: 0 0 0 1px rgb(255 255 255 / 0.12), 0 4px 16px rgb(0 0 0 / 0.6);
+  --oq-shimmer-band: rgb(255 255 255 / 0.06);
+  --oq-shimmer-tint: rgb(88 166 255 / 0.1);
+  --oq-veil: rgb(13 16 22 / 0.55);
+}
+
+.oq-root {
+  color: var(--oq-ink);
+  background: var(--oq-page-bg);
+  font-family: "Funnel Sans", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Active tool line — the label sweeps while a round is running. */
+.oq-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--oq-ink-muted) 25%,
+    var(--oq-ink) 50%,
+    var(--oq-ink-muted) 75%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: oq-shimmer-sweep 1.8s linear infinite;
+}
+@keyframes oq-shimmer-sweep {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Skeleton cells while a creative renders. The band rides a transform on a child
+   layer rather than `background-position` on the box, so the sweep is composited
+   instead of repainting the whole frame every tick. */
+.oq-shimmer-sweep {
+  overflow: hidden;
+}
+.oq-shimmer-sweep::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    var(--oq-shimmer-band) 45%,
+    var(--oq-shimmer-tint) 50%,
+    var(--oq-shimmer-band) 55%,
+    transparent 100%
+  );
+  animation: oq-sweep 1.6s linear infinite;
+}
+@keyframes oq-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Each page fades up once on arrival. */
+.oq-page-enter {
+  animation: oq-page-enter 220ms ease-out;
+}
+@keyframes oq-page-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oq-page-enter,
+  .oq-shimmer,
+  .oq-shimmer-sweep::after {
+    animation: none;
+  }
+}
+
+/* Thin scrollbars inside the panels, so a scrolling list does not widen. */
+.oq-root ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.oq-root ::-webkit-scrollbar-thumb {
+  background: var(--oq-line-strong);
+  border-radius: 999px;
+}
+.oq-root ::-webkit-scrollbar-track {
+  background: transparent;
+}

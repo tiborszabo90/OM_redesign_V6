@@ -5,8 +5,8 @@ Catalog of reusable components in `src/components/shared/`. See the
 for when to use these.
 
 > **Scope:** these are the shared components for the main OM-redesign app.
-> Sub-projects may have their own component sets (e.g. Opticube's `Oc*`
-> components in `src/opticube/components/`) — see that project's guide.
+> Sub-projects may have their own component sets (e.g. OptiQube's `Oq*`
+> components in `src/optiqube/components/`) — see that project's guide.
 
 ## Shared Components Reference
 

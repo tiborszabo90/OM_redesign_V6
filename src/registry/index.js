@@ -6,7 +6,7 @@ import { sectionLabels } from './sections.js'
 // home = landing view id when entering / resetting the product
 export const productDefinitions = {
   optimonk: { id: 'optimonk', label: 'OptiMonk', home: 'dev-start', accent: '#F06431' },
-  opticube: { id: 'opticube', label: 'OptiCube', home: 'opticube', accent: '#6366F1' },
+  optiqube: { id: 'optiqube', label: 'OptiQube', home: 'optiqube-dev-start', accent: '#007FFF' },
   picbear: { id: 'picbear', label: 'Picbear', home: 'picbear', accent: '#10B981' },
   conversionlift: { id: 'conversionlift', label: 'ConversionLift', home: 'conversionlift', accent: '#0EA5E9' },
 }
