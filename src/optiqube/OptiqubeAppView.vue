@@ -9,6 +9,7 @@ import {
 } from './store'
 import OqBrandSwitcher from './components/OqBrandSwitcher.vue'
 import OqUserMenu from './components/OqUserMenu.vue'
+import OqConceptOverlay from './components/OqConceptOverlay.vue'
 import CampaignsScreen from './screens/CampaignsScreen.vue'
 import CampaignWorkspaceScreen from './screens/CampaignWorkspaceScreen.vue'
 import CampaignAdScreen from './screens/CampaignAdScreen.vue'
@@ -22,6 +23,10 @@ import SettingsCatalogScreen from './screens/SettingsCatalogScreen.vue'
 import SettingsMetaScreen from './screens/SettingsMetaScreen.vue'
 import OnboardingScreen from './screens/OnboardingScreen.vue'
 import SessionScreen from './screens/SessionScreen.vue'
+import SessionV2Screen from './screens/SessionV2Screen.vue'
+import SessionV3Screen from './screens/SessionV3Screen.vue'
+import SessionV4Screen from './screens/SessionV4Screen.vue'
+import SessionV5Screen from './screens/SessionV5Screen.vue'
 import AgenticHomeScreen from './screens/AgenticHomeScreen.vue'
 import AccountPersonalScreen from './screens/AccountPersonalScreen.vue'
 import AccountSecurityScreen from './screens/AccountSecurityScreen.vue'
@@ -37,9 +42,19 @@ import VerifyEmailScreen from './screens/VerifyEmailScreen.vue'
 import InviteScreen from './screens/InviteScreen.vue'
 import NotFoundScreen from './screens/NotFoundScreen.vue'
 
-// Passed by the host App.vue for product views; not used internally.
-defineProps({ product: { type: String, default: 'optiqube' } })
+// `product` is passed by the host App.vue for product views; not used internally.
+// `startPath` lets a registry entry open the app on one screen — the Session V2
+// entry in the dev nav is that, and nothing else.
+const props = defineProps({
+  product: { type: String, default: 'optiqube' },
+  startPath: { type: String, default: '' },
+})
 defineEmits(['navigate'])
+
+if (props.startPath) {
+  resetSession()
+  navigate(props.startPath)
+}
 
 const navItems = [
   { nest: '/campaigns', label: 'Campaigns', icon: LayoutGrid },
@@ -86,6 +101,10 @@ const screen = computed(() => {
   if (/^\/campaigns\/[^/]+/.test(p)) return CampaignWorkspaceScreen
   if (/^\/campaigns(\/|$)/.test(p)) return CampaignsScreen
   if (p.startsWith('/agentic')) return AgenticHomeScreen
+  if (p.startsWith('/session-v2')) return SessionV2Screen
+  if (p.startsWith('/session-v3')) return SessionV3Screen
+  if (p.startsWith('/session-v4')) return SessionV4Screen
+  if (p.startsWith('/session-v5')) return SessionV5Screen
   if (p.startsWith('/session')) return SessionScreen
   if (p.startsWith('/onboarding')) return OnboardingScreen
   if (p.startsWith('/library')) return LibraryScreen
@@ -282,5 +301,9 @@ function dotColor(row) {
         <component :is="screen" />
       </main>
     </div>
+
+    <!-- Drawn by the shell rather than by the session: a window put down in the
+         corner is meant to survive walking off to another screen. -->
+    <OqConceptOverlay />
   </div>
 </template>

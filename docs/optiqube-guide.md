@@ -68,6 +68,7 @@ section.
 |------|--------|-------------|
 | `/agentic` | `AgenticHomeScreen` | `pages/agentic.tsx` |
 | `/session` | `SessionScreen` | `pages/agentic-session.tsx` |
+| `/session-v2` … `/session-v5` | `SessionV2–V5Screen` | prototype-only: parallel runs, see below |
 | `/campaigns` | `CampaignsScreen` | `pages/campaigns.tsx` |
 | `/campaigns/:id` | `CampaignWorkspaceScreen` | `components/CampaignWorkspace.tsx` |
 | `/campaigns/:id/ads/:adId` | `CampaignAdScreen` | same, ad half |
@@ -90,6 +91,46 @@ section.
 type → pick a seed product → a progress block whose steps land one at a time →
 four concepts → apply across the catalog, where the cells fill in one by one.
 
+Clicking one of the four concepts opens `OqConceptOverlay`, ported from the
+product's `SessionConceptOverlay` over `ConceptOverlay`: step 1 is the direction on
+the seed product, step 2 the same direction on two more (the pair is changeable), step
+3 the draft campaign. Notes and Try chips refine what is on screen, and the window can
+be put down in the corner — which is why its whole state lives in `conceptOverlay` in
+`store.js` and the component only draws it. The shell mounts it, not `SessionScreen`,
+so the corner card survives walking off to another screen.
+
+### Four takes on the concept click
+
+The overlay is the product's own answer, and it has two costs: it covers the thread,
+and it holds the session for the minute its round takes — so the other three
+directions cannot be tried until it lands. `/session-v2` … `/session-v4` are the
+alternatives, all three built on the same `runs` model in `store.js`: a click starts a
+run on three products, runs tick side by side on their own timers, and the session's
+own composer stays the only place anyone types. It talks to the session by default; a
+chip appears on it when the note names a run, when a run is clicked, or when one was
+just worked on in a window; clicking that run again — or the chip's own ✕ — goes back
+to the session, and so does putting V5's window down. A turn
+about a run carries that run's name in the thread. A round is a block: the first
+one when the run starts, and one more for every note — the block above keeps the
+pictures it was asked about, so the thread reads as the history of the direction.
+A finished run is placed with **Use this**, which asks in two steps
+(`OqCampaignPicker`): an existing campaign or a new one, and then either which campaign
+and which of its ad sets — an ad lives in an ad set — or the new campaign's name.
+Campaigns drafted in the session join the list, so a second run can go into the first
+one's campaign. The run stays in the thread either way, so it can be used twice. They differ only in where a run is drawn — and V5 in whether there is also a
+window to open one in: it keeps the original's big frames and step strip, but the
+window is a lens over a run that lives in the thread, and its right-hand column is the
+session's own turns about that run rather than a second chat. `startRun(concept,
+{ stage: 'one', open: true })` is what makes V5's click behave like the original's.
+
+| Path | Screen | Where the runs live |
+|------|--------|---------------------|
+| `/session` | `SessionScreen` | V1 — the ported overlay, one at a time |
+| `/session-v2` | `SessionV2Screen` | inline in the thread, where they were started |
+| `/session-v3` | `SessionV3Screen` | a tabbed panel beside the chat (the tab is the scope) |
+| `/session-v4` | `SessionV4Screen` | a rail above the composer, one card unfolds at a time |
+| `/session-v5` | `SessionV5Screen` | inline like V2, plus the original's window as a lens over one run |
+
 **Gotcha:** the blocks live in a `reactive` array. Mutating a block you still hold
 a reference to from before the `push` does nothing — Vue only tracks writes made
 through its proxy. Read the block back out (`session.blocks[session.blocks.length - 1]`)
@@ -102,6 +143,16 @@ OptiQube has its **own component set** in `src/optiqube/components/`, prefixed
 
 | Component | Purpose |
 |-----------|---------|
+| `OqConceptOverlay` | The original's window on a concept card — panel and corner card |
+| `OqRunOverlay` | V5's window: one run large, over the session's own turns |
+| `OqProductPicker` | The 3 products a direction is generated on |
+| `OqCampaignPicker` | Where a finished run goes: existing campaign + ad set, or a new one |
+| `OqSessionHeader` | Session title bar: rename in place, what it is doing |
+| `OqSessionThread` | The session thread the V2–V4 screens share |
+| `OqSessionComposer` | The session's one input, with the scope pill |
+| `OqRunScope` | The composer's chip: which run the next note is about |
+| `OqRunDetail` | One run opened up: three creatives + its actions |
+| `OqRunCard` | One run at a glance: thumbnails, progress, state |
 | `OqBrandSwitcher` | Store switcher in the sidebar |
 | `OqUserMenu` | Account menu with plan + credits |
 | `OqWizardChrome` | Settings wizard frame (title, steps, back) |

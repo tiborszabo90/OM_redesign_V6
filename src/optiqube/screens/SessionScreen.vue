@@ -4,7 +4,7 @@ import { ArrowUp, Check, ImagePlus, Loader2, Pencil, Sparkles } from 'lucide-vue
 import { BRAND, CARD_SHADOW, FONT } from '../tokens'
 import {
   session, pickCampaignType, pickFocus, handleNextStep, sendRefine,
-  activeBrand, styleById,
+  activeBrand, styleById, openConceptOverlay,
 } from '../store'
 
 const renamingTitle = ref(false)
@@ -200,11 +200,16 @@ watch(
 
           <!-- The four concepts -->
           <div v-else-if="b.kind === 'concepts'" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div
+            <!-- A card is the way into the direction it draws: it opens the window
+                 where the style is refined, spread to more products and turned into
+                 a campaign. -->
+            <button
               v-for="(c, idx) in b.concepts"
               :key="c.id"
-              class="overflow-hidden rounded-2xl border p-3 text-left"
+              type="button"
+              class="overflow-hidden rounded-2xl border p-3 text-left transition-shadow hover:shadow-[var(--oq-shadow-lift)]"
               :style="{ borderColor: BRAND.gray200, background: BRAND.surface }"
+              @click="openConceptOverlay(c)"
             >
               <div class="relative">
                 <img
@@ -225,7 +230,7 @@ watch(
               <p class="mt-0.5 text-xs leading-snug" :style="{ color: BRAND.gray500 }">
                 {{ conceptSubline(c.presetId) }}
               </p>
-            </div>
+            </button>
           </div>
 
           <!-- The style rolled across the catalog -->

@@ -15,7 +15,11 @@ const GROUPS = [
     label: 'Product',
     paths: [
       { path: '/agentic', label: 'New task (home)' },
-      { path: '/session', label: 'Agentic session' },
+      { path: '/session', label: 'Agentic session — original (overlay)' },
+      { path: '/session-v2', label: 'Agentic session — V2 (inline runs)' },
+      { path: '/session-v3', label: 'Agentic session — V3 (run panel)' },
+      { path: '/session-v4', label: 'Agentic session — V4 (run rail)' },
+      { path: '/session-v5', label: 'Agentic session — V5 (window over thread)' },
       { path: '/campaigns', label: 'Campaigns' },
       { path: '/campaigns/cmp_1', label: 'Campaign workspace' },
       { path: '/campaigns/cmp_1/ads/ad_1', label: 'Ad detail' },
@@ -62,7 +66,7 @@ const GROUPS = [
 const emit = defineEmits(['navigate'])
 
 function open(path) {
-  if (path === '/session' || path === '/agentic') resetSession()
+  if (path.startsWith('/session') || path === '/agentic') resetSession()
   navigate(path)
   emit('navigate', 'optiqube')
 }

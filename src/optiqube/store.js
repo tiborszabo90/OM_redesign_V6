@@ -574,6 +574,705 @@ export function formatCreditsUsd(n) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n)
 }
 
+// -- Concept overlay ---------------------------------------------------------
+
+/**
+ * The window a concept card opens.
+ *
+ * Ported from the product's `SessionConceptOverlay` over `ConceptOverlay`: step 1 is
+ * the direction on the seed product, step 2 the same direction on two more, step 3
+ * the campaign. Notes and Try chips refine what is on screen.
+ *
+ * All of it lives here rather than in the component, because the window can be put
+ * down in the corner and picked up again with every word of the conversation intact —
+ * in the product that is the point of parking a window, and state held by a modal
+ * that unmounts could not survive it.
+ */
+export const conceptOverlay = reactive({
+  open: false,
+  minimized: false,
+  /** The last step is a beat on the way out: the header moves to 3, then it closes. */
+  closing: false,
+  conceptId: null,
+  styleId: null,
+  label: '',
+  seed: null,
+  stage: 'one',
+  companionIds: [],
+  creatives: [],
+  thread: [],
+  chips: {},
+  input: '',
+  busy: false,
+  roundStartedAt: null,
+  /** A round has run under this window — what lets the corner card say "ready". */
+  sawRound: false,
+  waitAsked: false,
+  versions: [],
+  activeVersionId: null,
+  pickerOpen: false,
+})
+
+/** The Try sentences. A click writes one into the composer; it is never auto-sent. */
+const OVERLAY_CHIPS = [
+  { id: 'logo', chip: 'Add the store logo.', badge: 'LOGO' },
+  { id: 'back-to-school', chip: 'Make it back to school.', badge: 'Back to school' },
+  { id: 'holiday', chip: 'Make it festive / Christmas.', badge: 'Festive' },
+  { id: 'badge-larger', chip: 'Make the badge text larger.', badge: 'larger' },
+]
+
+/** Badge swaps the weakest seasonal for a sentence about its own badges. */
+export function overlayTryChips() {
+  const [logo, backToSchool, holiday, larger] = OVERLAY_CHIPS
+  return conceptOverlay.label === 'Badge' ? [logo, backToSchool, larger] : [logo, backToSchool, holiday]
+}
+
+/** The badges drawn over a finished frame — what the chips so far have asked for. */
+export function overlayChipBadges() {
+  return OVERLAY_CHIPS.filter((c) => conceptOverlay.chips[c.id]).map((c) => c.badge)
+}
+
+const OVERLAY_COPY = {
+  line: (style, seedName, others) =>
+    [
+      `This is the ${style} direction on ${seedName}.`,
+      others > 0
+        ? `If you like it, click the button above and I'll show it on ${others === 1 ? 'the other product' : `the other ${others} products`}.`
+        : 'If you like it, click the button above.',
+      'If you want changes, write below and I’ll update it.',
+    ].join('\n\n'),
+  ackGenerate: (others) =>
+    `Okay, generating on ${others === 1 ? 'the other product' : `the other ${others} products`}.`,
+  doneGenerate: 'Done. Shall we make a draft campaign from this?',
+  ackRefine: 'Okay, I’ll update it.',
+  doneRefine: 'Done, it’s updated.',
+  waitAsk:
+    'This usually takes about a minute. Do you want to wait here, or shall I put it in the corner so you can carry on with something else?',
+  waitStay: 'I’ll wait here',
+  waitGo: 'Put it down — I’ll carry on',
+  waitStayAck: 'Staying with it, then.',
+  waitGoAck: 'It’s in the corner — open it whenever you like. I’ll keep going.',
+}
+
+export const overlayCopy = OVERLAY_COPY
+
+/** The header strip. Step 2 counts whatever the preview actually covers. */
+export function overlaySteps() {
+  const total = conceptOverlay.companionIds.length + 1
+  return [
+    { n: 1, label: 'Concept refinement' },
+    { n: 2, label: `Preview on ${total} ${total === 1 ? 'product' : 'products'}` },
+    { n: 3, label: 'Create campaign' },
+  ]
+}
+
+export function overlayHeaderStep() {
+  if (conceptOverlay.closing) return 3
+  return conceptOverlay.stage === 'three' ? 2 : 1
+}
+
+export function overlayCta() {
+  const others = conceptOverlay.companionIds.length
+  if (conceptOverlay.stage === 'three') return 'I like this — create the campaign'
+  return others > 0
+    ? `I like this — generate it on ${others} more ${others === 1 ? 'product' : 'products'}`
+    : 'I like this'
+}
+
+/** The gallery renders for one style — what a round of this direction hands back. */
+function styleImages(presetId) {
+  return inspirationCatalog.filter((i) => i.id.includes(presetId)).map((i) => i.imageUrl)
+}
+
+/** The next render of this style, so a refine visibly changes the picture. */
+function nextStyleImage(presetId, current) {
+  const list = styleImages(presetId)
+  if (!list.length) return current
+  const at = list.indexOf(current)
+  return list[(at + 1) % list.length]
+}
+
+export function overlayCompanions() {
+  return conceptOverlay.companionIds
+    .map((id) => products.find((p) => p.id === id))
+    .filter(Boolean)
+}
+
+function overlayMsg(role, text, options) {
+  conceptOverlay.thread.push({
+    id: `m_${conceptOverlay.thread.length}_${Date.now()}`,
+    role,
+    text,
+    options: options ?? null,
+  })
+  return conceptOverlay.thread[conceptOverlay.thread.length - 1]
+}
+
+function overlayIntro() {
+  conceptOverlay.thread = []
+  overlayMsg(
+    'bot',
+    OVERLAY_COPY.line(conceptOverlay.label, conceptOverlay.seed?.name ?? 'this product', conceptOverlay.companionIds.length),
+  )
+}
+
+/** The two companions step 2 covers by default: the next catalog rows with a picture. */
+function defaultCompanionIds(seedId) {
+  return products.filter((p) => p.imageUrl && p.id !== seedId).slice(0, 2).map((p) => p.id)
+}
+
+export function openConceptOverlay(concept) {
+  const seed = session.seed ?? { id: products[0].id, name: products[0].name }
+  conceptOverlay.open = true
+  conceptOverlay.minimized = false
+  conceptOverlay.closing = false
+  conceptOverlay.conceptId = concept.id
+  conceptOverlay.styleId = concept.presetId
+  conceptOverlay.label = concept.label
+  conceptOverlay.seed = seed
+  conceptOverlay.stage = 'one'
+  conceptOverlay.companionIds = defaultCompanionIds(seed.id)
+  conceptOverlay.creatives = [
+    { productId: seed.id, name: seed.name, imageUrl: concept.imageUrl, isSeed: true, status: 'ready' },
+  ]
+  conceptOverlay.chips = {}
+  conceptOverlay.input = ''
+  conceptOverlay.busy = false
+  conceptOverlay.roundStartedAt = null
+  conceptOverlay.sawRound = false
+  conceptOverlay.waitAsked = false
+  conceptOverlay.versions = [{ id: 'v1', imageUrl: concept.imageUrl, ask: null }]
+  conceptOverlay.activeVersionId = 'v1'
+  conceptOverlay.pickerOpen = false
+  overlayIntro()
+}
+
+export function closeConceptOverlay() {
+  conceptOverlay.open = false
+  conceptOverlay.minimized = false
+  conceptOverlay.closing = false
+  conceptOverlay.pickerOpen = false
+}
+
+export function minimizeOverlay() {
+  conceptOverlay.minimized = true
+  conceptOverlay.pickerOpen = false
+}
+
+export function restoreOverlay() {
+  conceptOverlay.minimized = false
+}
+
+export function setOverlayCompanions(ids) {
+  // The picker hands back the run's whole set, the seed included — it is a slot in
+  // there, not a companion.
+  conceptOverlay.companionIds = ids.filter((id) => id !== conceptOverlay.seed?.id).slice(0, 2)
+  conceptOverlay.pickerOpen = false
+  // The intro counts the companions, so a re-pick before the round has to re-count.
+  if (conceptOverlay.thread.length === 1) overlayIntro()
+}
+
+/** A round starts: ask once whether this is worth waiting for. */
+function startRound() {
+  conceptOverlay.busy = true
+  conceptOverlay.sawRound = true
+  conceptOverlay.roundStartedAt = Date.now()
+  if (conceptOverlay.waitAsked) return
+  conceptOverlay.waitAsked = true
+  overlayMsg('bot', OVERLAY_COPY.waitAsk, [
+    { id: 'overlay-wait-stay', label: OVERLAY_COPY.waitStay },
+    { id: 'overlay-wait-go', label: OVERLAY_COPY.waitGo },
+  ])
+}
+
+function endRound() {
+  conceptOverlay.busy = false
+  conceptOverlay.roundStartedAt = null
+  // The wait it asked about is over: an answer now would put down a finished window.
+  for (const m of conceptOverlay.thread) {
+    if (m.options?.some((o) => o.id === 'overlay-wait-go')) m.options = null
+  }
+}
+
+export function answerOverlayWait(msgId, optionId) {
+  const msg = conceptOverlay.thread.find((m) => m.id === msgId)
+  if (msg) msg.options = null
+  if (optionId === 'overlay-wait-go') {
+    overlayMsg('bot', OVERLAY_COPY.waitGoAck)
+    minimizeOverlay()
+    return
+  }
+  overlayMsg('bot', OVERLAY_COPY.waitStayAck)
+}
+
+/** Step 1's button: the same direction on the two companions. */
+export function overlayGenerateMore() {
+  if (conceptOverlay.busy || conceptOverlay.stage !== 'one') return
+  const companions = overlayCompanions()
+  if (!companions.length) return
+  overlayMsg('bot', OVERLAY_COPY.ackGenerate(companions.length))
+  conceptOverlay.stage = 'three'
+  conceptOverlay.creatives = [
+    conceptOverlay.creatives[0],
+    ...companions.map((p) => ({
+      productId: p.id,
+      name: p.name,
+      imageUrl: null,
+      isSeed: false,
+      status: 'pending',
+    })),
+  ]
+  startRound()
+
+  const cells = conceptOverlay.creatives
+  const renders = styleImages(conceptOverlay.styleId)
+  companions.forEach((_, i) => {
+    setTimeout(() => {
+      const cell = cells[i + 1]
+      cell.imageUrl = renders[(i + 1) % renders.length]
+      cell.status = 'ready'
+      if (i === companions.length - 1) {
+        endRound()
+        overlayMsg('bot', OVERLAY_COPY.doneGenerate)
+      }
+    }, 2200 + i * 900)
+  })
+}
+
+/** The composer. A note redraws what is on screen — one frame or all three. */
+export function sendOverlayNote() {
+  const text = conceptOverlay.input.trim()
+  if (!text || conceptOverlay.busy || conceptOverlay.closing) return
+  conceptOverlay.input = ''
+  overlayMsg('user', text)
+
+  // A chip whose sentence went out unedited is now part of what this creative says.
+  for (const c of OVERLAY_CHIPS) {
+    if (c.chip === text) {
+      conceptOverlay.chips[c.id] = true
+      if (c.id === 'badge-larger') conceptOverlay.chips['badge-smaller'] = false
+    }
+  }
+
+  overlayMsg('bot', OVERLAY_COPY.ackRefine)
+  startRound()
+  const cells = conceptOverlay.creatives
+  for (const cell of cells) cell.status = 'pending'
+
+  setTimeout(() => {
+    for (const cell of cells) {
+      cell.imageUrl = nextStyleImage(conceptOverlay.styleId, cell.imageUrl)
+      cell.status = 'ready'
+    }
+    // History belongs to the single frame: once three are rendered, a step back
+    // would be a promise about pictures this strip cannot restore.
+    if (conceptOverlay.stage === 'one') {
+      conceptOverlay.versions.push({
+        id: `v${conceptOverlay.versions.length + 1}`,
+        imageUrl: cells[0].imageUrl,
+        ask: text,
+      })
+      conceptOverlay.activeVersionId = conceptOverlay.versions[conceptOverlay.versions.length - 1].id
+    }
+    endRound()
+    overlayMsg('bot', OVERLAY_COPY.doneRefine)
+  }, 2600)
+}
+
+/** Write a Try sentence into the composer — the merchant still presses send. */
+export function fillOverlayChip(id) {
+  conceptOverlay.input = OVERLAY_CHIPS.find((c) => c.id === id)?.chip ?? ''
+}
+
+/** Look at an earlier render without undoing the refine that replaced it. */
+export function peekOverlayVersion(id) {
+  const version = conceptOverlay.versions.find((v) => v.id === id)
+  if (!version) return
+  conceptOverlay.activeVersionId = id
+  conceptOverlay.creatives[0].imageUrl = version.imageUrl
+}
+
+/** The second, deliberate click: the peeked version becomes the concept again. */
+export function keepOverlayVersion() {
+  const at = conceptOverlay.versions.findIndex((v) => v.id === conceptOverlay.activeVersionId)
+  if (at < 0) return
+  conceptOverlay.versions = conceptOverlay.versions.slice(0, at + 1)
+}
+
+/** Step 3: the draft campaign, and the session thread carries the record of it. */
+export function overlayCreateCampaign() {
+  if (conceptOverlay.busy || conceptOverlay.closing) return
+  conceptOverlay.closing = true
+  const label = conceptOverlay.label
+  const covered = conceptOverlay.creatives.length
+  setTimeout(() => {
+    closeConceptOverlay()
+    session.blocks.push({
+      kind: 'assistant',
+      text: `Campaign **${session.title}** is drafted from the **${label}** direction on ${covered} products. Open it from Campaigns when you want to publish it to Meta.`,
+    })
+    session.phase = 'ready'
+  }, 700)
+}
+
+// -- Parallel runs -----------------------------------------------------------
+
+/**
+ * A direction being generated on three products, of which several can be in flight.
+ *
+ * The overlay (`conceptOverlay`) is the product's own answer to a concept card, and
+ * it has two costs: it covers the thread, and it holds the session for the minute its
+ * round takes — so the other three directions cannot be tried until it lands. This is
+ * the alternative the V2–V4 session screens are built on: a click starts a run, runs
+ * tick side by side, and the session's own composer is the only place anyone types.
+ *
+ * Each run owns its own cells and its own timers. Nothing here is shared between two
+ * runs, which is the whole point.
+ */
+export const runs = reactive([])
+
+/** How many products one round covers. */
+export const RUN_PRODUCT_SLOTS = 3
+
+/**
+ * Which run the composer is talking to — `null` is the session itself, and the
+ * default.
+ *
+ * `cleared` is the merchant having taken the chip off: it stops the composer from
+ * reading the run back out of the same sentence and putting it straight back on.
+ */
+export const runScope = reactive({ runId: null, cleared: false })
+
+/** Point the composer at a run — a click on it, or a window opened on it. */
+export function focusRun(id) {
+  runScope.runId = id
+  runScope.cleared = false
+}
+
+/**
+ * Back to the session.
+ *
+ * The lock only covers the sentence in the box: taking the chip off a note being
+ * typed means that note is about the session, and the composer must not read the run
+ * back out of the same words. With an empty box there is no sentence to lock, and the
+ * next one is free to name whatever it likes.
+ */
+export function clearRunScope() {
+  runScope.runId = null
+  runScope.cleared = Boolean(session.input.trim())
+}
+
+/**
+ * The run opened up large, or none.
+ *
+ * V5 keeps the original's window — the big frames and the room to fine-tune — but a
+ * run that is put down goes back to being a block in the thread rather than a card in
+ * the corner, and the window is only ever a view of it. So there is nothing here but
+ * an id: closing the window cannot lose anything, because the run was never in it.
+ */
+export const runOverlay = reactive({ runId: null })
+
+export function openRun(id) {
+  runOverlay.runId = id
+  focusRun(id)
+}
+
+/**
+ * Put it down: back to the thread, where the run goes on rendering — and back to the
+ * session, which is the composer's resting state. Leaving the context on meant the
+ * next thing typed went to a run nobody was looking at any more.
+ */
+export function minimizeRun() {
+  runOverlay.runId = null
+  runScope.runId = null
+  runScope.cleared = false
+}
+
+let runSeq = 0
+
+export function runById(id) {
+  return runs.find((r) => r.id === id) ?? null
+}
+
+export function runForConcept(conceptId) {
+  return runs.find((r) => r.conceptId === conceptId) ?? null
+}
+
+export function runCells(run) {
+  return run.cells
+}
+
+/** The block in the thread this run is currently drawing into. */
+function currentRunBlock(runId) {
+  for (let i = session.blocks.length - 1; i >= 0; i -= 1) {
+    const b = session.blocks[i]
+    if (b.kind === 'run' && b.runId === runId) return b
+  }
+  return null
+}
+
+/**
+ * Point the run and the block it is drawing into at the same cells.
+ *
+ * The thread keeps one block per round, and a block holds the pictures that round
+ * produced — so an earlier block goes on showing what it showed. A block that shared
+ * the run's live array would silently rewrite its own history every time a note
+ * redrew the creatives.
+ */
+function attachCells(run, cells) {
+  run.cells = cells
+  const block = currentRunBlock(run.id)
+  if (block) block.cells = cells
+}
+
+export function runPending(run) {
+  return run.cells.filter((c) => c.status === 'pending').length
+}
+
+/** The two products beside the seed: the next catalog rows that have a picture. */
+function defaultRunCompanions(seedId) {
+  return products.filter((p) => p.imageUrl && p.id !== seedId).slice(0, 2)
+}
+
+function renderCells(run, images, delay = 2500, step = 1500) {
+  run.status = 'running'
+  run.startedAt = Date.now()
+  run.cells.forEach((cell, i) => {
+    if (cell.status !== 'pending') return
+    setTimeout(() => {
+      cell.imageUrl = images[i % images.length]
+      cell.status = 'ready'
+      if (!runPending(run)) {
+        run.status = 'ready'
+        run.startedAt = null
+      }
+    }, delay + i * step)
+  })
+}
+
+/**
+ * Start a direction.
+ *
+ * `stage: 'one'` is the original's opening move — the concept on its seed product,
+ * with the three-product round left to `expandRun` — and `open` puts the window up on
+ * it. The screens that go straight to three pass neither.
+ *
+ * Returns the run either way: a second click on a card that is already running is a
+ * request to look at it, not to pay for it twice.
+ */
+export function startRun(concept, opts = {}) {
+  const solo = opts.stage === 'one'
+  const existing = runForConcept(concept.id)
+  if (existing) {
+    focusRun(existing.id)
+    if (opts.open) runOverlay.runId = existing.id
+    return existing
+  }
+  const seed = session.seed ?? { id: products[0].id, name: products[0].name }
+  const companionIds = defaultRunCompanions(seed.id).map((p) => p.id)
+  runSeq += 1
+  runs.push({
+    id: `run_${runSeq}`,
+    conceptId: concept.id,
+    styleId: concept.presetId,
+    label: concept.label,
+    seedId: seed.id,
+    // The products this round covers. The seed leads because the concept was drawn
+    // from it, but it is a slot like the others and can be swapped out.
+    productIds: [seed.id, ...companionIds],
+    // Always born on the seed alone; `expandRun` is what makes it a three-product
+    // round, whether that is the merchant pressing the button or the line above.
+    stage: 'one',
+    cells: [{ productId: seed.id, name: seed.name, imageUrl: concept.imageUrl, status: 'ready' }],
+    chips: {},
+    status: 'ready',
+    startedAt: null,
+  })
+  const run = runs[runs.length - 1]
+  focusRun(run.id)
+  if (opts.open) runOverlay.runId = run.id
+  // The thread carries a marker so a screen that draws runs inline keeps them in the
+  // order they were started; the screens that draw runs elsewhere skip this block.
+  // Pushed before the round, so the round's own line lands under its block.
+  session.blocks.push({ kind: 'run', runId: run.id, cells: run.cells })
+  if (!solo) expandRun(run.id)
+  return run
+}
+
+/** The other two products, rendering. The original's step 1 button. */
+export function expandRun(runId) {
+  const run = runById(runId)
+  if (!run || run.stage === 'three') return
+  run.stage = 'three'
+  const n = run.productIds.length
+  session.blocks.push({
+    kind: 'assistant',
+    text: `Okay — generating **${run.label}** on ${n === 1 ? 'one product' : `${n} products`}.`,
+    runLabel: run.label,
+  })
+  // The seed keeps the picture the concept was drawn as; everything else renders.
+  attachCells(run, run.productIds.map((id) => {
+    const p = products.find((x) => x.id === id)
+    if (id === run.seedId) return run.cells[0]
+    return { productId: id, name: p?.name ?? id, imageUrl: null, status: 'pending' }
+  }))
+  renderCells(run, styleImages(run.styleId))
+}
+
+export function setRunProducts(runId, productIds) {
+  const run = runById(runId)
+  if (!run) return
+  run.productIds = productIds.slice(0, RUN_PRODUCT_SLOTS)
+  // Before the round these are a plan and nothing is drawn; after it, a product that
+  // was not in the last round has a frame to fill.
+  if (run.stage !== 'three') return
+  attachCells(run, run.productIds.map((id) => {
+    const p = products.find((x) => x.id === id)
+    const kept = run.cells.find((c) => c.productId === id)
+    return kept ?? { productId: id, name: p?.name ?? id, imageUrl: null, status: 'pending' }
+  }))
+  if (runPending(run)) renderCells(run, styleImages(run.styleId), 1800, 1200)
+}
+
+/** The products a run is about to cover, by name. */
+export function runProductNames(run) {
+  return run.productIds
+    .map((id) => products.find((p) => p.id === id)?.name)
+    .filter(Boolean)
+}
+
+/**
+ * What the session has said about this run.
+ *
+ * Read out of the session's own thread rather than kept beside it: the window and the
+ * thread have to be the same conversation, or typing in one and reading the other is
+ * the confusion the overlay had.
+ */
+export function runTurns(run) {
+  return session.blocks.filter(
+    (b) => (b.kind === 'user' || b.kind === 'assistant') && b.runLabel === run.label,
+  )
+}
+
+/** Drop a run. The pictures go with it — the thread keeps what was said about them. */
+export function dismissRun(runId) {
+  const at = runs.findIndex((r) => r.id === runId)
+  if (at >= 0) runs.splice(at, 1)
+  if (runScope.runId === runId) runScope.runId = null
+  if (runOverlay.runId === runId) runOverlay.runId = null
+  for (let i = session.blocks.length - 1; i >= 0; i -= 1) {
+    if (session.blocks[i].kind === 'run' && session.blocks[i].runId === runId) {
+      session.blocks.splice(i, 1)
+    }
+  }
+}
+
+/**
+ * A note sent while a run is in scope.
+ *
+ * It lands in the session's own thread — tagged with the run it is about, because one
+ * conversation with a label on each turn is still one conversation, and a second chat
+ * box per run was the thing that made the overlay confusing.
+ */
+export function refineRun(runId, text) {
+  const run = runById(runId)
+  if (!run) return
+  session.blocks.push({ kind: 'user', text, runLabel: run.label })
+  for (const c of OVERLAY_CHIPS) {
+    if (c.chip === text) run.chips[c.id] = true
+  }
+  session.blocks.push({
+    kind: 'assistant',
+    text: `Okay — redrawing the **${run.label}** creatives.`,
+    runLabel: run.label,
+  })
+  // A new round is a new block: the one above keeps the pictures it was asked about,
+  // and the answer to this note arrives where the note was typed.
+  const next = run.cells.map((c) => ({ ...c, status: 'pending' }))
+  session.blocks.push({ kind: 'run', runId: run.id, cells: next })
+  attachCells(run, next)
+  const images = styleImages(run.styleId)
+  const at = images.indexOf(next[0].imageUrl)
+  renderCells(run, images.slice(at + 1).concat(images.slice(0, at + 1)), 2200, 900)
+}
+
+/** The badges a run's notes so far have earned. */
+export function runChipBadges(run) {
+  return OVERLAY_CHIPS.filter((c) => run.chips[c.id]).map((c) => c.badge)
+}
+
+/** The Try sentences, for a run rather than the overlay's single concept. */
+export function runTryChips(run) {
+  const [logo, backToSchool, holiday, larger] = OVERLAY_CHIPS
+  return run?.label === 'Badge' ? [logo, backToSchool, larger] : [logo, backToSchool, holiday]
+}
+
+/**
+ * Campaigns drafted in this session.
+ *
+ * Kept beside the mock catalogue rather than pushed into it: `campaigns` is the list
+ * the Campaigns screen reads, and a prototype that rewrote it would have to answer for
+ * what happens on a reload. Listed by the chooser, so a second run can be added to the
+ * campaign the first one just made.
+ */
+export const sessionDrafts = reactive([])
+
+/** What the chooser offers: the store's campaigns, plus anything made here. */
+export function campaignOptions() {
+  return [
+    ...sessionDrafts,
+    ...campaigns.map((c) => ({ id: c.id, name: c.name, status: c.status })),
+  ]
+}
+
+/**
+ * The ad sets an ad can be added to.
+ *
+ * An ad lives in an ad set, not in a campaign, so naming the campaign is only half the
+ * answer — and the half that says the least, since the budget and the audience are the
+ * ad set's.
+ */
+export function campaignAdSets(campaignId) {
+  const draft = sessionDrafts.find((c) => c.id === campaignId)
+  if (draft) return draft.adSets
+  return (workspaceFor(campaignId)?.adSets ?? []).map((a) => ({ id: a.id, name: a.name }))
+}
+
+/**
+ * Take a run somewhere: into a campaign that exists, or into a new one.
+ *
+ * The run stays where it is. Using a direction is not being done with it — the same
+ * creatives can go to a second campaign, and the thread keeps the pictures either way.
+ */
+export function useRunInCampaign(runId, choice) {
+  const run = runById(runId)
+  if (!run) return
+  if (choice.campaignId) {
+    const target = campaignOptions().find((c) => c.id === choice.campaignId)
+    const set = campaignAdSets(choice.campaignId).find((a) => a.id === choice.adSetId)
+    session.blocks.push({
+      kind: 'assistant',
+      text: `Added the **${run.label}** ad — ${run.cells.length} creatives — to **${target?.name ?? 'the campaign'}**${set ? ` · ${set.name}` : ''}. Open it from Campaigns when you want to publish it to Meta.`,
+      runLabel: run.label,
+    })
+    return
+  }
+  const name = choice.name?.trim() || session.title
+  sessionDrafts.push({
+    id: `cmp_draft_${sessionDrafts.length + 1}`,
+    name,
+    status: 'draft',
+    // The product gives a new campaign one quiet ad set rather than asking for a name
+    // nobody has an opinion about yet.
+    adSets: [{ id: `as_draft_${sessionDrafts.length + 1}`, name: 'Default ad set' }],
+  })
+  session.blocks.push({
+    kind: 'assistant',
+    text: `Campaign **${name}** is drafted from the **${run.label}** direction on ${run.cells.length} products. Open it from Campaigns when you want to publish it to Meta.`,
+    runLabel: run.label,
+  })
+}
+
 // -- Agentic session ---------------------------------------------------------
 
 /**
@@ -590,6 +1289,8 @@ export const session = reactive({
   blocks: [],
   input: '',
   busy: false,
+  /** The product the concepts were built on — the overlay's step 1 is this one. */
+  seed: null,
 })
 
 const CAMPAIGN_TYPE_CHIPS = [
@@ -621,6 +1322,13 @@ export function resetSession() {
   session.phase = 'ask_type'
   session.busy = false
   session.input = ''
+  session.seed = null
+  runs.splice(0, runs.length)
+  sessionDrafts.splice(0, sessionDrafts.length)
+  runScope.runId = null
+  runScope.cleared = false
+  runOverlay.runId = null
+  closeConceptOverlay()
   session.blocks = [
     {
       kind: 'assistant',
@@ -659,6 +1367,7 @@ const GEN_STEPS = [
 
 export function pickFocus(opt) {
   disableOptions('focus')
+  session.seed = { id: opt.productId ?? opt.id, name: opt.label }
   session.blocks.push({ kind: 'user', text: opt.label })
   session.phase = 'generating'
   session.busy = true
