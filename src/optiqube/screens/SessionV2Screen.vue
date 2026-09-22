@@ -23,7 +23,7 @@ import OqSessionComposer from '../components/OqSessionComposer.vue'
     :style="{ fontFamily: FONT, background: BRAND.surface, boxShadow: CARD_SHADOW }"
   >
     <OqSessionHeader />
-    <OqSessionThread inline-runs />
+    <OqSessionThread inline-runs preview />
     <OqSessionComposer />
   </div>
 </template>

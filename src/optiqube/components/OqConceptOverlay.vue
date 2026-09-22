@@ -10,7 +10,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ArrowUp, Check, ImagePlus, Loader2, Maximize2, Minimize2, X } from 'lucide-vue-next'
 import { BRAND, CARD_SHADOW, FONT, MODAL_SHADOW, POPOVER_SHADOW } from '../tokens'
-import OqProductPicker from './OqProductPicker.vue'
+import OqCatalogPicker from './OqCatalogPicker.vue'
 import {
   conceptOverlay, overlaySteps, overlayHeaderStep, overlayCta, overlayTryChips,
   overlayChipBadges, overlayCompanions, overlayGenerateMore,
@@ -517,7 +517,7 @@ function onCta() {
       </div>
 
       <!-- The two slots step 2 has, over the catalog it can fill them from. -->
-      <OqProductPicker
+      <OqCatalogPicker
         :open="conceptOverlay.pickerOpen"
         :selected="conceptOverlay.companionIds"
         :seed-id="conceptOverlay.seed?.id ?? ''"

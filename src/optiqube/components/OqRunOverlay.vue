@@ -18,11 +18,13 @@ import {
   runProductNames, expandRun, refineRun, setRunProducts, useRunInCampaign,
   dismissRun, minimizeRun, RUN_PRODUCT_SLOTS,
 } from '../store'
-import OqProductPicker from './OqProductPicker.vue'
+import OqCatalogPicker from './OqCatalogPicker.vue'
 import OqCampaignPicker from './OqCampaignPicker.vue'
+import OqConfirm from './OqConfirm.vue'
 
 const pickerOpen = ref(false)
 const campaignOpen = ref(false)
+const discardOpen = ref(false)
 const note = ref('')
 const turnsEnd = ref(null)
 
@@ -30,6 +32,12 @@ const run = computed(() => runById(runOverlay.runId))
 const busy = computed(() => run.value?.status === 'running')
 const stage = computed(() => run.value?.stage ?? 'one')
 const total = computed(() => run.value?.productIds.length ?? 1)
+
+/** What the X actually costs. The window is a lens; letting the run go is not. */
+const discardBody = computed(() => {
+  const n = run.value?.cells.length ?? 0
+  return `${n === 1 ? 'Its creative goes' : `Its ${n} creatives go`} with it and would have to be rendered again. What was said about this direction stays in the thread.`
+})
 
 const steps = computed(() => [
   { n: 1, label: 'Concept refinement' },
@@ -183,7 +191,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           :style="{ borderColor: BRAND.gray200, background: BRAND.surface, color: BRAND.ink }"
           title="Let this run go"
           aria-label="Let this run go"
-          @click="dismissRun(run.id)"
+          @click="discardOpen = true"
         >
           <X class="size-4" />
         </button>
@@ -375,13 +383,21 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         </aside>
       </div>
 
-      <OqProductPicker
+      <OqCatalogPicker
         :open="pickerOpen"
         :selected="run.productIds"
         :seed-id="run.seedId"
         :max="RUN_PRODUCT_SLOTS"
         @confirm="(ids) => { setRunProducts(run.id, ids); pickerOpen = false }"
         @close="pickerOpen = false"
+      />
+
+      <OqConfirm
+        :open="discardOpen"
+        :title="`Discard the ${run.label} direction?`"
+        :body="discardBody"
+        @confirm="dismissRun(run.id)"
+        @close="discardOpen = false"
       />
 
       <OqCampaignPicker

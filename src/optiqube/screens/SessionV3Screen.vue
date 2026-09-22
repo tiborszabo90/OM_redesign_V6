@@ -1,36 +1,42 @@
 <script setup>
 /**
- * Session UI — version 3: the runs in a panel beside the chat.
+ * Session UI — version 3: the runs in a column beside the chat.
  *
  * Same parallel runs as V2, arranged the other way round. The conversation keeps the
  * left column and never has anything drawn over it; every direction that has been
- * started is a tab on the right, and switching tabs is also what puts that run in the
- * composer's scope — the tab strip is the scope selector, so the pill has nothing left
- * to say and is left out.
+ * started stacks in the right one, in the order it was started, and all of them are on
+ * screen at once.
  *
- * What this buys over V2 is comparison: the panel is always at the same place on
- * screen, so two directions are two clicks apart instead of two scroll positions.
- * What it costs is width — both columns are narrower than one.
+ * It was a tab strip first, which was wrong in the way tabs usually are: the thing the
+ * panel exists for is comparison, and a tab shows one direction by hiding the others.
+ * Stacked, two directions are a glance apart rather than a click, and the column reads
+ * as what the session has going.
+ *
+ * Clicking a block is what puts it in the composer's scope — the same gesture as V2's
+ * thread, and clicking it again lets go — so the pill above the box comes back, because
+ * with nothing selected the next note is about the session.
+ *
+ * What this buys over V2 is a conversation that stays a conversation: the thread is only
+ * ever turns, and the pictures never push it off the screen. What it costs is width —
+ * both columns are narrower than one.
  */
-import { computed, watch } from 'vue'
-import { Loader2, Check } from 'lucide-vue-next'
+import { nextTick, ref, watch } from 'vue'
 import { BRAND, CARD_SHADOW, FONT } from '../tokens'
-import { runs, runScope, runById, focusRun } from '../store'
+import { runs } from '../store'
 import OqSessionHeader from '../components/OqSessionHeader.vue'
 import OqSessionThread from '../components/OqSessionThread.vue'
 import OqSessionComposer from '../components/OqSessionComposer.vue'
 import OqRunDetail from '../components/OqRunDetail.vue'
 
-/** The tab on screen: the one in scope, falling back to the newest run. */
-const activeRun = computed(() => runById(runScope.runId) ?? runs[runs.length - 1] ?? null)
+const columnRef = ref(null)
 
-// A dismissed run takes the scope with it; the panel then shows the newest instead.
+/** A run starts at the bottom of the column, so the column goes there with it. */
 watch(
   () => runs.length,
-  () => {
-    if (runScope.runId && !runById(runScope.runId)) {
-      runScope.runId = runs[runs.length - 1]?.id ?? null
-    }
+  async () => {
+    await nextTick()
+    const el = columnRef.value
+    if (el) el.scrollTop = el.scrollHeight
   },
 )
 </script>
@@ -43,7 +49,7 @@ watch(
     <div class="flex min-w-0 flex-1 flex-col">
       <OqSessionHeader />
       <OqSessionThread />
-      <OqSessionComposer :show-scope="false" />
+      <OqSessionComposer />
     </div>
 
     <aside
@@ -52,40 +58,20 @@ watch(
       :style="{ borderColor: BRAND.gray200, background: BRAND.pageBg }"
     >
       <div
-        class="flex shrink-0 items-center gap-1.5 overflow-x-auto border-b px-3 py-2"
+        class="flex shrink-0 items-baseline gap-2 border-b px-3.5 py-2.5"
         :style="{ borderColor: BRAND.gray200, background: BRAND.surface }"
       >
-        <!-- A tab is not only a view: picking one is how the composer below is told
-             which run the next note is about. -->
-        <button
-          v-for="r in runs"
-          :key="r.id"
-          type="button"
-          class="flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors"
-          :style="{
-            borderColor: r.id === activeRun?.id ? BRAND.blue : BRAND.gray200,
-            background: r.id === activeRun?.id ? BRAND.blueSoft : BRAND.surface,
-            color: BRAND.ink,
-          }"
-          @click="focusRun(r.id)"
-        >
-          <Loader2
-            v-if="r.status === 'running'"
-            class="size-3 animate-spin"
-            :style="{ color: BRAND.blue }"
-          />
-          <Check v-else class="size-3" :stroke-width="3" :style="{ color: BRAND.emerald }" />
-          {{ r.label }}
-        </button>
+        <p class="text-sm font-semibold" :style="{ color: BRAND.ink }">Directions</p>
+        <p class="text-xs" :style="{ color: BRAND.gray500 }">
+          {{ runs.length }} started · click one to talk about it
+        </p>
       </div>
 
-      <div class="min-h-0 flex-1 overflow-y-auto p-3">
-        <OqRunDetail v-if="activeRun" :key="activeRun.id" :run="activeRun" dense :focusable="false" />
+      <!-- Block layout, not flex: a flex child shrinks to fit before the column
+           scrolls, which squashed every run to make the next one fit. -->
+      <div ref="columnRef" class="min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
+        <OqRunDetail v-for="r in runs" :key="r.id" :run="r" dense preview />
       </div>
-
-      <p class="shrink-0 border-t px-3 py-2 text-[11.5px]" :style="{ borderColor: BRAND.gray200, color: BRAND.gray500 }">
-        Notes you type go to the <span class="font-semibold" :style="{ color: BRAND.ink }">{{ activeRun?.label }}</span> run.
-      </p>
     </aside>
   </div>
 </template>

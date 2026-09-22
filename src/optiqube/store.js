@@ -96,7 +96,7 @@ export const account = {
   displayName: 'Anna Berg',
   plan: 'Growth',
   nextPayment: '12 Oct 2026',
-  credits: { balance: 640, granted: 1000 },
+  credits: reactive({ balance: 640, granted: 1000 }),
 }
 
 export const brands = [
@@ -1035,6 +1035,8 @@ function defaultRunCompanions(seedId) {
 }
 
 function renderCells(run, images, delay = 2500, step = 1500) {
+  // One charge per round, at the one place every round passes through.
+  spendCredits(runPending(run))
   run.status = 'running'
   run.startedAt = Date.now()
   run.cells.forEach((cell, i) => {
@@ -1273,6 +1275,26 @@ export function useRunInCampaign(runId, choice) {
   })
 }
 
+// -- Credits -----------------------------------------------------------------
+
+/**
+ * What a task costs.
+ *
+ * One credit is one rendered creative, because that is the only thing in a session
+ * that costs anything: the reading, the brand match and the conversation are free.
+ * That makes every price on screen countable rather than a number to be trusted —
+ * four concepts is four, a direction on two more products is two.
+ */
+const GRANTED_CREDITS = account.credits.granted
+
+function spendCredits(n) {
+  if (n <= 0) return
+  account.credits.balance = Math.max(0, account.credits.balance - n)
+}
+
+/** What the four concepts on the seed product cost. */
+const CONCEPTS_COST = 4
+
 // -- Agentic session ---------------------------------------------------------
 
 /**
@@ -1323,6 +1345,9 @@ export function resetSession() {
   session.busy = false
   session.input = ''
   session.seed = null
+  // A prototype is reset over and over, and a balance that only ever fell would be at
+  // zero by the third look. The account's own credits go back with the task.
+  account.credits.balance = GRANTED_CREDITS - 360
   runs.splice(0, runs.length)
   sessionDrafts.splice(0, sessionDrafts.length)
   runScope.runId = null
@@ -1387,6 +1412,7 @@ export function pickFocus(opt) {
 }
 
 function finishGeneration(seed) {
+  spendCredits(CONCEPTS_COST)
   session.blocks.push({
     kind: 'concepts',
     seedProductName: seed.label,
@@ -1402,7 +1428,6 @@ function finishGeneration(seed) {
     kind: 'assistant',
     text: 'Four concepts for **' + seed.label + '**. Tell me what to change, or take one further.',
   })
-  session.blocks.push({ kind: 'options', purpose: 'next', options: NEXT_CHIPS, disabled: false })
   session.phase = 'ready'
   session.busy = false
 }
@@ -1447,6 +1472,7 @@ export function handleNextStep(id) {
 }
 
 function finishApply() {
+  spendCredits(products.filter((p) => p.imageUrl).length)
   session.blocks.push({
     kind: 'apply',
     styleId: 'badge',
@@ -1471,31 +1497,120 @@ function finishApply() {
           kind: 'assistant',
           text: '8 products covered in the **Badge** style. The rest of the catalog is queued and will land over the next hour.',
         })
-        session.blocks.push({
-          kind: 'options',
-          purpose: 'next',
-          options: [NEXT_CHIPS[2], NEXT_CHIPS[1]],
-          disabled: false,
-        })
         session.phase = 'ready'
       }
     }, 600 + i * 450)
   })
 }
 
+/** The four concepts on screen, or none — the newest block wins. */
+function openConcepts() {
+  for (let i = session.blocks.length - 1; i >= 0; i -= 1) {
+    if (session.blocks[i].kind === 'concepts') return session.blocks[i].concepts
+  }
+  return []
+}
+
+/** Letters only, so "Call-Out", "call out" and "callout" are one word. */
+const bareLetters = (text) => text.toLowerCase().replace(/[^a-z]/g, '')
+
+/**
+ * Which direction a note is about, read out of the note itself.
+ *
+ * `'all'` where it says so, the concept where it names one — by style or by the letter
+ * the card carries, matched as a capital so the "a" in every other sentence is not a
+ * direction — and `null` where it says neither. Null is the whole point: a note that
+ * does not say which of four creatives to change cannot be guessed at, because the
+ * wrong guess spends a round on the wrong direction.
+ */
+function conceptFromNote(text, concepts) {
+  if (/\b(all|both|each|every|them)\b/i.test(text)) return 'all'
+  const typed = bareLetters(text)
+  const named = concepts.find((c) => typed.includes(bareLetters(c.label)))
+  if (named) return named
+  const letter = text.match(/\b([A-D])\b/)
+  if (letter) return concepts[letter[1].charCodeAt(0) - 65] ?? null
+  return null
+}
+
+const STANDING_ASK =
+  'Noted — I kept that as a standing ask, so every creative rendered from here on follows it.'
+
+function answerStandingAsk(delay = 900) {
+  session.busy = true
+  setTimeout(() => {
+    session.blocks.push({ kind: 'assistant', text: STANDING_ASK })
+    session.busy = false
+  }, delay)
+}
+
+/**
+ * A note typed at the session rather than at a run.
+ *
+ * With four concepts on screen and nothing saying which one, the agent asks instead of
+ * picking: the question and the four answers are a turn in the thread, the same shape
+ * as every other question it asks, so the conversation carries the ambiguity rather
+ * than a modal interrupting it.
+ */
 export function sendRefine() {
   const text = session.input.trim()
   if (!text) return
   session.input = ''
   session.blocks.push({ kind: 'user', text })
+
+  const concepts = openConcepts()
+  const said = concepts.length ? conceptFromNote(text, concepts) : 'all'
+  if (said === 'all') {
+    answerStandingAsk()
+    return
+  }
+  if (said) {
+    // It named its direction. Nothing to ask.
+    startRun(said)
+    return
+  }
+
   session.busy = true
   setTimeout(() => {
     session.blocks.push({
       kind: 'assistant',
-      text: 'Noted — I kept that as a standing ask for this style, so every creative it renders from here on follows it.',
+      text: 'Which one should that change — or all four?',
+    })
+    session.blocks.push({
+      kind: 'options',
+      purpose: 'clarify',
+      // Kept on the block so the thread can show what is being answered.
+      note: text,
+      options: [
+        ...concepts.map((c, i) => ({
+          id: c.id,
+          label: c.label,
+          letter: String.fromCharCode(65 + i),
+          imageUrl: c.imageUrl,
+        })),
+        { id: 'all', label: 'All four' },
+      ],
+      disabled: false,
     })
     session.busy = false
-  }, 900)
+  }, 700)
+}
+
+/**
+ * The answer to that question.
+ *
+ * Returns the concept the screen should now start a direction on — each session screen
+ * starts one its own way — or null where the answer was "all four", which is a standing
+ * ask and renders nothing.
+ */
+export function clarifyPick(opt) {
+  disableOptions('clarify')
+  session.blocks.push({ kind: 'user', text: opt.label })
+  if (opt.id === 'all') {
+    answerStandingAsk(700)
+    return null
+  }
+  return openConcepts().find((c) => c.id === opt.id) ?? null
 }
 
 // -- Campaign workspace ------------------------------------------------------

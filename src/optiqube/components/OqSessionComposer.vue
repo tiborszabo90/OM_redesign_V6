@@ -5,19 +5,13 @@
  * It talks to the session by default. The question with several runs on screen —
  * which of these am I talking about — is answered by a chip rather than a second box,
  * and the chip gets there by itself: the sentence names a run, or a run was clicked,
- * or one was just worked on in the window. Where a run is in scope, the Try sentences
- * are that run's.
+ * or one was just worked on in the window.
  */
 import { computed, watch } from 'vue'
 import { ArrowUp, ImagePlus } from 'lucide-vue-next'
 import { BRAND } from '../tokens'
-import { session, runScope, runById, refineRun, runTryChips, sendRefine, runs } from '../store'
+import { session, runScope, runById, refineRun, sendRefine, runs } from '../store'
 import OqRunScope from './OqRunScope.vue'
-
-defineProps({
-  /** The chip. Off where the screen already says what is in scope — V3's tabs. */
-  showScope: { type: Boolean, default: true },
-})
 
 const scopedRun = computed(() => (runScope.runId ? runById(runScope.runId) : null))
 
@@ -62,26 +56,7 @@ function send() {
 <template>
   <div class="shrink-0 border-t px-4 py-3 sm:px-8" :style="{ borderColor: BRAND.gray200 }">
     <div class="mx-auto max-w-[820px]">
-      <OqRunScope v-if="showScope" />
-
-      <!-- Suggestions for the run in scope. Pressing one writes the sentence; the
-           send is still yours. -->
-      <div v-if="scopedRun" class="mb-2 flex flex-wrap gap-2">
-        <button
-          v-for="chip in runTryChips(scopedRun)"
-          :key="chip.id"
-          type="button"
-          class="rounded-full border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-[var(--oq-blue-soft)]"
-          :style="{
-            borderColor: scopedRun.chips[chip.id] ? BRAND.blue : BRAND.gray200,
-            background: scopedRun.chips[chip.id] ? BRAND.blueSoft : BRAND.surface,
-            color: BRAND.ink,
-          }"
-          @click="session.input = chip.chip"
-        >
-          {{ chip.chip }}
-        </button>
-      </div>
+      <OqRunScope />
 
       <div
         class="rounded-2xl border px-3 py-2 transition-colors"

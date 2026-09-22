@@ -91,6 +91,26 @@ section.
 type → pick a seed product → a progress block whose steps land one at a time →
 four concepts → apply across the catalog, where the cells fill in one by one.
 
+A note typed at the session while the four concepts are on screen goes through
+`sendRefine`, which first reads the note for the direction it is about: the style name,
+or the card's letter matched as a capital so the "a" in every other sentence is not an
+answer, or a word like *all*. Where it names one, that direction starts; where it says
+*all*, the note is kept as a standing ask; where it says neither, the agent asks — a
+`clarify` options block whose answers are the four concepts with their own letters, plus
+**All four**. `clarifyPick` does the bookkeeping and hands the concept back, because each
+screen starts a direction its own way (V1 opens the overlay, V2–V5 start a run).
+
+The seed question offers four products, which are the top of the catalog — so every
+version of the screen puts the rest of it one click away, behind a **Something else**
+chip that raises `OqCatalogPicker`: the Products page's own search, sort and facet rail
+in a modal. What it returns goes through `pickFocus` like a tile click, so the thread
+carries on identically.
+
+The same modal answers the other product question — the three a direction is generated
+on, behind **Change products** — with `max` as the only difference between them, plus
+`lockedId` where the concept overlay's seed cannot be swapped. Whatever is already
+chosen leads the grid, frozen at open so a tick never moves the row under the cursor.
+
 Clicking one of the four concepts opens `OqConceptOverlay`, ported from the
 product's `SessionConceptOverlay` over `ConceptOverlay`: step 1 is the direction on
 the seed product, step 2 the same direction on two more (the pair is changeable), step
@@ -127,9 +147,21 @@ session's own turns about that run rather than a second chat. `startRun(concept,
 |------|--------|---------------------|
 | `/session` | `SessionScreen` | V1 — the ported overlay, one at a time |
 | `/session-v2` | `SessionV2Screen` | inline in the thread, where they were started |
-| `/session-v3` | `SessionV3Screen` | a tabbed panel beside the chat (the tab is the scope) |
+| `/session-v3` | `SessionV3Screen` | stacked in a column beside the chat, all of them at once |
 | `/session-v4` | `SessionV4Screen` | a rail above the composer, one card unfolds at a time |
 | `/session-v5` | `SessionV5Screen` | inline like V2, plus the original's window as a lens over one run |
+
+### Credits
+
+One credit is one rendered creative — the only thing in a session that costs anything —
+so every price on screen is countable. `store.js` charges at the three places a round
+starts: `renderCells` for a run, `finishGeneration` for the four concepts, `finishApply`
+for the catalog roll, and `account.credits` is reactive so the balance falls live.
+
+`OqCreditMeter` shows it in the sidebar above the account menu, on every screen. The
+session itself quotes no prices: what a task costs depends on how many directions it
+turns out to need, and the balance falling as the rounds land says it without a number
+having to be promised first.
 
 **Gotcha:** the blocks live in a `reactive` array. Mutating a block you still hold
 a reference to from before the `push` does nothing — Vue only tracks writes made
@@ -145,7 +177,10 @@ OptiQube has its **own component set** in `src/optiqube/components/`, prefixed
 |-----------|---------|
 | `OqConceptOverlay` | The original's window on a concept card — panel and corner card |
 | `OqRunOverlay` | V5's window: one run large, over the session's own turns |
-| `OqProductPicker` | The 3 products a direction is generated on |
+| `OqCatalogPicker` | The catalog, searchable and faceted — both product questions go through it |
+| `OqCreditMeter` | Credits left, fixed in the sidebar above the account menu |
+| `OqCreativeLightbox` | Preview: a run's creatives large, one at a time (V2 and V3) |
+| `OqConfirm` | The small are-you-sure, for discarding a run |
 | `OqCampaignPicker` | Where a finished run goes: existing campaign + ad set, or a new one |
 | `OqSessionHeader` | Session title bar: rename in place, what it is doing |
 | `OqSessionThread` | The session thread the V2–V4 screens share |

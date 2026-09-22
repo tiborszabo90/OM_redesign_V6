@@ -8,31 +8,33 @@
  * out of one.
  */
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import { Check, Loader2, Maximize2, Package, X } from 'lucide-vue-next'
+import { Check, Images, Loader2, Maximize2, Package, X } from 'lucide-vue-next'
 import { BRAND, CARD_SHADOW } from '../tokens'
 import {
   session, runChipBadges, runPending, setRunProducts, useRunInCampaign, dismissRun,
   expandRun, openRun, focusRun, clearRunScope, runScope, RUN_PRODUCT_SLOTS,
 } from '../store'
-import OqProductPicker from './OqProductPicker.vue'
+import OqCatalogPicker from './OqCatalogPicker.vue'
 import OqCampaignPicker from './OqCampaignPicker.vue'
+import OqCreativeLightbox from './OqCreativeLightbox.vue'
+import OqConfirm from './OqConfirm.vue'
 
 const props = defineProps({
   run: { type: Object, required: true },
-  /** The compact drawing: smaller frames, no product row. Used by the side panel. */
+  /** The compact drawing: smaller frames, no product row. Used by V3's column. */
   dense: { type: Boolean, default: false },
   /** There is a window to open this run in — V5. Elsewhere the block is all there is. */
   openable: { type: Boolean, default: false },
+  /**
+   * V2: the creatives can be looked at large. V5 has the window for that, and a run in
+   * a window is more than a look, so the two never appear together.
+   */
+  preview: { type: Boolean, default: false },
   /**
    * The pictures to draw. A block in the thread passes its own round's cells; without
    * it the run's current ones are drawn, which is what a panel or a rail wants.
    */
   cells: { type: Array, default: null },
-  /**
-   * Clicking this block is what points the composer at the run. False where the
-   * screen already has a way of saying that — V3's tabs.
-   */
-  focusable: { type: Boolean, default: true },
 })
 
 /** What this drawing shows, and whether it is the round still being worked on. */
@@ -49,7 +51,7 @@ const focused = computed(() => runScope.runId === props.run.id)
  * statement about what the next note is about.
  */
 function onBlockClick(e) {
-  if (!props.focusable || historic.value) return
+  if (historic.value) return
   if (e.target.closest('button')) return
   if (focused.value) clearRunScope()
   else focusRun(props.run.id)
@@ -57,6 +59,8 @@ function onBlockClick(e) {
 
 const pickerOpen = ref(false)
 const campaignOpen = ref(false)
+const lightboxOpen = ref(false)
+const discardOpen = ref(false)
 
 /** The run's own clock — two runs on screen are two clocks. */
 const now = ref(Date.now())
@@ -80,6 +84,12 @@ const elapsedLabel = computed(() => {
   return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`
 })
 const productIds = computed(() => props.run.productIds)
+
+/** What the X actually costs, said in the terms the block is drawn in. */
+const discardBody = computed(() => {
+  const n = shown.value.length
+  return `${n === 1 ? 'Its creative goes' : `Its ${n} creatives go`} with it and would have to be rendered again. What was said about this direction stays in the thread.`
+})
 </script>
 
 <template>
@@ -87,14 +97,14 @@ const productIds = computed(() => props.run.productIds)
        the chip appears, and the block says so with its border. -->
   <div
     class="relative overflow-hidden rounded-2xl border"
-    :class="focusable && !historic ? 'cursor-pointer' : ''"
+    :class="historic ? '' : 'cursor-pointer'"
     :style="{
       borderColor: !historic && focused ? BRAND.blue : BRAND.gray200,
       background: BRAND.surface,
     }"
-    :title="focusable && !historic
-      ? (focused ? 'Click to stop talking about this run' : 'Click to talk about this run')
-      : undefined"
+    :title="historic
+      ? undefined
+      : (focused ? 'Click to stop talking about this run' : 'Click to talk about this run')"
     @click="onBlockClick"
   >
     <div
@@ -136,7 +146,7 @@ const productIds = computed(() => props.run.productIds)
         class="rounded-md p-1 transition-colors hover:bg-[var(--oq-hover)]"
         title="Dismiss this run"
         aria-label="Dismiss this run"
-        @click="dismissRun(run.id)"
+        @click="discardOpen = true"
       >
         <X class="size-3.5" :style="{ color: BRAND.gray500 }" />
       </button>
@@ -201,6 +211,17 @@ const productIds = computed(() => props.run.productIds)
         Open large
       </button>
       <button
+        v-if="preview"
+        type="button"
+        class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold"
+        :style="{ borderColor: BRAND.gray200, color: BRAND.ink, background: BRAND.surface }"
+        title="See the creatives large"
+        @click="lightboxOpen = true"
+      >
+        <Images class="size-3.5" />
+        Preview
+      </button>
+      <button
         type="button"
         class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold"
         :style="{ borderColor: BRAND.gray200, color: BRAND.ink, background: BRAND.surface }"
@@ -231,13 +252,28 @@ const productIds = computed(() => props.run.productIds)
       </button>
     </div>
 
-    <OqProductPicker
+    <OqCatalogPicker
       :open="pickerOpen"
       :selected="productIds"
       :seed-id="run.seedId"
       :max="RUN_PRODUCT_SLOTS"
       @confirm="(ids) => { setRunProducts(run.id, ids); pickerOpen = false }"
       @close="pickerOpen = false"
+    />
+
+    <OqConfirm
+      :open="discardOpen"
+      :title="`Discard the ${run.label} direction?`"
+      :body="discardBody"
+      @confirm="dismissRun(run.id)"
+      @close="discardOpen = false"
+    />
+
+    <OqCreativeLightbox
+      :open="lightboxOpen"
+      :cells="shown"
+      :label="run.label"
+      @close="lightboxOpen = false"
     />
 
     <OqCampaignPicker

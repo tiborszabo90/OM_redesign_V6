@@ -9,6 +9,7 @@ import {
 } from './store'
 import OqBrandSwitcher from './components/OqBrandSwitcher.vue'
 import OqUserMenu from './components/OqUserMenu.vue'
+import OqCreditMeter from './components/OqCreditMeter.vue'
 import OqConceptOverlay from './components/OqConceptOverlay.vue'
 import CampaignsScreen from './screens/CampaignsScreen.vue'
 import CampaignWorkspaceScreen from './screens/CampaignWorkspaceScreen.vue'
@@ -289,6 +290,7 @@ function dotColor(row) {
         </div>
       </div>
 
+      <OqCreditMeter />
       <OqUserMenu />
     </aside>
 

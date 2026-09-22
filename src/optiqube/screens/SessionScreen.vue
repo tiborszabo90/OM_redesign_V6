@@ -1,15 +1,25 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
-import { ArrowUp, Check, ImagePlus, Loader2, Pencil, Sparkles } from 'lucide-vue-next'
+import { ArrowUp, Check, ImagePlus, Loader2, Pencil, Search, Sparkles } from 'lucide-vue-next'
 import { BRAND, CARD_SHADOW, FONT } from '../tokens'
 import {
-  session, pickCampaignType, pickFocus, handleNextStep, sendRefine,
-  activeBrand, styleById, openConceptOverlay,
+  session, pickCampaignType, pickFocus, sendRefine,
+  activeBrand, styleById, openConceptOverlay, products, clarifyPick,
 } from '../store'
+import OqCatalogPicker from '../components/OqCatalogPicker.vue'
 
 const renamingTitle = ref(false)
 const titleDraft = ref('')
 const scrollRef = ref(null)
+
+/** The catalog browser behind "something else" on the seed question. */
+const seedPicker = ref(false)
+
+function pickFromCatalog(ids) {
+  const p = products.find((x) => x.id === ids[0])
+  seedPicker.value = false
+  if (p) pickFocus({ id: p.id, label: p.name, productId: p.id })
+}
 
 const subtitle = computed(
   () => `${activeBrand().domain} · ${session.busy ? 'working…' : 'ready'}`,
@@ -46,7 +56,11 @@ function onOption(block, opt) {
   if (block.disabled) return
   if (block.purpose === 'campaign') pickCampaignType(opt)
   else if (block.purpose === 'focus') pickFocus(opt)
-  else handleNextStep(opt.id)
+  // The answer to "which one" opens that concept the way a click on its card would.
+  else if (block.purpose === 'clarify') {
+    const concept = clarifyPick(opt)
+    if (concept) openConceptOverlay(concept)
+  }
 }
 
 /** Stay pinned to the newest turn as the thread grows. */
@@ -131,41 +145,82 @@ watch(
           </div>
 
           <!-- The seed question: product tiles instead of pills -->
-          <ul
+          <div
             v-else-if="b.kind === 'options' && b.purpose === 'focus'"
-            class="grid max-w-xl list-none grid-cols-3 gap-2 p-0 sm:grid-cols-4"
+            class="flex flex-col items-start gap-2"
           >
-            <li v-for="opt in b.options" :key="opt.id">
-              <button
-                type="button"
-                :disabled="b.disabled"
-                class="group w-full overflow-hidden rounded-xl border text-left transition-shadow disabled:opacity-50 hover:enabled:shadow-[var(--oq-shadow-lift)]"
-                :style="{ borderColor: BRAND.gray200, background: BRAND.surface }"
-                @click="onOption(b, opt)"
-              >
-                <span
-                  class="relative grid aspect-square place-items-center border-b p-1.5"
-                  :style="{ background: BRAND.gray50, borderColor: BRAND.gray100 }"
+            <ul class="grid max-w-xl list-none grid-cols-3 gap-2 p-0 sm:grid-cols-4">
+              <li v-for="opt in b.options" :key="opt.id">
+                <button
+                  type="button"
+                  :disabled="b.disabled"
+                  class="group w-full overflow-hidden rounded-xl border text-left transition-shadow disabled:opacity-50 hover:enabled:shadow-[var(--oq-shadow-lift)]"
+                  :style="{ borderColor: BRAND.gray200, background: BRAND.surface }"
+                  @click="onOption(b, opt)"
                 >
-                  <img
-                    v-if="opt.imageUrl"
-                    :src="opt.imageUrl"
-                    alt=""
-                    loading="lazy"
-                    class="max-h-full max-w-full object-contain"
-                  />
-                </span>
-                <span class="block px-2 pb-2 pt-1.5">
-                  <span class="block truncate text-xs font-semibold" :style="{ color: BRAND.ink }">
-                    {{ opt.label }}
+                  <span
+                    class="relative grid aspect-square place-items-center border-b p-1.5"
+                    :style="{ background: BRAND.gray50, borderColor: BRAND.gray100 }"
+                  >
+                    <img
+                      v-if="opt.imageUrl"
+                      :src="opt.imageUrl"
+                      alt=""
+                      loading="lazy"
+                      class="max-h-full max-w-full object-contain"
+                    />
                   </span>
-                  <span v-if="opt.price" class="block truncate text-[11px]" :style="{ color: BRAND.gray500 }">
-                    {{ opt.price }}
+                  <span class="block px-2 pb-2 pt-1.5">
+                    <span class="block truncate text-xs font-semibold" :style="{ color: BRAND.ink }">
+                      {{ opt.label }}
+                    </span>
+                    <span v-if="opt.price" class="block truncate text-[11px]" :style="{ color: BRAND.gray500 }">
+                      {{ opt.price }}
+                    </span>
                   </span>
-                </span>
-              </button>
-            </li>
-          </ul>
+                </button>
+              </li>
+            </ul>
+
+            <!-- The four are the top of the catalog, so the rest of it has to be
+                 reachable from the same question. -->
+            <button
+              type="button"
+              :disabled="b.disabled"
+              class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 hover:enabled:bg-[var(--oq-blue-soft)]"
+              :style="{ borderColor: BRAND.gray200, color: BRAND.ink, background: BRAND.surface }"
+              @click="seedPicker = true"
+            >
+              <Search class="size-3.5" />
+              Something else — browse all {{ products.length }} products
+            </button>
+          </div>
+
+          <!-- "Which of these?" — the four answers, carrying the cards' own letters -->
+          <div
+            v-else-if="b.kind === 'options' && b.purpose === 'clarify'"
+            class="flex flex-wrap gap-2"
+          >
+            <button
+              v-for="opt in b.options"
+              :key="opt.id"
+              type="button"
+              :disabled="b.disabled"
+              class="flex items-center gap-2 rounded-full border py-1.5 pr-3.5 text-sm font-medium transition-colors disabled:opacity-50 hover:enabled:bg-[var(--oq-blue-soft)]"
+              :class="opt.letter ? 'pl-1.5' : 'pl-3.5'"
+              :style="{ borderColor: BRAND.gray200, color: BRAND.ink, background: BRAND.surface }"
+              @click="onOption(b, opt)"
+            >
+              <span
+                v-if="opt.letter"
+                class="flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                :style="{ background: BRAND.blueSolid, color: BRAND.onAccent }"
+              >
+                {{ opt.letter }}
+              </span>
+              {{ opt.label }}
+            </button>
+          </div>
 
           <!-- Every other question: chips -->
           <div v-else-if="b.kind === 'options'" class="flex flex-wrap gap-2">
@@ -317,5 +372,13 @@ watch(
         </div>
       </div>
     </div>
+
+    <OqCatalogPicker
+      :open="seedPicker"
+      :max="1"
+      :selected="session.seed ? [session.seed.id] : []"
+      @confirm="pickFromCatalog"
+      @close="seedPicker = false"
+    />
   </div>
 </template>
