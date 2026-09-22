@@ -88,7 +88,7 @@ const productIds = computed(() => props.run.productIds)
 /** What the X actually costs, said in the terms the block is drawn in. */
 const discardBody = computed(() => {
   const n = shown.value.length
-  return `${n === 1 ? 'Its creative goes' : `Its ${n} creatives go`} with it and would have to be rendered again. What was said about this direction stays in the thread.`
+  return `${n === 1 ? 'Its creative is deleted' : `Its ${n} creatives are deleted`}. The concept stays in the thread, so you can generate a new version from it.`
 })
 </script>
 
