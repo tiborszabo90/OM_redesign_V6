@@ -203,16 +203,19 @@ const discardBody = computed(() => {
       </div>
     </div>
 
+    <!-- The column is narrow: its labels are the short ones, so the three actions sit on
+         one row, with the full wording kept in the tooltip. -->
     <div v-if="!historic" class="flex flex-wrap items-center gap-2 px-3 pb-3">
       <button
         v-if="openable"
         type="button"
         class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold"
         :style="{ borderColor: BRAND.gray200, color: BRAND.ink, background: BRAND.surface }"
+        title="Open it large"
         @click="openRun(run.id)"
       >
         <Maximize2 class="size-3.5" />
-        Open large
+        {{ dense ? 'Open' : 'Open large' }}
       </button>
       <button
         v-if="preview"
@@ -229,10 +232,11 @@ const discardBody = computed(() => {
         type="button"
         class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold"
         :style="{ borderColor: BRAND.gray200, color: BRAND.ink, background: BRAND.surface }"
+        title="Change products"
         @click="pickerOpen = true"
       >
         <Package class="size-3.5" />
-        Change products
+        {{ dense ? 'Products' : 'Change products' }}
       </button>
       <!-- Before the round the primary action is the round; after it, the campaign. -->
       <button
@@ -240,9 +244,10 @@ const discardBody = computed(() => {
         type="button"
         class="rounded-full px-3 py-1.5 text-xs font-semibold text-white"
         :style="{ background: BRAND.blue }"
+        :title="`Generate on ${run.productIds.length} products`"
         @click="expandRun(run.id)"
       >
-        Generate on {{ run.productIds.length }} products
+        {{ dense ? `Generate on ${run.productIds.length}` : `Generate on ${run.productIds.length} products` }}
       </button>
       <button
         v-else
