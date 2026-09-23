@@ -147,7 +147,7 @@ session's own turns about that run rather than a second chat. `startRun(concept,
 |------|--------|---------------------|
 | `/session` | `SessionScreen` | V1 — the ported overlay, one at a time |
 | `/session-v2` | `SessionV2Screen` | inline in the thread, where they were started |
-| `/session-v3` | `SessionV3Screen` | stacked in a column beside the chat, all of them at once |
+| `/session-v3` | `SessionV3Screen` | one run inline in the thread; from the second on, stacked in a column beside the chat with a small strip left in the thread (a click opens it large) — plus V5's window on a click, with a switcher between the directions and the concepts not tried yet. Nothing is discarded: the X only closes. A run shows, card badge included, once a note redraws it or it is generated on its products |
 | `/session-v4` | `SessionV4Screen` | a rail above the composer, one card unfolds at a time |
 | `/session-v5` | `SessionV5Screen` | inline like V2, plus the original's window as a lens over one run |
 

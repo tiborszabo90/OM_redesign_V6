@@ -7,12 +7,12 @@
  * both skip the marker block here. Everything else on screen is the same conversation, which is
  * why it is one component rather than three copies.
  */
-import { nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { Check, Crosshair, Loader2, Search } from 'lucide-vue-next'
 import { BRAND, CARD_SHADOW } from '../tokens'
 import {
   session, pickCampaignType, pickFocus, styleById,
-  runById, runForConcept, startRun, products, clarifyPick,
+  runById, runForConcept, startRun, products, clarifyPick, runIsDraft, openRun,
 } from '../store'
 import OqRunDetail from './OqRunDetail.vue'
 import OqCatalogPicker from './OqCatalogPicker.vue'
@@ -27,6 +27,66 @@ const props = defineProps({
   overlayRuns: { type: Boolean, default: false },
   /** V2: a run's creatives can be opened large, since there is no window here. */
   preview: { type: Boolean, default: false },
+  /**
+   * V3 with its column on: each round leaves a small strip of its pictures here, so
+   * the column beside it reads as part of this conversation rather than a second one.
+   */
+  runStrips: { type: Boolean, default: false },
+  /**
+   * V3: a run nobody has worked on yet is not drawn — neither inline nor as a strip —
+   * and a run that has been is kept, so its block offers no discard.
+   */
+  hideDrafts: { type: Boolean, default: false },
+})
+
+/**
+ * A round V3 leaves out: a draft, or the run's opening block on its seed alone, which
+ * is the concept card's own picture and the grid above already shows it.
+ */
+function hiddenRound(b) {
+  if (!props.hideDrafts) return false
+  const run = runById(b.runId)
+  if (!run || runIsDraft(run)) return true
+  const opening = session.blocks.find((x) => x.kind === 'run' && x.runId === b.runId) === b
+  return opening && b.cells.length === 1
+}
+
+/** The run a concept card reports on — none for a draft, where V3 shows nothing else either. */
+function cardRun(c) {
+  const run = runForConcept(c.id)
+  return run && !(props.hideDrafts && runIsDraft(run)) ? run : null
+}
+
+/**
+ * The order the thread is read in. A round's block is pushed when the round is set up —
+ * a run's opening block as early as the window is first opened — while the line that
+ * announces its pictures can come much later. In V3 the pictures read as the answer, so
+ * each block goes under the last line about its run before that run's next round.
+ */
+const shownBlocks = computed(() => {
+  const blocks = session.blocks
+  if (!props.hideDrafts) return blocks.slice()
+  const after = new Map()
+  const moved = new Set()
+  blocks.forEach((b, i) => {
+    if (b.kind !== 'run') return
+    const label = runById(b.runId)?.label
+    let target = null
+    for (let k = i + 1; k < blocks.length; k += 1) {
+      const x = blocks[k]
+      if (x.kind === 'run' && x.runId === b.runId) break
+      if (x.kind === 'assistant' && x.runLabel === label) target = x
+    }
+    if (!target) return
+    moved.add(b)
+    after.set(target, [...(after.get(target) ?? []), b])
+  })
+  const list = []
+  for (const b of blocks) {
+    if (moved.has(b)) continue
+    list.push(b, ...(after.get(b) ?? []))
+  }
+  return list
 })
 
 /** V5 starts on the seed alone and opens the window; the others go straight to three. */
@@ -91,7 +151,7 @@ watch(
 <template>
   <div ref="scrollRef" class="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8">
     <div class="mx-auto flex w-full max-w-[820px] flex-col gap-4">
-      <template v-for="(b, i) in session.blocks" :key="i">
+      <template v-for="(b, i) in shownBlocks" :key="i">
         <!-- What the merchant said -->
         <div v-if="b.kind === 'user'" class="flex flex-col items-end">
           <!-- Which of the runs on screen this turn was about. A note typed at one of
@@ -134,12 +194,39 @@ watch(
 
         <!-- A direction generating on three products, where it was started -->
         <OqRunDetail
-          v-else-if="b.kind === 'run' && inlineRuns && runById(b.runId)"
+          v-else-if="b.kind === 'run' && inlineRuns && runById(b.runId) && !hiddenRound(b)"
           :run="runById(b.runId)"
           :cells="b.cells"
           :openable="overlayRuns"
           :preview="preview"
+          :no-discard="hideDrafts"
         />
+
+        <!-- V3: the round, small — the column beside the thread has it large. A click
+             opens it large, like the block it stands for. -->
+        <button
+          v-else-if="b.kind === 'run' && runStrips && runById(b.runId) && !hiddenRound(b)"
+          type="button"
+          class="flex gap-1.5 self-start rounded-xl p-1 -m-1 transition-colors hover:bg-[var(--oq-hover)]"
+          :title="`Open ${runById(b.runId).label} large`"
+          @click="openRun(b.runId)"
+        >
+          <span
+            v-for="c in b.cells"
+            :key="c.productId"
+            class="relative size-14 overflow-hidden rounded-lg border"
+            :style="{ borderColor: BRAND.gray200, background: BRAND.gray50 }"
+          >
+            <img
+              v-if="c.imageUrl"
+              :src="c.imageUrl"
+              :alt="c.name"
+              class="size-full object-cover"
+              :class="c.status === 'pending' ? 'opacity-50' : ''"
+            />
+            <span v-if="c.status === 'pending'" class="oq-shimmer-sweep absolute inset-0" aria-busy="true" />
+          </span>
+        </button>
 
         <!-- The seed question: product tiles instead of pills -->
         <div
@@ -258,7 +345,7 @@ watch(
             type="button"
             class="overflow-hidden rounded-2xl border p-3 text-left transition-shadow hover:shadow-[var(--oq-shadow-lift)]"
             :style="{
-              borderColor: runForConcept(c.id) ? BRAND.blue : BRAND.gray200,
+              borderColor: cardRun(c) ? BRAND.blue : BRAND.gray200,
               background: BRAND.surface,
             }"
             @click="openConcept(c)"
@@ -280,21 +367,21 @@ watch(
               <!-- What this direction is already doing, so a second click is never a
                    second bill. -->
               <span
-                v-if="runForConcept(c.id)"
+                v-if="cardRun(c)"
                 class="absolute right-2 top-2 flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold"
                 :style="{
                   background: BRAND.surface,
-                  color: runForConcept(c.id).status === 'running' ? BRAND.ink : BRAND.emeraldText,
+                  color: cardRun(c).status === 'running' ? BRAND.ink : BRAND.emeraldText,
                   boxShadow: CARD_SHADOW,
                 }"
               >
                 <Loader2
-                  v-if="runForConcept(c.id).status === 'running'"
+                  v-if="cardRun(c).status === 'running'"
                   class="size-3 animate-spin"
                   :style="{ color: BRAND.blue }"
                 />
                 <Check v-else class="size-3" :stroke-width="3" />
-                {{ runForConcept(c.id).status === 'running' ? 'Running' : 'Ready' }}
+                {{ cardRun(c).status === 'running' ? 'Running' : 'Ready' }}
               </span>
             </div>
             <p class="mt-3 text-sm font-semibold" :style="{ color: BRAND.ink }">{{ c.label }}</p>

@@ -1121,6 +1121,15 @@ export function expandRun(runId) {
   renderCells(run, styleImages(run.styleId))
 }
 
+/**
+ * Opened but not yet worked on: the concept on its seed, as it came. V3 keeps these out
+ * of its column and lets the window close on them without asking — there is nothing to
+ * discard until a note has redrawn it or it has been generated on its products.
+ */
+export function runIsDraft(run) {
+  return run.stage === 'one' && !run.refined
+}
+
 export function setRunProducts(runId, productIds) {
   const run = runById(runId)
   if (!run) return
@@ -1180,6 +1189,7 @@ export function refineRun(runId, text) {
   const run = runById(runId)
   if (!run) return
   session.blocks.push({ kind: 'user', text, runLabel: run.label })
+  run.refined = true
   for (const c of OVERLAY_CHIPS) {
     if (c.chip === text) run.chips[c.id] = true
   }

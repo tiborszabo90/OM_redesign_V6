@@ -11,16 +11,30 @@
  * with this run. One conversation, looked at through a lens.
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { ArrowUp, ImagePlus, Loader2, Minimize2, X } from 'lucide-vue-next'
+import { ArrowUp, Check, ImagePlus, Loader2, Minimize2, Plus, X } from 'lucide-vue-next'
 import { BRAND, CARD_SHADOW, FONT, MODAL_SHADOW } from '../tokens'
 import {
-  session, runOverlay, runById, runPending, runTurns, runChipBadges, runTryChips,
+  session, runs, runOverlay, runById, openRun, runForConcept, startRun, runPending, runTurns, runChipBadges, runTryChips,
   runProductNames, expandRun, refineRun, setRunProducts, useRunInCampaign,
-  dismissRun, minimizeRun, RUN_PRODUCT_SLOTS,
+  dismissRun, minimizeRun, runIsDraft, RUN_PRODUCT_SLOTS,
 } from '../store'
 import OqCatalogPicker from './OqCatalogPicker.vue'
 import OqCampaignPicker from './OqCampaignPicker.vue'
 import OqConfirm from './OqConfirm.vue'
+
+const props = defineProps({
+  /**
+   * V3: the X only closes the window. The run stays where it is, and one that is never
+   * placed in a campaign costs nothing by being kept — so there is nothing to discard,
+   * and nothing for the put-down button to do that the X does not.
+   */
+  closeOnly: { type: Boolean, default: false },
+  /**
+   * V3: the other directions under the header, so two can be compared at this size
+   * rather than at the column's. Drafts are left out, except the one on screen.
+   */
+  switcher: { type: Boolean, default: false },
+})
 
 const pickerOpen = ref(false)
 const campaignOpen = ref(false)
@@ -82,6 +96,36 @@ function boldParts(text) {
         ? { bold: true, text: part.slice(2, -2) }
         : { bold: false, text: part },
     )
+}
+
+const switchRuns = computed(() =>
+  props.switcher ? runs.filter((r) => r.id === runOverlay.runId || !runIsDraft(r)) : [],
+)
+
+/**
+ * The latest round's concepts that are not a run yet — or only an untouched draft —
+ * so the next direction can be tried from here instead of scrolling back to the grid.
+ */
+const switchConcepts = computed(() => {
+  if (!props.switcher) return []
+  const block = [...session.blocks].reverse().find((b) => b.kind === 'concepts')
+  return (block?.concepts ?? []).filter((c) => {
+    const r = runForConcept(c.id)
+    return !r || (runIsDraft(r) && r.id !== runOverlay.runId)
+  })
+})
+
+function tryConcept(concept) {
+  startRun(concept, { stage: 'one', open: true })
+}
+
+/** A note half-typed about one direction is not a note about the next one. */
+watch(() => runOverlay.runId, () => { note.value = '' })
+
+
+function onClose() {
+  if (props.closeOnly) minimizeRun()
+  else discardOpen.value = true
 }
 
 function onCta() {
@@ -176,6 +220,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
         <!-- Put it down, and it is a block in the thread again — still rendering, and
              out of the way of the next direction you want to try. -->
         <button
+          v-if="!closeOnly"
           type="button"
           class="flex size-9 shrink-0 items-center justify-center rounded-full border"
           :style="{ borderColor: BRAND.gray200, background: BRAND.surface, color: BRAND.ink }"
@@ -189,13 +234,64 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           type="button"
           class="flex size-9 shrink-0 items-center justify-center rounded-full border"
           :style="{ borderColor: BRAND.gray200, background: BRAND.surface, color: BRAND.ink }"
-          title="Let this run go"
-          aria-label="Let this run go"
-          @click="discardOpen = true"
+          :title="closeOnly ? 'Close' : 'Let this run go'"
+          :aria-label="closeOnly ? 'Close' : 'Let this run go'"
+          @click="onClose"
         >
           <X class="size-4" />
         </button>
       </header>
+
+      <nav
+        v-if="switchRuns.length + switchConcepts.length > 1"
+        class="flex shrink-0 items-center gap-2 overflow-x-auto border-b px-4 py-2"
+        :style="{ borderColor: BRAND.gray200, background: BRAND.pageBg }"
+        aria-label="Directions"
+      >
+        <button
+          v-for="r in switchRuns"
+          :key="r.id"
+          type="button"
+          class="flex shrink-0 items-center gap-2 rounded-full border py-1 pl-1 pr-3 text-xs font-semibold transition-colors"
+          :style="{
+            borderColor: r.id === run.id ? BRAND.blue : BRAND.gray200,
+            background: r.id === run.id ? BRAND.blueSoft : BRAND.surface,
+            color: r.id === run.id ? BRAND.blue : BRAND.ink,
+          }"
+          :aria-current="r.id === run.id ? 'true' : undefined"
+          @click="openRun(r.id)"
+        >
+          <img
+            v-if="r.cells[0]?.imageUrl"
+            :src="r.cells[0].imageUrl"
+            alt=""
+            class="size-6 rounded-full object-cover"
+          />
+          {{ r.label }}
+          <Loader2 v-if="r.status === 'running'" class="size-3 animate-spin" :style="{ color: BRAND.blue }" />
+          <Check v-else class="size-3" :stroke-width="3" :style="{ color: BRAND.emeraldText }" />
+        </button>
+
+        <span
+          v-if="switchRuns.length && switchConcepts.length"
+          class="mx-1 h-5 w-px shrink-0"
+          :style="{ background: BRAND.gray200 }"
+          aria-hidden="true"
+        />
+        <button
+          v-for="c in switchConcepts"
+          :key="c.id"
+          type="button"
+          class="flex shrink-0 items-center gap-2 rounded-full border border-dashed py-1 pl-1 pr-3 text-xs font-semibold transition-colors hover:bg-[var(--oq-hover)]"
+          :style="{ borderColor: BRAND.gray300, color: BRAND.gray500 }"
+          :title="`Try ${c.label}`"
+          @click="tryConcept(c)"
+        >
+          <img v-if="c.imageUrl" :src="c.imageUrl" alt="" class="size-6 rounded-full object-cover opacity-60" />
+          <Plus class="size-3" />
+          {{ c.label }}
+        </button>
+      </nav>
 
       <div class="flex min-h-0 min-w-0 flex-1">
         <div class="flex min-w-0 flex-1 flex-col p-6" :style="{ background: BRAND.pageBg }">

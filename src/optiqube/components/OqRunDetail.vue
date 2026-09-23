@@ -35,6 +35,8 @@ const props = defineProps({
    * it the run's current ones are drawn, which is what a panel or a rail wants.
    */
   cells: { type: Array, default: null },
+  /** V3: a run is kept, not discarded — one never placed in a campaign costs nothing. */
+  noDiscard: { type: Boolean, default: false },
 })
 
 /** What this drawing shows, and whether it is the round still being worked on. */
@@ -141,7 +143,7 @@ const discardBody = computed(() => {
       <span class="flex-1" />
 
       <button
-        v-if="!historic"
+        v-if="!historic && !noDiscard"
         type="button"
         class="rounded-md p-1 transition-colors hover:bg-[var(--oq-hover)]"
         title="Dismiss this run"
@@ -152,7 +154,9 @@ const discardBody = computed(() => {
       </button>
     </div>
 
-    <div class="grid gap-2.5 p-3" :class="shown.length > 1 ? 'grid-cols-3' : 'grid-cols-1 max-w-[260px]'">
+    <!-- The column keeps a third per frame whatever the count, so a run on its seed
+         alone is drawn the size it will be once it is on three. -->
+    <div class="grid gap-2.5 p-3" :class="shown.length > 1 || dense ? 'grid-cols-3' : 'grid-cols-1 max-w-[260px]'">
       <div v-for="c in shown" :key="c.productId">
         <div
           class="relative overflow-hidden rounded-xl border"
