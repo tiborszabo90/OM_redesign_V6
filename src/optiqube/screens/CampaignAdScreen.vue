@@ -12,7 +12,9 @@ const AD_TABS = [
   { id: 'settings', label: 'Settings' },
 ]
 
-const tab = ref('overview')
+// Sent here from a session, it opens where the rest of the products are generated.
+const tab = ref(state.adTab ?? 'overview')
+state.adTab = null
 const reviewId = ref(null)
 
 const ids = computed(() => {
@@ -40,9 +42,20 @@ const pendingCount = computed(() => creatives.value.filter((c) => !c.hidden && !
 
 const reviewing = computed(() => creatives.value.find((c) => c.id === reviewId.value) ?? null)
 
-/** The catalog rows this ad covers, and the ones it does not yet. */
-const covered = computed(() => products.slice(0, creatives.value.length))
-const gaps = computed(() => products.slice(creatives.value.length, creatives.value.length + 6))
+/**
+ * The catalog rows this ad covers, and the ones it does not yet. An ad made from a
+ * session knows which products were picked for it; the mock ones take the catalog's top.
+ */
+const covered = computed(() => {
+  if (!ad.value?.productIds) return products.slice(0, creatives.value.length)
+  const drawn = creatives.value.map((c) => c.productId)
+  return products.filter((p) => drawn.includes(p.id))
+})
+const gaps = computed(() => {
+  if (!ad.value?.productIds) return products.slice(creatives.value.length, creatives.value.length + 6)
+  const drawn = creatives.value.map((c) => c.productId)
+  return products.filter((p) => ad.value.productIds.includes(p.id) && !drawn.includes(p.id))
+})
 </script>
 
 <template>
@@ -170,7 +183,7 @@ const gaps = computed(() => products.slice(creatives.value.length, creatives.val
         </ul>
       </div>
 
-      <div>
+      <div v-if="gaps.length">
         <h2 class="text-[18px] font-bold tracking-tight" :style="{ color: BRAND.ink }">Not covered yet</h2>
         <p class="mt-1 text-[13px]" :style="{ color: BRAND.gray500 }">
           These are in the catalog but have no creative in this style. Generating them adds them

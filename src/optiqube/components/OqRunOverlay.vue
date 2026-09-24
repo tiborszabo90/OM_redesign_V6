@@ -11,11 +11,11 @@
  * with this run. One conversation, looked at through a lens.
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { ArrowUp, Check, ImagePlus, Loader2, Minimize2, Plus, X } from 'lucide-vue-next'
+import { ArrowLeft, ArrowRight, ArrowUp, Check, ChevronLeft, ChevronRight, ImagePlus, Loader2, Maximize2, Minimize2, Plus, X } from 'lucide-vue-next'
 import { BRAND, CARD_SHADOW, FONT, MODAL_SHADOW } from '../tokens'
 import {
-  session, runs, runOverlay, runById, openRun, runForConcept, startRun, runPending, runTurns, runChipBadges, runTryChips,
-  runProductNames, expandRun, refineRun, setRunProducts, useRunInCampaign,
+  session, products, runs, runOverlay, runById, openRun, runForConcept, startRun, runPending, runTurns, runChipBadges, runTryChips,
+  runVersions, keepRunVersion, expandRun, refineRun, setRunProducts, useRunInCampaign,
   dismissRun, minimizeRun, runIsDraft, RUN_PRODUCT_SLOTS,
 } from '../store'
 import OqCatalogPicker from './OqCatalogPicker.vue'
@@ -47,20 +47,76 @@ const busy = computed(() => run.value?.status === 'running')
 const stage = computed(() => run.value?.stage ?? 'one')
 const total = computed(() => run.value?.productIds.length ?? 1)
 
+/** Stage one's rounds, and the one being looked at — null is the latest. */
+const versions = computed(() => (run.value && stage.value === 'one' ? runVersions(run.value) : []))
+const peekBlock = ref(null)
+const shownCells = computed(() => peekBlock.value?.cells ?? run.value?.cells ?? [])
+
+/** The products the round will cover, and the feed photo the single frame was drawn from. */
+const runProducts = computed(() =>
+  (run.value?.productIds ?? []).map((id) => products.find((p) => p.id === id)).filter(Boolean),
+)
+const beforeImage = computed(() =>
+  shownCells.value.length === 1
+    ? products.find((p) => p.id === shownCells.value[0].productId)?.imageUrl ?? null
+    : null,
+)
+watch([() => runOverlay.runId, () => versions.value.length], () => { peekBlock.value = null })
+
+/** One of the round's frames opened up in the window, beside the feed photo it was made from. */
+const zoomAt = ref(null)
+const zoomCell = computed(() => (zoomAt.value === null ? null : shownCells.value[zoomAt.value] ?? null))
+const zoomBefore = computed(() => products.find((p) => p.id === zoomCell.value?.productId)?.imageUrl ?? null)
+watch([() => runOverlay.runId, () => shownCells.value.length], () => { zoomAt.value = null })
+
+function zoomStep(by) {
+  const n = shownCells.value.length
+  zoomAt.value = (zoomAt.value + by + n) % n
+}
+
+function keepPeeked() {
+  keepRunVersion(run.value.id, peekBlock.value)
+  peekBlock.value = null
+}
+
 /** What the X actually costs. The window is a lens; letting the run go is not. */
 const discardBody = computed(() => {
   const n = run.value?.cells.length ?? 0
   return `${n === 1 ? 'Its creative is deleted' : `Its ${n} creatives are deleted`}. The concept stays in the thread, so you can generate a new version from it.`
 })
 
+/**
+ * Step 3: which of the catalog this direction runs on. The preview's products start it
+ * off; what is picked is kept on the run, so putting the window down loses nothing.
+ */
+const choosing = ref(false)
+
+function startChoosing() {
+  if (!run.value.catalogIds) run.value.catalogIds = [...run.value.productIds]
+  zoomAt.value = null
+  choosing.value = true
+}
+
+watch(
+  () => runOverlay.runId,
+  () => {
+    choosing.value = false
+    if (runOverlay.choose && run.value) startChoosing()
+    runOverlay.choose = false
+  },
+)
+const catalogCount = computed(() => run.value?.catalogIds?.length ?? 0)
+
 const steps = computed(() => [
   { n: 1, label: 'Concept refinement' },
   { n: 2, label: `Preview on ${total.value} ${total.value === 1 ? 'product' : 'products'}` },
-  { n: 3, label: 'Use in a campaign' },
+  { n: 3, label: 'Choose products' },
+  { n: 4, label: 'Use in a campaign' },
 ])
-const headerStep = computed(() => (stage.value === 'three' ? 2 : 1))
+const headerStep = computed(() => (choosing.value ? 3 : stage.value === 'three' ? 2 : 1))
 const ctaLabel = computed(() => {
-  if (stage.value === 'three') return 'I like this — use this'
+  if (choosing.value) return `Use on ${catalogCount.value} ${catalogCount.value === 1 ? 'product' : 'products'}`
+  if (stage.value === 'three') return 'I like this — choose products'
   return `I like this — generate it on ${total.value} ${total.value === 1 ? 'product' : 'products'}`
 })
 
@@ -131,6 +187,7 @@ function onClose() {
 function onCta() {
   if (!run.value || busy.value) return
   if (stage.value === 'one') expandRun(run.value.id)
+  else if (!choosing.value) startChoosing()
   else campaignOpen.value = true
 }
 
@@ -149,7 +206,14 @@ watch(
 
 /** Esc puts it down: the picker first, then the window. */
 function onKeydown(e) {
-  if (e.key !== 'Escape' || !run.value) return
+  if (!run.value) return
+  if (zoomAt.value !== null && !pickerOpen.value) {
+    if (e.key === 'ArrowLeft') zoomStep(-1)
+    else if (e.key === 'ArrowRight') zoomStep(1)
+    else if (e.key === 'Escape') zoomAt.value = null
+    return
+  }
+  if (e.key !== 'Escape') return
   if (pickerOpen.value) pickerOpen.value = false
   else minimizeRun()
 }
@@ -209,7 +273,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 
         <button
           type="button"
-          :disabled="busy"
+          :disabled="busy || (choosing && !catalogCount)"
           class="shrink-0 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-opacity disabled:opacity-45"
           :style="{ background: BRAND.blue }"
           @click="onCta"
@@ -252,7 +316,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           v-for="r in switchRuns"
           :key="r.id"
           type="button"
-          class="flex shrink-0 items-center gap-2 rounded-full border py-1 pl-1 pr-3 text-xs font-semibold transition-colors"
+          class="relative flex shrink-0 items-center gap-2 rounded-full border py-1 pl-1 pr-3 text-xs font-semibold transition-colors"
+          :class="r.status === 'running' ? 'oq-shimmer-sweep' : ''"
           :style="{
             borderColor: r.id === run.id ? BRAND.blue : BRAND.gray200,
             background: r.id === run.id ? BRAND.blueSoft : BRAND.surface,
@@ -269,7 +334,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
           />
           {{ r.label }}
           <Loader2 v-if="r.status === 'running'" class="size-3 animate-spin" :style="{ color: BRAND.blue }" />
-          <Check v-else class="size-3" :stroke-width="3" :style="{ color: BRAND.emeraldText }" />
+          <Check v-else class="oq-pop size-3" :stroke-width="3" :style="{ color: BRAND.emeraldText }" />
         </button>
 
         <span
@@ -295,24 +360,141 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 
       <div class="flex min-h-0 min-w-0 flex-1">
         <div class="flex min-w-0 flex-1 flex-col p-6" :style="{ background: BRAND.pageBg }">
+          <!-- A frame opened up: the feed photo before it, the creative after, and the
+               round's other frames one arrow away. -->
+          <div v-if="choosing" class="flex min-h-0 flex-1 flex-col">
+            <div class="mb-4 flex shrink-0 items-start gap-3">
+              <button
+                type="button"
+                class="flex size-8 shrink-0 items-center justify-center rounded-full border transition-colors hover:bg-[var(--oq-hover)]"
+                :style="{ borderColor: BRAND.gray200, background: BRAND.surface, color: BRAND.ink }"
+                aria-label="Back to the preview"
+                @click="choosing = false"
+              >
+                <ArrowLeft class="size-4" />
+              </button>
+              <div class="min-w-0">
+                <p class="text-sm font-semibold" :style="{ color: BRAND.ink }">
+                  Which products should the {{ run.label }} ad run on?
+                </p>
+                <p class="text-xs" :style="{ color: BRAND.gray500 }">
+                  This isn’t final — you can add or remove products in the campaign any time later.
+                </p>
+              </div>
+            </div>
+            <OqCatalogPicker
+              inline
+              open
+              :selected="run.catalogIds"
+              :seed-id="run.seedId"
+              :max="products.length"
+              @change="(ids) => { run.catalogIds = ids }"
+            />
+          </div>
+
+          <div v-else-if="zoomCell" class="flex min-h-0 flex-1 flex-col">
+            <div class="mb-4 flex shrink-0 items-center gap-3">
+              <button
+                type="button"
+                class="flex size-8 items-center justify-center rounded-full border transition-colors hover:bg-[var(--oq-hover)]"
+                :style="{ borderColor: BRAND.gray200, background: BRAND.surface, color: BRAND.ink }"
+                aria-label="Back to all creatives"
+                @click="zoomAt = null"
+              >
+                <ArrowLeft class="size-4" />
+              </button>
+              <span class="truncate text-sm font-semibold" :style="{ color: BRAND.ink }">{{ zoomCell.name }}</span>
+              <span class="text-xs tabular-nums" :style="{ color: BRAND.gray500 }">
+                {{ zoomAt + 1 }} / {{ shownCells.length }}
+              </span>
+            </div>
+            <div class="flex min-h-0 flex-1 items-center gap-4">
+              <button
+                type="button"
+                class="flex size-10 shrink-0 items-center justify-center rounded-full border transition-colors hover:bg-[var(--oq-hover)]"
+                :style="{ borderColor: BRAND.gray200, background: BRAND.surface, color: BRAND.ink }"
+                aria-label="Previous creative"
+                @click="zoomStep(-1)"
+              >
+                <ChevronLeft class="size-5" />
+              </button>
+              <div class="flex h-full min-w-0 flex-1 items-center justify-center gap-4 [container-type:size]">
+                <div class="w-[min(calc(50cqw-2.5rem),calc(100cqh-1.75rem))]">
+                  <div
+                    class="aspect-square overflow-hidden rounded-2xl border"
+                    :style="{ borderColor: BRAND.gray200, background: BRAND.gray50 }"
+                  >
+                    <img v-if="zoomBefore" :src="zoomBefore" alt="" class="size-full object-cover" />
+                  </div>
+                  <p class="mt-2 text-xs font-medium" :style="{ color: BRAND.gray500 }">Before</p>
+                </div>
+                <ArrowRight class="size-5 shrink-0" :style="{ color: BRAND.gray400 }" aria-hidden="true" />
+                <div class="w-[min(calc(50cqw-2.5rem),calc(100cqh-1.75rem))]">
+                  <div
+                    class="aspect-square overflow-hidden rounded-2xl border"
+                    :style="{ borderColor: BRAND.gray200, background: BRAND.gray50, boxShadow: CARD_SHADOW }"
+                  >
+                    <img v-if="zoomCell.imageUrl" :src="zoomCell.imageUrl" :alt="zoomCell.name" class="size-full object-cover" />
+                  </div>
+                  <p class="mt-2 text-xs font-medium" :style="{ color: BRAND.ink }">After</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                class="flex size-10 shrink-0 items-center justify-center rounded-full border transition-colors hover:bg-[var(--oq-hover)]"
+                :style="{ borderColor: BRAND.gray200, background: BRAND.surface, color: BRAND.ink }"
+                aria-label="Next creative"
+                @click="zoomStep(1)"
+              >
+                <ChevronRight class="size-5" />
+              </button>
+            </div>
+          </div>
+
           <!-- A size container, so the square frames can measure the room they have. -->
           <div
+            v-else
             class="grid min-h-0 flex-1 gap-4 [container-type:size]"
-            :class="run.cells.length > 1 ? 'grid-cols-3 items-center' : 'place-items-center'"
+            :class="shownCells.length > 1 ? 'grid-cols-3 items-center' : 'grid-flow-col place-content-center items-center'"
           >
+            <!-- Before: the feed photo, so the creative reads as what was made of it. -->
+            <template v-if="beforeImage">
+              <div class="w-[min(260px,26cqw)]">
+                <div
+                  class="aspect-square overflow-hidden rounded-xl border"
+                  :style="{ borderColor: BRAND.gray200, background: BRAND.surface }"
+                >
+                  <img :src="beforeImage" alt="" class="size-full object-cover" />
+                </div>
+                <p class="mt-2 text-xs font-medium" :style="{ color: BRAND.gray500 }">Before</p>
+              </div>
+              <ArrowRight class="size-5" :style="{ color: BRAND.gray400 }" aria-hidden="true" />
+            </template>
             <div
-              v-for="c in run.cells"
+              v-for="(c, ci) in shownCells"
               :key="c.productId"
               class="relative"
-              :class="run.cells.length > 1
+              :class="shownCells.length > 1
                 ? 'w-[min(100%,calc(100cqh-1.75rem))]'
-                : 'w-[min(100%,560px,calc(100cqh-1.75rem))]'"
+                : beforeImage
+                  ? 'w-[min(calc(100cqw-260px-5rem),560px,calc(100cqh-1.75rem))]'
+                  : 'w-[min(100%,560px,calc(100cqh-1.75rem))]'"
             >
               <div
-                class="overflow-hidden rounded-2xl border"
+                class="group overflow-hidden rounded-2xl border"
+                :class="shownCells.length > 1 && c.status === 'ready' ? 'cursor-zoom-in' : ''"
                 :style="{ borderColor: BRAND.gray200, background: BRAND.surface, boxShadow: CARD_SHADOW }"
+                @click="shownCells.length > 1 && c.status === 'ready' && (zoomAt = ci)"
               >
                 <div class="relative aspect-square" :style="{ background: BRAND.gray50 }">
+                  <span
+                    v-if="shownCells.length > 1 && c.status === 'ready'"
+                    class="absolute right-2 top-2 z-10 flex size-8 items-center justify-center rounded-lg text-white opacity-0 transition-opacity group-hover:opacity-100"
+                    style="background: rgb(35 38 42 / 0.72)"
+                    aria-hidden="true"
+                  >
+                    <Maximize2 class="size-4" />
+                  </span>
                   <img
                     v-if="c.imageUrl"
                     :src="c.imageUrl"
@@ -356,16 +538,25 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
             </div>
           </div>
 
-          <!-- Which products the round will cover, while there is still time to say. -->
+          <!-- Which products the preview covers. In step 2 a swapped product renders its own frame. -->
           <div
-            v-if="stage === 'one'"
+            v-if="!choosing && !zoomCell"
             class="mt-4 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[12.5px]"
           >
             <span :style="{ color: BRAND.gray500 }">
-              {{ runProductNames(run).length ? 'Generating on:' : 'No products picked yet.' }}
+              {{ runProducts.length ? 'Generating on:' : 'No products picked yet.' }}
             </span>
-            <span v-if="runProductNames(run).length" class="font-semibold" :style="{ color: BRAND.ink }">
-              {{ runProductNames(run).join(', ') }}
+            <span
+              v-for="p in runProducts"
+              :key="p.id"
+              class="flex max-w-[180px] items-center gap-1.5 rounded-full border py-0.5 pl-0.5 pr-2.5"
+              :style="{ borderColor: BRAND.gray200, background: BRAND.surface }"
+              :title="p.name"
+            >
+              <span class="size-6 shrink-0 overflow-hidden rounded-full" :style="{ background: BRAND.gray100 }">
+                <img v-if="p.imageUrl" :src="p.imageUrl" alt="" class="size-full object-cover" />
+              </span>
+              <span class="truncate font-semibold" :style="{ color: BRAND.ink }">{{ p.name }}</span>
             </span>
             <button
               type="button"
@@ -377,9 +568,54 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
               Change
             </button>
           </div>
+
+          <!-- Thumbnails rather than a list of sentences: what this answers is "was it
+               better before", and that question is settled by looking. -->
+          <div v-if="versions.length > 1" class="mt-4 flex shrink-0 flex-wrap items-center gap-3">
+            <span class="text-[11px] font-bold uppercase tracking-wide" :style="{ color: BRAND.gray400 }">
+              History
+            </span>
+            <div class="flex flex-wrap items-center gap-2">
+              <button
+                v-for="(v, i) in versions"
+                :key="i"
+                type="button"
+                :disabled="busy"
+                :title="v.ask"
+                :aria-current="(peekBlock ?? versions[versions.length - 1].block) === v.block ? 'true' : undefined"
+                class="flex items-center gap-2 rounded-xl border px-2 py-1.5 text-left transition-colors disabled:opacity-60"
+                :style="{
+                  borderColor: (peekBlock ?? versions[versions.length - 1].block) === v.block ? BRAND.blue : BRAND.gray200,
+                  background: BRAND.surface,
+                }"
+                @click="peekBlock = i === versions.length - 1 ? null : v.block"
+              >
+                <span class="size-8 shrink-0 overflow-hidden rounded-lg" :style="{ background: BRAND.gray100 }">
+                  <img v-if="v.imageUrl" :src="v.imageUrl" alt="" class="size-full object-cover" />
+                </span>
+                <span class="max-w-[150px] truncate text-[12px]" :style="{ color: BRAND.ink }">
+                  {{ v.ask }}
+                </span>
+              </button>
+            </div>
+            <template v-if="peekBlock">
+              <button
+                type="button"
+                :disabled="busy"
+                class="rounded-xl px-3 py-1.5 text-[12px] font-semibold text-white disabled:opacity-45"
+                :style="{ background: BRAND.blue }"
+                @click="keepPeeked"
+              >
+                Keep this version
+              </button>
+              <span class="text-[12px]" :style="{ color: BRAND.gray500 }">Looking at an earlier version.</span>
+            </template>
+          </div>
         </div>
 
+        <!-- Choosing products is not a conversation about the picture: the catalog gets the room. -->
         <aside
+          v-if="!choosing"
           class="flex w-[min(380px,36%)] shrink-0 flex-col border-l"
           :style="{ borderColor: BRAND.gray200, background: BRAND.surface }"
         >
@@ -422,7 +658,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
             </div>
           </div>
 
-          <div class="shrink-0 px-4 pb-2 pt-1">
+          <div v-if="!runTurns(run).some((m) => m.kind === 'user')" class="shrink-0 px-4 pb-2 pt-1">
             <p class="mb-2 text-xs font-medium" :style="{ color: BRAND.gray500 }">Try:</p>
             <div class="flex flex-col gap-2">
               <button

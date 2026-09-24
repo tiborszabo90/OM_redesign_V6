@@ -458,7 +458,7 @@ function onCta() {
             </div>
           </div>
 
-          <div class="shrink-0 px-4 pb-2 pt-1">
+          <div v-if="!conceptOverlay.thread.some((m) => m.role === 'user')" class="shrink-0 px-4 pb-2 pt-1">
             <p class="mb-2 text-xs font-medium" :style="{ color: BRAND.gray500 }">Try:</p>
             <div class="flex flex-col gap-2">
               <button

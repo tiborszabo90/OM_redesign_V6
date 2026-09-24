@@ -1,10 +1,10 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { X } from 'lucide-vue-next'
+import { ArrowRight, Check, Loader2, X } from 'lucide-vue-next'
 import { BRAND, CARD_SHADOW, FONT, MODAL_SHADOW } from '../tokens'
 import {
   state, navigate, workspaceFor, workspaceRanges, workspaceKpiLabels,
-  workspaceCampaignTabs, workspaceConversionGoals, campaignFeeds, formatUpdatedAt,
+  workspaceCampaignTabs, workspaceConversionGoals, campaignFeeds, formatUpdatedAt, reviewAd,
 } from '../store'
 
 const tab = ref('overview')
@@ -22,6 +22,13 @@ const campaignId = computed(() => {
 const campaign = computed(() => workspaceFor(campaignId.value))
 
 const kpiValues = computed(() => campaign.value?.kpis?.[range.value] ?? null)
+
+/** Ads with creatives generating, or generated and not yet looked at. */
+const generations = computed(() =>
+  (campaign.value?.adSets ?? []).flatMap((s) =>
+    s.ads.filter((a) => a.generation).map((a) => ({ ad: a, adSet: s })),
+  ),
+)
 
 const editingAdSet = computed(() =>
   campaign.value?.adSets.find((s) => s.id === adSetSettingsId.value) ?? null,
@@ -178,6 +185,72 @@ function activate() {
         </div>
       </div>
 
+      <!-- A session sent an ad here with products still to draw: which ad, how many, how
+           far along — and, once it is done, the way to review what came out. -->
+      <div
+        v-for="g in generations"
+        :key="g.ad.id"
+        class="mt-5 rounded-2xl border px-5 py-4"
+        :style="{
+          borderColor: g.ad.generation.status === 'ready' ? BRAND.successLine : BRAND.infoLine,
+          background: g.ad.generation.status === 'ready' ? BRAND.surface : BRAND.infoSoft,
+          boxShadow: CARD_SHADOW,
+        }"
+      >
+        <div class="flex flex-wrap items-center gap-3">
+          <span
+            class="flex size-9 shrink-0 items-center justify-center rounded-full"
+            :style="{ background: g.ad.generation.status === 'ready' ? BRAND.successSoft : BRAND.blueSoft }"
+          >
+            <Check
+              v-if="g.ad.generation.status === 'ready'"
+              class="size-4"
+              :stroke-width="3"
+              :style="{ color: BRAND.emeraldText }"
+            />
+            <Loader2 v-else class="size-4 animate-spin" :style="{ color: BRAND.blue }" />
+          </span>
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold" :style="{ color: BRAND.ink }">
+              <template v-if="g.ad.generation.status === 'ready'">
+                Creatives for the {{ g.ad.name }} ad are ready to review
+              </template>
+              <template v-else>Generating creatives for the {{ g.ad.name }} ad…</template>
+            </p>
+            <p class="mt-0.5 text-[12.5px]" :style="{ color: BRAND.gray500 }">
+              Ad set: {{ g.adSet.name }} · {{ g.ad.generation.total }}
+              {{ g.ad.generation.total === 1 ? 'product' : 'products' }}
+              {{ g.ad.generation.status === 'ready' ? 'generated' : 'to generate' }} ·
+              {{ g.ad.productIds.length }} in the ad in total
+            </p>
+          </div>
+          <button
+            v-if="g.ad.generation.status === 'ready'"
+            type="button"
+            class="inline-flex shrink-0 items-center gap-1.5 rounded-[10px] px-4 py-2.5 text-[13px] font-semibold text-white"
+            :style="{ background: BRAND.blue }"
+            @click="reviewAd(campaign.id, g.ad.id)"
+          >
+            Review creatives
+            <ArrowRight class="size-4" />
+          </button>
+        </div>
+        <div class="mt-3 flex items-center gap-3">
+          <div class="h-1.5 flex-1 overflow-hidden rounded-full" :style="{ background: BRAND.gray200 }">
+            <div
+              class="h-full rounded-full transition-[width] duration-500"
+              :style="{
+                width: `${Math.round((g.ad.generation.done / g.ad.generation.total) * 100)}%`,
+                background: g.ad.generation.status === 'ready' ? BRAND.emerald : BRAND.blue,
+              }"
+            />
+          </div>
+          <span class="shrink-0 text-xs font-semibold tabular-nums" :style="{ color: BRAND.gray600 }">
+            {{ g.ad.generation.done }} of {{ g.ad.generation.total }}
+          </span>
+        </div>
+      </div>
+
       <div class="mt-6 space-y-6">
         <div v-for="adSet in campaign.adSets" :key="adSet.id">
           <div
@@ -232,6 +305,13 @@ function activate() {
                 </div>
                 <p class="min-w-0 text-[13px] font-semibold" :style="{ color: BRAND.ink }">
                   {{ ad.creatives.length }} creatives generated
+                  <span
+                    v-if="ad.generation?.status === 'running'"
+                    class="font-medium"
+                    :style="{ color: BRAND.gray500 }"
+                  >
+                    · {{ ad.generation.total - ad.generation.done }} generating…
+                  </span>
                 </p>
                 <div class="ml-auto flex shrink-0 items-center gap-2" @click.stop>
                   <button

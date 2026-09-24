@@ -23,6 +23,8 @@ export const state = reactive({
   /** Whether the viewer is signed in — the shell shows a different footer for guests. */
   guest: false,
   recentsView: 'active',
+  /** The tab an ad page opens on when something sends the merchant straight to it. */
+  adTab: null,
 })
 
 export function navigate(path) {
@@ -970,9 +972,11 @@ export function clearRunScope() {
  * the corner, and the window is only ever a view of it. So there is nothing here but
  * an id: closing the window cannot lose anything, because the run was never in it.
  */
-export const runOverlay = reactive({ runId: null })
+export const runOverlay = reactive({ runId: null, choose: false })
 
-export function openRun(id) {
+/** `choose` opens the window on its product step — a finished run's "Use this". */
+export function openRun(id, opts = {}) {
+  runOverlay.choose = Boolean(opts.choose)
   runOverlay.runId = id
   focusRun(id)
 }
@@ -1208,6 +1212,30 @@ export function refineRun(runId, text) {
   renderCells(run, images.slice(at + 1).concat(images.slice(0, at + 1)), 2200, 900)
 }
 
+/** The run's rounds, oldest first: the block each one drew into and the note that asked for it. */
+export function runVersions(run) {
+  const out = []
+  let ask = null
+  for (const b of session.blocks) {
+    if (b.kind === 'user' && b.runLabel === run.label) ask = b.text
+    if (b.kind === 'run' && b.runId === run.id) {
+      out.push({ block: b, imageUrl: b.cells[0]?.imageUrl ?? null, ask: out.length ? ask : 'Original' })
+    }
+  }
+  return out
+}
+
+/** The peeked round becomes the run again. The rounds after it go; what was said stays. */
+export function keepRunVersion(runId, block) {
+  const run = runById(runId)
+  if (!run) return
+  const at = session.blocks.indexOf(block)
+  for (let i = session.blocks.length - 1; i > at; i -= 1) {
+    if (session.blocks[i].kind === 'run' && session.blocks[i].runId === runId) session.blocks.splice(i, 1)
+  }
+  run.cells = block.cells
+}
+
 /** The badges a run's notes so far have earned. */
 export function runChipBadges(run) {
   return OVERLAY_CHIPS.filter((c) => run.chips[c.id]).map((c) => c.badge)
@@ -1264,25 +1292,103 @@ export function useRunInCampaign(runId, choice) {
     const set = campaignAdSets(choice.campaignId).find((a) => a.id === choice.adSetId)
     session.blocks.push({
       kind: 'assistant',
-      text: `Added the **${run.label}** ad — ${run.cells.length} creatives — to **${target?.name ?? 'the campaign'}**${set ? ` · ${set.name}` : ''}. Open it from Campaigns when you want to publish it to Meta.`,
+      text: `Added the **${run.label}** ad — ${run.catalogIds?.length ?? run.cells.length} products — to **${target?.name ?? 'the campaign'}**${set ? ` · ${set.name}` : ''}. Open it from Campaigns when you want to publish it to Meta.`,
       runLabel: run.label,
     })
+    placeRunAd(run, choice.campaignId, choice.adSetId)
     return
   }
   const name = choice.name?.trim() || session.title
+  const id = `cmp_draft_${sessionDrafts.length + 1}`
+  const adSetId = `as_draft_${sessionDrafts.length + 1}`
   sessionDrafts.push({
-    id: `cmp_draft_${sessionDrafts.length + 1}`,
+    id,
     name,
     status: 'draft',
     // The product gives a new campaign one quiet ad set rather than asking for a name
     // nobody has an opinion about yet.
-    adSets: [{ id: `as_draft_${sessionDrafts.length + 1}`, name: 'Default ad set' }],
+    adSets: [{ id: adSetId, name: 'Default ad set' }],
   })
   session.blocks.push({
     kind: 'assistant',
-    text: `Campaign **${name}** is drafted from the **${run.label}** direction on ${run.cells.length} products. Open it from Campaigns when you want to publish it to Meta.`,
+    text: `Campaign **${name}** is drafted from the **${run.label}** direction on ${run.catalogIds?.length ?? run.cells.length} products. Open it from Campaigns when you want to publish it to Meta.`,
     runLabel: run.label,
   })
+  placeRunAd(run, id, adSetId, {
+    id,
+    name,
+    domain: activeBrand().domain,
+    status: 'draft',
+    objective: 'Sales',
+    advantagePlus: false,
+    kpis: { last_7d: null, last_30d: null, maximum: null },
+    adSets: [{ id: adSetId, name: 'Default ad set', budget: '€50 / day', schedule: 'Runs continuously', goal: 'Purchases', ads: [] }],
+  })
+}
+
+let generationSeq = 0
+
+/**
+ * The run as an ad, and the merchant taken to the campaign it went into.
+ *
+ * The creatives the preview drew go in as they are. The rest of the products picked in
+ * step 3 start generating straight away, and `generation` is what the campaign page
+ * reports on while they land — one charge per product, as every round is charged.
+ */
+function placeRunAd(run, campaignId, adSetId, campaign) {
+  if (!workspaceCampaigns[campaignId]) workspaceCampaigns[campaignId] = campaign ?? workspaceFor(campaignId)
+  const ws = workspaceCampaigns[campaignId]
+  const set = ws.adSets.find((a) => a.id === adSetId) ?? ws.adSets[0]
+  const productIds = [...(run.catalogIds ?? run.productIds)]
+  const drawn = run.cells
+    .filter((c) => c.imageUrl)
+    .map((c, i) => ({ id: `crt_${run.id}_${i}`, productId: c.productId, productName: c.name, imageUrl: c.imageUrl }))
+
+  // The same direction placed in the same ad set again is the same ad, brought up to
+  // the new pick — not a second copy of it beside the first.
+  let ad = set.ads.find((a) => a.runId === run.id)
+  if (ad) {
+    const kept = ad.creatives.filter((c) => productIds.includes(c.productId))
+    ad.creatives = [...kept, ...drawn.filter((d) => !kept.some((c) => c.productId === d.productId))]
+    ad.productIds = productIds
+  } else {
+    set.ads.push({ id: `ad_${run.id}`, runId: run.id, name: run.label, productIds, creatives: drawn, generation: null })
+    ad = set.ads[set.ads.length - 1]
+  }
+
+  // One report on the page: the round just started. An older one is over, finished or not.
+  for (const s of ws.adSets) for (const a of s.ads) if (a !== ad) a.generation = null
+
+  const missing = productIds.filter((id) => !ad.creatives.some((c) => c.productId === id))
+  generationSeq += 1
+  const gen = missing.length ? { id: generationSeq, total: missing.length, done: 0, status: 'running' } : null
+  ad.generation = gen
+  navigate(`/campaigns/${campaignId}`)
+  if (!gen) return
+
+  spendCredits(missing.length)
+  const images = styleImages(run.styleId)
+  missing.forEach((id, i) => {
+    setTimeout(() => {
+      // A later placement of this ad took over; this round's pictures are not wanted.
+      if (ad.generation?.id !== gen.id) return
+      const p = products.find((x) => x.id === id)
+      ad.creatives.push({
+        id: `crt_${run.id}_${gen.id}_${i}`,
+        productId: id,
+        productName: p?.name ?? id,
+        imageUrl: images[i % images.length],
+      })
+      ad.generation.done += 1
+      if (ad.generation.done === ad.generation.total) ad.generation.status = 'ready'
+    }, 1200 + i * 1400)
+  })
+}
+
+/** Open an ad on its Products tab — where a finished generation is reviewed. */
+export function reviewAd(campaignId, adId) {
+  state.adTab = 'products'
+  navigate(`/campaigns/${campaignId}/ads/${adId}`)
 }
 
 // -- Credits -----------------------------------------------------------------
@@ -1423,15 +1529,19 @@ export function pickFocus(opt) {
 
 function finishGeneration(seed) {
   spendCredits(CONCEPTS_COST)
+  // One product, four directions: every card shows the seed's image until the
+  // mock has a per-style render of the same product.
+  const seedImage =
+    products.find((p) => p.id === session.seed.id)?.imageUrl ?? inspirationCatalog[0].imageUrl
   session.blocks.push({
     kind: 'concepts',
     seedProductName: seed.label,
-    concepts: creativePresets.map((preset, i) => ({
+    concepts: creativePresets.map((preset) => ({
       id: `cpt_${preset.id}`,
       presetId: preset.id,
       label: preset.label,
       description: preset.description,
-      imageUrl: inspirationCatalog[i]?.imageUrl ?? null,
+      imageUrl: seedImage,
     })),
   })
   session.blocks.push({

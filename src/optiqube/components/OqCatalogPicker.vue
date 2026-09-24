@@ -14,6 +14,10 @@
  * `lockedId` is the exception the concept overlay needs, where the seed is the step the
  * whole flow is about and cannot be swapped.
  *
+ * `inline` draws the same catalog inside a host's own window, without the modal's frame,
+ * header or buttons: the host asks the question and confirms, and hears every pick as
+ * `change`.
+ *
  * Images are filtered in by default — a creative is drawn from the product's picture,
  * so a row without one is not a candidate.
  */
@@ -32,8 +36,10 @@ const props = defineProps({
   seedId: { type: String, default: '' },
   /** A product that cannot be taken out. Empty leaves every slot free. */
   lockedId: { type: String, default: '' },
+  /** Drawn inside the host's window rather than as a modal. */
+  inline: { type: Boolean, default: false },
 })
-const emit = defineEmits(['confirm', 'close'])
+const emit = defineEmits(['confirm', 'close', 'change'])
 
 const query = ref('')
 const sort = ref('default')
@@ -51,6 +57,8 @@ const picked = ref([])
 const leadIds = ref([])
 
 const single = computed(() => props.max === 1)
+
+watch(picked, (ids) => { if (props.inline) emit('change', ids) })
 
 // Every opening starts clean, apart from what was already chosen.
 watch(
@@ -135,15 +143,19 @@ function nf(n) {
 <template>
   <div
     v-if="open"
-    class="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4"
-    @click="emit('close')"
+    :class="inline ? 'flex min-h-0 flex-1 flex-col' : 'fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4'"
+    @click="!inline && emit('close')"
   >
     <div
-      class="flex h-[85vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl"
-      :style="{ background: BRAND.surface, boxShadow: MODAL_SHADOW }"
+      class="flex flex-col overflow-hidden rounded-2xl"
+      :class="inline ? 'min-h-0 flex-1 border' : 'h-[85vh] w-full max-w-4xl'"
+      :style="inline
+        ? { background: BRAND.surface, borderColor: BRAND.gray200 }
+        : { background: BRAND.surface, boxShadow: MODAL_SHADOW }"
       @click.stop
     >
       <div
+        v-if="!inline"
         class="flex shrink-0 items-start justify-between gap-3 border-b px-5 py-3.5"
         :style="{ borderColor: BRAND.gray200 }"
       >
@@ -385,6 +397,7 @@ function nf(n) {
       </div>
 
       <div
+        v-if="!inline"
         class="flex shrink-0 items-center justify-between gap-3 border-t px-5 py-3"
         :style="{ borderColor: BRAND.gray200 }"
       >

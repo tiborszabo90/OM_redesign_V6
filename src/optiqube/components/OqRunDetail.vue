@@ -228,7 +228,9 @@ const discardBody = computed(() => {
         <Images class="size-3.5" />
         Preview
       </button>
+      <!-- With a window to open, products are changed there. -->
       <button
+        v-if="!openable"
         type="button"
         class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold"
         :style="{ borderColor: BRAND.gray200, color: BRAND.ink, background: BRAND.surface }"
@@ -255,7 +257,7 @@ const discardBody = computed(() => {
         :disabled="run.status === 'running'"
         class="rounded-full px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-45"
         :style="{ background: BRAND.blue }"
-        @click="campaignOpen = true"
+        @click="openable ? openRun(run.id, { choose: true }) : (campaignOpen = true)"
       >
         Use this
       </button>

@@ -187,6 +187,21 @@
   }
 }
 
+/* A mark that has just arrived — the check a finished run earns. */
+.oq-pop {
+  animation: oq-pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes oq-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Each page fades up once on arrival. */
 .oq-page-enter {
   animation: oq-page-enter 220ms ease-out;
@@ -204,6 +219,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .oq-page-enter,
+  .oq-pop,
   .oq-shimmer,
   .oq-shimmer-sweep::after {
     animation: none;
