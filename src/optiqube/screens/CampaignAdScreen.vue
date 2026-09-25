@@ -1,10 +1,12 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { Check, ChevronRight, X } from 'lucide-vue-next'
+import { Check, ChevronRight, Package, X } from 'lucide-vue-next'
 import { BRAND, CARD_SHADOW, FONT, MODAL_SHADOW } from '../tokens'
 import {
   state, navigate, workspaceFor, workspaceConversionGoals, products,
+  campaignNeedsCatalog, catalogConnectedFor, connections,
 } from '../store'
+import OqCatalogConnectModal from '../components/OqCatalogConnectModal.vue'
 
 const AD_TABS = [
   { id: 'overview', label: 'Overview' },
@@ -51,6 +53,17 @@ const covered = computed(() => {
   const drawn = creatives.value.map((c) => c.productId)
   return products.filter((p) => drawn.includes(p.id))
 })
+/** Without a catalog the ad has the scanned products it was made on, and no way to add more. */
+const needsCatalog = computed(() => campaignNeedsCatalog(campaign.value))
+const connectOpen = ref(false)
+const justConnected = ref(false)
+
+function onCatalogConnected() {
+  catalogConnectedFor(campaign.value.id)
+  connectOpen.value = false
+  justConnected.value = true
+}
+
 const gaps = computed(() => {
   if (!ad.value?.productIds) return products.slice(creatives.value.length, creatives.value.length + 6)
   const drawn = creatives.value.map((c) => c.productId)
@@ -183,6 +196,44 @@ const gaps = computed(() => {
         </ul>
       </div>
 
+      <div
+        v-if="needsCatalog"
+        class="flex flex-wrap items-center gap-4 rounded-2xl border border-dashed px-5 py-4"
+        :style="{ borderColor: BRAND.gray300, background: BRAND.surface }"
+      >
+        <span
+          class="flex size-10 shrink-0 items-center justify-center rounded-full"
+          :style="{ background: BRAND.gray100, color: BRAND.gray500 }"
+        >
+          <Package class="size-5" />
+        </span>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-semibold" :style="{ color: BRAND.ink }">
+            Add more products by connecting your catalog
+          </p>
+          <p class="mt-0.5 text-[12.5px] leading-relaxed" :style="{ color: BRAND.gray500 }">
+            These {{ covered.length }} were found on {{ campaign.domain }} when the style was made.
+            The rest of your products — and their prices and stock — come from the catalog.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="shrink-0 rounded-[10px] px-4 py-2.5 text-[13px] font-semibold text-white"
+          :style="{ background: BRAND.blue }"
+          @click="connectOpen = true"
+        >
+          Connect catalog
+        </button>
+      </div>
+
+      <p
+        v-else-if="justConnected"
+        class="rounded-xl border px-4 py-2.5 text-[13px]"
+        :style="{ borderColor: BRAND.successLine, background: BRAND.successSoft, color: BRAND.emeraldText }"
+      >
+        Catalog connected · {{ connections.catalog.productCount }} products synced.
+      </p>
+
       <div v-if="gaps.length">
         <h2 class="text-[18px] font-bold tracking-tight" :style="{ color: BRAND.ink }">Not covered yet</h2>
         <p class="mt-1 text-[13px]" :style="{ color: BRAND.gray500 }">
@@ -242,6 +293,15 @@ const gaps = computed(() => {
         </select>
       </label>
     </div>
+
+    <OqCatalogConnectModal
+      :open="connectOpen"
+      :image-url="creatives[0]?.imageUrl ?? ''"
+      title="Connect your catalog to add products"
+      body="This ad keeps its creatives. The catalog brings in the rest of your products, so the same style can be generated on them and kept in sync with prices and stock."
+      @connected="onCatalogConnected"
+      @close="connectOpen = false"
+    />
 
     <!-- Creative review -->
     <div

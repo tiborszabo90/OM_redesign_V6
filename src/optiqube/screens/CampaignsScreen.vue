@@ -111,6 +111,13 @@ function openCampaign(c) {
           <div class="mt-1.5 flex flex-wrap items-center gap-2 text-[12.5px]" :style="{ color: BRAND.gray500 }">
             <OqStatusChip :status="c.status" />
             <span
+              v-if="c.noCatalog"
+              class="rounded-full px-2 py-0.5 text-xs font-semibold"
+              :style="{ background: BRAND.warningSoft, color: BRAND.warningText }"
+            >
+              No catalog
+            </span>
+            <span
               v-if="c.adsManagerUrl"
               class="rounded-full px-2 py-0.5 text-xs font-semibold"
               :style="{ background: BRAND.infoSoft, color: BRAND.blue }"

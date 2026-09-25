@@ -14,11 +14,12 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ArrowLeft, ArrowRight, ArrowUp, Check, ChevronLeft, ChevronRight, ImagePlus, Loader2, Maximize2, Minimize2, Plus, X } from 'lucide-vue-next'
 import { BRAND, CARD_SHADOW, FONT, MODAL_SHADOW } from '../tokens'
 import {
-  session, products, runs, runOverlay, runById, openRun, runForConcept, startRun, runPending, runTurns, runChipBadges, runTryChips,
+  session, products, connections, runs, runOverlay, runById, openRun, runForConcept, startRun, runPending, runTurns, runChipBadges, runTryChips,
   runVersions, keepRunVersion, expandRun, refineRun, setRunProducts, useRunInCampaign,
-  dismissRun, minimizeRun, runIsDraft, RUN_PRODUCT_SLOTS,
+  dismissRun, minimizeRun, runIsDraft, keepRunWithoutCatalog, RUN_PRODUCT_SLOTS,
 } from '../store'
 import OqCatalogPicker from './OqCatalogPicker.vue'
+import OqCatalogConnect from './OqCatalogConnect.vue'
 import OqCampaignPicker from './OqCampaignPicker.vue'
 import OqConfirm from './OqConfirm.vue'
 
@@ -107,6 +108,12 @@ watch(
 )
 const catalogCount = computed(() => run.value?.catalogIds?.length ?? 0)
 
+/** No catalog yet: the step asks for one before there is anything to choose from. */
+const needsCatalog = computed(() => !connections.catalog.connected)
+/** Said once, over the picker, the moment the catalog lands. */
+const justConnected = ref(false)
+watch(() => runOverlay.runId, () => { justConnected.value = false })
+
 const steps = computed(() => [
   { n: 1, label: 'Concept refinement' },
   { n: 2, label: `Preview on ${total.value} ${total.value === 1 ? 'product' : 'products'}` },
@@ -115,6 +122,7 @@ const steps = computed(() => [
 ])
 const headerStep = computed(() => (choosing.value ? 3 : stage.value === 'three' ? 2 : 1))
 const ctaLabel = computed(() => {
+  if (choosing.value && needsCatalog.value) return 'Connect a catalog first'
   if (choosing.value) return `Use on ${catalogCount.value} ${catalogCount.value === 1 ? 'product' : 'products'}`
   if (stage.value === 'three') return 'I like this — choose products'
   return `I like this — generate it on ${total.value} ${total.value === 1 ? 'product' : 'products'}`
@@ -273,7 +281,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 
         <button
           type="button"
-          :disabled="busy || (choosing && !catalogCount)"
+          :disabled="busy || (choosing && (needsCatalog || !catalogCount))"
           class="shrink-0 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-opacity disabled:opacity-45"
           :style="{ background: BRAND.blue }"
           @click="onCta"
@@ -373,7 +381,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
               >
                 <ArrowLeft class="size-4" />
               </button>
-              <div class="min-w-0">
+              <div v-if="!needsCatalog" class="min-w-0">
                 <p class="text-sm font-semibold" :style="{ color: BRAND.ink }">
                   Which products should the {{ run.label }} ad run on?
                 </p>
@@ -381,8 +389,23 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
                   This isn’t final — you can add or remove products in the campaign any time later.
                 </p>
               </div>
+              <p
+                v-if="justConnected && !needsCatalog"
+                class="ml-auto shrink-0 rounded-full border px-3 py-1 text-xs font-semibold"
+                :style="{ borderColor: BRAND.successLine, background: BRAND.successSoft, color: BRAND.emeraldText }"
+              >
+                Catalog connected · {{ connections.catalog.productCount }} products synced
+              </p>
             </div>
+            <OqCatalogConnect
+              v-if="needsCatalog"
+              :run-label="run.label"
+              :image-url="run.cells[0]?.imageUrl ?? ''"
+              @connected="justConnected = true"
+              @later="keepRunWithoutCatalog(run.id); minimizeRun()"
+            />
             <OqCatalogPicker
+              v-else
               inline
               open
               :selected="run.catalogIds"

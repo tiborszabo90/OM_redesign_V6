@@ -33,7 +33,7 @@
  */
 import { computed, nextTick, ref, watch } from 'vue'
 import { BRAND, CARD_SHADOW, FONT } from '../tokens'
-import { session, runs, runIsDraft } from '../store'
+import { state, session, runs, runIsDraft, connections } from '../store'
 import OqSessionHeader from '../components/OqSessionHeader.vue'
 import OqSessionThread from '../components/OqSessionThread.vue'
 import OqSessionComposer from '../components/OqSessionComposer.vue'
@@ -41,6 +41,17 @@ import OqRunDetail from '../components/OqRunDetail.vue'
 import OqRunOverlay from '../components/OqRunOverlay.vue'
 
 const columnRef = ref(null)
+
+/**
+ * `/session-v3-no-catalog` is the same session in a workspace with no catalog yet: the
+ * store scan's products are enough to design a style, and the choose-products step is
+ * where the catalog is asked for.
+ */
+watch(
+  () => state.path,
+  (p) => { if (p.startsWith('/session-v3-no-catalog')) connections.catalog.connected = false },
+  { immediate: true },
+)
 
 /** A run counts once it has been worked on, not when it is opened. */
 const shownRuns = computed(() => runs.filter((r) => !runIsDraft(r)))

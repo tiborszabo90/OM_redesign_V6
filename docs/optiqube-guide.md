@@ -72,6 +72,7 @@ section.
 | `/campaigns` | `CampaignsScreen` | `pages/campaigns.tsx` |
 | `/campaigns/:id` | `CampaignWorkspaceScreen` | `components/CampaignWorkspace.tsx` |
 | `/campaigns/:id/ads/:adId` | `CampaignAdScreen` | same, ad half |
+| `/campaigns/cmp_6` (+ `/ads/ad_nc1`) | same two screens | prototype-only: the **No catalog** campaign — drafted before a catalog was connected. `campaignNeedsCatalog` in `store.js` drives its states (warning banner, Activate and Advantage+ off, empty Feeds tab, "more products need a catalog" on the ad), and every one of them opens `OqCatalogConnectModal`. Any campaign shows them while the workspace catalog is disconnected |
 | `/campaigns/:id/bulk` | `BulkScreen` | `pages/bulk.tsx` |
 | `/campaigns/:id/handoff` | `HandoffScreen` | `pages/handoff.tsx` |
 | `/library` | `LibraryScreen` | `pages/library.tsx` |
@@ -148,6 +149,7 @@ session's own turns about that run rather than a second chat. `startRun(concept,
 | `/session` | `SessionScreen` | V1 — the ported overlay, one at a time |
 | `/session-v2` | `SessionV2Screen` | inline in the thread, where they were started |
 | `/session-v3` | `SessionV3Screen` | one run inline in the thread; from the second on, stacked in a column beside the chat with a small strip left in the thread (a click opens it large) — plus V5's window on a click, with a switcher between the directions and the concepts not tried yet. Nothing is discarded: the X only closes. A run shows, card badge included, once a note redraws it or it is generated on its products |
+| `/session-v3-no-catalog` | `SessionV3Screen` | V3 in a workspace with no catalog connected: the store scan's products carry the style, and the window's Choose products step asks for the catalog (`OqCatalogConnect`) before the picker shows |
 | `/session-v4` | `SessionV4Screen` | a rail above the composer, one card unfolds at a time |
 | `/session-v5` | `SessionV5Screen` | inline like V2, plus the original's window as a lens over one run |
 
@@ -177,6 +179,8 @@ OptiQube has its **own component set** in `src/optiqube/components/`, prefixed
 |-----------|---------|
 | `OqConceptOverlay` | The original's window on a concept card — panel and corner card |
 | `OqRunOverlay` | V5's window: one run large, over the session's own turns |
+| `OqCatalogConnect` | The choose-products step when no catalog is connected yet |
+| `OqCatalogConnectModal` | `OqCatalogConnect` as a modal, for campaign and ad screens |
 | `OqCatalogPicker` | The catalog, searchable and faceted — both product questions go through it |
 | `OqCreditMeter` | Credits left, fixed in the sidebar above the account menu |
 | `OqCreativeLightbox` | Preview: a run's creatives large, one at a time (V2 and V3) |

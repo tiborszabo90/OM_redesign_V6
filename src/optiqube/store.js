@@ -189,10 +189,40 @@ export const campaigns = [
     variantSummary: '2 AI + control',
     adsManagerUrl: null,
   },
+  {
+    id: 'cmp_6',
+    name: 'No catalog — winter launch',
+    domain: 'nordicsupply.com',
+    updatedAt: agoISO(12),
+    status: 'draft',
+    active: false,
+    kpis: null,
+    previewUrl: null,
+    creativeLabel: 'Mixed',
+    creativePresetId: 'mixed',
+    variantSummary: '3 AI + control',
+    adsManagerUrl: null,
+    noCatalog: true,
+  },
 ]
 
 export function campaignById(id) {
   return campaigns.find((c) => c.id === id) || null
+}
+
+/**
+ * A campaign that has no catalog to run on: the one drafted before a catalog was
+ * connected (`noCatalog`), or any of them once the workspace's catalog is removed.
+ */
+export function campaignNeedsCatalog(ws) {
+  return Boolean(ws) && (Boolean(ws.noCatalog) || !connections.catalog.connected)
+}
+
+/** Connected from inside a campaign: the flag goes, on the row and on the workspace. */
+export function catalogConnectedFor(campaignId) {
+  const row = campaignById(campaignId)
+  if (row) row.noCatalog = false
+  if (workspaceCampaigns[campaignId]) workspaceCampaigns[campaignId].noCatalog = false
 }
 
 /** The sidebar lists only what is live — the same rule as the product's own list. */
@@ -1326,6 +1356,27 @@ export function useRunInCampaign(runId, choice) {
   })
 }
 
+/** Where a style goes when the catalog is put off: the draft that waits for one. */
+export const NO_CATALOG_CAMPAIGN_ID = 'cmp_6'
+
+/**
+ * "Not now" on the choose-products step: the style goes into the no-catalog draft as an
+ * ad on the products it was previewed on — nothing more can be picked without a
+ * catalog — and the merchant lands there, where connecting it is the next step.
+ */
+export function keepRunWithoutCatalog(runId) {
+  const run = runById(runId)
+  if (!run) return
+  run.catalogIds = [...run.productIds]
+  const target = campaignById(NO_CATALOG_CAMPAIGN_ID)
+  session.blocks.push({
+    kind: 'assistant',
+    text: `Saved the **${run.label}** style to **${target.name}** on the ${run.productIds.length} products it was previewed on. Connect your catalog there when you want to add products and go live.`,
+    runLabel: run.label,
+  })
+  placeRunAd(run, target.id, workspaceFor(target.id).adSets[0].id)
+}
+
 let generationSeq = 0
 
 /**
@@ -1740,9 +1791,10 @@ export function clarifyPick(opt) {
  * creatives each ad carries. The tree is what the page is — everything else on
  * the screen describes one of these three levels.
  */
-const workspaceCreative = (i, name) => ({
+const workspaceCreative = (i, name, productId) => ({
   id: `crt_${i}`,
   productName: name,
+  productId,
   imageUrl: inspirationCatalog[i % inspirationCatalog.length].imageUrl,
 })
 
@@ -1790,6 +1842,35 @@ export const workspaceCampaigns = reactive({
             id: 'ad_3',
             name: 'Control — feed images',
             creatives: [8, 9].map((i) => workspaceCreative(i, products[i].name)),
+          },
+        ],
+      },
+    ],
+  },
+  // Drafted from a session before any catalog was connected: three creatives on products
+  // the store scan found, and nothing on Meta yet.
+  cmp_6: {
+    id: 'cmp_6',
+    name: 'No catalog — winter launch',
+    domain: 'nordicsupply.com',
+    status: 'draft',
+    objective: 'Sales',
+    advantagePlus: false,
+    noCatalog: true,
+    kpis: { last_7d: null, last_30d: null, maximum: null },
+    adSets: [
+      {
+        id: 'as_nc1',
+        name: 'Broad — EU',
+        budget: '€50 / day',
+        schedule: 'Runs continuously',
+        goal: 'Purchases',
+        ads: [
+          {
+            id: 'ad_nc1',
+            name: 'Mixed — winter launch',
+            productIds: [0, 1, 2].map((i) => products[i].id),
+            creatives: [0, 1, 2].map((i) => workspaceCreative(i + 10, products[i].name, products[i].id)),
           },
         ],
       },

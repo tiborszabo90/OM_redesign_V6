@@ -116,6 +116,15 @@ const systemViews = [
     product: 'optiqube',
   },
   {
+    id: 'optiqube-session-v3-no-catalog',
+    component: () => import('../optiqube/OptiqubeAppView.vue'),
+    label: 'OptiQube — Session V3 (no catalog)',
+    status: 'system',
+    section: null,
+    hideLogo: true,
+    product: 'optiqube',
+  },
+  {
     id: 'optiqube-session-v4',
     component: () => import('../optiqube/OptiqubeAppView.vue'),
     label: 'OptiQube — Session V4',

@@ -1,11 +1,13 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { ArrowRight, Check, Loader2, X } from 'lucide-vue-next'
+import { ArrowRight, Check, Loader2, Package, X } from 'lucide-vue-next'
 import { BRAND, CARD_SHADOW, FONT, MODAL_SHADOW } from '../tokens'
 import {
   state, navigate, workspaceFor, workspaceRanges, workspaceKpiLabels,
   workspaceCampaignTabs, workspaceConversionGoals, campaignFeeds, formatUpdatedAt, reviewAd,
+  campaignNeedsCatalog, catalogConnectedFor, connections, products,
 } from '../store'
+import OqCatalogConnectModal from '../components/OqCatalogConnectModal.vue'
 
 const tab = ref('overview')
 const range = ref('last_30d')
@@ -20,6 +22,22 @@ const campaignId = computed(() => {
   return parts[2] === 'meta' ? parts[3] : parts[2]
 })
 const campaign = computed(() => workspaceFor(campaignId.value))
+
+/**
+ * No catalog: the drafted creatives are all there, but nothing that needs the catalog
+ * can happen — going live on Meta, Advantage+, the feeds, more products. Each of those
+ * says so where it is, and every one of them opens the same connect step.
+ */
+const needsCatalog = computed(() => campaignNeedsCatalog(campaign.value))
+const connectOpen = ref(false)
+const justConnected = ref(false)
+const firstCreative = computed(() => campaign.value?.adSets[0]?.ads[0]?.creatives[0]?.imageUrl ?? '')
+
+function onCatalogConnected() {
+  catalogConnectedFor(campaign.value.id)
+  connectOpen.value = false
+  justConnected.value = true
+}
 
 const kpiValues = computed(() => campaign.value?.kpis?.[range.value] ?? null)
 
@@ -78,7 +96,9 @@ function activate() {
         <button
           v-if="!campaign.advantagePlus"
           type="button"
-          class="inline-flex items-center rounded-[10px] border px-4 py-2.5 text-[13.5px] font-semibold"
+          :disabled="needsCatalog"
+          :title="needsCatalog ? 'Advantage+ catalog ads need a connected catalog.' : undefined"
+          class="inline-flex items-center rounded-[10px] border px-4 py-2.5 text-[13.5px] font-semibold disabled:opacity-45"
           :style="{ borderColor: BRAND.gray200, color: BRAND.ink, background: BRAND.surface }"
           @click="convertOpen = true"
         >
@@ -86,8 +106,8 @@ function activate() {
         </button>
         <button
           type="button"
-          :disabled="Boolean(activateNote)"
-          :title="activateNote ? 'Already activated — manage it in Ads Manager.' : undefined"
+          :disabled="Boolean(activateNote) || needsCatalog"
+          :title="needsCatalog ? 'Connect a catalog to activate on Meta.' : activateNote ? 'Already activated — manage it in Ads Manager.' : undefined"
           class="inline-flex items-center rounded-[10px] px-4 py-2.5 text-[13.5px] font-semibold text-white disabled:opacity-45"
           :style="{ background: BRAND.blue }"
           @click="activateOpen = true"
@@ -96,6 +116,46 @@ function activate() {
         </button>
       </div>
     </div>
+
+    <!-- The one thing standing between this draft and Meta, said before anything else. -->
+    <div
+      v-if="needsCatalog"
+      class="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border px-4 py-3"
+      :style="{ borderColor: BRAND.warningLine, background: BRAND.warningSoft }"
+    >
+      <span
+        class="flex size-9 shrink-0 items-center justify-center rounded-full"
+        :style="{ background: BRAND.surface, color: BRAND.warningText }"
+      >
+        <Package class="size-4" />
+      </span>
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-semibold" :style="{ color: BRAND.ink }">
+          No catalog connected — this campaign can’t go live yet
+        </p>
+        <p class="mt-0.5 text-[12.5px]" :style="{ color: BRAND.gray600 }">
+          The creatives below were made from products found on {{ campaign.domain }}. To activate
+          on Meta, build feeds and add more products, connect your product catalog.
+        </p>
+      </div>
+      <button
+        type="button"
+        class="shrink-0 rounded-[10px] px-4 py-2.5 text-[13px] font-semibold text-white"
+        :style="{ background: BRAND.blue }"
+        @click="connectOpen = true"
+      >
+        Connect catalog
+      </button>
+    </div>
+
+    <p
+      v-else-if="justConnected"
+      class="mt-4 rounded-xl border px-4 py-2.5 text-[13px]"
+      :style="{ borderColor: BRAND.successLine, background: BRAND.successSoft, color: BRAND.emeraldText }"
+    >
+      Catalog connected · {{ connections.catalog.productCount }} products synced. You can activate
+      the campaign now, and add the rest of your products to its ads.
+    </p>
 
     <p
       v-if="activateNote"
@@ -123,7 +183,28 @@ function activate() {
     </div>
 
     <!-- Feeds -->
-    <div v-if="tab === 'feeds'" class="mt-5 space-y-3">
+    <div
+      v-if="tab === 'feeds' && needsCatalog"
+      class="mt-5 flex flex-col items-center rounded-2xl border border-dashed px-6 py-10 text-center"
+      :style="{ borderColor: BRAND.gray300, background: BRAND.surface }"
+    >
+      <Package class="size-6" :style="{ color: BRAND.gray400 }" />
+      <p class="mt-3 text-sm font-semibold" :style="{ color: BRAND.ink }">No feeds yet</p>
+      <p class="mt-1 max-w-[420px] text-[13px] leading-relaxed" :style="{ color: BRAND.gray500 }">
+        A feed is your catalog with this campaign’s creatives on it, one per style. Connect a
+        catalog and the feeds are built from it.
+      </p>
+      <button
+        type="button"
+        class="mt-4 rounded-[10px] px-4 py-2.5 text-[13px] font-semibold text-white"
+        :style="{ background: BRAND.blue }"
+        @click="connectOpen = true"
+      >
+        Connect catalog
+      </button>
+    </div>
+
+    <div v-else-if="tab === 'feeds'" class="mt-5 space-y-3">
       <p class="text-[13px] leading-relaxed" :style="{ color: BRAND.gray600 }">
         One feed per style. Paste the URL into Commerce Manager as a scheduled feed — Meta
         re-reads it, so new creatives join the catalog without another upload.
@@ -312,6 +393,9 @@ function activate() {
                   >
                     · {{ ad.generation.total - ad.generation.done }} generating…
                   </span>
+                  <span v-if="needsCatalog" class="block text-[12px] font-medium" :style="{ color: BRAND.gray500 }">
+                    From the store scan · {{ products.length - ad.creatives.length }} more products need a catalog
+                  </span>
                 </p>
                 <div class="ml-auto flex shrink-0 items-center gap-2" @click.stop>
                   <button
@@ -328,6 +412,15 @@ function activate() {
         </div>
       </div>
     </template>
+
+    <OqCatalogConnectModal
+      :open="connectOpen"
+      :image-url="firstCreative"
+      title="Connect your catalog to run this campaign"
+      body="Your creatives stay as they are. The catalog is what the ads run on — it keeps prices, stock and new products in sync, and lets you add the rest of your products to this campaign."
+      @connected="onCatalogConnected"
+      @close="connectOpen = false"
+    />
 
     <!-- Ad set settings -->
     <div
